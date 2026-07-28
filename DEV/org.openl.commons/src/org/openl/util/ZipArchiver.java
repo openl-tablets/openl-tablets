@@ -28,7 +28,7 @@ public final class ZipArchiver implements Closeable {
     private final byte[] buffer = new byte[BUFFER_SIZE];
 
     public ZipArchiver(Path file) throws IOException {
-        Path dir = file.getParent();
+        var dir = file.getParent();
         if (dir != null) {
             Files.createDirectories(dir);
         }

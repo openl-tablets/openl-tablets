@@ -33,8 +33,8 @@ public class ExcelDiffController extends AbstractDiffController {
     @Override
     public String compare() {
         if (filesToCompare.size() >= MAX_FILES_COUNT) {
-            File file1 = filesToCompare.getFirst();
-            File file2 = filesToCompare.get(1);
+            var file1 = filesToCompare.getFirst();
+            var file2 = filesToCompare.get(1);
             filesToCompare.clear();
 
             try {
@@ -42,8 +42,8 @@ public class ExcelDiffController extends AbstractDiffController {
                 // previous instance anymore, we should clear it before any
                 // further calculations.
                 setDiffTree(null);
-                XlsDiff2 x = new XlsDiff2();
-                DiffTreeNode diffTree = x.diffFiles(file1, file2);
+                var x = new XlsDiff2();
+                var diffTree = x.diffFiles(file1, file2);
                 setDiffTree(diffTree);
                 defineChangesStatus(diffTree);
             } catch (Exception e) {

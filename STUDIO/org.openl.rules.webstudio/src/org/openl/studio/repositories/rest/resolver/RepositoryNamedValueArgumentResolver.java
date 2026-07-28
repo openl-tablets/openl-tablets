@@ -44,7 +44,7 @@ public class RepositoryNamedValueArgumentResolver extends AbstractNamedValueMeth
         if (!Repository.class.isAssignableFrom(parameter.getParameterType())) {
             return false;
         }
-        DesignRepository anno = parameter.getParameterAnnotation(DesignRepository.class);
+        var anno = parameter.getParameterAnnotation(DesignRepository.class);
         return anno != null && StringUtils.isNotBlank(anno.value());
     }
 
@@ -57,13 +57,13 @@ public class RepositoryNamedValueArgumentResolver extends AbstractNamedValueMeth
 
     @Override
     protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) {
-        Map<String, String> uriTemplateVars = resolverUriTemplateVars(request);
+        var uriTemplateVars = resolverUriTemplateVars(request);
         return Optional.ofNullable(uriTemplateVars.get(name)).map(dtRepository::getRepository).orElse(null);
     }
 
     @Override
     protected void handleMissingValue(String name, MethodParameter parameter, NativeWebRequest request) {
-        Map<String, String> uriTemplateVars = resolverUriTemplateVars(request);
+        var uriTemplateVars = resolverUriTemplateVars(request);
         throw new NotFoundException("design.repo.message", uriTemplateVars.get(name));
     }
 

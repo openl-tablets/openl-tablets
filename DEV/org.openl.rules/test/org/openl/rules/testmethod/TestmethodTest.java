@@ -13,14 +13,14 @@ class TestmethodTest {
     @Test
     void testUserExceptionSupport1() {
         ITest instance = TestUtils.create(FILE_NAME, ITest.class);
-        TestUnitsResults result = instance.driverRiskTest1();
+        var result = instance.driverRiskTest1();
         assertEquals(0, result.getNumberOfFailures());
     }
 
     @Test
     void testUserExceptionSupport2() {
         ITest instance = TestUtils.create(FILE_NAME, ITest.class);
-        TestUnitsResults result = instance.driverRiskTest2();
+        var result = instance.driverRiskTest2();
         assertEquals(0, result.getNumberOfFailures());
     }
 

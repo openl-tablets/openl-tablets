@@ -14,8 +14,8 @@ class DefaultSourceClassifierTest {
 
     @Test
     void describeConditionParsesAMatchedPerRulePut() {
-        Object condition = new Object();
-        ConditionCheck check = classifier.describeCondition("condition", new Object[]{condition, 2, Boolean.TRUE});
+        var condition = new Object();
+        var check = classifier.describeCondition("condition", new Object[]{condition, 2, Boolean.TRUE});
         assertSame(condition, check.condition());
         assertArrayEquals(new int[]{2}, check.rules());
         assertTrue(check.successful());
@@ -23,7 +23,7 @@ class DefaultSourceClassifierTest {
 
     @Test
     void describeConditionMarksUnmatchedChecks() {
-        ConditionCheck check = classifier.describeCondition("condition", new Object[]{new Object(), 5, Boolean.FALSE});
+        var check = classifier.describeCondition("condition", new Object[]{new Object(), 5, Boolean.FALSE});
         assertFalse(check.successful());
         assertArrayEquals(new int[]{5}, check.rules());
     }

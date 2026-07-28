@@ -32,9 +32,9 @@ class CustomTemplatesResolverTest extends TemplatesResolverTest {
         File webStudioHome = newFolder(tempFolder, CustomTemplatesResolver.PROJECT_TEMPLATES_FOLDER);
 
         // Create project templates
-        File sample1Folder = createFolder(new File(webStudioHome, CUSTOM_TEMPLATES_CATEGORY), "Sample1 project");
-        File sample2Folder = createFolder(new File(webStudioHome, CUSTOM_TEMPLATES_CATEGORY), "Sample2 project");
-        File autoRatingFolder = createFolder(new File(webStudioHome, RATING_TEMPLATES_CATEGORY), "Auto rating");
+        var sample1Folder = createFolder(new File(webStudioHome, CUSTOM_TEMPLATES_CATEGORY), "Sample1 project");
+        var sample2Folder = createFolder(new File(webStudioHome, CUSTOM_TEMPLATES_CATEGORY), "Sample2 project");
+        var autoRatingFolder = createFolder(new File(webStudioHome, RATING_TEMPLATES_CATEGORY), "Auto rating");
 
         // Create project templates content
         touch(new File(sample1Folder, "Main1.xls"));
@@ -42,7 +42,7 @@ class CustomTemplatesResolverTest extends TemplatesResolverTest {
 
         // Auto rating project
         touch(new File(autoRatingFolder, ProjectDescriptor.FILE_NAME));
-        File rulesFolder = createFolder(autoRatingFolder, "rules");
+        var rulesFolder = createFolder(autoRatingFolder, "rules");
         touch(new File(rulesFolder, "Rating.xlsx"));
     }
 
@@ -52,28 +52,28 @@ class CustomTemplatesResolverTest extends TemplatesResolverTest {
         assertEquals(2, categories.size());
         assertTrue(categories.containsAll(Arrays.asList(CUSTOM_TEMPLATES_CATEGORY, RATING_TEMPLATES_CATEGORY)));
 
-        String absentWebStudioHome = tempFolder.getPath() + "/not-exist";
+        var absentWebStudioHome = tempFolder.getPath() + "/not-exist";
         Collection<String> categories2 = new CustomTemplatesResolver(absentWebStudioHome).getCategories();
         assertTrue(categories2.isEmpty());
     }
 
     @Test
     void testGetTemplates() {
-        CustomTemplatesResolver templatesResolver = new CustomTemplatesResolver(webStudioHomePath);
+        var templatesResolver = new CustomTemplatesResolver(webStudioHomePath);
 
-        Collection<String> templates1 = templatesResolver.getTemplates(CUSTOM_TEMPLATES_CATEGORY);
+        var templates1 = templatesResolver.getTemplates(CUSTOM_TEMPLATES_CATEGORY);
         assertEquals(2, templates1.size());
         assertTrue(templates1.containsAll(Arrays.asList("Sample1 project", "Sample2 project")));
 
-        Collection<String> templates2 = templatesResolver.getTemplates(RATING_TEMPLATES_CATEGORY);
+        var templates2 = templatesResolver.getTemplates(RATING_TEMPLATES_CATEGORY);
         assertEquals(1, templates2.size());
         assertTrue(templates2.contains("Auto rating"));
     }
 
     @Test
     void testGetProjectFiles() {
-        CustomTemplatesResolver templatesResolver = new CustomTemplatesResolver(webStudioHomePath);
-        ProjectFile[] projectFiles = templatesResolver.getProjectFiles(CUSTOM_TEMPLATES_CATEGORY, "Sample1 project");
+        var templatesResolver = new CustomTemplatesResolver(webStudioHomePath);
+        var projectFiles = templatesResolver.getProjectFiles(CUSTOM_TEMPLATES_CATEGORY, "Sample1 project");
         assertEquals(1, projectFiles.length);
         assertTrue(contains(projectFiles, "Main1.xls"));
         close(projectFiles);
@@ -91,7 +91,7 @@ class CustomTemplatesResolverTest extends TemplatesResolverTest {
     }
 
     private File createFolder(File parentFolder, String subFolder) {
-        File folder = new File(parentFolder, subFolder);
+        var folder = new File(parentFolder, subFolder);
         if (!folder.mkdirs()) {
             throw new IllegalStateException();
         }
@@ -106,7 +106,7 @@ class CustomTemplatesResolverTest extends TemplatesResolverTest {
 
     private static File newFolder(File root, String... subDirs) throws IOException {
         String subFolder = String.join("/", subDirs);
-        File result = new File(root, subFolder);
+        var result = new File(root, subFolder);
         if (!result.mkdirs()) {
             throw new IOException("Couldn't create folders " + root);
         }

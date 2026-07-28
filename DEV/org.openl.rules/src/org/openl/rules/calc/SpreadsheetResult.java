@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
@@ -109,19 +108,19 @@ public class SpreadsheetResult implements Serializable {
                                                       String[] rowNames,
                                                       String[] modelColumnNames,
                                                       String[] modelRowNames) {
-        Map<String, Point> fieldsCoordinates = new HashMap<>();
+        var fieldsCoordinates = new HashMap<String, Point>();
         if (columnNames != null && rowNames != null) {
-            for (int row = 0; row < rowNames.length; row++) {
-                for (int column = 0; column < columnNames.length; column++) {
+            for (var row = 0; row < rowNames.length; row++) {
+                for (var column = 0; column < columnNames.length; column++) {
                     if (columnNames[column] != null && rowNames[row] != null) {
                         fieldsCoordinates.put(ASpreadsheetField.createFieldName(columnNames[column], rowNames[row]), Point.get(column, row));
                     }
                 }
             }
 
-            int index = getIndex(modelColumnNames == null ? columnNames : modelColumnNames);
+            var index = getIndex(modelColumnNames == null ? columnNames : modelColumnNames);
             if (index >= 0) {
-                for (int row = 0; row < rowNames.length; row++) {
+                for (var row = 0; row < rowNames.length; row++) {
                     if (rowNames[row] != null) {
                         fieldsCoordinates.put(ASpreadsheetField.createFieldName(null, rowNames[row]), Point.get(index, row));
                     }
@@ -130,7 +129,7 @@ public class SpreadsheetResult implements Serializable {
 
             index = getIndex(modelRowNames == null ? rowNames : modelRowNames);
             if (index >= 0) {
-                for (int column = 0; column < columnNames.length; column++) {
+                for (var column = 0; column < columnNames.length; column++) {
                     if (columnNames[column] != null) {
                         fieldsCoordinates.put(ASpreadsheetField.createFieldName(columnNames[column], null), Point.get(column, index));
                     }
@@ -142,8 +141,8 @@ public class SpreadsheetResult implements Serializable {
     }
 
     private static int getIndex(String[] names) {
-        int index = -1;
-        for (int i = 0; i < names.length; i++) {
+        var index = -1;
+        for (var i = 0; i < names.length; i++) {
             if (names[i] != null) {
                 if (index >= 0) {
                     index = -1;
@@ -160,14 +159,14 @@ public class SpreadsheetResult implements Serializable {
                                                      String[] rowNames,
                                                      boolean simpleRefByColumn,
                                                      boolean simpleRefByRow) {
-        Map<String, Point> fieldsCoordinates = new HashMap<>();
+        var fieldsCoordinates = new HashMap<String, Point>();
         if (columnNames != null && rowNames != null) {
-            long nonNullsColumnsCount = Arrays.stream(columnNames).filter(Objects::nonNull).count();
-            long nonNullsRowsCount = Arrays.stream(rowNames).filter(Objects::nonNull).count();
-            boolean simpleRefByC = nonNullsColumnsCount == 1 || simpleRefByRow;
-            boolean simpleRefByR = nonNullsRowsCount == 1 || simpleRefByColumn;
-            for (int i = 0; i < rowNames.length; i++) {
-                for (int j = 0; j < columnNames.length; j++) {
+            var nonNullsColumnsCount = Arrays.stream(columnNames).filter(Objects::nonNull).count();
+            var nonNullsRowsCount = Arrays.stream(rowNames).filter(Objects::nonNull).count();
+            var simpleRefByC = nonNullsColumnsCount == 1 || simpleRefByRow;
+            var simpleRefByR = nonNullsRowsCount == 1 || simpleRefByColumn;
+            for (var i = 0; i < rowNames.length; i++) {
+                for (var j = 0; j < columnNames.length; j++) {
                     if (columnNames[j] != null && rowNames[i] != null) {
                         fieldsCoordinates.put(
                                 ASpreadsheetField.createFieldName(columnNames[j], rowNames[i]),
@@ -176,9 +175,9 @@ public class SpreadsheetResult implements Serializable {
                 }
             }
             if (simpleRefByC) {
-                for (int j = 0; j < columnNames.length; j++) {
+                for (var j = 0; j < columnNames.length; j++) {
                     if (columnNames[j] != null) {
-                        for (int i = 0; i < rowNames.length; i++) {
+                        for (var i = 0; i < rowNames.length; i++) {
                             if (rowNames[i] != null) {
                                 fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i],
                                         Point.get(j, i));
@@ -189,9 +188,9 @@ public class SpreadsheetResult implements Serializable {
                 }
             }
             if (simpleRefByR) {
-                for (int i = 0; i < rowNames.length; i++) {
+                for (var i = 0; i < rowNames.length; i++) {
                     if (rowNames[i] != null) {
-                        for (int j = 0; j < columnNames.length; j++) {
+                        for (var j = 0; j < columnNames.length; j++) {
                             if (columnNames[j] != null) {
                                 fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
                                         Point.get(j, i));
@@ -249,7 +248,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public void setFieldValue(String name, Object value) {
-        Point fieldCoordinates = getPoint(name);
+        var fieldCoordinates = getPoint(name);
 
         if (fieldCoordinates != null) {
             setValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn(), value);
@@ -331,7 +330,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public Object getFieldValue(String name) {
-        Point fieldCoordinates = getPoint(name);
+        var fieldCoordinates = getPoint(name);
 
         if (fieldCoordinates != null) {
             return getValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn());
@@ -349,7 +348,7 @@ public class SpreadsheetResult implements Serializable {
             var column = columnNamesForResultModel[p.getColumn()];
             var row = rowNamesForResultModel[p.getRow()];
             if (column != null && row != null) {
-                Object result = getValue(p.getRow(), p.getColumn());
+                var result = getValue(p.getRow(), p.getColumn());
                 return result;
             }
         }
@@ -390,18 +389,18 @@ public class SpreadsheetResult implements Serializable {
     }
 
     private String printTable() {
-        StringBuilder sb = new StringBuilder();
-        Integer d = DEPTH_LOCAL_THREAD.get();
+        var sb = new StringBuilder();
+        var d = DEPTH_LOCAL_THREAD.get();
         d = d != null ? d : 0;
         try {
             DEPTH_LOCAL_THREAD.set(d + 1);
-            int maxWidth = Math.min(MAX_WIDTH, getWidth());
-            int maxHeight = Math.min(MAX_HEIGHT, getHeight());
+            var maxWidth = Math.min(MAX_WIDTH, getWidth());
+            var maxHeight = Math.min(MAX_HEIGHT, getHeight());
 
             int[] width = new int[maxWidth + 1];
 
-            for (int i1 = 0; i1 <= maxHeight; i1++) {
-                for (int j1 = 0; j1 <= maxWidth; j1++) {
+            for (var i1 = 0; i1 <= maxHeight; i1++) {
+                for (var j1 = 0; j1 <= maxWidth; j1++) {
                     width[j1] = Math.max(width[j1],
                             i1 > 0 && j1 > 0 && getValue(i1 - 1,
                                     j1 - 1) instanceof SpreadsheetResult && d > MAX_DEPTH ? "... TRUNCATED TABLE ..."
@@ -409,8 +408,8 @@ public class SpreadsheetResult implements Serializable {
                 }
             }
 
-            for (int i = 0; i <= maxHeight; i++) {
-                for (int j = 0; j <= maxWidth; j++) {
+            for (var i = 0; i <= maxHeight; i++) {
+                for (var j = 0; j <= maxWidth; j++) {
                     if (j != 0) {
                         sb.append(" | ");
                     }
@@ -422,7 +421,7 @@ public class SpreadsheetResult implements Serializable {
                     }
 
                     sb.append(cell);
-                    for (int k = 0; k < width[j] - cell.length(); k++) {
+                    for (var k = 0; k < width[j] - cell.length(); k++) {
                         sb.append(' ');
                     }
                 }
@@ -453,7 +452,7 @@ public class SpreadsheetResult implements Serializable {
             return getColumnName(col - 1);
         }
 
-        Object value = getValue(row - 1, col - 1);
+        var value = getValue(row - 1, col - 1);
 
         if (value == null) {
             return "";
@@ -478,33 +477,33 @@ public class SpreadsheetResult implements Serializable {
 
     public Map<String, Object> toMap(boolean spreadsheetResultsToMap,
                                      SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
-        Map<String, Object> values = new HashMap<>();
+        var values = new HashMap<String, Object>();
         if (columnNames != null && rowNames != null) {
-            long nonNullsColumnsCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
-            long nonNullsRowsCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
-            final boolean isSingleRow = nonNullsRowsCount == 1;
-            final boolean isSingleColumn = nonNullsColumnsCount == 1;
+            var nonNullsColumnsCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
+            var nonNullsRowsCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
+            final var isSingleRow = nonNullsRowsCount == 1;
+            final var isSingleColumn = nonNullsColumnsCount == 1;
             if (customSpreadsheetResultOpenClass != null) {
                 Map<String, String> xmlNamesMap = customSpreadsheetResultOpenClass.getXmlNamesMap();
                 for (Map.Entry<String, List<IOpenField>> e : customSpreadsheetResultOpenClass.getBeanFieldsMap()
                         .entrySet()) {
                     List<IOpenField> openFields = e.getValue();
-                    Map<String, Integer> p1 = new HashMap<>();
-                    Set<Point> points = new HashSet<>();
+                    var p1 = new HashMap<String, Integer>();
+                    var points = new HashSet<Point>();
                     for (IOpenField openField : openFields) {
-                        Point p = getPoint(openField.getName());
+                        var p = getPoint(openField.getName());
                         if (p != null && !points.contains(p) && columnNamesForResultModel[p
                                 .getColumn()] != null && rowNamesForResultModel[p.getRow()] != null) {
-                            String key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
+                            var key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
                             p1.merge(key, 1, Integer::sum);
                             points.add(p);
                         }
                     }
                     for (IOpenField openField : openFields) {
-                        Point p = getPoint(openField.getName());
+                        var p = getPoint(openField.getName());
                         if (p != null && columnNamesForResultModel[p.getColumn()] != null && rowNamesForResultModel[p
                                 .getRow()] != null) {
-                            String key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
+                            var key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
                             String fName;
                             if (p1.get(key) == 1) {
                                 fName = key;
@@ -519,8 +518,8 @@ public class SpreadsheetResult implements Serializable {
                     }
                 }
             } else {
-                for (int i = 0; i < rowNamesForResultModel.length; i++) {
-                    for (int j = 0; j < columnNamesForResultModel.length; j++) {
+                for (var i = 0; i < rowNamesForResultModel.length; i++) {
+                    for (var j = 0; j < columnNamesForResultModel.length; j++) {
                         if (columnNamesForResultModel[j] != null && rowNamesForResultModel[i] != null) {
                             String fName;
                             if (isSingleColumn) {
@@ -542,8 +541,8 @@ public class SpreadsheetResult implements Serializable {
                                                     rowNamesForResultModel[i]);
                                 }
                             }
-                            String fNewName = fName;
-                            int k = 1;
+                            var fNewName = fName;
+                            var k = 1;
                             while (values.containsKey(fNewName)) {
                                 fNewName = fName + k;
                                 k++;
@@ -585,7 +584,7 @@ public class SpreadsheetResult implements Serializable {
                                                    SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         if (v instanceof SpreadsheetResult spreadsheetResult) {
             if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = spreadsheetResult
+                var customSpreadsheetResultOpenClass = spreadsheetResult
                         .getCustomSpreadsheetResultOpenClass()
                         .getModule()
                         .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
@@ -640,7 +639,7 @@ public class SpreadsheetResult implements Serializable {
             while (t.isArray()) {
                 t = t.getComponentType();
             }
-            int len = Array.getLength(v);
+            var len = Array.getLength(v);
             Object newArray = null;
             if (mapClassToSprOpenClass.containsKey(t)) {
                 newArray = Array.newInstance(SpreadsheetResult.class, len);
@@ -648,7 +647,7 @@ public class SpreadsheetResult implements Serializable {
                 newArray = Array.newInstance(componentType, len);
             }
             if (newArray != null) {
-                for (int i = 0; i < len; i++) {
+                for (var i = 0; i < len; i++) {
                     Array.set(newArray, i, convertBeansToSpreadsheetResults(Array.get(v, i), mapClassToSprOpenClass));
                 }
                 return newArray;
@@ -656,7 +655,7 @@ public class SpreadsheetResult implements Serializable {
             return v;
         }
         if (mapClassToSprOpenClass.containsKey(v.getClass())) {
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass1 = mapClassToSprOpenClass
+            var customSpreadsheetResultOpenClass1 = mapClassToSprOpenClass
                     .get(v.getClass());
             return customSpreadsheetResultOpenClass1.createSpreadsheetResult(v, mapClassToSprOpenClass);
         }
@@ -685,11 +684,11 @@ public class SpreadsheetResult implements Serializable {
             while (t.isArray()) {
                 t = t.getComponentType();
             }
-            int len = Array.getLength(v);
+            var len = Array.getLength(v);
             if (ClassUtils.isAssignable(t, SpreadsheetResult.class)) {
                 Object tmpArray = Array
                         .newInstance(toType != null && toType.isArray() ? toType.getComponentType() : Object.class, len);
-                for (int i = 0; i < len; i++) {
+                for (var i = 0; i < len; i++) {
                     Array.set(tmpArray,
                             i,
                             convertSpreadsheetResult(Array.get(v, i),
@@ -703,8 +702,8 @@ public class SpreadsheetResult implements Serializable {
                     return tmpArray;
                 }
                 Class<?> c = null;
-                boolean f = true;
-                for (int i = 0; i < len; i++) {
+                var f = true;
+                for (var i = 0; i < len; i++) {
                     Object v1 = Array.get(tmpArray, i);
                     if (v1 != null) {
                         if (c == null) {
@@ -718,7 +717,7 @@ public class SpreadsheetResult implements Serializable {
                 }
                 if (f && c != null) {
                     Object newArray = Array.newInstance(c, len);
-                    for (int i = 0; i < len; i++) {
+                    for (var i = 0; i < len; i++) {
                         Array.set(newArray, i, Array.get(tmpArray, i));
                     }
                     return newArray;
@@ -727,7 +726,7 @@ public class SpreadsheetResult implements Serializable {
             } else if (ClassUtils.isAssignable(SpreadsheetResult.class, t) || ClassUtils.isAssignable(t,
                     Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
                 Object newArray = Array.newInstance(componentType, len);
-                for (int i = 0; i < len; i++) {
+                for (var i = 0; i < len; i++) {
                     Array.set(newArray,
                             i,
                             convertSpreadsheetResult(Array.get(v, i),
@@ -754,7 +753,7 @@ public class SpreadsheetResult implements Serializable {
             } else if (toTypeOpenClass instanceof SpreadsheetResultOpenClass class1 && class1
                     .toCustomSpreadsheetResultOpenClass()
                     .getBeanClass() == toType) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = class1
+                var customSpreadsheetResultOpenClass = class1
                         .toCustomSpreadsheetResultOpenClass();
                 return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
                         spreadsheetResultBeanPropertyNamingStrategy);
@@ -813,7 +812,7 @@ public class SpreadsheetResult implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        SpreadsheetResult that = (SpreadsheetResult) o;
+        var that = (SpreadsheetResult) o;
 
         if (rowNames.length != that.rowNames.length) {
             return false;
@@ -821,8 +820,8 @@ public class SpreadsheetResult implements Serializable {
         if (columnNames.length != that.columnNames.length) {
             return false;
         }
-        for (int row = 0; row < rowNames.length; row++) {
-            for (int column = 0; column < columnNames.length; column++) {
+        for (var row = 0; row < rowNames.length; row++) {
+            for (var column = 0; column < columnNames.length; column++) {
                 var v = getValue(row, column);
                 var thatV = that.getValue(getRowName(row), getColumnName(column));
                 if (!Objects.deepEquals(v, thatV)) {
@@ -835,7 +834,7 @@ public class SpreadsheetResult implements Serializable {
 
     @Override
     public int hashCode() {
-        int hashCode = 0;
+        var hashCode = 0;
         for (var row : rowNames) {
             hashCode += Objects.hashCode(row);
         }

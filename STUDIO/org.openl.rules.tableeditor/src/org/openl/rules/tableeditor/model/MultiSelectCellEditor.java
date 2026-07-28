@@ -37,7 +37,7 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
     public MultiSelectCellEditor(String[] choices, String[] displayValues) {
         super(displayValues);
         String[] insertedEscChoices = new String[choices.length];
-        for (int i = 0; i < choices.length; i++) {
+        for (var i = 0; i < choices.length; i++) {
             insertedEscChoices[i] = choices[i].replaceAll(ARRAY_ELEMENTS_SEPARATOR,
                     ARRAY_ELEMENTS_SEPARATOR_ESCAPER + ARRAY_ELEMENTS_SEPARATOR);
         }
@@ -46,7 +46,7 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
 
     @Override
     public TableEditorController.EditorTypeResponse getEditorTypeAndMetadata() {
-        TableEditorController.EditorTypeResponse typeResponse = new TableEditorController.EditorTypeResponse(
+        var typeResponse = new TableEditorController.EditorTypeResponse(
                 CE_MULTISELECT);
         typeResponse.setParams(new MultiChoiceParam(getChoices(),
                 getDisplayValues(),

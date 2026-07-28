@@ -18,7 +18,7 @@ class SimpleProjectEngineFactoryClassloaderTest {
         SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/classpath/project1")
                 .build();
-        Object instance = factory.newInstance();
+        var instance = factory.newInstance();
         assertNotNull(instance);
     }
 
@@ -38,7 +38,7 @@ class SimpleProjectEngineFactoryClassloaderTest {
                 .setWorkspace("test-resources/classpath")
                 .setProject("test-resources/classpath/project2")
                 .build();
-        Object instance = factory.newInstance();
+        var instance = factory.newInstance();
         assertNotNull(instance);
     }
 

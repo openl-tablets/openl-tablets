@@ -19,7 +19,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.PathSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 
@@ -27,15 +26,15 @@ class XlsWorkbookSourceCodeModuleTest {
 
     @Test
     void testUrlWithWhiteSpaces() throws MalformedURLException {
-        File f = new File("test/rules/test xls/Test with spaces.xls");
-        XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(
+        var f = new File("test/rules/test xls/Test with spaces.xls");
+        var module = new XlsWorkbookSourceCodeModule(
                 new URLSourceCodeModule(f.toURI().toURL()));
         assertNotNull(module.getSourceFile());
     }
 
     @Test
     void testUrlWithWhiteSpaces2() {
-        XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(
+        var module = new XlsWorkbookSourceCodeModule(
                 new PathSourceCodeModule(Path.of("test/rules/test xls/Test with spaces.xls")));
         assertNotNull(module.getSourceFile());
     }
@@ -44,17 +43,17 @@ class XlsWorkbookSourceCodeModuleTest {
     void testFileIsNotCorrupted() throws IOException {
         File tempFile = File.createTempFile("test", ".tmp");
         tempFile.deleteOnExit();
-        try (FileWriter writer = new FileWriter(tempFile)) {
+        try (var writer = new FileWriter(tempFile)) {
             writer.write("TEST");
         }
 
-        IOpenSourceCodeModule src = new URLSourceCodeModule(URLSourceCodeModule.toUrl(tempFile));
+        var src = new URLSourceCodeModule(URLSourceCodeModule.toUrl(tempFile));
         Workbook workbook = mock(Workbook.class);
         when(workbook.getSpreadsheetVersion()).thenReturn(SpreadsheetVersion.EXCEL2007);
         doThrow(new OutOfMemoryError()).when(workbook).write(any(OutputStream.class));
 
         try {
-            XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(src,
+            var module = new XlsWorkbookSourceCodeModule(src,
                     new SimpleWorkbookLoader(workbook));
             module.save();
         } catch (OutOfMemoryError ignored) {

@@ -25,7 +25,7 @@ public class SecureUserWorkspaceFactoryImpl implements UserWorkspaceFactory {
     public UserWorkspace create(LocalWorkspaceManager localWorkspaceManager,
                                 DesignTimeRepository designTimeRepository,
                                 WorkspaceUser user) {
-        UserWorkspace userWorkspace = delegate.create(localWorkspaceManager, designTimeRepository, user);
+        var userWorkspace = delegate.create(localWorkspaceManager, designTimeRepository, user);
         return new SecureUserWorkspaceImpl(userWorkspace, designRepositoryAclService, allowProjectCreateDelete);
     }
 }

@@ -78,7 +78,7 @@ public class EqualsIndex extends ARuleIndex {
                 }
             }
 
-            DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value,
+            var builder = map.computeIfAbsent(value,
                     e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
 
             builder.addRule(ruleN);
@@ -88,7 +88,7 @@ public class EqualsIndex extends ARuleIndex {
             if (map == null) {
                 nodeMap = Collections.emptyMap();
             } else {
-                Map<List<Integer>, DecisionTableRuleNode> rulesToNode = new HashMap<>();
+                var rulesToNode = new HashMap<List<Integer>, DecisionTableRuleNode>();
                 for (Map.Entry<Object, DecisionTableRuleNodeBuilder> element : map.entrySet()) {
                     var node = rulesToNode.computeIfAbsent(element.getValue().getRules(), key -> element.getValue().makeNode());
                     nodeMap.put(element.getKey(), node);

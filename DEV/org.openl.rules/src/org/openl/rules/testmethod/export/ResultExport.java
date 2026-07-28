@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 import org.openl.rules.testmethod.ITestUnit;
@@ -27,20 +26,20 @@ public abstract class ResultExport extends BaseExport {
                        Boolean skipEmptyParameters,
                        boolean flattenParameters,
                        TestUnitsResults... results) throws IOException {
-        List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
+        var listsWithResults = new ArrayList<List<TestUnitsResults>>();
         SXSSFWorkbook tempWorkbook = null;
         try (var workbook = tempWorkbook = new SXSSFWorkbook()) {
             styles = new Styles(workbook);
             var parameterExport = flattenParameters ? new FlattenParameterExport(styles) : new ParameterExport(styles);
 
-            SXSSFSheet sheet = workbook.createSheet("Result " + 1);
+            var sheet = workbook.createSheet("Result " + 1);
             listsWithResults.add(new ArrayList<>());
             sheet.trackAllColumnsForAutoSizing();
-            int rowNum = FIRST_ROW;
-            for (int i = 0; i < results.length; i++) {
+            var rowNum = FIRST_ROW;
+            for (var i = 0; i < results.length; i++) {
                 if (testsPerPage > 0) {
-                    int pageNum = i / testsPerPage + 1;
-                    int inPage = i % testsPerPage;
+                    var pageNum = i / testsPerPage + 1;
+                    var inPage = i % testsPerPage;
                     if (inPage == 0 && pageNum > 1) {
                         // AutoSize previous sheet
                         autoSizeColumns(sheet);
@@ -57,8 +56,8 @@ public abstract class ResultExport extends BaseExport {
             }
             autoSizeColumns(sheet);
 
-            for (int i = 0; i < listsWithResults.size(); i++) {
-                List<TestUnitsResults> resultsList = listsWithResults.get(i);
+            for (var i = 0; i < listsWithResults.size(); i++) {
+                var resultsList = listsWithResults.get(i);
                 sheet = workbook.createSheet("Parameters " + (i + 1));
 
                 // Tracking all columns for auto sizing is expensive
@@ -83,7 +82,7 @@ public abstract class ResultExport extends BaseExport {
     }
 
     private int write(Sheet sheet, TestUnitsResults result, int startRow) {
-        int rowNum = writeInfo(sheet, result, startRow);
+        var rowNum = writeInfo(sheet, result, startRow);
         rowNum = writeHeader(sheet, result, rowNum);
         rowNum = writeResults(sheet, result, rowNum);
 
@@ -93,8 +92,8 @@ public abstract class ResultExport extends BaseExport {
     protected abstract int writeInfo(Sheet sheet, TestUnitsResults result, int rowNum);
 
     private int writeHeader(Sheet sheet, TestUnitsResults result, int rowNum) {
-        Row row = sheet.createRow(rowNum++);
-        int colNum = FIRST_COLUMN;
+        var row = sheet.createRow(rowNum++);
+        var colNum = FIRST_COLUMN;
         createCell(row, colNum++, "ID", styles.header);
         if (result.hasExpected()) {
             createCell(row, colNum++, "Status", styles.header);
@@ -127,10 +126,10 @@ public abstract class ResultExport extends BaseExport {
     private int writeResults(Sheet sheet, TestUnitsResults result, int rowNum) {
         Row row;
         int colNum;
-        boolean hasExpected = result.hasExpected();
+        var hasExpected = result.hasExpected();
         for (ITestUnit testUnit : result.getTestUnits()) {
             TestStatus testStatus = hasExpected ? testUnit.getResultStatus() : TestStatus.TR_OK;
-            boolean ok = testStatus == TestStatus.TR_OK;
+            var ok = testStatus == TestStatus.TR_OK;
 
             row = sheet.createRow(rowNum++);
             // ID

@@ -47,7 +47,7 @@ public final class SystemValuesManager {
 
     public Object getSystemValue(String descriptor) {
         Object result = null;
-        ISystemValue systemValue = systemValues.get(descriptor);
+        var systemValue = systemValues.get(descriptor);
         if (systemValue != null) {
             result = systemValue.getValue();
         }

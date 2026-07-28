@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,7 +43,7 @@ public final class GroovyJakartaMigrator implements Migrator {
     private static final Map<String, String> JAKARTA_NAMESPACE_REWRITES;
 
     static {
-        Map<String, String> map = new LinkedHashMap<>();
+        var map = new LinkedHashMap<String, String>();
         map.put("javax.ws.rs.", "jakarta.ws.rs.");
         map.put("javax.xml.bind.", "jakarta.xml.bind.");
         map.put("javax.persistence.", "jakarta.persistence.");
@@ -118,7 +117,7 @@ public final class GroovyJakartaMigrator implements Migrator {
             return List.of();
         }
         var changed = new ArrayList<Path>();
-        try (Stream<Path> stream = Files.walk(sourceFolder)) {
+        try (var stream = Files.walk(sourceFolder)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".groovy"))
                     .forEach(file -> {

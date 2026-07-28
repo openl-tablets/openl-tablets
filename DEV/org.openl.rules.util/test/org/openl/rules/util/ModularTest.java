@@ -54,7 +54,7 @@ class ModularTest {
         assertEquals(-3.0f, Modular.mod(-1.0e7f, -7.0f), 0.0f);
 
         // Near-MAX magnitudes stay finite and obey the magnitude bound |result| < |divisor|.
-        float r = Modular.mod(Float.MAX_VALUE, 7.0f);
+        var r = Modular.mod(Float.MAX_VALUE, 7.0f);
         assertTrue(Float.isFinite(r));
         assertTrue(r >= 0.0f && r < 7.0f);
 
@@ -183,7 +183,7 @@ class ModularTest {
     @Test
     void modBigIntegerLarge() {
         // quotient far exceeds Long.MAX_VALUE — verifies no silent long-truncation.
-        BigInteger dividend = new BigInteger("203000745502000030060144252100");
+        var dividend = new BigInteger("203000745502000030060144252100");
         assertEquals(BigInteger.valueOf(59), Modular.mod(dividend, BigInteger.valueOf(97)));
         assertEquals(BigInteger.valueOf(-38), Modular.mod(dividend, BigInteger.valueOf(-97)));
         assertEquals(BigInteger.valueOf(38), Modular.mod(dividend.negate(), BigInteger.valueOf(97)));
@@ -215,7 +215,7 @@ class ModularTest {
 
     @Test
     void modBigDecimalLarge() {
-        BigDecimal dividend = new BigDecimal("203000745502000030060144252100");
+        var dividend = new BigDecimal("203000745502000030060144252100");
         assertEquals(BigDecimal.valueOf(59), Modular.mod(dividend, BigDecimal.valueOf(97)));
         assertEquals(BigDecimal.valueOf(-38), Modular.mod(dividend, BigDecimal.valueOf(-97)));
         assertEquals(BigDecimal.valueOf(38), Modular.mod(dividend.negate(), BigDecimal.valueOf(97)));

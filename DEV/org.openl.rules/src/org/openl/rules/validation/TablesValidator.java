@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.openl.dependency.CompiledDependency;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
@@ -17,12 +16,12 @@ public abstract class TablesValidator implements IOpenLValidator {
     private void findAllTableSyntaxNodes(Set<TableSyntaxNode> tableSyntaxNodes, IOpenClass openClass) {
         if (openClass instanceof XlsModuleOpenClass class1) {
             for (CompiledDependency compiledDependency : class1.getDependencies()) {
-                IOpenClass dependencyOpenClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
+                var dependencyOpenClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
                 findAllTableSyntaxNodes(tableSyntaxNodes, dependencyOpenClass);
             }
-            XlsMetaInfo xlsMetaInfo = class1.getXlsMetaInfo();
+            var xlsMetaInfo = class1.getXlsMetaInfo();
             if (xlsMetaInfo != null) {
-                TableSyntaxNode[] xlsTableSyntaxNodes = xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
+                var xlsTableSyntaxNodes = xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
                 for (TableSyntaxNode tableSyntaxNode : xlsTableSyntaxNodes) {
                     if (!DispatcherTablesBuilder.isDispatcherTable(tableSyntaxNode)) {
                         tableSyntaxNodes.add(tableSyntaxNode);
@@ -39,7 +38,7 @@ public abstract class TablesValidator implements IOpenLValidator {
 
             // Get all table syntax nodes of xls module.
             //
-            Set<TableSyntaxNode> tableSyntaxNodes = new HashSet<>();
+            var tableSyntaxNodes = new HashSet<TableSyntaxNode>();
 
             findAllTableSyntaxNodes(tableSyntaxNodes, openClass);
 

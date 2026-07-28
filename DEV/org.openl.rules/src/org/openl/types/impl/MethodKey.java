@@ -16,7 +16,7 @@ public final class MethodKey {
     private final IOpenClass[] internalParameters;
 
     public MethodKey(IOpenMethod om) {
-        IOpenClass[] pars = om.getSignature().getParameterTypes();
+        var pars = om.getSignature().getParameterTypes();
         this.internalParameters = getNormalizedParams(pars);
         this.name = om.isConstructor() ? "<init>" : om.getName();
     }
@@ -50,10 +50,10 @@ public final class MethodKey {
             return null;
         }
 
-        int firstParamToConvert = -1;
-        for (int i = 0; i < originalParams.length; i++) {
+        var firstParamToConvert = -1;
+        for (var i = 0; i < originalParams.length; i++) {
             if (originalParams[i] instanceof JavaOpenClass) {
-                CustomJavaOpenClass customJavaOpenClass = originalParams[i].getInstanceClass()
+                var customJavaOpenClass = originalParams[i].getInstanceClass()
                         .getAnnotation(CustomJavaOpenClass.class);
                 if (customJavaOpenClass == null || !customJavaOpenClass.normalize()) {
                     continue;
@@ -72,15 +72,15 @@ public final class MethodKey {
             System.arraycopy(originalParams, 0, normalizedParams, 0, firstParamToConvert);
         }
 
-        for (int i = firstParamToConvert; i < originalParams.length; i++) {
-            IOpenClass param = originalParams[i];
-            IOpenClass normParam = param;
+        for (var i = firstParamToConvert; i < originalParams.length; i++) {
+            var param = originalParams[i];
+            var normParam = param;
 
             if (!(param instanceof JavaOpenClass) && param.getInstanceClass() != null) {
                 normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
             } else {
                 if (param instanceof JavaOpenClass) {
-                    CustomJavaOpenClass customJavaOpenClass = originalParams[i].getInstanceClass()
+                    var customJavaOpenClass = originalParams[i].getInstanceClass()
                             .getAnnotation(CustomJavaOpenClass.class);
                     if (customJavaOpenClass != null && customJavaOpenClass.normalize()) {
                         normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
@@ -101,7 +101,7 @@ public final class MethodKey {
             return false;
         }
 
-        MethodKey mk = (MethodKey) obj;
+        var mk = (MethodKey) obj;
 
         return Objects.equals(name, mk.name) && Arrays.equals(internalParameters, mk.internalParameters);
     }
@@ -114,10 +114,10 @@ public final class MethodKey {
     @Override
     public String toString() {
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append(name).append("(");
 
-        boolean first = true;
+        var first = true;
 
         for (IOpenClass c : internalParameters) {
             if (!first) {

@@ -30,8 +30,8 @@ class GenericComparator<T> implements TestResultComparator {
             return false;
         }
 
-        boolean expectedIsEmpty = expected == null || isEmpty((T) expected);
-        boolean actualIsEmpty = actual == null || isEmpty((T) actual);
+        var expectedIsEmpty = expected == null || isEmpty((T) expected);
+        var actualIsEmpty = actual == null || isEmpty((T) actual);
         if (expectedIsEmpty) {
             return actualIsEmpty;
         } else if (actualIsEmpty) {

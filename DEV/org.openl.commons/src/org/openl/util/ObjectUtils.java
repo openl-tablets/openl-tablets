@@ -1,9 +1,7 @@
 package org.openl.util;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 
 /**
@@ -30,9 +28,9 @@ public class ObjectUtils {
             return value;
         } else if (type.isArray()) {
             final Class<?> componentType = type.getComponentType();
-            String[] values = value.split(",", -1);
+            var values = value.split(",", -1);
             Object res = Array.newInstance(componentType, values.length);
-            for (int i = 0; i < values.length; i++) {
+            for (var i = 0; i < values.length; i++) {
                 Array.set(res, i, convert(values[i], componentType));
             }
             return res;
@@ -44,15 +42,15 @@ public class ObjectUtils {
             }
             try {
                 try {
-                    Method method = type.getDeclaredMethod("valueOf", String.class);
+                    var method = type.getDeclaredMethod("valueOf", String.class);
                     return method.invoke(null, value);
                 } catch (NoSuchMethodException e) {
                     try {
-                        Method method = type.getDeclaredMethod("parse", CharSequence.class);
+                        var method = type.getDeclaredMethod("parse", CharSequence.class);
                         return method.invoke(null, value);
                     } catch (NoSuchMethodException e1) {
                         try {
-                            Constructor<?> constructor = type.getDeclaredConstructor(String.class);
+                            var constructor = type.getDeclaredConstructor(String.class);
                             return constructor.newInstance(value);
                         } catch (NoSuchMethodException e2) {
                             throw new IllegalArgumentException("Neither public constructor '%s(String s)', nor public static method 'valueOf(String s)', nor public static method 'parse(CharSequence s)' is not found.".formatted(

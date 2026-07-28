@@ -20,29 +20,29 @@ class FailedNegativePrecisionTest {
 
     @Test
     void testFloatNumbersNegativePrecision1_mustBeFailed() {
-        TestUnitsResults result = instance.testFloatNumbersNegativePrecision1_mustBeFailed();
+        var result = instance.testFloatNumbersNegativePrecision1_mustBeFailed();
         assertEquals(1, result.getNumberOfFailures());
         assertAllFailed(result.getTestUnits().getFirst());
-        ITestUnit testUnit = result.getTestUnits().getFirst();
+        var testUnit = result.getTestUnits().getFirst();
         assertEquals(2, testUnit.getComparisonResults().size());
         assertAllFailed(testUnit);
     }
 
     @Test
     void testPositivePrecision1_mustBeFailed() {
-        TestUnitsResults result = instance.testPositivePrecision1_mustBeFailed();
+        var result = instance.testPositivePrecision1_mustBeFailed();
         assertEquals(1, result.getNumberOfFailures());
         assertAllFailed(result.getTestUnits().getFirst());
-        ITestUnit testUnit = result.getTestUnits().getFirst();
+        var testUnit = result.getTestUnits().getFirst();
         assertEquals(4, testUnit.getComparisonResults().size());
         assertAllFailed(testUnit);
     }
 
     @Test
     void testNegativePrecision1_mustBeFailed() {
-        TestUnitsResults result = instance.testNegativePrecision1_mustBeFailed();
+        var result = instance.testNegativePrecision1_mustBeFailed();
         assertEquals(1, result.getNumberOfFailures());
-        ITestUnit testUnit = result.getTestUnits().getFirst();
+        var testUnit = result.getTestUnits().getFirst();
         assertEquals(4, testUnit.getComparisonResults().size());
         assertAllFailed(testUnit);
     }

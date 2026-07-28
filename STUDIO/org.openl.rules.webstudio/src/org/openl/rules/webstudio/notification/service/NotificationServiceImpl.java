@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,7 +29,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (!Files.exists(NOTIFICATION_FILE)) {
             return null;
         }
-        try (Stream<String> lines = Files.lines(NOTIFICATION_FILE)) {
+        try (var lines = Files.lines(NOTIFICATION_FILE)) {
             return lines.collect(Collectors.joining("\r\n"));
         }
     }

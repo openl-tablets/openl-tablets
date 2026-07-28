@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.domain.IIntIterator;
-import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
@@ -27,20 +26,20 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
         if (it.size() < 1) {
             return null;
         }
-        final DecisionTableRuleNodeBuilder nextNodeBuilder = new DecisionTableRuleNodeBuilder();
-        DecisionTableRuleNodeBuilder emptyRulesBuilder = new DecisionTableRuleNodeBuilder();
-        List<IndexNode> minIndexNodes = collectMinIndexNodes(condition, it, nextNodeBuilder, emptyRulesBuilder);
-        final DecisionTableRuleNode nextNode = nextNodeBuilder.makeNode();
-        final RangeIndexNodeAdaptor indexNodeAdaptor = new RangeIndexNodeAdaptor(rangeAdaptor);
-        RangeAscIndex minIndex = new RangeAscIndex(nextNode,
+        final var nextNodeBuilder = new DecisionTableRuleNodeBuilder();
+        var emptyRulesBuilder = new DecisionTableRuleNodeBuilder();
+        var minIndexNodes = collectMinIndexNodes(condition, it, nextNodeBuilder, emptyRulesBuilder);
+        final var nextNode = nextNodeBuilder.makeNode();
+        final var indexNodeAdaptor = new RangeIndexNodeAdaptor(rangeAdaptor);
+        var minIndex = new RangeAscIndex(nextNode,
                 minIndexNodes,
                 indexNodeAdaptor,
                 emptyRulesBuilder.makeNode().getRules());
 
         it.reset();
         emptyRulesBuilder = new DecisionTableRuleNodeBuilder();
-        List<IndexNode> maxIndexNodes = collectMaxIndexNodes(condition, it, emptyRulesBuilder);
-        RangeDescIndex maxIndex = new RangeDescIndex(nextNode,
+        var maxIndexNodes = collectMaxIndexNodes(condition, it, emptyRulesBuilder);
+        var maxIndex = new RangeDescIndex(nextNode,
                 maxIndexNodes,
                 indexNodeAdaptor,
                 emptyRulesBuilder.makeNode().getRules());
@@ -57,11 +56,11 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
                                                  DecisionTableRuleNodeBuilder nextNodeBuilder,
                                                  DecisionTableRuleNodeBuilder emptyRulesBuilder) {
 
-        List<IndexNode> nodes = new ArrayList<>(it.size());
+        var nodes = new ArrayList<IndexNode>(it.size());
         while (it.hasNext()) {
-            int ruleN = it.nextInt();
+            var ruleN = it.nextInt();
             nextNodeBuilder.addRule(ruleN);
-            Object origVal = condition.getParamValue(0, ruleN);
+            var origVal = condition.getParamValue(0, ruleN);
             origVal = conditionCasts.castToInputType(origVal);
             if (origVal == null) {
                 emptyRulesBuilder.addRule(ruleN);
@@ -80,11 +79,11 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
                                                  IIntIterator it,
                                                  DecisionTableRuleNodeBuilder emptyRulesBuilder) {
 
-        List<IndexNode> nodes = new ArrayList<>(it.size());
+        var nodes = new ArrayList<IndexNode>(it.size());
         final int paramN = nparams == 2 ? 1 : 0;
         while (it.hasNext()) {
-            int ruleN = it.nextInt();
-            Object origVal = condition.getParamValue(paramN, ruleN);
+            var ruleN = it.nextInt();
+            var origVal = condition.getParamValue(paramN, ruleN);
             origVal = conditionCasts.castToInputType(origVal);
             if (origVal == null) {
                 emptyRulesBuilder.addRule(ruleN);

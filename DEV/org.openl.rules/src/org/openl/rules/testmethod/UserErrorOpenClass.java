@@ -27,7 +27,7 @@ public class UserErrorOpenClass extends ADynamicClass {
 
     @Override
     public IOpenField getField(String name, boolean strictMatch) {
-        IOpenField field = super.getField(name, strictMatch);
+        var field = super.getField(name, strictMatch);
         if (field != null) {
             return field;
         }
@@ -80,7 +80,7 @@ public class UserErrorOpenClass extends ADynamicClass {
             if (target == null) {
                 return null;
             } else if (target instanceof Entry entry1) {
-                Object o = ((Map<?, ?>) entry1.value).get(getName());
+                var o = ((Map<?, ?>) entry1.value).get(getName());
                 if (o instanceof Entry entry && ((Entry) o).value instanceof String) {
                     return entry.value;
                 }

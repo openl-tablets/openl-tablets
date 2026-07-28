@@ -4,13 +4,10 @@ import java.io.IOException;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectLoader;
-import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import org.openl.rules.repository.api.FileData;
@@ -76,8 +73,8 @@ class LazyFileData extends FileData {
     @Override
     public long getSize() {
         if (fileId != null) {
-            try (Git git = gitRepo.getClosableGit()) {
-                ObjectLoader loader = git.getRepository().open(fileId);
+            try (var git = gitRepo.getClosableGit()) {
+                var loader = git.getRepository().open(fileId);
                 super.setSize(loader.getSize());
                 fileId = null;
             } catch (IOException e) {
@@ -160,7 +157,7 @@ class LazyFileData extends FileData {
             return;
         }
 
-        try (Git git = gitRepo.getClosableGit()) {
+        try (var git = gitRepo.getClosableGit()) {
             if (fileCommit == null) {
                 try {
                     fileCommit = GitRepository.findFirstCommit(git, fromCommit, fullPath);
@@ -174,14 +171,14 @@ class LazyFileData extends FileData {
                 fromCommit = null;
             }
 
-            String fullMessage = fileCommit.getFullMessage();
-            PersonIdent committerIdent = fileCommit.getCommitterIdent();
+            var fullMessage = fileCommit.getFullMessage();
+            var committerIdent = fileCommit.getCommitterIdent();
 
-            CommitMessage commitMessage = parseCommitMessage(fullMessage);
-            String message = fullMessage;
-            String userDisplayName = committerIdent.getName();
+            var commitMessage = parseCommitMessage(fullMessage);
+            var message = fullMessage;
+            var userDisplayName = committerIdent.getName();
             if (commitMessage != null) {
-                CommitType commitType = commitMessage.getCommitType();
+                var commitType = commitMessage.getCommitType();
                 if (!isTechnicalRevision() && commitType == CommitType.DELETE) {
                     super.setDeleted(true);
                     deleteStatusLoaded = true;
@@ -209,7 +206,7 @@ class LazyFileData extends FileData {
             super.setVersion(version);
 
             if (isTechnicalRevision()) {
-                FileData data = gitRepo.checkHistory(fullPath, version);
+                var data = gitRepo.checkHistory(fullPath, version);
                 super.setDeleted(data == null || data.isDeleted());
                 deleteStatusLoaded = true;
             }
@@ -244,7 +241,7 @@ class LazyFileData extends FileData {
             if (fileId == null && getSize() == UNDEFINED_SIZE) {
                 // Deleted status for folder is got from main branch.
                 if (!gitRepo.getBranch().equals(gitRepo.getBaseBranch())) {
-                    FileData data = gitRepo.forBranch(gitRepo.getBaseBranch()).check(fullPath);
+                    var data = gitRepo.forBranch(gitRepo.getBaseBranch()).check(fullPath);
                     super.setDeleted(data == null || data.isDeleted());
                 }
             }

@@ -1,13 +1,10 @@
 package org.openl.studio.security.saml;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.security.KeyFactory;
-import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Iterator;
@@ -44,16 +41,16 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
     private void init() {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(Base64.getMimeDecoder().decode(propertyResolver.getProperty("security.saml.local-key")));
-            PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
+            var privateKeySpec = new PKCS8EncodedKeySpec(Base64.getMimeDecoder().decode(propertyResolver.getProperty("security.saml.local-key")));
+            var privateKey = keyFactory.generatePrivate(privateKeySpec);
 
             CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            InputStream in = new ByteArrayInputStream(Base64.getMimeDecoder().decode(propertyResolver.getProperty("security.saml.local-certificate")));
-            X509Certificate localCert = (X509Certificate) certFactory.generateCertificate(in);
+            var in = new ByteArrayInputStream(Base64.getMimeDecoder().decode(propertyResolver.getProperty("security.saml.local-certificate")));
+            var localCert = (X509Certificate) certFactory.generateCertificate(in);
 
             Saml2X509Credential signing = Saml2X509Credential.signing(privateKey, localCert);
             Saml2X509Credential decryption = Saml2X509Credential.decryption(privateKey, localCert);
-            RelyingPartyRegistration.Builder registrationBuilder = RelyingPartyRegistrations
+            var registrationBuilder = RelyingPartyRegistrations
                     .fromMetadataLocation(propertyResolver.getProperty("security.saml.saml-server-metadata-url"))
                     .registrationId("webstudio")
                     .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
@@ -61,7 +58,7 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
                     .signingX509Credentials(c -> c.add(signing))
                     .decryptionX509Credentials(c -> c.add(decryption));
 
-            RelyingPartyRegistration registration = registrationBuilder
+            var registration = registrationBuilder
                     .assertingPartyMetadata(this::assertingPartyMetadata)
                     .build();
             relyingPartyRegistrationRepository = new InMemoryRelyingPartyRegistrationRepository(registration);
@@ -72,7 +69,7 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
 
     private void assertingPartyMetadata(AssertingPartyMetadata.Builder<?> party) {
         // Override certificate from the Metadata XML to prevent MITM attack.
-        String serverCertificate = propertyResolver.getProperty("security.saml.server-certificate");
+        var serverCertificate = propertyResolver.getProperty("security.saml.server-certificate");
         if (StringUtils.isNotBlank(serverCertificate)) {
             try {
                 X509Certificate idpCert = X509Support.decodeCertificate(serverCertificate);

@@ -15,7 +15,7 @@ public final class WebStudioLinkBuilder implements LinkBuilder {
     @Override
     public String createLinkForTable(String tableUri, String text) {
         String urlToTable;
-        String moduleUri = webStudio.url("table", tableUri);
+        var moduleUri = webStudio.url("table", tableUri);
         if (moduleUri == null) {
             moduleUri = webStudio.url("table");
         }

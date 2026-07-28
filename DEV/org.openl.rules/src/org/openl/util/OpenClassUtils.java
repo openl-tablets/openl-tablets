@@ -31,7 +31,7 @@ public final class OpenClassUtils {
      * @return the dimension
      */
     public static int getDimension(IOpenClass type) {
-        int dim = 0;
+        var dim = 0;
         while (type.isArray()) {
             type = type.getComponentClass();
             dim++;
@@ -75,14 +75,14 @@ public final class OpenClassUtils {
         }
         String validationMessage = null;
         if (value.getClass().isArray()) {
-            int length = Array.getLength(value);
-            for (int i = 0; i < length && validationMessage == null; i++) {
+            var length = Array.getLength(value);
+            for (var i = 0; i < length && validationMessage == null; i++) {
                 var element = Array.get(value, i);
                 validationMessage = validateDomain(element, domain, paramType);
             }
         } else if (value instanceof Iterable<?> list && !(value instanceof org.openl.rules.helpers.INumberRange)) {
             for (var iterator = list.iterator(); iterator.hasNext() && validationMessage == null; ) {
-                Object element = iterator.next();
+                var element = iterator.next();
                 validationMessage = validateDomain(element, domain, paramType);
             }
         } else {

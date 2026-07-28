@@ -27,7 +27,7 @@ public class IntNodeBinder extends ANodeBinder {
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
 
-        String s = node.getText();
+        var s = node.getText();
 
         if (s.charAt(0) == '$') {
             s = s.substring(1);
@@ -37,7 +37,7 @@ public class IntNodeBinder extends ANodeBinder {
             s = s.substring(1);
         }
 
-        int len = s.length();
+        var len = s.length();
 
         if (Character.toUpperCase(s.charAt(len - 1)) == 'L') {
             return new LiteralBoundNode(node, Long.decode(s.substring(0, len - 1)), JavaOpenClass.LONG);

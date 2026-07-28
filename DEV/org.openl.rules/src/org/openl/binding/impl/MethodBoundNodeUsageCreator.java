@@ -6,12 +6,10 @@ import org.openl.base.INamedThing;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.java.JavaOpenConstructor;
-import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
 /**
@@ -31,9 +29,9 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
 
     @Override
     public Optional<NodeUsage> create(IBoundNode boundNode, String sourceString, int startIndex) {
-        MethodBoundNode methodBoundNode = (MethodBoundNode) boundNode;
-        ILocation location = methodBoundNode.getSyntaxNode().getSourceLocation();
-        IMethodCaller methodCaller = methodBoundNode.getMethodCaller();
+        var methodBoundNode = (MethodBoundNode) boundNode;
+        var location = methodBoundNode.getSyntaxNode().getSourceLocation();
+        var methodCaller = methodBoundNode.getMethodCaller();
         if (methodCaller != null && location != null && location.isTextLocation()) {
             IOpenMethod method;
             while (methodCaller instanceof AOpenMethodDelegator) {
@@ -45,19 +43,19 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
                 method = methodCaller.getMethod();
             }
             if (method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) {
-                TextInfo info = new TextInfo(sourceString);
-                int pstart = location.getStart().getAbsolutePosition(info) + startIndex;
-                int pend = pstart + method.getName().length();
+                var info = new TextInfo(sourceString);
+                var pstart = location.getStart().getAbsolutePosition(info) + startIndex;
+                var pend = pstart + method.getName().length();
                 return Optional.of(new MethodUsage(pstart, pend, method));
             } else if (method instanceof JavaOpenConstructor && methodBoundNode.getSyntaxNode()
                     .getNumberOfChildren() > 0) {
-                TextInfo info = new TextInfo(sourceString);
+                var info = new TextInfo(sourceString);
                 // get constructor syntax node location
                 location = methodBoundNode.getSyntaxNode().getChild(0).getSourceLocation();
                 if (location != null && location.isTextLocation()) {
-                    int pstart = location.getStart().getAbsolutePosition(info) + startIndex;
-                    String x = sourceString.substring(pstart);
-                    int pend = pstart + x.indexOf(method.getDeclaringClass().getDisplayName(INamedThing.SHORT)) + method
+                    var pstart = location.getStart().getAbsolutePosition(info) + startIndex;
+                    var x = sourceString.substring(pstart);
+                    var pend = pstart + x.indexOf(method.getDeclaringClass().getDisplayName(INamedThing.SHORT)) + method
                             .getDeclaringClass()
                             .getDisplayName(INamedThing.SHORT)
                             .length();

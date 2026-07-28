@@ -16,10 +16,10 @@ class ZipUtilsTest {
 
     @Test
     void testContainsMethodReleasesResources() throws IOException {
-        final File file = new File(tempFolder, "test.txt");
+        final var file = new File(tempFolder, "test.txt");
         assertTrue(file.createNewFile());
 
-        final File zipFile = new File(tempFolder, "archive.zip");
+        final var zipFile = new File(tempFolder, "archive.zip");
         ZipUtils.archive(tempFolder, zipFile);
 
         assertTrue(ZipUtils.contains(zipFile, name -> name.equals("test.txt")));

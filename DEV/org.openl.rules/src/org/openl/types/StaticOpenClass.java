@@ -65,7 +65,7 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public IOpenField getVar(String name, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField staticVar = delegate.getVar(name, strictMatch);
+        var staticVar = delegate.getVar(name, strictMatch);
         return staticVar != null && staticVar.isStatic() ? staticVar : null;
     }
 
@@ -141,7 +141,7 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
-        IOpenMethod method = delegate.getMethod(name, classes);
+        var method = delegate.getMethod(name, classes);
         return method != null && method.isStatic() ? method : null;
     }
 

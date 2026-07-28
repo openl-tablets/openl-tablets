@@ -52,7 +52,7 @@ public class Cell implements ICell {
 
     @Override
     public IGridRegion getAbsoluteRegion() {
-        IGridRegion absoluteRegion = getRegion();
+        var absoluteRegion = getRegion();
         if (absoluteRegion == null) {
             absoluteRegion = new GridRegion(row, column, row, column);
         }

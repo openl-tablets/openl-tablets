@@ -18,7 +18,7 @@ public class IdentifierNode extends TerminalNode {
 
     public IdentifierNode(String type, ILocation location, String identifier, IOpenSourceCodeModule module) {
         super(type, location, module);
-        String x = identifier.replaceAll("`", "");
+        var x = identifier.replaceAll("`", "");
         this.originalIdentifier = !x.equals(identifier) ? StringPool.intern(identifier) : null;
         this.identifier = StringPool.intern(x);
     }

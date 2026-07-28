@@ -6,8 +6,8 @@ class String2FloatConvertor extends String2NumberConverter<Float> {
 
     @Override
     Float convert(Number number, String data) {
-        float value = number.floatValue();
-        double dValue = number.doubleValue();
+        var value = number.floatValue();
+        var dValue = number.doubleValue();
         if (!Double.isInfinite(dValue) && Float.isInfinite(value)) {
             throw new NumberFormatException("A number '%s' is out of range.".formatted(data));
         }
@@ -16,7 +16,7 @@ class String2FloatConvertor extends String2NumberConverter<Float> {
 
     @Override
     DecimalFormat getFormatter(String format) {
-        DecimalFormat formatter = super.getFormatter(format);
+        var formatter = super.getFormatter(format);
         // Always show .0 at the end for integer numbers
         formatter.setMinimumFractionDigits(1);
         return formatter;

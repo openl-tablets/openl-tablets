@@ -11,7 +11,7 @@ class ADynamicTest {
 
     @Test
     void testIsAssignableFromNullOpenClass() {
-        DummyDynamicClass d = new DummyDynamicClass("test");
+        var d = new DummyDynamicClass("test");
         assertFalse(d.isAssignableFrom(NullOpenClass.the));
     }
 }

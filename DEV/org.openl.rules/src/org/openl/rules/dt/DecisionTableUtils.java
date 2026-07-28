@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
-import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.IdentifierSequenceBinder;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
@@ -24,7 +23,7 @@ public class DecisionTableUtils {
     }
 
     public static List<ExpressionIdentifier> extractIdentifiers(ISyntaxNode syntaxNode) {
-        List<IdentifierNode> identifierNodes = new ArrayList<>();
+        var identifierNodes = new ArrayList<IdentifierNode>();
         if (syntaxNode != null) {
             parseAndCollectIdentifierNodes(syntaxNode, new MutableBoolean(false), false, identifierNodes);
         }
@@ -37,9 +36,9 @@ public class DecisionTableUtils {
                                                        MutableBoolean chain,
                                                        boolean inChain,
                                                        List<IdentifierNode> identifierNodes) {
-        for (int i = 0; i < node.getNumberOfChildren(); i++) {
-            final ISyntaxNode child = node.getChild(i);
-            final String childType = child.getType();
+        for (var i = 0; i < node.getNumberOfChildren(); i++) {
+            final var child = node.getChild(i);
+            final var childType = child.getType();
             if ("identifier".equals(childType) || "identifier.sequence".equals(childType)) {
                 IdentifierNode identifierNode;
                 if ("identifier.sequence".equals(childType)) {
@@ -54,7 +53,7 @@ public class DecisionTableUtils {
                     }
                 }
             } else if ("chain".equals(childType)) {
-                boolean f = chain.booleanValue();
+                var f = chain.booleanValue();
                 parseAndCollectIdentifierNodes(child, chain, true, identifierNodes);
                 chain.setValue(f);
             } else if ("function".equals(childType)) {
@@ -69,7 +68,7 @@ public class DecisionTableUtils {
     }
 
     public static String getConditionSourceCode(ICondition dtCondition) {
-        IBoundMethodNode methodNode = ((CompositeMethod) dtCondition.getMethod()).getMethodBodyBoundNode();
+        var methodNode = ((CompositeMethod) dtCondition.getMethod()).getMethodBodyBoundNode();
         return methodNode == null ? "" : methodNode.getSyntaxNode().getModule().getCode();
     }
 

@@ -55,7 +55,7 @@ public class DatatypeMetaInfo implements IMetaInfo {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        DatatypeMetaInfo other = (DatatypeMetaInfo) obj;
+        var other = (DatatypeMetaInfo) obj;
 
         return Objects.equals(displayName, other.getDisplayName()) && Objects.equals(sourceUrl, other.getSourceUrl());
     }

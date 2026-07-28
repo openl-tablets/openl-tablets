@@ -5,7 +5,6 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.UnaryOperator;
 
 import lombok.Getter;
@@ -109,7 +108,7 @@ public final class DebugFrame {
     void recordExecutedStep(Object executor, String ref, @Nullable String label, @Nullable Object value,
                             long durationNanos) {
         if (executedSteps.size() < MAX_RECORDED_PER_FRAME) {
-            ExecutedStep step = new ExecutedStep(ref, label, value, durationNanos);
+            var step = new ExecutedStep(ref, label, value, durationNanos);
             executedSteps.add(step);
             executedByExecutor.putIfAbsent(executor, step);
         }
@@ -143,8 +142,8 @@ public final class DebugFrame {
      * repeated across thousands of nodes shares one instance of each string instead of duplicating it.
      */
     CallNode toCallNode(UnaryOperator<String> intern) {
-        List<CallNode.Step> steps = new ArrayList<>();
-        Set<String> covered = new HashSet<>();
+        var steps = new ArrayList<CallNode.Step>();
+        var covered = new HashSet<String>();
         for (ExecutedStep step : executedSteps) {
             if (covered.add(step.ref())) {
                 steps.add(new CallNode.Step(intern.apply(step.ref()),

@@ -311,7 +311,7 @@ class RawTableWriterTest {
                 new RawCellInput("tail", null, null, null))));
 
         var source = reload(mainProject);
-        int last = source.size() - 1;
+        var last = source.size() - 1;
         assertEquals("MERGED", value(source, last, 0));
         assertEquals(Integer.valueOf(2), source.get(last).get(0).colspan());
         assertEquals(Boolean.TRUE, source.get(last).get(1).covered());
@@ -584,7 +584,7 @@ class RawTableWriterTest {
     }
 
     private static List<List<RawTableCell>> readSource(IOpenLTable table) {
-        RawTableView view = new RawTableReader().read(table);
+        var view = new RawTableReader().read(table);
         return view.source;
     }
 
@@ -686,7 +686,7 @@ class RawTableWriterTest {
             var projectModel = new ProjectModel(mock(WebStudio.class), null);
             projectModel.setModuleInfo(modules.getFirst());
             for (TableSyntaxNode tsn : projectModel.getAllTableSyntaxNodes()) {
-                IOpenLTable table = new TableSyntaxNodeAdapter(tsn);
+                var table = new TableSyntaxNodeAdapter(tsn);
                 if (table.getGridTable(IXlsTableNames.VIEW_DEVELOPER) != null) {
                     return table;
                 }
@@ -705,9 +705,9 @@ class RawTableWriterTest {
         Files.createDirectories(dir);
         try (var workbook = new XSSFWorkbook()) {
             var sheet = workbook.createSheet(name);
-            for (int r = 0; r < grid.length; r++) {
+            for (var r = 0; r < grid.length; r++) {
                 var sheetRow = sheet.createRow(r + 1);
-                for (int c = 0; c < grid[r].length; c++) {
+                for (var c = 0; c < grid[r].length; c++) {
                     if (grid[r][c] != null) {
                         sheetRow.createCell(c + 1).setCellValue(grid[r][c]);
                     }
@@ -728,9 +728,9 @@ class RawTableWriterTest {
         Files.createDirectories(dir);
         try (var workbook = new XSSFWorkbook()) {
             var sheet = workbook.createSheet(name);
-            for (int r = 0; r < grid.length; r++) {
+            for (var r = 0; r < grid.length; r++) {
                 var sheetRow = sheet.createRow(r + 1);
-                for (int c = 0; c < grid[r].length; c++) {
+                for (var c = 0; c < grid[r].length; c++) {
                     if (grid[r][c] != null) {
                         sheetRow.createCell(c + 1).setCellValue(grid[r][c]);
                     }
@@ -767,9 +767,9 @@ class RawTableWriterTest {
      * Replaces every cell with a plain, span-free cell so the written source carries no merge information.
      */
     private static RawTableView flatten(RawTableView view) {
-        List<List<RawTableCell>> flat = new ArrayList<>();
+        var flat = new ArrayList<List<RawTableCell>>();
         for (var row : view.source) {
-            List<RawTableCell> flatRow = new ArrayList<>();
+            var flatRow = new ArrayList<RawTableCell>();
             for (var cell : row) {
                 Object value = cell.value() != null ? cell.value() : "";
                 flatRow.add(RawTableCell.builder().value(value).build());
@@ -784,8 +784,8 @@ class RawTableWriterTest {
     }
 
     private static int mergesWithin(IGrid grid, IGridRegion region) {
-        int count = 0;
-        for (int i = 0; i < grid.getNumberOfMergedRegions(); i++) {
+        var count = 0;
+        for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
             var merged = grid.getMergedRegion(i);
             if (IGridRegion.Tool.contains(region, merged.getLeft(), merged.getTop())) {
                 count++;
@@ -817,7 +817,7 @@ class RawTableWriterTest {
         var module = ProjectResolver.getInstance().resolve(projectDir).getModules().getFirst();
         var projectModel = new ProjectModel(mock(WebStudio.class), null);
         projectModel.setModuleInfo(module);
-        List<IOpenLTable> tables = new ArrayList<>();
+        var tables = new ArrayList<IOpenLTable>();
         for (TableSyntaxNode tsn : projectModel.getAllTableSyntaxNodes()) {
             tables.add(new TableSyntaxNodeAdapter(tsn));
         }

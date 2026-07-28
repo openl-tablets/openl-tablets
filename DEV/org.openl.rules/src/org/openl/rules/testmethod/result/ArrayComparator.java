@@ -25,12 +25,12 @@ class ArrayComparator extends GenericComparator<Object> {
 
     @Override
     boolean equals(Object expected, Object actual) {
-        int len = Array.getLength(actual);
+        var len = Array.getLength(actual);
         if (len != Array.getLength(expected)) {
             return false;
         }
 
-        for (int i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             Object actualArrayResult = Array.get(actual, i);
             Object expectedArrayResult = Array.get(expected, i);
 

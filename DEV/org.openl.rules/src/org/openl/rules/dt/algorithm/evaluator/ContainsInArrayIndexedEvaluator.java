@@ -23,20 +23,20 @@ public class ContainsInArrayIndexedEvaluator extends AContainsInArrayIndexedEval
             return null;
         }
 
-        EqualsIndex.Builder builder = new EqualsIndex.Builder();
+        var builder = new EqualsIndex.Builder();
         builder.setConditionCasts(conditionCasts);
         while (iterator.hasNext()) {
-            int ruleN = iterator.nextInt();
+            var ruleN = iterator.nextInt();
 
             if (condition.isEmpty(ruleN)) {
                 builder.putEmptyRule(ruleN);
                 continue;
             }
 
-            Object values = condition.getParamValue(0, ruleN);
-            int length = Array.getLength(values);
+            var values = condition.getParamValue(0, ruleN);
+            var length = Array.getLength(values);
 
-            for (int j = 0; j < length; j++) {
+            for (var j = 0; j < length; j++) {
                 Object value = Array.get(values, j);
                 value = conditionCasts.castToInputType(value);
                 builder.putValueToRule(value, ruleN);

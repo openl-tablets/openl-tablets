@@ -75,7 +75,7 @@ public class ServiceApiConfig {
         rulesUserSession.setWorkspaceManager(workspaceManager);
         rulesUserSession.setUserManagementService(userManagementService);
 
-        WebStudio webStudio = new WebStudio(rulesUserSession,
+        var webStudio = new WebStudio(rulesUserSession,
                 testSuiteExecutor,
                 userSettingManagementService,
                 designRepositoryAclService,

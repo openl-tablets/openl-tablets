@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +45,9 @@ class RulesPublisherTest {
     @Test
     void testMultiModuleService() throws Exception {
         assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        var serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+        var frontend = applicationContext.getBean("frontend", RulesFrontend.class);
 
         assertEquals("World, Good Morning!", frontend.execute(MULTI_MODULE_SERVICE_NAME, "worldHello", 10));
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE_SERVICE_NAME, DATA1)));
@@ -58,10 +57,10 @@ class RulesPublisherTest {
     @Test
     void testMultipleServices() throws Exception {
         assertNotNull(applicationContext);
-        ServiceInfoProvider serviceManager = applicationContext.getBean("serviceManager", ServiceInfoProvider.class);
+        var serviceManager = applicationContext.getBean("serviceManager", ServiceInfoProvider.class);
         assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        ServiceManager publisher = applicationContext.getBean("serviceManager", ServiceManager.class);
+        var frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+        var publisher = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertEquals(2, serviceManager.getServicesInfo().size());
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE_SERVICE_NAME, DATA1)));
         assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4_SERVICE_NAME, COVERAGE)));
@@ -77,9 +76,9 @@ class RulesPublisherTest {
     @Test
     void testCompilationByRequest() {
         assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        var serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+        var frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertEquals(2, frontend.getServiceNames().size());
         for (OpenLService service : serviceManager.getServices()) {
             assertNull(service.getCompiledOpenClass(), "OpenLService must be not compiled for java publisher if not used before.");
@@ -87,7 +86,7 @@ class RulesPublisherTest {
     }
 
     private int getCount(ServiceManager publisher) throws Exception {
-        Class<?> counter = publisher.getServiceByDeploy(TUTORIAL4)
+        var counter = publisher.getServiceByDeploy(TUTORIAL4)
                 .getServiceBean()
                 .getClass()
                 .getClassLoader()
@@ -99,17 +98,17 @@ class RulesPublisherTest {
     void testMethodBeforeInterceptors() throws Exception {
         assertThrows(MethodInvocationException.class, () -> {
             assertNotNull(applicationContext);
-            ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+            var serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
             assertNotNull(serviceManager);
-            RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-            int count = getCount(serviceManager);
-            final int executedTimes = 10;
-            for (int i = 0; i < executedTimes; i++) {
+            var frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+            var count = getCount(serviceManager);
+            final var executedTimes = 10;
+            for (var i = 0; i < executedTimes; i++) {
                 assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
             }
-            int c = getCount(serviceManager);
+            var c = getCount(serviceManager);
             assertEquals(executedTimes, c - count);
-            Object driver = serviceManager.getServiceByDeploy(TUTORIAL4)
+            var driver = serviceManager.getServiceByDeploy(TUTORIAL4)
                     .getServiceClass()
                     .getClassLoader()
                     .loadClass(DRIVER)
@@ -121,15 +120,15 @@ class RulesPublisherTest {
     @Test
     void testMethodAfterInterceptors() throws Exception {
         assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        var serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        Object driver = serviceManager.getServiceByDeploy(TUTORIAL4)
+        var frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+        var driver = serviceManager.getServiceByDeploy(TUTORIAL4)
                 .getServiceClass()
                 .getClassLoader()
                 .loadClass(DRIVER)
                 .getDeclaredConstructor().newInstance();
-        Method nameSetter = driver.getClass().getMethod("setName", String.class);
+        var nameSetter = driver.getClass().getMethod("setName", String.class);
         nameSetter.invoke(driver, "name");
         Class<?> returnType = frontend.execute(TUTORIAL4_SERVICE_NAME, "driverAgeType", driver)
                 .getClass();
@@ -140,7 +139,7 @@ class RulesPublisherTest {
     @Test
     void testServiceClassResolving() throws Exception {
         assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        var serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
 
         Class<?> tutorial4ServiceClass = serviceManager.getServiceByDeploy(TUTORIAL4).getServiceClass();

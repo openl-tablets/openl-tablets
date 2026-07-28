@@ -57,7 +57,7 @@ class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("M9", ClassWithGenerics.class, "method5", byte[].class, byte[].class);
         assertInvoke("M9", ClassWithGenerics.class, "method5", byte[].class, byte[].class, byte[].class);
 
-        Object t = new Object();
+        var t = new Object();
         assertInvoke(t, ClassWithGenerics.class, "copy", new Class<?>[]{Object.class}, new Object[]{t});
         Double[] d = new Double[]{};
         assertInvoke(d, ClassWithGenerics.class, "copy", new Class<?>[]{Double[].class}, new Object[]{d});

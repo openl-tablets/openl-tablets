@@ -29,7 +29,7 @@ public class NewNodeBinder extends ANodeBinder {
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
-        int childrenCount = node.getNumberOfChildren();
+        var childrenCount = node.getNumberOfChildren();
 
         if (childrenCount < 1) {
             return makeErrorNode("New node must have at least one sub-node.", node, bindingContext);
@@ -47,8 +47,8 @@ public class NewNodeBinder extends ANodeBinder {
         }
         bindingContext.pushErrors();
         bindingContext.pushMessages();
-        boolean errorsAndMessagesPopped = false;
-        boolean sugarConstructor = false;
+        var errorsAndMessagesPopped = false;
+        var sugarConstructor = false;
         List<SyntaxNodeException> syntaxNodeExceptions = Collections.emptyList();
         Collection<OpenLMessage> openLMessages = Collections.emptyList();
         try {
@@ -57,7 +57,7 @@ public class NewNodeBinder extends ANodeBinder {
             openLMessages = bindingContext.popMessages();
             errorsAndMessagesPopped = true;
             var childNodes = new ISyntaxNode[node.getNumberOfChildren() - 1];
-            for (int i = 0; i < childNodes.length; i++) {
+            for (var i = 0; i < childNodes.length; i++) {
                 childNodes[i] = node.getChild(i + 1);
             }
             if (hasErrorBoundNode(children)) {
@@ -85,7 +85,7 @@ public class NewNodeBinder extends ANodeBinder {
                 return makeErrorNode(MessageUtils.getConstructorNotFoundMessage(constructor), typeNode, bindingContext);
             }
             var constructorParamTypes = methodCaller.getMethod().getSignature().getParameterTypes();
-            for (int i = 0; i < Math.min(constructorParamTypes.length, children.length); i++) {
+            for (var i = 0; i < Math.min(constructorParamTypes.length, children.length); i++) {
                 BindHelper.validateDomainValue(children[i], constructorParamTypes[i], bindingContext);
             }
             return new ConstructorParamsNode(new MethodBoundNode(typeNode, methodCaller, children));

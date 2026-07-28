@@ -33,15 +33,15 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
         if ("%".equals(data)) {
             throw new NumberFormatException("Cannot convert '%' to a number.");
         }
-        DecimalFormat df = getFormatter(format);
+        var df = getFormatter(format);
         if (data.endsWith("%")) {
             // Configure to parse percents
             df.setMultiplier(100);
             data = data.substring(0, data.length() - 1);
         }
-        ParsePosition position = new ParsePosition(0);
-        Number number = df.parse(data, position);
-        int index = position.getIndex();
+        var position = new ParsePosition(0);
+        var number = df.parse(data, position);
+        var index = position.getIndex();
         if (index < data.length()) {
             throw new NumberFormatException("Cannot convert '%s' to a number.".formatted(data));
         }
@@ -60,7 +60,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
 
     DecimalFormat getFormatter(String format) {
         // Reset using a default locale and set force the US locale.
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        var symbols = new DecimalFormatSymbols(Locale.US);
         symbols.setInfinity("Infinity");
         symbols.setNaN("NaN");
 

@@ -15,7 +15,6 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.types.IParameterDeclaration;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class ARangeIndexEvaluator extends AConditionEvaluator implements IConditionEvaluator {
@@ -37,8 +36,8 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             return condition.getSourceCodeModule();
         }
 
-        IParameterDeclaration[] params = condition.getParams();
-        IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
+        var params = condition.getParams();
+        var conditionSource = condition.getSourceCodeModule();
 
         String code = params.length == 2 ? "%1$s<=(%2$s) && (%2$s) < %3$s".formatted(
                 params[0].getName(),
@@ -50,18 +49,18 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     @Override
     @SuppressWarnings("unchecked")
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
-        Object value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, dtparams, env));
+        var value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, dtparams, env));
         return new RangeSelector(condition, value, target, dtparams, rangeAdaptor, env);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     protected IDomain<?> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
-        long min = Long.MAX_VALUE;
-        long max = Long.MIN_VALUE;
+        var min = Long.MAX_VALUE;
+        var max = Long.MIN_VALUE;
 
-        int nRules = condition.getNumberOfRules();
-        for (int ruleN = 0; ruleN < nRules; ruleN++) {
+        var nRules = condition.getNumberOfRules();
+        for (var ruleN = 0; ruleN < nRules; ruleN++) {
             if (condition.isEmpty(ruleN)) {
                 continue;
             }
@@ -81,7 +80,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
                     vFrom = (Comparable<Object>) condition.getParamValue(0, ruleN);
                     vTo = (Comparable<Object>) condition.getParamValue(0, ruleN);
                 } else {
-                    Object range = condition.getParamValue(0, ruleN);
+                    var range = condition.getParamValue(0, ruleN);
                     vFrom = rangeAdaptor.getMin(range);
                     vTo = rangeAdaptor.getMax(range);
                 }
@@ -104,11 +103,11 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
     List<IndexNode> mergeRulesByValue(List<IndexNode> nodes) {
         Collections.sort(nodes);
-        final int length = nodes.size();
-        DecisionTableRuleNodeBuilder builder = new DecisionTableRuleNodeBuilder();
-        List<IndexNode> result = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            IndexNode node = nodes.get(i);
+        final var length = nodes.size();
+        var builder = new DecisionTableRuleNodeBuilder();
+        var result = new ArrayList<IndexNode>();
+        for (var i = 0; i < length; i++) {
+            var node = nodes.get(i);
             builder.addRule(node.getRuleN());
             if (i == length - 1 || node.compareTo(nodes.get(i + 1)) != 0) {
                 result.add(new IndexNode(node.getValue(), builder.makeRulesAry()));

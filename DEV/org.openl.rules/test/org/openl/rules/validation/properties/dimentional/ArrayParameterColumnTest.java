@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,17 +21,17 @@ class ArrayParameterColumnTest {
 
     @Test
     void testGetCodeExpression() {
-        ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
+        var arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
         assertEquals("country == null || contains(countryLocal,country)", arrayColumn.getCodeExpression());
 
         // test array column with one element
         //
-        TableProperties tableProperty = new TableProperties();
+        var tableProperty = new TableProperties();
         tableProperty.setCountry(CountriesEnum.CL);
-        List<ITableProperties> properties = new ArrayList<>();
+        var properties = new ArrayList<ITableProperties>();
         properties.add(tableProperty);
-        ArrayParameterColumn arrayColumn1 = new ArrayParameterColumn(getArrayProperty(),
+        var arrayColumn1 = new ArrayParameterColumn(getArrayProperty(),
                 new DispatcherTableRules(properties));
         assertEquals("country == null || contains(countryLocal,country)", arrayColumn1.getCodeExpression());
 
@@ -40,28 +39,28 @@ class ArrayParameterColumnTest {
 
     @Test
     void testGetTitle() {
-        ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
+        var arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
         assertEquals("Countries", arrayColumn.getTitle());
     }
 
     @Test
     void testParameterDeclaration() {
-        ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
+        var arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
         assertEquals("CountriesEnum[] countryLocal", arrayColumn.getParameterDeclaration());
     }
 
     @Test
     void testGetMaxNumberOfValuesForRules() {
-        ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
+        var arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
         assertEquals(1, arrayColumn.getNumberOfLocalParameters());
     }
 
     @Test
     void testGetRuleValue() {
-        ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
+        var arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
         assertEquals(2, arrayColumn.getRulesNumber());
         assertEquals(1, arrayColumn.getNumberOfLocalParameters());
@@ -73,7 +72,7 @@ class ArrayParameterColumnTest {
     void testNotArrayProperty() {
         // create not array property
         //
-        TablePropertyDefinition property = new TablePropertyDefinition();
+        var property = new TablePropertyDefinition();
         property.setType(JavaOpenClass.getOpenClass(String.class));
 
         try {
@@ -85,12 +84,12 @@ class ArrayParameterColumnTest {
     }
 
     private DispatcherTableRules getRules() {
-        TableProperties tableProperty = new TableProperties();
+        var tableProperty = new TableProperties();
         tableProperty.setCountry(CountriesEnum.CL, CountriesEnum.BA, CountriesEnum.AT, CountriesEnum.SA);
 
-        TableProperties tableProperty1 = new TableProperties();
+        var tableProperty1 = new TableProperties();
         tableProperty1.setCountry(CountriesEnum.CA, CountriesEnum.BE, CountriesEnum.AU);
-        List<ITableProperties> properties = new ArrayList<>();
+        var properties = new ArrayList<ITableProperties>();
         properties.add(tableProperty);
         properties.add(tableProperty1);
 
@@ -98,7 +97,7 @@ class ArrayParameterColumnTest {
     }
 
     private TablePropertyDefinition getArrayProperty() {
-        TablePropertyDefinition arrayProperty = new TablePropertyDefinition();
+        var arrayProperty = new TablePropertyDefinition();
         arrayProperty.setConstraints(new Constraints("data: countries"));
         arrayProperty.setDescription("Country");
         arrayProperty.setDimensional(true);

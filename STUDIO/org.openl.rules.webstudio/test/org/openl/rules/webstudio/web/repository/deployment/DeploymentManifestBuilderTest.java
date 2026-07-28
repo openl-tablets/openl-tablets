@@ -5,16 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-
 import org.junit.jupiter.api.Test;
 
 class DeploymentManifestBuilderTest {
 
     @Test
     void testNullableValues() {
-        Manifest manifest = new DeploymentManifestBuilder()
+        var manifest = new DeploymentManifestBuilder()
                 .setBuildBranch(null)
                 .setBuiltBy(null)
                 .setImplementationTitle(null)
@@ -22,7 +19,7 @@ class DeploymentManifestBuilderTest {
                 .setBuildNumber(null)
                 .build();
         assertEquals(0, manifest.getEntries().size());
-        Attributes mainAttributes = manifest.getMainAttributes();
+        var mainAttributes = manifest.getMainAttributes();
         assertEquals(8, mainAttributes.size());
         assertEquals("", mainAttributes.getValue("Build-Number"));
         assertEquals("", mainAttributes.getValue("Built-By"));
@@ -37,7 +34,7 @@ class DeploymentManifestBuilderTest {
 
     @Test
     void testNonNullValues() {
-        Manifest manifest = new DeploymentManifestBuilder()
+        var manifest = new DeploymentManifestBuilder()
                 .setBuildBranch("master")
                 .setBuiltBy("John Smith")
                 .setImplementationTitle("My Rules")
@@ -45,7 +42,7 @@ class DeploymentManifestBuilderTest {
                 .setBuildNumber("eqsdsdsd1212sds")
                 .build();
         assertEquals(0, manifest.getEntries().size());
-        Attributes mainAttributes = manifest.getMainAttributes();
+        var mainAttributes = manifest.getMainAttributes();
         assertEquals(8, mainAttributes.size());
         assertEquals("eqsdsdsd1212sds", mainAttributes.getValue("Build-Number"));
         assertEquals("John Smith", mainAttributes.getValue("Built-By"));
@@ -60,9 +57,9 @@ class DeploymentManifestBuilderTest {
 
     @Test
     void testEmpty() {
-        Manifest manifest = new DeploymentManifestBuilder().build();
+        var manifest = new DeploymentManifestBuilder().build();
         assertEquals(0, manifest.getEntries().size());
-        Attributes mainAttributes = manifest.getMainAttributes();
+        var mainAttributes = manifest.getMainAttributes();
         assertEquals(3, mainAttributes.size());
         assertNull(mainAttributes.getValue("Build-Number"));
         assertNull(mainAttributes.getValue("Built-By"));

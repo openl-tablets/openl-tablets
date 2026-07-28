@@ -17,7 +17,7 @@ class FieldContextPropertyInjection extends AbstractContextPropertyInjector {
 
     @Override
     protected Object getValue(Object[] params, IRuntimeEnv env) {
-        Object value = field.get(params[paramIndex], env);
+        var value = field.get(params[paramIndex], env);
         return openCast.convert(value);
     }
 

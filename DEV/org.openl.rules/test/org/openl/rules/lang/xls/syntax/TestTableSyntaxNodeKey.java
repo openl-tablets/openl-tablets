@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.openl.CompiledOpenClass;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.types.IOpenMethod;
@@ -25,10 +24,10 @@ class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
 
     @BeforeEach
     void getTables() {
-        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
-        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
-        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
-        TableSyntaxNode[] tsns = xsn.getXlsTableSyntaxNodes();
+        var compiledOpenClass = getCompiledOpenClass();
+        var xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+        var xsn = xmi.getXlsModuleNode();
+        var tsns = xsn.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
             if (tsn.getMember() instanceof IOpenMethod && tsn.getType().equals("xls.dt")) {
                 if (tsn.getMember().getName().equals("driverAgeType")) {

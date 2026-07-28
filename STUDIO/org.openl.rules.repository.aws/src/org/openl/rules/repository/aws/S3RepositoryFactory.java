@@ -27,7 +27,7 @@ public class S3RepositoryFactory implements RepositoryFactory {
 
     @Override
     public Repository create(Function<String, String> settings) {
-        S3Repository repository = new S3Repository();
+        var repository = new S3Repository();
         RepositoryInstatiator.setParams(repository, settings);
         repository.initialize();
         return repository;

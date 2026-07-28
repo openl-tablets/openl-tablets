@@ -16,7 +16,6 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.IndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
@@ -71,7 +70,7 @@ final class Styles {
     }
 
     CellStyle getDateStyle(Workbook workbook, CellStyle original) {
-        CellStyle dateStyle = dateStyles.get(original);
+        var dateStyle = dateStyles.get(original);
 
         if (dateStyle == null) {
             dateStyle = PoiExcelHelper.createCellStyle(workbook);
@@ -84,7 +83,7 @@ final class Styles {
     }
 
     private CellStyle textStyle(Workbook workbook, Font font) {
-        CellStyle style = workbook.createCellStyle();
+        var style = workbook.createCellStyle();
         if (font != null) {
             style.setFont(font);
         }
@@ -96,11 +95,11 @@ final class Styles {
     }
 
     private CellStyle backgroundStyle(SXSSFWorkbook workbook, Integer rgb, Font font) {
-        XSSFCellStyle style = (XSSFCellStyle) workbook.createCellStyle();
+        var style = (XSSFCellStyle) workbook.createCellStyle();
 
         if (rgb != null) {
-            IndexedColorMap indexedColors = workbook.getXSSFWorkbook().getStylesSource().getIndexedColors();
-            XSSFColor color = new XSSFColor(convertRGB(rgb), indexedColors);
+            var indexedColors = workbook.getXSSFWorkbook().getStylesSource().getIndexedColors();
+            var color = new XSSFColor(convertRGB(rgb), indexedColors);
             style.setFillForegroundColor(color);
             style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         }
@@ -120,16 +119,16 @@ final class Styles {
     }
 
     private Font createFont(Workbook workbook, short color) {
-        Font font = workbook.createFont();
+        var font = workbook.createFont();
         font.setColor(color);
         font.setBold(true);
         return font;
     }
 
     static byte[] convertRGB(int rgb) {
-        byte red = (byte) (rgb >> 16 & 0xFF);
-        byte green = (byte) (rgb >> 8 & 0xFF);
-        byte blue = (byte) (rgb & 0xFF);
+        var red = (byte) (rgb >> 16 & 0xFF);
+        var green = (byte) (rgb >> 8 & 0xFF);
+        var blue = (byte) (rgb & 0xFF);
         return new byte[]{red, green, blue};
     }
 

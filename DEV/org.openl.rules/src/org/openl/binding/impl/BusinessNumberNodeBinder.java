@@ -25,7 +25,7 @@ public abstract class BusinessNumberNodeBinder extends ANodeBinder {
      */
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        String literal = node.getText();
+        var literal = node.getText();
 
         // FIXME: System locals are not supportable
         if (literal.charAt(0) == '$') {
@@ -37,14 +37,14 @@ public abstract class BusinessNumberNodeBinder extends ANodeBinder {
             literal = literal.replace(",", "");
         }
 
-        int literalLength = literal.length();
+        var literalLength = literal.length();
 
-        char lastCharacter = Character.toUpperCase(literal.charAt(literalLength - 1));
+        var lastCharacter = Character.toUpperCase(literal.charAt(literalLength - 1));
 
         IBoundNode parsedNumber;
 
         if (multiplierSuffixes.containsKey(lastCharacter)) {
-            String literalWithoutSuffix = literal.substring(0, literalLength - 1);
+            var literalWithoutSuffix = literal.substring(0, literalLength - 1);
             parsedNumber = makeNumber(literalWithoutSuffix, multiplierSuffixes.get(lastCharacter), node);
         } else {
             parsedNumber = makeNumber(literal, 1, node);

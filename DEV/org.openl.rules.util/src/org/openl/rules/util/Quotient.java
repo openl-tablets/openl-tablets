@@ -64,7 +64,7 @@ public final class Quotient {
         if (dividend == null || divisor == null) {
             return null;
         }
-        float val = dividend / divisor;
+        var val = dividend / divisor;
         return val >= 0.0f ? (float) Math.floor(val) : (float) Math.ceil(val);
     }
 
@@ -72,7 +72,7 @@ public final class Quotient {
         if (dividend == null || divisor == null) {
             return null;
         }
-        double val = dividend / divisor;
+        var val = dividend / divisor;
         return val >= 0.0d ? Math.floor(val) : Math.ceil(val);
     }
 

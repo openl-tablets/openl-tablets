@@ -19,7 +19,7 @@ class SAXReaderFromFileTest extends BaseReaderTest {
 
     @Test
     void getSheetRelationIds() {
-        SAXReader saxReader = (SAXReader) reader;
+        var saxReader = (SAXReader) reader;
         List<SAXSheetDescriptor> sheets = saxReader.getSheets();
 
         assertEquals(4, sheets.size());

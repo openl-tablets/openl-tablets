@@ -30,7 +30,7 @@ public class SharedValueListener implements HSSFListener {
     public void processRecord(Record record) {
         switch (record.getSid()) {
             case BOFRecord.sid:
-                BOFRecord bof = (BOFRecord) record;
+                var bof = (BOFRecord) record;
                 if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
                     sheetIndex++;
                 }

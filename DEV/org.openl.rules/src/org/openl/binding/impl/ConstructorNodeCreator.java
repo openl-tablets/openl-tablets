@@ -3,9 +3,6 @@ package org.openl.binding.impl;
 import java.util.Optional;
 
 import org.openl.binding.IBoundNode;
-import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IOpenMethod;
-import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
 /**
@@ -25,14 +22,14 @@ public class ConstructorNodeCreator implements NodeUsageCreator {
 
     @Override
     public Optional<NodeUsage> create(IBoundNode boundNode, String sourceString, int startIndex) {
-        ConstructorNode constructorNode = (ConstructorNode) boundNode;
-        TextInfo info = new TextInfo(sourceString);
-        MethodBoundNode methodBoundNode = constructorNode.getConstructor();
-        ISyntaxNode syntaxNode = methodBoundNode.getSyntaxNode();
-        IOpenMethod method = methodBoundNode.getMethodCaller().getMethod();
-        ILocation location = syntaxNode.getSourceLocation();
-        int pstart = location.getStart().getAbsolutePosition(info);
-        int pend = pstart;
+        var constructorNode = (ConstructorNode) boundNode;
+        var info = new TextInfo(sourceString);
+        var methodBoundNode = constructorNode.getConstructor();
+        var syntaxNode = methodBoundNode.getSyntaxNode();
+        var method = methodBoundNode.getMethodCaller().getMethod();
+        var location = syntaxNode.getSourceLocation();
+        var pstart = location.getStart().getAbsolutePosition(info);
+        var pend = pstart;
         while (pend < sourceString.length() && sourceString.charAt(pend) != '(') {
             pend++;
         }

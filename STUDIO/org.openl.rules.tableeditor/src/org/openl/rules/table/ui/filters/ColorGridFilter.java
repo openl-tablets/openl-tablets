@@ -33,24 +33,24 @@ public class ColorGridFilter extends AGridFilter {
     @Override
     public FormattedCell filterFormat(FormattedCell formattedCell) {
         if ((scope & FONT) != 0) {
-            CellFont cellFont = (CellFont) formattedCell.getFont();
-            short[] fc = cellFont.getFontColor();
+            var cellFont = (CellFont) formattedCell.getFont();
+            var fc = cellFont.getFontColor();
             if (fc == null) {
                 fc = IColorFilter.BLACK;
             }
             cellFont.setFontColor(filter.filterColor(fc));
         }
 
-        CellStyle cellStyle = (CellStyle) formattedCell.getStyle();
+        var cellStyle = (CellStyle) formattedCell.getStyle();
         if ((scope & BACKGROUND) != 0) {
-            short[] bcg = cellStyle.getFillBackgroundColor();
+            var bcg = cellStyle.getFillBackgroundColor();
             if (bcg == null) {
                 bcg = IColorFilter.WHITE;
             }
 
             cellStyle.setFillBackgroundColor(filter.filterColor(bcg));
 
-            short[] fg = cellStyle.getFillForegroundColor();
+            var fg = cellStyle.getFillForegroundColor();
 
             if (fg == null) {
                 fg = IColorFilter.WHITE;
@@ -60,10 +60,10 @@ public class ColorGridFilter extends AGridFilter {
         }
 
         if ((scope & BORDERS) != 0) {
-            short[][] bb = cellStyle.getBorderRGB();
+            var bb = cellStyle.getBorderRGB();
 
             if (bb != null) {
-                for (int i = 0; i < bb.length; i++) {
+                for (var i = 0; i < bb.length; i++) {
                     if (bb[i] != null) {
                         bb[i] = filter.filterColor(bb[i]);
                     }

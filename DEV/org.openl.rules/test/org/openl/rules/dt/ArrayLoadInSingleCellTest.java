@@ -12,7 +12,7 @@ class ArrayLoadInSingleCellTest {
     void testMultiRowArrayLoad() {
         ITestI instance = TestUtils.create("test/rules/dt/SingleCellArrayLoadTest.xls", ITestI.class);
 
-        String s = instance.test1("d1", 0);
+        var s = instance.test1("d1", 0);
         assertEquals("d1-1", s);
 
         s = instance.test1("d2", 2);

@@ -92,7 +92,7 @@ public class DateTool {
         c.set(Calendar.MILLISECOND, 0);
         c.set(absQuarter / QUARTERS_IN_YEAR, absQuarter % QUARTERS_IN_YEAR * MONTHS_IN_QUARTER + 2, 1, 0, 0, 0);
 
-        int lastDay = getLastDayOfMonth(c.getTime());
+        var lastDay = getLastDayOfMonth(c.getTime());
 
         c.set(Calendar.DAY_OF_MONTH, lastDay);
         return c.getTime();

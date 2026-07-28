@@ -18,11 +18,11 @@ public final class FileChangesMonitor implements RevisionGetter {
 
     @Override
     public Object getRevision() {
-        int quantity = timestamps.size();
+        var quantity = timestamps.size();
         // Allocate memory for scanning the base directory.
         // Usually directory size is not increased extensively from the previous scanning,
         // so 10 free cells is enough for fast expanding.
-        ArrayList<FileTimeStamp> newTimestamps = new ArrayList<>(quantity + 10);
+        var newTimestamps = new ArrayList<FileTimeStamp>(quantity + 10);
         // Scanning all files in the base directory
         if (Files.isDirectory(baseDir)) {
             try (var stream = Files.walk(baseDir)) {
@@ -31,7 +31,7 @@ public final class FileChangesMonitor implements RevisionGetter {
                 throw new RuntimeException(e);
             }
         }
-        boolean changed = false;
+        var changed = false;
         // If quantity of files is different from the previous scanning
         // e.g. files have been added or deleted
         if (newTimestamps.size() != quantity) {

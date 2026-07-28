@@ -22,7 +22,7 @@ class MultiColumnLookupAndConditionVarAccessTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        RulesEngineFactory<IMultiColumnLookupTest> engineFactory = new RulesEngineFactory<>(SRC,
+        var engineFactory = new RulesEngineFactory<IMultiColumnLookupTest>(SRC,
                 IMultiColumnLookupTest.class);
 
         instance = engineFactory.newEngineInstance();
@@ -31,7 +31,7 @@ class MultiColumnLookupAndConditionVarAccessTest {
 
     @Test
     void testCombined() {
-        Double res = instance.getBaseRate(10000, "$100,000 Deductible");
+        var res = instance.getBaseRate(10000, "$100,000 Deductible");
 
         assertEquals(15048.3021, res, 0.00005);
 
@@ -40,7 +40,7 @@ class MultiColumnLookupAndConditionVarAccessTest {
     @Test
     void test1() {
 
-        int res = instance.multiColumnTest1(1, 10, 100);
+        var res = instance.multiColumnTest1(1, 10, 100);
 
         assertEquals(123, res);
 

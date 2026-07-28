@@ -27,7 +27,7 @@ public class LocalRepositoryFactory implements RepositoryFactory {
 
     @Override
     public Repository create(Function<String, String> settings) {
-        LocalRepository repository = new LocalRepository();
+        var repository = new LocalRepository();
         RepositoryInstatiator.setParams(repository, settings);
         repository.initialize();
         return repository;

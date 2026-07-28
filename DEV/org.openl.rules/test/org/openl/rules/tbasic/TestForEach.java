@@ -52,7 +52,7 @@ class TestForEach {
     void test8() {
         TestAlgorithm a = TestUtils.create("test/rules/tbasic1/FOR_EACH_P1.xls", TestAlgorithm.class);
 
-        Integer result = a.calc();
+        var result = a.calc();
         assertEquals(0, result.intValue());
     }
 
@@ -65,7 +65,7 @@ class TestForEach {
     void test9() {
         TestAlgorithm a = TestUtils.create("test/rules/tbasic1/FOR_EACH_P3.xls", TestAlgorithm.class);
 
-        Integer result = a.calc();
+        var result = a.calc();
         assertEquals(36, result.intValue());
     }
 
@@ -73,7 +73,7 @@ class TestForEach {
     void test10() {
         TestAlgorithm a = TestUtils.create("test/rules/tbasic1/FOR_EACH_P4.xls", TestAlgorithm.class);
 
-        Integer result = a.calc();
+        var result = a.calc();
         assertEquals(114, result.intValue());
     }
 
@@ -81,7 +81,7 @@ class TestForEach {
     void test11() {
         TestAlgorithm a = TestUtils.create("test/rules/tbasic1/FOR_EACH_P5.xls", TestAlgorithm.class);
 
-        Integer result = a.calc();
+        var result = a.calc();
         assertEquals(3, result.intValue());
     }
 

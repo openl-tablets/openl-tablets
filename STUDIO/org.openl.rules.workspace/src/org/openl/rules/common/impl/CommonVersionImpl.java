@@ -37,7 +37,7 @@ public class CommonVersionImpl implements CommonVersion {
             revision = s;
             return;
         }
-        String[] version = s.split("\\.", -1);
+        var version = s.split("\\.", -1);
 
         if (version.length == 1) {
             revision = version[0];
@@ -76,7 +76,7 @@ public class CommonVersionImpl implements CommonVersion {
     }
 
     private int compareRevision(CommonVersion other) {
-        String otherRevision = other.getRevision();
+        var otherRevision = other.getRevision();
 
         if (ONLY_DIGITS.matcher(revision).matches() && ONLY_DIGITS.matcher(otherRevision).matches()) {
             return Integer.parseInt(revision) - Integer.parseInt(otherRevision);
@@ -128,7 +128,7 @@ public class CommonVersionImpl implements CommonVersion {
 
     @Override
     public String getShortVersion() {
-        String version = getVersionName();
+        var version = getVersionName();
         return version == null || version.length() < 6 ? version : version.substring(0, 6);
     }
 

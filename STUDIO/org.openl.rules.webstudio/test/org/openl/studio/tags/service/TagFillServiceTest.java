@@ -81,7 +81,7 @@ class TagFillServiceTest {
 
     private void workspaceHolds(RulesProject... projects) {
         @SuppressWarnings("unchecked")
-        Collection<RulesProject> collection = (Collection<RulesProject>) mock(Collection.class);
+        var collection = (Collection<RulesProject>) mock(Collection.class);
         when(collection.iterator()).thenReturn(List.of(projects).iterator());
         when(workspace.getProjects()).thenReturn(collection);
     }

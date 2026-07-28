@@ -2,7 +2,6 @@ package org.openl.binding.impl;
 
 import org.openl.binding.MethodUtil;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -31,7 +30,7 @@ public class ConstructorParamsNode extends ABoundNode implements ConstructorNode
 
     @Override
     public String getDescription() {
-        IOpenMethod method = constructor.getMethodCaller().getMethod();
+        var method = constructor.getMethodCaller().getMethod();
         return MethodUtil.printConstructor(method);
     }
 

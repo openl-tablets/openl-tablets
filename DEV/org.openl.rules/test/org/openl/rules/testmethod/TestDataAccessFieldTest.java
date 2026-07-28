@@ -16,21 +16,21 @@ class TestDataAccessFieldTest {
     @Test
     void returnPolicyTestPK() {
         ITestDataAccessField instance = TestUtils.create(FILE_NAME, ITestDataAccessField.class);
-        TestUnitsResults result = instance.returnPolicyTest();
+        var result = instance.returnPolicyTest();
         assertEquals(2, result.getNumberOfFailures());
     }
 
     @Test
     void returnPolicyTestQuoteDate() {
         ITestDataAccessField instance = TestUtils.create(FILE_NAME, ITestDataAccessField.class);
-        TestUnitsResults result = instance.returnPolicyQuoteDateTest();
+        var result = instance.returnPolicyQuoteDateTest();
         assertEquals(0, result.getNumberOfFailures());
     }
 
     @Test
     void returnBrokerDiscountTest() {
         ITestDataAccessField instance = TestUtils.create(FILE_NAME, ITestDataAccessField.class);
-        TestUnitsResults result = instance.returnBrokerDiscountTest();
+        var result = instance.returnBrokerDiscountTest();
         assertEquals(2, result.getNumberOfFailures());
     }
 

@@ -37,7 +37,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public boolean hasProject(String repositoryId, String name) {
         try {
-            RulesProject project = userWorkspace.getProject(repositoryId, name);
+            var project = userWorkspace.getProject(repositoryId, name);
             return designRepositoryAclService.isGranted(project, List.of(BasePermission.READ));
         } catch (ProjectException e) {
             return false;
@@ -136,7 +136,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
                                            String projectFolder,
                                            String comment) throws ProjectException {
         if (userWorkspace.hasProject(repositoryId, name)) {
-            String path = userWorkspace.getDesignTimeRepository().getRulesLocation() + name;
+            var path = userWorkspace.getDesignTimeRepository().getRulesLocation() + name;
             if (designRepositoryAclService.isGranted(repositoryId, path, List.of(BasePermission.WRITE))) {
                 return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
             } else {
@@ -153,7 +153,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public Optional<RulesProject> getProjectByPath(String repositoryId, String realPath) {
-        Optional<RulesProject> rulesProjectOptional = userWorkspace.getProjectByPath(repositoryId, realPath);
+        var rulesProjectOptional = userWorkspace.getProjectByPath(repositoryId, realPath);
         if (rulesProjectOptional
                 .isPresent() && !designRepositoryAclService.isGranted(rulesProjectOptional.get(), List.of(BasePermission.READ))) {
             return Optional.empty();
@@ -168,7 +168,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public RulesProject getProject(String repositoryId, String name) throws ProjectException {
-        RulesProject rulesProject = userWorkspace.getProject(repositoryId, name);
+        var rulesProject = userWorkspace.getProject(repositoryId, name);
         if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))) {
             throw new ProjectException("There is no permission for reading the project.");
         }
@@ -177,7 +177,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException {
-        RulesProject rulesProject = userWorkspace.getProject(repositoryId, name, refreshBefore);
+        var rulesProject = userWorkspace.getProject(repositoryId, name, refreshBefore);
         if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))) {
             throw new ProjectException("There is no permission for reading the project.");
         }

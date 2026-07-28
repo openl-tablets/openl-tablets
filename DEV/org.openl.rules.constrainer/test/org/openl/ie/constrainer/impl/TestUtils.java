@@ -66,8 +66,8 @@ public class TestUtils {
 
         public int[] findAll() {
             int[] temp = new int[_end - _start + 1];
-            int counter = 0;
-            for (int i = _start; i <= _end; i++) {
+            var counter = 0;
+            for (var i = _start; i <= _end; i++) {
                 if (_predicate.isTrue(_array[i])) {
                     temp[counter++] = i;
                 }
@@ -81,7 +81,7 @@ public class TestUtils {
         }
 
         public int findFirst() {
-            for (int i = _start; i <= _end; i++) {
+            for (var i = _start; i <= _end; i++) {
                 if (_predicate.isTrue(_array[i])) {
                     return i;
                 }
@@ -90,7 +90,7 @@ public class TestUtils {
         }
 
         public int findFirstIf(IntFindPredicate predicate) {
-            for (int i = _start; i <= _end; i++) {
+            for (var i = _start; i <= _end; i++) {
                 if (predicate.isTrue(_array[i])) {
                     return i;
                 }
@@ -153,14 +153,14 @@ public class TestUtils {
     } // end of TestObserver
 
     static public boolean contains(FastVector vec, Object obj) {
-        Object[] objs = vec.data();
-        HashSet set = new HashSet(objs.length + 10);
+        var objs = vec.data();
+        var set = new HashSet(objs.length + 10);
         set.addAll(Arrays.asList(objs));
         return set.contains(obj);
     }
 
     static public boolean contains(Object[] objs, Object obj) {
-        HashSet set = new HashSet(objs.length + 10);
+        var set = new HashSet(objs.length + 10);
         set.addAll(Arrays.asList(objs));
         return set.contains(obj);
     }
@@ -170,8 +170,8 @@ public class TestUtils {
     }
 
     static public boolean isAllDiff(int[] arr) {
-        for (int i = 0; i < arr.length - 1; i++) {
-            for (int j = i + 1; j < arr.length; j++) {
+        for (var i = 0; i < arr.length - 1; i++) {
+            for (var j = i + 1; j < arr.length; j++) {
                 if (arr[i] == arr[j]) {
                     return false;
                 }
@@ -184,7 +184,7 @@ public class TestUtils {
         if (arr == null || arr.length == 0) {
             throw new IllegalArgumentException();
         }
-        int max = -Integer.MAX_VALUE;
+        var max = -Integer.MAX_VALUE;
         for (int j : arr) {
             if (j > max) {
                 max = j;
@@ -197,7 +197,7 @@ public class TestUtils {
         if (arr == null || arr.length == 0) {
             throw new IllegalArgumentException();
         }
-        int min = Integer.MAX_VALUE;
+        var min = Integer.MAX_VALUE;
         for (int j : arr) {
             if (j < min) {
                 min = j;
@@ -207,7 +207,7 @@ public class TestUtils {
     }
 
     static public int minGreaterThan(int[] array, int val) {
-        int min = Integer.MAX_VALUE;
+        var min = Integer.MAX_VALUE;
         for (int j : array) {
             if (j < min && j > val) {
                 min = j;

@@ -96,7 +96,7 @@ public class DebugSessionReaper {
 
     /** Terminate and drop every session idle beyond the timeout. */
     void sweep() {
-        long now = System.currentTimeMillis();
+        var now = System.currentTimeMillis();
         sessions.stream()
                 .filter(session -> now - session.getLastAccessMillis() >= idleTimeoutMillis)
                 .toList()

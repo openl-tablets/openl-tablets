@@ -5,13 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 
 class RepositoryInstatiatorTest {
@@ -24,7 +22,7 @@ class RepositoryInstatiatorTest {
 
     @Test
     void legal() throws IOException {
-        List<FileData> list = repo.list("target/");
+        var list = repo.list("target/");
         assertFalse(list.isEmpty(), "expected non-empty folder");
         list.forEach(System.out::println);
     }

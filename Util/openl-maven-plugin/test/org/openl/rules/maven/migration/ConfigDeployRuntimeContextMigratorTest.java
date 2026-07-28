@@ -11,7 +11,7 @@ class ConfigDeployRuntimeContextMigratorTest {
 
     @Test
     void dropsIsProvideRuntimeContextFalse() {
-        RulesDeploy deploy = new RulesDeploy();
+        var deploy = new RulesDeploy();
         deploy.setProvideRuntimeContext(false);
 
         ConfigDeployRuntimeContextMigrator.transform(deploy);
@@ -21,7 +21,7 @@ class ConfigDeployRuntimeContextMigratorTest {
 
     @Test
     void keepsIsProvideRuntimeContextTrue() {
-        RulesDeploy deploy = new RulesDeploy();
+        var deploy = new RulesDeploy();
         deploy.setProvideRuntimeContext(true);
 
         ConfigDeployRuntimeContextMigrator.transform(deploy);
@@ -31,7 +31,7 @@ class ConfigDeployRuntimeContextMigratorTest {
 
     @Test
     void leavesIsProvideRuntimeContextNullUnchanged() {
-        RulesDeploy deploy = new RulesDeploy();
+        var deploy = new RulesDeploy();
 
         ConfigDeployRuntimeContextMigrator.transform(deploy);
 

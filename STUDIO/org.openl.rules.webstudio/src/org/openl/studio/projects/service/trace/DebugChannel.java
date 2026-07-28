@@ -59,7 +59,7 @@ final class DebugChannel {
             if (terminateRequested) {
                 throw new DebugTerminationError();
             }
-            DebugCommand command = pending;
+            var command = pending;
             pending = null;
             status = DebugStatus.RUNNING;
             return command;
@@ -143,7 +143,7 @@ final class DebugChannel {
     DebugStatus awaitHalt(long afterHalt, long timeoutMillis) {
         lock.lock();
         try {
-            long remaining = TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+            var remaining = TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
             while (haltCount <= afterHalt && !status.isTerminal() && remaining > 0) {
                 remaining = halted.awaitNanos(remaining);
             }

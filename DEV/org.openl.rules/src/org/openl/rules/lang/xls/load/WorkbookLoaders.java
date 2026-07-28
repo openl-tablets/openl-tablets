@@ -21,7 +21,7 @@ public final class WorkbookLoaders {
     }
 
     public static WorkbookLoader getWorkbookLoader(IOpenSourceCodeModule fileSource) {
-        WorkbookLoaderFactory workbookLoaderFactory = workbookLoaderFactoryHolder.get();
+        var workbookLoaderFactory = workbookLoaderFactoryHolder.get();
         return Objects.requireNonNullElse(workbookLoaderFactory, DEFAULT_FACTORY).createWorkbookLoader(fileSource);
     }
 }

@@ -32,7 +32,7 @@ public class EqualsIndexDecisionTableRuleNode extends DecisionTableRuleNode impl
 
     @Override
     public BitSet getRuleSet() {
-        BitSet result = new BitSet();
+        var result = new BitSet();
         for (int ruleN : rules) {
             result.set(ruleN);
         }

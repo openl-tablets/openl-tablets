@@ -3,9 +3,6 @@ package org.openl.rules.security.standalone.dao;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +19,9 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
     @Override
     @Transactional
     public Group getGroupByName(final String name) {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<Group> criteria = builder.createQuery(Group.class);
-        Root<Group> g = criteria.from(Group.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(Group.class);
+        var g = criteria.from(Group.class);
         criteria.select(g).where(builder.equal(g.get("name"), name)).distinct(true);
         List<Group> groupList = getSession().createQuery(criteria).getResultList();
         return groupList.isEmpty() ? null : groupList.getFirst();
@@ -33,9 +30,9 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
     @Override
     @Transactional
     public boolean existsByName(String name) {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
-        Root<Group> groupRoot = criteria.from(Group.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(Long.class);
+        var groupRoot = criteria.from(Group.class);
 
         criteria.select(builder.count(groupRoot))
                 .where(builder.equal(groupRoot.get("name"), name));
@@ -67,9 +64,9 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
     @Override
     @Transactional
     public List<Group> getAllGroups() {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<Group> criteria = builder.createQuery(Group.class);
-        Root<Group> root = criteria.from(Group.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(Group.class);
+        var root = criteria.from(Group.class);
         criteria.select(root).orderBy(builder.asc(builder.upper(root.get("name"))));
         return getSession().createQuery(criteria).getResultList();
     }

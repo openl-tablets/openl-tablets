@@ -133,22 +133,22 @@ class FieldDescriptorTest {
     void maxArraySize() {
         List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, asList(B2, B1), true);
         assertNotNull(descriptors);
-        FieldDescriptor id = descriptors.getFirst();
+        var id = descriptors.getFirst();
         assertEquals(1, id.getMaxArraySize(B1));
         assertEquals(1, id.getMaxArraySize(B2));
         assertEquals(1, id.getMaxArraySize(B3));
 
-        FieldDescriptor aValues = descriptors.get(1);
+        var aValues = descriptors.get(1);
         assertEquals(1, aValues.getMaxArraySize(B1)); // Even empty array contains at least 1 row
         assertEquals(1, aValues.getMaxArraySize(B2));
         assertEquals(3, aValues.getMaxArraySize(B3));
 
-        B composite = new B("composite", A2, A1);
+        var composite = new B("composite", A2, A1);
         composite.setChildBValues(B1, B2);
         descriptors = FieldDescriptor.nonEmptyFields(bType, asList(B3, composite), true);
         assertNotNull(descriptors);
         assertEquals(3, descriptors.size());
-        FieldDescriptor childBValues = descriptors.get(2);
+        var childBValues = descriptors.get(2);
         assertEquals(1, childBValues.getMaxArraySize(B3));
         assertEquals(2, childBValues.getMaxArraySize(composite));
     }

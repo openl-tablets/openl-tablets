@@ -1,9 +1,7 @@
 package org.openl.rules.ui.tree;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.IProjectTypes;
 
 /**
@@ -17,8 +15,8 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
 
-        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
-        String category = getCategory(tableSyntaxNode);
+        var tableSyntaxNode = (TableSyntaxNode) nodeObject;
+        var category = getCategory(tableSyntaxNode);
 
         return new String[]{category, category, category};
     }
@@ -37,7 +35,7 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public String getUrl(Object nodeObject) {
 
-        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
+        var tableSyntaxNode = (TableSyntaxNode) nodeObject;
 
         return tableSyntaxNode.getUri();
     }
@@ -59,7 +57,7 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
         String category = null;
 
-        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
+        var tableProperties = tableSyntaxNode.getTableProperties();
 
         if (tableProperties != null && tableProperties.getCategory() != null) {
             category = tableProperties.getCategory();
@@ -67,7 +65,7 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
         if (category == null) {
 
-            XlsSheetSourceCodeModule sheet = tableSyntaxNode.getXlsSheetSourceCodeModule();
+            var sheet = tableSyntaxNode.getXlsSheetSourceCodeModule();
             category = sheet.getSheetName();
         }
 

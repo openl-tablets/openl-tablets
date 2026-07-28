@@ -29,7 +29,7 @@ public class ScaleStorageBuilder implements IStorageBuilder {
 
     @Override
     public IStorage optimizeAndBuild() {
-        IStorage storage = sb.optimizeAndBuild();
+        var storage = sb.optimizeAndBuild();
 
         return new ScaledStorage(scale, storage, sb.getInfo());
     }

@@ -19,7 +19,6 @@ import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.PathInfo;
-import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
@@ -39,22 +38,22 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testBraces() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/path_with_braces/braced_with_text.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertFalse(spreadsheetModels.isEmpty());
         Optional<SpreadsheetModel> bracedSprName = spreadsheetModels.stream().findFirst();
-        String name = bracedSprName.get().getName();
+        var name = bracedSprName.get().getName();
         assertEquals("myRulexyz", name);
 
-        ProjectModel pM = converter.extractProjectModel("test.converter/path_with_braces/braced_simple.json");
+        var pM = converter.extractProjectModel("test.converter/path_with_braces/braced_simple.json");
         List<SpreadsheetModel> sprModels = pM.getSpreadsheetResultModels();
         assertFalse(sprModels.isEmpty());
         Optional<SpreadsheetModel> model = sprModels.stream().findFirst();
-        String formattedName = model.get().getName();
+        var formattedName = model.get().getName();
         assertEquals("myRule", formattedName);
 
-        PathInfo pathInfo = projectModel.getSpreadsheetResultModels().getFirst().getPathInfo();
+        var pathInfo = projectModel.getSpreadsheetResultModels().getFirst().getPathInfo();
         assertNotNull(pathInfo);
         assertEquals("/myRule/{bla}/xyz", pathInfo.getOriginalPath());
         assertEquals("myRulexyz", pathInfo.getFormattedPath());
@@ -63,15 +62,15 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testArrayInSpr() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/spr_array_instance.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertFalse(spreadsheetModels.isEmpty());
-        SpreadsheetModel spreadsheetModel = findSpreadsheet(spreadsheetModels, "HelloKitty");
+        var spreadsheetModel = findSpreadsheet(spreadsheetModels, "HelloKitty");
         assertEquals(1, spreadsheetModel.getSteps().size());
         Optional<StepModel> first = spreadsheetModel.getSteps().stream().findFirst();
         assertTrue(first.isPresent());
-        StepModel stepModel = first.get();
+        var stepModel = first.get();
         validateGeneratedModel("Double[]",
                 stepModel.getType(),
                 "Result",
@@ -79,49 +78,49 @@ class SpreadsheetsConverterTest {
                 "= new Double[]{}",
                 stepModel.getValue());
 
-        SpreadsheetModel blaArrayModel = findSpreadsheet(spreadsheetModels, "BlaArray");
+        var blaArrayModel = findSpreadsheet(spreadsheetModels, "BlaArray");
         List<StepModel> blaSteps = blaArrayModel.getSteps();
         assertEquals(1, blaSteps.size());
         assertEquals("= new SpreadsheetResultBla[][][][]{{{{Bla(null)}}}}", blaSteps.getFirst().getValue());
 
-        SpreadsheetModel helloWorldModel = findSpreadsheet(spreadsheetModels, "HelloWorld");
+        var helloWorldModel = findSpreadsheet(spreadsheetModels, "HelloWorld");
         assertEquals("Double[][][][]", helloWorldModel.getType());
         List<StepModel> steps = helloWorldModel.getSteps();
         assertEquals(1, steps.size());
-        StepModel step = steps.getFirst();
+        var step = steps.getFirst();
         assertEquals("Double[][][][]", step.getType());
         assertEquals("= new Double[][][][]{}", step.getValue());
     }
 
     @Test
     void testNamesInSpreadsheets() throws IOException {
-        List<String> expectedStepsForBla = Arrays.asList("NumAccidents",
+        var expectedStepsForBla = Arrays.asList("NumAccidents",
                 "FIeLd",
                 "f$$ieLD",
                 "$afzZF",
                 "numAccidentsOne",
                 "numAccRidentsTwo",
                 "numAccidentsThree");
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/spr_cases_and_symbols.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertFalse(spreadsheetModels.isEmpty());
-        SpreadsheetModel firstModel = findSpreadsheet(spreadsheetModels, "bla");
+        var firstModel = findSpreadsheet(spreadsheetModels, "bla");
         List<StepModel> steps = firstModel.getSteps();
-        List<String> stepsNames = steps.stream().map(StepModel::getName).collect(Collectors.toList());
+        var stepsNames = steps.stream().map(StepModel::getName).collect(Collectors.toList());
         assertEquals(expectedStepsForBla, stepsNames);
 
-        SpreadsheetModel helloKittyModel = findSpreadsheet(spreadsheetModels, "$H1ello$Kitty");
+        var helloKittyModel = findSpreadsheet(spreadsheetModels, "$H1ello$Kitty");
         List<InputParameter> parameters = helloKittyModel.getParameters();
         assertFalse(parameters.isEmpty());
-        InputParameter next = parameters.getFirst();
+        var next = parameters.getFirst();
         assertEquals("Integer", next.getType().getSimpleName());
         assertEquals("integer", next.getFormattedName());
         assertFalse(helloKittyModel.getSteps().isEmpty());
-        StepModel kittyStep = helloKittyModel.getSteps().getFirst();
+        var kittyStep = helloKittyModel.getSteps().getFirst();
         assertEquals("Result", kittyStep.getName());
 
-        SpreadsheetModel bla112Model = findSpreadsheet(spreadsheetModels, "Bla112");
+        var bla112Model = findSpreadsheet(spreadsheetModels, "Bla112");
         List<InputParameter> bla112Params = bla112Model.getParameters();
         assertFalse(bla112Params.isEmpty());
         assertEquals(2, bla112Params.size());
@@ -138,7 +137,7 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testSprDefaultDateTimeValueInSpr() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/default_values_check.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> apiBla = spreadsheetModels.stream()
@@ -148,47 +147,47 @@ class SpreadsheetsConverterTest {
         List<StepModel> steps = apiBla.get().getSteps();
         assertEquals(11, steps.size());
 
-        StepModel boolStep = findStep(steps, "numAccidents");
+        var boolStep = findStep(steps, "numAccidents");
         assertEquals("Boolean", boolStep.getType());
         assertEquals("= false", boolStep.getValue());
 
-        StepModel dateStep = findStep(steps, "numAccidentsOne");
+        var dateStep = findStep(steps, "numAccidentsOne");
         assertEquals("Date", dateStep.getType());
         assertEquals("= new Date()", dateStep.getValue());
 
-        StepModel dateTimeStep = findStep(steps, "numAccidentsTwo");
+        var dateTimeStep = findStep(steps, "numAccidentsTwo");
         assertEquals("Date", dateTimeStep.getType());
         assertEquals("= new Date()", dateTimeStep.getValue());
 
-        StepModel floatStep = findStep(steps, "numAccidentsThree");
+        var floatStep = findStep(steps, "numAccidentsThree");
         assertEquals("Float", floatStep.getType());
         assertEquals("= 0.0f", floatStep.getValue());
 
-        StepModel integerStep = findStep(steps, "numAccidentsFour");
+        var integerStep = findStep(steps, "numAccidentsFour");
         assertEquals("Integer", integerStep.getType());
         assertEquals("= 0", integerStep.getValue());
 
-        StepModel objectStep = findStep(steps, "numAccidentsFive");
+        var objectStep = findStep(steps, "numAccidentsFive");
         assertEquals("Object", objectStep.getType());
         assertEquals("= new Object()", objectStep.getValue());
 
-        StepModel typedStep = findStep(steps, "numAccidentsSix");
+        var typedStep = findStep(steps, "numAccidentsSix");
         assertEquals("XItem", typedStep.getType());
         assertEquals("= new XItem()", typedStep.getValue());
 
-        StepModel doubleStep = findStep(steps, "numAccidentsSeven");
+        var doubleStep = findStep(steps, "numAccidentsSeven");
         assertEquals("Double", doubleStep.getType());
         assertEquals("= 0.0", doubleStep.getValue());
 
-        StepModel longStep = findStep(steps, "numAccidentsEight");
+        var longStep = findStep(steps, "numAccidentsEight");
         assertEquals("Long", longStep.getType());
         assertEquals("= 0L", longStep.getValue());
 
-        StepModel arrStep = findStep(steps, "numAccidentsNine");
+        var arrStep = findStep(steps, "numAccidentsNine");
         assertEquals("Boolean[]", arrStep.getType());
         assertEquals("= new Boolean[]{}", arrStep.getValue());
 
-        StepModel nArrStep = findStep(steps, "numAccidentsTen");
+        var nArrStep = findStep(steps, "numAccidentsTen");
         assertEquals("Integer[][][][][]", nArrStep.getType());
         assertEquals("= new Integer[][][][][]{}", nArrStep.getValue());
 
@@ -196,15 +195,15 @@ class SpreadsheetsConverterTest {
 
     @Test
     void inputParamsAreObjects() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EBPDS-10283_object_datatypes_without_fields.yaml");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
-        SpreadsheetModel mySprModel = findSpreadsheet(spreadsheetModels, "mySpr");
+        var mySprModel = findSpreadsheet(spreadsheetModels, "mySpr");
         assertEquals("Double", mySprModel.getType());
         List<InputParameter> parameters = mySprModel.getParameters();
         assertEquals(4, parameters.size());
 
-        InputParameter objParameter = findInputParameter(parameters, "objField");
+        var objParameter = findInputParameter(parameters, "objField");
         validateGeneratedModel("Object",
                 objParameter.getType().getSimpleName(),
                 "java.lang.Object",
@@ -212,7 +211,7 @@ class SpreadsheetsConverterTest {
                 "objField",
                 objParameter.getFormattedName());
 
-        InputParameter mapParameter = findInputParameter(parameters, "mapField");
+        var mapParameter = findInputParameter(parameters, "mapField");
         validateGeneratedModel("Object",
                 mapParameter.getType().getSimpleName(),
                 "java.lang.Object",
@@ -220,7 +219,7 @@ class SpreadsheetsConverterTest {
                 "mapField",
                 mapParameter.getFormattedName());
 
-        InputParameter listParameter = findInputParameter(parameters, "listField");
+        var listParameter = findInputParameter(parameters, "listField");
         validateGeneratedModel("Object[]",
                 listParameter.getType().getSimpleName(),
                 "[Ljava.lang.Object;",
@@ -228,7 +227,7 @@ class SpreadsheetsConverterTest {
                 "listField",
                 listParameter.getFormattedName());
 
-        InputParameter doubleParameter = findInputParameter(parameters, "doubleField");
+        var doubleParameter = findInputParameter(parameters, "doubleField");
         validateGeneratedModel("Double",
                 doubleParameter.getType().getSimpleName(),
                 "java.lang.Double",
@@ -236,30 +235,30 @@ class SpreadsheetsConverterTest {
                 "doubleField",
                 doubleParameter.getFormattedName());
 
-        SpreadsheetModel mySpr2Model = findSpreadsheet(spreadsheetModels, "mySpr2");
+        var mySpr2Model = findSpreadsheet(spreadsheetModels, "mySpr2");
         assertEquals("Object", mySpr2Model.getType());
         List<InputParameter> spr2Parameters = mySpr2Model.getParameters();
         assertEquals(1, spr2Parameters.size());
-        InputParameter objectParam = spr2Parameters.getFirst();
+        var objectParam = spr2Parameters.getFirst();
         assertEquals("Object", objectParam.getType().getSimpleName());
         assertEquals("object", objectParam.getFormattedName());
 
         List<StepModel> objSteps = mySpr2Model.getSteps();
         assertEquals(1, objSteps.size());
-        StepModel objStep = objSteps.getFirst();
+        var objStep = objSteps.getFirst();
         assertEquals("Object", objStep.getType());
         assertEquals("Result", objStep.getName());
     }
 
     @Test
     void testMissedSpreadsheet() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EBPDS-10228_spreadsheet_was_missed.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertEquals(2, spreadsheetModels.size());
-        SpreadsheetModel apiBlaModel = findSpreadsheet(spreadsheetModels, "apiBla");
+        var apiBlaModel = findSpreadsheet(spreadsheetModels, "apiBla");
         List<StepModel> steps = apiBlaModel.getSteps();
-        StepModel step = steps.getFirst();
+        var step = steps.getFirst();
         validateGeneratedModel("Result",
                 step.getName(),
                 "DriverRisk",
@@ -270,32 +269,32 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testProvidedContext() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context.json");
+        var projectModel = converter.extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context.json");
         assertFalse(projectModel.isRuntimeContextProvided());
         List<SpreadsheetModel> sprModels = projectModel.getSpreadsheetResultModels();
         assertEquals(2, sprModels.size());
         assertEquals(0, projectModel.getNotOpenLModels().size());
 
-        ProjectModel projectModelWithDRC = converter
+        var projectModelWithDRC = converter
                 .extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context_provided.json");
         assertTrue(projectModelWithDRC.isRuntimeContextProvided());
         assertEquals(2, projectModelWithDRC.getSpreadsheetResultModels().size());
-        List<InputParameter> params = projectModelWithDRC.getSpreadsheetResultModels()
+        var params = projectModelWithDRC.getSpreadsheetResultModels()
                 .stream()
                 .flatMap(x -> x.getParameters().stream())
                 .collect(Collectors.toList());
         assertEquals(0, params.size());
 
-        ProjectModel projectModelWithNotAllDRC = converter
+        var projectModelWithNotAllDRC = converter
                 .extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context_provided_partially.json");
         List<SpreadsheetModel> modelsToClass = projectModelWithNotAllDRC.getNotOpenLModels();
         List<SpreadsheetModel> spreadsheetResultModels = projectModelWithNotAllDRC.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetResultModels.size());
         assertEquals(1, modelsToClass.size());
-        SpreadsheetModel apiBlaModel = modelsToClass.getFirst();
+        var apiBlaModel = modelsToClass.getFirst();
         List<InputParameter> parameters = apiBlaModel.getParameters();
         assertEquals(4, parameters.size());
-        Set<String> parameterNames = parameters.stream()
+        var parameterNames = parameters.stream()
                 .map(InputParameter::getFormattedName)
                 .collect(Collectors.toSet());
         assertTrue(parameterNames.contains("id"));
@@ -306,55 +305,55 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testArrayBrackets() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/spreadsheets/arrray_brackets.json");
+        var projectModel = converter.extractProjectModel("test.converter/spreadsheets/arrray_brackets.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
-        SpreadsheetModel spreadsheetModel = findSpreadsheet(spreadsheetResultModels, "HelloKitty");
+        var spreadsheetModel = findSpreadsheet(spreadsheetResultModels, "HelloKitty");
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter param = parameters.getFirst();
+        var param = parameters.getFirst();
         assertEquals("Double[]", param.getType().getSimpleName());
         assertEquals("double", param.getFormattedName());
     }
 
     @Test
     void testSprResultSignatureForArray() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/spr_return_array_of_type.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
-        SpreadsheetModel hk = findSpreadsheet(spreadsheetResultModels, "HelloKitty");
+        var hk = findSpreadsheet(spreadsheetResultModels, "HelloKitty");
         assertEquals("SpreadsheetResultBla[]", hk.getType());
         List<InputParameter> hkParameters = hk.getParameters();
         assertEquals(1, hkParameters.size());
-        InputParameter decimalParam = hkParameters.getFirst();
+        var decimalParam = hkParameters.getFirst();
         assertEquals("[Ljava.lang.Double;", decimalParam.getType().getJavaName());
         assertEquals("Double[]", decimalParam.getType().getSimpleName());
 
-        SpreadsheetModel hp = findSpreadsheet(spreadsheetResultModels, "HelloPesi");
+        var hp = findSpreadsheet(spreadsheetResultModels, "HelloPesi");
         assertEquals("SpreadsheetResultBla[][][]", hp.getType());
 
     }
 
     @Test
     void testSprInputDateTimeType() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10392_date_time_input.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
-        SpreadsheetModel model = findSpreadsheet(spreadsheetResultModels, "helloKitty");
+        var model = findSpreadsheet(spreadsheetResultModels, "helloKitty");
         assertEquals("Date[]", model.getType());
         List<InputParameter> parameters = model.getParameters();
         assertEquals(4, parameters.size());
-        InputParameter inputParameter = findInputParameter(parameters, "someField");
+        var inputParameter = findInputParameter(parameters, "someField");
         assertEquals("Date", inputParameter.getType().getSimpleName());
         assertEquals("java.util.Date", inputParameter.getType().getJavaName());
 
-        InputParameter oneMoreFieldParam = findInputParameter(parameters, "oneMoreField");
+        var oneMoreFieldParam = findInputParameter(parameters, "oneMoreField");
         assertEquals("[[[Ljava.util.Date;", oneMoreFieldParam.getType().getJavaName());
         assertEquals("Date[][][]", oneMoreFieldParam.getType().getSimpleName());
     }
 
     @Test
     void testMissedDataType() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10386_datatype_was_missed.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(3, datatypeModels.size());
@@ -366,7 +365,7 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testExtraDataType() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10387_extra_datatype.yaml");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(4, datatypeModels.size());
@@ -375,34 +374,34 @@ class SpreadsheetsConverterTest {
                 .filter(x -> x.getName().equals("CorporateRatingCalculation"))
                 .findAny();
         assertTrue(corporateRatingCalculation.isPresent());
-        SpreadsheetModel spreadsheetModel = corporateRatingCalculation.get();
+        var spreadsheetModel = corporateRatingCalculation.get();
         List<StepModel> steps = spreadsheetModel.getSteps();
         Optional<StepModel> financialRatingCalculation = steps.stream()
                 .filter(x -> x.getName().equals("Value_FinancialRatingCalculation"))
                 .findAny();
         assertTrue(financialRatingCalculation.isPresent());
-        StepModel stepModel = financialRatingCalculation.get();
+        var stepModel = financialRatingCalculation.get();
         assertEquals("= FinancialRatingCalculation(null, null)", stepModel.getValue());
     }
 
     @Test
     void testArraySprSteps() throws IOException {
-        ProjectModel oneDimArray = converter
+        var oneDimArray = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10412_array_type_steps.json");
         Optional<DatatypeModel> pokemonOptional = oneDimArray.getDatatypeModels()
                 .stream()
                 .filter(x -> x.getName().equals("Pokemon"))
                 .findFirst();
         assertTrue(pokemonOptional.isPresent());
-        DatatypeModel pokemon = pokemonOptional.get();
+        var pokemon = pokemonOptional.get();
         assertEquals(4, pokemon.getFields().size());
         List<SpreadsheetModel> spreadsheetResultModels = oneDimArray.getSpreadsheetResultModels();
-        SpreadsheetModel helloKittyArray = findSpreadsheet(spreadsheetResultModels, "helloKitty");
+        var helloKittyArray = findSpreadsheet(spreadsheetResultModels, "helloKitty");
         assertEquals(1, helloKittyArray.getSteps().size());
-        StepModel step = helloKittyArray.getSteps().getFirst();
+        var step = helloKittyArray.getSteps().getFirst();
         assertEquals("= new Pokemon[]{}", step.getValue());
 
-        ProjectModel nThArray = converter
+        var nThArray = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10412_multi_array_type_steps.json");
         List<SpreadsheetModel> multiArrayModels = nThArray.getSpreadsheetResultModels();
         Optional<DatatypeModel> pokemonArrOptional = nThArray.getDatatypeModels()
@@ -410,45 +409,45 @@ class SpreadsheetsConverterTest {
                 .filter(x -> x.getName().equals("Pokemon"))
                 .findFirst();
         assertTrue(pokemonArrOptional.isPresent());
-        DatatypeModel pokemonArr = pokemonArrOptional.get();
+        var pokemonArr = pokemonArrOptional.get();
         assertEquals(4, pokemonArr.getFields().size());
-        SpreadsheetModel arrModel = findSpreadsheet(multiArrayModels, "helloKitty");
+        var arrModel = findSpreadsheet(multiArrayModels, "helloKitty");
         List<StepModel> arrSteps = arrModel.getSteps();
         assertEquals(1, arrSteps.size());
-        StepModel arrStep = arrSteps.getFirst();
+        var arrStep = arrSteps.getFirst();
         assertEquals("= new Pokemon[][][][][]{}", arrStep.getValue());
     }
 
     @Test
     void testSprChild() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10432_child_spr.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> spr = spreadsheetResultModels.stream()
                 .filter(spreadsheet -> spreadsheet.getName().equals("petsAGET"))
                 .findAny();
         assertTrue(spr.isPresent());
-        SpreadsheetModel spreadsheetModel = spr.get();
+        var spreadsheetModel = spr.get();
         assertEquals("Pet", spreadsheetModel.getType());
         assertEquals(1, spreadsheetModel.getSteps().size());
-        StepModel step = spreadsheetModel.getSteps().getFirst();
+        var step = spreadsheetModel.getSteps().getFirst();
         validateGeneratedModel("Pet", step.getType(), "Result", step.getName(), "= new Pet()", step.getValue());
     }
 
     @Test
     void testTypeGeneration() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10433_type_not_generated.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(1, datatypeModels.size());
 
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
-        SpreadsheetModel spreadsheetModel = findSpreadsheet(spreadsheetResultModels, "helloKitty");
+        var spreadsheetModel = findSpreadsheet(spreadsheetResultModels, "helloKitty");
         assertEquals("SpreadsheetResult", spreadsheetModel.getType());
         List<StepModel> steps = spreadsheetModel.getSteps();
         assertEquals(3, steps.size());
 
-        ProjectModel projectModelArray = converter
+        var projectModelArray = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10433_type_not_generated_arr.json");
         Set<DatatypeModel> dts = projectModelArray.getDatatypeModels();
         assertEquals(1, dts.size());
@@ -457,10 +456,10 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testOverloaded() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10439_overloaded_spreadsheet.yaml");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
-        Set<SpreadsheetModel> storeOrderModels = spreadsheetResultModels.stream()
+        var storeOrderModels = spreadsheetResultModels.stream()
                 .filter(x -> x.getName().contains("storeorder"))
                 .collect(Collectors.toSet());
         assertEquals(2, storeOrderModels.size());
@@ -468,31 +467,31 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testDiscriminatorField() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10422_discriminator_field.yaml");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        List<FieldModel> fields = datatypeModels.stream()
+        var fields = datatypeModels.stream()
                 .flatMap(x -> x.getFields().stream())
                 .collect(Collectors.toList());
         Optional<FieldModel> anyClassField = fields.stream().filter(x -> x.getName().equals("@class")).findAny();
         assertFalse(anyClassField.isPresent());
 
-        SpreadsheetModel spreadsheetModel = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "method2");
+        var spreadsheetModel = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "method2");
         assertEquals(1, spreadsheetModel.getSteps().size());
-        StepModel colorStep = spreadsheetModel.getSteps().getFirst();
+        var colorStep = spreadsheetModel.getSteps().getFirst();
         assertEquals("color", colorStep.getName());
     }
 
     @Test
     void testIncorrectCall() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10417_table_name_equals_data_type_name.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> calculateCoverageRate = spreadsheetResultModels.stream()
                 .filter(x -> x.getName().equals("CalculateCoverageRate"))
                 .findAny();
         assertTrue(calculateCoverageRate.isPresent());
-        SpreadsheetModel spreadsheetModel = calculateCoverageRate.get();
+        var spreadsheetModel = calculateCoverageRate.get();
         List<StepModel> steps = spreadsheetModel.getSteps();
         Optional<StepModel> tierRates = steps.stream().filter(x -> x.getName().equals("tierRates")).findAny();
         assertTrue(tierRates.isPresent());
@@ -501,20 +500,20 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testIncorrectSpreadsheetArray() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10465-incorrect_spreadsheet_array.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> petsA = spreadsheetResultModels.stream()
                 .filter(x -> x.getName().equals("petsA"))
                 .findAny();
         assertTrue(petsA.isPresent());
-        SpreadsheetModel spreadsheetModel = petsA.get();
+        var spreadsheetModel = petsA.get();
         List<StepModel> steps = spreadsheetModel.getSteps();
         assertEquals(2, steps.size());
-        StepModel stepModel = findStep(steps, "PetArray");
+        var stepModel = findStep(steps, "PetArray");
         assertEquals("= new SpreadsheetResultNewPet[]{NewPet(null, null)}", stepModel.getValue());
 
-        ProjectModel nThDimensionalArray = converter
+        var nThDimensionalArray = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10465-incorrect_spreadsheet_n_array.json");
 
         Optional<SpreadsheetModel> petsN = nThDimensionalArray.getSpreadsheetResultModels()
@@ -522,34 +521,34 @@ class SpreadsheetsConverterTest {
                 .filter(x -> x.getName().equals("petsN"))
                 .findAny();
         assertTrue(petsN.isPresent());
-        SpreadsheetModel model = petsN.get();
+        var model = petsN.get();
         List<StepModel> stepModels = model.getSteps();
         assertEquals(2, stepModels.size());
-        StepModel step = findStep(stepModels, "PetArray");
+        var step = findStep(stepModels, "PetArray");
         assertEquals("= new SpreadsheetResultNewPet[][][][]{{{{NewPet(null, null)}}}}", step.getValue());
     }
 
     @Test
     void testIncorrectWrapperCase() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10481-wrong_request_body.yaml");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetResultModels.size());
-        SpreadsheetModel spreadsheetModel = spreadsheetResultModels.getFirst();
+        var spreadsheetModel = spreadsheetResultModels.getFirst();
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter next = parameters.getFirst();
+        var next = parameters.getFirst();
         assertEquals("WrapperObject", next.getType().getSimpleName());
         assertEquals("wrapperObject", next.getFormattedName());
     }
 
     @Test
     void modifiedPathTest() throws IOException {
-        ProjectModel pathProject = converter.extractProjectModel("test.converter/paths/slashProblem.json");
+        var pathProject = converter.extractProjectModel("test.converter/paths/slashProblem.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
 
-        SpreadsheetModel apiBlaModel = findSpreadsheet(spreadsheetResultModels, "apiBla");
-        PathInfo apiBlaModelPathInfo = apiBlaModel.getPathInfo();
+        var apiBlaModel = findSpreadsheet(spreadsheetResultModels, "apiBla");
+        var apiBlaModelPathInfo = apiBlaModel.getPathInfo();
         validateGeneratedModel("/api/Bla",
                 apiBlaModelPathInfo.getOriginalPath(),
                 "apiBla",
@@ -564,8 +563,8 @@ class SpreadsheetsConverterTest {
                 apiBlaModelPathInfo.getReturnType().getSimpleName());
         assertEquals("org.openl.rules.calc.SpreadsheetResult", apiBlaModelPathInfo.getReturnType().getJavaName());
 
-        SpreadsheetModel apiTodoModel = findSpreadsheet(spreadsheetResultModels, "apiTodo");
-        PathInfo apiTodoModelPathInfo = apiTodoModel.getPathInfo();
+        var apiTodoModel = findSpreadsheet(spreadsheetResultModels, "apiTodo");
+        var apiTodoModelPathInfo = apiTodoModel.getPathInfo();
         validateGeneratedModel("/api/Todo",
                 apiTodoModelPathInfo.getOriginalPath(),
                 "apiTodo",
@@ -584,15 +583,15 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testSpreadsheetWithManyParamsCreation() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params_with_runtime.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
-        SpreadsheetModel mySprModel = findSpreadsheet(spreadsheetModels, "CoverageFactors");
+        var mySprModel = findSpreadsheet(spreadsheetModels, "CoverageFactors");
         assertEquals("SpreadsheetResult", mySprModel.getType());
         List<InputParameter> parameters = mySprModel.getParameters();
         assertEquals(10, parameters.size());
 
-        List<String> expectedStepsForBla = Arrays.asList("HospitalConfinementWaiverRate",
+        var expectedStepsForBla = Arrays.asList("HospitalConfinementWaiverRate",
                 "PortabilityFactor",
                 "DisabilityDefinitionFactor",
                 "FICAMatchingFactor",
@@ -604,13 +603,13 @@ class SpreadsheetsConverterTest {
                 "WorkIncentiveFactor",
                 "NetClaimCostAggregatedFactor");
         List<StepModel> steps = mySprModel.getSteps();
-        List<String> stepsNames = steps.stream().map(StepModel::getName).collect(Collectors.toList());
+        var stepsNames = steps.stream().map(StepModel::getName).collect(Collectors.toList());
         assertEquals(expectedStepsForBla, stepsNames);
 
-        ProjectModel projectModel2 = converter
+        var projectModel2 = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params.json");
         List<SpreadsheetModel> spreadsheetModels2 = projectModel2.getSpreadsheetResultModels();
-        SpreadsheetModel mySprModel2 = findSpreadsheet(spreadsheetModels2, "CoverageFactors");
+        var mySprModel2 = findSpreadsheet(spreadsheetModels2, "CoverageFactors");
         assertEquals("SpreadsheetResult", mySprModel2.getType());
         List<InputParameter> parameters2 = mySprModel2.getParameters();
         assertEquals(10, parameters2.size());
@@ -618,77 +617,77 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testSpreadsheetCreation() throws IOException {
-        ProjectModel pathProject = converter
+        var pathProject = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10799_spreadsheets_creation.json");
 
         Set<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
         assertEquals(1, datatypeModels.size());
-        DatatypeModel dm = datatypeModels.iterator().next();
+        var dm = datatypeModels.iterator().next();
         assertEquals("JAXRSErrorResponse", dm.getName());
         assertEquals(3, dm.getFields().size());
 
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
         assertEquals(2, spreadsheetResultModels.size());
-        SpreadsheetModel fm = findSpreadsheet(spreadsheetResultModels, "newSpr");
+        var fm = findSpreadsheet(spreadsheetResultModels, "newSpr");
         assertEquals(2, fm.getSteps().size());
 
-        SpreadsheetModel mySpr = findSpreadsheet(spreadsheetResultModels, "mySpr");
+        var mySpr = findSpreadsheet(spreadsheetResultModels, "mySpr");
         List<StepModel> steps = mySpr.getSteps();
         assertEquals(3, steps.size());
-        StepModel callStep = findStep(steps, "Step3");
-        String type = callStep.getType();
+        var callStep = findStep(steps, "Step3");
+        var type = callStep.getType();
         assertEquals("NewSpr[]", type);
-        String value = callStep.getValue();
+        var value = callStep.getValue();
         assertEquals("= new SpreadsheetResultnewSpr[]{newSpr(null, null)}", value);
     }
 
     @Test
     void testLostSpreadsheet() throws IOException {
-        ProjectModel pathProject = converter
+        var pathProject = converter
                 .extractProjectModel("test.converter/spreadsheets/lostSpreadsheetExamples.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
 
-        SpreadsheetModel newSprModel = findSpreadsheet(spreadsheetResultModels, "newSpr");
+        var newSprModel = findSpreadsheet(spreadsheetResultModels, "newSpr");
         List<StepModel> steps = newSprModel.getSteps();
         assertEquals(2, steps.size());
         assertTrue(steps.stream().anyMatch(x -> x.getName().equals("calc1")));
         assertTrue(steps.stream().anyMatch(x -> x.getName().equals("calc2")));
 
-        SpreadsheetModel mySprModel = findSpreadsheet(spreadsheetResultModels, "mySpr");
+        var mySprModel = findSpreadsheet(spreadsheetResultModels, "mySpr");
         List<StepModel> mySprSteps = mySprModel.getSteps();
         assertTrue(mySprSteps.stream().anyMatch(step -> step.getName().equals("Step1")));
         assertTrue(mySprSteps.stream().anyMatch(step -> step.getName().equals("Step2")));
-        StepModel stepModel = findStep(mySprSteps, "Step3");
+        var stepModel = findStep(mySprSteps, "Step3");
         assertEquals("= new SpreadsheetResultnewSpr[]{newSpr(null, null)}", stepModel.getValue());
 
-        SpreadsheetModel withoutSelfRef = findSpreadsheet(spreadsheetResultModels, "LostSpreadsheetWithoutSelfRefs");
+        var withoutSelfRef = findSpreadsheet(spreadsheetResultModels, "LostSpreadsheetWithoutSelfRefs");
         List<StepModel> withoutSelfRefSteps = withoutSelfRef.getSteps();
         assertTrue(withoutSelfRefSteps.stream().anyMatch(step -> step.getName().equals("abba")));
-        StepModel callModel = findStep(withoutSelfRefSteps, "callOfSpr");
+        var callModel = findStep(withoutSelfRefSteps, "callOfSpr");
         assertEquals("= mySpr(null, null)", callModel.getValue());
 
-        SpreadsheetModel withSelfRefModel = findSpreadsheet(spreadsheetResultModels,
+        var withSelfRefModel = findSpreadsheet(spreadsheetResultModels,
                 "LostSpreadsheetWithSelfReferences");
         List<StepModel> selfRefSteps = withSelfRefModel.getSteps();
         assertTrue(selfRefSteps.stream().anyMatch(step -> step.getName().equals("abba")));
 
-        StepModel interestingStep = findStep(selfRefSteps, "interesting");
+        var interestingStep = findStep(selfRefSteps, "interesting");
         assertEquals("= LostSpreadsheetWithSelfReferences()", interestingStep.getValue());
 
         Optional<StepModel> optionalInterestingArray = selfRefSteps.stream()
                 .filter(step -> step.getName().equals("interestingArray"))
                 .findFirst();
-        StepModel interestingArrayStep = optionalInterestingArray.get();
+        var interestingArrayStep = optionalInterestingArray.get();
         assertEquals("= new SpreadsheetResultLostSpreadsheetWithSelfReferences[][]{{}}",
                 interestingArrayStep.getValue());
 
-        StepModel callInArrStep = findStep(selfRefSteps, "callOfSpr");
+        var callInArrStep = findStep(selfRefSteps, "callOfSpr");
         assertEquals("= mySpr(null, null)", callInArrStep.getValue());
     }
 
     @Test
     void testFilteringWithAnySpreadsheetResult() throws IOException {
-        ProjectModel pathProject = converter
+        var pathProject = converter
                 .extractProjectModel("test.converter/spreadsheets/smallExampleWithAny.json");
         Set<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
 
@@ -710,7 +709,7 @@ class SpreadsheetsConverterTest {
         assertTrue(mySmartSteps.stream().anyMatch(step -> step.getName().equals("Step3")));
 
         List<StepModel> mySpr2Steps = findSpreadsheet(spreadsheetResultModels, "mySpr2").getSteps();
-        StepModel step = mySpr2Steps.getFirst();
+        var step = mySpr2Steps.getFirst();
         validateGeneratedModel("Step1",
                 step.getName(),
                 "AnySpreadsheetResult",
@@ -723,7 +722,7 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testSpreadsheetResultInDataTypes() throws IOException {
-        ProjectModel pathProject = converter
+        var pathProject = converter
                 .extractProjectModel("test.converter/datatype/spreadsheetResultDataType.json");
         Set<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
         assertFalse(datatypeModels.stream().anyMatch(dm -> dm.getName().equals("SpreadsheetResult")));
@@ -735,48 +734,48 @@ class SpreadsheetsConverterTest {
      */
     @Test
     void testWrongCall() throws IOException {
-        ProjectModel pathProject = converter
+        var pathProject = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10848_wrong_call.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
 
-        SpreadsheetModel midStepSome1 = findSpreadsheet(spreadsheetResultModels, "MidStepSome1");
+        var midStepSome1 = findSpreadsheet(spreadsheetResultModels, "MidStepSome1");
         List<StepModel> midStepSome1Steps = midStepSome1.getSteps();
-        StepModel ageBandSome1 = findStep(midStepSome1Steps, "AgeBand");
+        var ageBandSome1 = findStep(midStepSome1Steps, "AgeBand");
         validateGeneratedModel("String",
                 ageBandSome1.getType(),
                 "AgeBand",
                 ageBandSome1.getName(),
                 "= \"\"",
                 ageBandSome1.getValue());
-        StepModel ageBandInfoSome1 = findStep(midStepSome1Steps, "AgeBandInfo");
+        var ageBandInfoSome1 = findStep(midStepSome1Steps, "AgeBandInfo");
         validateGeneratedModel("StepSome[]",
                 ageBandInfoSome1.getType(),
                 "AgeBandInfo",
                 ageBandInfoSome1.getName(),
                 "= new StepSome[]{}",
                 ageBandInfoSome1.getValue());
-        StepModel someFromAllMyPerAgeBandSome1 = findStep(midStepSome1Steps, "SomeFromAllMyPerAgeBand");
+        var someFromAllMyPerAgeBandSome1 = findStep(midStepSome1Steps, "SomeFromAllMyPerAgeBand");
         validateGeneratedModel("Double",
                 someFromAllMyPerAgeBandSome1.getType(),
                 "SomeFromAllMyPerAgeBand",
                 someFromAllMyPerAgeBandSome1.getName(),
                 "= 0.0",
                 someFromAllMyPerAgeBandSome1.getValue());
-        StepModel cpFromAllMyPerAgeBandSome1 = findStep(midStepSome1Steps, "CPFromAllMyPerAgeBand");
+        var cpFromAllMyPerAgeBandSome1 = findStep(midStepSome1Steps, "CPFromAllMyPerAgeBand");
         validateGeneratedModel("Double",
                 cpFromAllMyPerAgeBandSome1.getType(),
                 "CPFromAllMyPerAgeBand",
                 cpFromAllMyPerAgeBandSome1.getName(),
                 "= 0.0",
                 someFromAllMyPerAgeBandSome1.getValue());
-        StepModel someMultiplyCPSome1 = findStep(midStepSome1Steps, "SomeMultiplyCP");
+        var someMultiplyCPSome1 = findStep(midStepSome1Steps, "SomeMultiplyCP");
         validateGeneratedModel("Double",
                 someMultiplyCPSome1.getType(),
                 "SomeMultiplyCP",
                 someMultiplyCPSome1.getName(),
                 "= 0.0",
                 someMultiplyCPSome1.getValue());
-        StepModel blendedSome1 = findStep(midStepSome1Steps, "BlendedSome");
+        var blendedSome1 = findStep(midStepSome1Steps, "BlendedSome");
         validateGeneratedModel("MiddleStepSome[]",
                 blendedSome1.getType(),
                 "BlendedSome",
@@ -784,27 +783,27 @@ class SpreadsheetsConverterTest {
                 "= new SpreadsheetResultMiddleStepSome[]{MiddleStepSome(null, null, null)}",
                 blendedSome1.getValue());
 
-        SpreadsheetModel middleStepSome = findSpreadsheet(spreadsheetResultModels, "MiddleStepSome");
+        var middleStepSome = findSpreadsheet(spreadsheetResultModels, "MiddleStepSome");
         assertEquals(2, middleStepSome.getSteps().size());
 
-        SpreadsheetModel midStepSome = findSpreadsheet(spreadsheetResultModels, "MidStepSome");
+        var midStepSome = findSpreadsheet(spreadsheetResultModels, "MidStepSome");
         List<StepModel> midStepSomeSteps = midStepSome.getSteps();
-        StepModel ageBandSome = findStep(midStepSomeSteps, "AgeBand");
+        var ageBandSome = findStep(midStepSomeSteps, "AgeBand");
         assertEquals(ageBandSome1, ageBandSome);
-        StepModel ageBandInfoSome = findStep(midStepSomeSteps, "AgeBandInfo");
+        var ageBandInfoSome = findStep(midStepSomeSteps, "AgeBandInfo");
         assertEquals(ageBandInfoSome1, ageBandInfoSome);
-        StepModel someFromAllMyPerAgeBandSome = findStep(midStepSomeSteps, "SomeFromAllMyPerAgeBand");
+        var someFromAllMyPerAgeBandSome = findStep(midStepSomeSteps, "SomeFromAllMyPerAgeBand");
         assertEquals(someFromAllMyPerAgeBandSome1, someFromAllMyPerAgeBandSome);
-        StepModel cpFromAllMyPerAgeBandSome = findStep(midStepSomeSteps, "CPFromAllMyPerAgeBand");
+        var cpFromAllMyPerAgeBandSome = findStep(midStepSomeSteps, "CPFromAllMyPerAgeBand");
         assertEquals(cpFromAllMyPerAgeBandSome1, cpFromAllMyPerAgeBandSome);
-        StepModel someMultiplyCPSome = findStep(midStepSomeSteps, "SomeMultiplyCP");
+        var someMultiplyCPSome = findStep(midStepSomeSteps, "SomeMultiplyCP");
         assertEquals(someMultiplyCPSome1, someMultiplyCPSome);
-        StepModel blendedSome = findStep(midStepSomeSteps, "BlendedSome");
+        var blendedSome = findStep(midStepSomeSteps, "BlendedSome");
         assertEquals(blendedSome1, blendedSome);
 
-        SpreadsheetModel setStepSome = findSpreadsheet(spreadsheetResultModels, "SetStepSome");
+        var setStepSome = findSpreadsheet(spreadsheetResultModels, "SetStepSome");
         assertEquals(4, setStepSome.getSteps().size());
-        StepModel midStepSomePerAgeBand = findStep(setStepSome.getSteps(), "MidStepSomePerAgeBand");
+        var midStepSomePerAgeBand = findStep(setStepSome.getSteps(), "MidStepSomePerAgeBand");
         validateGeneratedModel("MidStepSome",
                 midStepSomePerAgeBand.getType(),
                 "MidStepSomePerAgeBand",
@@ -816,19 +815,19 @@ class SpreadsheetsConverterTest {
 
     @Test
     void testEPBDS_10979() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10979_sprGeneration.json");
         assertEquals(3, projectModel.getDatatypeModels().size());
         assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "MyDatatype".equals(dt.getName())));
         assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "Spr5".equals(dt.getName())));
         assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "CensusSummary".equals(dt.getName())));
-        SpreadsheetModel sp1 = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "Spr1");
+        var sp1 = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "Spr1");
         assertEquals("CensusSummary", sp1.getType());
         assertEquals(1, sp1.getSteps().size());
         assertEquals("CensusSummary", sp1.getSteps().getFirst().getType());
         assertEquals("= new CensusSummary()", sp1.getSteps().getFirst().getValue());
 
-        SpreadsheetModel sp4 = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "Spr4");
+        var sp4 = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "Spr4");
         assertEquals("SpreadsheetResult", sp4.getType());
         assertEquals(2, sp4.getSteps().size());
         assertEquals("CensusSummary[]", sp4.getSteps().getFirst().getType());

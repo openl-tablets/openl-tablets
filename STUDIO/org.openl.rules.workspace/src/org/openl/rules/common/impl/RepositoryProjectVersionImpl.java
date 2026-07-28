@@ -116,7 +116,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     @Override
     public String getShortVersion() {
-        String version = getVersionName();
+        var version = getVersionName();
         return version == null || version.length() < 6 ? version : version.substring(0, 6);
     }
 

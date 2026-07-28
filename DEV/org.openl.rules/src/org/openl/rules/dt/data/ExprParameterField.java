@@ -26,9 +26,9 @@ class ExprParameterField implements IOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        RuleExecutionObject reo = (RuleExecutionObject) target;
-        int ruleNum = reo.getRuleNum();
-        Expr expr = conditionOrAction.getExprValue(paramNum, ruleNum);
+        var reo = (RuleExecutionObject) target;
+        var ruleNum = reo.getRuleNum();
+        var expr = conditionOrAction.getExprValue(paramNum, ruleNum);
         return expr != null ? expr : Expr.NULL_EXPR;
     }
 

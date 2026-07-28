@@ -38,11 +38,11 @@ public class TransposedGridTable extends AGridTableDecorator {
 
     @Override
     public IGridRegion getRegion() {
-        int left = table.getRegion().getTop();
-        int top = table.getRegion().getLeft();
+        var left = table.getRegion().getTop();
+        var top = table.getRegion().getLeft();
 
-        int right = table.getRegion().getBottom();
-        int bottom = table.getRegion().getRight();
+        var right = table.getRegion().getBottom();
+        var bottom = table.getRegion().getRight();
 
         return new GridRegion(top, left, bottom, right);
     }

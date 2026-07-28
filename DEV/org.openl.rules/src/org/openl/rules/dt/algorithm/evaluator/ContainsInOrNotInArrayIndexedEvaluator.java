@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -47,7 +46,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
 
-        Object value = condition.getEvaluator().invoke(target, params, env);
+        var value = condition.getEvaluator().invoke(target, params, env);
 
         return new ContainsInOrNotInArraySelector(condition, value, target, params, this.adaptor, env);
     }
@@ -66,15 +65,15 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
         Set<Object> allValues = null;
 
-        DecisionTableRuleNodeBuilder copyRules = new DecisionTableRuleNodeBuilder();
-        List<Set<?>> valueSets = new ArrayList<>();
+        var copyRules = new DecisionTableRuleNodeBuilder();
+        var valueSets = new ArrayList<Set<?>>();
 
-        boolean globalComparatorBasedSet = false;
-        boolean globalSmartFloatComparatorIsUsed = false;
+        var globalComparatorBasedSet = false;
+        var globalSmartFloatComparatorIsUsed = false;
 
         while (iterator.hasNext()) {
 
-            int i = iterator.nextInt();
+            var i = iterator.nextInt();
             copyRules.addRule(i);
 
             if (condition.isEmpty(i)) {
@@ -83,13 +82,13 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
             }
 
             Set<Object> values = null;
-            Object valuesArray = condition.getParamValue(1, i);
+            var valuesArray = condition.getParamValue(1, i);
 
-            int length = Array.getLength(valuesArray);
-            boolean comparatorBasedSet = false;
-            boolean smartFloatComparatorIsUsed = false;
+            var length = Array.getLength(valuesArray);
+            var comparatorBasedSet = false;
+            var smartFloatComparatorIsUsed = false;
 
-            for (int j = 0; j < length; j++) {
+            for (var j = 0; j < length; j++) {
                 Object value = Array.get(valuesArray, j);
                 if (comparatorBasedSet && !(value instanceof Comparable<?>)) {
                     throw new IllegalArgumentException("Illegal state. Index based on comparable interface.");
@@ -122,7 +121,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
             valueSets.add(values);
         }
 
-        int[] rules = copyRules.makeRulesAry();
+        var rules = copyRules.makeRulesAry();
         iterator = new IntArrayIterator(rules);
 
         Map<Object, DecisionTableRuleNodeBuilder> map;
@@ -142,11 +141,11 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
             nodeMap = new HashMap<>();
         }
 
-        DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
+        var emptyBuilder = new DecisionTableRuleNodeBuilder();
 
         while (iterator.hasNext()) {
 
-            int i = iterator.nextInt();
+            var i = iterator.nextInt();
 
             if (condition.isEmpty(i)) {
 
@@ -157,16 +156,16 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
                 continue;
             }
 
-            Object isInObject = condition.getParamValue(0, i);
-            boolean isIn = isInObject == null || adaptor.extractBooleanValue(isInObject);
+            var isInObject = condition.getParamValue(0, i);
+            var isIn = isInObject == null || adaptor.extractBooleanValue(isInObject);
 
-            Set<?> values = valueSets.get(i);
+            var values = valueSets.get(i);
 
             if (isIn) {
 
                 for (Object value : values) {
 
-                    DecisionTableRuleNodeBuilder builder = map.get(value);
+                    var builder = map.get(value);
 
                     if (builder == null) {
                         builder = new DecisionTableRuleNodeBuilder(emptyBuilder);
@@ -183,7 +182,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
                         continue;
                     }
 
-                    DecisionTableRuleNodeBuilder bilder = map.get(value);
+                    var bilder = map.get(value);
 
                     if (bilder == null) {
                         bilder = new DecisionTableRuleNodeBuilder(emptyBuilder);

@@ -9,7 +9,6 @@ import java.util.function.Predicate;
 import org.apache.commons.lang3.time.DateUtils;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.util.StringUtils;
 
 /**
@@ -28,14 +27,14 @@ public class TablePropertiesSelector implements Predicate<TableSyntaxNode> {
      */
     @Override
     public boolean test(TableSyntaxNode node) {
-        ITableProperties tableProperties = node.getTableProperties();
-        int numMatch = 0;
+        var tableProperties = node.getTableProperties();
+        var numMatch = 0;
 
         for (Map.Entry<String, Object> searchProperty : properties.entrySet()) {
-            String searchPropName = searchProperty.getKey();
-            Object searchPropValue = searchProperty.getValue();
+            var searchPropName = searchProperty.getKey();
+            var searchPropValue = searchProperty.getValue();
             if (tableProperties != null) {
-                Object propValue = tableProperties.getPropertyValue(searchPropName);
+                var propValue = tableProperties.getPropertyValue(searchPropName);
                 if (propValue != null && valuesEqual(searchPropValue, propValue)) {
                     numMatch++;
                 }
@@ -47,7 +46,7 @@ public class TablePropertiesSelector implements Predicate<TableSyntaxNode> {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private boolean valuesEqual(Object searchValue, Object value) {
-        boolean result = false;
+        var result = false;
 
         if (value.getClass().equals(searchValue.getClass())) {
             if (value instanceof String string) {

@@ -78,7 +78,7 @@ public class DatatypeOpenConstructor extends JavaOpenConstructor {
             return IOpenClass.EMPTY;
         }
         IOpenClass[] parameterTypes = new IOpenClass[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
+        for (var i = 0; i < parameters.length; i++) {
             parameterTypes[i] = parameters[i].getType();
         }
         return parameterTypes;

@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.richfaces.model.TreeNode;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.SimpleLogicalTable;
@@ -15,16 +14,16 @@ class HelperTest {
 
     @Test
     void testGetRoot() {
-        Helper helper = new Helper();
-        SimpleParameterTreeNode parameter = new SimpleParameterTreeNode("FN", 123, null, null);
-        TreeNode root = helper.getRoot(parameter);
-        TreeNode child = root.getChild("FN");
+        var helper = new Helper();
+        var parameter = new SimpleParameterTreeNode("FN", 123, null, null);
+        var root = helper.getRoot(parameter);
+        var child = root.getChild("FN");
         assertSame(parameter, child);
     }
 
     @Test
     void testFormat() {
-        Helper helper = new Helper();
+        var helper = new Helper();
         assertEquals("null", helper.format(null));
         assertEquals("Str", helper.format("Str"));
         assertEquals("1", helper.format(1));
@@ -35,7 +34,7 @@ class HelperTest {
 
     @Test
     void testFormatText() {
-        Helper helper = new Helper();
+        var helper = new Helper();
         assertEquals("1.759999999999998", helper.formatText(1.759999999999998, true));
         assertEquals("null", helper.format(null));
         assertEquals("Str", helper.format("Str"));
@@ -45,9 +44,9 @@ class HelperTest {
 
     @Test
     void testIsSpreadsheetResult() {
-        SpreadsheetResult sr = new SpreadsheetResult();
+        var sr = new SpreadsheetResult();
         sr.setLogicalTable(new SimpleLogicalTable(null)); // Real spreadsheet always contains a logical table from which it was created
-        Helper helper = new Helper();
+        var helper = new Helper();
         assertTrue(helper.isSpreadsheetResult(sr));
         assertFalse(helper.isSpreadsheetResult(null));
         assertFalse(helper.isSpreadsheetResult("Str"));

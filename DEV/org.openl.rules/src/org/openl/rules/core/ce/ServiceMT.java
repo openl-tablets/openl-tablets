@@ -23,7 +23,7 @@ public final class ServiceMT {
     }
 
     private ForkJoinPool pool() {
-        ForkJoinPool pool = forkJoinPool;
+        var pool = forkJoinPool;
         if (pool == null || pool.isShutdown()) {
             synchronized (this) {
                 pool = forkJoinPool;
@@ -68,8 +68,8 @@ public final class ServiceMT {
             runnable.run(env);
             return;
         }
-        SimpleRuntimeEnv simpleRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
-        RunnableRecursiveAction action = new RunnableRecursiveAction(runnable,
+        var simpleRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
+        var action = new RunnableRecursiveAction(runnable,
                 simpleRuntimeEnv,
                 Thread.currentThread().getContextClassLoader());
         simpleRuntimeEnv.pushAction(action);
@@ -87,7 +87,7 @@ public final class ServiceMT {
     }
 
     public void join(IRuntimeEnv env) {
-        SimpleRuntimeEnv simpleRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
+        var simpleRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         try {
             while (simpleRuntimeEnv.joinActionIfExists()) {
             }
@@ -99,7 +99,7 @@ public final class ServiceMT {
 
     private SimpleRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
         if (env instanceof TBasicContextHolderEnv holderEnv) {
-            IRuntimeEnv env1 = holderEnv.getEnv();
+            var env1 = holderEnv.getEnv();
             if (env1 instanceof TBasicContextHolderEnv) {
                 return extractSimpleRulesRuntimeEnv(env1);
             } else {
@@ -124,7 +124,7 @@ public final class ServiceMT {
 
         @Override
         protected void compute() {
-            final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            final var oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(classLoader);
                 if (env instanceof SimpleRulesRuntimeEnvMT) {

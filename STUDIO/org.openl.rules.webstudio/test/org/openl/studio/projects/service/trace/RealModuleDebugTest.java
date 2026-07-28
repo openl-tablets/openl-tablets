@@ -8,15 +8,12 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import org.openl.CompiledOpenClass;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.studio.projects.model.trace.DebugStatus;
 import org.openl.studio.projects.model.trace.FrameKind;
 import org.openl.studio.projects.model.trace.LocationKind;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * End-to-end engine test against a real compiled module: drives the genuine OpenL execution through
@@ -29,16 +26,16 @@ class RealModuleDebugTest {
     @Test
     @DisplayName("Suspends inside a real spreadsheet and resumes to completion")
     void debugsRealSpreadsheet() {
-        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
-        IOpenClass module = compiled.getOpenClass();
-        IOpenMethod myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
+        var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        var module = compiled.getOpenClass();
+        var myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
         assertNotNull(myRule, "MyRule must compile");
 
-        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        var debugger = new TraceDebugger(DebugListener.NOOP);
         debugger.start("test-real", compiled.getClassLoader(), true, () -> {
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
-            Object target = module.newInstance(env);
+            var target = module.newInstance(env);
             myRule.invoke(target, new Object[0], env);
         });
 
@@ -46,14 +43,14 @@ class RealModuleDebugTest {
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(10_000));
         List<DebugFrame> stack = debugger.stack();
         assertFalse(stack.isEmpty(), "stack must not be empty when suspended");
-        DebugFrame top = stack.get(stack.size() - 1);
+        var top = stack.get(stack.size() - 1);
         assertEquals(FrameKind.SPREADSHEET, top.getKind(), "MyRule is a spreadsheet");
         assertNotNull(top.getUri(), "frame must carry a table URI");
         assertEquals("MyRule", top.getName());
 
         // Stepping into the spreadsheet lands on a cell sub-step in the same frame.
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, 10_000));
-        DebugFrame current = debugger.stack().get(debugger.stack().size() - 1);
+        var current = debugger.stack().get(debugger.stack().size() - 1);
         assertEquals("MyRule", current.getName());
         assertNotNull(current.getLocation(), "stepping into a spreadsheet exposes a current cell");
         assertEquals(LocationKind.CELL, current.getLocation().kind());

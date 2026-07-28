@@ -28,16 +28,16 @@ public class H2CacheDB {
 
     protected Connection getDBConnection() throws IOException {
         try {
-            Connection connection = cp.getConnection();
+            var connection = cp.getConnection();
             initialized = true;
             return connection;
         } catch (SQLException e) {
             if (!initialized) {
                 // Probably db file is broken or unsupported version. Clear it so it will be recreated again.
-                String dbPath = jdbcDataSource.getURL().substring(DB_CONNECTION.length());
+                var dbPath = jdbcDataSource.getURL().substring(DB_CONNECTION.length());
                 FileUtils.deleteQuietly(Path.of(dbPath + ".mv.db"));
                 try {
-                    Connection connection = cp.getConnection();
+                    var connection = cp.getConnection();
                     initialized = true;
                     return connection;
                 } catch (SQLException ex) {

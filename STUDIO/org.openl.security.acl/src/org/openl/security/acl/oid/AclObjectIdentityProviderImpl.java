@@ -49,13 +49,13 @@ public class AclObjectIdentityProviderImpl implements AclObjectIdentityProvider 
             return null;
         }
         var id = (String) oid.getIdentifier();
-        int lastSlashIdx = id.lastIndexOf('/');
+        var lastSlashIdx = id.lastIndexOf('/');
         if (lastSlashIdx < 0) {
             return getRootOid();
         }
 
         var parentOi = id.substring(0, lastSlashIdx);
-        int lastChPos = parentOi.length() - 1;
+        var lastChPos = parentOi.length() - 1;
         if (lastChPos >= 0 && parentOi.charAt(lastChPos) == ':') {
             parentOi = parentOi.substring(0, lastChPos);
         }
@@ -67,11 +67,11 @@ public class AclObjectIdentityProviderImpl implements AclObjectIdentityProvider 
         if (oldParentOid.equals(childOid)) {
             return newParentOid;
         }
-        String newParentPath = ((String) newParentOid.getIdentifier());
-        String oldParentPath = ((String) oldParentOid.getIdentifier());
-        String fillOldChildPath = ((String) childOid.getIdentifier());
+        var newParentPath = ((String) newParentOid.getIdentifier());
+        var oldParentPath = ((String) oldParentOid.getIdentifier());
+        var fillOldChildPath = ((String) childOid.getIdentifier());
 
-        String subChildPath = fillOldChildPath.substring(oldParentPath.length());
+        var subChildPath = fillOldChildPath.substring(oldParentPath.length());
         var fullPath = newParentPath + subChildPath;
         return new ObjectIdentityImpl(oidClass, fullPath);
     }

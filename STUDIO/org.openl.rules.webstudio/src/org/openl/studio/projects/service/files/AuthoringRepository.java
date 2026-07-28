@@ -62,7 +62,7 @@ public class AuthoringRepository implements BranchRepository {
      * The current user in the form the repository commits expect as the author.
      */
     static UserInfo currentAuthor(UserManagementService userManagementService) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        var username = SecurityContextHolder.getContext().getAuthentication().getName();
         return Optional.ofNullable(userManagementService.getUser(username))
                 .map(user -> new UserInfo(user.getUsername(), user.getEmail(), user.getDisplayName()))
                 .orElseGet(() -> new UserInfo(username));

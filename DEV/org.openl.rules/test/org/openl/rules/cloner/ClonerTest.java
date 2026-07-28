@@ -88,7 +88,7 @@ class ClonerTest {
 
     @Test
     void testCloneEnumMap() {
-        EnumMap<DayOfWeek, String> enumMap = new EnumMap<>(DayOfWeek.class);
+        var enumMap = new EnumMap<DayOfWeek, String>(DayOfWeek.class);
         enumMap.put(DayOfWeek.MONDAY, "Monday");
         assertCloned(enumMap);
     }
@@ -272,13 +272,13 @@ class ClonerTest {
 
     @Test
     void testCloneWithCycles() {
-        List<Object> list1 = new ArrayList<>();
-        List<Object> list2 = new ArrayList<>();
+        var list1 = new ArrayList<Object>();
+        var list2 = new ArrayList<Object>();
         list1.add(list2);
         list2.add(list1);
 
-        List<Object> clonedList1 = Cloner.clone(list1);
-        List<Object> clonedList2 = (List<Object>) clonedList1.getFirst();
+        var clonedList1 = Cloner.clone(list1);
+        var clonedList2 = (List<Object>) clonedList1.getFirst();
 
         assertNotSame(list1, clonedList1);
         assertNotSame(list2, clonedList2);
@@ -353,13 +353,13 @@ class ClonerTest {
     }
 
     private static void assertCloned(List<?> obj) {
-        Collection<?> cloned = Cloner.clone(obj);
+        var cloned = Cloner.clone(obj);
         assertNotSame(obj, cloned);
         assertIterableEquals(obj, cloned);
     }
 
     private static void assertCloned(Collection<?> obj) {
-        Collection<?> cloned = Cloner.clone(obj);
+        var cloned = Cloner.clone(obj);
         assertNotSame(obj, cloned);
         if (obj.equals(cloned) || obj.containsAll(cloned) && cloned.containsAll(obj)) {
             return;

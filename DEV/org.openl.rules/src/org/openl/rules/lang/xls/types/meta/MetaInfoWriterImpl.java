@@ -18,14 +18,14 @@ public class MetaInfoWriterImpl implements MetaInfoWriter {
 
     public MetaInfoWriterImpl(MetaInfoReader delegate, IGridTable gridTable) {
         // Copy all meta info for a given table from delegate.
-        IGridRegion region = GridTableUtils.getOriginalTable(gridTable).getRegion();
+        var region = GridTableUtils.getOriginalTable(gridTable).getRegion();
 
-        int top = region.getTop();
-        int left = region.getLeft();
-        int bottom = region.getBottom();
-        int right = region.getRight();
-        for (int row = top; row <= bottom; row++) {
-            for (int col = left; col <= right; col++) {
+        var top = region.getTop();
+        var left = region.getLeft();
+        var bottom = region.getBottom();
+        var right = region.getRight();
+        for (var row = top; row <= bottom; row++) {
+            for (var col = left; col <= right; col++) {
                 CellKey key = CellKey.CellKeyFactory.getCellKey(col, row);
                 metaInfoMap.put(key, delegate.getMetaInfo(row, col));
             }

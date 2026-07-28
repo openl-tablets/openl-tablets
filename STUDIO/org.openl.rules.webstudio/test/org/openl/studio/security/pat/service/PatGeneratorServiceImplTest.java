@@ -30,7 +30,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
 import org.openl.studio.security.pat.model.PatToken;
-import org.openl.studio.users.model.pat.CreatedPersonalAccessTokenResponse;
 import org.openl.studio.users.service.pat.PersonalAccessTokenService;
 
 /**
@@ -66,7 +65,7 @@ class PatGeneratorServiceImplTest {
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
         // Act
-        CreatedPersonalAccessTokenResponse response = generatorService.generateToken("jdoe", "My Token", null);
+        var response = generatorService.generateToken("jdoe", "My Token", null);
 
         // Assert
         assertNotNull(response);
@@ -83,7 +82,7 @@ class PatGeneratorServiceImplTest {
         // Verify token format: openl_pat_<publicId>.<secret>
         assertNotNull(response.token());
         assertTrue(response.token().startsWith(PatToken.PREFIX));
-        String[] parts = response.token().substring(PatToken.PREFIX.length()).split("\\.");
+        var parts = response.token().substring(PatToken.PREFIX.length()).split("\\.");
         assertEquals(2, parts.length, "Token should have publicId and secret parts");
         assertEquals(response.publicId(), parts[0], "Token publicId should match response publicId");
         assertEquals(32, parts[1].length(), "Secret should be 32 characters");
@@ -96,11 +95,11 @@ class PatGeneratorServiceImplTest {
     @Test
     void testGenerateToken_WithFutureExpiration() {
         // Arrange
-        Instant futureExpiration = FIXED_TIME.plusSeconds(86400); // 1 day later
+        var futureExpiration = FIXED_TIME.plusSeconds(86400); // 1 day later
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
         // Act
-        CreatedPersonalAccessTokenResponse response = generatorService.generateToken("jdoe", "My Token", futureExpiration);
+        var response = generatorService.generateToken("jdoe", "My Token", futureExpiration);
 
         // Assert
         assertNotNull(response);
@@ -115,7 +114,7 @@ class PatGeneratorServiceImplTest {
     @Test
     void testGenerateToken_WithPastExpiration_ThrowsException() {
         // Arrange
-        Instant pastExpiration = FIXED_TIME.minusSeconds(3600); // 1 hour ago
+        var pastExpiration = FIXED_TIME.minusSeconds(3600); // 1 hour ago
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -131,11 +130,11 @@ class PatGeneratorServiceImplTest {
     void testGenerateToken_WithExpirationAtCurrentTime_IsValid() {
         // Arrange
         // Implementation uses isBefore(), so expiring exactly at current time is valid
-        Instant currentTime = FIXED_TIME;
+        var currentTime = FIXED_TIME;
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
         // Act
-        CreatedPersonalAccessTokenResponse response = generatorService.generateToken("jdoe", "My Token", currentTime);
+        var response = generatorService.generateToken("jdoe", "My Token", currentTime);
 
         // Assert
         assertNotNull(response);
@@ -154,7 +153,7 @@ class PatGeneratorServiceImplTest {
                 .thenReturn(false); // Third attempt: success
 
         // Act
-        CreatedPersonalAccessTokenResponse response = generatorService.generateToken("jdoe", "My Token", null);
+        var response = generatorService.generateToken("jdoe", "My Token", null);
 
         // Assert
         assertNotNull(response);
@@ -169,22 +168,22 @@ class PatGeneratorServiceImplTest {
     void testGenerateToken_SavedTokenHasHashedSecret() {
         // Arrange
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
-        ArgumentCaptor<PersonalAccessToken> tokenCaptor = ArgumentCaptor.forClass(PersonalAccessToken.class);
+        var tokenCaptor = ArgumentCaptor.forClass(PersonalAccessToken.class);
 
         // Act
-        CreatedPersonalAccessTokenResponse response = generatorService.generateToken("jdoe", "My Token", null);
+        var response = generatorService.generateToken("jdoe", "My Token", null);
 
         // Assert
         verify(crudService).save(tokenCaptor.capture());
 
-        PersonalAccessToken savedToken = tokenCaptor.getValue();
+        var savedToken = tokenCaptor.getValue();
         assertNotNull(savedToken.getSecretHash());
 
         // Verify secret is hashed (BCrypt hashes start with $2a$ or $2b$)
         assertTrue(savedToken.getSecretHash().startsWith("$2"), "Secret should be BCrypt hashed");
 
         // Verify raw secret from response is NOT the same as stored hash
-        String rawSecret = response.token().substring(PatToken.PREFIX.length()).split("\\.")[1];
+        var rawSecret = response.token().substring(PatToken.PREFIX.length()).split("\\.")[1];
         assertNotEquals(rawSecret, savedToken.getSecretHash(), "Secret should be hashed before storage");
 
         // Verify BCrypt can validate the secret
@@ -195,17 +194,17 @@ class PatGeneratorServiceImplTest {
     @Test
     void testGenerateToken_SavedTokenHasCorrectFields() {
         // Arrange
-        Instant futureExpiration = FIXED_TIME.plusSeconds(86400);
+        var futureExpiration = FIXED_TIME.plusSeconds(86400);
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
-        ArgumentCaptor<PersonalAccessToken> tokenCaptor = ArgumentCaptor.forClass(PersonalAccessToken.class);
+        var tokenCaptor = ArgumentCaptor.forClass(PersonalAccessToken.class);
 
         // Act
-        CreatedPersonalAccessTokenResponse response = generatorService.generateToken("jdoe", "My Token", futureExpiration);
+        var response = generatorService.generateToken("jdoe", "My Token", futureExpiration);
 
         // Assert
         verify(crudService).save(tokenCaptor.capture());
 
-        PersonalAccessToken savedToken = tokenCaptor.getValue();
+        var savedToken = tokenCaptor.getValue();
         assertEquals(response.publicId(), savedToken.getPublicId());
         assertEquals("jdoe", savedToken.getLoginName());
         assertEquals("My Token", savedToken.getName());
@@ -220,8 +219,8 @@ class PatGeneratorServiceImplTest {
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
         // Act
-        CreatedPersonalAccessTokenResponse response1 = generatorService.generateToken("jdoe", "Token 1", null);
-        CreatedPersonalAccessTokenResponse response2 = generatorService.generateToken("jdoe", "Token 2", null);
+        var response1 = generatorService.generateToken("jdoe", "Token 1", null);
+        var response2 = generatorService.generateToken("jdoe", "Token 2", null);
 
         // Assert
         assertNotEquals(response1.publicId(), response2.publicId(), "PublicIds should be different");
@@ -233,11 +232,11 @@ class PatGeneratorServiceImplTest {
     @Test
     void testGenerateToken_ResponseContainsAllFields() {
         // Arrange
-        Instant futureExpiration = FIXED_TIME.plusSeconds(86400);
+        var futureExpiration = FIXED_TIME.plusSeconds(86400);
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
         // Act
-        CreatedPersonalAccessTokenResponse response = generatorService.generateToken("jsmith", "Test Token", futureExpiration);
+        var response = generatorService.generateToken("jsmith", "Test Token", futureExpiration);
 
         // Assert - verify all fields are populated
         assertNotNull(response.publicId());
@@ -259,7 +258,7 @@ class PatGeneratorServiceImplTest {
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
         // Act
-        CreatedPersonalAccessTokenResponse response = generatorService.generateToken("jdoe", "My Token", null);
+        var response = generatorService.generateToken("jdoe", "My Token", null);
 
         // Assert - verify token can be parsed back to PatToken
         PatToken parsedToken = PatToken.parse(response.token());
@@ -271,7 +270,7 @@ class PatGeneratorServiceImplTest {
     @Test
     void testGenerateToken_VerifyPublicIdUniqueness() {
         // Arrange
-        ArgumentCaptor<String> publicIdCaptor = ArgumentCaptor.forClass(String.class);
+        var publicIdCaptor = ArgumentCaptor.forClass(String.class);
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
         // Act
@@ -279,7 +278,7 @@ class PatGeneratorServiceImplTest {
 
         // Assert
         verify(crudService).existsByPublicId(publicIdCaptor.capture());
-        String checkedPublicId = publicIdCaptor.getValue();
+        var checkedPublicId = publicIdCaptor.getValue();
 
         // Verify the publicId checked for uniqueness matches what was saved
         verify(crudService).save(argThat(token ->
@@ -293,8 +292,8 @@ class PatGeneratorServiceImplTest {
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
         // Act
-        CreatedPersonalAccessTokenResponse response1 = generatorService.generateToken("jdoe", "Token 1", null);
-        CreatedPersonalAccessTokenResponse response2 = generatorService.generateToken("jsmith", "Token 2", null);
+        var response1 = generatorService.generateToken("jdoe", "Token 1", null);
+        var response2 = generatorService.generateToken("jsmith", "Token 2", null);
 
         // Assert
         assertEquals("jdoe", response1.loginName());
@@ -308,11 +307,11 @@ class PatGeneratorServiceImplTest {
     @Test
     void testGenerateToken_WithLongTokenName() {
         // Arrange
-        String longName = "A".repeat(100); // Max length per schema
+        var longName = "A".repeat(100); // Max length per schema
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
         // Act
-        CreatedPersonalAccessTokenResponse response = generatorService.generateToken("jdoe", longName, null);
+        var response = generatorService.generateToken("jdoe", longName, null);
 
         // Assert
         assertEquals(longName, response.name());
@@ -328,12 +327,12 @@ class PatGeneratorServiceImplTest {
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
         // Act
-        CreatedPersonalAccessTokenResponse response = generatorService.generateToken("jdoe", "My Token", null);
+        var response = generatorService.generateToken("jdoe", "My Token", null);
 
         // Assert
-        String fullToken = response.token();
-        String tokenWithoutPrefix = fullToken.substring(PatToken.PREFIX.length());
-        String[] parts = tokenWithoutPrefix.split("\\.");
+        var fullToken = response.token();
+        var tokenWithoutPrefix = fullToken.substring(PatToken.PREFIX.length());
+        var parts = tokenWithoutPrefix.split("\\.");
 
         // Both publicId and secret should only contain base62 characters
         assertTrue(parts[0].matches("^[0-9a-zA-Z]+$"), "PublicId should be base62");

@@ -22,7 +22,6 @@ import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.web.CopyProjectTransformer;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
@@ -195,7 +194,7 @@ public class ProjectCreationService {
                                        String comment, Map<String, String> tags) {
         requireCreatePermission(repositoryId);
         var resolver = CUSTOM_TYPE.equals(type) ? customTemplatesResolver : predefinedTemplatesResolver;
-        ProjectFile[] files = resolver.getProjectFiles(category, template);
+        var files = resolver.getProjectFiles(category, template);
         if (files.length == 0) {
             throw new NotFoundException("project.template.not-found.message");
         }
@@ -215,7 +214,7 @@ public class ProjectCreationService {
                                     String algorithmsModuleName, Map<String, String> tags) {
         requireCreatePermission(repositoryId);
         try {
-            RulesProject created = new ProjectUploader(repositoryId, files, projectName, StringUtils.trimToEmpty(path),
+            var created = new ProjectUploader(repositoryId, files, projectName, StringUtils.trimToEmpty(path),
                     getUserWorkspace(), aclServiceProvider.getDesignRepoAclService(), comment, zipFilter,
                     zipCharsetDetector, modelsPath, algorithmsPath, modelsModuleName, algorithmsModuleName,
                     tags != null ? tags : Map.of()).uploadProject();
@@ -243,7 +242,7 @@ public class ProjectCreationService {
         // convenience on top. A failure here (or a same-named project already open elsewhere, which blocks
         // opening) must not turn a successful create into an error — log it and leave the project created.
         try {
-            RulesProject project = resolveCreatedProject(workspace, repositoryId, projectName);
+            var project = resolveCreatedProject(workspace, repositoryId, projectName);
             if (status == ProjectStatus.VIEWING) {
                 if (project.isOpened()) {
                     return;
@@ -277,7 +276,7 @@ public class ProjectCreationService {
         } catch (ProjectException e) {
             var designTimeRepository = workspace.getDesignTimeRepository();
             designTimeRepository.refresh();
-            AProject designProject = designTimeRepository.getProject(repositoryId, projectName);
+            var designProject = designTimeRepository.getProject(repositoryId, projectName);
             return newWorkspaceProject(workspace, repositoryId, designProject);
         }
     }
@@ -307,7 +306,7 @@ public class ProjectCreationService {
                 // Generate a default commit message when the user gave none, so the publish commit is never
                 // empty (matching the archive and copy create paths).
                 var resolvedComment = StringUtils.isNotBlank(comment) ? comment : comments.createProject(name);
-                RulesProject project = workspace.uploadLocalProject(repositoryId, name, StringUtils.trimToEmpty(path), resolvedComment);
+                var project = workspace.uploadLocalProject(repositoryId, name, StringUtils.trimToEmpty(path), resolvedComment);
                 uploaded.add(project);
                 grantContributorAclIfAbsent(designRepoAclService, project);
                 registerExtensibleTagsAfterDesignChange(project);
@@ -324,7 +323,7 @@ public class ProjectCreationService {
     private static void rollbackUploadedProjects(UserWorkspace workspace,
                                                  RepositoryAclService designRepoAclService,
                                                  List<RulesProject> uploaded) {
-        for (int i = uploaded.size() - 1; i >= 0; i--) {
+        for (var i = uploaded.size() - 1; i >= 0; i--) {
             rollbackUploadedProject(workspace, designRepoAclService, uploaded.get(i));
         }
     }
@@ -369,7 +368,7 @@ public class ProjectCreationService {
         var workspace = getUserWorkspace();
         var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
         try {
-            RulesProject source = workspace.getProject(sourceRepositoryId, sourceProjectName, true);
+            var source = workspace.getProject(sourceRepositoryId, sourceProjectName, true);
             if (!designRepoAclService.isGranted(source, List.of(BasePermission.READ))) {
                 throw new ForbiddenException("default.message");
             }
@@ -377,8 +376,8 @@ public class ProjectCreationService {
             // is written to the target repository.
             var sourceCopy = sourceAtRevision(source, revision);
             var designTimeRepository = workspace.getDesignTimeRepository();
-            Repository targetRepository = designTimeRepository.getRepository(targetRepositoryId);
-            String designPath = designTimeRepository.getRulesLocation() + newName;
+            var targetRepository = designTimeRepository.getRepository(targetRepositoryId);
+            var designPath = designTimeRepository.getRulesLocation() + newName;
             var designData = new FileData();
             designData.setName(designPath);
             designData.setComment(comment);

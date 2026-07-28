@@ -30,7 +30,7 @@ public class DependencyOpenClass extends OpenClassDelegator {
 
     private IOpenMethod applyDependencyLogicToMethod(IOpenMethod openMethod) {
         if (dependencyWrapperLogicToMethod != null && openMethod != null) {
-            IOpenMethod m = dependencyLogicAppliedToMethodMap.get(openMethod);
+            var m = dependencyLogicAppliedToMethodMap.get(openMethod);
             if (m == null) {
                 m = dependencyWrapperLogicToMethod.apply(openMethod, this);
                 dependencyLogicAppliedToMethodMap.put(openMethod, m);
@@ -52,7 +52,7 @@ public class DependencyOpenClass extends OpenClassDelegator {
 
     @Override
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
-        IOpenMethod method = super.getMethod(name, classes);
+        var method = super.getMethod(name, classes);
         if (method == null) {
             return null;
         }

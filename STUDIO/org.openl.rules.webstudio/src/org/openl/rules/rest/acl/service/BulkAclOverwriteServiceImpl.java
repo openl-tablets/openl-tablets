@@ -60,7 +60,7 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
     @Override
     public void process(BulkAclOverwriteRequest request) {
         var lock = lockRegistry.obtain(LOCK_NAME);
-        boolean lockAcquired = false;
+        var lockAcquired = false;
         try {
             lockAcquired = lock.tryLock(30, TimeUnit.SECONDS);
             if (!lockAcquired) {

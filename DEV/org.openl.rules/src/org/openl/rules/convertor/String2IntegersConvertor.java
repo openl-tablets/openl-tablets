@@ -17,7 +17,7 @@ abstract class String2IntegersConvertor<T extends Number> extends String2NumberC
         if (!(number instanceof Long)) {
             throwException(number);
         }
-        long dValue = number.longValue();
+        var dValue = number.longValue();
         if (dValue > max || dValue < min) {
             throwException(number);
         }
@@ -33,7 +33,7 @@ abstract class String2IntegersConvertor<T extends Number> extends String2NumberC
 
     @Override
     final DecimalFormat getFormatter(String format) {
-        DecimalFormat formatter = super.getFormatter(format);
+        var formatter = super.getFormatter(format);
         formatter.setParseIntegerOnly(true);
         return formatter;
     }

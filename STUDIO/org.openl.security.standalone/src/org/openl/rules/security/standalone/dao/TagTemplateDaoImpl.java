@@ -1,9 +1,6 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +11,9 @@ public class TagTemplateDaoImpl extends BaseHibernateDao<TagTemplate> implements
     @Override
     @Transactional
     public TagTemplate getByTemplate(final String template) {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<TagTemplate> criteria = builder.createQuery(TagTemplate.class);
-        Root<TagTemplate> u = criteria.from(TagTemplate.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(TagTemplate.class);
+        var u = criteria.from(TagTemplate.class);
         criteria.select(u).where(builder.equal(u.get("template"), template)).distinct(true);
         List<TagTemplate> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.getFirst();
@@ -25,9 +22,9 @@ public class TagTemplateDaoImpl extends BaseHibernateDao<TagTemplate> implements
     @Override
     @Transactional
     public List<TagTemplate> getAll() {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<TagTemplate> criteria = builder.createQuery(TagTemplate.class);
-        Root<TagTemplate> root = criteria.from(TagTemplate.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(TagTemplate.class);
+        var root = criteria.from(TagTemplate.class);
         criteria.select(root).orderBy(builder.asc(root.get("priority")));
         return getSession().createQuery(criteria).getResultList();
     }

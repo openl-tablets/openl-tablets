@@ -37,9 +37,9 @@ public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
 
             Map<Object, Integer> diffValues = info.getUniqueIndex();
 
-            Integer index1 = diffValues.get(loadedValue);
+            var index1 = diffValues.get(loadedValue);
             if (index1 == null) {
-                int size = diffValues.size();
+                var size = diffValues.size();
                 diffValues.put(loadedValue, size);
             }
 

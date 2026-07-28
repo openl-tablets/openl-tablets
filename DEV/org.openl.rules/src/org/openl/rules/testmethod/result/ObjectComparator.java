@@ -2,7 +2,6 @@ package org.openl.rules.testmethod.result;
 
 import java.util.Objects;
 
-import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 
 /**
@@ -31,7 +30,7 @@ class ObjectComparator extends GenericComparator<Object> {
         if (expectedClass != actualClass) {
             if (String.class == expectedClass) {
                 try {
-                    IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(actualClass);
+                    var convertor = String2DataConvertorFactory.getConvertor(actualClass);
                     expectedValue = convertor.parse((String) expectedValue, null);
                 } catch (Exception ignored) {
                 }

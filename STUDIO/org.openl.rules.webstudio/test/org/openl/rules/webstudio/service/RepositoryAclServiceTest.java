@@ -61,7 +61,7 @@ class RepositoryAclServiceTest {
     @Transactional
     @Rollback
     void permissionChecking() {
-        Authentication mockUser = setAdminAuthenticationToContext();
+        var mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
                 List.of(BasePermission.WRITE),
@@ -77,7 +77,7 @@ class RepositoryAclServiceTest {
     @Transactional
     @Rollback
     void permissionMaskChecking() {
-        Authentication mockUser = setAdminAuthenticationToContext();
+        var mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId2",
                 "/projectName1/rules",
                 List.of(BasePermission.WRITE),
@@ -93,7 +93,7 @@ class RepositoryAclServiceTest {
     @Transactional
     @Rollback
     void permissionInheritanceChecking() {
-        Authentication mockUser = setAdminAuthenticationToContext();
+        var mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId2",
                 "/projectName1/rules",
                 List.of(BasePermission.WRITE),
@@ -137,7 +137,7 @@ class RepositoryAclServiceTest {
         assertFalse(
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
 
-        Authentication mockUser = setAdminAuthenticationToContext();
+        var mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
                 List.of(BasePermission.WRITE, BasePermission.READ),
@@ -181,7 +181,7 @@ class RepositoryAclServiceTest {
     void permissionRemovingBySids() {
         assertFalse(
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
-        Authentication mockUser = setAndreyAuthenticationToContext();
+        var mockUser = setAndreyAuthenticationToContext();
         assertFalse(
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
 
@@ -236,7 +236,7 @@ class RepositoryAclServiceTest {
         assertFalse(
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
 
-        Authentication mockUser = setAdminAuthenticationToContext();
+        var mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService
                 .addPermissions("repoId1", "/projectName1/rules", List.of(BasePermission.READ), List.of(new PrincipalSid("oleg")));
         designRepositoryAclService.addPermissions("repoId1",
@@ -269,7 +269,7 @@ class RepositoryAclServiceTest {
         assertFalse(
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
 
-        Authentication mockUser = setAdminAuthenticationToContext();
+        var mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService
                 .addPermissions("repoId1", "/projectName1/rules", List.of(BasePermission.READ), List.of(new PrincipalSid("oleg")));
         designRepositoryAclService.addPermissions("repoId1",
@@ -304,7 +304,7 @@ class RepositoryAclServiceTest {
         assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(BasePermission.READ)));
         assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(BasePermission.READ)));
 
-        Authentication mockUser = setAdminAuthenticationToContext();
+        var mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService
                 .addPermissions("repoId1", null, List.of(BasePermission.READ), List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
@@ -360,12 +360,12 @@ class RepositoryAclServiceTest {
     }
 
     private Authentication setAdminAuthenticationToContext() {
-        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-        SimpleUser principal = SimpleUser.builder()
+        var currentUser = SecurityContextHolder.getContext().getAuthentication();
+        var principal = SimpleUser.builder()
                 .setUsername("admin")
                 .setPrivileges(List.of(Privileges.ADMIN))
                 .build();
-        Authentication auth = new UsernamePasswordAuthenticationToken(principal,
+        var auth = new UsernamePasswordAuthenticationToken(principal,
                 "password",
                 principal.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -373,11 +373,11 @@ class RepositoryAclServiceTest {
     }
 
     private Authentication setAndreyAuthenticationToContext() {
-        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-        SimpleGroup group = new SimpleGroup();
+        var currentUser = SecurityContextHolder.getContext().getAuthentication();
+        var group = new SimpleGroup();
         group.setName(DEVELOPERS_JUNIT);
-        SimpleUser principal = SimpleUser.builder().setUsername("andrey").setPrivileges(List.of(group)).build();
-        Authentication auth = new UsernamePasswordAuthenticationToken(principal,
+        var principal = SimpleUser.builder().setUsername("andrey").setPrivileges(List.of(group)).build();
+        var auth = new UsernamePasswordAuthenticationToken(principal,
                 "password",
                 principal.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);

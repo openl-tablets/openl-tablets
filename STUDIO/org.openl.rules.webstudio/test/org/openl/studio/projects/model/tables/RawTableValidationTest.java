@@ -104,7 +104,7 @@ class RawTableValidationTest {
     void acceptsEveryHeaderTheCreateTableModalGenerates() {
         // The exact first cell each table type in the create-table modal produces, paired with the kind it sends.
         // A header the modal can build but the constraint rejects would make that table type impossible to create.
-        Map<String, String> headerByKind = Map.ofEntries(
+        var headerByKind = Map.ofEntries(
                 Map.entry("Datatype NewTable", "Datatype"),
                 Map.entry("Datatype NewTable <String>", "Datatype"),
                 Map.entry("Constants NewTable", "Constants"),

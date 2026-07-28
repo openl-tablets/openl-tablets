@@ -9,9 +9,7 @@ import java.util.Objects;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.util.FS;
 import org.jspecify.annotations.NonNull;
@@ -21,8 +19,8 @@ import org.openl.util.HashingUtils;
 class GitRootFactory {
 
     public GitRoot create(String repositoryId, String uri, String localRepositoriesFolder) throws IOException {
-        URIish repositoryUri = getUri(uri);
-        boolean remote = repositoryUri.isRemote();
+        var repositoryUri = getUri(uri);
+        var remote = repositoryUri.isRemote();
         File localGitRoot;
         boolean empty;
         if (remote) {
@@ -31,7 +29,7 @@ class GitRootFactory {
         } else {
             localGitRoot = new File(repositoryUri.getPath());
             if (localGitRoot.exists()) {
-                File[] files = localGitRoot.listFiles();
+                var files = localGitRoot.listFiles();
                 if (files == null) {
                     throw new IOException("'%s' is not a directory.".formatted(localGitRoot));
                 }
@@ -50,9 +48,9 @@ class GitRootFactory {
 
     @NonNull
     private File findLocalGitRootForRemote(int salt, String repositoryId, String localRepositoriesFolder, String uri) throws IOException {
-        File candidate = generateLocalGitRoot(salt, repositoryId, localRepositoriesFolder, uri);
+        var candidate = generateLocalGitRoot(salt, repositoryId, localRepositoriesFolder, uri);
         if (candidate.exists()) {
-            File[] files = candidate.listFiles();
+            var files = candidate.listFiles();
             if (files == null) {
                 return findLocalGitRootForRemote(salt + 1, repositoryId, localRepositoriesFolder, uri);
             }
@@ -69,8 +67,8 @@ class GitRootFactory {
 
     @NonNull
     private File processExistingGitRepositoryForRemote(int salt, String repositoryId, String localRepositoriesFolder, String uri, File candidate) throws IOException {
-        try (Repository repository = Git.open(candidate).getRepository()) {
-            String remoteUrl = repository.getConfig()
+        try (var repository = Git.open(candidate).getRepository()) {
+            var remoteUrl = repository.getConfig()
                     .getString(ConfigConstants.CONFIG_REMOTE_SECTION,
                             Constants.DEFAULT_REMOTE_NAME,
                             ConfigConstants.CONFIG_KEY_URL);
@@ -78,11 +76,11 @@ class GitRootFactory {
                 return findLocalGitRootForRemote(salt + 1, repositoryId, localRepositoriesFolder, uri);
             }
             if (!uri.equals(remoteUrl)) {
-                URIish proposedUri = getUri(uri);
-                URIish savedUri = getUri(remoteUrl);
+                var proposedUri = getUri(uri);
+                var savedUri = getUri(remoteUrl);
                 if (!proposedUri.equals(savedUri)) {
                     if (isSame(proposedUri, savedUri)) {
-                        StoredConfig config = repository.getConfig();
+                        var config = repository.getConfig();
                         config.setString(ConfigConstants.CONFIG_REMOTE_SECTION,
                                 Constants.DEFAULT_REMOTE_NAME,
                                 ConfigConstants.CONFIG_KEY_URL,
@@ -99,13 +97,13 @@ class GitRootFactory {
 
     @NonNull
     private File generateLocalGitRoot(int salt, String repositoryId, String localRepositoriesFolder, String uri) {
-        File localPath = new File(localRepositoriesFolder);
-        StringBuilder hashSource = new StringBuilder(repositoryId);
-        char delimiter = ':';
+        var localPath = new File(localRepositoriesFolder);
+        var hashSource = new StringBuilder(repositoryId);
+        var delimiter = ':';
         hashSource.append(delimiter);
-        URIish uriObject = getUri(uri);
+        var uriObject = getUri(uri);
         uriObject = uriObject.setScheme(null); // Scheme shouldn't affect uniqueness of the URL
-        String cleanedUri = uriObject.toASCIIString()
+        var cleanedUri = uriObject.toASCIIString()
                 .toLowerCase(Locale.ROOT)
                 .strip()
                 .replaceAll("/$", "")
@@ -142,7 +140,7 @@ class GitRootFactory {
     }
 
     private static String removeLastSlashes(String s) {
-        int i = s.length();
+        var i = s.length();
         while (i > 0 && s.charAt(i - 1) == '/') {
             i--;
         }

@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 class NumberComparatorTest {
     @Test
     void test() {
-        NumberComparator comp = (NumberComparator) NumberComparator.getInstance();
+        var comp = (NumberComparator) NumberComparator.getInstance();
 
         assertTrue(comp.isEqual(null, null));
 
-        Double value = (double) 10;
+        var value = (double) 10;
 
         assertFalse(comp.isEqual(value, null));
 
@@ -21,9 +21,9 @@ class NumberComparatorTest {
         assertTrue(comp.isEqual(value, value));
 
         // Tests with delta
-        Double value1 = 590.4563546464;
-        Double value2 = 590.456377867;
-        Double value3 = 550.46;
+        var value1 = 590.4563546464;
+        var value2 = 590.456377867;
+        var value3 = 550.46;
 
         assertFalse(new NumberComparator(null).isEqual(value2, value1));
         assertFalse(new NumberComparator(0.00001).isEqual(value2, value1));

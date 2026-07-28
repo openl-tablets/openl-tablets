@@ -10,12 +10,8 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.openxml4j.opc.PackagePart;
-import org.apache.poi.openxml4j.opc.PackageRelationship;
-import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
 import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
 import org.apache.poi.openxml4j.opc.PackagingURIHelper;
-import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.CommentsTable;
@@ -64,12 +60,12 @@ public class SAXReader implements ExcelReader {
             try (ReadOnlyOPCPackage pkg = ReadOnlyOPCPackage.open(fileName)) {
 
                 XMLReader parser = XMLHelper.newXMLReader();
-                WorkbookHandler handler = new WorkbookHandler();
+                var handler = new WorkbookHandler();
                 parser.setContentHandler(handler);
 
                 // process the first sheet
-                XSSFReader r = new XSSFReader(pkg.pck);
-                try (InputStream workbookData = r.getWorkbookData()) {
+                var r = new XSSFReader(pkg.pck);
+                try (var workbookData = r.getWorkbookData()) {
                     parser.parse(new InputSource(workbookData));
                 }
 
@@ -86,24 +82,24 @@ public class SAXReader implements ExcelReader {
 
     @Override
     public Object[][] getCells(SheetDescriptor sheet) {
-        SAXSheetDescriptor saxSheet = (SAXSheetDescriptor) sheet;
+        var saxSheet = (SAXSheetDescriptor) sheet;
         try (ReadOnlyOPCPackage pkg = ReadOnlyOPCPackage.open(fileName)) {
-            XSSFReader r = new XSSFReader(pkg.pck);
+            var r = new XSSFReader(pkg.pck);
 
             initializeNeededData(r, pkg.pck);
 
             XMLReader parser = XMLHelper.newXMLReader();
-            SheetHandler handler = new SheetHandler(r.getSharedStringsTable(),
+            var handler = new SheetHandler(r.getSharedStringsTable(),
                     use1904Windowing,
                     styleTable,
                     parserDateUtil);
             parser.setContentHandler(handler);
 
-            try (InputStream sheetData = r.getSheet(saxSheet.getRelationId())) {
+            try (var sheetData = r.getSheet(saxSheet.getRelationId())) {
                 parser.parse(new InputSource(sheetData));
             }
 
-            CellAddress start = handler.getStart();
+            var start = handler.getStart();
             saxSheet.setFirstRowNum(start.getRow());
             saxSheet.setFirstColNum(start.getColumn());
 
@@ -125,18 +121,18 @@ public class SAXReader implements ExcelReader {
 
     @Override
     public TableStyles getTableStyles(SheetDescriptor sheet, IGridRegion tableRegion) {
-        SAXSheetDescriptor saxSheet = (SAXSheetDescriptor) sheet;
+        var saxSheet = (SAXSheetDescriptor) sheet;
         try (ReadOnlyOPCPackage pkg = ReadOnlyOPCPackage.open(fileName)) {
 
-            XSSFReader r = new XSSFReader(pkg.pck);
+            var r = new XSSFReader(pkg.pck);
 
             initializeNeededData(r, pkg.pck);
 
             XMLReader parser = XMLHelper.newXMLReader();
-            StyleIndexHandler styleIndexHandler = new StyleIndexHandler(tableRegion, saxSheet.getIndex());
+            var styleIndexHandler = new StyleIndexHandler(tableRegion, saxSheet.getIndex());
             parser.setContentHandler(styleIndexHandler);
 
-            try (InputStream sheetData = r.getSheet(saxSheet.getRelationId())) {
+            try (var sheetData = r.getSheet(saxSheet.getRelationId())) {
                 parser.parse(new InputSource(sheetData));
             }
 
@@ -173,14 +169,14 @@ public class SAXReader implements ExcelReader {
     }
 
     private void parseStyles(XSSFReader r, OPCPackage pkg) {
-        List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.STYLES.getContentType());
+        var parts = pkg.getPartsByContentType(XSSFRelation.STYLES.getContentType());
         if (parts.isEmpty()) {
             return;
         }
 
-        try (InputStream stylesData = r.getStylesData()) {
+        try (var stylesData = r.getStylesData()) {
             XMLReader styleParser = XMLHelper.newXMLReader();
-            StyleHandler styleHandler = new StyleHandler();
+            var styleHandler = new StyleHandler();
             styleParser.setContentHandler(styleHandler);
             styleParser.parse(new InputSource(stylesData));
             styleTable = styleHandler.getStyleTable();
@@ -192,20 +188,20 @@ public class SAXReader implements ExcelReader {
     private CommentsTable getSheetComments(OPCPackage pkg, SAXSheetDescriptor sheet) {
         try {
             // Get workbook part
-            PackageRelationship workbookRel = pkg.getRelationshipsByType(PackageRelationshipTypes.CORE_DOCUMENT)
+            var workbookRel = pkg.getRelationshipsByType(PackageRelationshipTypes.CORE_DOCUMENT)
                     .getRelationship(0);
-            PackagePart workbookPart = pkg.getPart(workbookRel);
+            var workbookPart = pkg.getPart(workbookRel);
 
             // Find sheet part by relation id
-            PackageRelationship sheetRel = workbookPart.getRelationship(sheet.getRelationId());
-            PackagePart sheetPart = pkg.getPart(PackagingURIHelper.createPartName(sheetRel.getTargetURI()));
+            var sheetRel = workbookPart.getRelationship(sheet.getRelationId());
+            var sheetPart = pkg.getPart(PackagingURIHelper.createPartName(sheetRel.getTargetURI()));
 
-            PackageRelationshipCollection commentRelList = sheetPart
+            var commentRelList = sheetPart
                     .getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
             if (commentRelList.size() > 0) {
                 // Comments have only one relationship
-                PackageRelationship commentRel = commentRelList.getRelationship(0);
-                PackagePart commentPart = pkg.getPart(PackagingURIHelper.createPartName(commentRel.getTargetURI()));
+                var commentRel = commentRelList.getRelationship(0);
+                var commentPart = pkg.getPart(PackagingURIHelper.createPartName(commentRel.getTargetURI()));
 
                 return new CommentsTable(commentPart);
             }

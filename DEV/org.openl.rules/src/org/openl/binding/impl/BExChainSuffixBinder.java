@@ -18,10 +18,10 @@ public class BExChainSuffixBinder extends ANodeBinder {
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
-        String nodeType = node.getType();
+        var nodeType = node.getType();
 
-        int targetInd = 0;
-        int chainInd = 1;
+        var targetInd = 0;
+        var chainInd = 1;
 
         if (nodeType.startsWith("chain.suffix.of.the")) {
             targetInd = 1;

@@ -12,9 +12,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.openl.rules.data.PrimaryKeyField;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
 
 class ParameterExport extends BaseParameterExport {
@@ -30,7 +28,7 @@ class ParameterExport extends BaseParameterExport {
                 List<List<FieldDescriptor>> nonEmptyFields,
                 Boolean skipEmptyParameters) {
 
-        Cursor lowestRight = writeHeaderForFields(sheet, start, test, nonEmptyFields);
+        var lowestRight = writeHeaderForFields(sheet, start, test, nonEmptyFields);
         var rowNum = lowestRight.getRowNum() + 1;
 
         return writeValuesForFields(sheet, new Cursor(rowNum, start.getColNum()), test, nonEmptyFields);
@@ -40,23 +38,23 @@ class ParameterExport extends BaseParameterExport {
                                         Cursor start,
                                         TestUnitsResults test,
                                         List<List<FieldDescriptor>> nonEmptyFields) {
-        TreeSet<WriteTask> tasks = new TreeSet<>();
+        var tasks = new TreeSet<WriteTask>();
 
-        int rowNum = start.getRowNum();
-        int colNum = start.getColNum();
+        var rowNum = start.getRowNum();
+        var colNum = start.getColNum();
 
         tasks.add(new WriteTask(new Cursor(rowNum, colNum++), "ID", styles.header));
 
-        TestSuite testSuite = test.getTestSuite();
-        ParameterWithValueDeclaration[] params = testSuite.getTest(0).getExecutionParams();
-        for (int i = 0; i < params.length; i++) {
-            ParameterWithValueDeclaration param = params[i];
-            boolean hasPK = isHasPK(param);
+        var testSuite = test.getTestSuite();
+        var params = testSuite.getTest(0).getExecutionParams();
+        for (var i = 0; i < params.length; i++) {
+            var param = params[i];
+            var hasPK = isHasPK(param);
 
-            List<FieldDescriptor> fields = nonEmptyFields.get(i);
+            var fields = nonEmptyFields.get(i);
 
             if (ClassUtils.isAssignable(param.getType().getInstanceClass(), Map.class)) {
-                Map<?, ?> map = (Map<?, ?>) param.getValue();
+                var map = (Map<?, ?>) param.getValue();
                 for (Object key : map.keySet()) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
                             param.getName() + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
@@ -70,7 +68,7 @@ class ParameterExport extends BaseParameterExport {
                 continue;
             }
 
-            String prefix = param.getName() + ".";
+            var prefix = param.getName() + ".";
             if (hasPK) {
                 tasks.add(new WriteTask(new Cursor(rowNum, colNum++), prefix + "_PK_", styles.header));
             }
@@ -91,17 +89,17 @@ class ParameterExport extends BaseParameterExport {
                                List<FieldDescriptor> fields,
                                String prefix,
                                ParameterWithValueDeclaration param) {
-        int colNum = cursor.getColNum();
-        int rowNum = cursor.getRowNum();
+        var colNum = cursor.getColNum();
+        var rowNum = cursor.getRowNum();
 
         for (FieldDescriptor fieldDescriptor : fields) {
-            String fieldName = fieldDescriptor.getField().getName();
+            var fieldName = fieldDescriptor.getField().getName();
 
-            int width = fieldDescriptor.getLeafNodeCount();
+            var width = fieldDescriptor.getLeafNodeCount();
 
             if (fieldDescriptor.getChildren() == null) {
                 if (ClassUtils.isAssignable(fieldDescriptor.getField().getType().getInstanceClass(), Map.class)) {
-                    Map<?, ?> map = (Map<?, ?>) ExportUtils.fieldValue(param.getValue(), fieldDescriptor.getField());
+                    var map = (Map<?, ?>) ExportUtils.fieldValue(param.getValue(), fieldDescriptor.getField());
                     for (Object key : map.keySet()) {
                         tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
                                 prefix + fieldName + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
@@ -129,23 +127,23 @@ class ParameterExport extends BaseParameterExport {
                                      Cursor start,
                                      TestUnitsResults test,
                                      List<List<FieldDescriptor>> nonEmptyFields) {
-        int rowNum = start.getRowNum();
-        int colNum = FIRST_COLUMN;
-        int lastColNum = getLastColumn(test, nonEmptyFields);
+        var rowNum = start.getRowNum();
+        var colNum = FIRST_COLUMN;
+        var lastColNum = getLastColumn(test, nonEmptyFields);
 
-        TestDescription[] descriptions = test.getTestSuite().getTests();
+        var descriptions = test.getTestSuite().getTests();
         for (TestDescription description : descriptions) {
-            TreeSet<WriteTask> tasks = new TreeSet<>();
+            var tasks = new TreeSet<WriteTask>();
 
             // ID
-            int maxHeight = getMaxHeight(description, nonEmptyFields);
+            var maxHeight = getMaxHeight(description, nonEmptyFields);
             tasks.add(
                     new WriteTask(new Cursor(rowNum, colNum++), description.getId(), styles.parameterValue, maxHeight));
 
-            ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
-            for (int p = 0; p < executionParams.length; p++) {
-                ParameterWithValueDeclaration parameter = executionParams[p];
-                Object value = parameter.getValue();
+            var executionParams = description.getExecutionParams();
+            for (var p = 0; p < executionParams.length; p++) {
+                var parameter = executionParams[p];
+                var value = parameter.getValue();
                 if (value instanceof Collection<?> collection) {
                     value = collection.toArray();
                 }
@@ -157,7 +155,7 @@ class ParameterExport extends BaseParameterExport {
                     continue;
                 }
 
-                List<FieldDescriptor> fields = nonEmptyFields.get(p);
+                var fields = nonEmptyFields.get(p);
                 if (fields == null) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum++), value, styles.parameterValue, maxHeight));
                     continue;
@@ -165,14 +163,14 @@ class ParameterExport extends BaseParameterExport {
 
                 // _PK_
                 if (isHasPK(parameter)) {
-                    IOpenField keyField = parameter.getKeyField();
+                    var keyField = parameter.getKeyField();
                     Object id = ExportUtils.fieldValue(parameter.getValue(), keyField);
 
                     if (id != null && id.getClass().isArray()) {
-                        int pkRow = rowNum;
-                        int count = Array.getLength(id);
-                        for (int i = 0; i < count; i++) {
-                            int height = getRowHeight(Array.get(value, i), fields);
+                        var pkRow = rowNum;
+                        var count = Array.getLength(id);
+                        for (var i = 0; i < count; i++) {
+                            var height = getRowHeight(Array.get(value, i), fields);
                             tasks.add(new WriteTask(new Cursor(pkRow, colNum),
                                     Array.get(id, i),
                                     styles.parameterValue,
@@ -190,7 +188,7 @@ class ParameterExport extends BaseParameterExport {
                 colNum += getFieldWidth(fields);
             }
 
-            Cursor cursor = performWrite(sheet, new Cursor(rowNum, FIRST_COLUMN), tasks, lastColNum);
+            var cursor = performWrite(sheet, new Cursor(rowNum, FIRST_COLUMN), tasks, lastColNum);
 
             rowNum = cursor.getRowNum() + 1;
             colNum = FIRST_COLUMN;
@@ -204,15 +202,15 @@ class ParameterExport extends BaseParameterExport {
                                List<FieldDescriptor> fields,
                                Object value,
                                int rowHeight) {
-        int colNum = cursor.getColNum();
-        int rowNum = cursor.getRowNum();
+        var colNum = cursor.getColNum();
+        var rowNum = cursor.getRowNum();
 
         if (value != null && value.getClass().isArray()) {
-            int count = Array.getLength(value);
-            int heightLeft = rowHeight;
-            for (int i = 0; i < count; i++) {
+            var count = Array.getLength(value);
+            var heightLeft = rowHeight;
+            for (var i = 0; i < count; i++) {
                 Object elem = Array.get(value, i);
-                int height = getRowHeight(elem, fields);
+                var height = getRowHeight(elem, fields);
                 if (i < count - 1) {
                     addValueTasks(tasks, new Cursor(rowNum, colNum), fields, elem, height);
                     heightLeft -= height;
@@ -254,17 +252,17 @@ class ParameterExport extends BaseParameterExport {
         }
 
         if (value.getClass().isArray()) {
-            int count = Array.getLength(value);
-            int height = 0;
-            for (int i = 0; i < count; i++) {
+            var count = Array.getLength(value);
+            var height = 0;
+            for (var i = 0; i < count; i++) {
                 height += getRowHeight(Array.get(value, i), fields);
             }
             return height == 0 ? 1 : height;
         }
 
-        int maxSize = 1;
+        var maxSize = 1;
         for (FieldDescriptor fieldDescriptor : fields) {
-            int size = fieldDescriptor.getMaxArraySize(value);
+            var size = fieldDescriptor.getMaxArraySize(value);
             if (size > maxSize) {
                 maxSize = size;
             }
@@ -273,7 +271,7 @@ class ParameterExport extends BaseParameterExport {
     }
 
     private int getFieldWidth(List<FieldDescriptor> fields) {
-        int colNum = 0;
+        var colNum = 0;
         for (FieldDescriptor fieldDescriptor : fields) {
             colNum += fieldDescriptor.getLeafNodeCount();
         }
@@ -283,13 +281,13 @@ class ParameterExport extends BaseParameterExport {
     }
 
     private int getMaxHeight(TestDescription description, List<List<FieldDescriptor>> nonEmptyFields) {
-        int maxHeight = 1;
-        ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
-        for (int i = 0; i < executionParams.length; i++) {
-            ParameterWithValueDeclaration param = executionParams[i];
-            List<FieldDescriptor> fields = nonEmptyFields.get(i);
+        var maxHeight = 1;
+        var executionParams = description.getExecutionParams();
+        for (var i = 0; i < executionParams.length; i++) {
+            var param = executionParams[i];
+            var fields = nonEmptyFields.get(i);
 
-            int rowHeight = getRowHeight(param.getValue(), fields);
+            var rowHeight = getRowHeight(param.getValue(), fields);
             if (rowHeight > maxHeight) {
                 maxHeight = rowHeight;
             }
@@ -298,15 +296,15 @@ class ParameterExport extends BaseParameterExport {
     }
 
     private int getLastColumn(TestUnitsResults test, List<List<FieldDescriptor>> nonEmptyFields) {
-        int lastColumn = FIRST_COLUMN; // ID column
-        TestSuite testSuite = test.getTestSuite();
-        ParameterWithValueDeclaration[] params = testSuite.getTest(0).getExecutionParams();
-        for (int i = 0; i < params.length; i++) {
-            ParameterWithValueDeclaration param = params[i];
+        var lastColumn = FIRST_COLUMN; // ID column
+        var testSuite = test.getTestSuite();
+        var params = testSuite.getTest(0).getExecutionParams();
+        for (var i = 0; i < params.length; i++) {
+            var param = params[i];
             if (isHasPK(param)) {
                 lastColumn++; // _PK_ column
             }
-            List<FieldDescriptor> fields = nonEmptyFields.get(i);
+            var fields = nonEmptyFields.get(i);
             if (fields == null) {
                 // Simple type
                 lastColumn++;

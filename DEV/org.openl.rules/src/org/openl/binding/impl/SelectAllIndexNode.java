@@ -1,14 +1,11 @@
 package org.openl.binding.impl;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.util.BooleanUtils;
 import org.openl.util.CollectionUtils;
@@ -39,22 +36,22 @@ class SelectAllIndexNode extends ABoundNode {
         } else {
             // Collection
             this.componentClass = tempVar.getType().getInstanceClass();
-            IOpenClass componentType = tempVar.getType();
+            var componentType = tempVar.getType();
             this.type = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
         }
     }
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object target = targetNode.evaluate(env);
+        var target = targetNode.evaluate(env);
         if (target == null) {
             return null;
         }
-        IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
-        Iterator<Object> elementsIterator = aggregateInfo.getIterator(target);
-        List<Object> firedElements = new ArrayList<>();
+        var aggregateInfo = targetNode.getType().getAggregateInfo();
+        var elementsIterator = aggregateInfo.getIterator(target);
+        var firedElements = new ArrayList<Object>();
         while (elementsIterator.hasNext()) {
-            Object element = elementsIterator.next();
+            var element = elementsIterator.next();
             if (element == null) {
                 continue;
             }

@@ -4,8 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -43,11 +41,11 @@ public class WebResourceFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String path = httpRequest.getRequestURI();
+        var httpRequest = (HttpServletRequest) request;
+        var path = httpRequest.getRequestURI();
 
         if (pathMatcher.match(WEBRESOURCE_PATTERN, path)) {
-            Matcher matcher = JSESSION_ID_PATTERN.matcher(path);
+            var matcher = JSESSION_ID_PATTERN.matcher(path);
             if (matcher.matches()) {
                 path = matcher.group(1);
             }
@@ -82,8 +80,8 @@ public class WebResourceFilter implements Filter {
 
             }
 
-            try (InputStream stream = initializeInputStream(path)) {
-                OutputStream out = response.getOutputStream();
+            try (var stream = initializeInputStream(path)) {
+                var out = response.getOutputStream();
                 stream.transferTo(out);
             } catch (FileNotFoundException ignored) {
                 ((HttpServletResponse) response).sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -99,9 +97,9 @@ public class WebResourceFilter implements Filter {
     }
 
     private InputStream initializeInputStream(String path) throws FileNotFoundException {
-        InputStream stream = WebResourceFilter.class.getResourceAsStream(path);
+        var stream = WebResourceFilter.class.getResourceAsStream(path);
         if (stream == null) {
-            String realPath = filterConfig.getServletContext().getRealPath(path);
+            var realPath = filterConfig.getServletContext().getRealPath(path);
             if (realPath == null) {
                 throw new FileNotFoundException();
             }

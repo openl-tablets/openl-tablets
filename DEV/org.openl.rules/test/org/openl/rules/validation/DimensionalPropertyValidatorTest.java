@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
@@ -18,7 +17,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
@@ -31,11 +29,11 @@ class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     private static List<OpenLMessage> getWarningsForTable(Collection<OpenLMessage> messages, TableSyntaxNode tsn) {
-        List<OpenLMessage> warningsForTable = new ArrayList<>();
-        Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+        var warningsForTable = new ArrayList<OpenLMessage>();
+        var warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
         for (OpenLMessage message : warnMessages) {
             if (message instanceof OpenLWarnMessage warning) {
-                ISyntaxNode syntaxNode = warning.getSource();
+                var syntaxNode = warning.getSource();
                 if (syntaxNode == tsn) {
                     warningsForTable.add(warning);
                 }
@@ -45,7 +43,7 @@ class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     private Collection<IOpenMethod> findMethods(IOpenClass openClass, String methodName) {
-        Collection<IOpenMethod> methods = new ArrayList<>();
+        var methods = new ArrayList<IOpenMethod>();
         for (IOpenMethod method : openClass.getMethods()) {
             if (methodName.equals(method.getName())) {
                 if (method instanceof OpenMethodDispatcher dispatcher) {
@@ -60,12 +58,12 @@ class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testHello() {
-        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
-        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-        Collection<IOpenMethod> methods = findMethods(openClass, "Hello");
+        var compiledOpenClass = getCompiledOpenClass();
+        var openClass = compiledOpenClass.getOpenClassWithErrors();
+        var methods = findMethods(openClass, "Hello");
         assertEquals(2, methods.size());
         for (IOpenMethod method : methods) {
-            List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
+            var messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
                     (TableSyntaxNode) method.getInfo().getSyntaxNode());
             assertEquals(1, messages.size());
             assertEquals(
@@ -76,12 +74,12 @@ class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testHello2() {
-        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
-        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-        Collection<IOpenMethod> methods = findMethods(openClass, "Hello2");
+        var compiledOpenClass = getCompiledOpenClass();
+        var openClass = compiledOpenClass.getOpenClassWithErrors();
+        var methods = findMethods(openClass, "Hello2");
         assertEquals(2, methods.size());
         for (IOpenMethod method : methods) {
-            List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
+            var messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
                     (TableSyntaxNode) method.getInfo().getSyntaxNode());
             assertEquals(1, messages.size());
             assertEquals(
@@ -92,13 +90,13 @@ class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testHello3() {
-        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
-        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-        Collection<IOpenMethod> methods = findMethods(openClass, "Hello3");
+        var compiledOpenClass = getCompiledOpenClass();
+        var openClass = compiledOpenClass.getOpenClassWithErrors();
+        var methods = findMethods(openClass, "Hello3");
         assertEquals(3, methods.size());
         for (IOpenMethod method : methods) {
             ITableProperties props = PropertiesHelper.getTableProperties(method);
-            List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
+            var messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
                     (TableSyntaxNode) method.getInfo().getSyntaxNode());
             if (props.getState().length == 1 && props.getCountry().length == 1) {
                 assertEquals(0, messages.size());

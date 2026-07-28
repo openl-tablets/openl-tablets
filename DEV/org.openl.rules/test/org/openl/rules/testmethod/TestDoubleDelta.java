@@ -16,21 +16,21 @@ class TestDoubleDelta {
     @Test
     void testSSTest() {
         ITestDouble instance = TestUtils.create(FILE_NAME, ITestDouble.class);
-        TestUnitsResults result = instance.testSSTest();
+        var result = instance.testSSTest();
         assertEquals(0, result.getNumberOfFailures());
     }
 
     @Test
     void testDoubleTest() {
         ITestDouble instance = TestUtils.create(FILE_NAME, ITestDouble.class);
-        TestUnitsResults result = instance.geTestDoubleTest();
+        var result = instance.geTestDoubleTest();
         assertEquals(2, result.getNumberOfFailures());
     }
 
     @Test
     void testDoubleTest2() {
         ITestDouble instance = TestUtils.create(FILE_NAME, ITestDouble.class);
-        TestUnitsResults result = instance.geTestDoubleTest2();
+        var result = instance.geTestDoubleTest2();
         assertEquals(1, result.getNumberOfFailures());
     }
 

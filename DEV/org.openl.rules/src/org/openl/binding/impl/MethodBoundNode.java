@@ -29,8 +29,8 @@ public class MethodBoundNode extends ATargetBoundNode {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         try {
-            Object target = getTarget(env);
-            Object[] pars = evaluateChildren(env);
+            var target = getTarget(env);
+            var pars = evaluateChildren(env);
             if (target == null && !(boundMethod instanceof IOwnTargetMethod) && !boundMethod.getMethod().isStatic()) {
                 return getType().nullObject();
             } else {
@@ -68,7 +68,7 @@ public class MethodBoundNode extends ATargetBoundNode {
 
         Object[] ch = new Object[children.length];
 
-        for (int i = 0; i < ch.length; i++) {
+        for (var i = 0; i < ch.length; i++) {
             ch[i] = children[i].evaluate(env);
         }
 

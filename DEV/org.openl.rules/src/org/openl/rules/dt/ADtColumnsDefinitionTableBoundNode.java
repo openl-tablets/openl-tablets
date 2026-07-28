@@ -33,14 +33,12 @@ import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DtColumnsDefinitionMetaInfoReader;
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -74,13 +72,13 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     public void preBind(XlsModuleOpenClass module, IBindingContext bindingContext) {
         this.xlsModuleOpenClass = module;
         this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
-        TableSyntaxNode tsn = getTableSyntaxNode();
-        ILogicalTable tableBody = tsn.getTableBody();
+        var tsn = getTableSyntaxNode();
+        var tableBody = tsn.getTableBody();
         if (tableBody == null) {
             return;
         }
         int[] tableStructure = getTableStructure(tableBody);
-        int w = tableStructure.length;
+        var w = tableStructure.length;
         if (w != 4) {
             tableBody = tableBody.transpose();
             tableStructure = getTableStructure(tableBody);
@@ -94,15 +92,15 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             }
         }
 
-        int i = 0;
-        int[] headerIndexes = getHeaderIndexes(tableBody, tableStructure);
+        var i = 0;
+        var headerIndexes = getHeaderIndexes(tableBody, tableStructure);
         if (headerIndexes != DEFAULT_HEADER_INDEXES) {
             i = tableBody.getSource().getCell(0, 0).getHeight();
         } else {
-            ILogicalTable tableBodyT = tableBody.transpose();
+            var tableBodyT = tableBody.transpose();
             int[] tableStructureT = getTableStructure(tableBodyT);
             if (tableStructureT.length == 4) {
-                int[] headerIndexesT = getHeaderIndexes(tableBodyT, tableStructureT);
+                var headerIndexesT = getHeaderIndexes(tableBodyT, tableStructureT);
                 i = tableBodyT.getSource().getCell(0, 0).getHeight();
                 tableBody = tableBodyT;
                 tableStructure = tableStructureT;
@@ -110,29 +108,29 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             }
         }
 
-        int h = tableBody.getSource().getHeight();
+        var h = tableBody.getSource().getHeight();
 
-        final ILogicalTable tableBody1 = tableBody;
-        final int[] tableStructure1 = tableStructure;
-        final int[] headerIndexes1 = headerIndexes;
+        final var tableBody1 = tableBody;
+        final var tableStructure1 = tableStructure;
+        final var headerIndexes1 = headerIndexes;
 
         while (i < h) {
-            String signatureCode1 = tableBody.getSource()
+            var signatureCode1 = tableBody.getSource()
                     .getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i)
                     .getStringValue();
-            ICell inputsCell = tableBody.getSource().getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i);
+            var inputsCell = tableBody.getSource().getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i);
             if (StringUtils.isEmpty(signatureCode1)) {
                 signatureCode1 = StringUtils.EMPTY;
             }
-            final String signatureCode = signatureCode1;
-            boolean finished = false;
-            String prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.random(16, true, false) + "(";
-            String headerCode = prefix + signatureCode + ")";
+            final var signatureCode = signatureCode1;
+            var finished = false;
+            var prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.random(16, true, false) + "(";
+            var headerCode = prefix + signatureCode + ")";
             IOpenMethodHeader header;
-            boolean inputParametersCompilationFailed = false;
+            var inputParametersCompilationFailed = false;
             try {
                 bindingContext.pushErrors();
-                StringSourceCodeModule headerCodeSourceCodeModule = new StringSourceCodeModule(headerCode, null);
+                var headerCodeSourceCodeModule = new StringSourceCodeModule(headerCode, null);
                 header = OpenLManager.makeMethodHeader(getOpenl(), headerCodeSourceCodeModule, bindingContext);
                 if (header == null) {
                     inputParametersCompilationFailed = true;
@@ -144,36 +142,36 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             }
 
             if (inputParametersCompilationFailed) {
-                IGridTable pCodeTable = tableBody1.getSource()
+                var pCodeTable = tableBody1.getSource()
                         .getSubtable(tableStructure[headerIndexes[INPUTS_INDEX]], i, 1, 1);
-                GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable,
+                var pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable,
                         bindingContext);
                 BindHelper.processError("Invalid input parameters.", pGridCellSourceCodeModule, bindingContext);
             }
 
-            IGridTable expressionTable = tableBody.getSource()
+            var expressionTable = tableBody.getSource()
                     .getSubtable(tableStructure[headerIndexes[EXPRESSION_INDEX]], i, 1, 1);
-            ICell expressionCell = tableBody.getSource().getCell(tableStructure[headerIndexes[EXPRESSION_INDEX]], i);
+            var expressionCell = tableBody.getSource().getCell(tableStructure[headerIndexes[EXPRESSION_INDEX]], i);
 
-            int j = 0;
-            int j1 = 0;
-            Map<String, List<IParameterDeclaration>> parameters = new HashMap<>();
+            var j = 0;
+            var j1 = 0;
+            var parameters = new HashMap<String, List<IParameterDeclaration>>();
             List<IParameterDeclaration> parametersForMergedTitle = new ArrayList<>();
-            Set<String> uniqueSetOfParameters = new HashSet<>();
-            Set<String> uniqueSetOfTitles = new HashSet<>();
+            var uniqueSetOfParameters = new HashSet<String>();
+            var uniqueSetOfTitles = new HashSet<String>();
             String title = null;
             Boolean singleParameter = null;
             GridCellSourceCodeModule pGridCellSourceCodeModule = null;
-            int d = expressionTable.getCell(0, 0).getHeight();
+            var d = expressionTable.getCell(0, 0).getHeight();
             while (j < d) {
                 if (pGridCellSourceCodeModule != null && parametersForMergedTitle
                         .size() == 1 && parametersForMergedTitle.getFirst() == null) {
-                    String errMsg = "Parameter cell format: <type> or <type> <name>";
+                    var errMsg = "Parameter cell format: <type> or <type> <name>";
                     BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
                     finished = true;
                     break;
                 }
-                IGridTable pCodeTable = tableBody1.getSource()
+                var pCodeTable = tableBody1.getSource()
                         .getSubtable(tableStructure1[headerIndexes1[PARAMETER_INDEX]], i + j, 1, 1);
                 if (singleParameter == null) {
                     singleParameter = j + pCodeTable.getCell(0, 0).getHeight() >= d;
@@ -181,12 +179,12 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, bindingContext);
 
                 IParameterDeclaration parameterDeclaration = null;
-                String code = ((IOpenSourceCodeModule) pGridCellSourceCodeModule).getCode();
+                var code = ((IOpenSourceCodeModule) pGridCellSourceCodeModule).getCode();
                 if (StringUtils.isNotBlank(code)) {
                     parameterDeclaration = OpenLManager
                             .makeParameterDeclaration(openl, pGridCellSourceCodeModule, bindingContext);
                     if (parameterDeclaration == null) {
-                        String errMsg = "Parameter cell format: <type> or <type> <name>";
+                        var errMsg = "Parameter cell format: <type> or <type> <name>";
                         BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
                         finished = true;
                         break;
@@ -194,7 +192,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 }
 
                 if (!parametersForMergedTitle.isEmpty() && parameterDeclaration == null) {
-                    String errMsg = "Parameter cell format: <type> or <type> <name>";
+                    var errMsg = "Parameter cell format: <type> or <type> <name>";
                     BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
                     finished = true;
                     break;
@@ -204,7 +202,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 if (parameterDeclaration != null) {
                     if (parameterDeclaration.getName() != null) {
                         if (uniqueSetOfParameters.contains(parameterDeclaration.getName())) {
-                            String errorMessage = "Parameter '" + parameterDeclaration
+                            var errorMessage = "Parameter '" + parameterDeclaration
                                     .getName() + "' is already defined.";
                             BindHelper.processError(errorMessage, pGridCellSourceCodeModule, bindingContext);
                             finished = true;
@@ -213,18 +211,18 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         uniqueSetOfParameters.add(parameterDeclaration.getName());
                     }
                     if (!bindingContext.isExecutionMode()) {
-                        ICell parameterCell = tableBody1.getSource()
+                        var parameterCell = tableBody1.getSource()
                                 .getCell(tableStructure1[headerIndexes1[PARAMETER_INDEX]], i + j);
                         addMetaInfoForParameter(parameterDeclaration, parameterCell);
                     }
                 }
 
                 if (j1 <= j) {
-                    IGridTable tCodeTable = tableBody1.getSource()
+                    var tCodeTable = tableBody1.getSource()
                             .getSubtable(tableStructure1[headerIndexes1[TITLE_INDEX]], i + j, 1, 1);
-                    String title1 = tCodeTable.getCell(0, 0).getStringValue();
+                    var title1 = tCodeTable.getCell(0, 0).getStringValue();
                     if (StringUtils.isEmpty(title1)) {
-                        GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(tCodeTable,
+                        var tGridCellSourceCodeModule = new GridCellSourceCodeModule(tCodeTable,
                                 bindingContext);
                         BindHelper.processError("Title cannot be empty.", tGridCellSourceCodeModule, bindingContext);
                         finished = true;
@@ -232,7 +230,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     }
                     title = OpenLFuzzyUtils.toTokenString(title1);
                     if (uniqueSetOfTitles.contains(title)) {
-                        GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(tCodeTable,
+                        var tGridCellSourceCodeModule = new GridCellSourceCodeModule(tCodeTable,
                                 bindingContext);
                         BindHelper.processError("Title '" + title1 + "' is already defined.",
                                 tGridCellSourceCodeModule,
@@ -260,7 +258,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     @Override
     public void addTo(ModuleOpenClass openClass) {
         if (!initialized) {
-            ComponentBindingContext dtHeaderBindingContext = buildDtHeaderBindingContext(bindingContext);
+            var dtHeaderBindingContext = buildDtHeaderBindingContext(bindingContext);
             for (Map.Entry<DTColumnsDefinition, PreBindDetails> entry : definitions.entrySet()) {
                 compileAndAddDefinition(entry.getKey(), entry.getValue(), dtHeaderBindingContext, bindingContext);
             }
@@ -269,7 +267,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     private ComponentBindingContext buildDtHeaderBindingContext(IBindingContext bindingContext) {
-        DecisionTableDataType decisionTableDataType = new DecisionTableDataType(null,
+        var decisionTableDataType = new DecisionTableDataType(null,
                 "DecisionTableDataType",
                 openl,
                 true);
@@ -278,7 +276,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             for (String title : dtColumnsDefinition.getTitles()) {
                 for (IParameterDeclaration parameter : dtColumnsDefinition.getParameters(title)) {
                     if (parameter != null && parameter.getName() != null) {
-                        DTColumnsDefinitionField dtColumnsDefinitionField = new DTColumnsDefinitionField(parameter
+                        var dtColumnsDefinitionField = new DTColumnsDefinitionField(parameter
                                 .getName(), parameter.getType(), decisionTableDataType, dtColumnsDefinition, title);
                         decisionTableDataType.addDecisionTableField(dtColumnsDefinitionField);
                     }
@@ -335,10 +333,10 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                                 Map<String, List<IParameterDeclaration>> parameters,
                                                 IGridTable expressionTable,
                                                 ICell expressionCell) {
-        GridCellSourceCodeModule expressionCellSourceCodeModule = new GridCellSourceCodeModule(expressionTable,
+        var expressionCellSourceCodeModule = new GridCellSourceCodeModule(expressionTable,
                 bindingContext);
-        IParsedCode parsedCode = openl.getParser().parseAsMethodBody(expressionCellSourceCodeModule);
-        DTColumnsDefinition dtColumnsDefinition = createDefinition(header,
+        var parsedCode = openl.getParser().parseAsMethodBody(expressionCellSourceCodeModule);
+        var dtColumnsDefinition = createDefinition(header,
                 expressionCell.getStringValue() != null ? expressionCell.getStringValue() : StringUtils.EMPTY,
                 parsedCode.getErrors().length == 0 ? DecisionTableUtils.extractIdentifiers(parsedCode.getTopNode())
                         : Collections.emptyList(),
@@ -351,10 +349,10 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
     private int[] getHeaderIndexes(ILogicalTable tableBody, int[] tableStructure) {
         int[] headerIndexes = new int[4];
-        int j = 0;
-        int k = 0;
+        var j = 0;
+        var k = 0;
         while (j < tableStructure.length) {
-            String d = tableBody.getSource().getCell(tableStructure[j], 0).getStringValue();
+            var d = tableBody.getSource().getCell(tableStructure[j], 0).getStringValue();
             if ("Title".equalsIgnoreCase(d)) {
                 headerIndexes[TITLE_INDEX] = j;
                 k++;
@@ -384,10 +382,10 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private static final int TITLE_INDEX = 3;
 
     private static int[] getTableStructure(ILogicalTable originalTable) {
-        int w = originalTable.getSource().getWidth();
-        int h = originalTable.getSource().getHeight();
-        int i = 0;
-        List<Integer> t = new ArrayList<>();
+        var w = originalTable.getSource().getWidth();
+        var h = originalTable.getSource().getHeight();
+        var i = 0;
+        var t = new ArrayList<Integer>();
         while (i < w) {
             t.add(i);
             i = i + originalTable.getSource().getCell(i, h - 1).getWidth();
@@ -396,7 +394,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     private boolean isParameterUsed(CompositeMethod compositeMethod, Collection<IParameterDeclaration> parameters) {
-        List<ExpressionIdentifier> identifierNodes = DecisionTableUtils.extractIdentifiers(
+        var identifierNodes = DecisionTableUtils.extractIdentifiers(
                 compositeMethod.getMethodBodyBoundNode() != null ? compositeMethod.getMethodBodyBoundNode().getSyntaxNode()
                         : null);
         for (ExpressionIdentifier identifierNode : identifierNodes) {
@@ -418,16 +416,16 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                          PreBindDetails preBindDetail,
                                          ComponentBindingContext dtHeaderBindingContext,
                                          IBindingContext bindingContext) {
-        IParameterDeclaration[] allParameterDeclarations = dtColumnsDefinition.getParameters()
+        var allParameterDeclarations = dtColumnsDefinition.getParameters()
                 .stream()
                 .filter(e -> e != null && e.getName() != null)
                 .collect(Collectors.toList())
                 .toArray(IParameterDeclaration.EMPTY);
-        IMethodSignature newSignature = ((MethodSignature) preBindDetail.header.getSignature())
+        var newSignature = ((MethodSignature) preBindDetail.header.getSignature())
                 .merge(allParameterDeclarations);
         RulesModuleBindingContextHelper.compileAllTypesInSignature(newSignature, bindingContext);
 
-        DecisionTableDataType decisionTableDataType = (DecisionTableDataType) dtHeaderBindingContext
+        var decisionTableDataType = (DecisionTableDataType) dtHeaderBindingContext
                 .getComponentOpenClass();
         CompositeMethod compositeMethod;
         Set<String> externalParameters;
@@ -499,7 +497,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                        Collection<IParameterDeclaration> parameters,
                                        IBindingContext cxt) {
         IOpenClass parameterType = null;
-        int parameterCount = 0;
+        var parameterCount = 0;
         for (IParameterDeclaration paramType : parameters) {
             parameterCount++;
             if (paramType != null) {
@@ -522,9 +520,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         }
 
         if (parameterType != null) {
-            boolean f1 = ConditionHelper.findConditionCasts(parameterType, compositeMethod.getType(), cxt)
+            var f1 = ConditionHelper.findConditionCasts(parameterType, compositeMethod.getType(), cxt)
                     .atLeastOneExists();
-            boolean f2 = parameterType.isArray() && ConditionHelper
+            var f2 = parameterType.isArray() && ConditionHelper
                     .findConditionCasts(parameterType.getComponentClass(), compositeMethod.getType(), cxt)
                     .atLeastOneExists();
             if (!(f1 || f2)) {
@@ -536,7 +534,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     private boolean isSimplifiedSyntaxUsed(String code, IMethodSignature signature) {
-        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+        for (var i = 0; i < signature.getNumberOfParameters(); i++) {
             if (Objects.equals(code, signature.getParameterName(i))) {
                 return true;
             }
@@ -545,7 +543,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     private void addMetaInfoForExpression(CompositeMethod compositeMethod, ICell cell) {
-        MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
+        var metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
         if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader) {
             dtColumnsDefinitionMetaInfoReader
                     .addExpression(cell.getAbsoluteColumn(), cell.getAbsoluteRow(), compositeMethod, cell.getStringValue());
@@ -553,7 +551,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     private void addMetaInfoForInputs(IOpenMethodHeader header, ICell cell, String text, int from) {
-        MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
+        var metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
         if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader) {
             dtColumnsDefinitionMetaInfoReader
                     .addInput(cell.getAbsoluteColumn(), cell.getAbsoluteRow(), header, text, from);
@@ -561,7 +559,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     private void addMetaInfoForParameter(IParameterDeclaration parameterDeclaration, ICell cell) {
-        MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
+        var metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
         if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader) {
             dtColumnsDefinitionMetaInfoReader.addParameter(cell.getAbsoluteColumn(),
                     cell.getAbsoluteRow(),

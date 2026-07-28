@@ -15,7 +15,6 @@ import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.dt.algorithm.DecisionTableAlgorithmBuilder;
-import org.openl.rules.dt.algorithm.IAlgorithmBuilder;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.dt.element.FunctionalRow;
@@ -25,7 +24,6 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -155,7 +153,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     @Override
     public String getDisplayName(int mode) {
-        IMemberMetaInfo metaInfo = getHeader().getInfo();
+        var metaInfo = getHeader().getInfo();
         if (metaInfo != null) {
             return metaInfo.getDisplayName(mode);
         }
@@ -199,8 +197,8 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
      */
     @Override
     public ILogicalTable getRuleTable(int ruleIndex) {
-        ILogicalTable dt = actionRows[0].getDecisionTable();
-        int starColumn = dt.getWidth() - columns;
+        var dt = actionRows[0].getDecisionTable();
+        var starColumn = dt.getWidth() - columns;
 
         return dt.getColumn(starColumn + ruleIndex);
     }
@@ -230,7 +228,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     @Override
     public BindingDependencies getDependencies() {
 
-        BindingDependencies bindingDependencies = new RulesBindingDependencies();
+        var bindingDependencies = new RulesBindingDependencies();
         updateDependency(bindingDependencies);
 
         return bindingDependencies;
@@ -256,7 +254,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     }
 
     private void prepare(IOpenMethodHeader header, OpenL openl, IBindingContext bindingContext) throws Exception {
-        IAlgorithmBuilder algorithmBuilder = new DecisionTableAlgorithmBuilder(this, header, openl);
+        var algorithmBuilder = new DecisionTableAlgorithmBuilder(this, header, openl);
         algorithm = algorithmBuilder.prepareAndBuildAlgorithm(bindingContext);
     }
 
@@ -269,7 +267,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     public void updateDependency(BindingDependencies dependencies) {
         if (conditionRows != null) {
             for (IBaseCondition condition : conditionRows) {
-                CompositeMethod method = (CompositeMethod) condition.getMethod();
+                var method = (CompositeMethod) condition.getMethod();
                 if (method != null) {
                     method.updateDependency(dependencies);
                 }
@@ -287,7 +285,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
         if (actionRows != null) {
             for (IBaseAction action : actionRows) {
-                CompositeMethod method = (CompositeMethod) action.getMethod();
+                var method = (CompositeMethod) action.getMethod();
                 if (method != null) {
                     method.updateDependency(dependencies);
                 }
@@ -299,16 +297,16 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     protected void updateValueDependency(FunctionalRow frow, BindingDependencies dependencies) {
 
-        int len = frow.getNumberOfRules();
-        int np = frow.getNumberOfParams();
-        for (int ruleN = 0; ruleN < len; ruleN++) {
+        var len = frow.getNumberOfRules();
+        var np = frow.getNumberOfParams();
+        for (var ruleN = 0; ruleN < len; ruleN++) {
 
             if (frow.isEmpty(ruleN)) {
                 continue;
             }
 
-            for (int paramIndex = 0; paramIndex < np; paramIndex++) {
-                Object value = frow.getParamValue(paramIndex, ruleN);
+            for (var paramIndex = 0; paramIndex < np; paramIndex++) {
+                var value = frow.getParamValue(paramIndex, ruleN);
 
                 if (value instanceof CompositeMethod method) {
                     method.updateDependency(dependencies);

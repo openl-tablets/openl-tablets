@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -27,7 +26,7 @@ public class NotificationController {
         if (webStudio == null) {
             return null;
         }
-        ProjectModel model = webStudio.getModel();
+        var model = webStudio.getModel();
         return Boolean.toString(model.isSourceModified());
     }
 }

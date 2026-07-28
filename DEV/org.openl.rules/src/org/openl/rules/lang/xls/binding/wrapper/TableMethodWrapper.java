@@ -73,7 +73,7 @@ public final class TableMethodWrapper extends AbstractTableMethodWrapper impleme
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        TableMethodWrapper that = (TableMethodWrapper) o;
+        var that = (TableMethodWrapper) o;
         return delegate.equals(that.delegate);
     }
 

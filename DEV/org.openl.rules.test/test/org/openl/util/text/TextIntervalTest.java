@@ -19,13 +19,13 @@ class TextIntervalTest {
 
     @Test
     void testJavaCC30Position() {
-        String text = "abc\r\nedf\r\n";
+        var text = "abc\r\nedf\r\n";
 
-        JavaCC30Position pos = new JavaCC30Position(1, 1);
+        var pos = new JavaCC30Position(1, 1);
 
-        TextInfo ti = new TextInfo(text);
+        var ti = new TextInfo(text);
 
-        int abspos = pos.getAbsolutePosition(ti);
+        var abspos = pos.getAbsolutePosition(ti);
 
         assertEquals(0, abspos);
 

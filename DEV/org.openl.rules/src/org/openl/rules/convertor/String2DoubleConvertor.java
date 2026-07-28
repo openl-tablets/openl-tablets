@@ -11,7 +11,7 @@ class String2DoubleConvertor extends String2NumberConverter<Double> {
 
     @Override
     DecimalFormat getFormatter(String format) {
-        DecimalFormat formatter = super.getFormatter(format);
+        var formatter = super.getFormatter(format);
         // Always show .0 at the end for integer numbers
         formatter.setMinimumFractionDigits(1);
         return formatter;

@@ -32,7 +32,7 @@ public class CastNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object res = children[0].evaluate(env);
+        var res = children[0].evaluate(env);
         return cast.convert(res);
     }
 

@@ -78,8 +78,8 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
         Map<Key, SessionFactory> next;
         do {
             current = entityManagers.get();
-            Key key = new Key(entityClasses);
-            SessionFactory currentEntityManager = current.get(key);
+            var key = new Key(entityClasses);
+            var currentEntityManager = current.get(key);
             if (currentEntityManager != null) {
                 return currentEntityManager;
             } else {

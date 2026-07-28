@@ -129,7 +129,7 @@ public final class ServiceDescription {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        ServiceDescription that = (ServiceDescription) o;
+        var that = (ServiceDescription) o;
         return deployPath.equals(that.deployPath);
     }
 

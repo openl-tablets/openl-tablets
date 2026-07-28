@@ -23,7 +23,7 @@ public class DecisionExprFieldDataType extends ComponentOpenClass {
 
     @Override
     public IOpenField getField(String name, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField openField = decisionTableDataType.getField(name, strictMatch);
+        var openField = decisionTableDataType.getField(name, strictMatch);
         if (openField instanceof DecisionRowField decisionRowField) {
             exprParameterFieldIsUsed = true;
             return new ExprDecisionRowField(decisionRowField, getOpenl());

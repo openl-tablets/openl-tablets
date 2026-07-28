@@ -50,7 +50,7 @@ public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
     @Override
     public void throwErrorExceptionsIfAny() {
         if (hasErrors()) {
-            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(getAllMessages(),
+            var errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(getAllMessages(),
                     Severity.ERROR);
             throw new CompositeOpenlException("Module contains critical errors", null, errorMessages);
         }
@@ -58,7 +58,7 @@ public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
 
     @Override
     public Collection<OpenLMessage> getAllMessages() {
-        Collection<OpenLMessage> messages = new LinkedHashSet<>(delegate.getAllMessages());
+        var messages = new LinkedHashSet<OpenLMessage>(delegate.getAllMessages());
         messages.addAll(validationMessages);
         return messages;
     }

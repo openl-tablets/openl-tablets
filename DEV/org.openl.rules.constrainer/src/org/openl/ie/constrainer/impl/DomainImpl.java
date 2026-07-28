@@ -70,7 +70,7 @@ public class DomainImpl implements Domain {
 
     @Override
     public void iterateDomain(IntExp.IntDomainIterator it) throws Failure {
-        for (int i = _min; i <= _max; ++i) {
+        for (var i = _min; i <= _max; ++i) {
             if (!it.doSomethingOrStop(i)) {
                 return;
             }
@@ -94,7 +94,7 @@ public class DomainImpl implements Domain {
      */
     @Override
     public boolean removeRange(int min, int max) throws Failure {
-        boolean is_removed = false;
+        var is_removed = false;
         if (min <= _min && max >= _max) {
             constrainer().fail("Empty domain");
         }

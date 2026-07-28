@@ -74,7 +74,7 @@ public class ParameterDeclaration implements IParameterDeclaration {
         if (!(obj instanceof ParameterDeclaration)) {
             return false;
         }
-        ParameterDeclaration paramDecl = (ParameterDeclaration) obj;
+        var paramDecl = (ParameterDeclaration) obj;
 
         return Objects.equals(name, paramDecl.name) && Objects.equals(type, paramDecl.getType());
     }

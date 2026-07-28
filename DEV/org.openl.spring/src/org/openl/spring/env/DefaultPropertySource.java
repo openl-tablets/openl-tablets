@@ -2,9 +2,7 @@ package org.openl.spring.env;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -35,9 +33,9 @@ public class DefaultPropertySource extends EnumerablePropertySource<Map<String, 
 
         try {
             var classLoader = ClassUtils.getCurrentClassLoader(getClass());
-            Enumeration<URL> resources = classLoader.getResources(OPENL_DEFAULT_PROPERTIES);
+            var resources = classLoader.getResources(OPENL_DEFAULT_PROPERTIES);
             while (resources.hasMoreElements()) {
-                URL url = resources.nextElement();
+                var url = resources.nextElement();
                 PropertiesUtils.load(url, source::put);
                 ConfigLog.LOG.info("+       Load: '{}'", url);
             }
@@ -72,11 +70,11 @@ public class DefaultPropertySource extends EnumerablePropertySource<Map<String, 
         writeLine(out, "#############################################################################################");
         writeLine(out, "");
         var classLoader = ClassUtils.getCurrentClassLoader(DefaultPropertySource.class);
-        Enumeration<URL> resources = classLoader.getResources(OPENL_DEFAULT_PROPERTIES);
+        var resources = classLoader.getResources(OPENL_DEFAULT_PROPERTIES);
         while (resources.hasMoreElements()) {
-            URL url = resources.nextElement();
+            var url = resources.nextElement();
 
-            String path = url.toString();
+            var path = url.toString();
             var pos = path.lastIndexOf("!/"); // Jar file delimiter
             pos = (pos < 0) ? path.length() : (pos - 1);
             pos = path.lastIndexOf('/', pos); // path separator

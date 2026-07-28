@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
@@ -18,7 +17,7 @@ class TestIntExpAddArray1 {
 
     @Test
     void testAttachDetachObserver() {
-        IntExpAddArray1 sum = new IntExpAddArray1(C, new IntExpArray(C, C.addIntVar(-5, 5)));
+        var sum = new IntExpAddArray1(C, new IntExpArray(C, C.addIntVar(-5, 5)));
         class TestObserver extends Observer {
             private int counter = 0;
 
@@ -71,13 +70,13 @@ class TestIntExpAddArray1 {
 
     @Test
     void testMaxMin() {
-        IntExpArray array = new IntExpArray(C, 10, -10, 10, "array");
-        IntExpAddArray1 sum = new IntExpAddArray1(C, array);
+        var array = new IntExpArray(C, 10, -10, 10, "array");
+        var sum = new IntExpAddArray1(C, array);
         assertEquals(10 * 10, sum.max());
         assertEquals(-10 * 10, sum.min());
-        for (int i = 0; i < array.size(); i++) {
+        for (var i = 0; i < array.size(); i++) {
             try {
-                IntExp expi = array.get(i);
+                var expi = array.get(i);
                 expi.setMax(10 - i);
                 expi.setMin(-10 + i);
                 C.propagate();
@@ -91,8 +90,8 @@ class TestIntExpAddArray1 {
 
     @Test
     void testRemoveValue() {
-        IntExpArray array = new IntExpArray(C, 10, 0, 5, "array");
-        IntExpAddArray1 sum = new IntExpAddArray1(C, array);
+        var array = new IntExpArray(C, 10, 0, 5, "array");
+        var sum = new IntExpAddArray1(C, array);
         try {
             sum.removeValue(0);
             C.propagate();
@@ -106,8 +105,8 @@ class TestIntExpAddArray1 {
 
     @Test
     void testSetMax() {
-        IntExpArray array = new IntExpArray(C, 10, 1, 10, "array");
-        IntExpAddArray1 sum = new IntExpAddArray1(C, array);
+        var array = new IntExpArray(C, 10, 1, 10, "array");
+        var sum = new IntExpAddArray1(C, array);
         // setting sum[i=1..10](array[i].min()) as maxValue has to result in
         // assigning values to
         // all entries of the array
@@ -115,7 +114,7 @@ class TestIntExpAddArray1 {
             sum.setMax(10);
             C.propagate();
             assertEquals(10, sum.max());
-            for (int i = 0; i < array.size(); i++) {
+            for (var i = 0; i < array.size(); i++) {
                 assertEquals(1, array.get(i).max());
             }
         } catch (Failure f) {
@@ -162,13 +161,13 @@ class TestIntExpAddArray1 {
 
     @Test
     void testSetMin() {
-        IntExpArray array = new IntExpArray(C, 10, -10, -1, "array");
-        IntExpAddArray1 sum = new IntExpAddArray1(C, array);
+        var array = new IntExpArray(C, 10, -10, -1, "array");
+        var sum = new IntExpAddArray1(C, array);
         try {
             sum.setMin(-10);
             C.propagate();
             assertEquals(-10, sum.min());
-            for (int i = 0; i < array.size(); i++) {
+            for (var i = 0; i < array.size(); i++) {
                 assertEquals(-1, array.get(i).min());
             }
         } catch (Failure f) {
@@ -213,8 +212,8 @@ class TestIntExpAddArray1 {
 
     @Test
     void testSetValue() {
-        IntExpArray array = new IntExpArray(C, 10, 0, 5, "array");
-        IntExpAddArray1 sum = new IntExpAddArray1(C, array);
+        var array = new IntExpArray(C, 10, 0, 5, "array");
+        var sum = new IntExpAddArray1(C, array);
         try {
             sum.setValue(51);
             fail("allow to assign a value that greater then sum[i=1..10](array[i].max())");
@@ -223,7 +222,7 @@ class TestIntExpAddArray1 {
 
         try {
             sum.setValue(50);
-            for (int i = 0; i < array.size(); i++) {
+            for (var i = 0; i < array.size(); i++) {
                 assertEquals(5, array.get(i).value());
             }
         } catch (Failure ignored) {

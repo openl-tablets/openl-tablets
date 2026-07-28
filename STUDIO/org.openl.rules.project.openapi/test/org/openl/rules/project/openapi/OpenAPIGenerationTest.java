@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -70,14 +69,14 @@ class OpenAPIGenerationTest {
 
     private boolean run(String path) {
         log.info(">>> Compiling rules from the directory '{}' in execution mode...", path);
-        boolean testsFailed = false;
-        final File testsDir = new File(path);
+        var testsFailed = false;
+        final var testsDir = new File(path);
 
         if (!testsDir.exists()) {
             log.warn("Test folder is not found.");
             return false;
         }
-        File[] files = testsDir.listFiles();
+        var files = testsDir.listFiles();
         // files = new File[] {new File(testsDir, "EPBDS-10072_ALL_multiple")};
         if (files == null) {
             log.warn("Test folder is not found.");
@@ -85,15 +84,15 @@ class OpenAPIGenerationTest {
         }
 
         for (File file : files) {
-            AtomicInteger messagesCount = new AtomicInteger(0);
-            final long startTime = System.nanoTime();
-            String sourceFile = file.getName();
+            var messagesCount = new AtomicInteger(0);
+            final var startTime = System.nanoTime();
+            var sourceFile = file.getName();
             CompiledOpenClass compiledOpenClass;
             ProjectDescriptor projectDescriptor;
             RulesInstantiationStrategy instantiationStrategy;
             if (file.isDirectory()) {
                 try {
-                    SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+                    var engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
                     engineFactoryBuilder.setExecutionMode(true);
                     engineFactoryBuilder.setProject(file.getPath());
                     SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
@@ -136,7 +135,7 @@ class OpenAPIGenerationTest {
                 continue;
             }
 
-            Set<String> missedExpectedOpenAPIs = new HashSet<>();
+            var missedExpectedOpenAPIs = new HashSet<String>();
             for (Pair<ObjectMapper, String> pair : MAPPER_TO_FILE) {
                 String actualOpenAPIStr;
                 try {
@@ -150,8 +149,8 @@ class OpenAPIGenerationTest {
                 }
 
                 // Check OpenAPI
-                String expectOpenAPIFileName = sourceFile + pair.getValue();
-                File expectedOpenAPIFile = new File(testsDir, expectOpenAPIFileName);
+                var expectOpenAPIFileName = sourceFile + pair.getValue();
+                var expectedOpenAPIFile = new File(testsDir, expectOpenAPIFileName);
                 if (!expectedOpenAPIFile.exists()) {
                     missedExpectedOpenAPIs.add(expectOpenAPIFileName);
                     continue;
@@ -196,13 +195,13 @@ class OpenAPIGenerationTest {
     }
 
     private void ok(long startTime, String sourceFile) {
-        final long ms = (System.nanoTime() - startTime) / 1000000;
+        final var ms = (System.nanoTime() - startTime) / 1000000;
         log.info("\u001B[1;32mSUCCESS\u001B[0m - in [\u001B[2;36m{}\u001B[0m] ({} ms)", sourceFile, ms);
     }
 
     private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
         if (count == 0) {
-            final long ms = (System.nanoTime() - startTime) / 1000000;
+            final var ms = (System.nanoTime() - startTime) / 1000000;
             log.error("\u001B[1;31mFAILURE\u001B[0m - in [\u001B[2;36m{}\u001B[0m] ({} ms)", sourceFile, ms);
         }
         log.error(msg, args);
@@ -221,7 +220,7 @@ class OpenAPIGenerationTest {
             failDiff(messagesCount, startTime, sourceFile, expectedJson, actualJson, path);
         } else if (expectedJson.isTextual()) {
             // try to compare by a pattern
-            String regExp = expectedJson.asText()
+            var regExp = expectedJson.asText()
                     .replaceAll("\\[", "\\\\[")
                     .replaceAll("]", "\\\\]")
                     .replaceAll("#+", "[#\\\\d]+")
@@ -232,7 +231,7 @@ class OpenAPIGenerationTest {
                 failDiff(messagesCount, startTime, sourceFile, expectedJson, actualJson, path);
             }
         } else if (expectedJson.isArray() && actualJson.isArray()) {
-            for (int i = 0; i < expectedJson.size() || i < actualJson.size(); i++) {
+            for (var i = 0; i < expectedJson.size() || i < actualJson.size(); i++) {
                 compareJsonObjects(messagesCount,
                         startTime,
                         sourceFile,
@@ -241,7 +240,7 @@ class OpenAPIGenerationTest {
                         path + "[" + i + "]");
             }
         } else if (expectedJson.isObject() && actualJson.isObject()) {
-            LinkedHashSet<String> names = new LinkedHashSet<>();
+            var names = new LinkedHashSet<String>();
             expectedJson.fieldNames().forEachRemaining(names::add);
             actualJson.fieldNames().forEachRemaining(names::add);
 

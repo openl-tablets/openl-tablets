@@ -12,9 +12,7 @@ import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.IRuntimeEnv;
 
 class ValidateInputParametersTest {
     private static final String SRC = "test/rules/ValidateInputParameters.xls";
@@ -29,14 +27,14 @@ class ValidateInputParametersTest {
     @Test
     void test() {
         assertThrows(OutsideOfValidDomainException.class, () -> {
-            IOpenMethod method = engineFactory.getCompiledOpenClass()
+            var method = engineFactory.getCompiledOpenClass()
                     .getOpenClass()
                     .getMethod("SHTable", new IOpenClass[]{JavaOpenClass.STRING});
 
             assertNotNull(method);
 
-            Object target = engineFactory.newEngineInstance();
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var target = engineFactory.newEngineInstance();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             method.invoke(target, new Object[]{"ONE2"}, env);
 
         });
@@ -46,14 +44,14 @@ class ValidateInputParametersTest {
     @Test
     void testArray() {
         assertThrows(OutsideOfValidDomainException.class, () -> {
-            IOpenMethod method = engineFactory.getCompiledOpenClass()
+            var method = engineFactory.getCompiledOpenClass()
                     .getOpenClass()
                     .getMethod("DTTable2", new IOpenClass[]{JavaOpenClass.getOpenClass(String[].class)});
 
             assertNotNull(method);
 
-            Object target = engineFactory.newEngineInstance();
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var target = engineFactory.newEngineInstance();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             method.invoke(target, new Object[]{new String[]{"ONE", "ONE2"}}, env);
 
         });

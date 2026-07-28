@@ -33,7 +33,7 @@ public abstract class ASyntaxNode implements ISyntaxNode {
     }
 
     private static void printSpace(int level, StringBuilder buf) {
-        for (int j = 0; j < level; j++) {
+        for (var j = 0; j < level; j++) {
             buf.append("  ");
         }
     }
@@ -66,18 +66,18 @@ public abstract class ASyntaxNode implements ISyntaxNode {
     @Override
     public ILocation getSourceLocation() {
         if (location == null) {
-            int n = getNumberOfChildren();
+            var n = getNumberOfChildren();
             switch (n) {
                 case 0:
                     return null;
                 case 1:
                     return getChild(0).getSourceLocation();
                 default:
-                    ILocation startLocation = getChild(0).getSourceLocation();
+                    var startLocation = getChild(0).getSourceLocation();
                     if (startLocation == null) {
                         return null;
                     }
-                    ILocation endLocation = getChild(n - 1).getSourceLocation();
+                    var endLocation = getChild(n - 1).getSourceLocation();
                     if (endLocation == null) {
                         return null;
                     }
@@ -113,12 +113,12 @@ public abstract class ASyntaxNode implements ISyntaxNode {
 
     @Override
     public void print(int level, StringBuilder buf) {
-        int nkids = getNumberOfChildren();
+        var nkids = getNumberOfChildren();
 
         printMySelf(level, buf);
         buf.append('\n');
-        for (int i = 0; i < nkids; i++) {
-            ISyntaxNode ch = getChild(i);
+        for (var i = 0; i < nkids; i++) {
+            var ch = getChild(i);
             if (ch == null) {
                 printSpace(level + 1, buf);
                 buf.append("null\n");
@@ -136,7 +136,7 @@ public abstract class ASyntaxNode implements ISyntaxNode {
 
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder();
+        var buf = new StringBuilder();
         print(0, buf);
         return buf.toString();
     }

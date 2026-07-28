@@ -71,7 +71,7 @@ public final class GenRulesCode {
     }
 
     private void generateDefaultPropertyDefinitionsCode() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
         String sourceFilePath = getClassSourcePathInRulesModule(DefaultPropertyDefinitions.class);
@@ -80,7 +80,7 @@ public final class GenRulesCode {
     }
 
     private void generateDefaultTableProperties() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
         String sourceFilePath = getClassSourcePathInRulesModule(TableProperties.class);
@@ -89,7 +89,7 @@ public final class GenRulesCode {
     }
 
     private void generateITablePropertiesCode() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
         String sourceFilePath = getClassSourcePathInRulesModule(ITableProperties.class);
@@ -98,7 +98,7 @@ public final class GenRulesCode {
     }
 
     private void generateTablePropertiesCode() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
         String sourceFilePath = getClassSourcePathInRulesModule(org.openl.rules.binding.TableProperties.class);
@@ -107,7 +107,7 @@ public final class GenRulesCode {
     }
 
     private void generateDefaultRulesRuntimeContextCode() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
         String sourceFilePath = getClassSourcePathInRulesModule(DefaultRulesRuntimeContext.class);
@@ -116,7 +116,7 @@ public final class GenRulesCode {
     }
 
     private void generateIRulesRuntimeContextCode() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
         String sourceFilePath = getClassSourcePathInRulesModule(IRulesRuntimeContext.class);
@@ -125,7 +125,7 @@ public final class GenRulesCode {
     }
 
     private void generateRulesCompileContextCode() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         variables.put("validatorsDefinitions", tablePropertyValidatorsWrappers.asList());
 
         String sourceFilePath = getClassSourcePathInRulesModule(RulesCompileContext.class);
@@ -134,7 +134,7 @@ public final class GenRulesCode {
     }
 
     private void generateMatchingOpenMethodDispatcherCode() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
                 .getDimensionalPropertiesWithContextVar();
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
@@ -145,7 +145,7 @@ public final class GenRulesCode {
     }
 
     private void generateDefaultPropertiesContextMatcherCode() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
                 .getDimensionalPropertiesWithMatchExpression();
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
@@ -157,7 +157,7 @@ public final class GenRulesCode {
     }
 
     private void generateDefaultPropertiesIntersectionFinderCode() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
                 .getGapOverlapDimensionalProperties();
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
@@ -168,7 +168,7 @@ public final class GenRulesCode {
     }
 
     private void generateDefaultTablePropertiesSorter() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
+        var variables = new HashMap<String, Object>();
         variables.put("priorityRuleWrappers", tablePriorityRuleWrappers);
 
         String sourceFilePath = getClassSourcePathInRulesModule(DefaultTablePropertiesSorter.class);
@@ -178,10 +178,10 @@ public final class GenRulesCode {
 
     private void loadDefinitions() {
 
-        RulesEngineFactory<ITablePropertyDefinitionLoader> engineFactory = new RulesEngineFactory<>(DEFINITIONS_XLS,
+        var engineFactory = new RulesEngineFactory<ITablePropertyDefinitionLoader>(DEFINITIONS_XLS,
                 ITablePropertyDefinitionLoader.class);
 
-        ITablePropertyDefinitionLoader loader = engineFactory.newEngineInstance();
+        var loader = engineFactory.newEngineInstance();
 
         tablePropertyDefinitions = loader.getDefinitions();
         tablePropertyDefinitionWrappers = new TablePropertyDefinitionWrappers(tablePropertyDefinitions);
@@ -190,7 +190,7 @@ public final class GenRulesCode {
         contextPropertyDefinitions = loader.getContextDefinitions();
         contextPropertyDefinitionWrappers = new ContextPropertyDefinitionWrappers(contextPropertyDefinitions);
 
-        String[] tablePriorityRules = loader.getTablesPriorityRules();
+        var tablePriorityRules = loader.getTablesPriorityRules();
         tablePriorityRuleWrappers = new TablePriorityRuleWrappers(tablePriorityRules);
     }
 
@@ -198,20 +198,20 @@ public final class GenRulesCode {
         Path file = Path.of(p);
         System.out.println("Processing " + file);
 
-        StringBuilder sb = new StringBuilder(10000);
+        var sb = new StringBuilder(10000);
 
-        List<String> lines = Files.readAllLines(file);
-        boolean skipTillEnd = false;
+        var lines = Files.readAllLines(file);
+        var skipTillEnd = false;
 
         for (String line : lines) {
 
             if (line.contains("<<< INSERT")) {
                 sb.append(line).append("\r\n");
 
-                StringWriter writer = new StringWriter();
+                var writer = new StringWriter();
                 SourceGenerator.generate(templateName, variables, writer);
 
-                String codeSnippet = writer.toString();
+                var codeSnippet = writer.toString();
                 sb.append(codeSnippet);
                 skipTillEnd = true;
             }

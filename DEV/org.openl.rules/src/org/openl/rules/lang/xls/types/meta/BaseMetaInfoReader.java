@@ -3,7 +3,6 @@ package org.openl.rules.lang.xls.types.meta;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,10 +22,7 @@ import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.TableProperties;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
 @Slf4j
@@ -51,8 +47,8 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     }
 
     public void addConstant(ICell cell, ConstantOpenField constantOpenField) {
-        int row = cell.getAbsoluteRow();
-        int col = cell.getAbsoluteColumn();
+        var row = cell.getAbsoluteRow();
+        var col = cell.getAbsoluteColumn();
         constantsMap.put(CellKey.CellKeyFactory.getCellKey(col, row), Boolean.TRUE);
         constantOpenFields.add(constantOpenField);
     }
@@ -66,7 +62,7 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     }
 
     private static SimpleNodeUsage createConstantNodeUsage(ConstantOpenField constantOpenField, int start, int end) {
-        String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
+        var description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
                 .getName() + " = " + constantOpenField.getValueAsString();
         return new SimpleNodeUsage(start,
                 end,
@@ -91,23 +87,23 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
                 return getPropertiesMetaInfo(row, col);
             }
 
-            CellMetaInfo cellMetaInfo = getBodyMetaInfo(row, col);
+            var cellMetaInfo = getBodyMetaInfo(row, col);
 
             if (Boolean.TRUE.equals(constantsMap.get(CellKey.CellKeyFactory.getCellKey(col, row)))) {
-                ICell firstCell = getTableSyntaxNode().getTableBody().getSource().getCell(0, 0);
-                int r = row - firstCell.getAbsoluteRow();
-                int c = col - firstCell.getAbsoluteColumn();
-                ICell theValueCell = getTableSyntaxNode().getTableBody().getSource().getCell(c, r);
+                var firstCell = getTableSyntaxNode().getTableBody().getSource().getCell(0, 0);
+                var r = row - firstCell.getAbsoluteRow();
+                var c = col - firstCell.getAbsoluteColumn();
+                var theValueCell = getTableSyntaxNode().getTableBody().getSource().getCell(c, r);
                 String[] tokens = ArraySplitter.split(theValueCell.getStringValue());
-                String cellValue = theValueCell.getStringValue();
-                int startFrom = 0;
-                List<NodeUsage> nodeUsages = new ArrayList<>();
+                var cellValue = theValueCell.getStringValue();
+                var startFrom = 0;
+                var nodeUsages = new ArrayList<NodeUsage>();
                 for (String token : tokens) {
-                    int start = cellValue.indexOf(token, startFrom);
+                    var start = cellValue.indexOf(token, startFrom);
                     startFrom = start + token.length();
                     for (ConstantOpenField constantOpenField : constantOpenFields) {
                         if (token.equals(constantOpenField.getName())) {
-                            int end = start + constantOpenField.getName().length();
+                            var end = start + constantOpenField.getName().length();
                             SimpleNodeUsage nodeUsage = createConstantNodeUsage(constantOpenField, start, end);
                             nodeUsages.add(nodeUsage);
                         }
@@ -152,43 +148,43 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     }
 
     private boolean isHeaderRow(int row) {
-        TableSyntaxNode syntaxNode = getTableSyntaxNode();
+        var syntaxNode = getTableSyntaxNode();
         return syntaxNode.getTable().getCell(0, 0).getAbsoluteRow() == row;
     }
 
     private boolean isHeaderCell(int row, int col) {
-        TableSyntaxNode syntaxNode = getTableSyntaxNode();
+        var syntaxNode = getTableSyntaxNode();
         return isNeededCell(syntaxNode.getTable().getCell(0, 0), row, col);
     }
 
     private boolean isProperties(int row, int col) {
-        TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
+        var tableSyntaxNode = getTableSyntaxNode();
         if (!tableSyntaxNode.hasPropertiesDefinedInTable()) {
             return false;
         }
 
-        ILogicalTable propertiesSection = tableSyntaxNode.getTableProperties().getPropertiesSection();
-        ICell firstCell = propertiesSection.getCell(0, 0);
-        int r = row - firstCell.getAbsoluteRow();
-        int c = col - firstCell.getAbsoluteColumn();
+        var propertiesSection = tableSyntaxNode.getTableProperties().getPropertiesSection();
+        var firstCell = propertiesSection.getCell(0, 0);
+        var r = row - firstCell.getAbsoluteRow();
+        var c = col - firstCell.getAbsoluteColumn();
 
         // When c == -1 and r == 0 it's the "properties" keyword.
         return c >= -1 && r >= 0 && r < propertiesSection.getHeight() && c < propertiesSection.getWidth();
     }
 
     private CellMetaInfo getPropertiesMetaInfo(int row, int col) {
-        ILogicalTable propertiesSection = getTableSyntaxNode().getTableProperties().getPropertiesSection();
+        var propertiesSection = getTableSyntaxNode().getTableProperties().getPropertiesSection();
 
-        ICell firstCell = propertiesSection.getCell(0, 0);
-        int r = row - firstCell.getAbsoluteRow();
-        int c = col - firstCell.getAbsoluteColumn();
+        var firstCell = propertiesSection.getCell(0, 0);
+        var r = row - firstCell.getAbsoluteRow();
+        var c = col - firstCell.getAbsoluteColumn();
 
         if (c == 1) {
             // Create meta info for property value
-            String fieldName = propertiesSection.getCell(0, r).getStringValue();
-            IOpenField field = JavaOpenClass.getOpenClass(TableProperties.class).getField(fieldName);
+            var fieldName = propertiesSection.getCell(0, r).getStringValue();
+            var field = JavaOpenClass.getOpenClass(TableProperties.class).getField(fieldName);
             if (field != null) {
-                IOpenClass type = field.getType();
+                var type = field.getType();
                 if (type.getAggregateInfo().isAggregate(type)) {
                     return new CellMetaInfo(type.getAggregateInfo().getComponentType(type), true);
                 } else {

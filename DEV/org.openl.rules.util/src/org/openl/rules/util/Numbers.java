@@ -3,7 +3,6 @@ package org.openl.rules.util;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
@@ -112,7 +111,7 @@ public final class Numbers {
             return null;
         }
         try {
-            NumberFormat decimalFormat = new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(Locale.US));
+            var decimalFormat = new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(Locale.US));
             return decimalFormat.format(number);
         } catch (IllegalArgumentException | NullPointerException e) {
             return null;

@@ -30,7 +30,7 @@ class TopClassOpenMethodWrapperCache {
     }
 
     public IOpenMethod getTopOpenClassMethod(IOpenClass topOpenClass) {
-        IOpenMethod openMethod = get(topOpenClass);
+        var openMethod = get(topOpenClass);
         if (openMethod == null) {
             openMethod = topOpenClass.getMethod(methodWrapper.getDelegate().getName(),
                     methodWrapper.getDelegate().getSignature().getParameterTypes());

@@ -36,7 +36,7 @@ class CellStylesCountTest {
 
     @Test
     void testXlsSheetGridModel() {
-        XlsSheetGridModel grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
+        var grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
 
         grid.setCellStyle(0, 0, grid.getCell(1, 1).getStyle());
         assertTrue(wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES,
@@ -45,7 +45,7 @@ class CellStylesCountTest {
 
     @Test
     void testTableBuilder() throws Exception {
-        TableBuilder builder = new TableBuilder(new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc)));
+        var builder = new TableBuilder(new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc)));
 
         builder.beginTable(TableBuilder.PROPERTIES_MIN_WIDTH, TableBuilder.HEADER_HEIGHT + 1);
         builder.writeHeader("Datatype a1 <a2>", null);
@@ -67,10 +67,10 @@ class CellStylesCountTest {
 
     @Test
     void testXlsCellDateWriter() {
-        XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(0, wbSrc);
-        XlsSheetGridModel grid = new XlsSheetGridModel(sheetSource);
+        var sheetSource = new XlsSheetSourceCodeModule(0, wbSrc);
+        var grid = new XlsSheetGridModel(sheetSource);
 
-        XlsCellDateWriter writer = new XlsCellDateWriter(grid);
+        var writer = new XlsCellDateWriter(grid);
         writer.setCellToWrite(PoiExcelHelper.getOrCreateCell(0, 0, sheetSource.getSheet()));
         writer.setValueToWrite(new Date());
         writer.writeCellValue();

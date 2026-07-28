@@ -163,7 +163,7 @@ public class SimpleUser implements User {
     }
 
     public static Builder builder(SimpleUser user) {
-        Builder builder = new Builder();
+        var builder = new Builder();
         builder.setFirstName(user.firstName);
         builder.setLastName(user.lastName);
         builder.setUsername(user.username);

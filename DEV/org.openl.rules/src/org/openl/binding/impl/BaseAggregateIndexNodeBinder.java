@@ -7,7 +7,6 @@ import org.openl.binding.impl.IndexParameterDeclarationBinder.IndexParameterNode
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 
@@ -26,21 +25,21 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) {
 
-        IOpenClass containerType = targetNode.getType();
+        var containerType = targetNode.getType();
 
         if (NullOpenClass.the.equals(containerType)) {
             return makeErrorNode("An array or a collection is expected, but type '%s' is found.".formatted(
                     NullOpenClass.the.getName()), targetNode.getSyntaxNode(), bindingContext);
         }
 
-        IAggregateInfo info = containerType.getAggregateInfo();
-        IOpenClass componentType = info.getComponentType(containerType);
+        var info = containerType.getAggregateInfo();
+        var componentType = info.getComponentType(containerType);
         if (componentType == null) {
-            String typeName = containerType.getName();
+            var typeName = containerType.getName();
             return makeErrorNode("An array or a collection is expected, but type '%s' is found.".formatted(
                     typeName), targetNode.getSyntaxNode(), bindingContext);
         }
-        int numberOfChildren = node.getNumberOfChildren();
+        var numberOfChildren = node.getNumberOfChildren();
         if (numberOfChildren < 1 || numberOfChildren > 2) {
             return makeErrorNode("Aggregate node can have either 1 or 2 children nodes.", node, bindingContext);
         }
@@ -64,13 +63,13 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 
             IBoundNode localVarDefinitionBoundNode = bindChildNode(varNode, bindingContext);
 
-            IndexParameterNode pnode = (IndexParameterNode) localVarDefinitionBoundNode;
+            var pnode = (IndexParameterNode) localVarDefinitionBoundNode;
 
             varName = pnode.getName();
             varType = pnode.getType() == null ? componentType : pnode.getType();
 
             if (varType != componentType) {
-                IOpenCast cast = bindingContext.getCast(componentType, varType);
+                var cast = bindingContext.getCast(componentType, varType);
                 if (cast == null) {
                     return makeErrorNode("Cannot cast '%s' to '%s'.".formatted(componentType, varType),
                             varNode,
@@ -81,21 +80,21 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 
         try {
             bindingContext.pushLocalVarContext();
-            ILocalVar localVar = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, varName, varType);
+            var localVar = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, varName, varType);
             TypeBindingContext varBindingContext = TypeBindingContext.create(bindingContext, localVar, 1);
             IBoundNode boundExpressionNode = bindChildNode(expressionNode, varBindingContext);
             if (boundExpressionNode instanceof TypeBoundNode) {
-                String message = "Type definition cannot be used as expression for array index operator.";
+                var message = "Type definition cannot be used as expression for array index operator.";
                 return makeErrorNode(message, boundExpressionNode.getSyntaxNode(), bindingContext);
             }
             IOpenCast openCast = null;
             if (varNode != null) {
-                IOpenClass componentType1 = targetNode.getType()
+                var componentType1 = targetNode.getType()
                         .getAggregateInfo()
                         .getComponentType(targetNode.getType());
                 openCast = bindingContext.getCast(componentType1, localVar.getType());
                 if (targetNode.getType().isArray() && openCast == null) {
-                    String message = "Cannot convert from '%s' to '%s'.".formatted(
+                    var message = "Cannot convert from '%s' to '%s'.".formatted(
                             targetNode.getType().getAggregateInfo().getComponentType(targetNode.getType()).getName(),
                             localVar.getType().getName());
                     return makeErrorNode(message, varNode, bindingContext);

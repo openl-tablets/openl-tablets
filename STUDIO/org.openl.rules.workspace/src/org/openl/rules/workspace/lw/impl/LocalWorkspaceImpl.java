@@ -15,9 +15,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
-import org.openl.rules.project.impl.local.ProjectState;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
@@ -64,10 +61,10 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             id = LOCAL_ID;
         }
         // Create a new instance with id and name.
-        LocalRepository repository = new LocalRepository(localRepository.getRoot(), metainfoRegistry);
+        var repository = new LocalRepository(localRepository.getRoot(), metainfoRegistry);
         repository.setId(id);
         if (designTimeRepository != null) {
-            Repository designRepository = designTimeRepository.getRepository(id);
+            var designRepository = designTimeRepository.getRepository(id);
             if (designRepository != null) {
                 repository.setName(designRepository.getName());
             }
@@ -114,7 +111,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public Collection<AProject> getProjects() {
         synchronized (localProjects) {
-            ArrayList<AProject> projects = new ArrayList<>(localProjects.values());
+            var projects = new ArrayList<AProject>(localProjects.values());
             projects.sort(PROJECTS_COMPARATOR);
             return projects;
         }
@@ -151,25 +148,25 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private void loadProjects() {
         for (String name : metainfoRegistry.projects()) {
             AProject lpi;
-            String repositoryPath = designTimeRepository.getRulesLocation() + name;
-            ProjectState projectState = localRepository.getProjectState(name);
-            LocalRepository repository = getRepository(projectState.getRepositoryId());
-            FileData fileData = projectState.getFileData();
+            var repositoryPath = designTimeRepository.getRulesLocation() + name;
+            var projectState = localRepository.getProjectState(name);
+            var repository = getRepository(projectState.getRepositoryId());
+            var fileData = projectState.getFileData();
             if (fileData == null) {
-                String version = projectState.getProjectVersion();
+                var version = projectState.getProjectVersion();
                 lpi = new AProject(repository, name, version);
                 repositoryPath = "<local-path>/" + name;
             } else {
-                FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
+                var mappingData = fileData.getAdditionalData(FileMappingData.class);
                 if (mappingData != null) {
                     repositoryPath = mappingData.getInternalPath();
 
-                    String mappedName = name;
-                    Repository designRepo = designTimeRepository.getRepository(repository.getId());
-                    String rulesLocation = designTimeRepository.getRulesLocation();
+                    var mappedName = name;
+                    var designRepo = designTimeRepository.getRepository(repository.getId());
+                    var rulesLocation = designTimeRepository.getRulesLocation();
                     if (designRepo != null && designRepo.supports().mappedFolders()) {
-                        FolderMapper mapper = (FolderMapper) designRepo;
-                        String mappedPath = mapper.findMappedName(repositoryPath);
+                        var mapper = (FolderMapper) designRepo;
+                        var mappedPath = mapper.findMappedName(repositoryPath);
                         if (mappedPath == null) {
                             mappedName = mapper.getMappedName(name, repositoryPath);
                         } else {

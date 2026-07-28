@@ -36,12 +36,12 @@ public final class TableUtils {
      * @return new URI, othervice old
      */
     static String toCellURI(String rawUri) {
-        final int querySep = rawUri.indexOf('?');
+        final var querySep = rawUri.indexOf('?');
         if (querySep > 0) {
-            final String rawQuery = rawUri.substring(querySep + 1);
-            Map<String, String> query = new LinkedHashMap<>();
+            final var rawQuery = rawUri.substring(querySep + 1);
+            var query = new LinkedHashMap<String, String>();
             for (String pair : rawQuery.split("&")) {
-                int idx = pair.indexOf('=');
+                var idx = pair.indexOf('=');
                 if (idx < 0) {
                     query.put(pair, null);
                 } else {
@@ -49,16 +49,16 @@ public final class TableUtils {
                 }
             }
             if (query.containsKey("range")) {
-                final StringBuilder newUri = new StringBuilder();
+                final var newUri = new StringBuilder();
                 newUri.append(rawUri, 0, querySep).append('?');
-                int idx = 0;
+                var idx = 0;
                 for (Map.Entry<String, String> pair : query.entrySet()) {
                     if (idx > 0) {
                         newUri.append('&');
                     }
                     if ("range".equals(pair.getKey())) {
                         newUri.append("cell").append('=');
-                        String value = pair.getValue();
+                        var value = pair.getValue();
                         newUri.append(value, 0, value.indexOf(':'));
                     } else {
                         newUri.append(pair.getKey()).append('=').append(pair.getValue());

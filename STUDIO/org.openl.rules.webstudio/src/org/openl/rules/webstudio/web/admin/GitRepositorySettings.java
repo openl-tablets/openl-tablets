@@ -273,7 +273,7 @@ public class GitRepositorySettings extends RepositorySettings {
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
 
-        boolean clearLogin = StringUtils.isEmpty(login);
+        var clearLogin = StringUtils.isEmpty(login);
 
         propertiesHolder.setProperty(URI, uri);
 

@@ -97,14 +97,14 @@ public class SheetHandler extends DefaultHandler {
             this.formatIndex = -1;
             this.formatString = null;
 
-            String cellRef = attributes.getValue("r");
+            var cellRef = attributes.getValue("r");
             current = new CellAddress(cellRef);
 
-            String cellStyleStr = attributes.getValue("s");
+            var cellStyleStr = attributes.getValue("s");
             int styleIndex = cellStyleStr != null ? Integer.parseInt(cellStyleStr) : 0;
             indent = stylesTable == null ? null : stylesTable.getIndent(styleIndex);
 
-            String cellType = attributes.getValue("t");
+            var cellType = attributes.getValue("t");
             if ("b".equals(cellType)) {
                 nextDataType = XmlCellType.BOOLEAN;
             } else if ("e".equals(cellType)) {
@@ -117,34 +117,34 @@ public class SheetHandler extends DefaultHandler {
                 nextDataType = XmlCellType.FORMULA;
             } else if (stylesTable != null) {
                 // Number. We must get retrieve format to determine if it's a date.
-                NumberFormat numberFormat = stylesTable.getFormat(styleIndex);
+                var numberFormat = stylesTable.getFormat(styleIndex);
                 if (numberFormat != null) {
                     formatIndex = numberFormat.getFormatIndex();
                     formatString = numberFormat.getFormatString();
                 }
             }
         } else if ("mergeCell".equals(localName)) {
-            String ref = attributes.getValue("ref");
-            String[] cellsRefs = ref.split(":");
+            var ref = attributes.getValue("ref");
+            var cellsRefs = ref.split(":");
             // No need to mark the cell as merged if it's merged with itself.
             if (cellsRefs.length > 1) {
                 mergedCells.add(CellRangeAddress.valueOf(ref));
-                CellAddress from = new CellAddress(cellsRefs[0]);
-                CellAddress to = new CellAddress(cellsRefs[1]);
+                var from = new CellAddress(cellsRefs[0]);
+                var to = new CellAddress(cellsRefs[1]);
 
-                int firstMergeRow = from.getRow();
-                int firstMergeCol = from.getColumn();
-                int lastMergeRow = to.getRow();
-                int lastMergeCol = to.getColumn();
+                var firstMergeRow = from.getRow();
+                var firstMergeCol = from.getColumn();
+                var lastMergeRow = to.getRow();
+                var lastMergeCol = to.getColumn();
                 // Mark cells merged with Left. Don't include first column.
-                for (int row = firstMergeRow; row <= lastMergeRow; row++) {
-                    for (int col = firstMergeCol + 1; col <= lastMergeCol; col++) {
+                for (var row = firstMergeRow; row <= lastMergeRow; row++) {
+                    for (var col = firstMergeCol + 1; col <= lastMergeCol; col++) {
                         setCell(row - start.getRow(), col - start.getColumn(), MergedCell.MERGE_WITH_LEFT);
                     }
                 }
 
                 // Mark cells merged with Up. Only first column starting from second row.
-                for (int row = firstMergeRow + 1; row <= lastMergeRow; row++) {
+                for (var row = firstMergeRow + 1; row <= lastMergeRow; row++) {
                     setCell(row - start.getRow(), firstMergeCol - start.getColumn(), MergedCell.MERGE_WITH_UP);
                 }
             }
@@ -165,7 +165,7 @@ public class SheetHandler extends DefaultHandler {
             // Process the value contents as required, now we have it all
             switch (nextDataType) {
                 case BOOLEAN:
-                    char first = value.charAt(0);
+                    var first = value.charAt(0);
                     parsedValue = first != '0';
                     break;
                 case FORMULA:
@@ -175,10 +175,10 @@ public class SheetHandler extends DefaultHandler {
                     parsedValue = StringUtils.trimToNull(value.toString());
                     break;
                 case SHARED_STRING_TABLE_STRING:
-                    String sstIndex = value.toString();
+                    var sstIndex = value.toString();
                     try {
-                        int idx = Integer.parseInt(sstIndex);
-                        String strValue = lruCache.get(idx);
+                        var idx = Integer.parseInt(sstIndex);
+                        var strValue = lruCache.get(idx);
                         if (strValue == null && !lruCache.containsKey(idx)) {
                             strValue = sharedStringsTable.getItemAt(idx).toString();
                             lruCache.put(idx, strValue);
@@ -189,12 +189,12 @@ public class SheetHandler extends DefaultHandler {
                     }
                     break;
                 case NUMBER:
-                    String n = value.toString();
+                    var n = value.toString();
                     try {
                         if (n.isEmpty()) {
                             parsedValue = null;
                         } else {
-                            double d = Double.parseDouble(n);
+                            var d = Double.parseDouble(n);
                             if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex,
                                     formatString)) {
                                 parsedValue = DateUtil.getJavaDate(d, use1904Windowing);
@@ -212,8 +212,8 @@ public class SheetHandler extends DefaultHandler {
                     break;
             }
 
-            int row = current.getRow() - start.getRow();
-            int col = current.getColumn() - start.getColumn();
+            var row = current.getRow() - start.getRow();
+            var col = current.getColumn() - start.getColumn();
 
             if (indent != null && indent != 0) {
                 parsedValue = new AlignedValue(parsedValue, indent);
@@ -227,8 +227,8 @@ public class SheetHandler extends DefaultHandler {
     private void setCell(int row, int col, Object parsedValue) {
         // Sometimes sheet dimension is defined like C1:E63 but exists cell in B65 in same sheet. It's a strange case
         // but we must support it too.
-        int rowShift = 0;
-        int colShift = 0;
+        var rowShift = 0;
+        var colShift = 0;
 
         if (row < 0) {
             rowShift = -row;
@@ -242,11 +242,11 @@ public class SheetHandler extends DefaultHandler {
 
         // According to specification "dimension" is optional and is not required. We must expand array if it's too
         // small
-        int rowCount = cells.length;
-        int maxRows = Math.max(row + 1, rowCount + rowShift);
+        var rowCount = cells.length;
+        var maxRows = Math.max(row + 1, rowCount + rowShift);
 
         int columnCount = rowCount == 0 ? 0 : cells[0].length;
-        int maxCols = Math.max(col + 1, columnCount + colShift);
+        var maxCols = Math.max(col + 1, columnCount + colShift);
 
         if (rowShift > 0 || colShift > 0) {
             start = new CellAddress(start.getRow() - rowShift, start.getColumn() - colShift);
@@ -266,21 +266,21 @@ public class SheetHandler extends DefaultHandler {
         cells[row][col] = parsedValue;
 
         if (parsedValue != null && !(parsedValue instanceof MergedCell)) {
-            int curRow = row + start.getRow();
-            int curCol = col + start.getColumn();
+            var curRow = row + start.getRow();
+            var curCol = col + start.getColumn();
 
             if (effectiveStart == null) {
                 effectiveStart = new CellAddress(curRow, curCol);
                 effectiveEnd = effectiveStart;
             } else {
                 if (curRow < effectiveStart.getRow() || curCol < effectiveStart.getColumn()) {
-                    int minRow = Math.min(curRow, effectiveStart.getRow());
-                    int minCol = Math.min(curCol, effectiveStart.getColumn());
+                    var minRow = Math.min(curRow, effectiveStart.getRow());
+                    var minCol = Math.min(curCol, effectiveStart.getColumn());
                     effectiveStart = new CellAddress(minRow, minCol);
                 }
                 if (curRow > effectiveEnd.getRow() || curCol > effectiveEnd.getColumn()) {
-                    int maxRow = Math.max(curRow, effectiveEnd.getRow());
-                    int maxCol = Math.max(curCol, effectiveEnd.getColumn());
+                    var maxRow = Math.max(curRow, effectiveEnd.getRow());
+                    var maxCol = Math.max(curCol, effectiveEnd.getColumn());
                     effectiveEnd = new CellAddress(maxRow, maxCol);
                 }
             }
@@ -300,7 +300,7 @@ public class SheetHandler extends DefaultHandler {
 
     @Override
     public void endDocument() {
-        int rowCount = cells.length;
+        var rowCount = cells.length;
         if (rowCount == 0 || cells[0].length == 0) {
             // No need to optimize cells[][] size
             return;
@@ -312,28 +312,28 @@ public class SheetHandler extends DefaultHandler {
         }
 
         for (CellRangeAddress mergedCell : mergedCells) {
-            int r = mergedCell.getFirstRow() - start.getRow();
-            int c = mergedCell.getFirstColumn() - start.getColumn();
+            var r = mergedCell.getFirstRow() - start.getRow();
+            var c = mergedCell.getFirstColumn() - start.getColumn();
             if (r >= 0 && c >= 0 && cells[r][c] != null) {
                 if (mergedCell.getLastRow() > effectiveEnd.getRow() || mergedCell.getLastColumn() > effectiveEnd
                         .getColumn()) {
-                    int maxRow = Math.max(mergedCell.getLastRow(), effectiveEnd.getRow());
-                    int maxCol = Math.max(mergedCell.getLastColumn(), effectiveEnd.getColumn());
+                    var maxRow = Math.max(mergedCell.getLastRow(), effectiveEnd.getRow());
+                    var maxCol = Math.max(mergedCell.getLastColumn(), effectiveEnd.getColumn());
                     effectiveEnd = new CellAddress(maxRow, maxCol);
                 }
             }
         }
 
-        int rows = effectiveEnd.getRow() - effectiveStart.getRow() + 1;
-        int cols = effectiveEnd.getColumn() - effectiveStart.getColumn() + 1;
+        var rows = effectiveEnd.getRow() - effectiveStart.getRow() + 1;
+        var cols = effectiveEnd.getColumn() - effectiveStart.getColumn() + 1;
 
-        int columnCount = cells[0].length;
+        var columnCount = cells[0].length;
         if (rows < rowCount || cols < columnCount) {
             log.debug("Optimize cells array. Current: {}:{}, new: {}:{}", rowCount, columnCount, rows, cols);
-            int fromRow = effectiveStart.getRow() - start.getRow();
-            int fromCol = effectiveStart.getColumn() - start.getColumn();
+            var fromRow = effectiveStart.getRow() - start.getRow();
+            var fromCol = effectiveStart.getColumn() - start.getColumn();
             Object[][] copy = new Object[rows][cols];
-            for (int i = 0; i < copy.length; i++) {
+            for (var i = 0; i < copy.length; i++) {
                 System.arraycopy(cells[fromRow + i], fromCol, copy[i], 0, cols);
             }
             cells = copy;
@@ -342,21 +342,21 @@ public class SheetHandler extends DefaultHandler {
     }
 
     private void initializeCells(String dimension) {
-        String[] cellsRefs = dimension.split(":");
+        var cellsRefs = dimension.split(":");
         start = new CellAddress(cellsRefs[0]);
         if (cellsRefs.length == 1) {
             log.debug("Array size: 1:1");
             cells = new Object[1][1];
         } else {
-            int startRow = start.getRow();
-            int startColumn = start.getColumn();
+            var startRow = start.getRow();
+            var startColumn = start.getColumn();
 
-            CellAddress end = new CellAddress(cellsRefs[1]);
-            int endRow = end.getRow();
-            int endColumn = end.getColumn();
+            var end = new CellAddress(cellsRefs[1]);
+            var endRow = end.getRow();
+            var endColumn = end.getColumn();
 
-            int rows = endRow - startRow + 1;
-            int cols = endColumn - startColumn + 1;
+            var rows = endRow - startRow + 1;
+            var cols = endColumn - startColumn + 1;
             if (rows * cols > MAX_ESTIMATED_CELLS_COUNT) {
                 // Can consume too much memory. Restrict initial size and increment it on demand.
                 rows = Math.max(1, MAX_ESTIMATED_CELLS_COUNT / cols);
@@ -367,7 +367,7 @@ public class SheetHandler extends DefaultHandler {
     }
 
     private void arrayCopy(Object[][] from, Object[][] to, int toRow, int toCol) {
-        for (int i = 0; i < from.length; i++) {
+        for (var i = 0; i < from.length; i++) {
             System.arraycopy(from[i], 0, to[toRow + i], toCol, from[i].length);
         }
     }

@@ -31,12 +31,12 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     public String getDisplayedValue() {
-        Object value = getValue();
+        var value = getValue();
         return FormattersManager.format(value);
     }
 
     public String getValueForEdit() {
-        Object value = getValue();
+        var value = getValue();
         if (value != null) {
             return FormattersManager.format(value);
         } else {
@@ -46,7 +46,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     public String getNodeType() {
-        IOpenClass type = getType();
+        var type = getType();
         Class<?> instanceClass = type.getInstanceClass();
         if (boolean.class == instanceClass) {
             return "boolean";
@@ -64,14 +64,14 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
     }
 
     public List<String> getValuesForSelect() {
-        IOpenClass type = getType();
+        var type = getType();
         if (type.getInstanceClass() == Boolean.class) {
             return Arrays.asList("", "true", "false");
         }
 
         IDomain<?> domain = type.getDomain();
         if (domain != null) {
-            List<String> result = new ArrayList<>();
+            var result = new ArrayList<String>();
             result.add("");
             for (Object o : domain) {
                 result.add(FormattersManager.format(o));

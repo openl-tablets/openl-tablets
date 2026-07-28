@@ -11,15 +11,9 @@ import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.Comment;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -149,8 +143,8 @@ public class TableBuilder {
         if (region == null) {
             throw new IllegalStateException("endTable() call without prior beginTable() call");
         }
-        for (int y = currentRow; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
+        for (var y = currentRow; y < height; ++y) {
+            for (var x = 0; x < width; ++x) {
                 writeCell(x, y, 1, 1, "");
             }
         }
@@ -165,7 +159,7 @@ public class TableBuilder {
      */
     private CellStyle getDefaultCellStyle() {
         if (defaultCellStyle == null) {
-            Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+            var workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -180,7 +174,7 @@ public class TableBuilder {
 
     private CellStyle getDefaultDateCellStyle() {
         if (defaultDateCellStyle == null) {
-            Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+            var workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -223,7 +217,7 @@ public class TableBuilder {
      * @param style  cell style
      */
     private void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {
-        CellStyle cellStyle = analyseCellStyle(style);
+        var cellStyle = analyseCellStyle(style);
         x += region.getLeft();
         y += region.getTop();
         if (width == 1 && height == 1) {
@@ -242,11 +236,11 @@ public class TableBuilder {
                 setCellStyle(cell, cellStyle);
             }
         } else {
-            int x2 = x + width - 1;
-            int y2 = y + height - 1;
+            var x2 = x + width - 1;
+            var y2 = y + height - 1;
             gridModel.addMergedRegion(new GridRegion(y, x, y2, x2));
-            for (int col = x; col <= x2; col++) {
-                for (int row = y; row <= y2; row++) {
+            for (var col = x; col <= x2; col++) {
+                for (var row = y; row <= y2; row++) {
                     Cell newCell = PoiExcelHelper.getOrCreateCell(col, row, gridModel.getSheetSource().getSheet());
                     gridModel.setCellValue(x, y, value);
                     setCellStyle(newCell, cellStyle);
@@ -279,7 +273,7 @@ public class TableBuilder {
      * @param cell Cell with value in it.
      */
     private CellStyle getDateCellStyle(Cell cell) {
-        CellStyle previousStyle = cell.getCellStyle();
+        var previousStyle = cell.getCellStyle();
         cell.setCellStyle(PoiExcelHelper.createCellStyle(cell.getSheet().getWorkbook()));
         cell.getCellStyle().cloneStyleFrom(previousStyle);
         cell.getCellStyle()
@@ -288,18 +282,18 @@ public class TableBuilder {
     }
 
     private void setCellStyle(Cell cell, CellStyle cellStyle) {
-        CellStyle newStyle = style2style.get(cellStyle);
+        var newStyle = style2style.get(cellStyle);
         if (newStyle != null) {
             cellStyle = newStyle;
         }
         try {
             cell.setCellStyle(cellStyle);
         } catch (Exception e) {
-            CellStyle style = findWorkbookCellStyle(cellStyle);
+            var style = findWorkbookCellStyle(cellStyle);
             if (style != null) {
                 style2style.put(cellStyle, style);
             } else {
-                Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+                var workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
                 style = PoiExcelHelper.createCellStyle(workbook);
                 try {
                     style.cloneStyleFrom(cellStyle);
@@ -313,10 +307,10 @@ public class TableBuilder {
     }
 
     private CellStyle findWorkbookCellStyle(CellStyle cellStyle) {
-        Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
-        int numCellStyles = workbook.getNumCellStyles();
-        for (int i = 0; i < numCellStyles; i++) {
-            CellStyle cellStyleAt = workbook.getCellStyleAt((short) i);
+        var workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+        var numCellStyles = workbook.getNumCellStyles();
+        for (var i = 0; i < numCellStyles; i++) {
+            var cellStyleAt = workbook.getCellStyleAt((short) i);
             if (equalsStyle(cellStyleAt, cellStyle)) {
                 return cellStyleAt;
             }
@@ -354,18 +348,18 @@ public class TableBuilder {
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }
-        for (int i = 0; i < table.getWidth(); i++) {
-            for (int j = 0; j < table.getHeight(); j++) {
-                ICell cell = table.getCell(i, j);
-                int cellWidth = cell.getWidth();
-                int cellHeight = cell.getHeight();
+        for (var i = 0; i < table.getWidth(); i++) {
+            for (var j = 0; j < table.getHeight(); j++) {
+                var cell = table.getCell(i, j);
+                var cellWidth = cell.getWidth();
+                var cellHeight = cell.getHeight();
                 Object cellValue;
                 if (cell.getFormula() != null) {
                     cellValue = "=" + cell.getFormula();
                 } else {
                     cellValue = cell.getObjectValue();
                 }
-                ICellStyle style = cell.getStyle();
+                var style = cell.getStyle();
                 writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
                 Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(),
                         currentRow + j + region.getTop(),
@@ -373,16 +367,16 @@ public class TableBuilder {
                 if (cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
                     newCell.setCellValue(cellValue.toString());
                 }
-                ICellComment iCellComment = cell.getComment();
+                var iCellComment = cell.getComment();
                 if (iCellComment != null) {
-                    Comment xlxComment = ((XlsCellComment) iCellComment).getXlxComment();
-                    Sheet sheet = newCell.getSheet();
-                    ClientAnchor anchor = sheet.getWorkbook().getCreationHelper().createClientAnchor();
+                    var xlxComment = ((XlsCellComment) iCellComment).getXlxComment();
+                    var sheet = newCell.getSheet();
+                    var anchor = sheet.getWorkbook().getCreationHelper().createClientAnchor();
                     anchor.setCol1(newCell.getColumnIndex());
                     anchor.setCol2(newCell.getColumnIndex() + 1);
                     anchor.setRow1(newCell.getRow().getRowNum());
                     anchor.setRow2(newCell.getRow().getRowNum() + 3);
-                    Comment comment = sheet.createDrawingPatriarch().createCellComment(anchor);
+                    var comment = sheet.createDrawingPatriarch().createCellComment(anchor);
                     comment.setAuthor(xlxComment.getAuthor());
                     comment.setString(xlxComment.getString());
                     newCell.setCellComment(comment);
@@ -430,11 +424,11 @@ public class TableBuilder {
             Set<String> keys = properties.keySet();
             for (String key : keys) {
                 writeCell(1, currentRow, 1, 1, key, style);
-                Object value = properties.get(key);
+                var value = properties.get(key);
                 writeCell(2, currentRow, 1, 1, value, style);
                 // write empty column for correct border showing
                 if (width > TableBuilder.PROPERTIES_MIN_WIDTH) {
-                    int column = TableBuilder.PROPERTIES_MIN_WIDTH;
+                    var column = TableBuilder.PROPERTIES_MIN_WIDTH;
 
                     while (column < width) {
                         writeCell(column, currentRow, 1, 1, null, style);

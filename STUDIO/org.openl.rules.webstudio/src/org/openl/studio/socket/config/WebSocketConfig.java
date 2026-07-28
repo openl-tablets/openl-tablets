@@ -109,7 +109,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 if (accessor != null) {
                     Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
                     if (sessionAttributes != null && sessionAttributes.containsKey(SPRING_SECURITY_CONTEXT_KEY)) {
-                        SecurityContext securityContext = (SecurityContext) sessionAttributes.get(SPRING_SECURITY_CONTEXT_KEY);
+                        var securityContext = (SecurityContext) sessionAttributes.get(SPRING_SECURITY_CONTEXT_KEY);
 
                         if (securityContext != null && securityContext.getAuthentication() != null
                                 && securityContext.getAuthentication().isAuthenticated()) {

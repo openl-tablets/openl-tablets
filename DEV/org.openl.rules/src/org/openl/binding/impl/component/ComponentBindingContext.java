@@ -43,12 +43,12 @@ public class ComponentBindingContext extends BindingContextDelegator {
 
     @Override
     public IOpenClass addType(IOpenClass type) throws DuplicatedTypeException {
-        final String typeName = type.getName();
+        final var typeName = type.getName();
         if (internalTypes == null) {
             internalTypes = new HashMap<>();
         }
         if (internalTypes.containsKey(typeName)) {
-            IOpenClass openClass = internalTypes.get(typeName);
+            var openClass = internalTypes.get(typeName);
             if (openClass == type) {
                 return type;
             }
@@ -82,13 +82,13 @@ public class ComponentBindingContext extends BindingContextDelegator {
     @Override
     public IOpenClass findType(String typeName) throws AmbiguousTypeException {
         if (internalTypes != null) {
-            IOpenClass ioc = internalTypes.get(typeName);
+            var ioc = internalTypes.get(typeName);
             if (ioc != null) {
                 return ioc;
             }
         }
 
-        IOpenClass type = componentOpenClass.findType(typeName);
+        var type = componentOpenClass.findType(typeName);
         if (type != null) {
             return type;
         }
@@ -110,14 +110,14 @@ public class ComponentBindingContext extends BindingContextDelegator {
         if (openClass == null) {
             return null;
         }
-        IOpenClass componentOpenClass = openClass;
-        int dim = 0;
+        var componentOpenClass = openClass;
+        var dim = 0;
         while (componentOpenClass.isArray()) {
             componentOpenClass = componentOpenClass.getComponentClass();
             dim++;
         }
         if (isComponentSpecificOpenClass(componentOpenClass)) {
-            IOpenClass thisContextOpenClass = this.findType(
+            var thisContextOpenClass = this.findType(
                     componentOpenClass.getName());
             if (thisContextOpenClass != null) {
                 return dim > 0 ? thisContextOpenClass.getArrayType(dim) : thisContextOpenClass;

@@ -51,7 +51,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         // Whether the branches differ is answered for everyone who may read the project: taking a
         // protected branch into your own is an ordinary operation, and even a user who may not write to
         // the target has to know whether their changes are already there — deleting a branch depends on it.
-        boolean merged = repository.isMergedInto(branchPair.source(), branchPair.target());
+        var merged = repository.isMergedInto(branchPair.source(), branchPair.target());
         var blockedBy = mergeBlockedBy(project, repository, branchPair.target());
         return CheckMergeResult.builder()
                 .sourceBranch(branchPair.source())

@@ -25,8 +25,8 @@ class FirewallPropertyResolver extends PropertySourcesPropertyResolver {
     }
 
     void initFirewall() {
-        String allowedRegex = getProperty("openl.config.key-pattern.allowed");
-        String deniedRegex = getProperty("openl.config.key-pattern.denied");
+        var allowedRegex = getProperty("openl.config.key-pattern.allowed");
+        var deniedRegex = getProperty("openl.config.key-pattern.denied");
         if (StringUtils.isNotBlank(allowedRegex)) {
             allowedPattern = Pattern.compile(allowedRegex);
         }

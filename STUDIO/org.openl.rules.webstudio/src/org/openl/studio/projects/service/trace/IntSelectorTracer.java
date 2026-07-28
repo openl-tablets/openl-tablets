@@ -19,7 +19,7 @@ class IntSelectorTracer implements IIntSelector {
 
     @Override
     public boolean select(int rule) {
-        boolean successful = selector.select(rule);
+        var successful = selector.select(rule);
         hook.onPut(this, "condition", new Object[]{condition, rule, successful});
         return successful;
     }

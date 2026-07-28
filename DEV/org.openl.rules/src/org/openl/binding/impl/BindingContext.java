@@ -86,13 +86,13 @@ public class BindingContext implements IBindingContext {
     public IMethodCaller findMethodCaller(String namespace,
                                           String name,
                                           IOpenClass[] parTypes) throws AmbiguousMethodException {
-        MethodKey key = new MethodKey(namespace + ':' + name, parTypes, true);
+        var key = new MethodKey(namespace + ':' + name, parTypes, true);
         Map<MethodKey, Object> methodCache = ((Binder) binder).getMethodCache();
 
         synchronized (methodCache) {
-            Object res = methodCache.get(key);
+            var res = methodCache.get(key);
             if (res == null) {
-                IMethodCaller found = binder.getMethodFactory()
+                var found = binder.getMethodFactory()
                         .getMethodCaller(namespace, name, parTypes, binder.getCastFactory());
                 methodCache.put(key, found == null ? NOT_FOUND : found);
                 return found;
@@ -121,7 +121,7 @@ public class BindingContext implements IBindingContext {
 
     @Override
     public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
-        ILocalVar var = localFrame.findLocalVar(namespace, name, strictMatch);
+        var var = localFrame.findLocalVar(namespace, name, strictMatch);
         if (var != null) {
             return var;
         }

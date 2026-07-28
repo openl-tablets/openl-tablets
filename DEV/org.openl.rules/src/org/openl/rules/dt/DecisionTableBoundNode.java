@@ -13,7 +13,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 
 /**
@@ -36,14 +35,14 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
 
     @Override
     protected ExecutableRulesMethod createMethodShell() {
-        IOpenClass type = getType();
-        int dim = 0;
+        var type = getType();
+        var dim = 0;
         while (type.isArray()) {
             type = type.getComponentClass();
             dim++;
         }
-        boolean isTypeCustomSpreadsheetResult = type instanceof SpreadsheetResultOpenClass;
-        DecisionTable decisionTable = new DecisionTable(getHeader(), this, isTypeCustomSpreadsheetResult);
+        var isTypeCustomSpreadsheetResult = type instanceof SpreadsheetResultOpenClass;
+        var decisionTable = new DecisionTable(getHeader(), this, isTypeCustomSpreadsheetResult);
         if (decisionTable.isTypeCustomSpreadsheetResult()) {
             decisionTable.setDim(dim);
             decisionTable.setCustomSpreadsheetResultType(

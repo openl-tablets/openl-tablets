@@ -34,8 +34,8 @@ class ProjectDescriptorManagerTest {
     }
 
     private void assertIsCoveredByWildcardModule(ProjectDescriptor descriptor) {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        Module newModule = new Module();
+        var manager = new ProjectDescriptorManager();
+        var newModule = new Module();
         newModule.setName("New Module");
         newModule.setRulesRootPath("rules/New Module.xlsx");
         assertTrue(manager.isCoveredByWildcardModule(descriptor, newModule));
@@ -49,8 +49,8 @@ class ProjectDescriptorManagerTest {
 
     @Test
     void emptyDescriptorIsCoveredByImplicitDefaults() {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
 
         // A project with no declared modules relies on the implicit rules/** and tests/** defaults.
         assertTrue(manager.isCoveredByWildcardModule(descriptor, module("rules/New Module.xlsx")));
@@ -60,8 +60,8 @@ class ProjectDescriptorManagerTest {
 
     @Test
     void registerModuleUnderRulesKeepsModulesImplicit() {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
 
         manager.registerModule(descriptor, module("rules/New Module.xlsx"));
 
@@ -71,8 +71,8 @@ class ProjectDescriptorManagerTest {
 
     @Test
     void registerModuleInRootMaterializesImplicitDefaults() {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
 
         manager.registerModule(descriptor, module("New Module.xlsx"));
 
@@ -83,7 +83,7 @@ class ProjectDescriptorManagerTest {
 
     @Test
     void registerModuleCoveredByDeclaredWildcardAddsNothing() throws Exception {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
+        var manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules-wildcard.xml"));
 
         manager.registerModule(descriptor, module("rules/New Module.xlsx"));
@@ -93,7 +93,7 @@ class ProjectDescriptorManagerTest {
 
     @Test
     void declareModuleAppendsDespiteCoveringWildcard() throws Exception {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
+        var manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules-wildcard.xml"));
 
         // The wildcard would name the module after its workbook, so a caller wanting another name declares it.
@@ -105,8 +105,8 @@ class ProjectDescriptorManagerTest {
 
     @Test
     void declareModuleUnderRulesMaterializesImplicitDefaults() {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
 
         // The implicit defaults already match the file, so they are written out before the declaration hides them.
         manager.declareModule(descriptor, module("Renamed", "rules/New Module.xlsx"));
@@ -121,7 +121,7 @@ class ProjectDescriptorManagerTest {
         Files.createFile(projectFolder.resolve("rules/BugReproducing.xlsx"));
         Files.createFile(projectFolder.resolve("rules/generalProject.xlsx"));
 
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setProjectFolder(projectFolder);
 
         // Simulate adding a new Excel file under rules/ to a project that declares no modules.
@@ -137,7 +137,7 @@ class ProjectDescriptorManagerTest {
         Files.createFile(projectFolder.resolve("rules/BugReproducing.xlsx"));
         Files.createFile(projectFolder.resolve("rules/generalProject.xlsx"));
 
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setProjectFolder(projectFolder);
 
         // Simulate adding a new Excel file in the project root, which the implicit defaults do not match.
@@ -156,7 +156,7 @@ class ProjectDescriptorManagerTest {
     }
 
     private static Module module(String name, String rulesRootPath) {
-        Module module = new Module();
+        var module = new Module();
         module.setName(name);
         module.setRulesRootPath(rulesRootPath);
         return module;

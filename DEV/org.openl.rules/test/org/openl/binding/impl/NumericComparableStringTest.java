@@ -10,7 +10,7 @@ class NumericComparableStringTest {
 
     @Test
     void testIncrementAndGet() {
-        NumericComparableString actual = increment("06400");
+        var actual = increment("06400");
         assertEquals(0, actual.compareTo(NumericComparableString.valueOf("06401")));
         assertEquals("06401", actual.toString());
         assertEquals("06401", actual.getValue());
@@ -25,7 +25,7 @@ class NumericComparableStringTest {
         assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("A00002")));
 
         actual = increment("A00000A");
-        String expectedStringValue = "A00000A" + Character.MIN_VALUE;
+        var expectedStringValue = "A00000A" + Character.MIN_VALUE;
         assertEquals(0, actual.compareTo(NumericComparableString.valueOf(expectedStringValue)));
         assertEquals(expectedStringValue, actual.toString());
         assertEquals(expectedStringValue, actual.getValue());
@@ -153,7 +153,7 @@ class NumericComparableStringTest {
 
     private NumericComparableString increment(String value) {
         NumericComparableString origin = NumericComparableString.valueOf(value);
-        NumericComparableString incremented = origin.incrementAndGet();
+        var incremented = origin.incrementAndGet();
         assertTrue(compare(incremented, origin) > 0);
         return incremented;
     }
@@ -165,8 +165,8 @@ class NumericComparableStringTest {
     }
 
     private int compare(NumericComparableString a, NumericComparableString b) {
-        int result = a.compareTo(b);
-        int inverse = b.compareTo(a);
+        var result = a.compareTo(b);
+        var inverse = b.compareTo(a);
         assertFalse(result < 0 && inverse <= 0);
         assertFalse(result > 0 && inverse >= 0);
         assertFalse(result == 0 && inverse != 0);

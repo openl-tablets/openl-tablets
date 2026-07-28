@@ -18,7 +18,7 @@ import org.openl.types.java.JavaOpenClass;
 class ComplexParameterTreeNodeTest {
     @Test
     void testGetChildrenMap() {
-        ComplexParameterTreeNode node = createNode(new My());
+        var node = createNode(new My());
 
         LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = node.getChildrenMap();
 
@@ -30,7 +30,7 @@ class ComplexParameterTreeNodeTest {
 
     @Test
     void testThrowingMethod() {
-        ComplexParameterTreeNode node = createNode(new ThrowingField());
+        var node = createNode(new ThrowingField());
         LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = node.getChildrenMap();
 
         assertTrue(childrenMap.containsKey("name"));
@@ -44,15 +44,15 @@ class ComplexParameterTreeNodeTest {
     void testCyclicReferences() {
         // Wee need to check a cyclic references, because JSF loads all child nodes before building a tree
 
-        ComplexParameterTreeNode node = createNode(new SelfReference());
+        var node = createNode(new SelfReference());
         assertTrue(node.getChildrenMap().containsKey("value"));
 
         // If there are a cyclic references, either StackOverflowError will be thrown or there will be a timeout
         assertFalse(getAllChildren(node).isEmpty());
 
-        Container a = new Container();
-        Container b = new Container();
-        Container c = new Container();
+        var a = new Container();
+        var b = new Container();
+        var c = new Container();
         a.value = b;
         b.value = c;
         c.value = a;
@@ -70,7 +70,7 @@ class ComplexParameterTreeNodeTest {
         // This method emulates a JSF's tree behavior
 
         Collection<ParameterDeclarationTreeNode> children = node.getChildrenMap().values();
-        List<ParameterDeclarationTreeNode> values = new ArrayList<>(children);
+        var values = new ArrayList<ParameterDeclarationTreeNode>(children);
 
         for (ParameterDeclarationTreeNode child : children) {
             values.addAll(getAllChildren(child));

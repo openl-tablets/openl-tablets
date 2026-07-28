@@ -56,7 +56,7 @@ public class TestTableReader extends AbstractDataTableReader<TestView, TestView.
             return;
         }
 
-        String[] tokens = headerSource.trim().split("\\s+");
+        var tokens = headerSource.trim().split("\\s+");
         // Expected format: Test <testedTableName> [testName]
         if (tokens.length >= 2) {
             builder.testedTableName(StringUtils.trimToNull(tokens[1]));

@@ -151,7 +151,7 @@ class AuthoringRepositoryTest {
         var branchDelegate = mock(BranchRepository.class);
         when(delegate.forBranch("dev")).thenReturn(branchDelegate);
 
-        BranchRepository branchRepository = repository.forBranch("dev");
+        var branchRepository = repository.forBranch("dev");
 
         assertNotSame(repository, branchRepository);
         assertInstanceOf(AuthoringRepository.class, branchRepository);

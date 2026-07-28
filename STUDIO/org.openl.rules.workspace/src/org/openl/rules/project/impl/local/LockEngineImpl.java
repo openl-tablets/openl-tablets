@@ -18,8 +18,8 @@ public class LockEngineImpl implements LockEngine {
      * @return Lock Engine
      */
     public static LockEngine create(File workspacesRoot, String type) {
-        File locksRoot = new File(workspacesRoot, LOCKS_FOLDER_NAME);
-        File projectLocksRoot = new File(locksRoot, type);
+        var locksRoot = new File(workspacesRoot, LOCKS_FOLDER_NAME);
+        var projectLocksRoot = new File(locksRoot, type);
         return new LockEngineImpl(projectLocksRoot);
     }
 
@@ -29,25 +29,25 @@ public class LockEngineImpl implements LockEngine {
 
     @Override
     public synchronized boolean tryLock(String repoId, String branch, String projectName, String userName) {
-        String lockId = getId(repoId, branch, projectName);
+        var lockId = getId(repoId, branch, projectName);
         return lockManager.getLock(lockId).tryLock(userName);
     }
 
     @Override
     public synchronized void unlock(String repoId, String branch, String projectName) {
-        String lockId = getId(repoId, branch, projectName);
+        var lockId = getId(repoId, branch, projectName);
         lockManager.getLock(lockId).unlock();
     }
 
     @Override
     public void forceUnlock(String repoId, String branch, String projectName) {
-        String lockId = getId(repoId, branch, projectName);
+        var lockId = getId(repoId, branch, projectName);
         lockManager.getLock(lockId).forceUnlock();
     }
 
     @Override
     public synchronized LockInfo getLockInfo(String repoId, String branch, String projectName) {
-        String lockId = getId(repoId, branch, projectName);
+        var lockId = getId(repoId, branch, projectName);
         return lockManager.getLock(lockId).info();
     }
 

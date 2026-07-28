@@ -6,9 +6,9 @@ public class StorageFactory {
 
     public static IStorageBuilder makeStorageBuilder(int size, DTScale.RowScale scale) {
 
-        int newSize = scale.getActualSize(size);
+        var newSize = scale.getActualSize(size);
 
-        StorageBuilder sb = new ObjectStorageBuilder(newSize);
+        var sb = new ObjectStorageBuilder(newSize);
 
         if (newSize == size) {
             return sb;

@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -149,7 +148,7 @@ public final class KafkaService implements Runnable {
     }
 
     public String getOutTopic(ConsumerRecord<?, ?> record) {
-        Header header = record.headers().lastHeader(KafkaHeaders.REPLY_TOPIC);
+        var header = record.headers().lastHeader(KafkaHeaders.REPLY_TOPIC);
         if (header != null && header.value() != null) {
             return new String(header.value(), StandardCharsets.UTF_8);
         }
@@ -157,7 +156,7 @@ public final class KafkaService implements Runnable {
     }
 
     public String getDltTopic(ConsumerRecord<?, ?> record) {
-        Header header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_TOPIC);
+        var header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_TOPIC);
         if (header != null && header.value() != null) {
             return new String(header.value(), StandardCharsets.UTF_8);
         }
@@ -208,9 +207,9 @@ public final class KafkaService implements Runnable {
     public void run() {
         while (flag) {
             try {
-                ConsumerRecords<String, RequestMessage> records = consumer.poll(Duration.ofMillis(100));
+                var records = consumer.poll(Duration.ofMillis(100));
                 if (!records.isEmpty()) {
-                    CountDownLatch countDownLatch = new CountDownLatch(records.count());
+                    var countDownLatch = new CountDownLatch(records.count());
                     ZonedDateTime incomingTime = ZonedDateTime.now();
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
                         var ignored = executor.submit(() -> {
@@ -235,16 +234,16 @@ public final class KafkaService implements Runnable {
                                     storeLogData.setObjectSerializer(getObjectSerializer());
                                     storeLogData.setConsumerRecord(consumerRecord);
                                 }
-                                RequestMessage requestMessage = consumerRecord.value();
+                                var requestMessage = consumerRecord.value();
                                 if (storeLogData != null) {
                                     storeLogData.setServiceMethod(requestMessage.getMethod());
                                     storeLogData.setParameters(requestMessage.getParameters());
                                 }
-                                String outputTopic = getOutTopic(consumerRecord);
+                                var outputTopic = getOutTopic(consumerRecord);
                                 if (!StringUtils.isBlank(outputTopic)) {
-                                    Object result = requestMessage.getMethod()
+                                    var result = requestMessage.getMethod()
                                             .invoke(service.getServiceBean(), requestMessage.getParameters());
-                                    Header header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
+                                    var header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
                                     ProducerRecord<String, Object> producerRecord;
                                     if (header == null) {
                                         producerRecord = new ProducerRecord<>(outputTopic,
@@ -266,7 +265,7 @@ public final class KafkaService implements Runnable {
                                     if (storeLogData != null) {
                                         storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
                                     }
-                                    String finalRequestIdHeader = requestIdHeader;
+                                    var finalRequestIdHeader = requestIdHeader;
                                     producer.send(producerRecord, (metadata, exception) -> {
                                         if (storeLogData != null) {
                                             storeLogData.setProducerRecord(producerRecord);
@@ -300,7 +299,7 @@ public final class KafkaService implements Runnable {
                                     }
                                 }
                             } catch (InvocationTargetException | UndeclaredThrowableException e) {
-                                Throwable ex = e.getCause();
+                                var ex = e.getCause();
                                 sendError(consumerRecord, storeLogData, ex instanceof Exception e1 ? e1 : e, requestIdHeader);
                             } catch (Exception e) {
                                 sendError(consumerRecord, storeLogData, e, requestIdHeader);
@@ -396,7 +395,7 @@ public final class KafkaService implements Runnable {
 
     @SuppressWarnings("FutureReturnValueIgnored")
     private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record, Exception e, StoreLogData storeLogData, String requestIdHeader) {
-        final String dltTopic = getDltTopic(record);
+        final var dltTopic = getDltTopic(record);
         if (StringUtils.isEmpty(dltTopic)) {
             return;
         }
@@ -405,7 +404,7 @@ public final class KafkaService implements Runnable {
                 record.headers().add(requestIdHeaderKey, requestIdHeader.getBytes(StandardCharsets.UTF_8));
             }
             ProducerRecord<String, byte[]> dltRecord;
-            Header header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_PARTITION);
+            var header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_PARTITION);
             if (header == null) {
                 dltRecord = new ProducerRecord<>(dltTopic, record.key(), record.value().getRawData());
             } else {

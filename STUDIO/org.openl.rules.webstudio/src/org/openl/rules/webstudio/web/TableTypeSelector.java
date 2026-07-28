@@ -22,7 +22,7 @@ class TableTypeSelector implements Predicate<TableSyntaxNode> {
 
     @Override
     public boolean test(TableSyntaxNode node) {
-        String type = node.getType();
+        var type = node.getType();
         return ArrayUtils.contains(types, type);
     }
 

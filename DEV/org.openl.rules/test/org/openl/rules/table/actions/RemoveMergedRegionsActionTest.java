@@ -30,7 +30,7 @@ class RemoveMergedRegionsActionTest {
 
     @Test
     void removesMergesWithinRegionAndUndoRestoresThem() {
-        int initial = grid.getNumberOfMergedRegions();
+        var initial = grid.getNumberOfMergedRegions();
         assertEquals(13, initial);
         // A merged region is known to cover this cell in the fixture.
         assertNotNull(grid.getRegionContaining(3, 2));
@@ -49,7 +49,7 @@ class RemoveMergedRegionsActionTest {
 
     @Test
     void keepsMergesWhoseOriginIsOutsideRegion() {
-        int initial = grid.getNumberOfMergedRegions();
+        var initial = grid.getNumberOfMergedRegions();
 
         // A region far from any merged region's top-left cell removes nothing.
         var action = new RemoveMergedRegionsAction(new GridRegion(500, 500, 510, 510));

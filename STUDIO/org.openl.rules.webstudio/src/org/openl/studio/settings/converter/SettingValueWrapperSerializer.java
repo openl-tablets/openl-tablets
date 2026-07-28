@@ -33,11 +33,11 @@ public class SettingValueWrapperSerializer extends JsonSerializer<Object> implem
 
     @Override
     public void serialize(Object value, JsonGenerator generator, SerializerProvider serializer) throws IOException {
-        boolean isDisabled = Optional.ofNullable(readOnlyLookup)
+        var isDisabled = Optional.ofNullable(readOnlyLookup)
                 .map(f -> f.apply(generator.currentValue()))
                 .orElse(Boolean.FALSE);
-        boolean isSecret = secret && isNotEmpty(value);
-        boolean wrapped = isDisabled || isSecret;
+        var isSecret = secret && isNotEmpty(value);
+        var wrapped = isDisabled || isSecret;
         if (wrapped) {
             var wrapper = SettingValueWrapper.builder()
                     .secret(isSecret)

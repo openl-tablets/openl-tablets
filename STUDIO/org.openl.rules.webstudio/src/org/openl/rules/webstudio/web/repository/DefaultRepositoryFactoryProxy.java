@@ -67,7 +67,7 @@ public class DefaultRepositoryFactoryProxy implements RepositoryFactoryProxy {
     @Override
     public void releaseRepository(String configName) {
         synchronized (this) {
-            Repository repository = factories.remove(configName);
+            var repository = factories.remove(configName);
             if (repository != null) {
                 // Close repo connection after validation
                 IOUtils.closeQuietly(repository);
@@ -88,8 +88,8 @@ public class DefaultRepositoryFactoryProxy implements RepositoryFactoryProxy {
 
     @Override
     public String getBasePath(String configName) {
-        String key = Comments.REPOSITORY_PREFIX + configName + RepositorySettings.BASE_PATH_SUFFIX;
-        String basePath = propertyResolver.getProperty(key);
+        var key = Comments.REPOSITORY_PREFIX + configName + RepositorySettings.BASE_PATH_SUFFIX;
+        var basePath = propertyResolver.getProperty(key);
         if (basePath == null) {
             basePath = propertyResolver.getProperty(defaultBasePathConfig);
         }

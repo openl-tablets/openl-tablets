@@ -14,7 +14,7 @@ class ArrayIndexOnSpreadsheetResultTest {
     @Test
     void testUserExceptionSupport1() {
         ITest instance = TestUtils.create(FILE_NAME, ITest.class);
-        TestUnitsResults result = instance.findEmployeeClassPremiumTest();
+        var result = instance.findEmployeeClassPremiumTest();
         assertEquals(0, result.getNumberOfFailures(), "Number of failures");
     }
 

@@ -12,7 +12,7 @@ class ArrayLoadTest {
     void testMultiRowArrayLoad() {
         ITestI instance = TestUtils.create("test/rules/dt/MultiRowArrayLoadTest.xls", ITestI.class);
 
-        String s = instance.hello1(0);
+        var s = instance.hello1(0);
         assertEquals("Good night", s);
 
         s = instance.hello1(6);

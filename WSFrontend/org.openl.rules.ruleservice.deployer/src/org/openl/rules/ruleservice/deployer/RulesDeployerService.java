@@ -28,8 +28,6 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -97,16 +95,16 @@ public class RulesDeployerService implements Closeable {
             // NOTE deployment path is not required for LocalRepository. It must be specified within URI
             this.baseDeployPath = "";
         } else {
-            String deployPath = properties.apply("production-repository.base.path");
+            var deployPath = properties.apply("production-repository.base.path");
             this.baseDeployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
         }
     }
 
     private static String evaluateXPath(Path path, String expression) {
         try (var in = Files.newInputStream(path)) {
-            InputSource inputSource = new InputSource(in);
-            XPath xPath = XPathFactory.newInstance().newXPath();
-            XPathExpression xPathExpression = xPath.compile(expression);
+            var inputSource = new InputSource(in);
+            var xPath = XPathFactory.newInstance().newXPath();
+            var xPathExpression = xPath.compile(expression);
             return StringUtils.trimToNull(xPathExpression.evaluate(inputSource));
         } catch (XPathExpressionException | IOException ignored) {
             return null;
@@ -162,13 +160,13 @@ public class RulesDeployerService implements Closeable {
      */
     public void read(String deployPath, Set<String> projectsPath, OutputStream output) throws IOException {
         if (deployRepo.supports().folders()) {
-            final String fullDeployPath = baseDeployPath + deployPath;
+            final var fullDeployPath = baseDeployPath + deployPath;
             try {
                 if (Optional.ofNullable(deployRepo.check(fullDeployPath))
                         .map(FileData::getSize)
                         .filter(size -> size > FileData.UNDEFINED_SIZE)
                         .isPresent()) {
-                    FileItem archive = deployRepo.read(fullDeployPath);
+                    var archive = deployRepo.read(fullDeployPath);
                     if (archive != null) {
                         IOUtils.copyAndClose(archive.getStream(), output);
                         return;
@@ -177,18 +175,18 @@ public class RulesDeployerService implements Closeable {
             } catch (IOException ignored) {
                 // OK
             }
-            final boolean isDeployment = hasDeploymentDescriptor(fullDeployPath);
-            final boolean isMultiProject = isDeployment || deployRepo.listFolders(fullDeployPath).size() > 1;
+            final var isDeployment = hasDeploymentDescriptor(fullDeployPath);
+            final var isMultiProject = isDeployment || deployRepo.listFolders(fullDeployPath).size() > 1;
 
-            final String basePath = (isMultiProject ? fullDeployPath
+            final var basePath = (isMultiProject ? fullDeployPath
                     : baseDeployPath + projectsPath.iterator().next()) + "/";
-            List<FileData> files = deployRepo.list(basePath);
-            try (ZipOutputStream target = new ZipOutputStream(output)) {
+            var files = deployRepo.list(basePath);
+            try (var target = new ZipOutputStream(output)) {
                 for (FileData fileData : files) {
-                    try (FileItem fileItem = deployRepo.read(fileData.getName())) {
-                        ZipEntry targetEntry = new ZipEntry(fileItem.getData().getName().substring(basePath.length()));
+                    try (var fileItem = deployRepo.read(fileData.getName())) {
+                        var targetEntry = new ZipEntry(fileItem.getData().getName().substring(basePath.length()));
                         target.putNextEntry(targetEntry);
-                        InputStream input = fileItem.getStream();
+                        var input = fileItem.getStream();
                         input.transferTo(target);
                     }
                 }
@@ -199,17 +197,17 @@ public class RulesDeployerService implements Closeable {
                         output);
                 return;
             }
-            try (ZipOutputStream target = new ZipOutputStream(output)) {
+            try (var target = new ZipOutputStream(output)) {
                 target.putNextEntry(new ZipEntry(DeploymentDescriptor.YAML.getFileName()));
                 target.write("name: ".getBytes(StandardCharsets.UTF_8));
                 target.write(deployPath.getBytes(StandardCharsets.UTF_8));
                 for (String projectPath : projectsPath) {
-                    final String projectFolder = projectPath.substring(deployPath.length() + 1) + "/";
-                    final String fullDeployPath = baseDeployPath + projectPath;
-                    try (ZipInputStream source = new ZipInputStream(deployRepo.read(fullDeployPath).getStream())) {
+                    final var projectFolder = projectPath.substring(deployPath.length() + 1) + "/";
+                    final var fullDeployPath = baseDeployPath + projectPath;
+                    try (var source = new ZipInputStream(deployRepo.read(fullDeployPath).getStream())) {
                         ZipEntry sourceEntry;
                         while ((sourceEntry = source.getNextEntry()) != null) {
-                            ZipEntry targetEntry = new ZipEntry(projectFolder + sourceEntry.getName());
+                            var targetEntry = new ZipEntry(projectFolder + sourceEntry.getName());
                             target.putNextEntry(targetEntry);
                             if (!sourceEntry.isDirectory()) {
                                 source.transferTo(target);
@@ -234,14 +232,14 @@ public class RulesDeployerService implements Closeable {
      */
     public boolean delete(String deployPath, Set<String> projectsPath) throws IOException {
         if (deployRepo.supports().folders()) {
-            FileData data = new FileData();
+            var data = new FileData();
             data.setName(baseDeployPath + deployPath);
             data.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
             data.setComment("Delete deployment.");
             return deployRepo.deleteHistory(data);
         } else {
-            List<FileData> toDelete = projectsPath.stream().map(name -> baseDeployPath + name).map(name -> {
-                FileData data = new FileData();
+            var toDelete = projectsPath.stream().map(name -> baseDeployPath + name).map(name -> {
+                var data = new FileData();
                 data.setName(name);
                 data.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
                 data.setComment("Delete deployment.");
@@ -255,14 +253,14 @@ public class RulesDeployerService implements Closeable {
         validateSignature(pathToArchive);
         var originalName = name != null ? name : FileUtils.getBaseName(pathToArchive.getFileName().toString());
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(pathToArchive), Collections.emptyMap())) {
-            final Path root = fs.getPath("/");
+            final var root = fs.getPath("/");
             if (isRulesProject(root)) {
-                String projectName = getProjectDescriptor(root)
+                var projectName = getProjectDescriptor(root)
                         .map(path -> evaluateXPath(path, "/project/name"))
                         .orElse(originalName);
                 deployRegularProject(pathToArchive, projectName, ignoreIfExists, root);
             } else {
-                String deploymentName = Stream
+                var deploymentName = Stream
                         .of(DeploymentDescriptor.XML.getFileName(), DeploymentDescriptor.YAML.getFileName())
                         .map(root::resolve)
                         .filter(Files::exists)
@@ -288,44 +286,44 @@ public class RulesDeployerService implements Closeable {
                 return;
             }
             BasicFileAttributes attrs = Files.readAttributes(pathToArchive, BasicFileAttributes.class);
-            FileData dest = new FileData();
+            var dest = new FileData();
             dest.setName(baseDeployPath + deploymentName);
             dest.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
             dest.setSize(attrs.size());
-            try (FileChangesFromFolder changes = new FileChangesFromFolder(root, dest.getName())) {
+            try (var changes = new FileChangesFromFolder(root, dest.getName())) {
                 deployRepo.save(dest, changes, ChangesetType.FULL);
             }
         } else {
             // split zip to single-project deployment if repository doesn't support folders
             final List<Path> folders;
-            try (Stream<Path> stream = Files.walk(root, 1)) {
+            try (var stream = Files.walk(root, 1)) {
                 folders = stream.filter(path -> !root.equals(path)).filter(Files::isDirectory).map(folder -> {
-                    String s = folder.toString();
+                    var s = folder.toString();
                     if (s.endsWith("/")) {
                         return root.resolve(s.substring(0, s.length() - 1));
                     }
                     return folder;
                 }).filter(RulesDeployerService::isRulesProject).toList();
             }
-            List<Path> tmpArchives = new ArrayList<>();
-            List<FileItem> fileItems = new ArrayList<>();
+            var tmpArchives = new ArrayList<Path>();
+            var fileItems = new ArrayList<FileItem>();
             try {
                 for (Path folder : folders) {
-                    String folderName = folder.getFileName().toString();
-                    Optional<FileData> fileData = createFileData(folder, deploymentName, folderName, ignoreIfExists);
+                    var folderName = folder.getFileName().toString();
+                    var fileData = createFileData(folder, deploymentName, folderName, ignoreIfExists);
                     if (fileData.isEmpty()) {
                         continue;
                     }
                     Path tmp = Files.createTempFile(folderName, ".zip");
                     tmpArchives.add(tmp);
-                    try (ZipOutputStream target = new ZipOutputStream(Files.newOutputStream(tmp))) {
+                    try (var target = new ZipOutputStream(Files.newOutputStream(tmp))) {
                         Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
                             @Override
                             public FileVisitResult visitFile(Path p, BasicFileAttributes attr) throws IOException {
                                 if (!attr.isRegularFile()) {
                                     return FileVisitResult.CONTINUE;
                                 }
-                                ZipEntry targetEntry = new ZipEntry(folder.relativize(p).toString());
+                                var targetEntry = new ZipEntry(folder.relativize(p).toString());
                                 target.putNextEntry(targetEntry);
                                 try (InputStream source = Files.newInputStream(p)) {
                                     source.transferTo(target);
@@ -335,7 +333,7 @@ public class RulesDeployerService implements Closeable {
                         });
                     }
                     BasicFileAttributes attrs = Files.readAttributes(tmp, BasicFileAttributes.class);
-                    FileData dest = fileData.get();
+                    var dest = fileData.get();
                     dest.setSize(attrs.size());
                     fileItems.add(new FileItem(dest, Files.newInputStream(tmp)));
                 }
@@ -353,11 +351,11 @@ public class RulesDeployerService implements Closeable {
                                       String projectName,
                                       boolean ignoreIfExists,
                                       Path root) throws IOException {
-        Optional<FileData> fileData = createFileData(root, projectName, projectName, ignoreIfExists);
+        var fileData = createFileData(root, projectName, projectName, ignoreIfExists);
         if (fileData.isPresent()) {
-            FileData dest = fileData.get();
+            var dest = fileData.get();
             if (deployRepo.supports().folders()) {
-                try (FileChangesFromFolder changes = new FileChangesFromFolder(root, dest.getName())) {
+                try (var changes = new FileChangesFromFolder(root, dest.getName())) {
                     deployRepo.save(dest, changes, ChangesetType.FULL);
                 }
             } else {
@@ -391,7 +389,7 @@ public class RulesDeployerService implements Closeable {
                                               String deploymentName,
                                               String projectName,
                                               boolean ignoreIfExists) throws IOException {
-        Optional<String> apiVersion = Optional.of(RULES_DEPLOY_XML)
+        var apiVersion = Optional.of(RULES_DEPLOY_XML)
                 .map(root::resolve)
                 .filter(Files::isRegularFile)
                 .map(path -> evaluateXPath(path, "/rules-deploy/version"))
@@ -405,15 +403,15 @@ public class RulesDeployerService implements Closeable {
             log.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
             return Optional.empty();
         }
-        FileData dest = new FileData();
-        String name = baseDeployPath + deploymentName;
+        var dest = new FileData();
+        var name = baseDeployPath + deploymentName;
         dest.setName(name + '/' + projectName);
         dest.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
         return Optional.of(dest);
     }
 
     private boolean isRulesDeployed(String deploymentName) throws IOException {
-        List<FileData> deployments = deployRepo.list(baseDeployPath + deploymentName + "/");
+        var deployments = deployRepo.list(baseDeployPath + deploymentName + "/");
         return !deployments.isEmpty();
     }
 
@@ -421,7 +419,7 @@ public class RulesDeployerService implements Closeable {
         if (!Files.isRegularFile(path)) {
             throw new IllegalArgumentException("Provided file is not an archive!");
         }
-        int sign = readSignature(path);
+        var sign = readSignature(path);
         if (!FileSignatureHelper.isArchiveSign(sign)) {
             throw new IllegalArgumentException("Provided file is not an archive!");
         }
@@ -450,7 +448,7 @@ public class RulesDeployerService implements Closeable {
         if (getProjectDescriptor(root).isPresent()) {
             return true;
         }
-        try (Stream<Path> stream = Files.walk(root, 1)) {
+        try (var stream = Files.walk(root, 1)) {
             return stream.anyMatch(file -> {
                 try {
                     if (!Files.isHidden(file)) {

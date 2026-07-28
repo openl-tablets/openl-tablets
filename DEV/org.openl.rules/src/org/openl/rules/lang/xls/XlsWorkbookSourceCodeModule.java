@@ -17,8 +17,6 @@ import java.util.TreeSet;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import org.openl.rules.lang.xls.load.WorkbookLoader;
@@ -56,10 +54,10 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
         if (!(getWorkbook() instanceof HSSFWorkbook)) {
             return;
         }
-        Workbook workbook = getWorkbook();
-        int numStyles = workbook.getNumCellStyles();
-        for (int i = 0; i < numStyles; i++) {
-            CellStyle cellStyle = workbook.getCellStyleAt(i);
+        var workbook = getWorkbook();
+        var numStyles = workbook.getNumCellStyles();
+        for (var i = 0; i < numStyles; i++) {
+            var cellStyle = workbook.getCellStyleAt(i);
 
             wbColors.add(cellStyle.getFillForegroundColor());
             wbColors.add(cellStyle.getFillBackgroundColor());
@@ -69,9 +67,9 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
             wbColors.add(cellStyle.getRightBorderColor());
         }
 
-        int numFonts = workbook.getNumberOfFontsAsInt();
-        for (int i = 0; i < numFonts; i++) {
-            Font font = workbook.getFontAt(i);
+        var numFonts = workbook.getNumberOfFontsAsInt();
+        for (var i = 0; i < numFonts; i++) {
+            var font = workbook.getFontAt(i);
             wbColors.add(font.getColor());
         }
     }
@@ -117,7 +115,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
         synchronized (fileAccessLock) {
             File sourceFile = null;
             try {
-                URI uri = new URI(getFileUri());
+                var uri = new URI(getFileUri());
                 sourceFile = new File(uri);
             } catch (URISyntaxException me) {
                 log.debug("Cannot get source file", me);
@@ -127,14 +125,14 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     public void save() throws IOException {
-        File sourceFile = getSourceFile();
-        String fileName = sourceFile.getCanonicalPath();
+        var sourceFile = getSourceFile();
+        var fileName = sourceFile.getCanonicalPath();
         synchronized (fileAccessLock) {
             for (XlsWorkbookListener wl : listeners) {
                 wl.beforeSave(this);
             }
 
-            OutputStream fileOut = new DeferredCreateFileOutputStream(fileName);
+            var fileOut = new DeferredCreateFileOutputStream(fileName);
             getWorkbook().write(fileOut);
             fileOut.close();
 

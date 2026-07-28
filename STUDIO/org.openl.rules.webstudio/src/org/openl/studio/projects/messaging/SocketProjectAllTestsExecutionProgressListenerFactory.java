@@ -37,7 +37,7 @@ public class SocketProjectAllTestsExecutionProgressListenerFactory {
 
             @Override
             public void onTestUnitExecuted(TestUnitsResults testUnitsResults) {
-                TestCaseExecutionResult result = mapper.apply(testUnitsResults);
+                var result = mapper.apply(testUnitsResults);
                 socketNotificationService.notifyProjectTestsExecutionResults(user, projectId, result);
             }
         };
@@ -61,7 +61,7 @@ public class SocketProjectAllTestsExecutionProgressListenerFactory {
 
             @Override
             public void onTestUnitExecuted(TestUnitsResults testUnitsResults) {
-                TestCaseExecutionResult result = mapper.apply(testUnitsResults);
+                var result = mapper.apply(testUnitsResults);
                 socketNotificationService.notifyProjectTestsExecutionResults(user, projectId, tableId, result);
             }
         };

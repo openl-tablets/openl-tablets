@@ -96,7 +96,7 @@ public class TextPlainMessageProvider implements MessageBodyWriter, MessageBodyR
                         MultivaluedMap multivaluedMap,
                         OutputStream outputStream) throws IOException {
 
-        String str = unquote(objectMapper.writeValueAsString(o));
+        var str = unquote(objectMapper.writeValueAsString(o));
         outputStream.write(str.getBytes(StandardCharsets.UTF_8));
     }
 

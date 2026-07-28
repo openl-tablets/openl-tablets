@@ -27,7 +27,7 @@ class FormattersTest {
 
     @Test
     void testBooleanParse() {
-        String boolValue = "yes";
+        var boolValue = "yes";
         IFormatter formatter = FormattersManager.getFormatter(Boolean.class);
         customAssertTrue(formatter.parse(boolValue));
 
@@ -65,7 +65,7 @@ class FormattersTest {
 
     @Test
     void testBooleanFormat() {
-        Boolean boolValue = Boolean.TRUE;
+        var boolValue = Boolean.TRUE;
         IFormatter formatter = FormattersManager.getFormatter(Boolean.class);
         assertEquals("true", formatter.format(boolValue));
 

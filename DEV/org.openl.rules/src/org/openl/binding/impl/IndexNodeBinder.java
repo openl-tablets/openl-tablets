@@ -9,7 +9,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
@@ -42,23 +41,23 @@ public class IndexNodeBinder extends ANodeBinder {
 
         IBoundNode[] children = bindChildren(node, bindingContext);
 
-        IOpenClass indexExprType = children[0].getType();
-        IOpenClass containerType = targetNode.getType();
+        var indexExprType = children[0].getType();
+        var containerType = targetNode.getType();
 
         IOpenClass[] types = {containerType, indexExprType};
-        IOpenIndex index = getMethodBasedIndex(types, bindingContext);
+        var index = getMethodBasedIndex(types, bindingContext);
 
         if (index != null) {
             return new IndexNode(node, children, targetNode, index);
         }
 
-        IAggregateInfo info = containerType.getAggregateInfo();
+        var info = containerType.getAggregateInfo();
 
         if (info != null && (index = info.getIndex(containerType, indexExprType)) != null) {
             return new IndexNode(node, children, targetNode, index);
         }
 
-        String message = "Index operator %s[%s] is not found."
+        var message = "Index operator %s[%s] is not found."
                 .formatted(targetNode.getType(), indexExprType.getName());
         return makeErrorNode(message, node, bindingContext);
     }
@@ -77,9 +76,9 @@ public class IndexNodeBinder extends ANodeBinder {
             return null;
         }
 
-        IOpenClass returnType = reader.getMethod().getType();
+        var returnType = reader.getMethod().getType();
 
-        IMethodCaller writer = bindingContext.findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE,
+        var writer = bindingContext.findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE,
                 INDEX_METHOD_NAME,
                 new IOpenClass[]{types[0], types[1], returnType});
 

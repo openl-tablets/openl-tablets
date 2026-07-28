@@ -24,7 +24,7 @@ class WebSocketConfigTest {
 
     @Test
     void heartbeatSchedulerIsDaemonSoItDoesNotBlockJvmShutdown() {
-        ThreadPoolTaskScheduler scheduler = config.messageBrokerTaskScheduler();
+        var scheduler = config.messageBrokerTaskScheduler();
 
         assertTrue(scheduler.isDaemon(), "heartbeat thread must be daemon to let the JVM exit after the server stops");
         assertEquals("ws-heartbeat-thread-", scheduler.getThreadNamePrefix());

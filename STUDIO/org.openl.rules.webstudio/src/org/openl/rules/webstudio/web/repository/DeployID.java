@@ -24,7 +24,7 @@ public class DeployID {
             return false;
         }
 
-        DeployID deployID = (DeployID) o;
+        var deployID = (DeployID) o;
         return key.equals(deployID.key);
     }
 

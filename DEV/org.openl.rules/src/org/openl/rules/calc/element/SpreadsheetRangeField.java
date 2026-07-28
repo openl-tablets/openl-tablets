@@ -45,18 +45,18 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
             return getType().nullObject();
         }
 
-        int w = ex - sx + 1;
-        int h = ey - sy + 1;
+        var w = ex - sx + 1;
+        var h = ey - sy + 1;
 
-        int size = w * h;
+        var size = w * h;
 
-        SpreadsheetResultCalculator calc = (SpreadsheetResultCalculator) target;
+        var calc = (SpreadsheetResultCalculator) target;
         Object array = Array.newInstance(rangeType, size);
-        int i = 0;
-        for (int x = sx; x <= ex; ++x) {
-            for (int y = sy; y <= ey; ++y) {
-                Object v = calc.getValue(y, x);
-                IOpenCast openCast = casts[x - sx][y - sy];
+        var i = 0;
+        for (var x = sx; x <= ex; ++x) {
+            for (var y = sy; y <= ey; ++y) {
+                var v = calc.getValue(y, x);
+                var openCast = casts[x - sx][y - sy];
                 if (openCast != null && openCast.isImplicit()) {
                     v = openCast.convert(v);
                 }

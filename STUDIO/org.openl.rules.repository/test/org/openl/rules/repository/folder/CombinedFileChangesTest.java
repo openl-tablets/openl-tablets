@@ -4,11 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,25 +36,25 @@ class CombinedFileChangesTest {
 
     @Test
     void testSaveMultipleFolders() throws IOException {
-        FileData folder = new FileData();
-        String folderName = "deployments/my-deployment1";
+        var folder = new FileData();
+        var folderName = "deployments/my-deployment1";
         folder.setName(folderName);
 
-        final String file1 = "deployments/my-deployment1/project1/file1";
-        final String file2 = "deployments/my-deployment1/project1/rules/file2";
-        List<FileItem> project1Changes = Arrays.asList(
+        final var file1 = "deployments/my-deployment1/project1/file1";
+        final var file2 = "deployments/my-deployment1/project1/rules/file2";
+        var project1Changes = Arrays.asList(
                 createFileItem(file1, "hello1"),
                 createFileItem(file2, "hello2")
         );
 
-        final String file3 = "deployments/my-deployment1/project2/file1";
-        final String file4 = "deployments/my-deployment1/project2/rules/file2";
-        List<FileItem> project2Changes = Arrays.asList(
+        final var file3 = "deployments/my-deployment1/project2/file1";
+        final var file4 = "deployments/my-deployment1/project2/rules/file2";
+        var project2Changes = Arrays.asList(
                 createFileItem(file3, "hello3"),
                 createFileItem(file4, "hello4")
         );
 
-        CombinedFileChanges changes = new CombinedFileChanges(Arrays.asList(
+        var changes = new CombinedFileChanges(Arrays.asList(
                 project1Changes,
                 project2Changes
         ));
@@ -70,7 +68,7 @@ class CombinedFileChangesTest {
     }
 
     private FileItem createFileItem(String fileName, String text) {
-        FileData file = new FileData();
+        var file = new FileData();
         file.setName(fileName);
         return new FileItem(file, IOUtils.toInputStream(text));
     }
@@ -78,11 +76,11 @@ class CombinedFileChangesTest {
     private void assertRead(Repository repo, String name, String value) throws IOException {
         try (var result = repo.read(name)) {
             assertNotNull(result, "The file is not found.");
-            FileData data = result.getData();
+            var data = result.getData();
             assertNotNull(data, "The file descriptor is missing.");
             assertEquals(name, data.getName(), "Wrong file name");
-            InputStream stream = result.getStream();
-            String text = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            var stream = result.getStream();
+            var text = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             assertEquals(value, text, "Unexpected content in the file.");
         }
     }

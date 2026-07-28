@@ -21,20 +21,16 @@ import org.openl.rules.dt.DecisionTableBoundNode;
 import org.openl.rules.dt.DecisionTableLoader;
 import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
-import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.lang.xls.XlsHelper;
-import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -70,11 +66,11 @@ public class TableSyntaxNodeDispatcherBuilder {
      */
     static {
         INCOME_PARAMS = new LinkedHashMap<>();
-        Method[] methods = IRulesRuntimeContext.class.getDeclaredMethods();
+        var methods = IRulesRuntimeContext.class.getDeclaredMethods();
         for (Method method : methods) {
-            String methodName = method.getName();
+            var methodName = method.getName();
             if (methodName.startsWith("get") && !belongsToExcluded(methodName)) {
-                String fieldName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
+                var fieldName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
                 INCOME_PARAMS.put(fieldName, JavaOpenClass.getOpenClass(method.getReturnType()));
             }
         }
@@ -127,22 +123,22 @@ public class TableSyntaxNodeDispatcherBuilder {
             // to build dispatcher table by dimensional properties.
             //
             List<ITableProperties> propertiesFromMethods = getMethodsProperties();
-            DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
-            List<IDecisionTableColumn> conditions = getConditions(propertiesFromMethods, rules);
-            DispatcherTableReturnColumn returnColumn = new DispatcherTableReturnColumn(dispatcher.getType(),
+            var rules = new DispatcherTableRules(propertiesFromMethods);
+            var conditions = getConditions(propertiesFromMethods, rules);
+            var returnColumn = new DispatcherTableReturnColumn(dispatcher.getType(),
                     dispatcher.getName(),
                     dispatcher.getSignature());
 
-            DecisionTableBuilder decisionTableBuilder = new DecisionTableBuilder();
+            var decisionTableBuilder = new DecisionTableBuilder();
             decisionTableBuilder.setConditions(conditions);
             decisionTableBuilder.setReturnColumn(returnColumn);
             decisionTableBuilder.setTableName(getDispatcherTableName());
             decisionTableBuilder.setMethodName(getMethodName());
             decisionTableBuilder.setRulesNumber(rules.getRulesNumber());
 
-            XlsSheetGridModel sheetWithTable = decisionTableBuilder.build();
-            IGridTable decisionTableSource = sheetWithTable.getTables()[0];
-            XlsSheetSourceCodeModule sheetSource = sheetWithTable.getSheetSource();
+            var sheetWithTable = decisionTableBuilder.build();
+            var decisionTableSource = sheetWithTable.getTables()[0];
+            var sheetSource = sheetWithTable.getSheetSource();
 
             // build TableSyntaxNode
             //
@@ -155,27 +151,27 @@ public class TableSyntaxNodeDispatcherBuilder {
 
             // build Openl decision table
             //
-            IOpenClass originalReturnType = getMethodReturnType();
+            var originalReturnType = getMethodReturnType();
             Map<String, IOpenClass> updatedIncomeParams = updateIncomeParams();
 
             // table name for dispatcher table
-            String tableName = getDispatcherTableName();
+            var tableName = getDispatcherTableName();
 
             IParameterDeclaration[] params = new IParameterDeclaration[updatedIncomeParams.size()];
-            int i = 0;
+            var i = 0;
             for (Map.Entry<String, IOpenClass> field : updatedIncomeParams.entrySet()) {
                 params[i] = new ParameterDeclaration(field.getValue(), field.getKey());
                 i++;
             }
-            IMethodSignature signature = new MethodSignature(params);
-            OpenMethodHeader header = new OpenMethodHeader(tableName, originalReturnType, signature, moduleOpenClass);
+            var signature = new MethodSignature(params);
+            var header = new OpenMethodHeader(tableName, originalReturnType, signature, moduleOpenClass);
 
-            DecisionTableBoundNode boundNode = new DecisionTableBoundNode(tsn,
+            var boundNode = new DecisionTableBoundNode(tsn,
                     moduleOpenClass.getOpenl(),
                     header,
                     moduleOpenClass,
                     rulesModuleBindingContext);
-            DecisionTable decisionTable = new DecisionTable(header, boundNode, false);
+            var decisionTable = new DecisionTable(header, boundNode, false);
             // Dispatcher tables are shown in Trace
             tsn.setMetaInfoReader(
                     new DecisionTableMetaInfoReader((DecisionTableBoundNode) decisionTable.getBoundNode(), decisionTable));
@@ -184,7 +180,7 @@ public class TableSyntaxNodeDispatcherBuilder {
 
             dispatcher.setDecisionTableOpenMethod(decisionTable);
 
-            IDecisionTableAlgorithm algorithm = decisionTable.getAlgorithm();
+            var algorithm = decisionTable.getAlgorithm();
             if (algorithm != null) {
                 algorithm.cleanParamValuesForIndexedConditions();
             }
@@ -240,7 +236,7 @@ public class TableSyntaxNodeDispatcherBuilder {
         List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils
                 .getDimensionalTableProperties();
 
-        List<IDecisionTableColumn> conditions = new ArrayList<>();
+        var conditions = new ArrayList<IDecisionTableColumn>();
 
         // get only dimensional properties from methods properties
         //
@@ -278,7 +274,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @return name for creating dispatcher table.
      */
     private String getDispatcherTableName() {
-        String originalTableName = getMethodName();
+        var originalTableName = getMethodName();
 
         // table name for dispatcher table.
         return "%s_%s".formatted(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME, originalTableName);
@@ -286,9 +282,9 @@ public class TableSyntaxNodeDispatcherBuilder {
 
     private Map<String, IOpenClass> updateIncomeParams() {
         // LinkedHashMap to save the sequence of params
-        LinkedHashMap<String, IOpenClass> updatedIncomeParams = new LinkedHashMap<>();
-        IMethodSignature originalSignature = getMethodSignature();
-        for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
+        var updatedIncomeParams = new LinkedHashMap<String, IOpenClass>();
+        var originalSignature = getMethodSignature();
+        for (var j = 0; j < originalSignature.getNumberOfParameters(); j++) {
             updatedIncomeParams.put(
                     getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j)),
                     originalSignature.getParameterType(j));
@@ -304,7 +300,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @return properties values from tables in group.
      */
     private List<ITableProperties> getMethodsProperties() {
-        List<ITableProperties> propertiesValues = new ArrayList<>();
+        var propertiesValues = new ArrayList<ITableProperties>();
         for (IOpenMethod method : dispatcher.getCandidates()) {
             propertiesValues.add(PropertiesHelper.getTableProperties(method));
         }
@@ -347,7 +343,7 @@ public class TableSyntaxNodeDispatcherBuilder {
     private void loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
         tsn.setMember(decisionTable);
 
-        PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(),
+        var propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(),
                 rulesModuleBindingContext,
                 moduleOpenClass);
         propLoader.loadDefaultProperties(tsn);
@@ -367,15 +363,15 @@ public class TableSyntaxNodeDispatcherBuilder {
     }
 
     private IOpenMethod generateAuxiliaryMethod(final IOpenMethod originalMethod, int index) {
-        final String auxiliaryMethodName = originalMethod.getName() + AUXILIARY_METHOD_DELIMETER + index;
+        final var auxiliaryMethodName = originalMethod.getName() + AUXILIARY_METHOD_DELIMETER + index;
         return new InternalMethodDelegator(originalMethod, auxiliaryMethodName);
     }
 
     private IBindingContext createContextWithAuxiliaryMethods() {
         List<IOpenMethod> candidates = dispatcher.getCandidates();
-        final Map<MethodKey, IOpenMethod> auxiliaryMethods = new HashMap<>(candidates.size());
-        for (int i = 0; i < candidates.size(); i++) {
-            IOpenMethod auxiliaryMethod = generateAuxiliaryMethod(candidates.get(i), i);
+        final var auxiliaryMethods = new HashMap<MethodKey, IOpenMethod>(candidates.size());
+        for (var i = 0; i < candidates.size(); i++) {
+            var auxiliaryMethod = generateAuxiliaryMethod(candidates.get(i), i);
             auxiliaryMethods.put(new MethodKey(auxiliaryMethod), auxiliaryMethod);
         }
         return new InternalBindingContextDelegator(rulesModuleBindingContext, auxiliaryMethods);
@@ -385,10 +381,10 @@ public class TableSyntaxNodeDispatcherBuilder {
      * Set properties to newly created table syntax node.
      */
     private void setTableProperties(TableSyntaxNode tsn) {
-        TableProperties properties = (TableProperties) tsn.getTableProperties();
+        var properties = (TableProperties) tsn.getTableProperties();
         properties.setFieldValue("category", "Autogenerated - Dispatch by Properties");
 
-        StringBuilder buf = new StringBuilder(250);
+        var buf = new StringBuilder(250);
         buf.append(" Automatically created table to dispatch by dimensional properties values for method: ");
         MethodUtil.printMethod(getMember(), buf);
         buf.append(". Edit the original tables to modify the overloading logic.");
@@ -425,7 +421,7 @@ public class TableSyntaxNodeDispatcherBuilder {
 
         @Override
         public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) {
-            IOpenMethod auxiliaryMethod = auxiliaryMethods.get(new MethodKey(name, parTypes));
+            var auxiliaryMethod = auxiliaryMethods.get(new MethodKey(name, parTypes));
             if (auxiliaryMethod == null) {
                 return super.findMethodCaller(namespace, name, parTypes);
             } else {

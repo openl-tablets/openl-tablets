@@ -20,42 +20,42 @@ class PropertiesUtilsTest {
 
     @Test
     void loadEmpty() throws IOException {
-        ArrayList<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         PropertiesUtils.load(new StringReader(""), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList(), result);
     }
 
     @Test
     void loadNull() throws IOException {
-        ArrayList<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         PropertiesUtils.load(new StringReader("\n   spaced key1 \n key2\r key3\r\n  #x:y\r\n\r\n key4"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("spaced key1=null", "key2=null", "key3=null", "key4=null"), result);
     }
 
     @Test
     void loadComments() throws IOException {
-        ArrayList<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         PropertiesUtils.load(new StringReader("#com=1\\\nx = 2\\\r\n#34 "), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("x=2#34"), result);
     }
 
     @Test
     void loadTheSame() throws IOException {
-        ArrayList<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         PropertiesUtils.load(new StringReader("x=1\nx : 2 : 3 = 4 \r   \t\f\n\r \t\fx=3\n  \u1111:\u2222\\"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("x=1", "x=2 : 3 = 4", "x=3", "\u1111=\u2222"), result);
     }
 
     @Test
     void loadSpecSymbols() throws IOException {
-        ArrayList<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         PropertiesUtils.load(new StringReader("\tx\t\f \\r\\n\\u0035y#$.,%^&@!+-*/w\\:t+-*/+-_)(*&^%$#@!~`<>,.{}[] = \t\fx\t\f\\t\\f\\n\\r\\u0034+-*/=+-_)(*&^%$#@!~`<>,.{}[]1"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("x\t\f \r\n5y#$.,%^&@!+-*/w:t+-*/+-_)(*&^%$#@!~`<>,.{}[]=x\t\f\t\f\n\r\u0034+-*/=+-_)(*&^%$#@!~`<>,.{}[]1"), result);
     }
 
     @Test
     void loadSimple() throws IOException {
-        ArrayList<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         PropertiesUtils.load(new StringReader("x=1\n\ry=2\r\nz=3 \\"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("x=1", "y=2", "z=3"), result);
     }
@@ -63,14 +63,14 @@ class PropertiesUtilsTest {
     @Test
     void failNotFullUnicode() throws IOException {
         assertThrows(EOFException.class, () -> {
-            ArrayList<String> result = new ArrayList<>();
+            var result = new ArrayList<String>();
             PropertiesUtils.load(new StringReader("x=1\n\ry=\\u123"), (k, v) -> result.add(k + "=" + v));
         });
     }
 
     @Test
     void loadStream() throws IOException {
-        ArrayList<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         try (var file = Thread.currentThread().getContextClassLoader().getResourceAsStream("test-utf8.properties")) {
             PropertiesUtils.load(file, (k, v) -> result.add(k + "=" + v));
         }
@@ -79,21 +79,21 @@ class PropertiesUtilsTest {
 
     @Test
     void loadPath() throws IOException {
-        ArrayList<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         PropertiesUtils.load(Path.of("test-resources/test-utf8.properties"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("Привет! Это проверка=Пройдено!", "#=#", "hello!=passed ! \r  # not a comment"), result);
     }
 
     @Test
     void loadURL() throws IOException {
-        ArrayList<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         PropertiesUtils.load(Thread.currentThread().getContextClassLoader().getResource("test-utf8.properties"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("Привет! Это проверка=Пройдено!", "#=#", "hello!=passed ! \r  # not a comment"), result);
     }
 
     @Test
     void load() throws IOException {
-        ArrayList<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         PropertiesUtils.load(Path.of("test-resources/specs.properties"), (k, v) -> result.add(k + "  ->  " + v));
         assertEquals(Arrays.asList(
                 "website  ->  https://openl-tablets.org/",

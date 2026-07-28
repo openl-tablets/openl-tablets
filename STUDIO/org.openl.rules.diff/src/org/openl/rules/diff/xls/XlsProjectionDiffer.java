@@ -12,7 +12,7 @@ public class XlsProjectionDiffer extends ProjectionDifferImpl {
         // Just take and compare it here
         // Then store result (Table and Filter) and stop "suffering" )
 
-        boolean selfEqual = true;
+        var selfEqual = true;
         if (((XlsProjection) other).getDiffCells() != null) {
             // have different cells -- cannot be equal
             selfEqual = false;

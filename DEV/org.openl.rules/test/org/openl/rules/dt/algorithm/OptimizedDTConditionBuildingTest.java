@@ -18,7 +18,7 @@ class OptimizedDTConditionBuildingTest {
 
     @BeforeEach
     void initEngine() {
-        RulesEngineFactory<DTConditionBuilding> engineFactory = new RulesEngineFactory<>(SRC,
+        var engineFactory = new RulesEngineFactory<DTConditionBuilding>(SRC,
                 DTConditionBuilding.class);
 
         instance = engineFactory.newEngineInstance();
@@ -26,7 +26,7 @@ class OptimizedDTConditionBuildingTest {
 
     @Test
     void testGoodCase() {
-        String result = instance.sayHello(13, true, 2);
+        var result = instance.sayHello(13, true, 2);
         assertEquals("Good Afternoon", result);
     }
 

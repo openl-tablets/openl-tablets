@@ -10,7 +10,7 @@ class SysEnvRefPropertySourceTest {
 
     @Test
     void test() {
-        HashMap<String, Object> environment = new HashMap<String, Object>() {
+        var environment = new HashMap<String, Object>() {
             {
                 put("ABC", "1");
                 put("ABC_$REF", "2");
@@ -19,7 +19,7 @@ class SysEnvRefPropertySourceTest {
             }
         };
 
-        SysEnvRefPropertySource refEnvSource = new SysEnvRefPropertySource(environment);
+        var refEnvSource = new SysEnvRefPropertySource(environment);
 
         assertEquals("1", refEnvSource.getProperty("abc"));
         assertEquals("1", refEnvSource.getProperty("ABC"));

@@ -14,11 +14,11 @@ public class WorkbookHandler extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
         if ("sheet".equals(localName)) {
-            String name = attributes.getValue("name");
+            var name = attributes.getValue("name");
 
-            String rIdQName = "r:id";
+            var rIdQName = "r:id";
             if (attributes.getIndex(rIdQName) < 0) {
-                for (int i = 0; i < attributes.getLength(); i++) {
+                for (var i = 0; i < attributes.getLength(); i++) {
                     if ("id".equals(attributes.getLocalName(i))) {
                         rIdQName = attributes.getQName(i);
                         break;
@@ -26,14 +26,14 @@ public class WorkbookHandler extends DefaultHandler {
                 }
             }
 
-            String referenceId = attributes.getValue(rIdQName);
+            var referenceId = attributes.getValue(rIdQName);
             sheetDescriptors.add(new SAXSheetDescriptor(name, sheetDescriptors.size(), referenceId));
         } else if ("workbookPr".equals(localName)) {
-            String date1904 = attributes.getValue("date1904");
+            var date1904 = attributes.getValue("date1904");
             if (date1904 != null && isTrue(date1904)) {
                 // If the dateCompatibility attribute is 0 or false, this attribute is ignored.
                 // By default dateCompatibility is true.
-                String dateCompatibility = attributes.getValue("dateCompatibility");
+                var dateCompatibility = attributes.getValue("dateCompatibility");
                 if (dateCompatibility == null || isTrue(dateCompatibility)) {
                     use1904Windowing = true;
                 }

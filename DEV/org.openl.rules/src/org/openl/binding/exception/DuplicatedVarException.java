@@ -31,7 +31,7 @@ public class DuplicatedVarException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         if (super.getMessage() != null) {
             sb.append(super.getMessage());
         }

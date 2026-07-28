@@ -23,13 +23,9 @@ import org.openl.rules.dt.type.domains.DateRangeDomainAdaptor;
 import org.openl.rules.dt.type.domains.EnumDomainAdaptor;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.type.domains.IntRangeDomainAdaptor;
-import org.openl.rules.dt.validator.DecisionTableOverlapping;
-import org.openl.rules.dt.validator.DecisionTableUncovered;
 import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.enumeration.CountriesEnum;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
 
 class ValidatorTest extends BaseOpenlBuilderHelper {
 
@@ -41,8 +37,8 @@ class ValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testOk() {
-        String tableName = "Rules String validationOK(TestValidationEnum1 value1, TestValidationEnum2 value2)";
-        Map<String, IDomainAdaptor> domains = new HashMap<>();
+        var tableName = "Rules String validationOK(TestValidationEnum1 value1, TestValidationEnum2 value2)";
+        var domains = new HashMap<String, IDomainAdaptor>();
 
         // EnumDomain<TestValidationEnum1> enumDomain1 = new
         // EnumDomain<TestValidationEnum1>(new
@@ -60,33 +56,33 @@ class ValidatorTest extends BaseOpenlBuilderHelper {
         // EnumDomainAdaptor(enumDomain2);
         // domains.put("value2", enumDomainAdaptor2);
 
-        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
+        var dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
     }
 
     @Test
     void testGap() {
-        String tableName = "Rules String validationGap(TestValidationEnum1 value1, TestValidationEnum2 value2)";
-        DecisionTableValidationResult dtValidResult = testTable(tableName, null);
+        var tableName = "Rules String validationGap(TestValidationEnum1 value1, TestValidationEnum2 value2)";
+        var dtValidResult = testTable(tableName, null);
         assertEquals(1, dtValidResult.getUncovered().length);
     }
 
     @Test
     void testOverlap() {
-        String tableName = "Rules String validationOverlap(TestValidationEnum1 value1, TestValidationEnum2 value2)";
-        DecisionTableValidationResult dtValidResult = testTable(tableName, null);
+        var tableName = "Rules String validationOverlap(TestValidationEnum1 value1, TestValidationEnum2 value2)";
+        var dtValidResult = testTable(tableName, null);
         assertEquals(1, dtValidResult.getOverlappings().length);
     }
 
     @Test
     void testIntRule() {
-        String tableName = "Rules void hello1(int hour)";
-        IntRangeDomain intRangeDomain = new IntRangeDomain(0, 24);
-        Map<String, IDomainAdaptor> domains = new HashMap<>();
-        IntRangeDomainAdaptor intRangeDomainAdaptor = new IntRangeDomainAdaptor(intRangeDomain);
+        var tableName = "Rules void hello1(int hour)";
+        var intRangeDomain = new IntRangeDomain(0, 24);
+        var domains = new HashMap<String, IDomainAdaptor>();
+        var intRangeDomainAdaptor = new IntRangeDomainAdaptor(intRangeDomain);
         domains.put("hour", intRangeDomainAdaptor);
 
-        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
+        var dtValidResult = testTable(tableName, domains);
         assertEquals(1, dtValidResult.getUncovered().length);
         assertEquals("hour = 24", dtValidResult.getUncovered()[0].getValues().toString(), "Param value missing");
     }
@@ -94,13 +90,13 @@ class ValidatorTest extends BaseOpenlBuilderHelper {
     @SuppressWarnings("deprecation")
     private DecisionTableValidationResult testTable(String tableName, Map<String, IDomainAdaptor> domains) {
         DecisionTableValidationResult result = null;
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var resultTsn = findTable(tableName);
         if (resultTsn != null) {
-            ITableProperties tableProperties = resultTsn.getTableProperties();
+            var tableProperties = resultTsn.getTableProperties();
             assertNotNull(tableProperties);
             assertFalse(getCompiledOpenClass().hasErrors());
 
-            IDecisionTable dt = (IDecisionTable) resultTsn.getMember();
+            var dt = (IDecisionTable) resultTsn.getMember();
             try {
                 // System.out.println("Validating <" + tableName+ ">");
                 result = DecisionTableValidator.validateTable(dt, domains, getCompiledOpenClass().getOpenClass());
@@ -122,35 +118,35 @@ class ValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testOk2() {
-        String tableName = "Rules void hello2(int currentValue)";
-        IntRangeDomain intRangeDomain = new IntRangeDomain(0, 50);
-        Map<String, IDomainAdaptor> domains = new HashMap<>();
-        IntRangeDomainAdaptor intRangeDomainAdaptor = new IntRangeDomainAdaptor(intRangeDomain);
+        var tableName = "Rules void hello2(int currentValue)";
+        var intRangeDomain = new IntRangeDomain(0, 50);
+        var domains = new HashMap<String, IDomainAdaptor>();
+        var intRangeDomainAdaptor = new IntRangeDomainAdaptor(intRangeDomain);
         domains.put("currentValue", intRangeDomainAdaptor);
 
-        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
+        var dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
     }
 
     @Test
     void testString() {
-        String tableName = "Rules void helloString(String stringValue)";
-        Map<String, IDomainAdaptor> domains = new HashMap<>();
-        EnumDomain<String> stringDomain = new EnumDomain<>(new String[]{"value1", "value2", "value3"});
-        EnumDomainAdaptor enumDomainStrAdaptor = new EnumDomainAdaptor(stringDomain);
+        var tableName = "Rules void helloString(String stringValue)";
+        var domains = new HashMap<String, IDomainAdaptor>();
+        var stringDomain = new EnumDomain<String>(new String[]{"value1", "value2", "value3"});
+        var enumDomainStrAdaptor = new EnumDomainAdaptor(stringDomain);
 
         domains.put("stringValue", enumDomainStrAdaptor);
         domains.put("localValue", enumDomainStrAdaptor);
 
-        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
+        var dtValidResult = testTable(tableName, domains);
         assertTrue(dtValidResult.hasProblems());
     }
 
     @Test
     void testDate() {
-        String tableName = "Rules void testDate(Date currentDate)";
-        Map<String, IDomainAdaptor> domains = new HashMap<>();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        var tableName = "Rules void testDate(Date currentDate)";
+        var domains = new HashMap<String, IDomainAdaptor>();
+        var dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
         Date startDate = null;
         Date endDate = null;
@@ -161,14 +157,14 @@ class ValidatorTest extends BaseOpenlBuilderHelper {
             e.printStackTrace();
         }
 
-        DateRangeDomain dateRangeDomain = new DateRangeDomain(startDate, endDate);
-        DateRangeDomainAdaptor adaptor = new DateRangeDomainAdaptor(dateRangeDomain);
+        var dateRangeDomain = new DateRangeDomain(startDate, endDate);
+        var adaptor = new DateRangeDomainAdaptor(dateRangeDomain);
 
         domains.put("currentDate", adaptor);
         domains.put("min", adaptor);
         domains.put("max", adaptor);
 
-        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
+        var dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
 
         Date newEndDate = null;
@@ -184,43 +180,43 @@ class ValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testArrayContains() {
-        String tableName = "Rules void testArrayContains(TestValidationEnum3 value)";
+        var tableName = "Rules void testArrayContains(TestValidationEnum3 value)";
 
-        DecisionTableValidationResult dtValidResult = testTable(tableName, null);
+        var dtValidResult = testTable(tableName, null);
         assertFalse(dtValidResult.hasProblems());
     }
 
     @Test
     void testArrayContainsOverlap() {
-        String tableName = "Rules void testArrayContainsOverlap(TestValidationEnum3 value)";
+        var tableName = "Rules void testArrayContainsOverlap(TestValidationEnum3 value)";
 
-        DecisionTableValidationResult dtValidResult = testTable(tableName, null);
+        var dtValidResult = testTable(tableName, null);
         assertFalse(dtValidResult.hasProblems());
         assertEquals(1, dtValidResult.getOverlappings().length);
-        DecisionTableOverlapping overlap = dtValidResult.getOverlappings()[0];
+        var overlap = dtValidResult.getOverlappings()[0];
         assertEquals("value = V2", overlap.getValues().toString());
     }
 
     @Test
     void testArrayContainsGap() {
-        String tableName = "Rules void testArrayContainsGap(TestValidationEnum3 value)";
+        var tableName = "Rules void testArrayContainsGap(TestValidationEnum3 value)";
 
-        DecisionTableValidationResult dtValidResult = testTable(tableName, null);
+        var dtValidResult = testTable(tableName, null);
         assertTrue(dtValidResult.hasProblems());
         assertEquals(1, dtValidResult.getUncovered().length);
-        DecisionTableUncovered gap = dtValidResult.getUncovered()[0];
+        var gap = dtValidResult.getUncovered()[0];
         assertEquals("value = V4", gap.getValues().toString());
     }
 
     @Test
     void testCountries() {
         // test narrowed domain for enum values.
-        String tableName = "Rules void testCountries(CountriesEnum country)";
-        Map<String, IDomainAdaptor> domains = new HashMap<>();
+        var tableName = "Rules void testCountries(CountriesEnum country)";
+        var domains = new HashMap<String, IDomainAdaptor>();
 
-        EnumDomain<CountriesEnum> enumDomain1 = new EnumDomain<>(
+        var enumDomain1 = new EnumDomain<CountriesEnum>(
                 new CountriesEnum[]{CountriesEnum.AR, CountriesEnum.AU, CountriesEnum.BR, CountriesEnum.CA});
-        EnumDomainAdaptor enumDomainAdaptor1 = new EnumDomainAdaptor(enumDomain1);
+        var enumDomainAdaptor1 = new EnumDomainAdaptor(enumDomain1);
         domains.put("country", enumDomainAdaptor1);
         domains.put("countryLocal1", enumDomainAdaptor1);
         domains.put("countryLocal2", enumDomainAdaptor1);
@@ -239,7 +235,7 @@ class ValidatorTest extends BaseOpenlBuilderHelper {
         domains.put("countryLocal15", enumDomainAdaptor1);
         domains.put("countryLocal16", enumDomainAdaptor1);
 
-        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
+        var dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
     }
 

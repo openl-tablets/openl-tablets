@@ -27,7 +27,7 @@ public class SmartNumberFormatter implements IFormatter {
 
         String format = getFormatForScale((Number) value);
         Number processedValue = getProcessedValue((Number) value);
-        NumberFormatter formatter = new NumberFormatter(format, locale);
+        var formatter = new NumberFormatter(format, locale);
         return formatter.format(processedValue);
     }
 
@@ -49,16 +49,16 @@ public class SmartNumberFormatter implements IFormatter {
             /**
              * Process as float point value
              */
-            double d = NumberUtils.convertToDouble(value);
-            double d1 = d;
-            double d2 = d;
-            int scale = NumberUtils.getScale(d);
-            int bestScale = scale;
-            double best = d;
-            for (int i = 0; i < 2; i++) {
+            var d = NumberUtils.convertToDouble(value);
+            var d1 = d;
+            var d2 = d;
+            var scale = NumberUtils.getScale(d);
+            var bestScale = scale;
+            var best = d;
+            for (var i = 0; i < 2; i++) {
                 d1 = d1 - Math.ulp(d1);
                 d2 = d2 + Math.ulp(d2);
-                int s = NumberUtils.getScale(d1);
+                var s = NumberUtils.getScale(d1);
                 if (s < bestScale) {
                     bestScale = s;
                     best = d1;
@@ -95,15 +95,15 @@ public class SmartNumberFormatter implements IFormatter {
             /**
              * Process as float point value
              */
-            double d = NumberUtils.convertToDouble(value);
-            double d1 = d;
-            double d2 = d;
-            int scale = NumberUtils.getScale(d);
-            int bestScale = scale;
-            for (int i = 0; i < 2; i++) {
+            var d = NumberUtils.convertToDouble(value);
+            var d1 = d;
+            var d2 = d;
+            var scale = NumberUtils.getScale(d);
+            var bestScale = scale;
+            for (var i = 0; i < 2; i++) {
                 d1 = d1 - Math.ulp(d1);
                 d2 = d2 + Math.ulp(d2);
-                int s = NumberUtils.getScale(d1);
+                var s = NumberUtils.getScale(d1);
                 if (s < bestScale) {
                     bestScale = s;
                 }
@@ -127,13 +127,13 @@ public class SmartNumberFormatter implements IFormatter {
 
     private static String getFormatForScale(Number value) {
         if (value != null) {
-            int scale = getScale(value);
-            StringBuilder buf = new StringBuilder();
+            var scale = getScale(value);
+            var buf = new StringBuilder();
             buf.append("#");
             if (scale > 0) {
                 buf.append(".");
 
-                for (int i = 0; i < scale; i++) {
+                for (var i = 0; i < scale; i++) {
                     buf.append("#");
                 }
             }

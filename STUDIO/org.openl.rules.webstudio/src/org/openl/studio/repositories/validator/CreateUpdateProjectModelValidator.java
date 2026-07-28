@@ -10,9 +10,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
@@ -39,14 +37,14 @@ public class CreateUpdateProjectModelValidator implements Validator {
 
     @Override
     public void validate(Object o, Errors errors) {
-        CreateUpdateProjectModel model = (CreateUpdateProjectModel) o;
+        var model = (CreateUpdateProjectModel) o;
         if (model.isOverwrite() && designTimeRepository.hasProject(model.getRepoName(), model.getProjectName())) {
             validateProjectUpdate(model);
         } else {
             validateProjectCreation(model);
         }
 
-        Repository repository = designTimeRepository.getRepository(model.getRepoName());
+        var repository = designTimeRepository.getRepository(model.getRepoName());
         if (!repository.supports().mappedFolders()) {
             if (StringUtils.isNotBlank(model.getPath())) {
                 errors.rejectValue("path", "repo.not-supported.path.message");
@@ -64,10 +62,10 @@ public class CreateUpdateProjectModelValidator implements Validator {
     }
 
     private void validateProjectUpdate(CreateUpdateProjectModel model) {
-        Repository repository = designTimeRepository.getRepository(model.getRepoName());
+        var repository = designTimeRepository.getRepository(model.getRepoName());
         if (repository.supports().mappedFolders()) {
             try {
-                AProject project = designTimeRepository.getProject(model.getRepoName(), model.getProjectName());
+                var project = designTimeRepository.getProject(model.getRepoName(), model.getProjectName());
                 if (!Objects.equals(project.getRealPath(), model.getFullPath())) {
                     throw new NotFoundException("project.message", model.getProjectName());
                 }
@@ -84,7 +82,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
         if (designTimeRepository.hasProject(model.getRepoName(), model.getProjectName())) {
             throw new ConflictException("duplicated.project.message");
         } else {
-            Repository repository = designTimeRepository.getRepository(model.getRepoName());
+            var repository = designTimeRepository.getRepository(model.getRepoName());
             if (repository.supports().mappedFolders()) {
                 try {
                     var fileData = ((FolderMapper) repository).getDelegate().check(model.getFullPath());

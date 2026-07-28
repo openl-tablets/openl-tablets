@@ -59,9 +59,9 @@ public class AProject extends AProjectFolder implements IProject {
 
     @Override
     public FileData getFileData() {
-        FileData fileData = super.getFileData();
+        var fileData = super.getFileData();
         if (fileData == null) {
-            Repository repository = getRepository();
+            var repository = getRepository();
             // Unwrap delegate repository to get real repository, because delegate repository can be secured.
             // Get file data can't be secured, because it's used in security check to build identity.
             while (repository instanceof RepositoryDelegate) {
@@ -102,7 +102,7 @@ public class AProject extends AProjectFolder implements IProject {
 
     protected FileData getFileDataForUnversionableRepo(Repository repository) {
         try {
-            FileData fileData = repository.check(getFolderPath());
+            var fileData = repository.check(getFolderPath());
             if (fileData == null) {
                 // A project doesn't exist yet. Probably we are creating it now.
                 fileData = new FileData();
@@ -130,10 +130,10 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     protected String findLastHistoryVersion() {
-        String folderPath = getFolderPath();
+        var folderPath = getFolderPath();
         if (folderPath != null && isRepositoryVersionable()) {
             try {
-                FileData fileData = getRepository().check(folderPath);
+                var fileData = getRepository().check(folderPath);
                 if (fileData != null) {
                     return fileData.getVersion();
                 }
@@ -149,18 +149,18 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     public boolean isLastVersion() {
-        String historyVersion = getHistoryVersion();
+        var historyVersion = getHistoryVersion();
         if (historyVersion == null) {
             return true;
         }
-        String lastVersion = getLastHistoryVersion();
+        var lastVersion = getLastHistoryVersion();
         return lastVersion == null || historyVersion.equals(lastVersion);
     }
 
     @Override
     public List<ProjectVersion> getVersions() {
         Collection<FileData> fileDatas = getHistoryFileDatas();
-        List<ProjectVersion> versions = new ArrayList<>();
+        var versions = new ArrayList<ProjectVersion>();
         for (FileData data : fileDatas) {
             versions.add(createProjectVersion(data));
         }
@@ -168,8 +168,8 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     public String getBusinessName() {
-        String folderPath = getFolderPath();
-        Repository repository = getRepository();
+        var folderPath = getFolderPath();
+        var repository = getRepository();
         if (repository.supports().mappedFolders()) {
             folderPath = ((FolderMapper) repository).getBusinessName(folderPath);
         }
@@ -184,7 +184,7 @@ public class AProject extends AProjectFolder implements IProject {
     public List<FileData> getHistoryFileDatas() {
         if (historyFileDatas == null) {
             try {
-                String folderPath = getFolderPath();
+                var folderPath = getFolderPath();
                 if (folderPath != null && isRepositoryVersionable()) {
                     historyFileDatas = getRepository().listHistory(folderPath);
                 } else {
@@ -215,7 +215,7 @@ public class AProject extends AProjectFolder implements IProject {
     public void delete() throws ProjectException {
         unlock();
         close(null);
-        FileData fileData = getFileData();
+        var fileData = getFileData();
         try {
             getRepository().delete(fileData);
         } catch (IOException e) {
@@ -232,9 +232,9 @@ public class AProject extends AProjectFolder implements IProject {
 
         unlock();
         close(user);
-        FileData fileData = getFileData();
+        var fileData = getFileData();
 
-        FileData data = new FileData();
+        var data = new FileData();
         data.setName(fileData.getName());
         data.setVersion(fileData.getVersion());
         data.setAuthor(user.getUserInfo());
@@ -255,7 +255,7 @@ public class AProject extends AProjectFolder implements IProject {
     @Override
     public boolean isDeleted() {
         try {
-            FileData fileData = getFileData();
+            var fileData = getFileData();
             return fileData == null || fileData.isDeleted();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -264,11 +264,11 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
-        String path = artefactPath.getStringValue();
+        var path = artefactPath.getStringValue();
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
-        AProjectArtefact artefact = getArtefactsInternal().get(path);
+        var artefact = getArtefactsInternal().get(path);
         if (artefact == null) {
             // For backward compatibility throw exception if artefact is not found
             throw new ProjectException("Cannot find project artefact ''{0}''", null, path);
@@ -282,14 +282,14 @@ public class AProject extends AProjectFolder implements IProject {
             return super.createInternalArtefacts();
         }
 
-        final HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<>();
+        final var internalArtefacts = new HashMap<String, AProjectArtefact>();
 
-        final String folderPath = getFolderPath();
-        final Repository repository = getRepository();
+        final var folderPath = getFolderPath();
+        final var repository = getRepository();
         FileItem fileItem = null;
         try {
             if (isHistoric()) {
-                FileData fileData = getFileData();
+                var fileData = getFileData();
                 if (fileData != null) {
                     fileItem = repository.readHistory(folderPath, getFileData().getVersion());
                 }
@@ -302,18 +302,18 @@ public class AProject extends AProjectFolder implements IProject {
         if (fileItem == null) {
             return internalArtefacts;
         }
-        try (InputStream stream = fileItem.getStream(); ZipInputStream zipInputStream = new ZipInputStream(stream)) {
+        try (var stream = fileItem.getStream(); var zipInputStream = new ZipInputStream(stream)) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                FileData fileData = new FileData();
-                final String artefactName = entry.getName();
+                var fileData = new FileData();
+                final var artefactName = entry.getName();
                 fileData.setName(folderPath + "/" + artefactName);
                 String version = isHistoric() ? getFileData().getVersion() : null;
-                ZipFolderRepository zipFolderRepository = new ZipFolderRepository(repository, folderPath, version);
-                AProjectResource resource = new AProjectResource(getProject(), zipFolderRepository, fileData);
+                var zipFolderRepository = new ZipFolderRepository(repository, folderPath, version);
+                var resource = new AProjectResource(getProject(), zipFolderRepository, fileData);
                 internalArtefacts.put(artefactName, resource);
             }
         } catch (IOException e) {
@@ -334,7 +334,7 @@ public class AProject extends AProjectFolder implements IProject {
             throw new IllegalArgumentException("Cannot update not from AProject");
         }
 
-        Repository repositoryTo = getRepository();
+        var repositoryTo = getRepository();
 
         if (isFolder()) {
             if (projectFrom.isFolder()) {
@@ -351,11 +351,11 @@ public class AProject extends AProjectFolder implements IProject {
                     try {
                         // Unpack to temp folder
                         tempFolder = Files.createTempDirectory("openl");
-                        try (FileSystemRepository tempRepository = new FileSystemRepository()) {
+                        try (var tempRepository = new FileSystemRepository()) {
                             tempRepository.setRoot(tempFolder);
                             tempRepository.initialize();
                             unpack(projectFrom, tempRepository, projectFrom.getBusinessName(), user);
-                            AProject tempProject = new AProject(tempRepository, projectFrom.getBusinessName());
+                            var tempProject = new AProject(tempRepository, projectFrom.getBusinessName());
 
                             transformAndArchive(tempProject, user);
                         }
@@ -366,7 +366,7 @@ public class AProject extends AProjectFolder implements IProject {
                     }
                 } else {
                     // Just copy a single file
-                    FileData fileData = getFileData();
+                    var fileData = getFileData();
 
                     InputStream stream = null;
                     try {
@@ -395,8 +395,8 @@ public class AProject extends AProjectFolder implements IProject {
 
     private void transformAndArchive(AProject projectFrom, CommonUser user) throws ProjectException {
         // Archive the folder using zip
-        FileData fileData = getFileData();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        var fileData = getFileData();
+        var out = new ByteArrayOutputStream();
         ZipOutputStream zipOutputStream = null;
         try {
 
@@ -413,7 +413,7 @@ public class AProject extends AProjectFolder implements IProject {
             for(FileItem file: changes) {
                 zipOutputStream.putNextEntry(new ZipEntry(file.getData().getName()));
 
-                try (InputStream content = file.getStream()) {
+                try (var content = file.getStream()) {
                     content.transferTo(zipOutputStream);
                     zipOutputStream.closeEntry();
                 }
@@ -447,7 +447,7 @@ public class AProject extends AProjectFolder implements IProject {
                 return getFileData();
             }
             stream = new ZipInputStream(fileItem.getStream());
-            FileData fileData = getFileData();
+            var fileData = getFileData();
             fileData.setAuthor(user == null ? null : user.getUserInfo());
             return repositoryTo
                     .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
@@ -464,7 +464,7 @@ public class AProject extends AProjectFolder implements IProject {
             InputStream content = getResourceTransformer() != null ? getResourceTransformer().transform(resource) : resource.getContent();
             files.add(new FileItem(resource.getInternalPath(), content));
         } else {
-            AProjectFolder folder = (AProjectFolder) artefact;
+            var folder = (AProjectFolder) artefact;
             for (AProjectArtefact a : folder.getArtefacts()) {
                 writeArtefact(files, a);
             }

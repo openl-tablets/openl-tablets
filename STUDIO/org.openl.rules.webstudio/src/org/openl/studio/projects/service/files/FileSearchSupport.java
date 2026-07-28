@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -50,18 +49,18 @@ class FileSearchSupport {
         if (query.scope() == FileSearchQuery.Scope.ANCESTORS) {
             return searchAncestors(root, query);
         }
-        Set<String> extensions = query.extensions().stream()
+        var extensions = query.extensions().stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
         String pattern = StringUtils.isBlank(query.pattern()) ? null : query.pattern();
         AntPathMatcher matcher = pattern == null ? null : new AntPathMatcher();
         String contentNeedle = StringUtils.isBlank(query.content()) ? null : query.content().toLowerCase();
 
-        List<FsNode> result = new ArrayList<>();
-        Deque<AProjectFolder> queue = new ArrayDeque<>();
+        var result = new ArrayList<FsNode>();
+        var queue = new ArrayDeque<AProjectFolder>();
         queue.add(root.readFolder(query.version()));
         while (!queue.isEmpty()) {
-            AProjectFolder folder = queue.poll();
+            var folder = queue.poll();
             for (AProjectArtefact artefact : folder.getArtefacts()) {
                 if (matchesSearch(artefact, query, pattern, matcher, extensions, contentNeedle)) {
                     result.add(resourceMapper.map(artefact));
@@ -124,7 +123,7 @@ class FileSearchSupport {
             if (in == null) {
                 return null;
             }
-            byte[] data = in.readNBytes((int) MAX_CONTENT_SEARCH_BYTES + 1);
+            var data = in.readNBytes((int) MAX_CONTENT_SEARCH_BYTES + 1);
             if (data.length > MAX_CONTENT_SEARCH_BYTES) {
                 return null;
             }

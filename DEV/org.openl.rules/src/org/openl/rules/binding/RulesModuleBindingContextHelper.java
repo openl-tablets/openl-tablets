@@ -12,7 +12,7 @@ public final class RulesModuleBindingContextHelper {
     public static void compileAllTypesInSignature(IMethodSignature signature, IBindingContext bindingContext) {
         // Compile all types in the signature
         for (IOpenClass paramType : signature.getParameterTypes()) {
-            IOpenClass pType = paramType;
+            var pType = paramType;
             while (pType.isArray()) {
                 pType = pType.getComponentClass();
             }

@@ -18,12 +18,12 @@ public class DatePatternConstraintValidator implements ConstraintValidator<DateP
             return true;
         }
         try {
-            SimpleDateFormat format = new SimpleDateFormat(value);
+            var format = new SimpleDateFormat(value);
             LocalDate dateToTest = LocalDate.of(2020, 2, 22);
             Date date = Date.from(dateToTest.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 
-            String dateStr = format.format(date);
-            Date parsedDate = format.parse(dateStr);
+            var dateStr = format.format(date);
+            var parsedDate = format.parse(dateStr);
 
             return parsedDate.equals(date);
         } catch (Exception ignored) {

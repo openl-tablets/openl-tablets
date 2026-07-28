@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper {
 
@@ -19,8 +18,8 @@ class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testLoadingDefaultValuesForPreviouslyEmptyProp() {
-        String tableName = "Rules void hello1(int hour)";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var tableName = "Rules void hello1(int hour)";
+        var resultTsn = findTable(tableName);
         if (resultTsn != null) {
 
             assertEquals(resultTsn.getTableProperties().getTableProperties().size(),

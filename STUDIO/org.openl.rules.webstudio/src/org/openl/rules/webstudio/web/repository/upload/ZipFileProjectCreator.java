@@ -85,7 +85,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
     }
 
     private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames, PathFilter zipFilter) {
-        RootFolderExtractor folderExtractor = new RootFolderExtractor(sortedNames, zipFilter);
+        var folderExtractor = new RootFolderExtractor(sortedNames, zipFilter);
         return new ZipRulesProjectBuilder(getUserWorkspace(), repositoryId, getProjectName(),
                 getProjectFolder(),
                 zipFilter,
@@ -95,15 +95,15 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     private Set<String> sortZipEntriesNames(ZipFile zipFile) {
         // Sort zip entries names alphabetically
-        Set<String> sortedNames = new TreeSet<>();
+        var sortedNames = new TreeSet<String>();
         if (zipFile == null) {
             return sortedNames;
         }
 
-        boolean skipped = false;
+        var skipped = false;
         for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
-                ZipEntry item = items.nextElement();
+                var item = items.nextElement();
                 sortedNames.add(item.getName());
             } catch (Exception e) {
                 log.warn("Cannot extract zip entry.", e);
@@ -118,7 +118,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
-        Set<String> sortedNames = sortZipEntriesNames(zipFile);
+        var sortedNames = sortZipEntriesNames(zipFile);
         List<String> invalidNames = incorrectNames();
 
         if (!invalidNames.isEmpty()) {
@@ -128,18 +128,18 @@ public class ZipFileProjectCreator extends AProjectCreator {
             /*
              * Display first 20 files/folders with incorrect names
              */
-            for (int i = 0; i < Math.min(invalidNames.size(), 20); i++) {
+            for (var i = 0; i < Math.min(invalidNames.size(), 20); i++) {
                 WebStudioUtils.addErrorMessage(invalidNames.get(i));
             }
             throw new ProjectException(NameChecker.BAD_NAME_MSG);
         }
 
-        ZipRulesProjectBuilder projectBuilder = getZipProjectBuilder(sortedNames, zipFilter);
+        var projectBuilder = getZipProjectBuilder(sortedNames, zipFilter);
 
         for (String name : sortedNames) {
 
             try {
-                ZipEntry item = zipFile.getEntry(name);
+                var item = zipFile.getEntry(name);
 
                 if (item == null) {
                     throw new ProjectException("Cannot read zip entry '%s'. Possible broken zip.".formatted(name));
@@ -151,7 +151,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                     if (checkFileSize(item)) {
                         InputStream zipInputStream;
                         try {
-                            String fileName = projectBuilder.getFolderExtractor().extractFromRootFolder(item.getName());
+                            var fileName = projectBuilder.getFolderExtractor().extractFromRootFolder(item.getName());
                             zipInputStream = changeFileIfNeeded(fileName, zipFile.getInputStream(item));
                         } catch (IOException e) {
                             throw new ProjectException("Error extracting zip archive", e);
@@ -162,7 +162,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
             } catch (Exception e) {
                 projectBuilder.cancel();
                 log.warn("Bad zip entry name [{}].", name);
-                String message = e.getMessage();
+                var message = e.getMessage();
                 if (message == null) {
                     message = "Bad zip entry '%s'".formatted(name);
                 }
@@ -201,14 +201,14 @@ public class ZipFileProjectCreator extends AProjectCreator {
      * @return List of incorrect names of folders and files
      */
     private List<String> incorrectNames() {
-        List<String> invalidNames = new LinkedList<>();
+        var invalidNames = new LinkedList<String>();
         if (zipFile == null) {
             return invalidNames;
         }
 
         for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
-                ZipEntry item = items.nextElement();
+                var item = items.nextElement();
 
                 if (!item.isDirectory()) {
                     String name = FileUtils.getName(item.getName());
@@ -217,7 +217,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                         invalidNames.add(name);
                     }
                 } else {
-                    String[] files = item.getName().split("/");
+                    var files = item.getName().split("/");
 
                     for (String folderName : files) {
                         if (!NameChecker.checkName(folderName)) {

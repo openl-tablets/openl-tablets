@@ -10,22 +10,22 @@ class String2BooleanConvertorTest {
 
     @Test
     void testParseTrue() {
-        String2BooleanConvertor converter = new String2BooleanConvertor();
-        Boolean result = converter.parse("True", null);
+        var converter = new String2BooleanConvertor();
+        var result = converter.parse("True", null);
         assertEquals(Boolean.TRUE, result);
     }
 
     @Test
     void testParseFalse() {
-        String2BooleanConvertor converter = new String2BooleanConvertor();
-        Boolean result = converter.parse("false", null);
+        var converter = new String2BooleanConvertor();
+        var result = converter.parse("false", null);
         assertEquals(Boolean.FALSE, result);
     }
 
     @Test
     void testParseEmpty() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String2BooleanConvertor converter = new String2BooleanConvertor();
+            var converter = new String2BooleanConvertor();
             converter.parse("", null);
         });
     }
@@ -33,14 +33,14 @@ class String2BooleanConvertorTest {
     @Test
     void testParseWrongValue() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String2BooleanConvertor converter = new String2BooleanConvertor();
+            var converter = new String2BooleanConvertor();
             converter.parse("1", null);
         });
     }
 
     @Test
     void testParseNull() {
-        String2BooleanConvertor converter = new String2BooleanConvertor();
+        var converter = new String2BooleanConvertor();
         assertNull(converter.parse(null, null));
     }
 

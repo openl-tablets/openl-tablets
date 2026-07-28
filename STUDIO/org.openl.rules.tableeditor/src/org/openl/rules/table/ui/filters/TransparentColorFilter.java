@@ -33,7 +33,7 @@ public class TransparentColorFilter implements IColorFilter {
             color = BLACK;
         }
 
-        for (int i = 0; i < color.length; i++) {
+        for (var i = 0; i < color.length; i++) {
             res[i] = (short) (color[i] * transparency + filter[i] * (1 - transparency));
             if (res[i] > 255) {
                 res[i] = 255;

@@ -49,7 +49,7 @@ public class AdminRestController {
     @GET
     @Path("/ui/info")
     public Response getServiceInfoWithSettings() {
-        Map<String, Object> info = new HashMap<>(uiConfig);
+        var info = new HashMap<String, Object>(uiConfig);
         info.put("services", serviceManager.getServicesInfo());
         return Response.ok(info).build();
     }
@@ -97,7 +97,7 @@ public class AdminRestController {
         if (servicesInfo.isEmpty()) {
             return serviceManager.isReady() ? Response.ok("EMPTY", MediaType.TEXT_PLAIN_TYPE).build() : Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
-        boolean anyFailed = servicesInfo.stream()
+        var anyFailed = servicesInfo.stream()
                 .anyMatch(info -> ServiceInfo.ServiceStatus.FAILED.equals(info.getStatus()));
 
         return anyFailed ? Response.status(Response.Status.SERVICE_UNAVAILABLE).build() : Response.ok("READY", MediaType.TEXT_PLAIN_TYPE).build();

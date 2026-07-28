@@ -19,7 +19,7 @@ public class ContextPropertyDefinitionWrappers {
 
         for (ContextPropertyDefinition definition : definitions) {
 
-            ContextPropertyDefinitionWrapper wrapper = new ContextPropertyDefinitionWrapper(definition);
+            var wrapper = new ContextPropertyDefinitionWrapper(definition);
             wrappers.put(definition.getName(), wrapper);
         }
     }

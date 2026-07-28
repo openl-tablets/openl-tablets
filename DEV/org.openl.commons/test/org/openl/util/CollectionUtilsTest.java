@@ -27,7 +27,7 @@ class CollectionUtilsTest {
 
     @Test
     void testIsEmptyCollection() {
-        List<String> list = new ArrayList<>();
+        var list = new ArrayList<String>();
         assertTrue(CollectionUtils.isEmpty(list), "Collection is not empty");
         list.add("");
         assertFalse(CollectionUtils.isEmpty(list), "Collection is empty");
@@ -38,7 +38,7 @@ class CollectionUtilsTest {
 
     @Test
     void testIsNotEmptyCollection() {
-        List<String> list = new ArrayList<>();
+        var list = new ArrayList<String>();
         assertFalse(CollectionUtils.isNotEmpty(list), "Collection is empty");
         list.add("");
         assertTrue(CollectionUtils.isNotEmpty(list), "Collection is not empty");
@@ -49,7 +49,7 @@ class CollectionUtilsTest {
 
     @Test
     void testIsEmptyMap() {
-        Map<String, Integer> map = new HashMap<>();
+        var map = new HashMap<String, Integer>();
         assertTrue(CollectionUtils.isEmpty(map), "Collection is not empty");
         map.put(null, null);
         assertFalse(CollectionUtils.isEmpty(map), "Collection is empty");
@@ -60,7 +60,7 @@ class CollectionUtilsTest {
 
     @Test
     void testIsNotEmptyMap() {
-        Map<String, Integer> map = new HashMap<>();
+        var map = new HashMap<String, Integer>();
         assertFalse(CollectionUtils.isNotEmpty(map), "Collection is empty");
         map.put(null, null);
         assertTrue(CollectionUtils.isNotEmpty(map), "Collection is not empty");

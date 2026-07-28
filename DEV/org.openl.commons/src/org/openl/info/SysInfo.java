@@ -10,11 +10,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import javax.management.ObjectName;
 
 public class SysInfo {
     public static Map<String, Object> get() {
-        LinkedHashMap<String, Object> fn = new LinkedHashMap<>();
+        var fn = new LinkedHashMap<String, Object>();
         fn.put("locale", Locale.getDefault());
         fn.put("time.now", ZonedDateTime.now().toString());
         fn.put("time.milli", Instant.now().toEpochMilli());
@@ -65,7 +64,7 @@ public class SysInfo {
 
     private static Object getOperatingSystemAttribute(String attribute) {
         try {
-            ObjectName osObjectName = ManagementFactory.getOperatingSystemMXBean().getObjectName();
+            var osObjectName = ManagementFactory.getOperatingSystemMXBean().getObjectName();
             return ManagementFactory.getPlatformMBeanServer().getAttribute(osObjectName, attribute);
         } catch (Exception e) {
             return null;

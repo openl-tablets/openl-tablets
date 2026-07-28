@@ -18,19 +18,19 @@ class RepositoryValidatorsTest {
         assertEquals("Invalid login or password. Try again.", getMostSpecificMessage(new IllegalArgumentException("Error:", new FailedLoginException())));
         assertEquals("Connection refused. Check the repository URL and try again.", getMostSpecificMessage(new IllegalArgumentException("Error:", new ConnectException())));
 
-        IllegalArgumentException e1 = new IllegalArgumentException("Unable to execute HTTP request: test-bucket.someunserver.com", new UnknownHostException("test-bucket.someunserver.com"));
+        var e1 = new IllegalArgumentException("Unable to execute HTTP request: test-bucket.someunserver.com", new UnknownHostException("test-bucket.someunserver.com"));
         assertEquals("Unknown host (test-bucket.someunserver.com).", getMostSpecificMessage(e1));
 
-        IllegalArgumentException e2 = new IllegalArgumentException("Error:", new UnknownHostException());
+        var e2 = new IllegalArgumentException("Error:", new UnknownHostException());
         assertEquals("Unknown host.", getMostSpecificMessage(e2));
     }
 
     @Test
     void testEmptyMessages() {
-        IllegalArgumentException emptyRootCause = new IllegalArgumentException("Error:", new IllegalStateException("Incorrect URL.", new NullPointerException()));
+        var emptyRootCause = new IllegalArgumentException("Error:", new IllegalStateException("Incorrect URL.", new NullPointerException()));
         assertEquals("Incorrect URL.", getMostSpecificMessage(emptyRootCause));
 
-        IllegalArgumentException longStackTrace = new IllegalArgumentException("Error:", new IOException("Internal error: ", new IllegalStateException("Incorrect URL.", new IOException("", new NullPointerException()))));
+        var longStackTrace = new IllegalArgumentException("Error:", new IOException("Internal error: ", new IllegalStateException("Incorrect URL.", new IOException("", new NullPointerException()))));
         assertEquals("Incorrect URL.", getMostSpecificMessage(longStackTrace));
     }
 }

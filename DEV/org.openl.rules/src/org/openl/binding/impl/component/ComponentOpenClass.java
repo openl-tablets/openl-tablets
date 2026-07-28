@@ -65,7 +65,7 @@ public class ComponentOpenClass extends ADynamicClass {
 
     @Override
     public Object newInstance(IRuntimeEnv env) {
-        DynamicObject res = new DynamicObject(this);
+        var res = new DynamicObject(this);
         init.invoke(res, new Object[]{}, env);
         return res;
     }

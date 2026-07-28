@@ -13,7 +13,6 @@ import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.SearchableRepository;
-import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.utils.DateTimes;
@@ -61,9 +60,9 @@ public class HistoryRepositoryMapper {
     }
 
     private ProjectRevision mapProjectRevision(FileData src) {
-        ProjectRevision dest = new ProjectRevision();
-        UserInfoModel userInfo = new UserInfoModel();
-        UserInfo author = src.getAuthor();
+        var dest = new ProjectRevision();
+        var userInfo = new UserInfoModel();
+        var author = src.getAuthor();
         userInfo.setEmail(author != null ? author.getEmail() : null);
         userInfo.setDisplayName(author != null ? author.getName() : null);
         dest.setAuthor(userInfo);
@@ -71,7 +70,7 @@ public class HistoryRepositoryMapper {
         if (modifiedAt != null) {
             dest.setCreatedAt(DateTimes.atSystemZone(modifiedAt));
         }
-        String revision = src.getVersion();
+        var revision = src.getVersion();
         if (revision == null || revision.isBlank()) {
             revision = "0";
         }
@@ -82,7 +81,7 @@ public class HistoryRepositoryMapper {
         dest.setDeleted(src.isDeleted());
         dest.setTechnicalRevision(src.isTechnicalRevision());
 
-        String originalComment = src.getComment();
+        var originalComment = src.getComment();
         dest.setFullComment(originalComment);
         var parts = commentService.getCommentParts(originalComment);
         if (parts.size() == 3) {

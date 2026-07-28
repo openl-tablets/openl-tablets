@@ -24,7 +24,7 @@ public class ProjectsMergeConflictsSessionHolder {
     }
 
     public boolean hasConflictInfo(ProjectIdModel projectId) {
-        Entry e = ref.get();
+        var e = ref.get();
         return e != null && e.projectId().equals(projectId);
     }
 
@@ -33,7 +33,7 @@ public class ProjectsMergeConflictsSessionHolder {
     }
 
     public MergeConflictInfo getConflictInfo(ProjectIdModel projectId) {
-        Entry e = ref.get();
+        var e = ref.get();
         if (e != null && e.projectId().equals(projectId)) {
             return e.mergeConflictInfo();
         }
@@ -41,7 +41,7 @@ public class ProjectsMergeConflictsSessionHolder {
     }
 
     public void remove(ProjectIdModel projectId) {
-        Entry e = ref.get();
+        var e = ref.get();
         if (e != null && e.projectId().equals(projectId)) {
             ref.set(null);
         }

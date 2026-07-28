@@ -2,7 +2,6 @@ package org.openl.rules.table.xls;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
-import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -10,12 +9,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellUtil;
-import org.apache.poi.xssf.usermodel.IndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -32,7 +29,7 @@ public final class PoiExcelHelper {
     private static final short MAX_STYLES = 4030;
 
     public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
-        Row row = sheet.getRow(rowIndex);
+        var row = sheet.getRow(rowIndex);
         if (row != null) {
             return row.getCell(colIndex, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK);
         }
@@ -40,7 +37,7 @@ public final class PoiExcelHelper {
     }
 
     public static Cell getOrCreateCell(int colIndex, int rowIndex, Sheet sheet) {
-        Row row = sheet.getRow(rowIndex);
+        var row = sheet.getRow(rowIndex);
         if (row == null) {
             row = sheet.createRow(rowIndex);
         }
@@ -51,7 +48,7 @@ public final class PoiExcelHelper {
      * Evaluates formula in the cell to get new cell value.
      */
     public static void evaluateFormula(Cell cell) {
-        FormulaEvaluator formulaEvaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+        var formulaEvaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
         formulaEvaluator.evaluateFormulaCell(cell);
     }
 
@@ -61,11 +58,11 @@ public final class PoiExcelHelper {
                 HSSFOptimiser.optimiseCellStyles(fWorkbook);
             }
             @SuppressWarnings("unchecked")
-            T style = (T) workbook.createCellStyle();
+            var style = (T) workbook.createCellStyle();
             return style;
         } else {
             @SuppressWarnings("unchecked")
-            T style = (T) workbook.createCellStyle();
+            var style = (T) workbook.createCellStyle();
             return style;
         }
     }
@@ -73,9 +70,9 @@ public final class PoiExcelHelper {
     public static CellStyle cloneStyleFrom(Cell cell) {
         CellStyle newStyle = null;
         if (cell != null) {
-            Sheet sheet = cell.getSheet();
+            var sheet = cell.getSheet();
             newStyle = createCellStyle(sheet.getWorkbook());
-            CellStyle fromStyle = cell.getCellStyle();
+            var fromStyle = cell.getCellStyle();
             newStyle.cloneStyleFrom(fromStyle);
         }
         return newStyle;
@@ -84,8 +81,8 @@ public final class PoiExcelHelper {
     public static Font getCellFont(Cell cell) {
         Font font = null;
         if (cell != null) {
-            CellStyle style = cell.getCellStyle();
-            int fontIndex = style.getFontIndex();
+            var style = cell.getCellStyle();
+            var fontIndex = style.getFontIndex();
             font = cell.getSheet().getWorkbook().getFontAt(fontIndex);
         }
         return font;
@@ -101,8 +98,8 @@ public final class PoiExcelHelper {
                                    short typeOffset,
                                    byte underline) {
         if (cell != null) {
-            Workbook workbook = cell.getSheet().getWorkbook();
-            Font font = workbook
+            var workbook = cell.getSheet().getWorkbook();
+            var font = workbook
                     .findFont(boldWeight, color, fontHeight, name, italic, strikeout, typeOffset, underline);
             if (font == null) { // Create new font
                 font = cell.getSheet().getWorkbook().createFont();
@@ -173,7 +170,7 @@ public final class PoiExcelHelper {
             return fColor1.getTriplet();
 
         } else if (color instanceof XSSFColor fColor) {
-            byte[] rgb = fColor.getRGB();
+            var rgb = fColor.getRGB();
 
             // Byte to short
             if (rgb != null) {
@@ -195,7 +192,7 @@ public final class PoiExcelHelper {
         }
 
         if (red == green && green == blue) { // achromatic
-            final double newLum = calculateLum(red, tint);
+            final var newLum = calculateLum(red, tint);
             short v = toShort(newLum);
             return new short[]{v, v, v};
         }
@@ -214,13 +211,13 @@ public final class PoiExcelHelper {
         }
 
         // Calculate colors metrics
-        int chroma = max - min;
-        int lum = max + min;
-        final double newLum = calculateLum(lum / 2, tint) * 2;
+        var chroma = max - min;
+        var lum = max + min;
+        final var newLum = calculateLum(lum / 2, tint) * 2;
         // new amount of chroma
-        double x = (255 - Math.abs(newLum - 255)) / (255 - Math.abs(lum - 255));
+        var x = (255 - Math.abs(newLum - 255)) / (255 - Math.abs(lum - 255));
         // new amount of white color
-        double m = (newLum - x * chroma) / 2;
+        var m = (newLum - x * chroma) / 2;
 
         // Adjusted RGB
         short r = toShort((red - min) * x + m);
@@ -254,13 +251,13 @@ public final class PoiExcelHelper {
     }
 
     public static short[] toRgb(short colorIndex, HSSFWorkbook workbook) {
-        HSSFColor cc = workbook.getCustomPalette().getColor(colorIndex);
+        var cc = workbook.getCustomPalette().getColor(colorIndex);
         return toRgb(cc);
     }
 
     public static short[] getFontColor(Font font, Workbook workbook) {
         if (font instanceof XSSFFont fFont) {
-            XSSFColor color = fFont.getXSSFColor();
+            var color = fFont.getXSSFColor();
             return toRgb(color);
         } else {
             short x = font.getColor();
@@ -272,7 +269,7 @@ public final class PoiExcelHelper {
         short[][] colors = new short[4][];
 
         if (style instanceof HSSFCellStyle) {
-            HSSFWorkbook hssfWorkbook = (HSSFWorkbook) workbook;
+            var hssfWorkbook = (HSSFWorkbook) workbook;
             colors[0] = toRgb(style.getTopBorderColor(), hssfWorkbook);
             colors[1] = toRgb(style.getRightBorderColor(), hssfWorkbook);
             colors[2] = toRgb(style.getBottomBorderColor(), hssfWorkbook);
@@ -301,7 +298,7 @@ public final class PoiExcelHelper {
 
     public static void setCellBorderColors(CellStyle style, short[][] colors, Workbook workbook) {
         if (style instanceof HSSFCellStyle) {
-            HSSFWorkbook hssfWorkbook = (HSSFWorkbook) workbook;
+            var hssfWorkbook = (HSSFWorkbook) workbook;
             if (colors[0] != null) {
                 style.setTopBorderColor(getOrAddColorIndex(colors[0], hssfWorkbook));
             }
@@ -315,7 +312,7 @@ public final class PoiExcelHelper {
                 style.setLeftBorderColor(getOrAddColorIndex(colors[3], hssfWorkbook));
             }
         } else if (style instanceof XSSFCellStyle xssfStyle) {
-            XSSFWorkbook xssfWorkbook = (XSSFWorkbook) workbook;
+            var xssfWorkbook = (XSSFWorkbook) workbook;
             if (colors[0] != null) {
                 xssfStyle.setTopBorderColor(getColor(colors[0], xssfWorkbook));
             }
@@ -333,18 +330,18 @@ public final class PoiExcelHelper {
 
     public static XSSFColor getColor(short[] color, XSSFWorkbook workbook) {
         byte rgb[] = new byte[3];
-        for (int i = 0; i < 3; i++) {
+        for (var i = 0; i < 3; i++) {
             rgb[i] = (byte) (color[i] & 0xFF);
         }
-        IndexedColorMap indexedColors = workbook.getStylesSource().getIndexedColors();
-        XSSFColor xssfColor = new XSSFColor(indexedColors);
+        var indexedColors = workbook.getStylesSource().getIndexedColors();
+        var xssfColor = new XSSFColor(indexedColors);
         xssfColor.setRGB(rgb);
         return xssfColor;
     }
 
     private static short getOrAddColorIndex(short[] rgb, HSSFWorkbook wb) {
-        HSSFPalette palette = wb.getCustomPalette();
-        HSSFColor color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+        var palette = wb.getCustomPalette();
+        var color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
 
         if (color == null) {
             try {

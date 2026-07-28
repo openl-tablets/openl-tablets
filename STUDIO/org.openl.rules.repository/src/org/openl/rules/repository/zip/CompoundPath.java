@@ -71,7 +71,7 @@ class CompoundPath {
                     .map(alias)
                     .orElseGet(() -> root.relativize(resolvedPath).toString());
         } else {
-            String pathInArchive = resolvedPath.toString();
+            var pathInArchive = resolvedPath.toString();
             if (pathInArchive.charAt(0) == PATH_SEPARATOR.charAt(0)) {
                 pathInArchive = pathInArchive.substring(1);
             }

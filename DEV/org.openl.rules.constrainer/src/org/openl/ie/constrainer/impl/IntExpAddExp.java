@@ -130,11 +130,11 @@ public final class IntExpAddExp extends IntExpImpl {
 
     @Override
     public void removeValue(int value) throws Failure {
-        int Max = max();
+        var Max = max();
         if (value > Max) {
             return;
         }
-        int Min = min();
+        var Min = min();
         if (value < Min) {
             return;
         }
@@ -155,11 +155,11 @@ public final class IntExpAddExp extends IntExpImpl {
             return;
         }
 
-        int max1 = max - _exp2.min();
+        var max1 = max - _exp2.min();
         if (max1 < _exp1.max()) {
             _exp1.setMax(max1);
         }
-        int max2 = max - _exp1.min();
+        var max2 = max - _exp1.min();
         if (max2 < _exp2.max()) {
             _exp2.setMax(max2);
         }
@@ -172,11 +172,11 @@ public final class IntExpAddExp extends IntExpImpl {
             return;
         }
 
-        int min1 = min - _exp2.max();
+        var min1 = min - _exp2.max();
         if (min1 > _exp1.min()) {
             _exp1.setMin(min1);
         }
-        int min2 = min - _exp1.max();
+        var min2 = min - _exp1.max();
         if (min2 > _exp2.min()) {
             _exp2.setMin(min2);
         }

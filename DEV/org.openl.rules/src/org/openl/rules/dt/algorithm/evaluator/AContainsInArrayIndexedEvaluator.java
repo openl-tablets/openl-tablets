@@ -17,7 +17,6 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.types.IParameterDeclaration;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluator {
@@ -31,18 +30,18 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
 
     @Override
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
-        IParameterDeclaration[] cparams = condition.getParams();
+        var cparams = condition.getParams();
 
-        IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
+        var conditionSource = condition.getSourceCodeModule();
 
-        String code = "containsCtr(%1$s, %2$s)".formatted(cparams[0].getName(), conditionSource.getCode());
+        var code = "containsCtr(%1$s, %2$s)".formatted(cparams[0].getName(), conditionSource.getCode());
 
         return new StringSourceCodeModule(code, conditionSource.getUri());
     }
 
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
-        Object value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, params, env));
+        var value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, params, env));
         return new ContainsInArraySelector(condition, value);
     }
 
@@ -69,14 +68,14 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
     private void countUniqueKeysAndMaxArrayLength(ICondition condition, IIntIterator it) {
         Set<Object> uniqueVals = null;
         while (it.hasNext()) {
-            int i = it.nextInt();
+            var i = it.nextInt();
             if (condition.isEmpty(i)) {
                 continue;
             }
-            Object values = condition.getParamValue(0, i);
-            int length = Array.getLength(values);
+            var values = condition.getParamValue(0, i);
+            var length = Array.getLength(values);
             maxArrayLength = Math.max(length, maxArrayLength);
-            for (int j = 0; j < length; j++) {
+            for (var j = 0; j < length; j++) {
                 Object val = Array.get(values, j);
                 val = conditionCasts.castToInputType(val);
                 if (uniqueVals == null) {
@@ -98,19 +97,19 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
 
     @Override
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {
-        int len = condition.getNumberOfRules();
-        ArrayList<Object> list = new ArrayList<>(len);
-        HashSet<Object> set = new HashSet<>(len);
+        var len = condition.getNumberOfRules();
+        var list = new ArrayList<Object>(len);
+        var set = new HashSet<Object>(len);
 
-        for (int ruleN = 0; ruleN < len; ruleN++) {
+        for (var ruleN = 0; ruleN < len; ruleN++) {
             if (condition.isEmpty(ruleN)) {
                 continue;
             }
-            Object ary = condition.getParamValue(0, ruleN);
+            var ary = condition.getParamValue(0, ruleN);
 
-            int plen = Array.getLength(ary);
+            var plen = Array.getLength(ary);
 
-            for (int j = 0; j < plen; j++) {
+            for (var j = 0; j < plen; j++) {
                 Object key = Array.get(ary, j);
                 if (key == null || !set.add(key)) {
                     continue;

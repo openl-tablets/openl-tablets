@@ -1,13 +1,11 @@
 package org.openl.binding.impl;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.MethodUtil;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.util.StreamUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -34,7 +32,7 @@ public class ConstructorNamedParamsNode extends ABoundNode implements Constructo
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object evaluate = constructor.evaluate(env);
+        var evaluate = constructor.evaluate(env);
         tempVar.set(null, evaluate, env);
         for (IBoundNode child : children) {
             child.evaluate(env);
@@ -54,9 +52,9 @@ public class ConstructorNamedParamsNode extends ABoundNode implements Constructo
 
     @Override
     public String getDescription() {
-        IOpenMethod method = constructor.getMethodCaller().getMethod();
+        var method = constructor.getMethodCaller().getMethod();
 
-        Map<String, IOpenClass> params = Arrays.stream(getChildren()).map(node -> node.getChildren()[0])
+        var params = Arrays.stream(getChildren()).map(node -> node.getChildren()[0])
                 .collect(StreamUtils.toLinkedMap(node -> node.getSyntaxNode().getText(), IBoundNode::getType));
 
         return MethodUtil.printConstructorWithNamedParameters(method, params);

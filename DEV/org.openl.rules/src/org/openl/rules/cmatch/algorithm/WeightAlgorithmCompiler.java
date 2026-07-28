@@ -7,7 +7,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
-import org.openl.rules.cmatch.SubValue;
 import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.rules.cmatch.matcher.MatcherFactory;
@@ -42,18 +41,18 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
 
     @Override
     protected MatchNode buildTree(List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
-        MatchNode rootNode = new MatchNode(-1);
+        var rootNode = new MatchNode(-1);
 
-        for (int i = getSpecialRowCount(); i < rows.size(); i++) {
-            MatchNode node = nodes[i];
-            TableRow row = rows.get(i);
-            SubValue nameSV = row.get(NAMES)[0];
-            int indent = nameSV.getIndent();
+        for (var i = getSpecialRowCount(); i < rows.size(); i++) {
+            var node = nodes[i];
+            var row = rows.get(i);
+            var nameSV = row.get(NAMES)[0];
+            var indent = nameSV.getIndent();
 
             if (indent == 0) {
                 rootNode.add(node);
             } else {
-                String msg = "Sub node are prohibited here.";
+                var msg = "Sub node are prohibited here.";
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
         }
@@ -85,17 +84,17 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
                                     ColumnMatch columnMatch) throws SyntaxNodeException {
         super.parseSpecialRows(bindingContext, columnMatch);
 
-        int retValuesCount = columnMatch.getReturnValues().length;
+        var retValuesCount = columnMatch.getReturnValues().length;
 
         // total score
-        MatchNode totalScore = new MatchNode(ROW_TOTAL_SCORE_IDX);
-        TableRow totalScoreRow = columnMatch.getRows().get(ROW_TOTAL_SCORE_IDX);
+        var totalScore = new MatchNode(ROW_TOTAL_SCORE_IDX);
+        var totalScoreRow = columnMatch.getRows().get(ROW_TOTAL_SCORE_IDX);
 
-        SubValue operationSV = totalScoreRow.get(OPERATION)[0];
+        var operationSV = totalScoreRow.get(OPERATION)[0];
         IMatcher totalScoreMatcher = MatcherFactory.getMatcher(operationSV.getString(),
                 JavaOpenClass.getOpenClass(Integer.class));
         if (totalScoreMatcher == null) {
-            String msg = "Column " + OPERATION + " of special row " + ROW_TOTAL_SCORE + " must be defined.";
+            var msg = "Column " + OPERATION + " of special row " + ROW_TOTAL_SCORE + " must be defined.";
             throw SyntaxNodeExceptionUtils.createError(msg, operationSV.getStringValue().asSourceCodeModule());
         }
         totalScore.setMatcher(totalScoreMatcher);
@@ -104,20 +103,20 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
         columnMatch.setTotalScore(totalScore);
 
         // score
-        TableRow scoreRow = columnMatch.getRows().get(ROW_SCORE_IDX);
+        var scoreRow = columnMatch.getRows().get(ROW_SCORE_IDX);
         operationSV = scoreRow.get(OPERATION)[0];
         if (!"".equals(operationSV.getString())) {
-            String msg = "Column " + OPERATION + " of special row " + ROW_SCORE + " must be empty.";
+            var msg = "Column " + OPERATION + " of special row " + ROW_SCORE + " must be empty.";
             throw SyntaxNodeExceptionUtils.createError(msg, operationSV.getStringValue().asSourceCodeModule());
         }
 
         // score(s)
-        Object[] objScores = parseValues(bindingContext,
+        var objScores = parseValues(bindingContext,
                 columnMatch,
                 scoreRow,
                 JavaOpenClass.getOpenClass(Integer.class));
         int[] scores = new int[retValuesCount];
-        for (int i = 0; i < retValuesCount; i++) {
+        for (var i = 0; i < retValuesCount; i++) {
             scores[i] = (Integer) objScores[i];
         }
         columnMatch.setColumnScores(scores);
@@ -128,14 +127,14 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
                                        ColumnMatch columnMatch,
                                        ArgumentsHelper argumentsHelper,
                                        int retValuesCount) throws SyntaxNodeException {
-        MatchNode[] nodes = super.prepareNodes(bindingContext, columnMatch, argumentsHelper, retValuesCount);
+        var nodes = super.prepareNodes(bindingContext, columnMatch, argumentsHelper, retValuesCount);
 
         List<TableRow> rows = columnMatch.getRows();
 
         // parse weight(s) of each row
-        for (int i = getSpecialRowCount(); i < rows.size(); i++) {
-            TableRow row = rows.get(i);
-            SubValue weightSV = row.get(WEIGHT)[0];
+        for (var i = getSpecialRowCount(); i < rows.size(); i++) {
+            var row = rows.get(i);
+            var weightSV = row.get(WEIGHT)[0];
 
             ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, weightSV.getString());
             Integer rowWeight;

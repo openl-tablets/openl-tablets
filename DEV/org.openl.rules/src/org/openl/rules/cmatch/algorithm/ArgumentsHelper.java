@@ -3,11 +3,9 @@ package org.openl.rules.cmatch.algorithm;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.openl.domain.EnumDomain;
 import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -31,13 +29,13 @@ public class ArgumentsHelper {
         // to apply Bex approach
         argName = argName.replace(" ", "");
 
-        IOpenClass[] paramTypes = methodSignature.getParameterTypes();
-        for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
+        var paramTypes = methodSignature.getParameterTypes();
+        for (var i = 0; i < methodSignature.getNumberOfParameters(); i++) {
             // TODO add source
             // String paramName = methodSignature.getParameterName(i);
-            IOpenClass type = paramTypes[i];
+            var type = paramTypes[i];
             if (!type.isSimple()) {
-                IOpenField field = type.getField(argName, false);
+                var field = type.getField(argName, false);
                 if (field != null) {
                     return new Argument(i, field);
                 }
@@ -48,11 +46,11 @@ public class ArgumentsHelper {
     }
 
     public DomainOpenClass generateDomainClassByArgNames() {
-        Set<String> argNames = new HashSet<>(argTypes.keySet());
+        var argNames = new HashSet<String>(argTypes.keySet());
 
-        IOpenClass[] paramTypes = methodSignature.getParameterTypes();
-        for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
-            IOpenClass type = paramTypes[i];
+        var paramTypes = methodSignature.getParameterTypes();
+        for (var i = 0; i < methodSignature.getNumberOfParameters(); i++) {
+            var type = paramTypes[i];
             if (!type.isSimple()) {
                 // non simple
                 for (IOpenField field : type.getFields()) {
@@ -61,12 +59,12 @@ public class ArgumentsHelper {
             }
         }
 
-        String[] possibleNames = argNames.toArray(StringUtils.EMPTY_STRING_ARRAY);
+        var possibleNames = argNames.toArray(StringUtils.EMPTY_STRING_ARRAY);
         return new DomainOpenClass("names", JavaOpenClass.STRING, new EnumDomain<>(possibleNames), null, null);
     }
 
     public Argument getTypeByName(String argName) {
-        Argument result = argTypes.get(argName);
+        var result = argTypes.get(argName);
         if (result != null) {
             return result;
         }
@@ -80,11 +78,11 @@ public class ArgumentsHelper {
     }
 
     private void initSimpleArgs() {
-        IOpenClass[] paramTypes = methodSignature.getParameterTypes();
-        for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
-            String name = methodSignature.getParameterName(i);
+        var paramTypes = methodSignature.getParameterTypes();
+        for (var i = 0; i < methodSignature.getNumberOfParameters(); i++) {
+            var name = methodSignature.getParameterName(i);
 
-            IOpenClass type = paramTypes[i];
+            var type = paramTypes[i];
             if (type.isSimple()) {
                 argTypes.put(name, new Argument(i, type));
             } else {

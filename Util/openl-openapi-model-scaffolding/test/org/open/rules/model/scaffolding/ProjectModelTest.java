@@ -23,11 +23,11 @@ class ProjectModelTest {
 
     @Test
     void testProjectModelCreation() {
-        ProjectModel bankRating = new ProjectModel();
+        var bankRating = new ProjectModel();
         bankRating.setName(BANK_RATING);
-        ProjectModel bankRatingCopy = new ProjectModel();
+        var bankRatingCopy = new ProjectModel();
         bankRatingCopy.setName(BANK_RATING);
-        ProjectModel insurancePolicy = new ProjectModel();
+        var insurancePolicy = new ProjectModel();
         insurancePolicy.setName(INSURANCE_POLICY);
 
         assertEquals(bankRating, bankRating);
@@ -42,19 +42,19 @@ class ProjectModelTest {
 
     @Test
     void testProjectModelWithContext() {
-        ProjectModel bankRating = new ProjectModel(BANK_RATING,
+        var bankRating = new ProjectModel(BANK_RATING,
                 true,
                 Collections.emptySet(),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList());
-        ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
+        var bankRatingCopy = new ProjectModel(BANK_RATING,
                 true,
                 Collections.emptySet(),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList());
-        ProjectModel bankRatingWithoutContext = new ProjectModel(BANK_RATING,
+        var bankRatingWithoutContext = new ProjectModel(BANK_RATING,
                 false,
                 Collections.emptySet(),
                 Collections.emptyList(),
@@ -70,24 +70,24 @@ class ProjectModelTest {
 
     @Test
     void testProjectModelWithSpreadsheets() {
-        SpreadsheetModel firstSpr = new SpreadsheetModel();
+        var firstSpr = new SpreadsheetModel();
         firstSpr.setName("getBankAccountDetails");
-        SpreadsheetModel secondSpr = new SpreadsheetModel();
+        var secondSpr = new SpreadsheetModel();
         secondSpr.setName("getBankAccountData");
 
-        ProjectModel bankRating = new ProjectModel(BANK_RATING,
+        var bankRating = new ProjectModel(BANK_RATING,
                 true,
                 Collections.emptySet(),
                 Collections.emptyList(),
                 Arrays.asList(firstSpr, secondSpr),
                 Collections.emptyList());
-        ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
+        var bankRatingCopy = new ProjectModel(BANK_RATING,
                 true,
                 Collections.emptySet(),
                 Collections.emptyList(),
                 Arrays.asList(firstSpr, secondSpr),
                 Collections.emptyList());
-        ProjectModel bankRatingWithOneSpr = new ProjectModel(BANK_RATING,
+        var bankRatingWithOneSpr = new ProjectModel(BANK_RATING,
                 true,
                 Collections.emptySet(),
                 Collections.emptyList(),
@@ -105,21 +105,21 @@ class ProjectModelTest {
 
     @Test
     void testProjectModelWithDataTypes() {
-        DatatypeModel dm = new DatatypeModel("Apple");
-        DatatypeModel oneMoreDm = new DatatypeModel("Meat");
-        ProjectModel bankRating = new ProjectModel(BANK_RATING,
+        var dm = new DatatypeModel("Apple");
+        var oneMoreDm = new DatatypeModel("Meat");
+        var bankRating = new ProjectModel(BANK_RATING,
                 true,
                 asSet(dm, oneMoreDm),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList());
-        ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
+        var bankRatingCopy = new ProjectModel(BANK_RATING,
                 true,
                 asSet(dm, oneMoreDm),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList());
-        ProjectModel bankRatingWithOneDataType = new ProjectModel(BANK_RATING,
+        var bankRatingWithOneDataType = new ProjectModel(BANK_RATING,
                 true,
                 asSet(oneMoreDm),
                 Collections.emptyList(),

@@ -1,7 +1,6 @@
 package org.openl.rules.table.actions;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.IGridRegion;
@@ -27,17 +26,17 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
         if (!canPerformAction(table)) {
             moveTableAction = moveTable(table, metaInfoWriter);
         }
-        int numberToInsert = getNumberToInsert(table);
+        var numberToInsert = getNumberToInsert(table);
         IGridRegion fullTableRegion = getOriginalRegion(table);
-        List<IUndoableGridTableAction> actions = new ArrayList<>();
-        IUndoableGridTableAction ua = performAction(numberToInsert, fullTableRegion, table);
+        var actions = new ArrayList<IUndoableGridTableAction>();
+        var ua = performAction(numberToInsert, fullTableRegion, table);
         actions.add(ua);
 
-        GridRegionAction allTable = getGridRegionAction(fullTableRegion, numberToInsert);
+        var allTable = getGridRegionAction(fullTableRegion, numberToInsert);
         actions.add(allTable);
 
         if (isDecoratorTable(table)) {
-            GridRegionAction displayTable = getGridRegionAction(table.getRegion(), numberToInsert);
+            var displayTable = getGridRegionAction(table.getRegion(), numberToInsert);
             actions.add(displayTable);
         }
         action = new UndoableCompositeAction(actions);

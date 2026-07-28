@@ -6,15 +6,12 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
 
 @Slf4j
@@ -22,7 +19,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
 
     @Override
     public boolean isRulesProject(Path folder) {
-        Path descriptorFile = folder.resolve(ProjectDescriptor.FILE_NAME);
+        var descriptorFile = folder.resolve(ProjectDescriptor.FILE_NAME);
         if (Files.exists(descriptorFile)) {
             log.debug("Project in folder '{}' has been resolved as project descriptor based project.",
                     descriptorFile);
@@ -38,8 +35,8 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
 
     @Override
     public ProjectDescriptor resolveProject(Path folder) throws ProjectResolvingException {
-        Set<String> globalErrorMessages = new LinkedHashSet<>();
-        PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
+        var globalErrorMessages = new LinkedHashSet<String>();
+        var propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
             var projectDescriptor = ProjectDescriptor.read(folder).expand();
             PropertiesFileNameProcessor processor = null;
@@ -49,26 +46,26 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                 globalErrorMessages.add(e.getMessage());
             }
 
-            Set<String> globalWarnMessages = new LinkedHashSet<>();
+            var globalWarnMessages = new LinkedHashSet<String>();
             if ("org.openl.rules.project.resolving.CWPropertyFileNameProcessor"
                     .equals(projectDescriptor.getPropertiesFileNameProcessor())) {
                 globalWarnMessages.add(
                         "CWPropertyFileNameProcessor is deprecated. 'CW' keyword support for 'state' property is moved to the default property processor. Remove declaration of this class from 'rules.xml'.");
             }
             for (Module module : projectDescriptor.getModules()) {
-                Set<String> moduleErrorMessages = new HashSet<>(globalErrorMessages);
-                Set<String> moduleWarnMessages = new HashSet<>(globalWarnMessages);
+                var moduleErrorMessages = new HashSet<String>(globalErrorMessages);
+                var moduleWarnMessages = new HashSet<String>(globalWarnMessages);
                 if (module.getMethodFilter() != null
                         && (!module.getMethodFilter().getIncludes().isEmpty()
                         || !module.getMethodFilter().getExcludes().isEmpty())) {
                     moduleWarnMessages.add(
                             "'method-filter' in the module '" + module.getName() + "' is deprecated. Use 'exposed-methods' at the project level instead.");
                 }
-                Map<String, Object> params = new HashMap<>();
+                var params = new HashMap<String, Object>();
                 if (processor != null) {
                     try {
-                        final String relativePath = module.getRulesRootPath();
-                        ITableProperties tableProperties = processor.process(relativePath);
+                        final var relativePath = module.getRulesRootPath();
+                        var tableProperties = processor.process(relativePath);
                         params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
                     } catch (NoMatchFileNameException e) {
                         moduleWarnMessages.add(e.getMessage());

@@ -8,13 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import org.openl.CompiledOpenClass;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.studio.projects.model.trace.FrameKind;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * Verifies the retained call tree when profiling hits the node cap while a nested call is still running.
@@ -34,9 +30,9 @@ class TreeNodeCapTest {
     void retainsNestedCallWhoseSubtreeFillsTheCap() {
         // Root(1) + Child(2) + one reference(3) reach the cap, so Child's remaining references are truncated
         // while Child is still running — the point at which the caller-side cap check used to drop Child.
-        TraceDebugger debugger = trace(3);
+        var debugger = trace(3);
 
-        CallNode tree = debugger.completedTree();
+        var tree = debugger.completedTree();
         assertNotNull(tree, "profiling keeps the executed tree");
         assertEquals("Root", tree.name());
 
@@ -54,7 +50,7 @@ class TreeNodeCapTest {
     @Test
     @DisplayName("Keeps the whole nested call tree when it stays under the cap")
     void keepsFullTreeUnderTheCap() {
-        TraceDebugger debugger = trace(1000);
+        var debugger = trace(1000);
 
         CallNode child = childOf(debugger.completedTree());
         assertNotNull(child, "the nested Child call is retained");
@@ -66,14 +62,14 @@ class TreeNodeCapTest {
     @Test
     @DisplayName("A step's total time includes the nested call it makes")
     void stepTotalIncludesItsNestedCall() {
-        CallNode tree = trace(1000).completedTree();
+        var tree = trace(1000).completedTree();
         assertNotNull(tree);
-        CallNode.Step caller = tree.steps().stream()
+        var caller = tree.steps().stream()
                 .filter(step -> step.children().stream()
                         .anyMatch(child -> child.kind() == FrameKind.SPREADSHEET && "Child".equals(child.name())))
                 .findFirst()
                 .orElseThrow();
-        CallNode child = caller.children().stream()
+        var child = caller.children().stream()
                 .filter(call -> "Child".equals(call.name()))
                 .findFirst()
                 .orElseThrow();
@@ -86,18 +82,18 @@ class TreeNodeCapTest {
     }
 
     private TraceDebugger trace(int cap) {
-        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
         assertTrue(compiled.getAllMessages().isEmpty(), () -> "module must compile: " + compiled.getAllMessages());
-        IOpenClass module = compiled.getOpenClass();
-        IOpenMethod root = module.getMethods().stream()
+        var module = compiled.getOpenClass();
+        var root = module.getMethods().stream()
                 .filter(method -> "Root".equals(method.getName()))
                 .findFirst()
                 .orElseThrow();
 
-        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        var debugger = new TraceDebugger(DebugListener.NOOP);
         debugger.setMaxTreeNodes(cap);
         debugger.start("node-cap", compiled.getClassLoader(), false, true, () -> {
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
             root.invoke(module.newInstance(env), new Object[0], env);
         });

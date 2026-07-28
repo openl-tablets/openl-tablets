@@ -6,15 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import org.openl.rules.repository.api.FileData;
 
 class HistoryForRevertedCommitTest {
 
@@ -27,9 +24,9 @@ class HistoryForRevertedCommitTest {
 
     @BeforeEach
     void setUp() throws GitAPIException, IOException {
-        File gitRepo = new File(REPO_URI, ".git");
+        var gitRepo = new File(REPO_URI, ".git");
         if (!gitRepo.exists()) {
-            File designGit = new File(REPO_URI, "git");
+            var designGit = new File(REPO_URI, "git");
             assertTrue(designGit.renameTo(new File(REPO_URI, ".git")));
         }
         repo = createRepository();
@@ -53,7 +50,7 @@ class HistoryForRevertedCommitTest {
         // them in history because they contain project modification commits. Also, we should show Merge commit, because
         // it contains the latest project state, and it differs from the latest commit in modify-project1.
         repo = repo.forBranch("project1");
-        List<FileData> history = repo.listHistory("project1");
+        var history = repo.listHistory("project1");
         assertEquals(5, history.size());
         assertEquals("Add project1\n", history.getFirst().getComment());
         assertEquals("Hello\n", history.get(1).getComment());
@@ -69,7 +66,7 @@ class HistoryForRevertedCommitTest {
         //
         // Branch "project1" doesn't contain commits related to project2, merge commit shouldn't appear in history.
         repo = repo.forBranch("project2");
-        List<FileData> history = repo.listHistory("project2");
+        var history = repo.listHistory("project2");
         assertEquals(2, history.size());
         assertEquals("Add project2\n", history.getFirst().getComment());
         assertEquals("Modify project2\n", history.get(1).getComment());
@@ -91,7 +88,7 @@ class HistoryForRevertedCommitTest {
         // them in history because they contain project modification commits. Also, we should show Merge commit, because
         // it contains the latest project state, and it differs from the latest commit in improve-project3.
         repo = repo.forBranch("project3");
-        List<FileData> history = repo.listHistory("project3");
+        var history = repo.listHistory("project3");
         assertEquals(5, history.size());
         assertEquals("Add project3\n", history.getFirst().getComment());
         assertEquals("Modify project3\n", history.get(1).getComment());
@@ -101,12 +98,12 @@ class HistoryForRevertedCommitTest {
     }
 
     private GitRepository createRepository() throws IOException {
-        GitRepository newRepo = new GitRepository();
+        var newRepo = new GitRepository();
         newRepo.setId(REPO_ID);
-        File localPath = new File(REPO_URI);
-        String uri = localPath.getAbsolutePath();
+        var localPath = new File(REPO_URI);
+        var uri = localPath.getAbsolutePath();
         newRepo.setUri(uri);
-        String localRepositoriesFolderString = localRepositoriesFolder.toFile().getAbsolutePath();
+        var localRepositoriesFolderString = localRepositoriesFolder.toFile().getAbsolutePath();
         newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
         newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         newRepo.setGcAutoDetach(false);

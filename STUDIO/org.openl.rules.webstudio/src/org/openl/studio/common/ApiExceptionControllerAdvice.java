@@ -80,7 +80,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                     httpStatus,
                     request);
         } else {
-            HttpStatus code = HttpStatus.INTERNAL_SERVER_ERROR;
+            var code = HttpStatus.INTERNAL_SERVER_ERROR;
             log.error(e.getMessage(), e);
             return _handleExceptionInternal(e, exceptionMappingService.processException(e), new HttpHeaders(), code, request);
         }

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openl.exception.OpenLCompilationException;
@@ -16,7 +15,6 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridTable;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.openl.GridTableSourceCodeModule;
@@ -30,10 +28,10 @@ public class TablePartProcessor {
      * @return a list of TableParts with tables merged
      */
     public List<TablePart> mergeAllNodes() {
-        List<TablePart> tables = new ArrayList<>();
+        var tables = new ArrayList<TablePart>();
         for (SortedSet<TablePart> set : tableParts.values()) {
             try {
-                TablePart mergedTable = validateAndMerge(set);
+                var mergedTable = validateAndMerge(set);
                 tables.add(mergedTable);
             } catch (OpenLCompilationException e) {
                 messages.add(OpenLMessagesUtils.newErrorMessage(e));
@@ -45,37 +43,37 @@ public class TablePartProcessor {
 
     private TablePart validateAndMerge(SortedSet<TablePart> set) throws OpenLCompilationException {
 
-        int cnt = 0;
-        int n = set.size();
+        var cnt = 0;
+        var n = set.size();
 
         IGridTable[] tables = new IGridTable[n];
 
-        boolean vertical = false;
-        int dimension = 0;
+        var vertical = false;
+        var dimension = 0;
         TablePart first = null;
 
         for (TablePart tablePart : set) {
 
             if (tablePart.getPart() != cnt + 1) {
-                String message = "TablePart number " + tablePart.getPart() + " is out of order";
+                var message = "TablePart number " + tablePart.getPart() + " is out of order";
                 throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
             }
 
             if (tablePart.getSize() != n) {
-                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong number of parts: " + tablePart
+                var message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong number of parts: " + tablePart
                         .getSize() + ". There are " + n + " parts with the same name";
                 throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
             }
 
-            ICell cell00 = tablePart.getTable().getCell(0, 0);
+            var cell00 = tablePart.getTable().getCell(0, 0);
 
-            IGridTable table = tablePart.getTable().getRows(cell00.getHeight());
+            var table = tablePart.getTable().getRows(cell00.getHeight());
             if (table == null) {
-                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong content.";
+                var message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong content.";
                 throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
 
             }
-            boolean myVert = tablePart.isVertical();
+            var myVert = tablePart.isVertical();
             int myDim = myVert ? table.getWidth() : table.getHeight();
 
             if (cnt == 0) {
@@ -84,14 +82,14 @@ public class TablePartProcessor {
                 dimension = myDim;
             } else {
                 if (myVert != vertical) {
-                    String message = "TablePart number " + tablePart.getPart() + " must use " + (vertical ?
+                    var message = "TablePart number " + tablePart.getPart() + " must use " + (vertical ?
                             "row" :
                             "column");
                     throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
                 }
 
                 if (myDim != dimension) {
-                    String message = "TablePart number " + tablePart.getPart() + " has " + (vertical ?
+                    var message = "TablePart number " + tablePart.getPart() + " has " + (vertical ?
                             "width" :
                             "height") + " = " + myDim + " instead of " + dimension;
                     if (vertical) {
@@ -116,7 +114,7 @@ public class TablePartProcessor {
             grid = new HorizontalTablePartsCompositeGrid(tables);
         }
 
-        IGridTable table = new GridTable(0, 0, grid.getHeight() - 1, grid.getWidth() - 1, grid);
+        var table = new GridTable(0, 0, grid.getHeight() - 1, grid.getWidth() - 1, grid);
 
         return new TablePart(table, first.source);
     }
@@ -128,7 +126,7 @@ public class TablePartProcessor {
     final Map<String, TreeSet<TablePart>> tableParts = new HashMap<>();
 
     public void register(IGridTable table, XlsSheetSourceCodeModule source) throws OpenLCompilationException {
-        TablePart tablePart = new TablePart(table, source);
+        var tablePart = new TablePart(table, source);
         parseHeader(tablePart);
         addToParts(tablePart);
     }
@@ -138,21 +136,21 @@ public class TablePartProcessor {
 
     private void parseHeader(TablePart tablePart) throws OpenLCompilationException {
 
-        GridCellSourceCodeModule src = new GridCellSourceCodeModule(tablePart.getTable());
+        var src = new GridCellSourceCodeModule(tablePart.getTable());
 
-        String header = src.getCode();
+        var header = src.getCode();
 
-        Matcher m = PATTERN.matcher(header);
+        var m = PATTERN.matcher(header);
 
         if (!m.matches()) {
-            String message = "Valid Syntax: TablePart <table_id> <row|column> <npart(1 to total_number_of_parts)> of <total_number_of_parts>";
+            var message = "Valid Syntax: TablePart <table_id> <row|column> <npart(1 to total_number_of_parts)> of <total_number_of_parts>";
             throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
         }
 
-        String tableId = m.group(1);
-        String colOrRow = m.group(2);
-        String npart = m.group(3);
-        String totalParts = m.group(4);
+        var tableId = m.group(1);
+        var colOrRow = m.group(2);
+        var npart = m.group(3);
+        var totalParts = m.group(4);
 
         tablePart.setPartName(tableId);
         tablePart.setPart(Integer.parseInt(npart));
@@ -161,11 +159,11 @@ public class TablePartProcessor {
     }
 
     private synchronized void addToParts(TablePart tablePart) throws OpenLCompilationException {
-        String key = tablePart.getPartName();
-        TreeSet<TablePart> set = tableParts.computeIfAbsent(key, e -> new TreeSet<>());
-        boolean res = set.add(tablePart);
+        var key = tablePart.getPartName();
+        var set = tableParts.computeIfAbsent(key, e -> new TreeSet<>());
+        var res = set.add(tablePart);
         if (!res) {
-            String message = "Duplicated TablePart part # = " + tablePart.getPart();
+            var message = "Duplicated TablePart part # = " + tablePart.getPart();
             throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
         }
     }

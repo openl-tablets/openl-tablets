@@ -16,14 +16,14 @@ public class SetUnderlineAction extends AUndoableCellAction {
 
     @Override
     public void doAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
 
         grid.setCellFontUnderline(getCol(), getRow(), underlined);
     }
 
     @Override
     public void undoAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
         grid.setCellFontUnderline(getCol(), getRow(), !underlined);
     }
 

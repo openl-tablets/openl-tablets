@@ -347,7 +347,7 @@ public class TypeResolver implements INameSpacedTypeFactory {
         this.classLoader = classLoader;
         if (!classes.isEmpty()) {
             for (var cls : classes) {
-                String alias = cls.getSimpleName();
+                var alias = cls.getSimpleName();
                 this.aliases.put(alias, JavaOpenClass.getOpenClass(cls));
             }
         }
@@ -363,7 +363,7 @@ public class TypeResolver implements INameSpacedTypeFactory {
 
     @Override
     public IOpenClass getType(String name) throws AmbiguousTypeException {
-        Set<IOpenClass> foundTypes = new HashSet<>();
+        var foundTypes = new HashSet<IOpenClass>();
 
         var cls = CORE_CLASSES.get(name);
         if (cls == null) {
@@ -412,15 +412,15 @@ public class TypeResolver implements INameSpacedTypeFactory {
     private static IOpenClass loadClass(ClassLoader classLoader, String fullName) {
         // TODO add security ability to block access to system classes.
         try {
-            Class<?> c = classLoader.loadClass(fullName);
+            var c = classLoader.loadClass(fullName);
             return JavaOpenClass.getOpenClass(c);
         } catch (ClassNotFoundException ignored) {
             // Type is not found in the package. Search in another.
         } catch (NoClassDefFoundError e) {
             if (e.getCause() instanceof ClassNotFoundException) {
                 // Type is found but cannot be loaded because of absent dependent class.
-                String noClassMessage = e.getCause().getMessage();
-                String message = "Cannot load type '%s' because of absent type '%s'."
+                var noClassMessage = e.getCause().getMessage();
+                var message = "Cannot load type '%s' because of absent type '%s'."
                         .formatted(fullName, noClassMessage);
                 throw RuntimeExceptionWrapper.wrap(message, e);
             }
@@ -438,7 +438,7 @@ public class TypeResolver implements INameSpacedTypeFactory {
             // We just skip such classes and continue searching them in another packages.
         } catch (UnsupportedClassVersionError e) {
             // Type is found but it's compiled using newer version of JDK
-            String message = "Cannot load the class '%s' that was compiled using newer version of JDK than current JRE (%s)".formatted(
+            var message = "Cannot load the class '%s' that was compiled using newer version of JDK than current JRE (%s)".formatted(
                     fullName,
                     System.getProperty("java.version"));
             throw RuntimeExceptionWrapper.wrap(message, e);

@@ -2,7 +2,6 @@ package org.openl.rules.project.dependencies;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,11 +21,11 @@ public final class ProjectExternalDependenciesHelper {
     public static Map<String, Object> buildExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
                                                                                  ProjectDescriptor projectDescriptor) {
         Objects.requireNonNull(projectDescriptor, "projectDescriptor cannot be null");
-        Map<String, Object> parameters = new HashMap<>();
+        var parameters = new HashMap<String, Object>();
         if (externalParams != null) {
             parameters.putAll(externalParams);
         }
-        List<IDependency> externalDependencies = new ArrayList<>();
+        var externalDependencies = new ArrayList<IDependency>();
         if (projectDescriptor.getDependencies() != null) {
             for (ProjectDependencyDescriptor dependency : projectDescriptor.getDependencies()) {
                 if (dependency.isAutoIncluded()) {

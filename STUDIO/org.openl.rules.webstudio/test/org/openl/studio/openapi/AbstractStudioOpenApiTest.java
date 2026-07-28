@@ -78,7 +78,7 @@ public abstract class AbstractStudioOpenApiTest {
                 assertEquals(expected, actual, "Path: " + path);
             }
         } else if (expected.isArray() && actual.isArray()) {
-            for (int i = 0; i < expected.size() || i < actual.size(); i++) {
+            for (var i = 0; i < expected.size() || i < actual.size(); i++) {
                 compareJsonObjects(expected.get(i), actual.get(i), path + "[" + i + "]");
             }
         } else if (expected.isObject() && actual.isObject()) {

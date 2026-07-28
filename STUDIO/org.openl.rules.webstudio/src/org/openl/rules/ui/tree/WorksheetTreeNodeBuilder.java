@@ -17,7 +17,7 @@ public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
 
-        XlsSheetSourceCodeModule sheet = (XlsSheetSourceCodeModule) nodeObject;
+        var sheet = (XlsSheetSourceCodeModule) nodeObject;
 
         return new String[]{sheet.getSheetName(), sheet.getSheetName(), sheet.getSheetName()};
     }
@@ -36,7 +36,7 @@ public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public String getUrl(Object nodeObject) {
 
-        XlsSheetSourceCodeModule sheet = (XlsSheetSourceCodeModule) nodeObject;
+        var sheet = (XlsSheetSourceCodeModule) nodeObject;
 
         return sheet.getUri();
     }
@@ -51,7 +51,7 @@ public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
-        ProjectTreeNode treeNode = super.makeNode(tableSyntaxNode, i);
+        var treeNode = super.makeNode(tableSyntaxNode, i);
         // Put spreadsheets in order as they defined in xls, not sort them alphabetically
         treeNode.setElements(new LinkedHashMap<>(treeNode.getElements()));
         return treeNode;

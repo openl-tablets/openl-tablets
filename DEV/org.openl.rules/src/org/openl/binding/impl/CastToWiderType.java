@@ -54,9 +54,9 @@ public final class CastToWiderType {
      * @return cast information
      */
     public static CastToWiderType create(ICastFactory castFactory, IOpenClass type1, IOpenClass type2) {
-        IOpenClass widerType = castFactory.findClosestClass(type1, type2);
-        IOpenCast castToParent1 = castFactory.getCast(type1, widerType);
-        IOpenCast castToParent2 = castFactory.getCast(type2, widerType);
+        var widerType = castFactory.findClosestClass(type1, type2);
+        var castToParent1 = castFactory.getCast(type1, widerType);
+        var castToParent2 = castFactory.getCast(type2, widerType);
         return new CastToWiderType(widerType, castToParent1, castToParent2);
     }
 

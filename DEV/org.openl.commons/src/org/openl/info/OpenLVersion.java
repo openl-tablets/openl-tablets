@@ -39,7 +39,7 @@ public final class OpenLVersion {
         }
         url = props.getOrDefault("openl.url", "??");
         version = props.getOrDefault("openl.version", "???");
-        String bd = props.getOrDefault("openl.build.date", "????-??-??");
+        var bd = props.getOrDefault("openl.build.date", "????-??-??");
         // If openl.version.properties is used from classpath and this property is not initialized at build time
         if ("${build.date}".equals(bd)) {
             bd = "????-??-??";
@@ -47,7 +47,7 @@ public final class OpenLVersion {
         buildDate = bd;
         buildNumber = props.getOrDefault("openl.commit.hash", "????");
 
-        HashMap<String, String> source = new HashMap<>(6);
+        var source = new HashMap<String, String>(6);
         source.put("openl.site", url);
         source.put("openl.version", version);
         source.put("openl.build.date", buildDate);
@@ -71,7 +71,7 @@ public final class OpenLVersion {
         }
         if (resources != null) {
             while (resources.hasMoreElements()) {
-                URL resource = resources.nextElement();
+                var resource = resources.nextElement();
                 try {
                     PropertiesUtils.load(resource, props::put);
                 } catch (IOException t) {

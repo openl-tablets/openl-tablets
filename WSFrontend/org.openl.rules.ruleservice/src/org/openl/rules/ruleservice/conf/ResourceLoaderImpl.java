@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.IProject;
-import org.openl.rules.project.abstraction.IProjectArtefact;
 import org.openl.rules.project.abstraction.IProjectResource;
 import org.openl.rules.ruleservice.core.Resource;
 import org.openl.rules.ruleservice.core.ResourceLoader;
@@ -22,7 +21,7 @@ class ResourceLoaderImpl implements ResourceLoader {
     @Override
     public Resource getResource(String name) {
         try {
-            IProjectArtefact artefact = project.getArtefact(name);
+            var artefact = project.getArtefact(name);
             if (artefact instanceof IProjectResource resource) {
                 return new Resource() {
                     @Override

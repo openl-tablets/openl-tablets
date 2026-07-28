@@ -21,8 +21,8 @@ class GridTableCell implements ICell {
         this.column = column;
         this.row = row;
         this.table = table;
-        int gridColumn = table.getGridColumn(column, row);
-        int gridRow = table.getGridRow(column, row);
+        var gridColumn = table.getGridColumn(column, row);
+        var gridRow = table.getGridRow(column, row);
         this.cell = table.getGrid().getCell(gridColumn, gridRow);
     }
 

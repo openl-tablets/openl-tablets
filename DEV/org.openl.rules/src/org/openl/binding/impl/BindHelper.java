@@ -2,9 +2,7 @@ package org.openl.binding.impl;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,7 +10,6 @@ import java.util.Objects;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.domain.EnumDomain;
@@ -122,16 +119,16 @@ public final class BindHelper {
 
     public static void checkOnDeprecation(ISyntaxNode node, IBindingContext context, IMethodCaller caller) {
         if (caller instanceof JavaOpenMethod method) {
-            Method javaMethod = method.getJavaMethod();
+            var javaMethod = method.getJavaMethod();
             if (isDeprecated(javaMethod)) {
-                String msg = "DEPRECATED '%s' function will be removed in the next version.".formatted(
+                var msg = "DEPRECATED '%s' function will be removed in the next version.".formatted(
                         javaMethod.getName());
                 processWarn(msg, node, context);
             }
         } else if (caller instanceof JavaOpenConstructor constructor) {
             Constructor<?> constr = constructor.getJavaConstructor();
             if (isDeprecated(constr)) {
-                String msg = "DEPRECATED '%s' constructor will be removed in the next version.".formatted(
+                var msg = "DEPRECATED '%s' constructor will be removed in the next version.".formatted(
                         constr.getName());
                 processWarn(msg, node, context);
             }
@@ -146,7 +143,7 @@ public final class BindHelper {
         if (aClass instanceof JavaOpenClass) {
             Class<?> javaClass = aClass.getInstanceClass();
             if (javaClass.isAnnotationPresent(Deprecated.class)) {
-                String msg = "DEPRECATED '%s' class will be removed in the next version.".formatted(
+                var msg = "DEPRECATED '%s' class will be removed in the next version.".formatted(
                         javaClass.getTypeName());
                 processWarn(msg, node, context);
             }
@@ -157,9 +154,9 @@ public final class BindHelper {
 
     public static void checkOnDeprecation(ISyntaxNode node, IBindingContext context, IOpenField field) {
         if (field instanceof JavaOpenField openField) {
-            Field javaField = openField.getJavaField();
+            var javaField = openField.getJavaField();
             if (isDeprecated(javaField)) {
-                String msg = "DEPRECATED '%s' field will be removed in the next version.".formatted(
+                var msg = "DEPRECATED '%s' field will be removed in the next version.".formatted(
                         javaField.getName());
                 processWarn(msg, node, context);
             }
@@ -177,12 +174,12 @@ public final class BindHelper {
     }
 
     private static void checkForSameLeftAndRightExpression(IBoundNode conditionNode, IBindingContext bindingContext) {
-        IBoundNode[] children = conditionNode.getChildren();
+        var children = conditionNode.getChildren();
         if (children != null && children.length == 2) {
-            IBoundNode left = children[0];
-            IBoundNode right = children[1];
+            var left = children[0];
+            var right = children[1];
             if (isSame(left, right)) {
-                String type = conditionNode.getSyntaxNode().getType();
+                var type = conditionNode.getSyntaxNode().getType();
 
                 if (EQUAL_OPERATORS.contains(type)) {
                     BindHelper.processWarn("Condition is always true.", conditionNode.getSyntaxNode(), bindingContext);
@@ -202,8 +199,8 @@ public final class BindHelper {
                 return isSame(left.getTargetNode(), right.getTargetNode());
             }
         } else if (left instanceof LiteralBoundNode node && right instanceof LiteralBoundNode node1) {
-            Object leftValue = node.getValue();
-            Object rightValue = node1.getValue();
+            var leftValue = node.getValue();
+            var rightValue = node1.getValue();
             return Objects.equals(leftValue, rightValue);
         }
 
@@ -247,7 +244,7 @@ public final class BindHelper {
             return true;
         }
         if (isTransparentNode(node)) {
-            IBoundNode[] children = node.getChildren();
+            var children = node.getChildren();
             if (children != null) {
                 for (IBoundNode child : children) {
                     if (isLiteralExpression(child)) {
@@ -304,7 +301,7 @@ public final class BindHelper {
             }
             return;
         }
-        IBoundNode[] children = node.getChildren();
+        var children = node.getChildren();
         if (children == null) {
             return;
         }
@@ -332,11 +329,11 @@ public final class BindHelper {
     private static void validateLiteralAgainstDomain(LiteralBoundNode literalNode,
                                                      IOpenClass parameterType,
                                                      IBindingContext bindingContext) {
-        IOpenClass fromType = literalNode.getType();
+        var fromType = literalNode.getType();
         if (fromType == null || fromType.equals(parameterType)) {
             return;
         }
-        IOpenCast cast = bindingContext.getCast(fromType, parameterType);
+        var cast = bindingContext.getCast(fromType, parameterType);
         if (cast == null) {
             return;
         }

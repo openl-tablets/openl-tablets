@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,10 +18,8 @@ import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.AlgorithmMetaInfoReader;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tbasic.compile.AlgorithmCompiler;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -255,12 +252,12 @@ public class AlgorithmBuilder {
 
     static {
         try {
-            Set<String> algorithmOperations = new LinkedHashSet<>();
+            var algorithmOperations = new LinkedHashSet<String>();
 
             for (TableParserSpecificationBean specification : algSpecifications) {
                 algorithmOperations.add(specification.getKeyword());
             }
-            String[] algorithmOperationsArray = algorithmOperations.toArray(StringUtils.EMPTY_STRING_ARRAY);
+            var algorithmOperationsArray = algorithmOperations.toArray(StringUtils.EMPTY_STRING_ARRAY);
             CELL_META_INFO = new CellMetaInfo(
                     new DomainOpenClass(OPERATION1,
                             JavaOpenClass.STRING,
@@ -301,60 +298,60 @@ public class AlgorithmBuilder {
         prepareColumns(tableBody);
 
         // parse data, row=2..*
-        List<AlgorithmRow> algorithmRows = buildRows(tableBody);
+        var algorithmRows = buildRows(tableBody);
 
-        RowParser rowParser = new RowParser(algorithmRows, algSpecifications);
+        var rowParser = new RowParser(algorithmRows, algSpecifications);
 
         List<AlgorithmTreeNode> parsedNodes = rowParser.parse();
 
-        AlgorithmCompiler compiler = new AlgorithmCompiler(bindingContext, algorithm.getHeader(), parsedNodes);
+        var compiler = new AlgorithmCompiler(bindingContext, algorithm.getHeader(), parsedNodes);
         compiler.compile(algorithm, cxt);
     }
 
     private List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxNodeException {
-        List<AlgorithmRow> result = new ArrayList<>();
+        var result = new ArrayList<AlgorithmRow>();
 
-        IGridTable grid = tableBody.getRows(2)
+        var grid = tableBody.getRows(2)
                     .getSource();
-        for (int r = 0; r < grid.getHeight(); r++) {
+        for (var r = 0; r < grid.getHeight(); r++) {
 
-            AlgorithmRow aRow = new AlgorithmRow();
+            var aRow = new AlgorithmRow();
 
             // set sequential number of the row in table
             aRow.setRowNumber(r + 1);
 
-            IGridTable rowTable = grid.getRow(r);
+            var rowTable = grid.getRow(r);
             aRow.setGridRegion(rowTable.getRegion());
 
             // parse data row
             for (AlgorithmColumn column : columns.values()) {
-                int c = column.columnIndex;
+                var c = column.columnIndex;
 
-                IGridTable valueTable = rowTable.getColumn(c);
+                var valueTable = rowTable.getColumn(c);
                 aRow.setValueGridRegion(column.id, valueTable.getRegion());
 
-                String value = grid.getCell(c, r)
+                var value = grid.getCell(c, r)
                     .getStringValue();
 
                 if (value == null) {
                     value = StringUtils.EMPTY;
                 }
 
-                StringValue sv = new StringValue(value,
+                var sv = new StringValue(value,
                         CELL + r + UNDERSCORE + c,
                         null,
                         new GridCellSourceCodeModule(grid, c, r, bindingContext));
 
                 setRowField(aRow, column.id, sv);
                 if (OPERATION.equalsIgnoreCase(column.id)) {
-                    ICellStyle cellStyle = grid.getCell(c, r)
+                    var cellStyle = grid.getCell(c, r)
                     .getStyle();
                     int i = cellStyle == null ? 0 : cellStyle.getIndent();
                     aRow.setOperationLevel(i);
 
                     if (!bindingContext.isExecutionMode() && tsn
                             .getMetaInfoReader() instanceof AlgorithmMetaInfoReader) {
-                        int operationColumn = grid.getCell(c, r)
+                        var operationColumn = grid.getCell(c, r)
                     .getAbsoluteColumn();
                         ((AlgorithmMetaInfoReader) tsn.getMetaInfoReader())
                     .setOperationColumn(operationColumn);
@@ -371,10 +368,10 @@ public class AlgorithmBuilder {
     private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
         columns = new HashMap<>();
 
-        ILogicalTable ids = tableBody.getRow(0);
+        var ids = tableBody.getRow(0);
 
         // parse ids, row=0
-        for (int c = 0; c < ids.getWidth(); c++) {
+        for (var c = 0; c < ids.getWidth(); c++) {
             String id = safeId(ids.getColumn(c)
                     .getSource()
                     .getCell(0, 0)
@@ -394,7 +391,7 @@ public class AlgorithmBuilder {
     }
 
     private static String safeId(String s) {
-        String id = "";
+        var id = "";
         if (s != null) {
             id = s.trim()
                     .toLowerCase();

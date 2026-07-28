@@ -28,7 +28,7 @@ public class OverloadedMethodsDictionary {
      * @return <code>true</code> if method already exists in dictionary; <code>false</code> - otherwise
      */
     public boolean contains(IOpenMethod method) {
-        MethodKey key = buildKey(method);
+        var key = buildKey(method);
 
         return contains(key);
     }
@@ -41,14 +41,14 @@ public class OverloadedMethodsDictionary {
      */
     public void add(TableSyntaxNode table) {
 
-        IOpenMethod method = (IOpenMethod) table.getMember();
-        MethodKey key = buildKey(method);
+        var method = (IOpenMethod) table.getMember();
+        var key = buildKey(method);
 
         if (contains(key)) {
             Set<TableSyntaxNodeKey> value = internalMap.get(key);
             value.add(buildKey(table));
         } else {
-            Set<TableSyntaxNodeKey> value = new HashSet<>();
+            var value = new HashSet<TableSyntaxNodeKey>();
             value.add(buildKey(table));
 
             internalMap.put(key, value);
@@ -74,7 +74,7 @@ public class OverloadedMethodsDictionary {
      * @return group of methods
      */
     public Set<TableSyntaxNodeKey> getAllMethodOverloads(IOpenMethod method) {
-        MethodKey key = buildKey(method);
+        var key = buildKey(method);
 
         return internalMap.get(key);
     }

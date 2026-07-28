@@ -16,7 +16,7 @@ public class ArrayCellEditor implements ICellEditor {
 
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
-        EditorTypeResponse typeResponse = new EditorTypeResponse(CE_ARRAY);
+        var typeResponse = new EditorTypeResponse(CE_ARRAY);
         typeResponse.setParams(params);
 
         return typeResponse;

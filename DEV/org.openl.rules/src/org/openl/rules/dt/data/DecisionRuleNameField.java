@@ -22,8 +22,8 @@ public class DecisionRuleNameField implements IOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        RuleExecutionObject reo = (RuleExecutionObject) target;
-        int rowNum = reo.getRuleNum();
+        var reo = (RuleExecutionObject) target;
+        var rowNum = reo.getRuleNum();
         return ruleRow != null ? ruleRow.getRuleName(rowNum) : StringUtils.EMPTY;
     }
 

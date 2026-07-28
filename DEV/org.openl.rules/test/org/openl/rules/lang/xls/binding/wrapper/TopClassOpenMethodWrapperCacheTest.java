@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.AMethod;
 import org.openl.types.java.JavaOpenClassCache;
@@ -24,16 +23,16 @@ class TopClassOpenMethodWrapperCacheTest {
 
     @Test
     void test() {
-        IOpenClass openClass1 = new SomeOpenClass("Class1");
-        IOpenMethod m1 = new SomeOpenMethod(null);
+        var openClass1 = new SomeOpenClass("Class1");
+        var m1 = new SomeOpenMethod(null);
 
-        IOpenClass openClass2 = new SomeOpenClass("Class2");
-        IOpenMethod m2 = new SomeOpenMethod(openClass2);
+        var openClass2 = new SomeOpenClass("Class2");
+        var m2 = new SomeOpenMethod(openClass2);
 
-        IOpenClass openClass3 = new SomeOpenClass("Class3");
-        IOpenMethod m3 = new SomeOpenMethod(null);
+        var openClass3 = new SomeOpenClass("Class3");
+        var m3 = new SomeOpenMethod(null);
 
-        TopClassOpenMethodWrapperCache cache = new TopClassOpenMethodWrapperCache(null);
+        var cache = new TopClassOpenMethodWrapperCache(null);
         cache.put(openClass1, m1);
         cache.put(openClass2, m2);
         cache.put(openClass3, m3);

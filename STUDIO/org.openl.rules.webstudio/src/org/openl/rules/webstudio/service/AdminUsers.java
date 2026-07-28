@@ -53,8 +53,8 @@ public class AdminUsers {
         if (!isSuperuser(username)) {
             return;
         }
-        SimpleUser user = (SimpleUser) userService.getUser(username);
-        String adminGroup = assignPrivileges(username);
+        var user = (SimpleUser) userService.getUser(username);
+        var adminGroup = assignPrivileges(username);
         if (user == null) {
             userService.addUser(username,
                     null,
@@ -65,7 +65,7 @@ public class AdminUsers {
             );
             userService.updateAuthorities(username, Collections.singleton(adminGroup));
         } else if (!user.hasPrivilege(ADMIN)) {
-            Set<String> groups = new HashSet<>();
+            var groups = new HashSet<String>();
             groups.add(adminGroup);
             user.getAuthorities().stream().filter(g -> g instanceof Group).map(GrantedAuthority::getAuthority).forEach(groups::add);
             userService.updateAuthorities(username, groups);
@@ -73,7 +73,7 @@ public class AdminUsers {
     }
 
     private String assignPrivileges(String user) {
-        Group administrators = groupService.getGroupByName(ADMIN_GROUP);
+        var administrators = groupService.getGroupByName(ADMIN_GROUP);
         if (administrators != null) {
             if (administrators.hasPrivilege(ADMIN)) {
                 return ADMIN_GROUP;
@@ -89,7 +89,7 @@ public class AdminUsers {
             groupService.updateGroup(ADMIN_GROUP, Collections.singleton(ADMIN));
             return ADMIN_GROUP;
         }
-        String group = (user + "_Group");
+        var group = (user + "_Group");
         if (!groupService.existsByName(group)) {
             groupService.addGroup(group, "A group for restoring ADMIN privileges");
         }

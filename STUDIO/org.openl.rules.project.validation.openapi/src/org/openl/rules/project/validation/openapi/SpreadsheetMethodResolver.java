@@ -24,7 +24,7 @@ final class SpreadsheetMethodResolver {
         cache = new HashMap<>();
         for (IOpenMethod method : context.getOpenClass().getMethods()) {
             if (method.getType() instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) method
+                var customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) method
                         .getType();
                 cache.put(customSpreadsheetResultOpenClass.getBeanClass(), method);
             }
@@ -39,7 +39,7 @@ final class SpreadsheetMethodResolver {
     }
 
     public String resolveStepName(IOpenClass openClass, IOpenField beanField) {
-        IOpenMethod method = resolve(openClass);
+        var method = resolve(openClass);
         if (method != null) {
             return resolveStepName(method, beanField);
         }
@@ -57,7 +57,7 @@ final class SpreadsheetMethodResolver {
         List<IOpenField> sprFields = beanFieldsMap.get(beanField.getName());
         IOpenField openFieldInSpr = null;
         for (IOpenField f : sprFields) {
-            IOpenField g = spreadsheet.getSpreadsheetType().getField(f.getName());
+            var g = spreadsheet.getSpreadsheetType().getField(f.getName());
             if (openFieldInSpr == null || (g != null && openFieldInSpr.getName().length() > g.getName().length())) {
                 openFieldInSpr = g;
             }

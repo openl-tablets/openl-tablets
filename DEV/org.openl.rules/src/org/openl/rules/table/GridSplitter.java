@@ -32,7 +32,7 @@ public class GridSplitter {
             return true;// not empty cell
         }
         if (grid.isPartOfTheMergedRegion(column, row)) {
-            IGridRegion region = grid.getRegionContaining(column, row);
+            var region = grid.getRegionContaining(column, row);
             if (!grid.isEmpty(region.getLeft(), region.getTop())) {
                 return true;// part of not empty merged cell
             }
@@ -41,7 +41,7 @@ public class GridSplitter {
     }
 
     boolean containsRow(int scol, int ecol, int row) {
-        for (int col = scol; col < ecol; col++) {
+        for (var col = scol; col < ecol; col++) {
             if (containsCell(col, row)) {
                 return true;
             }
@@ -56,13 +56,13 @@ public class GridSplitter {
             ++x;
         }
         for (y = row; containsRow(col, x, y); ++y) {
-            int newX = expandLeft(y, col);
+            var newX = expandLeft(y, col);
             if (newX < col) {
                 defineTableBoundaries(newX, row, x);
                 return;
             }
 
-            int newEndX = expandRight(y, x);
+            var newEndX = expandRight(y, x);
             if (newEndX > x) {
                 defineTableBoundaries(col, row, newEndX);
                 return;
@@ -70,13 +70,13 @@ public class GridSplitter {
 
         }
 
-        IGridTable table = new GridTable(row, col, y - 1, x - 1, grid);
+        var table = new GridTable(row, col, y - 1, x - 1, grid);
         tables.add(table);
         pool.add(table.getRegion());
     }
 
     private int expandLeft(int y, int stX) {
-        for (int x = stX; ; --x) {
+        for (var x = stX; ; --x) {
             if (x <= 0) {
                 return 0;
             }
@@ -97,16 +97,16 @@ public class GridSplitter {
 
     public IGridTable[] split() {
 
-        int nrows = grid.getMaxRowIndex() + 1;
+        var nrows = grid.getMaxRowIndex() + 1;
 
-        for (int row = grid.getMinRowIndex(); row < nrows; row++) {
+        for (var row = grid.getMinRowIndex(); row < nrows; row++) {
 
-            int ncells = grid.getMaxColumnIndex(row) + 1;
+            var ncells = grid.getMaxColumnIndex(row) + 1;
             if (ncells == 0) {
                 continue;
             }
 
-            for (int col = grid.getMinColumnIndex(row); col < ncells; col++) {
+            for (var col = grid.getMinColumnIndex(row); col < ncells; col++) {
 
                 // check if this cell was used
                 if (cellIsUsed(col, row)) {

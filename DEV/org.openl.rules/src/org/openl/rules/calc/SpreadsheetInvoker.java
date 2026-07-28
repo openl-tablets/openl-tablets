@@ -1,6 +1,5 @@
 package org.openl.rules.calc;
 
-import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.types.IDynamicObject;
 import org.openl.vm.IRuntimeEnv;
@@ -27,7 +26,7 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
 
     @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
-        SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(getInvokableMethod(),
+        var res = new SpreadsheetResultCalculator(getInvokableMethod(),
                 (IDynamicObject) target,
                 params,
                 env,
@@ -40,18 +39,18 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
      * The cells array is indexed with logical indices (excluding description rows/columns).
      */
     protected Object[][] preFetchResult(Spreadsheet spreadsheet) {
-        SpreadsheetCell[][] cc = spreadsheet.getCells();
+        var cc = spreadsheet.getCells();
 
-        int height = spreadsheet.getHeight();
-        int width = spreadsheet.getWidth();
+        var height = spreadsheet.getHeight();
+        var width = spreadsheet.getWidth();
 
         Object[][] res = cc.length == 0 ? EMPTY_RESULT : new Object[height][width];
 
         // cells[][] is now indexed with logical indices, so we iterate directly
-        for (int i = 0; i < height; i++) {
-            SpreadsheetCell[] row = cc[i];
-            for (int j = 0; j < width; j++) {
-                SpreadsheetCell cell = row[j];
+        for (var i = 0; i < height; i++) {
+            var row = cc[i];
+            for (var j = 0; j < width; j++) {
+                var cell = row[j];
                 if (cell != null) {
                     switch (cell.getSpreadsheetCellType()) {
                         case EMPTY:

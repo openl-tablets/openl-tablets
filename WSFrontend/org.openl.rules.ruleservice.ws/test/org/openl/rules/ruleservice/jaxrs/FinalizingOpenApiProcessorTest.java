@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
 import org.openl.rules.openapi.OpenAPIConfiguration;
 
@@ -23,11 +22,11 @@ class FinalizingOpenApiProcessorTest {
         var generated = new OpenAPI().info(new Info().title("generated"));
         var mapper = new ObjectMapper();
 
-        try (MockedStatic<OpenAPIConfiguration> stub = mockStatic(OpenAPIConfiguration.class)) {
+        try (var stub = mockStatic(OpenAPIConfiguration.class)) {
             stub.when(() -> OpenAPIConfiguration.generateOpenAPI(input, SampleApp.class, mapper))
                     .thenReturn(generated);
 
-            OpenAPI result = new FinalizingOpenApiProcessor(SampleApp.class, mapper).apply(input);
+            var result = new FinalizingOpenApiProcessor(SampleApp.class, mapper).apply(input);
 
             assertNotNull(result);
             assertSame(generated, result, "result must come from OpenAPIConfiguration.generateOpenAPI");

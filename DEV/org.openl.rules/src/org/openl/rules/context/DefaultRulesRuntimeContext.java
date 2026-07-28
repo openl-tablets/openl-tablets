@@ -42,8 +42,8 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public String toString() {
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(out);
+        var out = new ByteArrayOutputStream();
+        var printStream = new PrintStream(out);
         verbosePrint(printStream, null, internalMap, new ArrayDeque<>());
 
         return out.toString();
@@ -92,8 +92,8 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         lineage.push(map);
 
         for (final Map.Entry<?, ?> entry : map.entrySet()) {
-            final Object childKey = entry.getKey();
-            final Object childValue = entry.getValue();
+            final var childKey = entry.getKey();
+            final var childValue = entry.getValue();
             if (childValue instanceof Map<?, ?> map1 && !lineage.contains(childValue)) {
                 verbosePrint(out, childKey == null ? "null" : childKey, map1, lineage);
             } else {
@@ -125,7 +125,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
      * @param out the stream to indent
      */
     private static void printIndent(final PrintStream out, final int indent) {
-        for (int i = 0; i < indent; i++) {
+        for (var i = 0; i < indent; i++) {
             out.print("    ");
         }
     }
@@ -145,7 +145,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
      */
     @Override
     public IRulesRuntimeContext clone() throws CloneNotSupportedException {
-        DefaultRulesRuntimeContext defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();
+        var defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();
         // create a new instance of `Hashmap`. By default clone creates a shallow copy in defaultRulesRuntimeContext.
         defaultRulesRuntimeContext.internalMap = new HashMap<>(this.internalMap);
         return defaultRulesRuntimeContext;
@@ -392,7 +392,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public static final Map<String, Class<?>> CONTEXT_PROPERTIES;
 
     static {
-        Map<String, Class<?>> contextFields = new TreeMap<>();
+        var contextFields = new TreeMap<String, Class<?>>();
         contextFields.put("currentDate", java.util.Date.class);
         contextFields.put("requestDate", java.util.Date.class);
         contextFields.put("lob", java.lang.String.class);

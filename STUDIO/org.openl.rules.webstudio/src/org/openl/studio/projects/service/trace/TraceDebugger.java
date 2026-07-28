@@ -115,14 +115,14 @@ public final class TraceDebugger {
         stepController.armInitial(stopAtEntry);
         startHaltCount = channel.haltCount();
         channel.markRunning();
-        Thread thread = Thread.ofVirtual().name(threadName).unstarted(() -> run(classLoader, body));
+        var thread = Thread.ofVirtual().name(threadName).unstarted(() -> run(classLoader, body));
         this.worker.set(thread);
         thread.start();
     }
 
     private void run(@Nullable ClassLoader classLoader, DebugBody body) {
         Thread current = Thread.currentThread();
-        ClassLoader previous = current.getContextClassLoader();
+        var previous = current.getContextClassLoader();
         if (classLoader != null) {
             current.setContextClassLoader(classLoader);
         }
@@ -181,7 +181,7 @@ public final class TraceDebugger {
 
     /** Resume with a command and wait, bounded by the timeout, for the next suspend or terminal state. */
     public DebugStatus command(DebugCommand command, long timeoutMillis) {
-        long before = channel.haltCount();
+        var before = channel.haltCount();
         channel.postCommand(command);
         return channel.awaitHalt(before, timeoutMillis);
     }
@@ -199,7 +199,7 @@ public final class TraceDebugger {
     /** Cancel the session, interrupting and briefly joining the worker. */
     public void terminate(long joinMillis) {
         channel.requestTerminate();
-        Thread thread = worker.get();
+        var thread = worker.get();
         if (thread == null) {
             return;
         }

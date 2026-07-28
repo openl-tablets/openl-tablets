@@ -7,7 +7,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * Factory for creating TBasic operations from the 'org.openl.rules.tbasic.runtime.operations' package
@@ -29,9 +28,9 @@ public class OperationFactory {
                                             ConversionRuleStep conversionStep,
                                             IBindingContext bindingContext) {
         try {
-            String operationClassName = "%s.%s%s"
+            var operationClassName = "%s.%s%s"
                     .formatted(OPERATIONS_PACKAGE, conversionStep.getOperationType(), OPERATION_SUFFIX);
-            Class<?> clazz = Class.forName(operationClassName);
+            var clazz = Class.forName(operationClassName);
             Constructor<?> constructor = clazz.getConstructors()[0];
 
             Object[] params = new Object[constructor.getParameterTypes().length];
@@ -54,19 +53,19 @@ public class OperationFactory {
                         bindingContext);
             }
 
-            RuntimeOperation emittedOperation = (RuntimeOperation) constructor.newInstance(params);
+            var emittedOperation = (RuntimeOperation) constructor.newInstance(params);
 
             // TODO: set more precise source reference
             AlgorithmOperationSource source = AlgorithmCompilerTool
                     .getOperationSource(nodesToCompile, conversionStep.getOperationParam1(), bindingContext);
             emittedOperation.setSourceCode(source);
 
-            String nameForDebug = conversionStep.getNameForDebug();
+            var nameForDebug = conversionStep.getNameForDebug();
             emittedOperation.setNameForDebug(nameForDebug);
 
             return emittedOperation;
         } catch (Exception e) {
-            IOpenSourceCodeModule errorSource = nodesToCompile.getFirst()
+            var errorSource = nodesToCompile.getFirst()
                     .getAlgorithmRow()
                     .getOperation()
                     .asSourceCodeModule();

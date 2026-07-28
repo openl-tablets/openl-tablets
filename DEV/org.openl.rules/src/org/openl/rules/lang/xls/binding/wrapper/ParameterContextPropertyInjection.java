@@ -16,7 +16,7 @@ class ParameterContextPropertyInjection extends AbstractContextPropertyInjector 
 
     @Override
     protected Object getValue(Object[] params, IRuntimeEnv env) {
-        Object value = params[paramIndex];
+        var value = params[paramIndex];
         return openCast.convert(value);
     }
 

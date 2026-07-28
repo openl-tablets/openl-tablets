@@ -11,7 +11,7 @@ public final class FileTypeHelper {
         if (fileName == null) {
             return false;
         }
-        String lcFileName = fileName.toLowerCase(Locale.ROOT);
+        var lcFileName = fileName.toLowerCase(Locale.ROOT);
         return !lcFileName.startsWith("~$")
                 && (lcFileName.endsWith(".xls") || lcFileName.endsWith(".xlsx") || lcFileName.endsWith(".xlsm"));
     }
@@ -20,7 +20,7 @@ public final class FileTypeHelper {
         if (fileName == null) {
             return false;
         }
-        String lcFileName = fileName.toLowerCase(Locale.ROOT);
+        var lcFileName = fileName.toLowerCase(Locale.ROOT);
         return lcFileName.endsWith(".zip");
     }
 
@@ -28,7 +28,7 @@ public final class FileTypeHelper {
         if (fileName == null) {
             return false;
         }
-        String lcFileName = fileName.toLowerCase(Locale.ROOT);
+        var lcFileName = fileName.toLowerCase(Locale.ROOT);
         return lcFileName.endsWith(".json") || lcFileName.endsWith(".yml") || lcFileName
                 .endsWith(".yaml");
     }

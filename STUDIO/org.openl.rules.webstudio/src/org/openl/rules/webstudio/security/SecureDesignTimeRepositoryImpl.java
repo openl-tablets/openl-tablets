@@ -73,7 +73,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
 
     @Override
     public AProject getProject(String repositoryId, String name) throws ProjectException {
-        AProject project = designTimeRepository.getProject(repositoryId, name);
+        var project = designTimeRepository.getProject(repositoryId, name);
         if (designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
             return project;
         }
@@ -82,7 +82,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
 
     @Override
     public AProject getProject(String repositoryId, String name, CommonVersion version) {
-        AProject project = designTimeRepository.getProject(repositoryId, name, version);
+        var project = designTimeRepository.getProject(repositoryId, name, version);
         if (designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
             return project;
         }
@@ -94,7 +94,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
                                      String branch,
                                      String path,
                                      String version) throws IOException {
-        AProject project = designTimeRepository.getProjectByPath(repositoryId, branch, path, version);
+        var project = designTimeRepository.getProjectByPath(repositoryId, branch, path, version);
         if (designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
             return project;
         }

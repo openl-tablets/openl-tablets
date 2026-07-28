@@ -19,15 +19,11 @@ import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
@@ -76,9 +72,9 @@ public class Migrator {
 
     public static void migrate() {
         DynamicPropertySource settings = DynamicPropertySource.get();
-        HashMap<String, String> props = new HashMap<>();
+        var props = new HashMap<String, String>();
 
-        String fromVersion = settings.version();
+        var fromVersion = settings.version();
         String stringFromVersion = fromVersion == null ? "5.23.1" : fromVersion;
 
         // add subsequent migrations in order of priority
@@ -141,7 +137,7 @@ public class Migrator {
         if (!Files.isDirectory(workspacesRoot)) {
             return;
         }
-        try (Stream<Path> userDirs = Files.list(workspacesRoot)) {
+        try (var userDirs = Files.list(workspacesRoot)) {
             userDirs.filter(Files::isDirectory)
                     .filter(dir -> !dir.getFileName().toString().startsWith("."))
                     .forEach(Migrator::migrateUserWorkspace);
@@ -151,7 +147,7 @@ public class Migrator {
     }
 
     private static void migrateUserWorkspace(Path userDir) {
-        try (Stream<Path> projectDirs = Files.list(userDir)) {
+        try (var projectDirs = Files.list(userDir)) {
             projectDirs.filter(Files::isDirectory)
                     .filter(dir -> !dir.getFileName().toString().startsWith("."))
                     .forEach(projectDir -> migrateProjectMetainfo(userDir, projectDir));
@@ -161,13 +157,13 @@ public class Migrator {
     }
 
     private static void migrateProjectMetainfo(Path userDir, Path projectDir) {
-        String projectName = projectDir.getFileName().toString();
+        var projectName = projectDir.getFileName().toString();
         if (MetainfoRegistry.exists(userDir, projectName)) {
             // Already migrated. A repeated run must not degrade the record to a local project.
             return;
         }
         try {
-            Path studioProps = projectDir.resolve(".studioProps");
+            var studioProps = projectDir.resolve(".studioProps");
             var metainfo = legacyMetainfo(studioProps.resolve(".version"),
                     legacyBaselines(studioProps.resolve("file-properties")));
             if (metainfo == null) {
@@ -199,7 +195,7 @@ public class Migrator {
             log.warn("The '{}' file is unreadable.", versionFile, e);
             return null;
         }
-        String repositoryId = properties.get("repository-id");
+        var repositoryId = properties.get("repository-id");
         if (repositoryId == null) {
             return null;
         }
@@ -219,7 +215,7 @@ public class Migrator {
         if (!Files.isDirectory(filePropertiesDir)) {
             return baselines;
         }
-        try (Stream<Path> stream = Files.walk(filePropertiesDir)) {
+        try (var stream = Files.walk(filePropertiesDir)) {
             for (Path file : (Iterable<Path>) stream.filter(Files::isRegularFile)::iterator) {
                 var baseline = legacyBaseline(file);
                 if (baseline != null) {
@@ -283,7 +279,7 @@ public class Migrator {
     }
 
     private static void removeProjectIndexFiles(DynamicPropertySource settings) {
-        String locksRoot = settings.getProperty("repository.settings.locks.root");
+        var locksRoot = settings.getProperty("repository.settings.locks.root");
         if (locksRoot == null || StringUtils.isBlank(locksRoot)) {
             return;
         }
@@ -299,7 +295,7 @@ public class Migrator {
             }
             return path.getFileName().toString().equals("openl-projects.yaml");
         };
-        try (Stream<Path> paths = Files.find(locksPath, Integer.MAX_VALUE, matcher)) {
+        try (var paths = Files.find(locksPath, Integer.MAX_VALUE, matcher)) {
             paths.forEach(FileUtils::deleteQuietly);
         } catch (IOException e) {
             log.error("Error while removing openl-projects.yaml files from locks folder: {}", locksPath, e);
@@ -311,10 +307,10 @@ public class Migrator {
                 .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX)
                         && propertyName.endsWith(LOCAL_REPO_PATH_SUFFIX))
                 .forEach(localRepositoryPathProperty -> {
-                    int start = REPOSITORY_PREFIX.length();
-                    int end = localRepositoryPathProperty.length() - LOCAL_REPO_PATH_SUFFIX.length();
-                    String repositoryId = localRepositoryPathProperty.substring(start, end);
-                    String uriPropName = REPOSITORY_PREFIX + repositoryId + ".uri";
+                    var start = REPOSITORY_PREFIX.length();
+                    var end = localRepositoryPathProperty.length() - LOCAL_REPO_PATH_SUFFIX.length();
+                    var repositoryId = localRepositoryPathProperty.substring(start, end);
+                    var uriPropName = REPOSITORY_PREFIX + repositoryId + ".uri";
                     var uri = settings.getProperty(uriPropName);
                     if (StringUtils.isEmpty(uri)) {
                         var localRepositoryPathValue = settings.getProperty(localRepositoryPathProperty);
@@ -330,14 +326,14 @@ public class Migrator {
     }
 
     private static void migrateRepositoryFactories(DynamicPropertySource settings, HashMap<String, String> props) {
-        String factorySuffix = ".factory";
+        var factorySuffix = ".factory";
 
         Arrays.stream(settings.getPropertyNames())
                 .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && propertyName.endsWith(factorySuffix))
                 .forEach(factoryKey -> {
                     var factory = settings.getProperty(factoryKey);
                     if (StringUtils.isNotBlank(factory)) {
-                        String refKey = factoryKey.substring(0, factoryKey.length() - factorySuffix.length()) + ".$ref";
+                        var refKey = factoryKey.substring(0, factoryKey.length() - factorySuffix.length()) + ".$ref";
                         props.put(refKey, RepositoryInstatiator.getRefID(factory));
                         props.put(factoryKey, null);
                     }
@@ -347,14 +343,14 @@ public class Migrator {
     private static void migrateProductionRepository(DynamicPropertySource settings, HashMap<String, String> props) {
         // Production repository was mandatory in previous versions. In a new version defaults for it were removed.
 
-        final String configListProp = "production-repository-configs";
+        final var configListProp = "production-repository-configs";
         // Absent production repository configs assumes default setting: production-repository-configs = production
         var configList = settings.getProperty(configListProp);
 
         // Another case: production-repository-configs = production, production1, production2
-        List<String> repositories = Optional.ofNullable(configList).map(s -> Arrays
+        var repositories = Optional.ofNullable(configList).map(s -> Arrays
                 .asList(StringUtils.split(s, ','))).orElse(Collections.emptyList());
-        boolean severalReposIncludingProduction = repositories.size() > 1 && repositories
+        var severalReposIncludingProduction = repositories.size() > 1 && repositories
                 .contains("production");
 
         // Default Repository URI and Factory in the previous 5.26.0 version
@@ -362,7 +358,7 @@ public class Migrator {
         final var defaultFactory = "repo-jdbc";
 
         // Check, if URI for repository with id "production" was changed
-        String repoUriProp = "repository.production.uri";
+        var repoUriProp = "repository.production.uri";
         var uri = settings.getProperty(repoUriProp);
         var factory = settings.getProperty("repository.production.factory");
 
@@ -380,7 +376,7 @@ public class Migrator {
                 props.put(configListProp, "production");
             }
 
-            final String repoNameProp = "repository.production.name";
+            final var repoNameProp = "repository.production.name";
             if (!settings.containsProperty(repoNameProp)) {
                 // Restore default repository name
                 props.put(repoNameProp, "Deployment");
@@ -450,7 +446,7 @@ public class Migrator {
         // migrate branches and project properties to branches.yaml if repoType is Git
         var designRepo = settings.getProperty("repository.design.local-repository-path");
         var designRepoPath = designRepo != null ? designRepo : Props.text("openl.home") + "/design-repository";
-        Map<String, String> nonFlatProjectPaths = loadProjectsPathes(designRepoPath);
+        var nonFlatProjectPaths = loadProjectsPathes(designRepoPath);
         writeProjectPathesToYAML(nonFlatProjectPaths);
         migrateBranchesProps(nonFlatProjectPaths);
 
@@ -462,16 +458,16 @@ public class Migrator {
     }
 
     private static Map<String, String> loadProjectsPathes(String designRepo) {
-        Map<String, String> projectPathMap = new HashMap<>();
+        var projectPathMap = new HashMap<String, String>();
         Path projectProperties = Path.of(designRepo, "openl-projects.properties");
         if (Files.isRegularFile(projectProperties)) {
             try {
                 var projectProps = new HashMap<String, String>();
                 PropertiesUtils.load(projectProperties, projectProps::put);
-                int projectsCount = projectProps.size() / 2;
-                for (int i = 1; i <= projectsCount; i++) {
-                    String name = projectProps.get("project." + i + ".name");
-                    String path = projectProps.get("project." + i + ".path");
+                var projectsCount = projectProps.size() / 2;
+                for (var i = 1; i <= projectsCount; i++) {
+                    var name = projectProps.get("project." + i + ".name");
+                    var path = projectProps.get("project." + i + ".path");
                     projectPathMap.put(name, path);
                 }
             } catch (IOException e) {
@@ -485,7 +481,7 @@ public class Migrator {
         if (Props.bool("project.history.unlimited")) {
             props.put("project.history.count", ""); // Define unlimited
         }
-        String runTestParallel = settings.getProperty("test.run.parallel");
+        var runTestParallel = settings.getProperty("test.run.parallel");
         if (runTestParallel != null && !Boolean.parseBoolean(runTestParallel)) {
             props.put("test.run.thread.count", "1");
         }
@@ -503,7 +499,7 @@ public class Migrator {
         // migrate design new-branch-pattern
         var desNewBranchPattern = settings.getProperty("repository.design.new-branch-pattern");
         if (desNewBranchPattern != null) {
-            String migratedNewBranchPattern = desNewBranchPattern
+            var migratedNewBranchPattern = desNewBranchPattern
                     .replace("{0}", "{project-name}")
                     .replace("{1}", "{username}")
                     .replace("{2}", "{current-date}");
@@ -532,7 +528,7 @@ public class Migrator {
                                String oldKey,
                                String newKey) {
         if (settings.containsProperty(oldKey)) {
-            String value = (String) settings.getProperty(oldKey);
+            var value = (String) settings.getProperty(oldKey);
             props.put(oldKey, null);
             props.put(newKey, value);
         }
@@ -547,10 +543,10 @@ public class Migrator {
             Files.walkFileTree(workspace, EnumSet.noneOf(FileVisitOption.class), 3, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    Path version = dir.resolve(".studioProps/.version");
+                    var version = dir.resolve(".studioProps/.version");
                     if (Files.isRegularFile(version)) {
-                        String prName = dir.getFileName().toString();
-                        String projectPath = nonFlatProjectPaths.getOrDefault(prName, "DESIGN/rules/" + prName);
+                        var prName = dir.getFileName().toString();
+                        var projectPath = nonFlatProjectPaths.getOrDefault(prName, "DESIGN/rules/" + prName);
                         Files.write(version,
                                 ("\nrepository-id=design\npath-in-repository=" + projectPath + "\n").getBytes(),
                                 StandardOpenOption.APPEND);
@@ -569,17 +565,17 @@ public class Migrator {
             try {
                 var branchProps = new HashMap<String, String>();
                 PropertiesUtils.load(branchesProperties, branchProps::put);
-                String numStr = branchProps.get("projects.number");
-                BranchesData branches = new BranchesData();
+                var numStr = branchProps.get("projects.number");
+                var branches = new BranchesData();
                 if (numStr != null) {
-                    int num = Integer.parseInt(numStr);
-                    for (int i = 1; i <= num; i++) {
-                        String name = branchProps.get("project." + i + ".name");
-                        String branchesStr = branchProps.get("project." + i + ".branches");
+                    var num = Integer.parseInt(numStr);
+                    for (var i = 1; i <= num; i++) {
+                        var name = branchProps.get("project." + i + ".name");
+                        var branchesStr = branchProps.get("project." + i + ".branches");
                         if (StringUtils.isBlank(name) || StringUtils.isBlank(branchesStr)) {
                             continue;
                         }
-                        String namePath = projectPathMap.getOrDefault(name, "DESIGN/rules/" + name);
+                        var namePath = projectPathMap.getOrDefault(name, "DESIGN/rules/" + name);
                         for (String branch : branchesStr.split(",")) {
                             branches.addBranch(namePath, branch, null);
                         }
@@ -598,11 +594,11 @@ public class Migrator {
             return;
         }
 
-        List<ProjectInfo> projects = new ArrayList<>(projectPathMap.size());
+        var projects = new ArrayList<ProjectInfo>(projectPathMap.size());
         for (Map.Entry<String, String> entry : projectPathMap.entrySet()) {
             projects.add(new ProjectInfo(entry.getKey(), entry.getValue()));
         }
-        ProjectIndex index = new ProjectIndex();
+        var index = new ProjectIndex();
         index.setProjects(projects);
         Path config = Path.of(Props.text("openl.home"), "repositories/settings/design/openl-projects.yaml");
         createYaml(index, config);
@@ -625,16 +621,16 @@ public class Migrator {
                 Files.walkFileTree(projectLocks, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        Path lockPath = projectLocks.relativize(file);
-                        String branchName = "";
+                        var lockPath = projectLocks.relativize(file);
+                        var branchName = "";
                         // if lockPath does not contains lockBranchPath - repository has no branches
                         if (lockPath.startsWith("branches/")) {
                             // ./branches/{Project Name}/{branch/name}/{Project Name}
-                            Path branchPath = lockPath.subpath(2, lockPath.getNameCount() - 1);
+                            var branchPath = lockPath.subpath(2, lockPath.getNameCount() - 1);
                             branchName = "[branches]/" + branchPath;
                         }
-                        String projectName = lockPath.getFileName().toString();
-                        String projectPath = projectPathMap.getOrDefault(projectName, "/DESIGN/rules/" + projectName);
+                        var projectName = lockPath.getFileName().toString();
+                        var projectPath = projectPathMap.getOrDefault(projectName, "/DESIGN/rules/" + projectName);
                         Path newLock = Path.of(Props.text(AdministrationSettings.USER_WORKSPACE_HOME),
                                 ".locks/projects/design",
                                 projectPath,
@@ -652,7 +648,7 @@ public class Migrator {
     }
 
     private static <T> T runInSession(SessionFactory sessionFactory, Function<Session, T> consumer) {
-        try (Session session = sessionFactory.openSession()) {
+        try (var session = sessionFactory.openSession()) {
             return consumer.apply(session);
         }
     }
@@ -662,7 +658,7 @@ public class Migrator {
             //webstudio is not configured, skipping migration
             return;
         }
-        SessionFactory sessionFactory = (SessionFactory) applicationContext.getBean("openlSessionFactory");
+        var sessionFactory = (SessionFactory) applicationContext.getBean("openlSessionFactory");
         var allOpenLProjects = runInSession(sessionFactory, Migrator::readAllProjectsAndTags);
         if (!allOpenLProjects.isEmpty()) {
             var migrationUserInfo = createMigrationUserInfo(applicationContext.getEnvironment());
@@ -682,15 +678,15 @@ public class Migrator {
     }
 
     private static UserInfo createMigrationUserInfo(Environment environment) {
-        String migrationUsername = environment.getProperty(MIGRATION_USER_NAME_PROPERTY, "Studio Migration");
-        String migrationUserEmail = environment.getProperty(MIGRATION_USER_EMAIL_PROPERTY, "");
+        var migrationUsername = environment.getProperty(MIGRATION_USER_NAME_PROPERTY, "Studio Migration");
+        var migrationUserEmail = environment.getProperty(MIGRATION_USER_EMAIL_PROPERTY, "");
         return new UserInfo(migrationUsername, migrationUserEmail, migrationUsername);
     }
 
     @SuppressWarnings("deprecation")
     private static Void deleteProjectTagsInDB(Session session, Long id) {
-        Transaction transaction = session.beginTransaction();
-        OpenLProject openLProject = session.get(OpenLProject.class, id);
+        var transaction = session.beginTransaction();
+        var openLProject = session.get(OpenLProject.class, id);
         session.remove(openLProject);
         transaction.commit();
         return null;
@@ -698,8 +694,8 @@ public class Migrator {
 
     @SuppressWarnings("deprecation")
     private static List<OpenLProjectWithTags> readAllProjectsAndTags(Session session) {
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<OpenLProject> cq = cb.createQuery(OpenLProject.class);
+        var cb = session.getCriteriaBuilder();
+        var cq = cb.createQuery(OpenLProject.class);
         cq.from(OpenLProject.class);
         return session.createQuery(cq).getResultList()
                 .stream()

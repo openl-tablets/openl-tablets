@@ -33,17 +33,17 @@ class String2ArrayConvertor<C, T> implements IString2DataConvertor<T>, IString2D
         }
 
         String[] elementValues = ArraySplitter.split(data);
-        T resultArray = (T) Array.newInstance(componentType, elementValues.length);
+        var resultArray = (T) Array.newInstance(componentType, elementValues.length);
 
-        IString2DataConvertor<C> converter = String2DataConvertorFactory.getConvertor(componentType);
-        int i = 0;
+        var converter = String2DataConvertorFactory.<C>getConvertor(componentType);
+        var i = 0;
         for (String elementValue : elementValues) {
             Object element;
             if (elementValue == null || elementValue.length() == 0) {
                 element = null;
             } else {
                 if (cxt != null && converter instanceof IString2DataConverterWithContext) {
-                    IString2DataConverterWithContext<C> convertorCxt = (IString2DataConverterWithContext<C>) converter;
+                    var convertorCxt = (IString2DataConverterWithContext<C>) converter;
                     element = convertorCxt.parse(elementValue, format, cxt);
                 } else {
                     element = converter.parse(elementValue, format);

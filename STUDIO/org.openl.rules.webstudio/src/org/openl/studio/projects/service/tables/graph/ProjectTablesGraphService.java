@@ -127,9 +127,9 @@ public class ProjectTablesGraphService {
                 : model.getAllMethodNodesDictionary();
         var formats = WebStudioFormats.getInstance();
 
-        Map<String, RawNode> nodes = new LinkedHashMap<>();
-        Map<String, String> candidateToDispatcher = new LinkedHashMap<>();
-        Deque<IOpenMethod> queue = new ArrayDeque<>(methods);
+        var nodes = new LinkedHashMap<String, RawNode>();
+        var candidateToDispatcher = new LinkedHashMap<String, String>();
+        var queue = new ArrayDeque<IOpenMethod>(methods);
         while (!queue.isEmpty()) {
             var method = queue.poll();
             if (method instanceof OpenMethodDispatcher dispatcher) {
@@ -278,7 +278,7 @@ public class ProjectTablesGraphService {
      */
     private static Map<String, String> dimensionProperties(ExecutableMethod rulesMethod) {
         var properties = PropertiesHelper.getTableProperties(rulesMethod);
-        Map<String, String> dimensions = new LinkedHashMap<>();
+        var dimensions = new LinkedHashMap<String, String>();
         TablePropertyDefinitionUtils.getDimensionalTableProperties().forEach(definition -> {
             var value = properties.getPropertyValueAsString(definition.getName());
             if (StringUtils.isNotEmpty(value)) {
@@ -301,14 +301,14 @@ public class ProjectTablesGraphService {
                                   String rootTableId,
                                   GraphDirection direction,
                                   @Nullable Integer maxDepth) {
-        Set<String> visited = new LinkedHashSet<>();
+        var visited = new LinkedHashSet<String>();
         if (!nodes.containsKey(rootTableId)) {
             return visited;
         }
         visited.add(rootTableId);
-        Deque<String> frontier = new ArrayDeque<>();
+        var frontier = new ArrayDeque<String>();
         frontier.add(rootTableId);
-        for (int depth = 0; !frontier.isEmpty() && (maxDepth == null || depth < maxDepth); depth++) {
+        for (var depth = 0; !frontier.isEmpty() && (maxDepth == null || depth < maxDepth); depth++) {
             expandFrontier(nodes, frontier, visited, direction);
         }
         return visited;
@@ -318,7 +318,7 @@ public class ProjectTablesGraphService {
                                 Deque<String> frontier,
                                 Set<String> visited,
                                 GraphDirection direction) {
-        for (int size = frontier.size(); size > 0; size--) {
+        for (var size = frontier.size(); size > 0; size--) {
             var node = nodes.get(frontier.poll());
             if (node != null) {
                 neighbours(node, direction).stream()
@@ -330,7 +330,7 @@ public class ProjectTablesGraphService {
     }
 
     private Set<String> neighbours(RawNode node, GraphDirection direction) {
-        Set<String> neighbours = new LinkedHashSet<>();
+        var neighbours = new LinkedHashSet<String>();
         if (direction.includesDependencies()) {
             neighbours.addAll(node.dependencies());
         }

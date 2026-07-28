@@ -31,7 +31,7 @@ public class SessionTimeoutFilter implements Filter {
     public void doFilter(ServletRequest servletRequest,
                          ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        var request = (HttpServletRequest) servletRequest;
         if (excludePages != null && excludePages.length > 0) {
             for (String excludePage : excludePages) {
                 if (!excludePage.equals("") && request.getRequestURL().indexOf(excludePage) > -1) {
@@ -42,8 +42,8 @@ public class SessionTimeoutFilter implements Filter {
         }
 
         if (request.isRequestedSessionIdValid() && request.getSession(false) == null) {
-            HttpServletResponse response = (HttpServletResponse) servletResponse;
-            String redirectUrl = request.getContextPath() + redirectPage;
+            var response = (HttpServletResponse) servletResponse;
+            var redirectUrl = request.getContextPath() + redirectPage;
             log.info("Session Expired: redirect to {} page", redirectPage);
 
             // Handle Ajax requests
@@ -66,7 +66,7 @@ public class SessionTimeoutFilter implements Filter {
             redirectPage = "";
             log.warn("Session Timeout filter: could not get an initial parameter 'redirectPage'");
         }
-        String excludePagesStr = filterConfig.getInitParameter("excludePages");
+        var excludePagesStr = filterConfig.getInitParameter("excludePages");
         if (excludePagesStr != null) {
             excludePages = excludePagesStr.split(",");
         }

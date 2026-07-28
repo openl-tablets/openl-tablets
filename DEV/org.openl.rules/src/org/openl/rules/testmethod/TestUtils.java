@@ -1,9 +1,6 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import org.openl.rules.context.IRulesRuntimeContext;
 
 public final class TestUtils {
 
@@ -11,13 +8,13 @@ public final class TestUtils {
     }
 
     public static ParameterWithValueDeclaration[] getContextParams(TestSuite test, TestDescription testCase) {
-        List<ParameterWithValueDeclaration> params = new ArrayList<>();
+        var params = new ArrayList<ParameterWithValueDeclaration>();
 
-        IRulesRuntimeContext context = testCase.getRuntimeContext();
-        TestSuiteMethod testMethod = test.getTestSuiteMethod();
+        var context = testCase.getRuntimeContext();
+        var testMethod = test.getTestSuiteMethod();
         if (testMethod != null) {
-            for (int i = 0; i < testMethod.getColumnsCount(); i++) {
-                String columnName = testMethod.getColumnName(i);
+            for (var i = 0; i < testMethod.getColumnsCount(); i++) {
+                var columnName = testMethod.getColumnName(i);
                 if (columnName != null && columnName.startsWith(TestMethodHelper.CONTEXT_NAME)) {
 
                     Object value = context != null ? context

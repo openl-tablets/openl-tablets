@@ -60,7 +60,7 @@ public class StyleTrackingListener implements HSSFListener {
      * @return the index of the format string
      */
     public int getFormatIndex(CellValueRecordInterface cell) {
-        ExtendedFormatRecord xfr = extendedFormats.get(cell.getXFIndex());
+        var xfr = extendedFormats.get(cell.getXFIndex());
         if (xfr == null) {
             return -1;
         }
@@ -68,7 +68,7 @@ public class StyleTrackingListener implements HSSFListener {
     }
 
     public short getIndent(CellValueRecordInterface cell) {
-        ExtendedFormatRecord xfr = extendedFormats.get(cell.getXFIndex());
+        var xfr = extendedFormats.get(cell.getXFIndex());
         return xfr == null ? 0 : xfr.getIndent();
     }
 

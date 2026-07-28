@@ -25,17 +25,17 @@ public class OpenAPIHelper {
     public InputStream generateAlgorithmsModule(final List<SpreadsheetModel> spreadsheetModels,
                                                 final List<DataModel> dataModels,
                                                 final EnvironmentModel environmentModel) throws IOException {
-        try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
+        try (var sos = new ByteArrayOutputStream()) {
             ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
-            byte[] sprBytes = sos.toByteArray();
+            var sprBytes = sos.toByteArray();
             return new ByteArrayInputStream(sprBytes);
         }
     }
 
     public InputStream generateDataTypesFile(final Set<DatatypeModel> datatypeModels) throws IOException {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+        try (var bos = new ByteArrayOutputStream()) {
             ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
-            byte[] dtBytes = bos.toByteArray();
+            var dtBytes = bos.toByteArray();
             return new ByteArrayInputStream(dtBytes);
         }
     }
@@ -43,7 +43,7 @@ public class OpenAPIHelper {
     public InputStream editOrCreateRulesDeploy(final ProjectModel projectModel,
                                                final OpenAPIGeneratedClasses generated,
                                                RulesDeploy exitingRulesDeploy) throws IOException {
-        boolean fileExists = exitingRulesDeploy != null;
+        var fileExists = exitingRulesDeploy != null;
         RulesDeploy rd = fileExists ? exitingRulesDeploy : new RulesDeploy();
         if (generated.hasAnnotationTemplateClass()) {
             rd.setAnnotationTemplateClassName(generated.getAnnotationTemplateGroovyFile().getNameWithPackage());

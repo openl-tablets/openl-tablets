@@ -46,7 +46,7 @@ public class OpenL {
         var varFactory = librariesRegistry.asVarFactory();
         var typeFactory = new TypeResolver(OpenL.class.getClassLoader());
 
-        OpenL op = new OpenL();
+        var op = new OpenL();
         op.setParser(new Parser());
         op.setBinder(new Binder(methodFactory, castFactory, varFactory, typeFactory, op));
         op.setVm(new SimpleRulesVM());

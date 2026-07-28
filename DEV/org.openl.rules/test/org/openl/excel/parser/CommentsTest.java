@@ -15,8 +15,8 @@ class CommentsTest {
 
     @Test
     void commentWithDomInXls() {
-        try (ExcelReader reader = ExcelReaderFactory.fullReadFactory().create(XLS)) {
-            ICellComment comment = readComment(reader);
+        try (var reader = ExcelReaderFactory.fullReadFactory().create(XLS)) {
+            var comment = readComment(reader);
 
             assertNotNull(comment);
             assertEquals("First comment", comment.getText());
@@ -25,8 +25,8 @@ class CommentsTest {
 
     @Test
     void commentWithDomInXlsx() {
-        try (ExcelReader reader = ExcelReaderFactory.fullReadFactory().create(XLSX)) {
-            ICellComment comment = readComment(reader);
+        try (var reader = ExcelReaderFactory.fullReadFactory().create(XLSX)) {
+            var comment = readComment(reader);
 
             assertNotNull(comment);
             assertEquals("First comment", comment.getText());
@@ -35,8 +35,8 @@ class CommentsTest {
 
     @Test
     void commentWithSaxInXls() {
-        try (ExcelReader reader = ExcelReaderFactory.sequentialFactory().create(XLS)) {
-            ICellComment comment = readComment(reader);
+        try (var reader = ExcelReaderFactory.sequentialFactory().create(XLS)) {
+            var comment = readComment(reader);
 
             assertNotNull(comment);
             assertEquals("First comment", comment.getText());
@@ -45,8 +45,8 @@ class CommentsTest {
 
     @Test
     void commentWithSaxInXlsx() {
-        try (ExcelReader reader = ExcelReaderFactory.sequentialFactory().create(XLSX)) {
-            ICellComment comment = readComment(reader);
+        try (var reader = ExcelReaderFactory.sequentialFactory().create(XLSX)) {
+            var comment = readComment(reader);
 
             assertNotNull(comment);
             assertEquals("First comment", comment.getText());
@@ -54,7 +54,7 @@ class CommentsTest {
     }
 
     private ICellComment readComment(ExcelReader reader) {
-        TableStyles styles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(0, 0, 6, 3));
+        var styles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(0, 0, 6, 3));
         return styles.getComment(5, 1);
     }
 }

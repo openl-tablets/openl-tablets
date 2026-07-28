@@ -52,7 +52,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         this.delegate = delegate;
         this.syncUserData = syncUserData;
         this.privilegeMapper = privilegeMapper;
-        String domainProperty = propertyResolver.getProperty("security.ad.domain");
+        var domainProperty = propertyResolver.getProperty("security.ad.domain");
         this.domain = StringUtils.isNotBlank(domainProperty) ? domainProperty.toLowerCase() : null;
         this.url = propertyResolver.getProperty("security.ad.server-url");
         this.searchFilter = propertyResolver.getProperty("security.ad.search-filter");
@@ -65,23 +65,23 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     public UserDetails mapUserFromContext(DirContextOperations ctx,
                                           String username,
                                           Collection<? extends GrantedAuthority> authorities) {
-        UserDetails userDetails = delegate.mapUserFromContext(ctx, username, authorities);
+        var userDetails = delegate.mapUserFromContext(ctx, username, authorities);
 
-        String firstName = ctx.getStringAttribute("givenName");
-        String lastName = ctx.getStringAttribute("sn");
-        String email = ctx.getStringAttribute("mail");
-        String displayName = ctx.getStringAttribute("displayName");
+        var firstName = ctx.getStringAttribute("givenName");
+        var lastName = ctx.getStringAttribute("sn");
+        var email = ctx.getStringAttribute("mail");
+        var displayName = ctx.getStringAttribute("displayName");
         if (StringUtils.isBlank(displayName)) {
             displayName = ctx.getStringAttribute("cn");
         }
 
-        Collection<? extends GrantedAuthority> userAuthorities = getAuthorities(ctx,
+        var userAuthorities = getAuthorities(ctx,
                 username,
                 userDetails.getAuthorities());
 
-        String fixedUsername = fixCaseMatching(ctx, username);
+        var fixedUsername = fixCaseMatching(ctx, username);
 
-        SimpleUser simpleUser = SimpleUser.builder()
+        var simpleUser = SimpleUser.builder()
                 .setFirstName(firstName)
                 .setLastName(lastName)
                 .setUsername(fixedUsername)
@@ -92,25 +92,25 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
 
         syncUserData.accept(simpleUser);
 
-        Collection<GrantedAuthority> privileges = privilegeMapper.apply(fixedUsername, userAuthorities);
+        var privileges = privilegeMapper.apply(fixedUsername, userAuthorities);
 
         return SimpleUser.builder(simpleUser).setPrivileges(privileges).build();
     }
 
     private String fixCaseMatching(DirContextOperations ctx, String username) {
-        String userPrincipalName = ctx.getStringAttribute("userPrincipalName");
+        var userPrincipalName = ctx.getStringAttribute("userPrincipalName");
         if (username.equalsIgnoreCase(userPrincipalName)) {
             return userPrincipalName;
         }
-        String sAMAccountName = ctx.getStringAttribute("sAMAccountName");
+        var sAMAccountName = ctx.getStringAttribute("sAMAccountName");
         if (username.equalsIgnoreCase(sAMAccountName)) {
             return sAMAccountName;
         }
-        String uid = ctx.getStringAttribute("uid");
+        var uid = ctx.getStringAttribute("uid");
         if (username.equalsIgnoreCase(uid)) {
             return uid;
         }
-        String krbPrincipalName = ctx.getStringAttribute("krbPrincipalName");
+        var krbPrincipalName = ctx.getStringAttribute("krbPrincipalName");
         if (username.equalsIgnoreCase(krbPrincipalName)) {
             return krbPrincipalName;
         }
@@ -149,14 +149,14 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
                                                                        String username,
                                                                        String password) {
         try {
-            String bindPrincipal = createBindPrincipal(username);
+            var bindPrincipal = createBindPrincipal(username);
             String searchRoot = rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal);
 
-            DirContext context = bindAsUser(bindPrincipal, password);
+            var context = bindAsUser(bindPrincipal, password);
 
-            SearchControls searchControls = new SearchControls();
+            var searchControls = new SearchControls();
             searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            DistinguishedName searchBaseDn = new DistinguishedName(searchRoot);
+            var searchBaseDn = new DistinguishedName(searchRoot);
 
             // This search must be done using DirContext with java.naming.ldap.attributes.binary attribute is set to
             // "objectSid" because in current implementation of ActiveDirectoryLdapAuthenticationProvider the object
@@ -177,11 +177,11 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
                     searchControls);
 
             // Fill authorities using search result
-            ArrayList<GrantedAuthority> authorities = new ArrayList<>();
+            var authorities = new ArrayList<GrantedAuthority>();
             try {
                 while (groupsSearch.hasMore()) {
-                    SearchResult searchResult = groupsSearch.next();
-                    DistinguishedName dn = new DistinguishedName(new CompositeName(searchResult.getName()));
+                    var searchResult = groupsSearch.next();
+                    var dn = new DistinguishedName(new CompositeName(searchResult.getName()));
 
                     if (!searchRoot.isEmpty()) {
                         dn.prepend(searchBaseDn);
@@ -202,7 +202,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     }
 
     private DirContext bindAsUser(String bindPrincipal, String password) throws NamingException {
-        Hashtable<String, String> env = new Hashtable<>();
+        var env = new Hashtable<String, String>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.SECURITY_PRINCIPAL, bindPrincipal);
         env.put(Context.PROVIDER_URL, url);
@@ -216,10 +216,10 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     }
 
     private String searchRootFromPrincipal(String bindPrincipal) throws NamingException {
-        int atChar = bindPrincipal.lastIndexOf('@');
+        var atChar = bindPrincipal.lastIndexOf('@');
 
         if (atChar < 0) {
-            String message = "User principal '" + bindPrincipal + "' does not contain the domain, and no domain has been configured";
+            var message = "User principal '" + bindPrincipal + "' does not contain the domain, and no domain has been configured";
             log.error(message);
             throw new ConfigurationException(message);
         }
@@ -229,7 +229,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
 
     private String rootDnFromDomain(String domain) {
         String[] tokens = org.springframework.util.StringUtils.tokenizeToStringArray(domain, ".");
-        StringBuilder root = new StringBuilder();
+        var root = new StringBuilder();
 
         for (String token : tokens) {
             if (root.length() > 0) {

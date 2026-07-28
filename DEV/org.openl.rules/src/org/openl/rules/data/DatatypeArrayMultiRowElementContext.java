@@ -14,7 +14,7 @@ public class DatatypeArrayMultiRowElementContext {
     private boolean rowValueIsTheSameAsPrevious;
 
     public int getIndex(String array, Object target) {
-        Map<Integer, Pair<Integer, Object>> a = arrayIndexes.computeIfAbsent(array, k -> new HashMap<>());
+        var a = arrayIndexes.computeIfAbsent(array, k -> new HashMap<>());
         Pair<Integer, Object> index = a.get(getRow());
         if (index != null) {
             return index.getLeft();

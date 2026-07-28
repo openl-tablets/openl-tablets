@@ -29,7 +29,6 @@ import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.BiMap;
 import org.openl.util.MessageUtils;
@@ -112,13 +111,13 @@ public class Table implements ITable {
 
     @Override
     public String getColumnName(int n) {
-        ColumnDescriptor columnDescriptor = dataModel.getDescriptor(n);
+        var columnDescriptor = dataModel.getDescriptor(n);
         return columnDescriptor != null ? columnDescriptor.getName() : null;
     }
 
     @Override
     public IOpenClass getColumnType(int n) {
-        ColumnDescriptor descriptor = dataModel.getDescriptor(n);
+        var descriptor = dataModel.getDescriptor(n);
 
         if (!descriptor.isConstructor()) {
             return descriptor.getType();
@@ -197,8 +196,8 @@ public class Table implements ITable {
 
     @Override
     public Object getValue(int col, int row) {
-        int startRows = getStartRowForData();
-        int idx = row - startRows;
+        var startRows = getStartRowForData();
+        var idx = row - startRows;
         Object rowObject = rowIndexMap == null ? Array.get(dataArray, idx) : rowIndexMap.get(idx);
 
         return dataModel.getDescriptor(col).getColumnValue(rowObject);
@@ -206,15 +205,15 @@ public class Table implements ITable {
 
     @Override
     public Map<String, Integer> makeUniqueIndex(int colIdx, IBindingContext cxt) {
-        Map<String, Integer> index = new HashMap<>();
+        var index = new HashMap<String, Integer>();
 
         if (dataIdxToTableRowNum == null || dataIdxToTableRowNum.isEmpty()) {
             return Collections.emptyMap();
         }
 
         for (Map.Entry<Integer, Integer> entry : dataIdxToTableRowNum.entrySet()) {
-            IGridTable gridTable = logicalTable.getSubtable(colIdx, entry.getValue(), 1, 1).getSource();
-            String key = gridTable.getCell(0, 0).getStringValue();
+            var gridTable = logicalTable.getSubtable(colIdx, entry.getValue(), 1, 1).getSource();
+            var key = gridTable.getCell(0, 0).getStringValue();
 
             if (key == null) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(MessageUtils.EMPTY_UNQ_IDX_KEY,
@@ -250,8 +249,8 @@ public class Table implements ITable {
 
         for (Map.Entry<Integer, Integer> entry : dataIdxToTableRowNum.entrySet()) {
 
-            IGridTable gridTable = logicalTable.getSubtable(colIdx, entry.getValue(), 1, 1).getSource();
-            Object value = gridTable.getCell(0, 0).getObjectValue();
+            var gridTable = logicalTable.getSubtable(colIdx, entry.getValue(), 1, 1).getSource();
+            var value = gridTable.getCell(0, 0).getObjectValue();
 
             if (value == null) {
                 throw SyntaxNodeExceptionUtils.createError(MessageUtils.EMPTY_UNQ_IDX_KEY,
@@ -271,22 +270,22 @@ public class Table implements ITable {
     @Override
     public void populate(IDataBase dataBase, IBindingContext bindingContext) throws Exception {
 
-        int rows = logicalTable.getHeight();
-        int columns = logicalTable.getWidth();
+        var rows = logicalTable.getHeight();
+        var columns = logicalTable.getWidth();
 
-        boolean hasError = validateOnErrors(bindingContext, dataBase, columns);
+        var hasError = validateOnErrors(bindingContext, dataBase, columns);
 
         if (hasError) {
             return;
         }
 
-        int dataArrayLength = Array.getLength(dataArray);
-        for (int i = 0; i < dataArrayLength; i++) {
-            IRuntimeEnv env = bindingContext.getOpenL().getVm().getRuntimeEnv();
+        var dataArrayLength = Array.getLength(dataArray);
+        for (var i = 0; i < dataArrayLength; i++) {
+            var env = bindingContext.getOpenL().getVm().getRuntimeEnv();
             Object target = Array.get(dataArray, i);
             env.pushThis(target);
 
-            int rowNum = dataIdxToTableRowNum.get(i);
+            var rowNum = dataIdxToTableRowNum.get(i);
             // calculate height
             int height;
             if (i + 1 < dataArrayLength) {
@@ -295,13 +294,13 @@ public class Table implements ITable {
                 height = rows - rowNum;
             }
 
-            DatatypeArrayMultiRowElementContext context = getCachedContext(i);
+            var context = getCachedContext(i);
             if (context == null) {
                 context = new DatatypeArrayMultiRowElementContext();
             }
             env.pushLocalFrame(new Object[]{context});
-            for (int j = 0; j < columns; j++) {
-                ColumnDescriptor descriptor = dataModel.getDescriptor(j);
+            for (var j = 0; j < columns; j++) {
+                var descriptor = dataModel.getDescriptor(j);
 
                 if (descriptor instanceof ForeignKeyColumnDescriptor fkDescriptor) {
 
@@ -333,25 +332,25 @@ public class Table implements ITable {
     }
 
     private boolean validateOnErrors(IBindingContext bindingContext, IDataBase dataBase, int columns) {
-        boolean hasError = false;
+        var hasError = false;
         // Validation
-        for (int j = 0; j < columns; j++) {
+        for (var j = 0; j < columns; j++) {
             SyntaxNodeException ex = null;
-            ColumnDescriptor descriptor = dataModel.getDescriptor(j);
+            var descriptor = dataModel.getDescriptor(j);
             if (descriptor instanceof ForeignKeyColumnDescriptor fkDescriptor) {
                 if (fkDescriptor.isReference()) {
-                    IdentifierNode foreignKeyTable = fkDescriptor.getForeignKeyTable();
-                    IdentifierNode foreignKey = fkDescriptor.getForeignKey();
-                    String foreignKeyTableName = foreignKeyTable.getIdentifier();
-                    ITable foreignTable = dataBase.getTable(foreignKeyTableName);
+                    var foreignKeyTable = fkDescriptor.getForeignKeyTable();
+                    var foreignKey = fkDescriptor.getForeignKey();
+                    var foreignKeyTableName = foreignKeyTable.getIdentifier();
+                    var foreignTable = dataBase.getTable(foreignKeyTableName);
 
                     if (foreignTable == null) {
                         String message = MessageUtils.getTableNotFoundErrorMessage(foreignKeyTableName);
                         ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                     } else {
                         if (foreignKey != null) {
-                            String columnName = foreignKey.getIdentifier();
-                            int foreignKeyIndex = foreignTable.getColumnIndex(columnName);
+                            var columnName = foreignKey.getIdentifier();
+                            var foreignKeyIndex = foreignTable.getColumnIndex(columnName);
                             if (foreignKeyIndex == -1) {
                                 String message = MessageUtils.getColumnNotFoundErrorMessage(columnName);
                                 ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
@@ -361,12 +360,12 @@ public class Table implements ITable {
                             }
                         } else {
                             // we don't have defined PK lets use first key as PK
-                            int foreignKeyIndex = 0;
-                            ITableModel dataModel = foreignTable.getDataModel();
-                            ColumnDescriptor d1 = dataModel.getDescriptors()[0];
+                            var foreignKeyIndex = 0;
+                            var dataModel = foreignTable.getDataModel();
+                            var d1 = dataModel.getDescriptors()[0];
                             if (d1.isPrimaryKey()) {
                             } else {
-                                ColumnDescriptor firstColDescriptor = dataModel.getDescriptor(0);
+                                var firstColDescriptor = dataModel.getDescriptor(0);
                                 if (firstColDescriptor.isPrimaryKey()) {
                                     // first column is primary key for another level. So return column index for first
                                     // descriptor
@@ -377,9 +376,9 @@ public class Table implements ITable {
 
                             }
 
-                            SyntaxNodeException[] errors = bindingContext.getErrors();
+                            var errors = bindingContext.getErrors();
                             for (SyntaxNodeException error : errors) {
-                                String sourceLocation = error.getSourceLocation();
+                                var sourceLocation = error.getSourceLocation();
                                 if (sourceLocation != null && foreignTable.getTableSyntaxNode()
                                         .getUriParser()
                                         .intersects(new XlsUrlParser(sourceLocation))) {
@@ -402,24 +401,24 @@ public class Table implements ITable {
 
     @Override
     public void preLoad(OpenlToolAdaptor openlAdapter) throws Exception {
-        int rows = logicalTable.getHeight();
-        int startRow = getStartRowForData();
+        var rows = logicalTable.getHeight();
+        var startRow = getStartRowForData();
 
         if (tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_DATA && isSupportMultirow()) {
             // process not merged rows as merged if they have the same value in first column
-            List<Object> resultContainer = new ArrayList<>();
-            List<DatatypeArrayMultiRowElementContext> dataContexts = new ArrayList<>();
+            var resultContainer = new ArrayList<Object>();
+            var dataContexts = new ArrayList<DatatypeArrayMultiRowElementContext>();
 
             processMultirowDataTable(resultContainer, openlAdapter, dataContexts, startRow, rows);
 
             dataArray = Array.newInstance(dataModel.getInstanceClass(), resultContainer.size());
-            for (int i = 0; i < resultContainer.size(); i++) {
+            for (var i = 0; i < resultContainer.size(); i++) {
                 Array.set(dataArray, i, resultContainer.get(i));
             }
             this.dataContextCache = Collections.unmodifiableList(dataContexts);
         } else {
             dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
-            for (int rowNum = startRow; rowNum < rows; rowNum++) {
+            for (var rowNum = startRow; rowNum < rows; rowNum++) {
                 processRow(openlAdapter, startRow, rowNum);
             }
         }
@@ -443,10 +442,10 @@ public class Table implements ITable {
                                           int rows) throws OpenLCompilationException {
 
         // group descriptors by KEY
-        Map<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>> descriptorGroups = new TreeMap<>();
+        var descriptorGroups = new TreeMap<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>>();
         for (ColumnDescriptor descriptor : dataModel.getDescriptors()) {
-            ColumnDescriptor.ColumnGroupKey key = descriptor.getGroupKey();
-            List<ColumnDescriptor> descriptorsByKey = descriptorGroups.computeIfAbsent(key, k -> new ArrayList<>());
+            var key = descriptor.getGroupKey();
+            var descriptorsByKey = descriptorGroups.computeIfAbsent(key, k -> new ArrayList<>());
             if (descriptor.getField() != null && !descriptor.isReference()) {
                 descriptorsByKey.add(descriptor);
             }
@@ -474,18 +473,18 @@ public class Table implements ITable {
         List<ColumnDescriptor> descriptors = allDescriptors.getFirst();
 
         Object[][] rowValues = new Object[rows - startRow][descriptors.size()];
-        for (int rowNum = startRow; rowNum < rows; rowNum++) {
-            for (int colNum = 0; colNum < descriptors.size(); colNum++) {
-                ColumnDescriptor descriptor = descriptors.get(colNum);
+        for (var rowNum = startRow; rowNum < rows; rowNum++) {
+            for (var colNum = 0; colNum < descriptors.size(); colNum++) {
+                var descriptor = descriptors.get(colNum);
                 ILogicalTable valuesTable = LogicalTableHelper
                         .make1ColumnTable(logicalTable.getSubtable(descriptor.getColumnIdx(), rowNum, 1, 1));
-                Object prevRes = ColumnDescriptor.PREV_RES_EMPTY;
-                int width = valuesTable.getSource().getWidth();
-                for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
+                var prevRes = ColumnDescriptor.PREV_RES_EMPTY;
+                var width = valuesTable.getSource().getWidth();
+                for (var i = 0; i < valuesTable.getSource().getHeight(); i++) {
                     ILogicalTable logicalTable = LogicalTableHelper.make1ColumnTable(
                             LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
                                     .getSubtable(0, 0, width, 1));
-                    Object res = descriptor.parseCellValue(logicalTable, openlAdapter);
+                    var res = descriptor.parseCellValue(logicalTable, openlAdapter);
                     if (!descriptor.isSameValue(res, prevRes)) {
                         rowValues[rowNum - startRow][colNum] = res;
                         prevRes = res;
@@ -494,19 +493,19 @@ public class Table implements ITable {
             }
         }
 
-        IRuntimeEnv env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
-        for (int rowNum = 0; rowNum < rowValues.length; rowNum++) {
-            int height = 1;
-            Object[] thisRow = rowValues[rowNum];
+        var env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
+        for (var rowNum = 0; rowNum < rowValues.length; rowNum++) {
+            var height = 1;
+            var thisRow = rowValues[rowNum];
             if (thisRow == null) {
                 continue;
             }
-            Object literal = createLiteral();
+            var literal = createLiteral();
             addToRowIndex(rowNum, literal);
-            for (int j = rowNum + 1; j < rowValues.length; j++) {
-                Object[] nextRow = rowValues[j];
-                boolean isSameRow = true;
-                for (int k = 0; k < thisRow.length; k++) {
+            for (var j = rowNum + 1; j < rowValues.length; j++) {
+                var nextRow = rowValues[j];
+                var isSameRow = true;
+                for (var k = 0; k < thisRow.length; k++) {
                     isSameRow = descriptors.get(k).isSameValue(nextRow[k], thisRow[k]);
                     if (!isSameRow) {
                         break;
@@ -521,7 +520,7 @@ public class Table implements ITable {
                 }
             }
 
-            DatatypeArrayMultiRowElementContext context = new DatatypeArrayMultiRowElementContext();
+            var context = new DatatypeArrayMultiRowElementContext();
             env.pushLocalFrame(new Object[]{context});
             env.pushThis(literal);
             try {
@@ -548,18 +547,18 @@ public class Table implements ITable {
         if (descriptors.isEmpty()) {
             return;
         }
-        DatatypeArrayMultiRowElementContext context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
+        var context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
 
         Object[][] rowValues = null;
-        for (int colNum = 0; colNum < descriptors.size(); colNum++) {
-            ColumnDescriptor descriptor = descriptors.get(colNum);
+        for (var colNum = 0; colNum < descriptors.size(); colNum++) {
+            var descriptor = descriptors.get(colNum);
             ILogicalTable valuesTable = LogicalTableHelper
                     .make1ColumnTable(logicalTable.getSubtable(descriptor.getColumnIdx(), rowNum, 1, height));
             if (rowValues == null) {
                 rowValues = new Object[valuesTable.getSource().getHeight()][descriptors.size()];
             }
-            int width = valuesTable.getSource().getWidth();
-            for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
+            var width = valuesTable.getSource().getWidth();
+            for (var i = 0; i < valuesTable.getSource().getHeight(); i++) {
                 ILogicalTable logicalTable = LogicalTableHelper.make1ColumnTable(
                         LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
                                 .getSubtable(0, 0, width, 1));
@@ -567,15 +566,15 @@ public class Table implements ITable {
             }
         }
 
-        ColumnDescriptor pkDescriptor = descriptors.getFirst();
+        var pkDescriptor = descriptors.getFirst();
 
         Object[] prevRow = null;
-        boolean shouldSkipMergingSameValues = !pkDescriptor.isPrimaryKey() && !pkDescriptor
+        var shouldSkipMergingSameValues = !pkDescriptor.isPrimaryKey() && !pkDescriptor
                 .isDeclaredClassSupportMultirow();
 
-        for (int i = 0; i < rowValues.length; i++) {
+        for (var i = 0; i < rowValues.length; i++) {
             boolean isSameRow;
-            Object[] thisRow = rowValues[i];
+            var thisRow = rowValues[i];
             context.setRow(i);
             if (prevRow == null || shouldSkipMergingSameValues) {
                 isSameRow = false;
@@ -584,7 +583,7 @@ public class Table implements ITable {
                     isSameRow = pkDescriptor.isSameValue(thisRow[0], prevRow[0]);
                 } else {
                     isSameRow = true;
-                    for (int k = 0; k < thisRow.length; k++) {
+                    for (var k = 0; k < thisRow.length; k++) {
                         isSameRow = descriptors.get(k).isSameValue(thisRow[k], prevRow[k]);
                         if (!isSameRow) {
                             break;
@@ -593,16 +592,16 @@ public class Table implements ITable {
                 }
             }
             context.setRowValueIsTheSameAsPrevious(isSameRow);
-            for (int k = 0; k < thisRow.length; k++) {
-                ColumnDescriptor descriptor = descriptors.get(k);
-                Object thisValue = thisRow[k];
+            for (var k = 0; k < thisRow.length; k++) {
+                var descriptor = descriptors.get(k);
+                var thisValue = thisRow[k];
                 if (descriptor.isValuesAnArray()) {
-                    Object currentValue = descriptor.getFieldValue(literal, env);
-                    int thisLen = Array.getLength(thisValue);
+                    var currentValue = descriptor.getFieldValue(literal, env);
+                    var thisLen = Array.getLength(thisValue);
                     if (currentValue == null || Array.getLength(currentValue) == 0) {
                         descriptor.setFieldValue(literal, thisLen == 0 ? null : thisValue, env);
                     } else if (thisLen != 0) {
-                        int currentLen = Array.getLength(currentValue);
+                        var currentLen = Array.getLength(currentValue);
                         Object newArray = Array.newInstance(thisValue.getClass().getComponentType(),
                                 currentLen + thisLen);
                         System.arraycopy(currentValue, 0, newArray, 0, currentLen);
@@ -621,7 +620,7 @@ public class Table implements ITable {
 
     private Object createLiteral() throws OpenLCompilationException {
         if (dataModel.getInstanceClass().isArray()) {
-            int dim = 0;
+            var dim = 0;
             Class<?> type = dataModel.getInstanceClass();
             while (type.isArray()) {
                 type = type.getComponentType();
@@ -629,7 +628,7 @@ public class Table implements ITable {
             }
             return Array.newInstance(type, new int[dim]);
         } else {
-            Object literal = dataModel.newInstance();
+            var literal = dataModel.newInstance();
             if (literal == null) {
                 throw new OpenLCompilationException(
                         "Cannot create an instance of '%s'.".formatted(dataModel.getName()));
@@ -640,40 +639,40 @@ public class Table implements ITable {
 
     private void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException {
 
-        boolean constructor = isConstructor();
+        var constructor = isConstructor();
         Object literal = null;
 
-        int rowIndex = rowNum - startRow;
+        var rowIndex = rowNum - startRow;
 
         if (!constructor) {
             literal = createLiteral();
             addToRowIndex(rowIndex, literal);
         }
 
-        IRuntimeEnv env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
+        var env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
         env.pushLocalFrame(new Object[]{new DatatypeArrayMultiRowElementContext()});
-        boolean hasError = false;
+        var hasError = false;
         Set<String> fieldWithValue = new HashSet<>();
         if (Objects.equals(tableSyntaxNode.getType(), XlsNodeTypes.XLS_TEST_METHOD.toString())) {
             hasError = Arrays.stream(dataModel.getDescriptors()).anyMatch(m -> m.getName().startsWith(TestMethodHelper.EXPECTED_ERROR));
             fieldWithValue = Arrays.stream(dataModel.getDescriptors())
                     .filter(d -> {
-                        ILogicalTable lTable = logicalTable.getSubtable(d.getColumnIdx(), rowNum, 1, 1);
-                        boolean nonEmptyResCell = !(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
+                        var lTable = logicalTable.getSubtable(d.getColumnIdx(), rowNum, 1, 1);
+                        var nonEmptyResCell = !(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
                                 .getStringValue() != null && d.getField() != null;
                         return nonEmptyResCell && d.getField().getName().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) &&
                                 d.getField() instanceof FieldChain && ((FieldChain) d.getField()).getFields().length > 1;
                     })
                     .map(d -> {
-                        FieldChain fieldChain = (FieldChain) d.getField();
+                        var fieldChain = (FieldChain) d.getField();
                         return (FieldChain.makeNames(Arrays.copyOfRange(fieldChain.getFields(), 0, fieldChain.getFields().length - 1)));
                     })
                     .collect(Collectors.toSet());
         }
         for (ColumnDescriptor columnDescriptor : dataModel.getDescriptors()) {
-            boolean hasValue = false;
+            var hasValue = false;
             if (columnDescriptor.getField() instanceof FieldChain) {
-                FieldChain fieldChain = (FieldChain) columnDescriptor.getField();
+                var fieldChain = (FieldChain) columnDescriptor.getField();
                 if (fieldChain.getFields().length > 1) {
                     String fieldName = FieldChain.makeNames(Arrays.copyOfRange(fieldChain.getFields(), 0, fieldChain.getFields().length - 1));
                     hasValue = fieldWithValue.contains(fieldName);
@@ -686,7 +685,7 @@ public class Table implements ITable {
             literal = dataModel.getType().nullObject();
         }
 
-        int idx = rowNum - startRow;
+        var idx = rowNum - startRow;
         bindDataIndexWithTableRowNum(idx, rowNum);
         Array.set(dataArray, idx, literal);
     }
@@ -712,7 +711,7 @@ public class Table implements ITable {
                         openlAdapter);
             } else {
                 try {
-                    ILogicalTable lTable = logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, 1);
+                    var lTable = logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, 1);
                     if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
                             .getStringValue() != null) { // EPBDS-6104. For empty values should be used data type default value.
                         return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env, false);
@@ -734,7 +733,7 @@ public class Table implements ITable {
         if (primaryIndexMap == null) {
             primaryIndexMap = new BiMap<>();
         }
-        Integer oldRow = primaryIndexMap.getKey(value);
+        var oldRow = primaryIndexMap.getKey(value);
         if (oldRow != null && row != oldRow) {
             throw new OpenLRuntimeException("Duplicated key: %s in rows %s and %s.".formatted(value, oldRow, row));
         }
@@ -743,11 +742,11 @@ public class Table implements ITable {
 
     @Override
     public Object findObject(int columnIndex, String skey, IBindingContext cxt) {
-        ColumnDescriptor descriptor = dataModel.getDescriptor(columnIndex);
+        var descriptor = dataModel.getDescriptor(columnIndex);
 
         Map<String, Integer> index = descriptor.getUniqueIndex(this, columnIndex, cxt);
 
-        Integer found = index.get(skey);
+        var found = index.get(skey);
 
         if (found == null) {
             return null;

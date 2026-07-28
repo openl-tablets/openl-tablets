@@ -1,12 +1,10 @@
 package org.openl.rules.repository;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.ObjectUtils;
@@ -28,9 +26,9 @@ import org.openl.util.StringUtils;
 public class RepositoryInstatiator {
 
     public static Repository newRepository(String prefix, Function<String, String> props) {
-        ServiceLoader<RepositoryFactory> factories = ServiceLoader.load(RepositoryFactory.class,
+        var factories = ServiceLoader.load(RepositoryFactory.class,
                 RepositoryFactory.class.getClassLoader());
-        String factoryId = props.apply(prefix + ".factory");
+        var factoryId = props.apply(prefix + ".factory");
         if (Objects.isNull(factoryId)) {
             throw new IllegalArgumentException(
                     "Invalid configuration for repository %s".formatted(
@@ -38,14 +36,14 @@ public class RepositoryInstatiator {
                     )
             );
         }
-        ArrayList<String> repos = new ArrayList<>();
+        var repos = new ArrayList<String>();
         for (RepositoryFactory factory : factories) {
             repos.add(factory.getRefID());
             if (factory.accept(factoryId)) {
                 return new PathCheckedRepository(factory.create(key -> {
                     if ("id".equals(key)) {
                         // FIXME: Remove assumption that id is the last part of the prefix.
-                        int dot = prefix.lastIndexOf('.');
+                        var dot = prefix.lastIndexOf('.');
                         return prefix.substring(dot + 1);
                     }
                     var value = props.apply(prefix + '.' + key);
@@ -63,7 +61,7 @@ public class RepositoryInstatiator {
     }
 
     public static String getRefID(String factoryId) {
-        ServiceLoader<RepositoryFactory> factories = ServiceLoader.load(RepositoryFactory.class,
+        var factories = ServiceLoader.load(RepositoryFactory.class,
                 RepositoryFactory.class.getClassLoader());
         if (factoryId == null) {
             return null;
@@ -78,13 +76,13 @@ public class RepositoryInstatiator {
 
     public static void setParams(Object instance, Function<String, String> props) {
         Class<?> clazz = instance.getClass();
-        try (Stream<Method> stream = Arrays.stream(clazz.getMethods())) {
+        try (var stream = Arrays.stream(clazz.getMethods())) {
             stream.filter(method -> method.getParameterCount() == 1 && method.getName().startsWith("set"))
                     .forEach(method -> {
-                        String fieldName = method.getName().substring(3);
+                        var fieldName = method.getName().substring(3);
                         String propertyName = StringUtils.camelToKebab(fieldName);
-                        String propertyValue = props.apply(propertyName);
-                        boolean propertyExists = StringUtils.isNotBlank(propertyValue);
+                        var propertyValue = props.apply(propertyName);
+                        var propertyExists = StringUtils.isNotBlank(propertyValue);
                         if (propertyExists) {
                             Class<?> type = method.getParameterTypes()[0];
                             Object value = ObjectUtils.convert(propertyValue, type);

@@ -7,7 +7,6 @@ import org.openl.OpenL;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
-import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -49,10 +48,10 @@ public class PropertiesLoader {
      */
     private void loadPropertiesAsDataTable(TableSyntaxNode tableSyntaxNode) throws Exception {
 
-        String propertySectionName = PROPERTIES_SECTION_NAME + tableSyntaxNode.getUri();
-        DataNodeBinder dataNodeBinder = new DataNodeBinder();
+        var propertySectionName = PROPERTIES_SECTION_NAME + tableSyntaxNode.getUri();
+        var dataNodeBinder = new DataNodeBinder();
 
-        ITable propertyTable = module.getDataBase().registerTable(propertySectionName, tableSyntaxNode);
+        var propertyTable = module.getDataBase().registerTable(propertySectionName, tableSyntaxNode);
         IOpenClass propertiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propertiesSection = PropertiesHelper.getPropertiesTableSection(tableSyntaxNode.getTable());
 
@@ -66,10 +65,10 @@ public class PropertiesLoader {
                     openl,
                     false);
 
-            TableProperties propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
+            var propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
             propertiesInstance.setPropertiesSection(propertiesSection);
 
-            String tableType = tableSyntaxNode.getType();
+            var tableType = tableSyntaxNode.getType();
             Set<String> propertyNamesToCheck = propertiesInstance.getTableProperties().keySet();
 
             PropertiesChecker
@@ -88,13 +87,13 @@ public class PropertiesLoader {
      */
     private void loadCategoryProperties(TableSyntaxNode tableSyntaxNode) {
 
-        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
-        String category = getCategory(tableSyntaxNode);
-        TableSyntaxNode categoryPropertiesTsn = bindingContext
+        var tableProperties = tableSyntaxNode.getTableProperties();
+        var category = getCategory(tableSyntaxNode);
+        var categoryPropertiesTsn = bindingContext
                 .getTableSyntaxNode(RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
 
         if (categoryPropertiesTsn != null) {
-            ITableProperties categoryProperties = categoryPropertiesTsn.getTableProperties();
+            var categoryProperties = categoryPropertiesTsn.getTableProperties();
             tableProperties.setCategoryProperties(categoryProperties.getAllProperties());
             tableProperties.setCategoryPropertiesTableSyntaxNode(categoryPropertiesTsn);
         }
@@ -102,8 +101,8 @@ public class PropertiesLoader {
 
     private String getCategory(TableSyntaxNode tsn) {
 
-        ITableProperties tableProperties = tsn.getTableProperties();
-        String category = tableProperties.getCategory();
+        var tableProperties = tsn.getTableProperties();
+        var category = tableProperties.getCategory();
 
         if (category != null) {
             return category;
@@ -119,12 +118,12 @@ public class PropertiesLoader {
      */
     private void loadModuleProperties(TableSyntaxNode tableSyntaxNode) {
 
-        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
-        TableSyntaxNode modulePropertiesTsn = bindingContext
+        var tableProperties = tableSyntaxNode.getTableProperties();
+        var modulePropertiesTsn = bindingContext
                 .getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
 
         if (tableProperties != null && modulePropertiesTsn != null) {
-            ITableProperties moduleProperties = modulePropertiesTsn.getTableProperties();
+            var moduleProperties = modulePropertiesTsn.getTableProperties();
             tableProperties.setModuleProperties(moduleProperties.getAllProperties());
             tableProperties.setModulePropertiesTableSyntaxNode(modulePropertiesTsn);
         }
@@ -137,14 +136,14 @@ public class PropertiesLoader {
      */
     private void loadGlobalProperties(TableSyntaxNode tableSyntaxNode) {
 
-        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
-        TableSyntaxNode globalPropertiesTsn = bindingContext
+        var tableProperties = tableSyntaxNode.getTableProperties();
+        var globalPropertiesTsn = bindingContext
                 .getTableSyntaxNode(RulesModuleBindingContext.GLOBAL_PROPERTIES_KEY);
 
         if (tableProperties != null) {
             if (globalPropertiesTsn != null) {
-                ITableProperties globalProperties = globalPropertiesTsn.getTableProperties();
-                Map<String, Object> tablePropertiesMergedWithModule = TablePropertyDefinitionUtils
+                var globalProperties = globalPropertiesTsn.getTableProperties();
+                var tablePropertiesMergedWithModule = TablePropertyDefinitionUtils
                         .mergeGlobalProperties(globalProperties.getAllProperties(),
                                 module.getGlobalTableProperties().getGlobalProperties());
                 tableProperties.setGlobalProperties(tablePropertiesMergedWithModule);
@@ -168,14 +167,14 @@ public class PropertiesLoader {
             createTableProperties(tableSyntaxNode);
         }
 
-        ITableProperties properties = tableSyntaxNode.getTableProperties();
+        var properties = tableSyntaxNode.getTableProperties();
         Map<String, Object> defaultProperties = TablePropertyDefinitionUtils.getPropertiesMapToBeSetByDefault();
         properties.setDefaultProperties(defaultProperties);
     }
 
     private void createTableProperties(TableSyntaxNode tableSyntaxNode) {
 
-        ITableProperties properties = new TableProperties();
+        var properties = new TableProperties();
         properties.setCurrentTableType(tableSyntaxNode.getType());
 
         tableSyntaxNode.setTableProperties(properties);
@@ -185,7 +184,7 @@ public class PropertiesLoader {
         // Don`t need to load properties for Properties tables,
         // it will be processed during its binding.
         // author: DLiauchuk
-        final String tableType = tsn.getType();
+        final var tableType = tsn.getType();
         if (!XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableType)) {
             try {
                 loadPropertiesAsDataTable(tsn);
@@ -208,8 +207,8 @@ public class PropertiesLoader {
 
     private void loadExternalProperties(TableSyntaxNode tsn) {
 
-        ITableProperties tableProperties = tsn.getTableProperties();
-        TableSyntaxNode modulePropertiesTsn = bindingContext
+        var tableProperties = tsn.getTableProperties();
+        var modulePropertiesTsn = bindingContext
                 .getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
         ITableProperties moduleProperties = null;
         if (tableProperties != null && modulePropertiesTsn != null) {
@@ -225,8 +224,8 @@ public class PropertiesLoader {
                 createTableProperties(tsn);
             }
 
-            ITableProperties properties = tsn.getTableProperties();
-            ITableProperties externalProperties = (ITableProperties) externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY);
+            var properties = tsn.getTableProperties();
+            var externalProperties = (ITableProperties) externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY);
             if (moduleProperties != null) {
                 for (String key : externalProperties.getAllProperties().keySet()) {
                     if (moduleProperties.getAllProperties().containsKey(key)) {

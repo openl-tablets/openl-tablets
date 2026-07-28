@@ -66,7 +66,7 @@ class ProjectFileLookupServiceImplTest {
                 fileData("a/b/notes.md"),       // different name — ignored
                 fileData("x/AGENTS.md"));        // sibling branch — off the upward line
 
-        List<FsNode> files = service.lookup(repository, "a/b/AGENTS.md", false);
+        var files = service.lookup(repository, "a/b/AGENTS.md", false);
 
         // Walk up from a/b: the anchor (d0), its ancestor a/ (d1), the repository root (d2). The
         // descendant a/b/c/ and the sibling x/ are not visited.
@@ -82,7 +82,7 @@ class ProjectFileLookupServiceImplTest {
         when(repository.read("a/AGENTS.md")).thenReturn(fileItem("nearest"));
         when(repository.read("AGENTS.md")).thenReturn(fileItem("root"));
 
-        List<FsNode> files = service.lookup(repository, "a/AGENTS.md", true);
+        var files = service.lookup(repository, "a/AGENTS.md", true);
 
         assertEquals(List.of("a/AGENTS.md", "AGENTS.md"), paths(files));
         assertEquals("nearest", content(files.get(0)));
@@ -95,7 +95,7 @@ class ProjectFileLookupServiceImplTest {
         when(repository.read("a/AGENTS.md")).thenThrow(new IOException("boom"));
         when(repository.read("AGENTS.md")).thenReturn(fileItem("root"));
 
-        List<FsNode> files = service.lookup(repository, "a/AGENTS.md", true);
+        var files = service.lookup(repository, "a/AGENTS.md", true);
 
         // The nearest file fails to read; the lookup skips it and still returns the readable ancestor.
         assertEquals(List.of("AGENTS.md"), paths(files));
@@ -106,7 +106,7 @@ class ProjectFileLookupServiceImplTest {
     void includeContentFalse_doesNotReadFiles() throws IOException {
         listReturns(fileData("a/AGENTS.md"), fileData("AGENTS.md"));
 
-        List<FsNode> files = service.lookup(repository, "a/AGENTS.md", false);
+        var files = service.lookup(repository, "a/AGENTS.md", false);
 
         assertEquals(2, files.size());
         assertNull(content(files.getFirst()));
@@ -116,7 +116,7 @@ class ProjectFileLookupServiceImplTest {
 
     @Test
     void nonTextAnchor_returnsEmptyWithoutListing() throws IOException {
-        List<FsNode> files = service.lookup(repository, "a/rules.xlsx", true);
+        var files = service.lookup(repository, "a/rules.xlsx", true);
 
         assertTrue(files.isEmpty());
         verify(repository, never()).list("");
@@ -137,7 +137,7 @@ class ProjectFileLookupServiceImplTest {
         oversize.setSize(ProjectFileLookupServiceImpl.MAX_FILE_SIZE_BYTES + 1);
         listReturns(deleted, oversize, fileData("AGENTS.md"));
 
-        List<FsNode> files = service.lookup(repository, "a/AGENTS.md", false);
+        var files = service.lookup(repository, "a/AGENTS.md", false);
 
         assertEquals(List.of("AGENTS.md"), paths(files));
     }
@@ -147,7 +147,7 @@ class ProjectFileLookupServiceImplTest {
         // The repository reports no size up front, but the content exceeds the cap: the bounded read
         // must reject it instead of surfacing a partial blob.
         listReturns(fileData("AGENTS.md"));
-        String oversize = "a".repeat((int) ProjectFileLookupServiceImpl.MAX_FILE_SIZE_BYTES + 1);
+        var oversize = "a".repeat((int) ProjectFileLookupServiceImpl.MAX_FILE_SIZE_BYTES + 1);
         when(repository.read("AGENTS.md")).thenReturn(fileItem(oversize));
 
         assertTrue(service.lookup(repository, "AGENTS.md", true).isEmpty());
@@ -159,13 +159,13 @@ class ProjectFileLookupServiceImplTest {
         // stop collecting once the cap is reached.
         var data = new ArrayList<FileData>();
         var dir = new StringBuilder();
-        for (int i = 0; i < ProjectFileLookupServiceImpl.MAX_FILES_COUNT + 5; i++) {
+        for (var i = 0; i < ProjectFileLookupServiceImpl.MAX_FILES_COUNT + 5; i++) {
             data.add(fileData(dir + "AGENTS.md"));
             dir.append('d').append(i).append('/');
         }
         when(repository.list("")).thenReturn(data);
 
-        List<FsNode> files = service.lookup(repository, dir + "AGENTS.md", false);
+        var files = service.lookup(repository, dir + "AGENTS.md", false);
 
         assertEquals(ProjectFileLookupServiceImpl.MAX_FILES_COUNT, files.size());
     }

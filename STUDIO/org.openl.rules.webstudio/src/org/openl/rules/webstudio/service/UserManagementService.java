@@ -106,7 +106,7 @@ public class UserManagementService {
                         String password,
                         String email,
                         String displayName) {
-        User persistUser = new User();
+        var persistUser = new User();
         persistUser.setLoginName(user);
         persistUser.setPasswordHash(StringUtils.isNotBlank(password) ? passwordEncoder.encode(password) : null);
         persistUser.setFirstName(firstName);
@@ -123,13 +123,13 @@ public class UserManagementService {
     public void syncUserData(String user, String firstName, String lastName, String email, String displayName) {
 
         // Get
-        User persistUser = userDao.getUserByName(user);
-        boolean isNewUser = persistUser == null;
+        var persistUser = userDao.getUserByName(user);
+        var isNewUser = persistUser == null;
         if (isNewUser) {
             persistUser = new User();
             persistUser.setLoginName(user);
         }
-        UserExternalFlags flags = UserExternalFlags.builder()
+        var flags = UserExternalFlags.builder()
                 .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
                 .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
                 .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
@@ -175,8 +175,8 @@ public class UserManagementService {
                                String email,
                                String displayName,
                                boolean emailVerified) {
-        User persistUser = userDao.getUserByName(user);
-        final UserExternalFlags currentFlags = persistUser.getUserExternalFlags();
+        var persistUser = userDao.getUserByName(user);
+        final var currentFlags = persistUser.getUserExternalFlags();
         persistUser.setFirstName(currentFlags.isFirstNameExternal() ? persistUser.getFirstName() : firstName);
         persistUser.setSurname(currentFlags.isLastNameExternal() ? persistUser.getSurname() : lastName);
         persistUser.setEmail(currentFlags.isEmailExternal() ? persistUser.getEmail() : email);
@@ -197,20 +197,20 @@ public class UserManagementService {
 
     @Transactional
     public void updateAuthorities(final String user, final Set<String> authorities, final boolean leaveAdminGroups) {
-        Set<String> fullAuthorities = new HashSet<>(authorities);
+        var fullAuthorities = new HashSet<String>(authorities);
         if (leaveAdminGroups) {
-            Set<Group> currentGroups = userDao.getGroupsForUser(user);
-            Set<String> currentAdminGroups = getCurrentAdminGroups(currentGroups);
+            var currentGroups = userDao.getGroupsForUser(user);
+            var currentAdminGroups = getCurrentAdminGroups(currentGroups);
             fullAuthorities.addAll(currentAdminGroups);
         }
         doUpdateAuthorities(user, fullAuthorities);
     }
 
     private void doUpdateAuthorities(String user, Set<String> authorities) {
-        Set<Group> groups = new HashSet<>();
+        var groups = new HashSet<Group>();
         if (authorities != null) {
             for (String auth : authorities) {
-                Group group = groupDao.getGroupByName(auth);
+                var group = groupDao.getGroupByName(auth);
                 if (group != null) {
                     groups.add(group);
                 }
@@ -220,7 +220,7 @@ public class UserManagementService {
     }
 
     public Set<String> getCurrentAdminGroups(final Set<Group> groups) {
-        Set<String> groupNames = new HashSet<>();
+        var groupNames = new HashSet<String>();
 
         for (Group group : groups) {
             SimpleGroup simpleGroup = PrivilegesEvaluator.wrap(group);
@@ -278,7 +278,7 @@ public class UserManagementService {
     }
 
     private org.openl.rules.security.User createSecurityUser(User user) {
-        Set<Group> groups = userDao.getGroupsForUser(user.getLoginName());
+        var groups = userDao.getGroupsForUser(user.getLoginName());
         return createSecurityUser(user, groups);
     }
 

@@ -41,7 +41,7 @@ class RepositoryUtilsTest {
         assertNull(RepositoryUtils.buildProjectVersion(null));
         FileData fileData = mock(FileData.class);
 
-        Calendar cal = new GregorianCalendar();
+        var cal = new GregorianCalendar();
         cal.set(2020, Calendar.AUGUST, 17, 11, 12, 13);
         cal.set(Calendar.MILLISECOND, 0);
         when(fileData.getModifiedAt()).thenReturn(cal.getTime());

@@ -43,11 +43,11 @@ final class JarArchiver extends SimpleFileVisitor<Path> {
      * @throws IOException
      */
     static void archive(File sourceDir, File file) throws IOException {
-        Path path = sourceDir.toPath();
-        Manifest man = new Manifest();
+        var path = sourceDir.toPath();
+        var man = new Manifest();
         man.getMainAttributes().putValue("Manifest-Version", "1.0");
         man.getMainAttributes().putValue("Created-By", "OpenL Maven Plugin v" + OpenLVersion.getVersion());
-        try (JarOutputStream zos = new JarOutputStream(Files.newOutputStream(file.toPath()), man)) {
+        try (var zos = new JarOutputStream(Files.newOutputStream(file.toPath()), man)) {
             Files.walkFileTree(path, new JarArchiver(path, zos));
         }
     }
@@ -55,11 +55,11 @@ final class JarArchiver extends SimpleFileVisitor<Path> {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         // A directory was defined for compression, so make inner files relative to a base directory
-        String relativePath = dir.relativize(file).toString();
-        String zipPath = BACK_SLASH.matcher(relativePath).replaceAll("/");
+        var relativePath = dir.relativize(file).toString();
+        var zipPath = BACK_SLASH.matcher(relativePath).replaceAll("/");
 
         try (InputStream fis = Files.newInputStream(file)) {
-            JarEntry entry = new JarEntry(zipPath);
+            var entry = new JarEntry(zipPath);
             zos.putNextEntry(entry);
             IOUtils.copy(fis, zos, buffer);
         }

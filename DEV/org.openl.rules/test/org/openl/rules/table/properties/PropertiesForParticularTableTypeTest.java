@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper {
@@ -25,10 +24,10 @@ class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testErrorParsing() {
-        String tableName = "Rules void hello1(int hour)";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var tableName = "Rules void hello1(int hour)";
+        var resultTsn = findTable(tableName);
         if (resultTsn != null) {
-            ITableProperties tableProperties = resultTsn.getTableProperties();
+            var tableProperties = resultTsn.getTableProperties();
             assertNotNull(tableProperties);
 
             assertEquals(7, tableProperties.getAllProperties().size());
@@ -40,10 +39,10 @@ class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testNotProcessingInheritPropertiesForTableType() {
-        String tableName = "Rules void hello2(int hour)";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var tableName = "Rules void hello2(int hour)";
+        var resultTsn = findTable(tableName);
         if (resultTsn != null) {
-            ITableProperties tableProperties = resultTsn.getTableProperties();
+            var tableProperties = resultTsn.getTableProperties();
             assertNotNull(tableProperties);
 
             Map<String, Object> categoryProperties = tableProperties.getCategoryProperties();

@@ -26,9 +26,9 @@ public class JavaCC30Position implements IPosition {
             return 0;
         }
 
-        int line = jcc30line - 1;
-        int linePos = info.getPosition(line);
-        int colPos = Math.min(info.getLine(line).length(), jcc30col - 1);
+        var line = jcc30line - 1;
+        var linePos = info.getPosition(line);
+        var colPos = Math.min(info.getLine(line).length(), jcc30col - 1);
 
         return linePos + colPos;
     }
@@ -45,9 +45,9 @@ public class JavaCC30Position implements IPosition {
             return 0;
         }
 
-        int line = jcc30line - 1;
+        var line = jcc30line - 1;
         // int linePos = info.getPosition(line);
-        int colPos = Math.min(info.getLine(line).length(), jcc30col - 1);
+        var colPos = Math.min(info.getLine(line).length(), jcc30col - 1);
 
         return colPos + 1;
     }

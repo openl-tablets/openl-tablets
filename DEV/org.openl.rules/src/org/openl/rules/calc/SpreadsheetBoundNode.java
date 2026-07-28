@@ -3,7 +3,6 @@ package org.openl.rules.calc;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.collections4.BidiMap;
@@ -22,11 +21,8 @@ import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
@@ -63,11 +59,11 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         BidiMap<Integer, Integer> rowOffsets = spreadsheet.getRowOffsets();
         BidiMap<Integer, Integer> columnOffsets = spreadsheet.getColumnOffsets();
         String[][] descriptions = new String[spreadsheet.getHeight()][spreadsheet.getWidth()];
-        for (int i = 0; i < spreadsheet.getHeight(); i++) {
-            for (int j = 0; j < spreadsheet.getWidth(); j++) {
-                int col = columnOffsets.get(j);
-                int row = rowOffsets.get(i);
-                boolean f = false;
+        for (var i = 0; i < spreadsheet.getHeight(); i++) {
+            for (var j = 0; j < spreadsheet.getWidth(); j++) {
+                var col = columnOffsets.get(j);
+                var row = rowOffsets.get(i);
+                var f = false;
                 if (spreadsheet.getColumnDescriptions().containsValue(col)) {
                     col = spreadsheet.getColumnDescriptions().inverseBidiMap().get(col);
                     f = true;
@@ -76,8 +72,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                     f = true;
                 }
                 if (f) {
-                    ICell cell = structureBuilder.getTableBody().getCell(col + 1, row + 1);
-                    String value = cell.getStringValue();
+                    var cell = structureBuilder.getTableBody().getCell(col + 1, row + 1);
+                    var value = cell.getStringValue();
                     if (org.openl.util.StringUtils.isNotBlank(value)) {
                         descriptions[i][j] = value;
                     }
@@ -94,9 +90,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                 .filter(e -> !"this".equals(e.getName()))
                 .toList();
 
-        String typeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName();
+        var typeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName();
 
-        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
+        var customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
                 typeName,
                 spreadsheet.getRowNames(),
                 spreadsheet.getColumnNames(),
@@ -110,7 +106,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                 .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
 
         for (IOpenField field : spreadsheetOpenClassFields) {
-            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
+            var customSpreadsheetResultField = new CustomSpreadsheetResultField(
                     customSpreadsheetResultOpenClass,
                     field);
             customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
@@ -124,7 +120,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
          * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
          * and the customspreadsheet property is true
          */
-        boolean isTypeCustomSpreadsheetResult = SpreadsheetResult.class == getType().getInstanceClass()
+        var isTypeCustomSpreadsheetResult = SpreadsheetResult.class == getType().getInstanceClass()
                 && !(getType() instanceof CustomSpreadsheetResultOpenClass)
                 && !structureBuilder.isExistsReturnHeader();
 
@@ -151,10 +147,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
             CustomSpreadsheetResultOpenClass type;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
-                IOpenClass bindingContextType = bindingContext.addType(type);
+                var bindingContextType = bindingContext.addType(type);
                 spreadsheet.setCustomSpreadsheetResultType((CustomSpreadsheetResultOpenClass) bindingContextType);
             } catch (Exception | LinkageError e) {
-                String message = "Cannot define type '%s'.".formatted(
+                var message = "Cannot define type '%s'.".formatted(
                         Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName());
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 bindingContext.addError(error);
@@ -167,29 +163,29 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
     }
 
     public void validateRowsColumnsForResultModel(Spreadsheet spreadsheet) {
-        long columnsForResultModelCount = Arrays.stream(spreadsheet.getColumnNamesForResultModel())
+        var columnsForResultModelCount = Arrays.stream(spreadsheet.getColumnNamesForResultModel())
                 .filter(Objects::nonNull)
                 .count();
-        long rowsForResultModelCount = Arrays.stream(spreadsheet.getRowNamesForResultModel())
+        var rowsForResultModelCount = Arrays.stream(spreadsheet.getRowNamesForResultModel())
                 .filter(Objects::nonNull)
                 .count();
 
-        Map<String, String> fNames = new HashMap<>();
-        int warnCnt = 0;
-        for (int i = 0; i < spreadsheet.getRowNamesForResultModel().length; i++) {
-            for (int j = 0; j < spreadsheet.getColumnNamesForResultModel().length; j++) {
+        var fNames = new HashMap<String, String>();
+        var warnCnt = 0;
+        for (var i = 0; i < spreadsheet.getRowNamesForResultModel().length; i++) {
+            for (var j = 0; j < spreadsheet.getColumnNamesForResultModel().length; j++) {
                 if (spreadsheet.getColumnNamesForResultModel()[j] != null && spreadsheet
                         .getRowNamesForResultModel()[i] != null && warnCnt < 10) { // Don't show more than 10 conflict
                     // messages
                     String fieldName = SpreadsheetStructureBuilder
                             .getSpreadsheetCellFieldName(spreadsheet.getColumnNames()[j], spreadsheet.getRowNames()[i]);
 
-                    IOpenField field = spreadsheet.getSpreadsheetType().getField(fieldName);
-                    IOpenClass t = field.getType();
+                    var field = spreadsheet.getSpreadsheetType().getField(fieldName);
+                    var t = field.getType();
                     while (t.isArray()) {
                         t = t.getComponentClass();
                     }
-                    boolean f = !JavaOpenClass.VOID.equals(t) && !JavaOpenClass.CLS_VOID.equals(t) && !NullOpenClass.the
+                    var f = !JavaOpenClass.VOID.equals(t) && !JavaOpenClass.CLS_VOID.equals(t) && !NullOpenClass.the
                             .equals(t);
                     // IGNORE VOID TYPES
 
@@ -203,7 +199,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                             refName = fieldName;
                         }
 
-                        StringBuilder sb = new StringBuilder();
+                        var sb = new StringBuilder();
                         if (columnsForResultModelCount == 1) {
                             sb.append(ClassUtils.decapitalize(spreadsheet.getRowNamesForResultModel()[i]));
                         } else if (rowsForResultModelCount == 1) {
@@ -212,13 +208,13 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                             sb.append(ClassUtils.decapitalize(spreadsheet.getColumnNamesForResultModel()[j]));
                             sb.append(ClassUtils.capitalize(spreadsheet.getRowNamesForResultModel()[i]));
                         }
-                        String fName = sb.toString();
+                        var fName = sb.toString();
                         if (StringUtils.isBlank(fName)) {
                             fName = "_";
                         }
                         String key = fName.length() > 1 ? (Character.toLowerCase(fName.charAt(0)) + fName.substring(1))
                                 : fName.toLowerCase();
-                        String v = fNames.put(key, refName);
+                        var v = fNames.put(key, refName);
                         if (v != null) {
                             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("Cells '%s' and '%s' conflict with each other in the spreadsheet output model.".formatted(
                                     v,
@@ -232,16 +228,16 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
     }
 
     public void preBind() throws SyntaxNodeException {
-        TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
+        var tableSyntaxNode = getTableSyntaxNode();
         validateTableBody(tableSyntaxNode, bindingContext);
-        IOpenMethodHeader header = getHeader();
+        var header = getHeader();
         RulesModuleBindingContextHelper.compileAllTypesInSignature(header.getSignature(), bindingContext);
         structureBuilder = new SpreadsheetStructureBuilder(tableSyntaxNode, bindingContext, header, getModule());
-        String headerType = header.getName() + "Type";
-        OpenL openL = bindingContext.getOpenL();
+        var headerType = header.getName() + "Type";
+        var openL = bindingContext.getOpenL();
         spreadsheetOpenClass = new SpreadsheetOpenClass(headerType, openL);
 
-        Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
+        var autoType = tableSyntaxNode.getTableProperties().getAutoType();
         structureBuilder.addCellFields(spreadsheetOpenClass, autoType);
     }
 
@@ -249,12 +245,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         super.finalizeBind(bindingContext);
 
-        ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
+        var tableBody = getTableSyntaxNode().getTableBody();
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
 
         cells = structureBuilder.getCells();
-        Spreadsheet spreadsheet = (Spreadsheet) getMethod();
+        var spreadsheet = (Spreadsheet) getMethod();
         if (spreadsheet != null) {
             validateRowsColumnsForResultModel(spreadsheet);
 
@@ -270,18 +266,18 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
 
     private void validateTableBody(TableSyntaxNode tableSyntaxNode,
                                    IBindingContext bindingContext) throws SyntaxNodeException {
-        ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+        var tableBody = tableSyntaxNode.getTableBody();
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError(
                     "Table has no body. Try to merge header cell horizontally to identify table.",
                     getTableSyntaxNode());
         }
 
-        int height = tableBody.getHeight();
-        int width = tableBody.getWidth();
+        var height = tableBody.getHeight();
+        var width = tableBody.getWidth();
 
         if (height < 2 || width < 2) {
-            String message = "Spreadsheet has empty body. Spreadsheet table should has at least 2x3 cells.";
+            var message = "Spreadsheet has empty body. Spreadsheet table should has at least 2x3 cells.";
             BindHelper.processWarn(message, tableSyntaxNode, bindingContext);
         }
     }
@@ -297,7 +293,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                 if (cellArray != null) {
                     for (SpreadsheetCell cell : cellArray) {
                         if (cell != null) {
-                            CompositeMethod method = (CompositeMethod) cell.getMethod();
+                            var method = (CompositeMethod) cell.getMethod();
                             if (method != null) {
                                 method.updateDependency(dependencies);
                             }

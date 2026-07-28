@@ -60,11 +60,11 @@ public class FileCriteriaQueryValidator implements Validator {
 
         try {
             // Normalize and validate
-            Path normalized = Path.of(basePath).normalize();
+            var normalized = Path.of(basePath).normalize();
 
             // Check if normalization changed the path (traversal attempt detected)
-            String normalizedStr = normalized.toString().replace('\\', '/');
-            String originalNormalized = basePath.replace('\\', '/');
+            var normalizedStr = normalized.toString().replace('\\', '/');
+            var originalNormalized = basePath.replace('\\', '/');
             if (!originalNormalized.equals(normalizedStr)) {
                 errors.rejectValue(BASE_PATH_FIELD, BASE_PATH_INVALID, new Object[]{basePath}, null);
                 return;

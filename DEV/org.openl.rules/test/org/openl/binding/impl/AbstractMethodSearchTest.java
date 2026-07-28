@@ -33,7 +33,7 @@ abstract class AbstractMethodSearchTest {
                             Class<?> target,
                             String methodName,
                             Class<?>... classes) throws AmbiguousMethodException {
-        Object[] args = toArgs(classes);
+        var args = toArgs(classes);
         assertInvoke(expected, target, methodName, classes, args);
     }
 
@@ -44,13 +44,13 @@ abstract class AbstractMethodSearchTest {
                             Object[] args) throws AmbiguousMethodException {
         JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 
-        IOpenClass[] openClasses = toOpenClasses(classes);
+        var openClasses = toOpenClasses(classes);
 
         IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass, true);
 
         assertNotNull(method, "Method " + methodDescriptor(methodName, openClasses) + " has not been matched.");
-        Object targetInstance = instance(target);
-        Object result = method.invoke(targetInstance, args, null);
+        var targetInstance = instance(target);
+        var result = method.invoke(targetInstance, args, null);
         assertEquals(expected, result, "Method " + methodDescriptor(methodName, openClasses) + " has been matched.");
     }
 
@@ -59,7 +59,7 @@ abstract class AbstractMethodSearchTest {
             return IOpenClass.EMPTY;
         }
         IOpenClass[] openClasses = new IOpenClass[classes.length];
-        for (int i = 0; i < classes.length; i++) {
+        for (var i = 0; i < classes.length; i++) {
             if (classes[i] != null) {
                 openClasses[i] = JavaOpenClass.getOpenClass(classes[i]);
             } else {
@@ -72,7 +72,7 @@ abstract class AbstractMethodSearchTest {
     final void assertNotFound(Class<?> target, String methodName, Class<?>... classes) throws AmbiguousMethodException {
         JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 
-        IOpenClass[] openClasses = toOpenClasses(classes);
+        var openClasses = toOpenClasses(classes);
 
         IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass, true);
 
@@ -82,7 +82,7 @@ abstract class AbstractMethodSearchTest {
     final void assertAmbiguous(Class<?> target, String methodName, Class<?>... classes) {
         try {
             JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
-            IOpenClass[] openClasses = toOpenClasses(classes);
+            var openClasses = toOpenClasses(classes);
             MethodSearch.findMethod(methodName, openClasses, castFactory, aClass, true);
             fail("AmbiguousMethodException should be thrown for " + methodDescriptor(methodName, openClasses));
         } catch (AmbiguousMethodException ex) {
@@ -95,8 +95,8 @@ abstract class AbstractMethodSearchTest {
                             Class<?>[] classes,
                             Object... expects) throws AmbiguousMethodException {
         assertEquals(classes.length, expects.length);
-        for (int i = 0; i < classes.length; i++) {
-            Object expected = expects[i];
+        for (var i = 0; i < classes.length; i++) {
+            var expected = expects[i];
             assertMethod(expected, target, methodName, classes[i]);
         }
     }
@@ -107,8 +107,8 @@ abstract class AbstractMethodSearchTest {
                             Class<?>[] classes,
                             Object... expects) throws AmbiguousMethodException {
         assertEquals(classes.length, expects.length);
-        for (int i = 0; i < classes.length; i++) {
-            Object expected = expects[i];
+        for (var i = 0; i < classes.length; i++) {
+            var expected = expects[i];
             assertMethod(expected, target, methodName, class1, classes[i]);
         }
     }
@@ -123,9 +123,9 @@ abstract class AbstractMethodSearchTest {
             assertAmbiguous(target, methodName, classes);
         } else if (expected instanceof Not not) {
             try {
-                Object notExpected = not.notExpected;
+                var notExpected = not.notExpected;
                 assertInvoke(notExpected, target, methodName, classes);
-                IOpenClass[] openClasses = toOpenClasses(classes);
+                var openClasses = toOpenClasses(classes);
                 fail("Not expected '" + notExpected + "' result for method " + methodDescriptor(methodName,
                         openClasses) + ".");
             } catch (AssertionError ex) {
@@ -149,7 +149,7 @@ abstract class AbstractMethodSearchTest {
             return new Class<?>[0];
         }
         Object[] args = new Object[classes.length];
-        for (int i = 0; i < classes.length; i++) {
+        for (var i = 0; i < classes.length; i++) {
             args[i] = instance(classes[i]);
         }
         return args;
@@ -162,7 +162,7 @@ abstract class AbstractMethodSearchTest {
         Object o;
         if (clazz.isArray()) {
             Class<?> componentType = clazz.getComponentType();
-            Object item = instance(componentType);
+            var item = instance(componentType);
             o = Array.newInstance(componentType, 1);
             Array.set(o, 0, item);
             return o;
@@ -195,9 +195,9 @@ abstract class AbstractMethodSearchTest {
     }
 
     private String methodDescriptor(String name, IOpenClass[] args) {
-        StringBuilder builder = new StringBuilder(100);
+        var builder = new StringBuilder(100);
         builder.append(name).append('(');
-        boolean flag = false;
+        var flag = false;
         for (IOpenClass arg : args) {
             if (flag) {
                 builder.append(", ");

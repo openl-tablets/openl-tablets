@@ -6,17 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Calendar;
-import java.util.Date;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ui.ICellFont;
 import org.openl.source.impl.URLSourceCodeModule;
 
 class XlsCellTest {
@@ -25,18 +21,18 @@ class XlsCellTest {
 
     @BeforeEach
     void before() {
-        URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/XlsCellTest.xls");
-        XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
+        var source = new URLSourceCodeModule("./test/rules/XlsCellTest.xls");
+        var wbSrc = new XlsWorkbookSourceCodeModule(source);
 
-        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);
+        var sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);
 
         xsGrid = new XlsSheetGridModel(sheetSrc);
     }
 
     @Test
     void testStringDateMergedCell() {
-        ICell cell = xsGrid.getCell(2, 15);
-        Date nativeDate = cell.getNativeDate();
+        var cell = xsGrid.getCell(2, 15);
+        var nativeDate = cell.getNativeDate();
         Calendar instance = Calendar.getInstance();
         instance.set(Calendar.YEAR, 2010);
         instance.set(Calendar.MONTH, 0);
@@ -50,14 +46,14 @@ class XlsCellTest {
 
     @Test
     void testStringMergedCell() {
-        ICell cell = xsGrid.getCell(1, 3);
+        var cell = xsGrid.getCell(1, 3);
         assertEquals(1, cell.getAbsoluteColumn());
         assertEquals(1, cell.getColumn());
         assertEquals(3, cell.getAbsoluteRow());
         assertEquals(3, cell.getRow());
 
         // test region methods.
-        IGridRegion gridRegion = cell.getAbsoluteRegion();
+        var gridRegion = cell.getAbsoluteRegion();
         assertEquals(3, gridRegion.getTop());
         assertEquals(4, gridRegion.getBottom());
 
@@ -100,24 +96,24 @@ class XlsCellTest {
             assertEquals("Cannot get a NUMERIC value from a STRING cell", e.getMessage());
         }
 
-        ICellFont font = cell.getFont();
+        var font = cell.getFont();
         assertEquals("Arial", font.getName());
 
-        Object objectValue = cell.getObjectValue();
+        var objectValue = cell.getObjectValue();
         assertTrue(objectValue instanceof String);
         assertEquals("hello everybody!", objectValue.toString());
     }
 
     @Test
     void testDoubleMergedCell() {
-        ICell cell = xsGrid.getCell(5, 8);
+        var cell = xsGrid.getCell(5, 8);
         assertEquals(5, cell.getAbsoluteColumn());
         assertEquals(5, cell.getColumn());
         assertEquals(8, cell.getAbsoluteRow());
         assertEquals(8, cell.getRow());
 
         // test region methods.
-        IGridRegion gridRegion = cell.getAbsoluteRegion();
+        var gridRegion = cell.getAbsoluteRegion();
         assertEquals(7, gridRegion.getTop());
         assertEquals(9, gridRegion.getBottom());
 
@@ -145,16 +141,16 @@ class XlsCellTest {
 
         assertEquals("123.343", cell.getStringValue());
 
-        Date dateValue = cell.getNativeDate();
+        var dateValue = cell.getNativeDate();
         assertNull(dateValue);
 
-        double doubleVaue = cell.getNativeNumber();
+        var doubleVaue = cell.getNativeNumber();
         assertEquals(0.0, doubleVaue, 0.001); // the native value of this cell in excel is 0.
 
-        ICellFont font = cell.getFont();
+        var font = cell.getFont();
         assertEquals("Arial", font.getName());
 
-        Object objectValue = cell.getObjectValue();
+        var objectValue = cell.getObjectValue();
         assertTrue(objectValue instanceof Double);
         assertEquals(123.343, (Double) objectValue, 0.001); // the value will be taken from the top left
         // cell from the region

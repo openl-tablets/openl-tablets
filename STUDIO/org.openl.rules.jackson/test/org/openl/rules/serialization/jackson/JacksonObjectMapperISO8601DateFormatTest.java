@@ -79,7 +79,7 @@ class JacksonObjectMapperISO8601DateFormatTest {
     }
 
     private static Date createDate(int year, int month, int dayOfMonth, int hour) {
-        Calendar cal = new GregorianCalendar();
+        var cal = new GregorianCalendar();
         cal.set(year, month - 1, dayOfMonth, hour, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();

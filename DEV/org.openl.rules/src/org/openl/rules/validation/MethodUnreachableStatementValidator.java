@@ -37,7 +37,7 @@ public class MethodUnreachableStatementValidator implements IOpenLValidator {
 
     @Override
     public ValidationResult validate(IOpenClass openClass) {
-        List<OpenLMessage> messages = new ArrayList<>();
+        var messages = new ArrayList<OpenLMessage>();
         visit(openClass.getMethods(), messages);
         return ValidationUtils.withMessages(messages);
     }
@@ -56,7 +56,7 @@ public class MethodUnreachableStatementValidator implements IOpenLValidator {
         if (!(method instanceof TableMethod)) {
             return;
         }
-        IBoundNode boundNode = ((TableMethod) method).getCompositeMethod().getMethodBodyBoundNode();
+        var boundNode = ((TableMethod) method).getCompositeMethod().getMethodBodyBoundNode();
         visitStatement(boundNode, messages);
     }
 
@@ -72,11 +72,11 @@ public class MethodUnreachableStatementValidator implements IOpenLValidator {
         } else if (blockNode instanceof CastNode) {
             visitStatement(blockNode.getChildren()[0], messages);
         } else if (blockNode instanceof BlockNode) {
-            final IBoundNode[] children = blockNode.getChildren();
+            final var children = blockNode.getChildren();
             if (children.length == 0) {
                 return;
             }
-            for (int i = 0; i < children.length - 1; i++) {
+            for (var i = 0; i < children.length - 1; i++) {
                 checkPair(children[i], children[i + 1], messages);
                 visitStatement(children[i], messages);
             }

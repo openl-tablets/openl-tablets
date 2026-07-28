@@ -41,9 +41,9 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     static String incrementString(String value) {
         Objects.requireNonNull(value, "value cannot be null");
-        int d = 1;
-        StringBuilder sb = new StringBuilder();
-        int i = value.length() - 1;
+        var d = 1;
+        var sb = new StringBuilder();
+        var i = value.length() - 1;
         while (i >= 0) {
             if (d > 0) {
                 if (value.charAt(i) != Character.MAX_CODE_POINT) {

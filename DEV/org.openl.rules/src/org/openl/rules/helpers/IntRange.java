@@ -103,8 +103,8 @@ public class IntRange extends Range<Long> implements INumberRange {
                             .replaceAll("(\\S+)\\s+and\\s+more", ">=$1");
                     var parser = parse(range);
                     type = parser.getType();
-                    String left = parser.getLeft();
-                    String right = parser.getRight();
+                    var left = parser.getLeft();
+                    var right = parser.getRight();
                     min = left == null ? Long.MIN_VALUE : convertToLong(left);
                     max = right == null ? Long.MAX_VALUE : convertToLong(right);
                 } else {
@@ -204,8 +204,8 @@ public class IntRange extends Range<Long> implements INumberRange {
     }
 
     private static long convertToLong(String text) {
-        long multiplier = 1;
-        int start = 0;
+        var multiplier = 1L;
+        var start = 0;
         if (text.startsWith("$")) {
             start++;
         }
@@ -213,7 +213,7 @@ public class IntRange extends Range<Long> implements INumberRange {
             // special case, when comma as a group separator is in the beginning.
             throw new NumberFormatException("For input string: \"" + text + "\"");
         }
-        int end = text.length();
+        var end = text.length();
         switch (text.charAt(end - 1)) {
             case 'B':
                 multiplier *= 1000;
@@ -229,7 +229,7 @@ public class IntRange extends Range<Long> implements INumberRange {
             throw new NumberFormatException("For input string: \"" + text + "\"");
         }
         text = text.substring(start, end).replace(",", "");
-        long value = Long.parseLong(text);
+        var value = Long.parseLong(text);
         return Math.multiplyExact(value, multiplier);
     }
 }

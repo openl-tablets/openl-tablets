@@ -12,7 +12,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
-import org.openl.rules.workspace.uw.UserWorkspace;
 
 class MultiUserWorkspaceManagerTest {
     @TempDir
@@ -21,7 +20,7 @@ class MultiUserWorkspaceManagerTest {
 
     @BeforeEach
     void init() throws Exception {
-        LocalWorkspaceManagerImpl localWorkspaceManager = new LocalWorkspaceManagerImpl();
+        var localWorkspaceManager = new LocalWorkspaceManagerImpl();
         localWorkspaceManager.setWorkspaceHome(tempFolder.getAbsolutePath());
         localWorkspaceManager.init();
 
@@ -32,12 +31,12 @@ class MultiUserWorkspaceManagerTest {
 
     @Test
     void removeWorkspaceOnSessionTimeout() {
-        WorkspaceUserImpl user = new WorkspaceUserImpl("user1",
+        var user = new WorkspaceUserImpl("user1",
                 (username) -> new UserInfo("user1", "user1@email", "User1"));
-        UserWorkspace workspace1 = manager.getUserWorkspace(user);
+        var workspace1 = manager.getUserWorkspace(user);
 
         // Must return cached version
-        UserWorkspace workspace2 = manager.getUserWorkspace(user);
+        var workspace2 = manager.getUserWorkspace(user);
         assertSame(workspace1, workspace2);
 
         // Session timeout

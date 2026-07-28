@@ -102,9 +102,9 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
 
     @Override
     public void iterateDomain(IntExp.IntDomainIterator it) throws Failure {
-        for (int i = min(); i <= max(); ++i) {
+        for (var i = min(); i <= max(); ++i) {
             if (contains(i)) {
-                boolean res = it.doSomethingOrStop(i);
+                var res = it.doSomethingOrStop(i);
                 if (!res) {
                     return;
                 }
@@ -190,7 +190,7 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
 
     @Override
     public int value() throws Failure {
-        int min = min();
+        var min = min();
 
         if (min != max()) {
             _constrainer.fail("Attempt to get value of an unbound expression" + this);

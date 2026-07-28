@@ -17,7 +17,6 @@ import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
@@ -28,7 +27,6 @@ import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
@@ -170,7 +168,7 @@ class ModuleTest {
      * @return
      */
     private boolean executeBooleanOpenLExprression(Object context, String expr) throws SyntaxNodeException {
-        IOpenClass retType = JavaOpenClass.BOOLEAN;
+        var retType = JavaOpenClass.BOOLEAN;
         return (Boolean) executeOpenLExprression(context, expr, retType);
     }
 
@@ -184,19 +182,19 @@ class ModuleTest {
      * @return
      */
     private Object executeOpenLExprression(Object context, String expr, IOpenClass retType) throws SyntaxNodeException {
-        IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
+        var src = new StringSourceCodeModule(expr, null);
         OpenL op = OpenL.getInstance();
 
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(context.getClass());
-        IMethodSignature signature = new MethodSignature(new ParameterDeclaration(openClass, "context"));
+        var signature = new MethodSignature(new ParameterDeclaration(openClass, "context"));
 
-        OpenMethodHeader methodHeader = new OpenMethodHeader("foo", retType, signature, null);
+        var methodHeader = new OpenMethodHeader("foo", retType, signature, null);
 
-        BindingContext cxt = new BindingContext(op.getBinder(), null, op);
+        var cxt = new BindingContext(op.getBinder(), null, op);
 
         IOpenMethod method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
 
-        IRuntimeEnv env = op.getVm().getRuntimeEnv();
+        var env = op.getVm().getRuntimeEnv();
 
         return method.invoke(null, new Object[]{context}, env);
     }
@@ -209,7 +207,7 @@ class ModuleTest {
      * @return
      */
     private Object executeOpenLGetExpression(Object context, String expr) throws SyntaxNodeException {
-        IOpenClass retType = JavaOpenClass.OBJECT;
+        var retType = JavaOpenClass.OBJECT;
         return executeOpenLExprression(context, expr, retType);
     }
 
@@ -226,33 +224,33 @@ class ModuleTest {
      */
 
     private Object executeOpenLOGNLExprression(Object context, String expr) throws SyntaxNodeException {
-        IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
+        var src = new StringSourceCodeModule(expr, null);
         OpenL op = OpenL.getInstance();
 
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(context.getClass());
-        IMethodSignature signature = new MethodSignature(new ParameterDeclaration(openClass, "context"));
+        var signature = new MethodSignature(new ParameterDeclaration(openClass, "context"));
 
-        OpenMethodHeader methodHeader = new OpenMethodHeader("foo", JavaOpenClass.VOID, signature, null);
+        var methodHeader = new OpenMethodHeader("foo", JavaOpenClass.VOID, signature, null);
 
-        BindingContext cxt = new BindingContext(op.getBinder(), null, op);
+        var cxt = new BindingContext(op.getBinder(), null, op);
 
         IOpenMethod method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
 
-        IRuntimeEnv env = op.getVm().getRuntimeEnv();
+        var env = op.getVm().getRuntimeEnv();
 
         return method.invoke(null, new Object[]{context}, env);
     }
 
     private IOpenMethod makeMethod(ModuleOpenClass module, String expr, IOpenClass retType, OpenL op) throws SyntaxNodeException {
-        IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
+        var src = new StringSourceCodeModule(expr, null);
 
-        IMethodSignature signature = IMethodSignature.VOID;
+        var signature = IMethodSignature.VOID;
 
-        OpenMethodHeader methodHeader = new OpenMethodHeader("foo", retType, signature, null);
+        var methodHeader = new OpenMethodHeader("foo", retType, signature, null);
 
-        BindingContext cxt = new BindingContext(op.getBinder(), null, op);
+        var cxt = new BindingContext(op.getBinder(), null, op);
 
-        ModuleBindingContext moduleBindingContext = new ModuleBindingContext(cxt, module);
+        var moduleBindingContext = new ModuleBindingContext(cxt, module);
 
         return OpenLManager.makeMethod(op, src, methodHeader, moduleBindingContext);
     }
@@ -264,11 +262,11 @@ class ModuleTest {
      */
     @BeforeEach
     void setUp() {
-        Person person = new Person();
+        var person = new Person();
         person.setName("John Smith");
         person.setAge(21);
 
-        Address address = new Address();
+        var address = new Address();
         address.setStreet("5th avenue 123");
         address.setZip("10001");
         address.setCity("New York");
@@ -287,37 +285,37 @@ class ModuleTest {
     void testModule() throws SyntaxNodeException {
         OpenL op = OpenL.getInstance();
 
-        ModuleOpenClass module = new ModuleOpenClass("ZZZ", op);
+        var module = new ModuleOpenClass("ZZZ", op);
 
-        DynamicObjectField field = new DynamicObjectField(module, "address", JavaOpenClass.getOpenClass(Address.class));
+        var field = new DynamicObjectField(module, "address", JavaOpenClass.getOpenClass(Address.class));
 
         module.addField(field);
 
-        String methodText = "address.zip.equals(\"10001\")";
+        var methodText = "address.zip.equals(\"10001\")";
 
-        IOpenMethod m1 = makeMethod(module, methodText, JavaOpenClass.BOOLEAN, op);
+        var m1 = makeMethod(module, methodText, JavaOpenClass.BOOLEAN, op);
 
         module.addMethod(m1);
 
         // /INVOKE
 
-        long start = System.currentTimeMillis();
+        var start = System.currentTimeMillis();
 
-        int N = 1000;
+        var N = 1000;
 
         Object res = null;
-        for (int i = 0; i < N; ++i) {
-            IRuntimeEnv env = op.getVm().getRuntimeEnv();
-            Object instance = module.newInstance(env);
+        for (var i = 0; i < N; ++i) {
+            var env = op.getVm().getRuntimeEnv();
+            var instance = module.newInstance(env);
 
             field.set(instance, data.address, env);
 
             res = m1.invoke(instance, new Object[]{}, env);
         }
 
-        long end = System.currentTimeMillis();
+        var end = System.currentTimeMillis();
 
-        double run = (double) (end - start) / N;
+        var run = (double) (end - start) / N;
 
         log.info("TestModule: Result: {}. Elapsed time = {}.", res, run);
 
@@ -329,7 +327,7 @@ class ModuleTest {
     @Test
     void testOpenL() throws SyntaxNodeException {
         boolean b;
-        long t = System.currentTimeMillis();
+        var t = System.currentTimeMillis();
         b = executeBooleanOpenLExprression(data, OPENL_EXPR);
         assertTrue(b);
 
@@ -343,7 +341,7 @@ class ModuleTest {
      */
     @Test
     void testOpenLGet() throws SyntaxNodeException {
-        Object obj = executeOpenLGetExpression(data, OPENL_GET_ADDRESS);
+        var obj = executeOpenLGetExpression(data, OPENL_GET_ADDRESS);
         assertSame(obj, data.getAddress());
     }
 
@@ -358,7 +356,7 @@ class ModuleTest {
         // Object obj = executeOpenLGetExpression(order, MATH_OPENL);
         // XXX: workaround: have to specify expected return type for arithmetic
         // expressions - not good for BLS engine
-        Object obj = executeOpenLExprression(order, MATH_OPENL, JavaOpenClass.getOpenClass(Double.class)); // <--
+        var obj = executeOpenLExprression(order, MATH_OPENL, JavaOpenClass.getOpenClass(Double.class)); // <--
         // problematic,
         // we
         // have
@@ -366,7 +364,7 @@ class ModuleTest {
         // know
         // expresion return type before we invoke it
         // thats something we dont know (and cannot) in BLS
-        double value = ((Double) obj);
+        var value = ((Double) obj);
         assertEquals(orderValue, value, 0.00001);
     }
 
@@ -378,13 +376,13 @@ class ModuleTest {
         // Object obj = executeOpenLGetExpression(order, MATH_OPENL);
         // XXX: workaround: have to specify expected return type for arithmetic
         // expressions - not good for BLS engine
-        Object obj = executeOpenLOGNLExprression(order, MATH_OGNL); // <--
+        var obj = executeOpenLOGNLExprression(order, MATH_OGNL); // <--
         // problematic,
         // we have
         // to know
         // expresion return type before we invoke it
         // thats something we dont know (and cannot) in BLS
-        double value = ((Double) obj);
+        var value = ((Double) obj);
         assertEquals(orderValue, value, 0.00001);
     }
 

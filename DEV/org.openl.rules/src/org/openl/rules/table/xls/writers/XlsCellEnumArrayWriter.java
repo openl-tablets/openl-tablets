@@ -11,7 +11,7 @@ public class XlsCellEnumArrayWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
-        Object[] enums = (Object[]) getValueToWrite();
+        var enums = (Object[]) getValueToWrite();
         String[] names = EnumUtils.getNames(enums);
         getCellToWrite().setCellValue(String.join(",", names));
     }

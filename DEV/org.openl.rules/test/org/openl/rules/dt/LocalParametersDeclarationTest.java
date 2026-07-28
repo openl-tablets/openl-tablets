@@ -43,7 +43,7 @@ class LocalParametersDeclarationTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        RulesEngineFactory<ILocalParametersDeclarationTest> engineFactory = new RulesEngineFactory<>(SRC,
+        var engineFactory = new RulesEngineFactory<ILocalParametersDeclarationTest>(SRC,
                 ILocalParametersDeclarationTest.class);
 
         instance = engineFactory.newEngineInstance();
@@ -51,7 +51,7 @@ class LocalParametersDeclarationTest {
 
     @Test
     void testParamsDeclarationWithDifferentTypes() {
-        String result = instance.test1(10);
+        var result = instance.test1(10);
         assertEquals("Not Eligible", result);
 
         result = instance.test1(40);
@@ -61,7 +61,7 @@ class LocalParametersDeclarationTest {
     @Test
     void testAnonymousParamUsing() {
 
-        String result = instance.test2("Young Driver");
+        var result = instance.test2("Young Driver");
         assertEquals("Not Eligible", result);
 
         result = instance.test2("Senior Driver");
@@ -74,7 +74,7 @@ class LocalParametersDeclarationTest {
     @Test
     void testWithoutParamNameDeclaration() {
 
-        String result = instance.test3("Young Driver");
+        var result = instance.test3("Young Driver");
         assertEquals("Not Eligible", result);
 
         result = instance.test3("Senior Driver");
@@ -87,7 +87,7 @@ class LocalParametersDeclarationTest {
     @Test
     void testWithoutParamDeclaration1() {
 
-        String result = instance.test4(false);
+        var result = instance.test4(false);
         assertEquals("Not Eligible", result);
 
         result = instance.test4(true);
@@ -96,7 +96,7 @@ class LocalParametersDeclarationTest {
 
     @Test
     void testFullParamsDeclaration() {
-        String result = instance.test5(10);
+        var result = instance.test5(10);
         assertEquals("Not Eligible", result);
 
         result = instance.test5(40);
@@ -105,7 +105,7 @@ class LocalParametersDeclarationTest {
 
     @Test
     void testReturnParamsDeclaration() {
-        String result = instance.test6(10);
+        var result = instance.test6(10);
         assertEquals("Not Eligible", result);
 
         result = instance.test6(40);
@@ -127,7 +127,7 @@ class LocalParametersDeclarationTest {
     @Test
     void testSimplifiedReturnParamsDeclaration1() {
 
-        String result = instance.test9(10);
+        var result = instance.test9(10);
         assertEquals("1", result);
 
         result = instance.test9(40);
@@ -137,7 +137,7 @@ class LocalParametersDeclarationTest {
     @Test
     void testSimplifiedReturnParamsDeclaration2() {
 
-        int result = instance.test10(10);
+        var result = instance.test10(10);
         assertEquals(1, result);
 
         result = instance.test10(40);
@@ -147,7 +147,7 @@ class LocalParametersDeclarationTest {
     @Test
     void testSimplifiedReturnParamsDeclaration3() {
 
-        Double result = instance.test11(10);
+        var result = instance.test11(10);
         assertEquals(1.0, result);
 
         result = instance.test11(40);

@@ -38,8 +38,8 @@ import org.openl.rules.table.IGridRegion;
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
+        final var prime = 31;
+        var result = 1;
         result = prime * result + getBottom();
         result = prime * result + getLeft();
         result = prime * result + getRight();
@@ -58,7 +58,7 @@ import org.openl.rules.table.IGridRegion;
         if (getClass() != obj.getClass()) {
             return false;
         }
-        XlsGridRegion other = (XlsGridRegion) obj;
+        var other = (XlsGridRegion) obj;
         if (getBottom() != other.getBottom()) {
             return false;
         }

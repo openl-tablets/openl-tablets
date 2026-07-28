@@ -26,7 +26,7 @@ public class CastingMethodCaller extends MethodCaller {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         Object[] newParams = new Object[params.length];
 
-        for (int i = 0; i < newParams.length; i++) {
+        for (var i = 0; i < newParams.length; i++) {
             if (casts[i] == null) {
                 newParams[i] = params[i];
             } else {

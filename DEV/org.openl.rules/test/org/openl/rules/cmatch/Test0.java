@@ -69,7 +69,7 @@ class Test0 {
         MatchAlgorithmFactory.registerBuilder("ALGORITHM", new MatchAlgorithmCompilerBuilder());
 
         ITestColumnMatch test = TestUtils.create("test/rules/ColumnMatch.xls", ITestColumnMatch.class);
-        int real = test.runColumnMatch("OO", "Y", 100);
+        var real = test.runColumnMatch("OO", "Y", 100);
         assertEquals(2, real);
     }
 

@@ -28,7 +28,7 @@ public class LazyClientRegistrationRepository implements ClientRegistrationRepos
 
     private void init() {
         try {
-            ClientRegistration clientRegistration = ClientRegistrations
+            var clientRegistration = ClientRegistrations
                     .fromOidcIssuerLocation(propertyResolver.getProperty("security.oauth2.issuer-uri"))
                     .clientId(propertyResolver.getProperty("security.oauth2.client-id"))
                     .registrationId("webstudio")

@@ -33,7 +33,7 @@ public class RangeAscIndex extends ARuleIndexV2 {
         // Converts value for binary search in index
         // Because different subclasses of Number are not comparable.
         value = adaptor.adaptValueType(value);
-        int idx = Collections.binarySearch(index, (IndexNode) value);
+        var idx = Collections.binarySearch(index, (IndexNode) value);
         return retrieveIndexRange(idx);
     }
 
@@ -41,7 +41,7 @@ public class RangeAscIndex extends ARuleIndexV2 {
         if (idx >= 0) {
             return new IndexRange(0, idx + 1);
         } else {
-            int insertionPoint = -(idx + 1);
+            var insertionPoint = -(idx + 1);
             if (insertionPoint <= index.size() && insertionPoint > 0) {
                 return new IndexRange(0, insertionPoint);
             }
@@ -63,12 +63,12 @@ public class RangeAscIndex extends ARuleIndexV2 {
     }
 
     private BitSet collectAllRules(IndexRange range) {
-        BitSet bits = new BitSet();
+        var bits = new BitSet();
         for (int ruleN : emptyRules) {
             bits.set(ruleN);
         }
         if (range != null) {
-            for (int i = range.min; i < range.max; i++) {
+            for (var i = range.min; i < range.max; i++) {
                 for (int ruleN : index.get(i).getRules()) {
                     bits.set(ruleN);
                 }
@@ -78,19 +78,19 @@ public class RangeAscIndex extends ARuleIndexV2 {
     }
 
     private BitSet getResultAndIntersect(Object value, IDecisionTableRuleNodeV2 prevResult) {
-        BitSet prevRes = prevResult.getRuleSet();
+        var prevRes = prevResult.getRuleSet();
         if (prevRes.isEmpty()) {
             return prevRes;
         }
         var range = findIndexRange(value);
-        BitSet result = new BitSet();
+        var result = new BitSet();
         for (int ruleN : emptyRules) {
             if (prevRes.get(ruleN)) {
                 result.set(ruleN);
             }
         }
         if (range != null) {
-            for (int i = range.min; i < range.max; i++) {
+            for (var i = range.min; i < range.max; i++) {
                 for (int ruleN : index.get(i).getRules()) {
                     if (prevRes.get(ruleN)) {
                         result.set(ruleN);
@@ -104,7 +104,7 @@ public class RangeAscIndex extends ARuleIndexV2 {
     @Override
     public int[] collectRules() {
         int[] result = new int[rulesTotalSize];
-        int k = 0;
+        var k = 0;
         for (IndexNode indexNode : index) {
             for (int ruleN : indexNode.getRules()) {
                 result[k++] = ruleN;

@@ -69,8 +69,8 @@ public class Deployment extends AProjectFolder implements IDeployment {
         projects = new HashMap<>();
 
         for (AProjectArtefact artefact : getArtefactsInternal().values()) {
-            String projectPath = artefact.getArtefactPath().getStringValue();
-            AProject project = new AProject(getRepository(), projectPath);
+            var projectPath = artefact.getArtefactPath().getStringValue();
+            var project = new AProject(getRepository(), projectPath);
             project.overrideFolderStructure(folderStructure);
             projects.put(artefact.getName(), project);
         }
@@ -88,17 +88,17 @@ public class Deployment extends AProjectFolder implements IDeployment {
 
     @Override
     public ProjectVersion getVersion() {
-        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(null, null, null);
+        var rvii = new RepositoryVersionInfoImpl(null, null, null);
         return new RepositoryProjectVersionImpl(commonVersion, rvii);
     }
 
     @Override
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
         if (getRepository().supports().folders()) {
-            Repository repository = getRepository();
+            var repository = getRepository();
             List<FileData> fileDataList;
             try {
-                String folderPath = getFolderPath();
+                var folderPath = getFolderPath();
                 if (!folderPath.isEmpty() && !folderPath.endsWith("/")) {
                     folderPath += "/";
                 }
@@ -112,9 +112,9 @@ public class Deployment extends AProjectFolder implements IDeployment {
                 return Collections.emptyMap();
             }
 
-            Map<String, AProjectArtefact> result = new HashMap<>();
+            var result = new HashMap<String, AProjectArtefact>();
             for (FileData file : fileDataList) {
-                AProject project = new AProject(repository, file);
+                var project = new AProject(repository, file);
                 project.overrideFolderStructure(folderStructure);
                 result.put(file.getName(), project);
             }
@@ -132,12 +132,12 @@ public class Deployment extends AProjectFolder implements IDeployment {
 
     @Override
     public void update(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
-        Deployment other = (Deployment) newFolder;
+        var other = (Deployment) newFolder;
         // add new
         for (IProject otherProject : other.getProjects()) {
-            String name = otherProject.getName();
+            var name = otherProject.getName();
             if (!otherProject.isDeleted() && !hasArtefact(name)) {
-                AProject newProject = new AProject(getRepository(), getFolderPath() + "/" + name);
+                var newProject = new AProject(getRepository(), getFolderPath() + "/" + name);
                 newProject.overrideFolderStructure(folderStructure);
                 newProject.update((AProject) otherProject, user);
                 projects.put(newProject.getName(), newProject);

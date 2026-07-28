@@ -18,13 +18,13 @@ class WizardUtilsTest {
 
     @Test
     void testGetClasses() throws Exception {
-        URL dirUrl = getClass().getResource("./fixture");
-        URL jarUrl = URI.create("jar:file:test/rules/classes/test.jar!/").toURL();
+        var dirUrl = getClass().getResource("./fixture");
+        var jarUrl = URI.create("jar:file:test/rules/classes/test.jar!/").toURL();
         var notExistJar = URI.create("jar:file:test/not_exist.jar!/").toURL();
-        URL exampleUrl = URI.create("http://www.example.com").toURL(); // not used protocol
-        String packageName = "org.openl.rules.lang.xls.classes";
+        var exampleUrl = URI.create("http://www.example.com").toURL(); // not used protocol
+        var packageName = "org.openl.rules.lang.xls.classes";
 
-        ClassLoader stub = createClassLoaderStub(dirUrl);
+        var stub = createClassLoaderStub(dirUrl);
         var classes = WizardUtils.getClasses("org.openl.rules.webstudio.web.test.fixture", stub);
         assertEquals(1, classes.size());
         assertEquals(TestBean.class, classes.iterator().next());

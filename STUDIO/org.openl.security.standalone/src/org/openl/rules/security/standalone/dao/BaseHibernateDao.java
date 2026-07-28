@@ -53,8 +53,8 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
     @Transactional
     @Override
     public void save(Iterable<T> objs) {
-        Session session = getSession();
-        int i = 0;
+        var session = getSession();
+        var i = 0;
         for (T obj : objs) {
             if (i > 0 && i % BATCH_SIZE == 0) {
                 //flush a batch of inserts and release memory:

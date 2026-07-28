@@ -52,7 +52,7 @@ public class AppServer {
             System.setProperty("groovy.use.classvalue", "false"); // Prevent memory leak via JDK ClassValue. See GROOVY-7591
             server.start();
 
-            int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
+            var port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
             var client = HttpClient.newBuilder()
                     .executor(Runnable::run) // To prevent memory leak via the default thread pool
                     .version(HttpClient.Version.HTTP_1_1)

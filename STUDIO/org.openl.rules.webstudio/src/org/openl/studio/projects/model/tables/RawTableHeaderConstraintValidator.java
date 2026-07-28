@@ -1,6 +1,5 @@
 package org.openl.studio.projects.model.tables;
 
-import java.util.List;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -27,12 +26,12 @@ public class RawTableHeaderConstraintValidator implements ConstraintValidator<Ra
         if (view.source.isEmpty()) {
             return false; // a table with no cells has no header (an empty matrix is only a valid read result)
         }
-        List<RawTableCell> firstRow = view.source.get(0);
+        var firstRow = view.source.get(0);
         if (firstRow == null || firstRow.isEmpty()) {
             return true; // an empty first row is a structural issue reported by other constraints
         }
         // A null cell or a null/blank value at the top-left is no header at all; isKnownTableHeader(null) rejects it.
-        RawTableCell headerCell = firstRow.get(0);
+        var headerCell = firstRow.get(0);
         Object value = headerCell == null ? null : headerCell.value();
         var header = value == null ? null : value.toString();
         return FREE_FORM_KIND.equals(view.kind)

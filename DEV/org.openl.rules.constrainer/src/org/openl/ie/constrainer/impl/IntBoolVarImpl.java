@@ -27,7 +27,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         int _int_value, _type;
 
         static IntEventBool getEvent(IntExp exp, boolean val) {
-            IntEventBool ev = (IntEventBool) _factory.getElement();
+            var ev = (IntEventBool) _factory.getElement();
             ev.init(exp, val);
             return ev;
         }
@@ -224,7 +224,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
 
         @Override
         public void undo() {
-            IntBoolVar var = (IntBoolVar) undoable();
+            var var = (IntBoolVar) undoable();
             var.forceMin(_min);
             var.forceMax(_max);
             super.undo();
@@ -233,7 +233,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         @Override
         public void undoable(Undoable u) {
             super.undoable(u);
-            IntBoolVarImpl var = (IntBoolVarImpl) u;
+            var var = (IntBoolVarImpl) u;
             _min = var.min();
             _max = var.max();
 
@@ -254,7 +254,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         };
 
         static UndoIntBoolVarValue getUndo(IntBoolVarImpl v) {
-            UndoIntBoolVarValue undo = (UndoIntBoolVarValue) _factory.getElement();
+            var undo = (UndoIntBoolVarValue) _factory.getElement();
             undo.undoable(v);
             return undo;
         }
@@ -272,7 +272,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
          */
         @Override
         public void undo() {
-            IntBoolVar var = (IntBoolVar) undoable();
+            var var = (IntBoolVar) undoable();
             var.forceMin(0);
             var.forceMax(1);
             super.undo();

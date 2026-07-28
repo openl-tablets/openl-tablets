@@ -1,7 +1,6 @@
 package org.openl.codegen.tools.type;
 
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 
 public class TablePropertyDefinitionWrapper {
 
@@ -18,7 +17,7 @@ public class TablePropertyDefinitionWrapper {
 
     private void init() {
 
-        MatchingExpression expression = tablePropertyDefinition.getExpression();
+        var expression = tablePropertyDefinition.getExpression();
 
         if (expression != null) {
             operationName = expression.getMatchExpression().getOperationName();

@@ -13,7 +13,7 @@ class CollectionCellFilter extends AGridFilter {
 
     @Override
     public FormattedCell filterFormat(FormattedCell cell) {
-        Object cellValue = cell.getObjectValue();
+        var cellValue = cell.getObjectValue();
         if (cellValue != null) {
             Class<?> valueType = cellValue.getClass();
             if (valueType.isArray()) {

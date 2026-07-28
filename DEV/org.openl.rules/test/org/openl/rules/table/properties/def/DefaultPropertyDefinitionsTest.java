@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,8 +16,8 @@ class DefaultPropertyDefinitionsTest {
     void dimensionalPropertiesCategoryTest() {
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (tablePropertyDefinition.isDimensional()) {
-                InheritanceLevel[] inheritanceLevels = tablePropertyDefinition.getInheritanceLevel();
-                Set<InheritanceLevel> set = new HashSet<>(Arrays.asList(inheritanceLevels));
+                var inheritanceLevels = tablePropertyDefinition.getInheritanceLevel();
+                var set = new HashSet<InheritanceLevel>(Arrays.asList(inheritanceLevels));
                 if (!set.contains(InheritanceLevel.CATEGORY)) {
                     fail("All dimensional properties must have CATEGORY inheritance level.");
                 }
@@ -34,17 +33,17 @@ class DefaultPropertyDefinitionsTest {
 
     @Test
     void dimensionalPropertiesNodeTypeTest() {
-        Set<XlsNodeTypes> dimensionalPropertiesNodeTypes = new HashSet<>();
+        var dimensionalPropertiesNodeTypes = new HashSet<XlsNodeTypes>();
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_DT);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_SPREADSHEET);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_TBASIC);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_COLUMN_MATCH);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_METHOD);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_PROPERTIES);
-        final String failMessage = "All dimensional properties must have XLS_DT, XLS_SPREADSHEET, XLS_TBASIC, XLS_COLUMN_MATCH, XLS_METHOD, XLS_PROPERTIES only in table types.";
+        final var failMessage = "All dimensional properties must have XLS_DT, XLS_SPREADSHEET, XLS_TBASIC, XLS_COLUMN_MATCH, XLS_METHOD, XLS_PROPERTIES only in table types.";
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (tablePropertyDefinition.isDimensional()) {
-                Set<XlsNodeTypes> set = new HashSet<>(Arrays.asList(tablePropertyDefinition.getTableType()));
+                var set = new HashSet<XlsNodeTypes>(Arrays.asList(tablePropertyDefinition.getTableType()));
                 set.retainAll(dimensionalPropertiesNodeTypes);
                 if (set.size() != dimensionalPropertiesNodeTypes.size()) {
                     fail(failMessage);
@@ -55,13 +54,13 @@ class DefaultPropertyDefinitionsTest {
 
     @Test
     void infoPropertiesInheritanceTypeTest() {
-        final String failMessage = "All info properties must have TABLE inheritance level.";
+        final var failMessage = "All info properties must have TABLE inheritance level.";
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if ("Info".equalsIgnoreCase(tablePropertyDefinition.getGroup())) {
                 if (tablePropertyDefinition.getInheritanceLevel().length == 0) {
                     fail(failMessage);
                 } else {
-                    boolean found = false;
+                    var found = false;
                     for (InheritanceLevel inheritanceLevel : tablePropertyDefinition.getInheritanceLevel()) {
                         if (InheritanceLevel.TABLE.equals(inheritanceLevel)) {
                             found = true;
@@ -78,7 +77,7 @@ class DefaultPropertyDefinitionsTest {
 
     @Test
     void versionPropertiesInheritanceTypeTest() {
-        final String failMessage = "All version properties must have TABLE inheritance level only.";
+        final var failMessage = "All version properties must have TABLE inheritance level only.";
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if ("Version".equalsIgnoreCase(tablePropertyDefinition.getGroup())) {
                 if (tablePropertyDefinition.getInheritanceLevel().length != 1) {
@@ -94,16 +93,16 @@ class DefaultPropertyDefinitionsTest {
 
     @Test
     void versionPropertiesNodeTypeTest() {
-        Set<XlsNodeTypes> dimensionalPropertiesNodeTypes = new HashSet<>();
+        var dimensionalPropertiesNodeTypes = new HashSet<XlsNodeTypes>();
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_DT);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_SPREADSHEET);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_TBASIC);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_COLUMN_MATCH);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_METHOD);
-        final String failMessage = "All dimensional properties must have XLS_DT, XLS_SPREADSHEET, XLS_TBASIC, XLS_COLUMN_MATCH, XLS_METHOD only in table types.";
+        final var failMessage = "All dimensional properties must have XLS_DT, XLS_SPREADSHEET, XLS_TBASIC, XLS_COLUMN_MATCH, XLS_METHOD only in table types.";
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if ("Version".equalsIgnoreCase(tablePropertyDefinition.getGroup())) {
-                Set<XlsNodeTypes> set = new HashSet<>(Arrays.asList(tablePropertyDefinition.getTableType()));
+                var set = new HashSet<XlsNodeTypes>(Arrays.asList(tablePropertyDefinition.getTableType()));
                 set.retainAll(dimensionalPropertiesNodeTypes);
                 if (set.size() != dimensionalPropertiesNodeTypes.size()) {
                     fail(failMessage);

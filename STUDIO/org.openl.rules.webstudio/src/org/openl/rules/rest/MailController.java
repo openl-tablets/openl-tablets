@@ -2,7 +2,6 @@ package org.openl.rules.rest;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.rest.model.MailConfigModel;
-import org.openl.rules.security.User;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
@@ -66,9 +64,9 @@ public class MailController {
     @Operation(summary = "mail.verify.summary", description = "mail.verify.desc")
     @GetMapping("/verify/{token}")
     public void verify(@Parameter(description = "mail.verify.param.token") @PathVariable("token") String token) {
-        String username = currentUserInfo.getUserName();
-        User user = userManagementService.getUser(username);
-        String dbToken = userSettingManagementService.getStringProperty(username, MAIL_VERIFY_TOKEN);
+        var username = currentUserInfo.getUserName();
+        var user = userManagementService.getUser(username);
+        var dbToken = userSettingManagementService.getStringProperty(username, MAIL_VERIFY_TOKEN);
         if (Objects.equals(dbToken, token) && Objects.nonNull(user)) {
             userManagementService.updateUserData(user.getUsername(),
                     user.getFirstName(),
@@ -88,8 +86,8 @@ public class MailController {
     @OwnerOrAdminPrivilege
     public void sendVerification(HttpServletRequest request,
                                  @Parameter(description = "mail.send-verification.param.username") @PathVariable("username") String username) {
-        User user = userManagementService.getUser(username);
-        boolean emailWasSent = mailSender.sendVerificationMail(user, request);
+        var user = userManagementService.getUser(username);
+        var emailWasSent = mailSender.sendVerificationMail(user, request);
         if (!emailWasSent) {
             throw new ForbiddenException("default.message");
         }
@@ -110,7 +108,7 @@ public class MailController {
     @Deprecated(forRemoval = true)
     public void updateMailConfig(@RequestBody MailConfigModel mailConfig) throws IOException {
         validationProvider.validate(mailConfig);
-        Map<String, String> mailConfigMap = new HashMap<>();
+        var mailConfigMap = new HashMap<String, String>();
         mailConfigMap.put(MailVerificationServerSettings.MAIL_URL, mailConfig.getUrl());
         mailConfigMap.put(MailVerificationServerSettings.MAIL_USERNAME, mailConfig.getUsername());
         mailConfigMap.put(MailVerificationServerSettings.MAIL_PASSWORD, mailConfig.getPassword());

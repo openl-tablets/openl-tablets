@@ -35,8 +35,8 @@ class ExtendedStdDateFormatTest {
 
     private void testFormat(DateFormat df) {
         Date date = createDate(2018, 1, 1, 3, 4, 5);
-        final String actual = df.format(date);
-        final String expected = "2018-01-01T03:04:05.000";
+        final var actual = df.format(date);
+        final var expected = "2018-01-01T03:04:05.000";
         assertEquals(expected, actual);
     }
 
@@ -47,7 +47,7 @@ class ExtendedStdDateFormatTest {
     }
 
     private void testParse_defaultImplementation(DateFormat df) throws ParseException {
-        final Date actual = df.parse("2018-02-03");
+        final var actual = df.parse("2018-02-03");
         final Date expected = createDate(2018, 2, 3, 0, 0, 0);
         assertEquals(expected, actual);
     }
@@ -59,7 +59,7 @@ class ExtendedStdDateFormatTest {
     }
 
     private void testParse_customDateFormat(DateFormat df) throws ParseException {
-        final Date actual = df.parse("2019-01-01T03:04:05.000");
+        final var actual = df.parse("2019-01-01T03:04:05.000");
         final Date expected = createDate(2019, 1, 1, 3, 4, 5);
         assertEquals(expected, actual);
     }
@@ -75,9 +75,9 @@ class ExtendedStdDateFormatTest {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
-            ExtendedStdDateFormat f = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            var f = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-            Date zoned = f.parse("2026-06-03T10:00:00.000Z");
+            var zoned = f.parse("2026-06-03T10:00:00.000Z");
 
             // 10:00 UTC == 15:00 in GMT+05:00.
             assertEquals(createDate(2026, 6, 3, 15, 0, 0), zoned);
@@ -97,9 +97,9 @@ class ExtendedStdDateFormatTest {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
-            ExtendedStdDateFormat f = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            var f = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-            Date zoned = f.parse("2026-06-03T10:00:00.000+09:00");
+            var zoned = f.parse("2026-06-03T10:00:00.000+09:00");
 
             // 10:00+09:00 == 01:00 UTC == 06:00 in GMT+05:00.
             assertEquals(createDate(2026, 6, 3, 6, 0, 0), zoned);
@@ -118,9 +118,9 @@ class ExtendedStdDateFormatTest {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
-            ExtendedStdDateFormat f = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            var f = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-            Date zoned = f.parse("2026-06-03T10:00:00.000+0300");
+            var zoned = f.parse("2026-06-03T10:00:00.000+0300");
 
             // 10:00+03:00 == 07:00 UTC == 12:00 in GMT+05:00.
             assertEquals(createDate(2026, 6, 3, 12, 0, 0), zoned);
@@ -138,9 +138,9 @@ class ExtendedStdDateFormatTest {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
-            ExtendedStdDateFormat f = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            var f = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-            Date zoned = f.parse("2026-06-03T10:00:00Z");
+            var zoned = f.parse("2026-06-03T10:00:00Z");
 
             // 10:00 UTC == 15:00 in GMT+05:00.
             assertEquals(createDate(2026, 6, 3, 15, 0, 0), zoned);
@@ -158,7 +158,7 @@ class ExtendedStdDateFormatTest {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
-            ExtendedStdDateFormat f = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            var f = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
             assertEquals(createDate(2026, 6, 3, 10, 0, 0), f.parse("2026-06-03T10:00:00.000"));
         } finally {
@@ -173,12 +173,12 @@ class ExtendedStdDateFormatTest {
      */
     @Test
     void testWithMethodsKeepExtendedTypeAndPattern() throws ParseException {
-        ExtendedStdDateFormat base = new ExtendedStdDateFormat("dd/MM/yyyy HH:mm:ss");
+        var base = new ExtendedStdDateFormat("dd/MM/yyyy HH:mm:ss");
 
-        ExtendedStdDateFormat tz = base.withTimeZone(TimeZone.getTimeZone("GMT+05:00"));
-        ExtendedStdDateFormat loc = base.withLocale(Locale.US);
-        ExtendedStdDateFormat lenient = base.withLenient(Boolean.FALSE);
-        ExtendedStdDateFormat colon = base.withColonInTimeZone(true);
+        var tz = base.withTimeZone(TimeZone.getTimeZone("GMT+05:00"));
+        var loc = base.withLocale(Locale.US);
+        var lenient = base.withLenient(Boolean.FALSE);
+        var colon = base.withColonInTimeZone(true);
 
         assertInstanceOf(ExtendedStdDateFormat.class, tz);
         assertInstanceOf(ExtendedStdDateFormat.class, loc);
@@ -202,7 +202,7 @@ class ExtendedStdDateFormatTest {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
-            ExtendedStdDateFormat f =
+            var f =
                     new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").withTimeZone(TimeZone.getTimeZone("GMT+05:00"));
 
             // 10:00 UTC == 15:00 in GMT+05:00 — zone honored, not dropped.
@@ -218,17 +218,17 @@ class ExtendedStdDateFormatTest {
      */
     @Test
     void testWithMethodsReturnSameInstanceWhenUnchanged() {
-        ExtendedStdDateFormat tz =
+        var tz =
                 new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").withTimeZone(TimeZone.getTimeZone("GMT+05:00"));
         assertSame(tz, tz.withTimeZone(TimeZone.getTimeZone("GMT+05:00")));
 
-        ExtendedStdDateFormat loc = tz.withLocale(Locale.US);
+        var loc = tz.withLocale(Locale.US);
         assertSame(loc, loc.withLocale(Locale.US));
 
-        ExtendedStdDateFormat lenient = tz.withLenient(Boolean.FALSE);
+        var lenient = tz.withLenient(Boolean.FALSE);
         assertSame(lenient, lenient.withLenient(Boolean.FALSE));
 
-        ExtendedStdDateFormat colon = tz.withColonInTimeZone(tz.isColonIncludedInTimeZone());
+        var colon = tz.withColonInTimeZone(tz.isColonIncludedInTimeZone());
         assertSame(colon, colon.withColonInTimeZone(colon.isColonIncludedInTimeZone()));
     }
 
@@ -241,7 +241,7 @@ class ExtendedStdDateFormatTest {
     }
 
     private static Date createDate(int year, int month, int dayOfMonth, int hour, int minute, int seconds) {
-        Calendar cal = new GregorianCalendar();
+        var cal = new GregorianCalendar();
         cal.set(year, month - 1, dayOfMonth, hour, minute, seconds);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();

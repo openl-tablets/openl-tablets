@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.admin;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
@@ -88,11 +87,11 @@ public class RulesDeployerRestController {
     @Path("/{deploymentName}.zip")
     @Produces("application/zip")
     public Response read(@PathParam("deploymentName") final String deploymentName) throws Exception {
-        Collection<OpenLService> services = serviceManager.getServicesByDeployment(deploymentName);
+        var services = serviceManager.getServicesByDeployment(deploymentName);
         if (services.isEmpty()) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        final String encodedFileName = URLEncoder.encode(deploymentName + ".zip", StandardCharsets.UTF_8)
+        final var encodedFileName = URLEncoder.encode(deploymentName + ".zip", StandardCharsets.UTF_8)
                 .replace("+", "%20");
         return Response
                 .ok((StreamingOutput) outputStream -> rulesDeployerService.read(deploymentName,
@@ -111,11 +110,11 @@ public class RulesDeployerRestController {
     @DELETE
     @Path("/{deploymentName}")
     public Response delete(@PathParam("deploymentName") final String deploymentName) throws Exception {
-        Collection<OpenLService> services = serviceManager.getServicesByDeployment(deploymentName);
+        var services = serviceManager.getServicesByDeployment(deploymentName);
         if (services.isEmpty()) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        boolean deleted = rulesDeployerService.delete(deploymentName,
+        var deleted = rulesDeployerService.delete(deploymentName,
                 services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()));
         if (deleted) {
             notifyDeploymentsUpdated();

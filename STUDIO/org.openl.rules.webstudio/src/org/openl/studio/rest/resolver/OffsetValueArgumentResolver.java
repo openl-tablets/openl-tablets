@@ -1,6 +1,5 @@
 package org.openl.studio.rest.resolver;
 
-import java.lang.reflect.Method;
 import java.util.Optional;
 
 import org.springframework.core.MethodParameter;
@@ -23,27 +22,27 @@ public class OffsetValueArgumentResolver extends AbstractPaginationValueArgument
 
     @Override
     protected Pageable handleValue(MethodParameter parameter, NativeWebRequest webRequest) {
-        Optional<Offset> def = Optional.ofNullable(getDefaultFromAnnotation(parameter));
-        Optional<Integer> offset = Optional.ofNullable(parseParameter(webRequest, OFFSET_QUERY_PARAM, 0));
-        Optional<Integer> size = Optional.ofNullable(parseParameter(webRequest, PAGE_SIZE_QUERY_PARAM, 1));
+        var def = Optional.ofNullable(getDefaultFromAnnotation(parameter));
+        var offset = Optional.ofNullable(parseParameter(webRequest, OFFSET_QUERY_PARAM, 0));
+        var size = Optional.ofNullable(parseParameter(webRequest, PAGE_SIZE_QUERY_PARAM, 1));
         if (def.isEmpty() && size.isEmpty() && offset.isEmpty()) {
             return Page.unpaged();
         }
 
-        int pageOffset = offset.orElseGet(() -> def.map(Offset::getOffset).orElse(0));
-        int pageSize = size.orElseGet(() -> def.map(Offset::getPageSize).orElse(DEFAULT_PAGE_SIZE));
+        var pageOffset = offset.orElseGet(() -> def.map(Offset::getOffset).orElse(0));
+        var pageSize = size.orElseGet(() -> def.map(Offset::getPageSize).orElse(DEFAULT_PAGE_SIZE));
 
         return Offset.of(pageOffset, pageSize);
     }
 
     private Offset getDefaultFromAnnotation(MethodParameter parameter) {
-        PaginationDefault defaultAnno = parameter.getParameterAnnotation(PaginationDefault.class);
+        var defaultAnno = parameter.getParameterAnnotation(PaginationDefault.class);
         if (defaultAnno == null) {
             return null;
         }
-        int offset = defaultAnno.offset();
+        var offset = defaultAnno.offset();
         if (offset < 0) {
-            Method annotatedMethod = parameter.getMethod();
+            var annotatedMethod = parameter.getMethod();
             throw new IllegalStateException(
                     "Invalid default page offset configured for method '%s'. Must not be less than zero.".formatted(
                             annotatedMethod));

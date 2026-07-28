@@ -40,7 +40,7 @@ public final class TagCatalog {
      * @param tags  configured tag values of those types
      */
     public static TagCatalog of(List<TagType> types, List<Tag> tags) {
-        Map<String, TypeEntry> byName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        var byName = new TreeMap<String, TypeEntry>(String.CASE_INSENSITIVE_ORDER);
         types.forEach(type -> byName.put(type.getName(),
                 new TypeEntry(type, new TreeMap<>(String.CASE_INSENSITIVE_ORDER))));
         tags.forEach(tag -> {

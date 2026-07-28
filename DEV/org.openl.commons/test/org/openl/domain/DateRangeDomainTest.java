@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,7 +41,7 @@ class DateRangeDomainTest {
         final Date min = createDate(2020, 1, 1);
         final Date max = createDate(2020, 3, 31);
 
-        final DateRangeDomain dateRange = new DateRangeDomain(min, max);
+        final var dateRange = new DateRangeDomain(min, max);
         assertEquals(min, dateRange.getMin());
         assertEquals(max, dateRange.getMax());
         assertEquals(createDate(2020, 2, 1), dateRange.getValue(31));
@@ -59,19 +58,19 @@ class DateRangeDomainTest {
         assertNull(dateRange.getValue(100));
 
         final Iterator<Date> it = dateRange.iterator();
-        final LocalDateTime dateTime = min.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        for (int i = 0; i < 91; i++) {
+        final var dateTime = min.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        for (var i = 0; i < 91; i++) {
             assertTrue(it.hasNext());
             it.remove(); //did nothing
             final Date expected = Date.from(dateTime.plusDays(i).atZone(ZoneId.systemDefault()).toInstant());
-            final Date actual = it.next();
+            final var actual = it.next();
             assertEquals(expected, actual);
         }
         assertFalse(it.hasNext());
     }
 
     private static Date createDate(int year, int month, int dayOfMonth) {
-        Calendar cal = new GregorianCalendar();
+        var cal = new GregorianCalendar();
         cal.set(year, month - 1, dayOfMonth, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();

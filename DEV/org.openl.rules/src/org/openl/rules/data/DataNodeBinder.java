@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -36,13 +33,11 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.rules.testmethod.TestMethodOpenClass;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.util.MessageUtils;
 import org.openl.util.TableNameChecker;
 import org.openl.util.text.TextInterval;
@@ -59,7 +54,7 @@ public class DataNodeBinder extends AXlsTableBinder {
     protected ATableBoundNode makeNode(TableSyntaxNode tsn,
                                        XlsModuleOpenClass module,
                                        RulesModuleBindingContext bindingContext) {
-        DataTableBoundNode boundNode = new DataTableBoundNode(tsn, module);
+        var boundNode = new DataTableBoundNode(tsn, module);
 
         if (!bindingContext.isExecutionMode()) {
             tsn.setMetaInfoReader(new DataTableMetaInfoReader(boundNode));
@@ -78,10 +73,10 @@ public class DataNodeBinder extends AXlsTableBinder {
                                     RulesModuleBindingContext bindingContext,
                                     XlsModuleOpenClass module) throws Exception {
 
-        DataTableBoundNode dataNode = (DataTableBoundNode) makeNode(tableSyntaxNode, module, bindingContext);
-        ILogicalTable table = tableSyntaxNode.getTable();
+        var dataNode = (DataTableBoundNode) makeNode(tableSyntaxNode, module, bindingContext);
+        var table = tableSyntaxNode.getTable();
 
-        IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
+        var source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
 
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
 
@@ -95,10 +90,10 @@ public class DataNodeBinder extends AXlsTableBinder {
             throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
         }
 
-        String typeName = parsedHeader[TYPE_INDEX].getOriginalText();
-        String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
+        var typeName = parsedHeader[TYPE_INDEX].getOriginalText();
+        var tableName = parsedHeader[TABLE_NAME_INDEX].getText();
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
-            String message = NAME_ERROR_MESSAGE.formatted("Data table", tableName);
+            var message = NAME_ERROR_MESSAGE.formatted("Data table", tableName);
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
         IOpenClass tableType = OpenLManager
@@ -111,17 +106,17 @@ public class DataNodeBinder extends AXlsTableBinder {
             throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TYPE_INDEX]);
         }
 
-        ITable dataTable = makeTable(module, tableSyntaxNode, tableName, tableType, bindingContext, openl, true);
+        var dataTable = makeTable(module, tableSyntaxNode, tableName, tableType, bindingContext, openl, true);
         dataNode.setTable(dataTable);
 
         return dataNode;
     }
 
     private static IdentifierNode[] mergeArraySymbols(IdentifierNode[] parsedHeader) {
-        List<IdentifierNode> parsedHeader1 = new ArrayList<>();
+        var parsedHeader1 = new ArrayList<IdentifierNode>();
         parsedHeader1.add(parsedHeader[0]);
-        int i = 2;
-        StringBuilder sb = new StringBuilder();
+        var i = 2;
+        var sb = new StringBuilder();
         while (i < parsedHeader.length - 1) {
             if ("[]".equals(parsedHeader[i].getIdentifier()) || "]".equals(parsedHeader[i].getIdentifier()) || "["
                     .equals(parsedHeader[i].getIdentifier())) {
@@ -162,7 +157,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                              boolean hasColumnTitleRow) throws Exception {
 
         if (tableBody == null) {
-            String message = "There is no body in 'Data' table.";
+            var message = "There is no body in 'Data' table.";
             throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
         } else {
             ILogicalTable horizDataTableBody = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
@@ -173,7 +168,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                 dataWithTitleRows = LogicalTableHelper
                         .logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
 
-                ColumnDescriptor[] descriptors = makeDescriptors(tableToProcess,
+                var descriptors = makeDescriptors(tableToProcess,
                         tableType,
                         bindingContext,
                         openl,
@@ -186,17 +181,17 @@ public class DataNodeBinder extends AXlsTableBinder {
                     validateTestTableDescriptors(descriptors, tableToProcess, bindingContext);
                 }
 
-                OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName,
+                var dataModel = new OpenlBasedDataTableModel(tableName,
                         tableType,
                         openl,
                         descriptors,
                         hasColumnTitleRow);
 
-                OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, bindingContext, tableToProcess.getTableSyntaxNode());
+                var ota = new OpenlToolAdaptor(openl, bindingContext, tableToProcess.getTableSyntaxNode());
 
                 xlsOpenClass.getDataBase().preLoadTable(tableToProcess, dataModel, dataWithTitleRows, ota);
             } else {
-                String message = "Invalid table structure: data table body should contain key and value columns.";
+                var message = "Invalid table structure: data table body should contain key and value columns.";
                 throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
             }
         }
@@ -205,25 +200,25 @@ public class DataNodeBinder extends AXlsTableBinder {
     private static void validateTestTableDescriptors(ColumnDescriptor[] descriptors,
                                                      ITable tableToProcess,
                                                      IBindingContext bindingContext) throws SyntaxNodeException {
-        Set<String> runtimeContextProps = new HashSet<>();
-        Set<String> testRuntimeContextProps = new HashSet<>();
-        Map<String, String> duplicatedRuntimeContextProps = new HashMap<>();
-        boolean resColDefined = false;
+        var runtimeContextProps = new HashSet<String>();
+        var testRuntimeContextProps = new HashSet<String>();
+        var duplicatedRuntimeContextProps = new HashMap<String, String>();
+        var resColDefined = false;
         for (ColumnDescriptor descriptor : descriptors) {
             if (descriptor != null) {
                 if (descriptor.getFieldChainTokens()[0].getIdentifier()
                         .startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
                     resColDefined = true;
                 }
-                IOpenField field = descriptor.getField();
+                var field = descriptor.getField();
                 if (field instanceof FieldChain chain) {
-                    IOpenField[] fields = chain.getFields();
+                    var fields = chain.getFields();
                     // for fields with a context property, the length must be 2
                     if (fields.length != 2) {
                         continue;
                     }
                     if (fields[1].isContextProperty()) {
-                        String contextProperty = fields[1].getContextProperty();
+                        var contextProperty = fields[1].getContextProperty();
                         if (runtimeContextProps.contains(contextProperty)) {
                             duplicatedRuntimeContextProps.put(contextProperty, fields[0].getName());
                         }

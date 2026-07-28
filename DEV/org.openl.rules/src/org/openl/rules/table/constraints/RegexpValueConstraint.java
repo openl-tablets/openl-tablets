@@ -1,6 +1,5 @@
 package org.openl.rules.table.constraints;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -23,7 +22,7 @@ public class RegexpValueConstraint extends AbstractConstraint {
 
     public static String getRegexPattern(String value) {
         Pattern p = Pattern.compile(CONSTRAINT_MATCH);
-        Matcher m = p.matcher(value);
+        var m = p.matcher(value);
         if (m.find()) {
             return m.group(1);
         } else {

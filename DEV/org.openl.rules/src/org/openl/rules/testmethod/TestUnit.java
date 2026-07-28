@@ -42,7 +42,7 @@ public class TestUnit extends BaseTestUnit {
      */
     @Override
     public Object getActualResult() {
-        Throwable actualError = getActualError();
+        var actualError = getActualError();
         return actualError == null ? actualResult : actualError;
     }
 
@@ -58,12 +58,12 @@ public class TestUnit extends BaseTestUnit {
 
     @Override
     public List<ComparedResult> getResultParams() {
-        List<ComparedResult> params = new ArrayList<>();
+        var params = new ArrayList<ComparedResult>();
 
         // Don't modify original ComparedResult!
         // TODO: Investigate why we need to wrap actual value and expected value with ParameterWithValueDeclaration
         for (ComparedResult comparedResult : getComparisonResults()) {
-            ComparedResult copy = new ComparedResult(comparedResult.getFieldName(),
+            var copy = new ComparedResult(comparedResult.getFieldName(),
                     buildParameterDeclaration(comparedResult.getFieldName(),
                             "expectedResult",
                             comparedResult.getExpectedValue()),
@@ -87,7 +87,7 @@ public class TestUnit extends BaseTestUnit {
 
     @Override
     public List<OpenLMessage> getErrors() {
-        Throwable actualError = getActualError();
+        var actualError = getActualError();
         if (actualError != null) {
             return OpenLMessagesUtils.newErrorMessages(actualError);
         } else {

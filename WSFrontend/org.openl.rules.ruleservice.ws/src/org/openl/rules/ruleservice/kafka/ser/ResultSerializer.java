@@ -20,7 +20,7 @@ public class ResultSerializer implements Serializer<Object> {
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
-        Object encodingValue = configs.get("value.serializer.encoding");
+        var encodingValue = configs.get("value.serializer.encoding");
         if (encodingValue == null) {
             encodingValue = configs.get("serializer.encoding");
         }

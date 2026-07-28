@@ -86,7 +86,7 @@ public final class Comments {
     }
 
     public String newBranch(String projectName, String userName, String date) {
-        String simplifiedProjName = Optional.ofNullable(projectName)
+        var simplifiedProjName = Optional.ofNullable(projectName)
                 .map(s -> s.replaceAll("[^\\p{LD}\\-$]", "")) // Remove restricted symbols
                 .orElse(StringUtils.EMPTY);
         return newBranchNameTemplate.replace(PROJECT_NAME, simplifiedProjName)
@@ -98,13 +98,13 @@ public final class Comments {
         if (StringUtils.isBlank(comment)) {
             return Collections.singletonList(comment);
         }
-        String paramName = "{project-name}";
-        int from = copiedFromTemplate.indexOf(paramName);
+        var paramName = "{project-name}";
+        var from = copiedFromTemplate.indexOf(paramName);
         if (from == -1) {
             return Collections.singletonList(comment);
         }
-        String prefix = copiedFromTemplate.substring(0, from);
-        String suffix = copiedFromTemplate.substring(from + paramName.length());
+        var prefix = copiedFromTemplate.substring(0, from);
+        var suffix = copiedFromTemplate.substring(from + paramName.length());
         if (comment.startsWith(prefix) && comment.endsWith(suffix)) {
             return Arrays.asList(prefix, comment.substring(from, comment.lastIndexOf(suffix)), suffix);
         } else {

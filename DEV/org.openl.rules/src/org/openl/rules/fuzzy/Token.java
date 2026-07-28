@@ -30,8 +30,8 @@ public class Token {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
+        final var prime = 31;
+        var result = 1;
         result = prime * result + distance;
         result = prime * result + (value == null ? 0 : value.hashCode());
         return result;
@@ -48,7 +48,7 @@ public class Token {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Token other = (Token) obj;
+        var other = (Token) obj;
         if (distance != other.distance) {
             return false;
         }

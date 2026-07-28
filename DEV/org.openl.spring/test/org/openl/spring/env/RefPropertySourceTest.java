@@ -13,7 +13,7 @@ import org.springframework.core.env.PropertySourcesPropertyResolver;
 class RefPropertySourceTest {
     @Test
     void noSources() {
-        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), new MutablePropertySources());
+        var ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), new MutablePropertySources());
         assertNull(ref.getProperty(""));
         assertNull(ref.getProperty("."));
         assertNull(ref.getProperty(".b"));
@@ -26,7 +26,7 @@ class RefPropertySourceTest {
 
     @Test
     void noRefs() {
-        MutablePropertySources propertySources = new MutablePropertySources();
+        var propertySources = new MutablePropertySources();
         propertySources.addLast(new MapPropertySource("A", new HashMap<String, Object>() {
             {
                 put("abc", "1");
@@ -34,7 +34,7 @@ class RefPropertySourceTest {
                 put(".ghi", "3");
             }
         }));
-        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
+        var ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
         propertySources.addLast(ref);
         assertNull(ref.getProperty(""));
         assertNull(ref.getProperty("."));
@@ -51,7 +51,7 @@ class RefPropertySourceTest {
 
     @Test
     void refs() {
-        MutablePropertySources propertySources = new MutablePropertySources();
+        var propertySources = new MutablePropertySources();
         propertySources.addLast(new MapPropertySource("A", new HashMap<String, Object>() {
             {
                 put("abc", "A");
@@ -70,7 +70,7 @@ class RefPropertySourceTest {
                 put("mno.www.y", "2");
             }
         }));
-        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
+        var ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
         propertySources.addLast(ref);
         assertEquals("A", ref.getProperty("xyz"));
         assertEquals("B", ref.getProperty("xyz.def"));
@@ -93,7 +93,7 @@ class RefPropertySourceTest {
 
     @Test
     void multiLevelRefs() {
-        MutablePropertySources propertySources = new MutablePropertySources();
+        var propertySources = new MutablePropertySources();
         propertySources.addLast(new MapPropertySource("A", new HashMap<>() {
             {
                 // root
@@ -115,7 +115,7 @@ class RefPropertySourceTest {
             }
         }));
 
-        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
+        var ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
         propertySources.addLast(ref);
 
         assertEquals("1", ref.getProperty("q"));

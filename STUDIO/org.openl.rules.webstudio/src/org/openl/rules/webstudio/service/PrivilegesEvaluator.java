@@ -19,21 +19,21 @@ public final class PrivilegesEvaluator {
         if (groups == null || groups.isEmpty()) {
             return Collections.emptyList();
         }
-        Collection<GrantedAuthority> grantedList = new ArrayList<>();
+        var grantedList = new ArrayList<GrantedAuthority>();
         for (Group group : groups) {
-            Collection<GrantedAuthority> privileges = createPrivileges(group);
+            var privileges = createPrivileges(group);
             grantedList.add(new SimpleGroup(group.getName(), group.getDescription(), privileges));
         }
         return grantedList;
     }
 
     public static SimpleGroup wrap(Group group) {
-        Collection<GrantedAuthority> privileges = PrivilegesEvaluator.createPrivileges(group);
+        var privileges = PrivilegesEvaluator.createPrivileges(group);
         return new SimpleGroup(group.getName(), group.getDescription(), privileges);
     }
 
     private static Collection<GrantedAuthority> createPrivileges(Group group) {
-        Collection<GrantedAuthority> grantedList = new ArrayList<>();
+        var grantedList = new ArrayList<GrantedAuthority>();
 
         Set<String> privileges = group.getPrivileges();
 

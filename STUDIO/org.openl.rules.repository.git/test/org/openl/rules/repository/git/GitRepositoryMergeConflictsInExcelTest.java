@@ -31,8 +31,6 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.junit.jupiter.api.AutoClose;
@@ -70,13 +68,13 @@ class GitRepositoryMergeConflictsInExcelTest {
     @BeforeAll
     static void initialize() throws IOException, GitAPIException {
         // Initialize remote repository
-        try (Git git = Git.init().setDirectory(template).call()) {
-            Repository repository = git.getRepository();
-            StoredConfig config = repository.getConfig();
+        try (var git = Git.init().setDirectory(template).call()) {
+            var repository = git.getRepository();
+            var config = repository.getConfig();
             config.setBoolean(ConfigConstants.CONFIG_GC_SECTION, null, ConfigConstants.CONFIG_KEY_AUTODETACH, false);
             config.save();
 
-            File parent = repository.getDirectory().getParentFile();
+            var parent = repository.getDirectory().getParentFile();
 
             // create initial commit in master
             createNewFile(parent, "README.md", "# openl-merge-template");
@@ -87,26 +85,26 @@ class GitRepositoryMergeConflictsInExcelTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        File remote = new File(root, "remote");
-        File localRepositoriesFolder = new File(root, "repositories");
-        File local = new File(localRepositoriesFolder, "local");
+        var remote = new File(root, "remote");
+        var localRepositoriesFolder = new File(root, "repositories");
+        var local = new File(localRepositoriesFolder, "local");
 
         FileUtils.copy(template, remote);
         repo = createRepository(remote, local, localRepositoriesFolder.getAbsolutePath());
     }
 
     private GitRepository createRepository(File remote, File local, String localRepositoriesFolder) throws IOException {
-        GitRepository newRepo = new GitRepository();
+        var newRepo = new GitRepository();
         newRepo.setId(REPO_ID);
-        String uri = remote.toURI().toString();
+        var uri = remote.toURI().toString();
         newRepo.setUri(uri);
         newRepo.setLocalRepositoriesFolder(localRepositoriesFolder);
         newRepo.setBranch("master");
         newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
-        String settingsPath = local.getParent() + "/git-settings";
-        FileSystemRepository settingsRepository = new FileSystemRepository();
+        var settingsPath = local.getParent() + "/git-settings";
+        var settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);
-        String locksRoot = new File(local.getParent(), "locks").getAbsolutePath();
+        var locksRoot = new File(local.getParent(), "locks").getAbsolutePath();
         newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.setGcAutoDetach(false);
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local, localRepositoriesFolder, true, true));
@@ -137,8 +135,8 @@ class GitRepositoryMergeConflictsInExcelTest {
 
     @Test
     void testCase_04() throws IOException, GitAPIException {
-        TestCaseData testCaseData = initializeTestCase("04");
-        GitRepository branchRepo = repo.forBranch("04");
+        var testCaseData = initializeTestCase("04");
+        var branchRepo = repo.forBranch("04");
         try {
             branchRepo.merge(Constants.MASTER, USER_INFO, null);
             fail("¯\\_(ツ)_/¯");
@@ -296,28 +294,28 @@ class GitRepositoryMergeConflictsInExcelTest {
                                  Set<String> expectedModifiedFiles,
                                  String expectedMrMessage1,
                                  String expectedMrMessage2) throws IOException, GitAPIException {
-        TestCaseData testCaseData = initializeTestCase(testCase);
-        GitRepository branchRepo = repo.forBranch(testCase);
+        var testCaseData = initializeTestCase(testCase);
+        var branchRepo = repo.forBranch(testCase);
         branchRepo.merge(Constants.MASTER, USER_INFO, null);
         String masterToBranchMergeCommit;
-        try (Git git = repo.getClosableGit()) {
-            RevCommit mergeCommit = git.log().setMaxCount(1).call().iterator().next();
+        try (var git = repo.getClosableGit()) {
+            var mergeCommit = git.log().setMaxCount(1).call().iterator().next();
             masterToBranchMergeCommit = mergeCommit.getName();
-            String actualCommitMessage = mergeCommit.getFullMessage();
+            var actualCommitMessage = mergeCommit.getFullMessage();
             String expectedCommitMessage = String.format(
                     "Merge commit with %s\n\n Automatically resolved conflicts:\n\t" + expectedMrMessage1,
                     testCaseData.theirRevision);
             assertEquals(expectedCommitMessage, actualCommitMessage);
 
             var repository = git.getRepository();
-            RevCommit theirCommit = repository.parseCommit(repository.resolve(testCaseData.theirRevision));
-            List<DiffEntry> diffs = getDiffs(git, mergeCommit, theirCommit);
+            var theirCommit = repository.parseCommit(repository.resolve(testCaseData.theirRevision));
+            var diffs = getDiffs(git, mergeCommit, theirCommit);
             for (DiffEntry diffEntry : diffs) {
                 assertEquals(DiffEntry.ChangeType.MODIFY, diffEntry.getChangeType());
                 assertTrue(expectedModifiedFiles.contains(diffEntry.getNewPath()), "File must be modified");
             }
 
-            RevCommit ourCommit = repository.parseCommit(repository.resolve(testCaseData.ourRevision));
+            var ourCommit = repository.parseCommit(repository.resolve(testCaseData.ourRevision));
             diffs = getDiffs(git, mergeCommit, ourCommit);
             for (DiffEntry diffEntry : diffs) {
                 assertEquals(DiffEntry.ChangeType.MODIFY, diffEntry.getChangeType());
@@ -329,10 +327,10 @@ class GitRepositoryMergeConflictsInExcelTest {
         branchRepo = repo.forBranch(Constants.MASTER);
         branchRepo.merge(testCase + COPY_BRANCH_PREF, USER_INFO, null);
         String branchToMasterMergeCommit;
-        try (Git git = repo.getClosableGit()) {
-            RevCommit mergeCommit = git.log().setMaxCount(1).call().iterator().next();
+        try (var git = repo.getClosableGit()) {
+            var mergeCommit = git.log().setMaxCount(1).call().iterator().next();
             branchToMasterMergeCommit = mergeCommit.getName();
-            String actualCommitMessage = mergeCommit.getFullMessage();
+            var actualCommitMessage = mergeCommit.getFullMessage();
             String expectedCommitMessage = String.format(
                     "Merge commit with %s\n\n Automatically resolved conflicts:\n\t" + expectedMrMessage2,
                     testCaseData.ourRevision);
@@ -343,7 +341,7 @@ class GitRepositoryMergeConflictsInExcelTest {
     }
 
     private List<DiffEntry> getDiffs(Git git, RevCommit commit1, RevCommit commit2) throws IOException {
-        DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
+        var df = new DiffFormatter(DisabledOutputStream.INSTANCE);
         df.setRepository(git.getRepository());
         df.setDiffComparator(RawTextComparator.DEFAULT);
         df.setDetectRenames(true);
@@ -351,11 +349,11 @@ class GitRepositoryMergeConflictsInExcelTest {
     }
 
     private TestCaseData initializeTestCase(String testCase) throws IOException, GitAPIException {
-        TestCaseData testCaseData = new TestCaseData();
-        Path testCaseRoot = TEST_CASES_ROOT.resolve(testCase);
-        try (Git git = repo.getClosableGit()) {
-            File gitRoot = git.getRepository().getDirectory().getParentFile();
-            File gitTestCase = new File(gitRoot, testCase);
+        var testCaseData = new TestCaseData();
+        var testCaseRoot = TEST_CASES_ROOT.resolve(testCase);
+        try (var git = repo.getClosableGit()) {
+            var gitRoot = git.getRepository().getDirectory().getParentFile();
+            var gitTestCase = new File(gitRoot, testCase);
             Files.createDirectory(gitTestCase.toPath());
 
             testCaseData.baseRevision = initializeBaseRevision(git, gitTestCase, testCaseRoot.resolve("BASE"));
@@ -370,7 +368,7 @@ class GitRepositoryMergeConflictsInExcelTest {
     private String initializeBaseRevision(Git git, File gitTestCase, Path baseSrc) throws IOException, GitAPIException {
         FileUtils.copy(baseSrc.toFile(), gitTestCase);
         git.add().addFilepattern(".").call();
-        RevCommit commit = git.commit()
+        var commit = git.commit()
                 .setMessage("Initial test case '" + gitTestCase.getName() + "' commit")
                 .setCommitter("User 1", "user1@email.to")
                 .call();
@@ -379,13 +377,13 @@ class GitRepositoryMergeConflictsInExcelTest {
 
     private String initializeBranchRevision(Git git, File gitTestCase, Path ourSrc) throws GitAPIException,
             IOException {
-        String testCaseName = gitTestCase.getName();
+        var testCaseName = gitTestCase.getName();
         git.branchCreate().setName(testCaseName).call();
         git.checkout().setName(testCaseName).call();
 
         FileUtils.copy(ourSrc.toFile(), gitTestCase);
         git.add().addFilepattern(".").call();
-        RevCommit commit = git.commit()
+        var commit = git.commit()
                 .setMessage("Our branch test case '" + gitTestCase.getName() + "' commit")
                 .setCommitter("User 1", "user1@email.to")
                 .call();
@@ -399,7 +397,7 @@ class GitRepositoryMergeConflictsInExcelTest {
         git.checkout().setName(Constants.MASTER).call();
         FileUtils.copy(theirSrc.toFile(), gitTestCase);
         git.add().addFilepattern(".").call();
-        RevCommit commit = git.commit()
+        var commit = git.commit()
                 .setMessage("Their test case '" + gitTestCase.getName() + "' commit")
                 .setCommitter("User 1", "user1@email.to")
                 .call();
@@ -410,14 +408,14 @@ class GitRepositoryMergeConflictsInExcelTest {
                                      String masterToBranchMergeCommit,
                                      String branchToMasterMergeCommit) throws IOException {
         Path basePath = Path.of(testCase);
-        Path testCaseRoot = TEST_CASES_ROOT.resolve(testCase);
-        Set<String> filesToVerify = new HashSet<>();
+        var testCaseRoot = TEST_CASES_ROOT.resolve(testCase);
+        var filesToVerify = new HashSet<String>();
         Files.walkFileTree(testCaseRoot, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 if (FileTypeHelper.isExcelFile(file.getFileName().toString())) {
-                    Path relative = testCaseRoot.relativize(file);
-                    Path fileRelative = relative.subpath(1, relative.getNameCount());
+                    var relative = testCaseRoot.relativize(file);
+                    var fileRelative = relative.subpath(1, relative.getNameCount());
                     filesToVerify.add(FileNameFormatter.normalizePath(basePath.resolve(fileRelative).toString()));
                 }
                 return FileVisitResult.CONTINUE;

@@ -45,12 +45,12 @@ public class Lock {
     }
 
     public boolean tryLock(String lockedBy) {
-        LockInfo info = getInfo();
+        var info = getInfo();
         if (info.isLocked()) {
             // If lockedBy is empty, will return false. Cannot lock second time with empty user.
             return !info.getLockedBy().isEmpty() && info.getLockedBy().equals(lockedBy);
         }
-        boolean lockAcquired = false;
+        var lockAcquired = false;
         Path prepareLock = null;
         try {
             prepareLock = createLockFile(lockedBy);
@@ -72,18 +72,18 @@ public class Lock {
     }
 
     public boolean tryLock(String lockedBy, long time, TimeUnit unit) {
-        long millisTimeout = unit.toMillis(time);
-        long deadline = System.currentTimeMillis() + millisTimeout;
-        boolean result = tryLock(lockedBy);
+        var millisTimeout = unit.toMillis(time);
+        var deadline = System.currentTimeMillis() + millisTimeout;
+        var result = tryLock(lockedBy);
         while (!result && !Thread.currentThread().isInterrupted()) {
-            long restTime = deadline - System.currentTimeMillis();
+            var restTime = deadline - System.currentTimeMillis();
             if (restTime <= 0) {
                 // No time for waiting! Exit.
                 break;
             }
 
             // 1 is guaranty non zero sleep time
-            long sleepTime = Math.min(restTime / 10 + 1, ThreadLocalRandom.current().nextLong(20, 1000));
+            var sleepTime = Math.min(restTime / 10 + 1, ThreadLocalRandom.current().nextLong(20, 1000));
             try {
                 TimeUnit.MILLISECONDS.sleep(sleepTime);
                 result = tryLock(lockedBy);
@@ -97,10 +97,10 @@ public class Lock {
     }
 
     public boolean forceLock(String lockedBy, long timeToLive, TimeUnit unit) {
-        boolean result = tryLock(lockedBy, timeToLive, unit);
+        var result = tryLock(lockedBy, timeToLive, unit);
         if (!result && !Thread.currentThread().isInterrupted()) {
-            LockInfo info = getInfo();
-            String message = """
+            var info = getInfo();
+            var message = """
                     Too much time after the lock file has been created. Seems the lock file is never gonna be unlocked. Try to unlock it by ourselves.
                     Lock path: {}
                     Locked at: {}
@@ -138,7 +138,7 @@ public class Lock {
     }
 
     private void deleteEmptyParentFolders() {
-        File file = lockPath.toFile();
+        var file = lockPath.toFile();
         while (!file.equals(locksLocation.toFile()) && file.delete()) {
             file = file.getParentFile();
         }
@@ -149,15 +149,15 @@ public class Lock {
     }
 
     private LockInfo getInfo() {
-        Path lock = lockPath.resolve(READY_LOCK);
+        var lock = lockPath.resolve(READY_LOCK);
         if (!Files.isRegularFile(lock)) {
             return LockInfo.NO_LOCK;
         }
         var properties = new HashMap<String, String>();
         try {
             PropertiesUtils.load(lock, properties::put);
-            String userName = properties.get(USER_NAME);
-            String stringDate = properties.get(DATE);
+            var userName = properties.get(USER_NAME);
+            var stringDate = properties.get(DATE);
             Instant date;
             try {
                 date = Instant.parse(stringDate);
@@ -180,7 +180,7 @@ public class Lock {
         String userNameHash = Integer.toString(userName.hashCode(), 24);
         try {
             Files.createDirectories(lockPath);
-            Path lock = lockPath.resolve(userNameHash + ".lock");
+            var lock = lockPath.resolve(userNameHash + ".lock");
             try (Writer os = Files.newBufferedWriter(lock, StandardOpenOption.CREATE_NEW)) {
                 os.write("#Lock info\n");
                 os.append("user=").append(userName).write('\n');
@@ -201,17 +201,17 @@ public class Lock {
     }
 
     boolean finishLockCreating(Path lock) throws IOException {
-        File[] files = lockPath.toFile().listFiles();
+        var files = lockPath.toFile().listFiles();
         if (CollectionUtils.isEmpty(files)) {
             // We assume that at this step we must have one current lock file in the folder at least.
             // So, if there is an empty folder, then unlock is happened, and the lock file has been deleted.
             return false;
         }
         try {
-            Path lockName = lock.getFileName();
+            var lockName = lock.getFileName();
             FileTime current = Files.getLastModifiedTime(lock);
             for (File file : files) {
-                Path anotherName = file.toPath().getFileName();
+                var anotherName = file.toPath().getFileName();
                 FileTime another = Files.getLastModifiedTime(file.toPath());
                 if (current.compareTo(
                         another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {

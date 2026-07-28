@@ -8,9 +8,9 @@ class InheritanceLevelCheckerTest {
 
     @Test
     void testExistingName() {
-        String propertyName = "name";
+        var propertyName = "name";
 
-        boolean result = PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName);
+        var result = PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName);
         assertTrue(result);
     }
 }

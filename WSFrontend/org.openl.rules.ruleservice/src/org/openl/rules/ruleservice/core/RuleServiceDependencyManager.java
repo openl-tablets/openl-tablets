@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.common.CommonVersion;
-import org.openl.rules.project.abstraction.IDeployment;
 import org.openl.rules.project.abstraction.IProject;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.DependencyLoaderInitializationException;
@@ -37,7 +35,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     }
 
     public void compilationBegin() {
-        CompilationInfo compilationInfo = new CompilationInfo();
+        var compilationInfo = new CompilationInfo();
         compilationInfo.time = System.currentTimeMillis();
         Deque<CompilationInfo> compilationInfoStack = compilationInfoThreadLocal.get();
         compilationInfoStack.push(compilationInfo);
@@ -47,8 +45,8 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                                      boolean writeToLog) {
         Deque<CompilationInfo> compilationInfoStack = compilationInfoThreadLocal.get();
         try {
-            CompilationInfo compilationInfo = compilationInfoStack.pop();
-            long t = System.currentTimeMillis() - compilationInfo.time;
+            var compilationInfo = compilationInfoStack.pop();
+            var t = System.currentTimeMillis() - compilationInfo.time;
 
             if (log.isInfoEnabled() && !dependencyLoader.isProjectLoader() && writeToLog) {
                 log.info("SUCCESS COMPILATION - Module '{}',  project '{}', deployment '{}' in [{}] ms.",
@@ -59,7 +57,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
             }
 
             if (!compilationInfoStack.isEmpty()) {
-                CompilationInfo compilationInfoParent = compilationInfoStack.peek();
+                var compilationInfoParent = compilationInfoStack.peek();
                 compilationInfoParent.embeddedTime = compilationInfoParent.embeddedTime + t;
             }
         } catch (Exception e) {
@@ -99,12 +97,12 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
 
     @Override
     protected Set<IDependencyLoader> initDependencyLoaders() {
-        Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
-        IDeployment rslDeployment = ruleServiceLoader.getDeployment(deployment.getName(), deployment.getVersion());
-        String deploymentName = rslDeployment.getDeploymentName();
-        CommonVersion deploymentVersion = rslDeployment.getCommonVersion();
+        var dependencyLoaders = new HashSet<IDependencyLoader>();
+        var rslDeployment = ruleServiceLoader.getDeployment(deployment.getName(), deployment.getVersion());
+        var deploymentName = rslDeployment.getDeploymentName();
+        var deploymentVersion = rslDeployment.getCommonVersion();
         for (IProject aProject : rslDeployment.getProjects()) {
-            String projectName = aProject.getName();
+            var projectName = aProject.getName();
             try {
                 var project = ruleServiceLoader.resolveProject(deploymentName, deploymentVersion, projectName);
                 if (project == null) {

@@ -70,9 +70,9 @@ class ArraysInDataTableTest {
 
     @Test
     void testBeanAArrays1() {
-        BeanA x = new BeanA();
-        BeanA y = new BeanA();
-        BeanA z = new BeanA();
+        var x = new BeanA();
+        var y = new BeanA();
+        var z = new BeanA();
         x.setName("x");
         y.setName("y");
         z.setName("z");
@@ -82,22 +82,22 @@ class ArraysInDataTableTest {
 
     @Test
     void testBeanAArrays2() {
-        BeanA x = new BeanA();
-        BeanA y = new BeanA();
-        BeanA z = new BeanA();
+        var x = new BeanA();
+        var y = new BeanA();
+        var z = new BeanA();
         x.setName("x");
         y.setName("y");
         z.setName("z");
 
-        BeanA[][] result = instance.getBeanAArrays2();
+        var result = instance.getBeanAArrays2();
         assertArrayEquals(new BeanA[][]{{x, y, z}, {y, z, x}, {z, x, y}}, result);
 
         boolean[][] r = {{true, true}, {true, false, false, true}, {true, false, false, true},};
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                BeanB[] beansB = result[i][j].getBeansB();
-                for (int k = 0; k < beansB.length; k++) {
+        for (var i = 0; i < 3; i++) {
+            for (var j = 0; j < 3; j++) {
+                var beansB = result[i][j].getBeansB();
+                for (var k = 0; k < beansB.length; k++) {
                     if (r[j][k]) {
                         assertNotNull(beansB[k]);
                     } else {

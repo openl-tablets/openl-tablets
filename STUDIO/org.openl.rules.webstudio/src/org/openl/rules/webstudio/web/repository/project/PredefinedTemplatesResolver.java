@@ -10,7 +10,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.ResourceUtils;
 
 /**
@@ -29,14 +28,14 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
 
     @Override
     protected List<String> resolveTemplates(String category) {
-        List<String> templateNames = new ArrayList<>();
+        var templateNames = new ArrayList<String>();
 
         try {
             for (Resource resource : getFolderResources(TEMPLATES_PATH + category + "/*")) {
                 if (!ResourceUtils.isFileURL(resource.getURL())) {
                     // JAR file
                     String templateUrl = URLDecoder.decode(resource.getURL().getPath(), "UTF8");
-                    String[] templateParsed = templateUrl.split("/");
+                    var templateParsed = templateUrl.split("/");
                     templateNames.add(templateParsed[templateParsed.length - 1]);
                 } else {
                     // File System
@@ -53,13 +52,13 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
 
     @Override
     public ProjectFile[] getProjectFiles(String category, String templateName) {
-        String url = TEMPLATES_PATH + category + "/" + templateName;
+        var url = TEMPLATES_PATH + category + "/" + templateName;
 
-        List<ProjectFile> templateFiles = new ArrayList<>();
-        ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+        var templateFiles = new ArrayList<ProjectFile>();
+        var resourceResolver = new PathMatchingResourcePatternResolver();
 
         try {
-            Resource[] templates = resourceResolver.getResources(url + "/*");
+            var templates = resourceResolver.getResources(url + "/*");
             for (Resource resource : templates) {
                 templateFiles.add(new ProjectFile(resource.getFilename(), resource.getInputStream()));
             }
@@ -72,9 +71,9 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
     }
 
     private Resource[] getFolderResources(String folderPattern) throws IOException {
-        ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+        var resourceResolver = new PathMatchingResourcePatternResolver();
         // JAR file
-        Resource[] resources = resourceResolver.getResources(folderPattern + "/");
+        var resources = resourceResolver.getResources(folderPattern + "/");
         if (resources.length == 0) {
             // File System
             resources = resourceResolver.getResources(folderPattern);

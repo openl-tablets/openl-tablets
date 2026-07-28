@@ -17,7 +17,7 @@ public class SpreadsheetNodeBinder extends AExecutableNodeBinder<SpreadsheetBoun
                                     OpenL openl,
                                     RulesModuleBindingContext bindingContext,
                                     XlsModuleOpenClass module) throws Exception {
-        SpreadsheetBoundNode sprBoundNode = super.preBind(tableSyntaxNode,
+        var sprBoundNode = super.preBind(tableSyntaxNode,
                 openl,
                 bindingContext,
                 module);

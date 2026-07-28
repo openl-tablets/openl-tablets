@@ -27,11 +27,11 @@ public class RemoveMergedRegionsAction implements IUndoableGridTableAction {
 
     @Override
     public void doAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
         removedRegions = new ArrayList<>();
-        int nregions = grid.getNumberOfMergedRegions();
-        for (int i = 0; i < nregions; i++) {
-            IGridRegion reg = grid.getMergedRegion(i);
+        var nregions = grid.getNumberOfMergedRegions();
+        for (var i = 0; i < nregions; i++) {
+            var reg = grid.getMergedRegion(i);
             if (IGridRegion.Tool.contains(region, reg.getLeft(), reg.getTop())) {
                 removedRegions.add(reg);
             }
@@ -43,7 +43,7 @@ public class RemoveMergedRegionsAction implements IUndoableGridTableAction {
 
     @Override
     public void undoAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
         for (IGridRegion mergedRegion : removedRegions) {
             grid.addMergedRegion(mergedRegion);
         }

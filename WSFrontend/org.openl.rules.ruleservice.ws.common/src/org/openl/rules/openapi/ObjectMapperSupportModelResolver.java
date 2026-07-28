@@ -30,7 +30,6 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import org.apache.commons.lang3.StringUtils;
 
-import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.util.JAXBUtils;
 
@@ -40,10 +39,10 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
     }
 
     private Object stringToRawType(Annotated a, String value) {
-        Class<?> t = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(a.getRawType());
+        var t = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(a.getRawType());
         Class<?> rawType = t == null ? a.getRawType() : t;
         try {
-            IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(rawType);
+            var convertor = String2DataConvertorFactory.getConvertor(rawType);
             if (convertor != null) {
                 return convertor.parse(value, null);
             }
@@ -55,7 +54,7 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
 
     @Override
     protected Object resolveExample(Annotated a, Annotation[] annotations, io.swagger.v3.oas.annotations.media.Schema schema) {
-        Object exampleValue = super.resolveExample(a, annotations, schema);
+        var exampleValue = super.resolveExample(a, annotations, schema);
         if (exampleValue instanceof String string) {
             return stringToRawType(a, string);
         }
@@ -66,7 +65,7 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
     protected Object resolveDefaultValue(Annotated a,
                                          Annotation[] annotations,
                                          io.swagger.v3.oas.annotations.media.Schema schema) {
-        Object defaultValue = super.resolveDefaultValue(a, annotations, schema);
+        var defaultValue = super.resolveDefaultValue(a, annotations, schema);
         if (defaultValue instanceof String string) {
             return stringToRawType(a, string);
         }
@@ -76,14 +75,14 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
     @SuppressWarnings("rawtypes")
     @Override
     protected void resolveDiscriminatorProperty(JavaType type, ModelConverterContext context, Schema model) {
-        final BeanDescription beanDesc = _mapper.getSerializationConfig().introspect(type);
-        JsonTypeInfo typeInfo = beanDesc.getClassAnnotations().get(JsonTypeInfo.class);
+        final var beanDesc = _mapper.getSerializationConfig().introspect(type);
+        var typeInfo = beanDesc.getClassAnnotations().get(JsonTypeInfo.class);
         if (typeInfo != null) {
             if (beanDesc.getBeanClass().getSuperclass() != null) {
-                final BeanDescription superBeanDesc = _mapper.getSerializationConfig()
+                final var superBeanDesc = _mapper.getSerializationConfig()
                         .introspect(TypeFactory.defaultInstance().constructType(beanDesc.getBeanClass().getSuperclass()));
-                JsonTypeInfo superJsonTypeInfo = superBeanDesc.getClassInfo().getAnnotation(JsonTypeInfo.class);
-                JsonSubTypes jsonSubTypes = superBeanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
+                var superJsonTypeInfo = superBeanDesc.getClassInfo().getAnnotation(JsonTypeInfo.class);
+                var jsonSubTypes = superBeanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
                 if (jsonSubTypes != null) {
                     for (JsonSubTypes.Type subType : jsonSubTypes.value()) {
                         if (subType.value() == type.getRawClass()) {
@@ -95,14 +94,14 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
                     }
                 }
             }
-            String typeInfoProp = typeInfo.property();
+            var typeInfoProp = typeInfo.property();
             if (StringUtils.isNotBlank(typeInfoProp)) {
-                Schema modelToUpdate = model;
+                var modelToUpdate = model;
                 if (StringUtils.isNotBlank(model.get$ref())) {
                     modelToUpdate = context.getDefinedModels().get(model.get$ref().substring(21));
                 }
                 if (modelToUpdate.getProperties() == null || !modelToUpdate.getProperties().containsKey(typeInfoProp)) {
-                    Schema discriminatorSchema = new StringSchema().name(typeInfoProp);
+                    var discriminatorSchema = new StringSchema().name(typeInfoProp);
                     modelToUpdate.addProperties(typeInfoProp, discriminatorSchema);
                     if (modelToUpdate.getRequired() == null || !modelToUpdate.getRequired().contains(typeInfoProp)) {
                         modelToUpdate.addRequiredItem(typeInfoProp);
@@ -119,21 +118,21 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
                 .getSchemaDeclaredAnnotation(type.getRawClass());
 
         String disc = (declaredSchemaAnnotation == null) ? "" : declaredSchemaAnnotation.discriminatorProperty();
-        boolean avoidDisc = false;
+        var avoidDisc = false;
         if (disc.isEmpty()) {
-            final BeanDescription beanDesc = _mapper.getSerializationConfig().introspect(type);
-            Annotated a = beanDesc.getClassInfo();
+            final var beanDesc = _mapper.getSerializationConfig().introspect(type);
+            var a = beanDesc.getClassInfo();
             // longer method would involve AnnotationIntrospector.findTypeResolver(...) but:
-            JsonTypeInfo typeInfo = a.getAnnotation(JsonTypeInfo.class);
+            var typeInfo = a.getAnnotation(JsonTypeInfo.class);
             if (typeInfo != null) {
                 disc = typeInfo.property();
             }
 
             if (StringUtils.isNotBlank(disc) && beanDesc.getBeanClass().getSuperclass() != null) {
-                final BeanDescription superBeanDesc = _mapper.getSerializationConfig()
+                final var superBeanDesc = _mapper.getSerializationConfig()
                         .introspect(TypeFactory.defaultInstance().constructType(beanDesc.getBeanClass().getSuperclass()));
-                JsonTypeInfo superJsonTypeInfo = superBeanDesc.getClassInfo().getAnnotation(JsonTypeInfo.class);
-                JsonSubTypes jsonSubTypes = superBeanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
+                var superJsonTypeInfo = superBeanDesc.getClassInfo().getAnnotation(JsonTypeInfo.class);
+                var jsonSubTypes = superBeanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
                 if (jsonSubTypes != null) {
                     for (JsonSubTypes.Type subType : jsonSubTypes.value()) {
                         if (subType.value() == type.getRawClass()) {
@@ -147,9 +146,9 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
             }
         }
         if (StringUtils.isNotBlank(disc) && !avoidDisc) {
-            Discriminator discriminator = new Discriminator().propertyName(disc);
+            var discriminator = new Discriminator().propertyName(disc);
             if (declaredSchemaAnnotation != null) {
-                DiscriminatorMapping[] mappings = declaredSchemaAnnotation.discriminatorMapping();
+                var mappings = declaredSchemaAnnotation.discriminatorMapping();
                 for (DiscriminatorMapping mapping : mappings) {
                     if (!mapping.value().isEmpty() && !mapping.schema().equals(Void.class)) {
                         discriminator.mapping(mapping.value(),
@@ -165,7 +164,7 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
     @Override
     protected boolean applyBeanValidatorAnnotations(Schema property, Annotation[] annotations, Schema parent, boolean applyNotNullAnnotations) {
         var modified = super.applyBeanValidatorAnnotations(property, annotations, parent, applyNotNullAnnotations);
-        String propertyName = property.getName();
+        var propertyName = property.getName();
         if (propertyName != null && (propertyName.startsWith("get") || propertyName.startsWith("is"))) {
             modified = true;
             // datatype with incorrect field is generated if property name looks like a getter method
@@ -230,12 +229,12 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
 
         final BeanDescription beanDesc;
         {
-            BeanDescription recurBeanDesc = _mapper.getSerializationConfig().introspect(type);
+            var recurBeanDesc = _mapper.getSerializationConfig().introspect(type);
 
-            HashSet<String> visited = new HashSet<>();
-            JsonSerialize jsonSerialize = recurBeanDesc.getClassAnnotations().get(JsonSerialize.class);
+            var visited = new HashSet<String>();
+            var jsonSerialize = recurBeanDesc.getClassAnnotations().get(JsonSerialize.class);
             while (jsonSerialize != null && !Void.class.equals(jsonSerialize.as())) {
-                String asName = jsonSerialize.as().getName();
+                var asName = jsonSerialize.as().getName();
                 if (visited.contains(asName)) break;
                 visited.add(asName);
 
@@ -248,7 +247,7 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
         }
 
 
-        String name = annotatedType.getName();
+        var name = annotatedType.getName();
         if (StringUtils.isBlank(name)) {
             // allow override of name from annotation
             if (!annotatedType.isSkipSchemaName() && resolvedSchemaAnnotation != null && !resolvedSchemaAnnotation.name().isEmpty()) {

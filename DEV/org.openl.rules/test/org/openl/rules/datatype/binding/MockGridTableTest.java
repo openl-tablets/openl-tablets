@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 
@@ -28,12 +26,12 @@ class MockGridTableTest {
         mas[0][0] = CELL1;
         mas[0][1] = null;
         mas[0][2] = null;
-        MockGridTable t = new MockGridTable(mas);
+        var t = new MockGridTable(mas);
 
         assertEquals(3, t.getWidth());
         assertEquals(1, t.getHeight());
 
-        ICell cell = t.getCell(0, 0);
+        var cell = t.getCell(0, 0);
         assertEquals(CELL1, cell.getStringValue());
 
         assertEquals(3, cell.getWidth());
@@ -46,12 +44,12 @@ class MockGridTableTest {
         mas[0][0] = CELL1;
         mas[1][0] = null;
         mas[2][0] = null;
-        MockGridTable t = new MockGridTable(mas);
+        var t = new MockGridTable(mas);
 
         assertEquals(1, t.getWidth());
         assertEquals(3, t.getHeight());
 
-        ICell cell = t.getCell(0, 0);
+        var cell = t.getCell(0, 0);
         assertEquals(CELL1, cell.getStringValue());
 
         assertEquals(1, cell.getWidth());
@@ -82,7 +80,7 @@ class MockGridTableTest {
         mas[1][1] = CELL5;
         mas[1][2] = CELL6;
 
-        MockGridTable t = new MockGridTable(mas);
+        var t = new MockGridTable(mas);
 
         assertEquals(CELL1, t.getCell(0, 0).getStringValue());
         assertEquals(CELL2, t.getCell(1, 0).getStringValue());
@@ -94,7 +92,7 @@ class MockGridTableTest {
         assertEquals(2, t.getHeight());
         assertEquals(3, t.getWidth());
 
-        IGridTable row_0 = t.getRow(0);
+        var row_0 = t.getRow(0);
         assertEquals(1, row_0.getHeight());
         assertEquals(3, row_0.getWidth());
         assertEquals(CELL1, row_0.getCell(0, 0).getStringValue());
@@ -112,7 +110,7 @@ class MockGridTableTest {
         mas[1][1] = CELL5;
         mas[1][2] = CELL6;
 
-        MockGridTable t = new MockGridTable(mas);
+        var t = new MockGridTable(mas);
 
         ILogicalTable logT = LogicalTableHelper.logicalTable(t);
 

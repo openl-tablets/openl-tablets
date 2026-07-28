@@ -92,7 +92,7 @@ public class OpenApiSpringMvcReaderImpl {
      * Read OpenAPI schema for controllers from list
      */
     public String read() {
-        OpenApiContext openApiContext = new OpenApiContext();
+        var openApiContext = new OpenApiContext();
         apiSecurityService.generateGlobalSecurity(openApiContext);
         var controllerAdviceInfos = handlerMethodsHelper.getControllerAdvices()
                 .values()
@@ -237,10 +237,10 @@ public class OpenApiSpringMvcReaderImpl {
         }
 
         // split parameters
-        List<ParameterInfo> parameters = new ArrayList<>();
-        List<ParameterInfo> formParameters = new ArrayList<>();
-        Set<Parameter> requestBodyParams = new HashSet<>();
-        List<Parameter> allParamAnnos = new ArrayList<>();
+        var parameters = new ArrayList<ParameterInfo>();
+        var formParameters = new ArrayList<ParameterInfo>();
+        var requestBodyParams = new HashSet<Parameter>();
+        var allParamAnnos = new ArrayList<Parameter>();
         Optional.ofNullable(methodInfo.getOperationAnnotation())
                 .map(io.swagger.v3.oas.annotations.Operation::parameters)
                 .ifPresent(params -> allParamAnnos.addAll(Arrays.asList(params)));
@@ -248,9 +248,9 @@ public class OpenApiSpringMvcReaderImpl {
                 .ifPresent(allParamAnnos::addAll);
 
         ParameterInfo requestBodyParam = null;
-        MethodParameter[] methodParameters = methodInfo.getHandler().getMethodParameters();
-        int idx = 0;
-        boolean formRequest = methodInfo.isFormRequest();
+        var methodParameters = methodInfo.getHandler().getMethodParameters();
+        var idx = 0;
+        var formRequest = methodInfo.isFormRequest();
         for (MethodParameter methodParameter : methodParameters) {
             var parameterInfo = new ParameterInfo(methodInfo, methodParameter, idx++);
             if (parameterInfo.getParameter() != null && parameterInfo.getParameter().hidden()) {
@@ -431,7 +431,7 @@ public class OpenApiSpringMvcReaderImpl {
     }
 
     private void processTagsFromType(OpenApiContext openApiContext, Class<?> beanType) {
-        List<Stream<io.swagger.v3.oas.annotations.tags.Tag>> tags = new ArrayList<>();
+        var tags = new ArrayList<Stream<io.swagger.v3.oas.annotations.tags.Tag>>();
         Optional
                 .ofNullable(AnnotationUtils.findAnnotation(beanType, OpenAPIDefinition.class))
                 .map(OpenAPIDefinition::tags)
@@ -448,9 +448,9 @@ public class OpenApiSpringMvcReaderImpl {
     }
 
     protected String getOperationId(OpenApiContext apiContext, String operationId) {
-        boolean operationIdUsed = existOperationId(apiContext, operationId);
+        var operationIdUsed = existOperationId(apiContext, operationId);
         String operationIdToFind = null;
-        int counter = 0;
+        var counter = 0;
         while (operationIdUsed) {
             operationIdToFind = "%s_%d".formatted(operationId, ++counter);
             operationIdUsed = existOperationId(apiContext, operationIdToFind);

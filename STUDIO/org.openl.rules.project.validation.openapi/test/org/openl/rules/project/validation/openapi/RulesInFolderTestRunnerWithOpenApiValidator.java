@@ -16,7 +16,7 @@ final class RulesInFolderTestRunnerWithOpenApiValidator extends RulesInFolderTes
                                          ProjectDescriptor projectDescriptor,
                                          RulesInstantiationStrategy rulesInstantiationStrategy) {
         try {
-            OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
+            var openApiProjectValidator = new OpenApiProjectValidator();
             return openApiProjectValidator.validate(projectDescriptor, rulesInstantiationStrategy);
         } catch (RulesInstantiationException e) {
             return compiledOpenClass;

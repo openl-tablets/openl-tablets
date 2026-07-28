@@ -12,9 +12,9 @@ public final class CompositeLiteralNode extends NaryNode {
 
     @Override
     public String getText() {
-        StringBuilder sb = new StringBuilder();
-        ISyntaxNode[] nodes = getNodes();
-        for (int i = 0; i < nodes.length; i++) {
+        var sb = new StringBuilder();
+        var nodes = getNodes();
+        for (var i = 0; i < nodes.length; i++) {
             if (i > 0) {
                 sb.append(' ');
             }

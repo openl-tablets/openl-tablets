@@ -40,15 +40,15 @@ public final class PropertiesUtils {
      */
     public static void load(Reader input, BiConsumer<? super String, ? super String> result) throws IOException {
 
-        StringBuilder str = new StringBuilder();
+        var str = new StringBuilder();
         String key = null;
 
-        boolean newLine = true;
-        boolean skipWhitespaces = true;
-        boolean skipLine = false;
-        boolean backSlash = false;
-        boolean ignoreLF = false;
-        int lastNonWhitespace = 0;
+        var newLine = true;
+        var skipWhitespaces = true;
+        var skipLine = false;
+        var backSlash = false;
+        var ignoreLF = false;
+        var lastNonWhitespace = 0;
 
         while (true) {
             var ch = input.read();
@@ -61,7 +61,7 @@ public final class PropertiesUtils {
             ignoreLF = ch == '\r';
 
             if ((!backSlash && (ch == '\r' || ch == '\n')) || ch == -1) {
-                String value = str.substring(0, lastNonWhitespace);
+                var value = str.substring(0, lastNonWhitespace);
                 if (key != null) {
                     result.accept(key, value);
                     key = null;
@@ -192,14 +192,14 @@ public final class PropertiesUtils {
     public static <T extends Map.Entry<?, ?>> void store(Writer output, Iterable<T> props) throws IOException {
 
         for (Map.Entry<?, ?> entry : props) {
-            Object k = entry.getKey();
-            Object v = entry.getValue();
+            var k = entry.getKey();
+            var v = entry.getValue();
             if (k == null) {
                 if (v != null) {
                     output.append('#').write(v.toString());
                 }
             } else {
-                String key = escape(k.toString()).replace(":", "\\:").replace("=", "\\=").replaceFirst("^#", "\\\\#");
+                var key = escape(k.toString()).replace(":", "\\:").replace("=", "\\=").replaceFirst("^#", "\\\\#");
                 String value = escape(v.toString());
                 output.append(key).append('=').write(value);
             }

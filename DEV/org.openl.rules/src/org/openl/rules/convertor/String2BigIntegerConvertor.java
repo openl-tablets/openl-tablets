@@ -14,7 +14,7 @@ class String2BigIntegerConvertor extends String2NumberConverter<BigInteger> {
 
     @Override
     DecimalFormat getFormatter(String format) {
-        DecimalFormat formatter = super.getFormatter(format);
+        var formatter = super.getFormatter(format);
         formatter.setParseIntegerOnly(true);
         formatter.setParseBigDecimal(true);
         return formatter;

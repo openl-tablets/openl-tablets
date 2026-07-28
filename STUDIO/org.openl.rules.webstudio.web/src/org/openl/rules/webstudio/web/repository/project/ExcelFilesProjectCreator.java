@@ -34,7 +34,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
 
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
-        RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(), repositoryId,
+        var projectBuilder = new RulesProjectBuilder(getUserWorkspace(), repositoryId,
                 getProjectName(),
                 getProjectFolder(),
                 comment);
@@ -42,7 +42,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
         if (files != null) {
             for (ProjectFile file : files) {
                 try {
-                    String fileName = file.getName();
+                    var fileName = file.getName();
                     if (!pathFilter.accept(fileName)) {
                         continue;
                     }

@@ -13,8 +13,8 @@ import org.openl.source.impl.URLSourceCodeModule;
 class SimpleLogicalTableTest {
 
     private XlsSheetSourceCodeModule getXlsGrid() {
-        URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/SimpleLogicalTableTest.xls");
-        XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
+        var source = new URLSourceCodeModule("./test/rules/SimpleLogicalTableTest.xls");
+        var wbSrc = new XlsWorkbookSourceCodeModule(source);
 
         return new XlsSheetSourceCodeModule(0, wbSrc);
     }
@@ -22,11 +22,11 @@ class SimpleLogicalTableTest {
     @Test
     void testSimpleLogicalTable() throws Exception {
 
-        XlsSheetSourceCodeModule sheetSrc = getXlsGrid();
+        var sheetSrc = getXlsGrid();
 
-        XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
+        var xsGrid = new XlsSheetGridModel(sheetSrc);
 
-        IGridTable[] tables = xsGrid.getTables();
+        var tables = xsGrid.getTables();
 
         assertEquals(2, xsGrid.getNumberOfMergedRegions());
         assertEquals(1, tables.length);
@@ -37,7 +37,7 @@ class SimpleLogicalTableTest {
 
         assertEquals(5, logicalTable.getWidth());
 
-        ILogicalTable subTable = logicalTable.getSubtable(0, 1, logicalTable.getWidth(), logicalTable.getHeight() - 1);
+        var subTable = logicalTable.getSubtable(0, 1, logicalTable.getWidth(), logicalTable.getHeight() - 1);
 
         assertTrue(subTable instanceof SimpleLogicalTable);
 

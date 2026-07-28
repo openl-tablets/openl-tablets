@@ -3,7 +3,6 @@ package org.openl.rules.workspace.uw.impl;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -25,7 +24,7 @@ public final class ProjectExportHelper {
     public static File export(WorkspaceUser user, AProject project) throws ProjectException {
         File zipFile = null;
         try {
-            String zipComment = "Project '" + project.getBusinessName() + "' version " + project.getFileData()
+            var zipComment = "Project '" + project.getBusinessName() + "' version " + project.getFileData()
                     .getVersion() + "\nExported by " + user.getUserName();
 
             zipFile = File.createTempFile("export-", "-zip");
@@ -50,7 +49,7 @@ public final class ProjectExportHelper {
         for (AProjectArtefact artefact : artefacts) {
             if (artefact.isFolder()) {
                 // Create zip entry for the folder even if it's empty, but don't add root folder to the zip
-                ZipEntry entry = new ZipEntry(artefact.getInternalPath() + "/");
+                var entry = new ZipEntry(artefact.getInternalPath() + "/");
                 zipOutputStream.putNextEntry(entry);
                 packDir(zipOutputStream, (AProjectFolder) artefact);
             } else {
@@ -61,10 +60,10 @@ public final class ProjectExportHelper {
 
     private static void packFile(ZipOutputStream zipOutputStream, AProjectResource file) throws IOException,
             ProjectException {
-        ZipEntry entry = new ZipEntry(file.getInternalPath());
+        var entry = new ZipEntry(file.getInternalPath());
         zipOutputStream.putNextEntry(entry);
 
-        try (InputStream source = file.getContent()) {
+        try (var source = file.getContent()) {
             source.transferTo(zipOutputStream);
         }
         zipOutputStream.closeEntry();

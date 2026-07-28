@@ -14,7 +14,7 @@ public final class NotExistNodeBinder implements INodeBinder {
     }
 
     private static IBoundNode makeErrorNode(ISyntaxNode node, IBindingContext bindingContext) {
-        String message = "DEV: Binder is not found for node '" + node.getType() + "'";
+        var message = "DEV: Binder is not found for node '" + node.getType() + "'";
         return ANodeBinder.makeErrorNode(message, node, bindingContext);
     }
 

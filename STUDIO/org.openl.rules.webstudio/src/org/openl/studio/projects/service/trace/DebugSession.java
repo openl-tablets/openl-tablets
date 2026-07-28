@@ -74,7 +74,7 @@ public final class DebugSession {
 
     /** Return the session mapper, building it once via {@code factory} on first use. */
     public TraceDebugMapper mapper(Supplier<TraceDebugMapper> factory) {
-        TraceDebugMapper existing = mapperCache.get();
+        var existing = mapperCache.get();
         // Build off the fast path once set; on a first-use race updateAndGet keeps the first writer's instance.
         return existing != null ? existing
                 : mapperCache.updateAndGet(current -> current != null ? current : factory.get());

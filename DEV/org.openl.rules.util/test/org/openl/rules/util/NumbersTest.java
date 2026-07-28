@@ -36,7 +36,7 @@ class NumbersTest {
 
     @Test
     void toStringForInteger() {
-        int number100 = 100;
+        var number100 = 100;
         assertEquals("100", Numbers.toString(number100));
         assertEquals("0", Numbers.toString(0));
 
@@ -45,12 +45,12 @@ class NumbersTest {
         assertEquals("0100", Numbers.toString(number100, "0000.#"));
         assertEquals("100", Numbers.toString(number100, "#"));
         assertEquals("100", Numbers.toString(number100, "#.#"));
-        int number12000 = 12000;
+        var number12000 = 12000;
         assertEquals("12,000", Numbers.toString(number12000, "#,###.###"));
         assertEquals("1.2E4", Numbers.toString(number12000, "#0E0"));
-        int numberMinus1 = -1;
+        var numberMinus1 = -1;
         assertEquals("neg 001", Numbers.toString(numberMinus1, "000;neg 0"));
-        int number3 = 3;
+        var number3 = 3;
         assertEquals("003", Numbers.toString(number3, "000;neg 0"));
         assertEquals("300%", Numbers.toString(number3, "0%"));
         assertEquals("3000‰", Numbers.toString(number3, "0‰"));
@@ -64,7 +64,7 @@ class NumbersTest {
 
     @Test
     void toStringDouble() {
-        double number100dot5 = 100.5;
+        var number100dot5 = 100.5;
         assertEquals("100.5", Numbers.toString(number100dot5));
         assertEquals("NaN", Numbers.toString(Double.NaN));
         assertEquals("∞", Numbers.toString(Double.POSITIVE_INFINITY));
@@ -75,35 +75,35 @@ class NumbersTest {
         assertEquals("0.01", Numbers.toString(0.01d));
         assertEquals("-0.01", Numbers.toString(-0.01d));
 
-        double reallySmallValue = -2.22507385850720143E-30;
+        var reallySmallValue = -2.22507385850720143E-30;
         assertEquals("-0.0000000000000000000000000000022250738585072013", Numbers.toString(reallySmallValue));
 
         assertEquals("100.500", Numbers.toString(number100dot5, "0.000"));
         assertEquals("0100.500", Numbers.toString(number100dot5, "0000.000"));
         assertEquals("100", Numbers.toString(number100dot5, "#"));
-        double number100dot51 = 100.51;
+        var number100dot51 = 100.51;
         assertEquals("100.5", Numbers.toString(number100dot51, "#.0"));
-        double number10000dot5 = 10000.5;
+        var number10000dot5 = 10000.5;
         assertEquals("10,000.5", Numbers.toString(number10000dot5, "#,###.#"));
-        double numberDot12 = 0.12;
+        var numberDot12 = 0.12;
         assertEquals("1.2E-1", Numbers.toString(numberDot12, "#.#E0"));
-        double number1dot1 = 1.1;
+        var number1dot1 = 1.1;
         assertEquals("1.1", Numbers.toString(number1dot1, "#.#;neg 0"));
-        double numberMinus1dot1 = -1.1;
+        var numberMinus1dot1 = -1.1;
         assertEquals("neg 1.1", Numbers.toString(numberMinus1dot1, "#.#;neg 0"));
-        double numberDot03 = 0.03;
+        var numberDot03 = 0.03;
         assertEquals("3%", Numbers.toString(numberDot03, "0%"));
         assertEquals("30‰", Numbers.toString(numberDot03, "0‰"));
-        double numberDot033 = 0.033;
+        var numberDot033 = 0.033;
         assertEquals("#3%%", Numbers.toString(numberDot033, "'#'0%'%'"));
 
-        double reallyBigValue = 85070591730234620000000000000000000000D;
+        var reallyBigValue = 85070591730234620000000000000000000000D;
         assertEquals("85070591730234620000000000000000000000", Numbers.toString(reallyBigValue));
     }
 
     @Test
     void toStringBigInteger() {
-        BigInteger reallyBigValue = BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(Long.MAX_VALUE));
+        var reallyBigValue = BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(Long.MAX_VALUE));
         assertEquals("0", Numbers.toString(BigInteger.ZERO));
         assertEquals("1", Numbers.toString(BigInteger.ONE));
 
@@ -120,9 +120,9 @@ class NumbersTest {
 
     @Test
     void toStringBigDecimal() {
-        BigDecimal reallyBigValue = BigDecimal.valueOf(Long.MAX_VALUE).multiply(BigDecimal.valueOf(Long.MAX_VALUE));
+        var reallyBigValue = BigDecimal.valueOf(Long.MAX_VALUE).multiply(BigDecimal.valueOf(Long.MAX_VALUE));
         assertEquals("85070591730234615847396907784232501249", Numbers.toString(reallyBigValue));
-        BigDecimal reallyBigValueWithPoint = reallyBigValue.divide(BigDecimal.valueOf(1000));
+        var reallyBigValueWithPoint = reallyBigValue.divide(BigDecimal.valueOf(1000));
         assertEquals("85070591730234615847396907784232501.249", Numbers.toString(reallyBigValueWithPoint));
         assertEquals("0", Numbers.toString(BigDecimal.ZERO));
         assertEquals("1", Numbers.toString(BigDecimal.ONE));
@@ -169,8 +169,8 @@ class NumbersTest {
 
     @Test
     void testLong() {
-        long number = 1234567890123L;
-        long negativeNumber = -1234567890123L;
+        var number = 1234567890123L;
+        var negativeNumber = -1234567890123L;
 
         assertEquals("1234567890123", Numbers.toString(number));
         assertEquals("-1234567890123", Numbers.toString(negativeNumber));
@@ -179,7 +179,7 @@ class NumbersTest {
 
     @Test
     void toStringFloat() {
-        float number100dot5 = 100.5f;
+        var number100dot5 = 100.5f;
         assertEquals("100.5", Numbers.toString(number100dot5));
         assertEquals("NaN", Numbers.toString(Float.NaN));
         assertEquals("∞", Numbers.toString(Float.POSITIVE_INFINITY));
@@ -190,7 +190,7 @@ class NumbersTest {
         assertEquals("0.01", Numbers.toString(0.01f));
         assertEquals("-0.01", Numbers.toString(-0.01f));
 
-        float reallySmallValue = -25E-10f;
+        var reallySmallValue = -25E-10f;
         assertEquals("-0.0000000025", Numbers.toString(reallySmallValue));
 
         assertEquals("1.2345", Numbers.toString(1.2345));
@@ -198,23 +198,23 @@ class NumbersTest {
         assertEquals("100.500", Numbers.toString(number100dot5, "0.000"));
         assertEquals("0100.500", Numbers.toString(number100dot5, "0000.000"));
         assertEquals("100", Numbers.toString(number100dot5, "#"));
-        float number100dot51 = 100.51f;
+        var number100dot51 = 100.51f;
         assertEquals("100.5", Numbers.toString(number100dot51, "#.0"));
-        float number10000dot5 = 10000.5f;
+        var number10000dot5 = 10000.5f;
         assertEquals("10,000.5", Numbers.toString(number10000dot5, "#,###.#"));
-        float numberDot12 = 0.12f;
+        var numberDot12 = 0.12f;
         assertEquals("1.2E-1", Numbers.toString(numberDot12, "#.#E0"));
-        float number1dot1 = 1.1f;
+        var number1dot1 = 1.1f;
         assertEquals("1.1", Numbers.toString(number1dot1, "#.#;neg 0"));
-        float numberMinus1dot1 = -1.1f;
+        var numberMinus1dot1 = -1.1f;
         assertEquals("neg 1.1", Numbers.toString(numberMinus1dot1, "#.#;neg 0"));
-        float numberDot03 = 0.03f;
+        var numberDot03 = 0.03f;
         assertEquals("3%", Numbers.toString(numberDot03, "0%"));
         assertEquals("30‰", Numbers.toString(numberDot03, "0‰"));
-        float numberDot033 = 0.033f;
+        var numberDot033 = 0.033f;
         assertEquals("#3%%", Numbers.toString(numberDot033, "'#'0%'%'"));
 
-        float reallyBigValue = 85070590000000000000000000000000000000f;
+        var reallyBigValue = 85070590000000000000000000000000000000f;
         assertEquals("85070590000000000000000000000000000000", Numbers.toString(reallyBigValue));
     }
 }

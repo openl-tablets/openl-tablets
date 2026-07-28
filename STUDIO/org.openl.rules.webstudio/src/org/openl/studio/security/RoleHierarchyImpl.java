@@ -3,8 +3,6 @@ package org.openl.studio.security;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -21,11 +19,11 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         if (authorities == null || authorities.isEmpty()) {
             return AuthorityUtils.NO_AUTHORITIES;
         }
-        Collection<GrantedAuthority> reachableGrantedAuthorities = new HashSet<>();
-        Queue<GrantedAuthority> queue = new LinkedList<>(authorities);
-        Set<String> p = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+        var reachableGrantedAuthorities = new HashSet<GrantedAuthority>();
+        var queue = new LinkedList<GrantedAuthority>(authorities);
+        var p = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
         while (!queue.isEmpty()) {
-            GrantedAuthority ga = queue.poll();
+            var ga = queue.poll();
             if (ga instanceof Group group) {
                 if (group.getPrivileges() != null) {
                     for (GrantedAuthority g : group.getPrivileges()) {

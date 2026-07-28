@@ -24,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -33,7 +32,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
-import org.openl.studio.security.pat.model.PatAuthResolution;
 import org.openl.studio.security.pat.model.PatToken;
 import org.openl.studio.security.pat.model.PatValidationResult;
 
@@ -66,23 +64,23 @@ class PatAuthServiceImplTest {
     @Test
     void testResolveAuthentication_ValidToken() {
         // Arrange
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
-        PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
 
-        UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER", "ROLE_ADMIN");
+        var userDetails = createUserDetails("jdoe", "ROLE_USER", "ROLE_ADMIN");
 
         when(validator.validate(eq(patToken))).thenReturn(validResult);
         when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
 
         // Act
-        PatAuthResolution resolution = authService.resolveAuthentication(patToken);
+        var resolution = authService.resolveAuthentication(patToken);
 
         // Assert
         assertTrue(resolution.valid());
         assertNotNull(resolution.authentication());
 
-        Authentication auth = resolution.authentication();
+        var auth = resolution.authentication();
         assertInstanceOf(UsernamePasswordAuthenticationToken.class, auth);
         assertSame(userDetails, auth.getPrincipal());
         assertNull(auth.getCredentials()); // Credentials should be null
@@ -97,13 +95,13 @@ class PatAuthServiceImplTest {
     @Test
     void testResolveAuthentication_InvalidToken() {
         // Arrange
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
         PatValidationResult invalidResult = PatValidationResult.invalid();
 
         when(validator.validate(eq(patToken))).thenReturn(invalidResult);
 
         // Act
-        PatAuthResolution resolution = authService.resolveAuthentication(patToken);
+        var resolution = authService.resolveAuthentication(patToken);
 
         // Assert
         assertFalse(resolution.valid());
@@ -117,8 +115,8 @@ class PatAuthServiceImplTest {
     @Test
     void testResolveAuthentication_ValidToken_UserNotFound() {
         // Arrange
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
-        PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
 
         when(validator.validate(eq(patToken))).thenReturn(validResult);
@@ -136,23 +134,23 @@ class PatAuthServiceImplTest {
     @Test
     void testResolveAuthentication_UserWithoutAuthorities() {
         // Arrange
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
-        PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
 
-        UserDetails userDetails = createUserDetails("jdoe"); // No authorities
+        var userDetails = createUserDetails("jdoe"); // No authorities
 
         when(validator.validate(eq(patToken))).thenReturn(validResult);
         when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
 
         // Act
-        PatAuthResolution resolution = authService.resolveAuthentication(patToken);
+        var resolution = authService.resolveAuthentication(patToken);
 
         // Assert
         assertTrue(resolution.valid());
         assertNotNull(resolution.authentication());
 
-        Authentication auth = resolution.authentication();
+        var auth = resolution.authentication();
         assertTrue(auth.getAuthorities().isEmpty());
 
         verify(validator, times(1)).validate(eq(patToken));
@@ -162,23 +160,23 @@ class PatAuthServiceImplTest {
     @Test
     void testResolveAuthentication_UserWithSingleAuthority() {
         // Arrange
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
-        PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
 
-        UserDetails userDetails = createUserDetails("jdoe", "ROLE_VIEWER");
+        var userDetails = createUserDetails("jdoe", "ROLE_VIEWER");
 
         when(validator.validate(eq(patToken))).thenReturn(validResult);
         when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
 
         // Act
-        PatAuthResolution resolution = authService.resolveAuthentication(patToken);
+        var resolution = authService.resolveAuthentication(patToken);
 
         // Assert
         assertTrue(resolution.valid());
         assertNotNull(resolution.authentication());
 
-        Authentication auth = resolution.authentication();
+        var auth = resolution.authentication();
         assertEquals(1, auth.getAuthorities().size());
         assertTrue(auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_VIEWER")));
@@ -191,16 +189,16 @@ class PatAuthServiceImplTest {
     void testResolveAuthentication_MultipleTokensDifferentUsers() {
         // Arrange
         // First token for jdoe
-        PatToken patToken1 = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
-        PersonalAccessToken storedToken1 = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
+        var patToken1 = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var storedToken1 = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
         PatValidationResult validResult1 = PatValidationResult.valid(storedToken1);
-        UserDetails userDetails1 = createUserDetails("jdoe", "ROLE_USER");
+        var userDetails1 = createUserDetails("jdoe", "ROLE_USER");
 
         // Second token for jsmith
-        PatToken patToken2 = new PatToken(TEST_PUBLIC_ID_2, TEST_SECRET_2);
-        PersonalAccessToken storedToken2 = createPersonalAccessToken(TEST_PUBLIC_ID_2, "jsmith");
+        var patToken2 = new PatToken(TEST_PUBLIC_ID_2, TEST_SECRET_2);
+        var storedToken2 = createPersonalAccessToken(TEST_PUBLIC_ID_2, "jsmith");
         PatValidationResult validResult2 = PatValidationResult.valid(storedToken2);
-        UserDetails userDetails2 = createUserDetails("jsmith", "ROLE_ADMIN");
+        var userDetails2 = createUserDetails("jsmith", "ROLE_ADMIN");
 
         when(validator.validate(eq(patToken1))).thenReturn(validResult1);
         when(validator.validate(eq(patToken2))).thenReturn(validResult2);
@@ -208,8 +206,8 @@ class PatAuthServiceImplTest {
         when(userDetailsService.loadUserByUsername(eq("jsmith"))).thenReturn(userDetails2);
 
         // Act
-        PatAuthResolution resolution1 = authService.resolveAuthentication(patToken1);
-        PatAuthResolution resolution2 = authService.resolveAuthentication(patToken2);
+        var resolution1 = authService.resolveAuthentication(patToken1);
+        var resolution2 = authService.resolveAuthentication(patToken2);
 
         // Assert
         assertTrue(resolution1.valid());
@@ -231,23 +229,23 @@ class PatAuthServiceImplTest {
     @Test
     void testResolveAuthentication_AuthenticationIsAuthenticated() {
         // Arrange
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
-        PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
-        UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER");
+        var userDetails = createUserDetails("jdoe", "ROLE_USER");
 
         when(validator.validate(eq(patToken))).thenReturn(validResult);
         when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
 
         // Act
-        PatAuthResolution resolution = authService.resolveAuthentication(patToken);
+        var resolution = authService.resolveAuthentication(patToken);
 
         // Assert
         assertTrue(resolution.valid());
         assertNotNull(resolution.authentication());
 
         // UsernamePasswordAuthenticationToken with principal and authorities is considered authenticated
-        Authentication auth = resolution.authentication();
+        var auth = resolution.authentication();
         assertTrue(auth.isAuthenticated(), "Authentication should be marked as authenticated");
 
         verify(validator, times(1)).validate(eq(patToken));
@@ -257,20 +255,20 @@ class PatAuthServiceImplTest {
     @Test
     void testResolveAuthentication_VerifyAuthenticationStructure() {
         // Arrange
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
-        PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
-        UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER", "ROLE_ADMIN");
+        var userDetails = createUserDetails("jdoe", "ROLE_USER", "ROLE_ADMIN");
 
         when(validator.validate(eq(patToken))).thenReturn(validResult);
         when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
 
         // Act
-        PatAuthResolution resolution = authService.resolveAuthentication(patToken);
+        var resolution = authService.resolveAuthentication(patToken);
 
         // Assert
         assertTrue(resolution.valid());
-        Authentication auth = resolution.authentication();
+        var auth = resolution.authentication();
 
         // Verify structure
         assertInstanceOf(UsernamePasswordAuthenticationToken.class, auth);
@@ -289,17 +287,17 @@ class PatAuthServiceImplTest {
     @Test
     void testResolveAuthentication_SameTokenMultipleTimes() {
         // Arrange
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
-        PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
-        UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER");
+        var userDetails = createUserDetails("jdoe", "ROLE_USER");
 
         when(validator.validate(eq(patToken))).thenReturn(validResult);
         when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
 
         // Act - call multiple times with same token
-        PatAuthResolution resolution1 = authService.resolveAuthentication(patToken);
-        PatAuthResolution resolution2 = authService.resolveAuthentication(patToken);
+        var resolution1 = authService.resolveAuthentication(patToken);
+        var resolution2 = authService.resolveAuthentication(patToken);
 
         // Assert - both should succeed
         assertTrue(resolution1.valid());
@@ -316,7 +314,7 @@ class PatAuthServiceImplTest {
      * Helper method to create a PersonalAccessToken.
      */
     private PersonalAccessToken createPersonalAccessToken(String publicId, String loginName) {
-        PersonalAccessToken token = new PersonalAccessToken();
+        var token = new PersonalAccessToken();
         token.setPublicId(publicId);
         token.setLoginName(loginName);
         token.setName("Test Token");

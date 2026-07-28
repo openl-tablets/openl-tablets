@@ -25,11 +25,11 @@ class OpenLTableLogicTest {
     @Test
     void getTargetTables() throws Exception {
         WebStudio webStudio = mock(WebStudio.class);
-        ProjectModel pm = new ProjectModel(webStudio, null);
+        var pm = new ProjectModel(webStudio, null);
         pm.setModuleInfo(getModules().getFirst());
         Collection<TableSyntaxNode> allTableSyntaxNodes = pm.getAllTableSyntaxNodes();
         for (TableSyntaxNode tsn : allTableSyntaxNodes) {
-            TableSyntaxNodeAdapter tableSyntaxNodeAdapter = new TableSyntaxNodeAdapter(tsn);
+            var tableSyntaxNodeAdapter = new TableSyntaxNodeAdapter(tsn);
             if (((IOpenLTable) tableSyntaxNodeAdapter).getDisplayName().equals("HelloTest")) {
                 List<TableBean.TableDescription> targetTables = OpenLTableLogic.getTargetTables(tableSyntaxNodeAdapter,
                         pm, false);

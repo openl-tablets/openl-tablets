@@ -24,7 +24,7 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
             nameSyntaxNode = node.getChild(1);
 
         }
-        String name = ((IdentifierNode) nameSyntaxNode).getIdentifier();
+        var name = ((IdentifierNode) nameSyntaxNode).getIdentifier();
         return new IndexParameterNode(node, typeBoundNode, name);
     }
 

@@ -58,7 +58,7 @@ public class TagTypeService {
         // listing the configuration into a query per type.
         var tagsByType = tagDao.getAll().stream().collect(Collectors.groupingBy(tag -> tag.getType().getId()));
         return tagTypeDao.getAll().stream().map(tagType -> {
-            TagTypeDTO typeDTO = new TagTypeDTO();
+            var typeDTO = new TagTypeDTO();
             typeDTO.setId(tagType.getId());
             typeDTO.setName(tagType.getName());
             typeDTO.setNullable(tagType.isNullable());
@@ -71,7 +71,7 @@ public class TagTypeService {
     }
 
     private static TagDTO mapTag(Tag tag) {
-        TagDTO tagDTO = new TagDTO();
+        var tagDTO = new TagDTO();
         tagDTO.setId(tag.getId());
         tagDTO.setName(tag.getName());
         tagDTO.setTagTypeId(tag.getType().getId());

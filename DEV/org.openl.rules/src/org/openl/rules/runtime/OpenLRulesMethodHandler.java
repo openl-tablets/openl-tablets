@@ -66,7 +66,7 @@ public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpe
                 output.append("\nArgs: ").append(LoggingHandler.convert(args[0]));
             } else if (args.length > 1) {
                 output.append("\n\tArgs: {");
-                for (int i = 0; i < args.length; i++) {
+                for (var i = 0; i < args.length; i++) {
                     output.append('"')
                             .append(((IOpenMethod) member).getSignature().getParameterName(i))
                             .append("\":");

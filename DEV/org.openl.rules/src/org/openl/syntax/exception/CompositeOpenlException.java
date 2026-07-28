@@ -35,8 +35,8 @@ public class CompositeOpenlException extends RuntimeException {
 
     private String getMessage2() {
 
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
+        var stringWriter = new StringWriter();
+        var printWriter = new PrintWriter(stringWriter);
 
         if (message != null) {
             printWriter.print(message);
@@ -57,9 +57,9 @@ public class CompositeOpenlException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        String superMessage = getMessage2();
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
+        var superMessage = getMessage2();
+        var stringWriter = new StringWriter();
+        var printWriter = new PrintWriter(stringWriter);
 
         printWriter.print("+++There are " + errorMessages.size() + " exceptions\r\n");
 

@@ -9,9 +9,7 @@ import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.TableNameChecker;
@@ -31,16 +29,16 @@ public class ConstantsTableBinder extends AXlsTableBinder {
                                     RulesModuleBindingContext bindingContext,
                                     XlsModuleOpenClass module) throws Exception {
 
-        ILogicalTable table = tsn.getTable();
+        var table = tsn.getTable();
 
-        IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
+        var source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
 
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
         // table name can be not presented
         if (parsedHeader.length > 1) {
-            String constantsTableName = parsedHeader[CONSTANTS_TABLE_NAME_INDEX].getIdentifier();
+            var constantsTableName = parsedHeader[CONSTANTS_TABLE_NAME_INDEX].getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(constantsTableName)) {
-                String message = NAME_ERROR_MESSAGE.formatted("Constants table", constantsTableName);
+                var message = NAME_ERROR_MESSAGE.formatted("Constants table", constantsTableName);
                 bindingContext
                         .addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[CONSTANTS_TABLE_NAME_INDEX]));
             }

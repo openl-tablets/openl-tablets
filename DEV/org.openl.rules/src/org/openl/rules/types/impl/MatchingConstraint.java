@@ -9,8 +9,8 @@ public abstract class MatchingConstraint<P, C> {
 
     public MatchingResult match(ITableProperties properties, IRulesRuntimeContext context) {
 
-        C contextValue = getContextValue(context);
-        P propertyValue = getPropertyValue(properties);
+        var contextValue = getContextValue(context);
+        var propertyValue = getPropertyValue(properties);
 
         return matchValues(propertyValue, contextValue);
     }

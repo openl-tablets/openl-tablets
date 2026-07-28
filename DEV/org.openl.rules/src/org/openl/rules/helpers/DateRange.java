@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -89,7 +88,7 @@ public class DateRange extends Range<Date> {
 
     @Override
     protected void format(StringBuilder sb, Date value) {
-        LocalDateTime time = Instant.ofEpochMilli(value.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        var time = Instant.ofEpochMilli(value.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
         sb.append(dateTimeFormatter.format(time));
     }
 
@@ -121,7 +120,7 @@ public class DateRange extends Range<Date> {
     // END
 
     private static long convertToTime(String text) {
-        TemporalAccessor res = dateTimeParser.parseBest(text, LocalDateTime::from, LocalDate::from);
+        var res = dateTimeParser.parseBest(text, LocalDateTime::from, LocalDate::from);
         LocalDateTime localDateTime = res instanceof LocalDate ld ? ld.atStartOfDay() : (LocalDateTime) res;
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }

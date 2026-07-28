@@ -5,12 +5,10 @@ import java.util.Objects;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.types.IOpenMember;
 import org.openl.util.StringUtils;
 
 public class TableSyntaxNodeAdapter implements IOpenLTable {
@@ -29,7 +27,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
     @Override
     public IGridTable getGridTable(String view) {
         if (view != null) {
-            ILogicalTable gtx = tsn.getTable(view);
+            var gtx = tsn.getTable(view);
             if (gtx != null) {
                 return gtx.getSource();
             }
@@ -49,7 +47,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
 
     @Override
     public String getName() {
-        IOpenMember member = tsn.getMember();
+        var member = tsn.getMember();
         if (member != null) {
             return member.getName();
         }
@@ -59,11 +57,11 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
 
     @Override
     public String getDisplayName() {
-        ITableProperties properties = getProperties();
+        var properties = getProperties();
         if (properties != null) {
-            String name = properties.getName();
+            var name = properties.getName();
             if (StringUtils.isNotBlank(name)) {
-                String version = properties.getVersion();
+                var version = properties.getVersion();
                 if (StringUtils.isNotBlank(version)) {
                     return "%s: %s".formatted(name, version);
                 }
@@ -115,14 +113,14 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
             return false;
         }
 
-        TableSyntaxNodeAdapter table = (TableSyntaxNodeAdapter) obj;
+        var table = (TableSyntaxNodeAdapter) obj;
 
         return Objects.equals(getUri(), table.getUri());
     }
 
     @Override
     public boolean isCanContainProperties() {
-        String tableType = getType();
+        var tableType = getType();
         return tableType != null && !tableType.equals(XlsNodeTypes.XLS_OTHER.toString()) && !tableType.equals(
                 XlsNodeTypes.XLS_ENVIRONMENT.toString()) && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString());
     }

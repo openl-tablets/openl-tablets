@@ -58,10 +58,10 @@ final class CalendarWrapper {
      * @return difference in full days
      */
     int daysDiff(CalendarWrapper start) {
-        int estDiff = (int) ((getTimeInMillis() - start.getTimeInMillis()) / MILLS_IN_DAY);
-        Calendar startCalendar = start.getCalendar();
+        var estDiff = (int) ((getTimeInMillis() - start.getTimeInMillis()) / MILLS_IN_DAY);
+        var startCalendar = start.getCalendar();
         startCalendar.add(Calendar.DAY_OF_MONTH, estDiff - 2);
-        for (int i = estDiff - 1; ; i++) {
+        for (var i = estDiff - 1; ; i++) {
             startCalendar.add(Calendar.DAY_OF_MONTH, 1);
             if (startCalendar.after(calendar)) {
                 return i - 1;
@@ -76,7 +76,7 @@ final class CalendarWrapper {
      * @return difference in full months
      */
     int monthsDiff(CalendarWrapper start) {
-        int monthsDiff = month - start.month + MONTH_IN_YEAR * (year - start.year);
+        var monthsDiff = month - start.month + MONTH_IN_YEAR * (year - start.year);
         if (start.day > day) {
             monthsDiff--; // because the last month wasn't completed
         }
@@ -90,7 +90,7 @@ final class CalendarWrapper {
      * @return difference in full years
      */
     int yearsDiff(CalendarWrapper start) {
-        int yearsDiff = year - start.year; // diff in complete years
+        var yearsDiff = year - start.year; // diff in complete years
         if (!isCompleteLastYear(start)) {
             yearsDiff -= 1; // because the last year wasn't completed
         }
@@ -112,9 +112,9 @@ final class CalendarWrapper {
         } else {
             // decrement last month from start date
             // and set year as in end date
-            GregorianCalendar calendarStartDate = start.getCalendar();
+            var calendarStartDate = start.getCalendar();
             setPrevMonth(calendarStartDate);
-            CalendarWrapper startDate = new CalendarWrapper(calendarStartDate);
+            var startDate = new CalendarWrapper(calendarStartDate);
 
             if (month == startDate.month && day < startDate.day) {
                 return 0; // return zero because may be produced negative result for some dates: 1/31/2017 - 3/1/2017
@@ -143,13 +143,13 @@ final class CalendarWrapper {
      * @return difference in full days
      */
     int daysDiffExcludeYears(CalendarWrapper start) {
-        GregorianCalendar calendarStartDate = start.getCalendar();
+        var calendarStartDate = start.getCalendar();
         if (isCompleteLastYear(start)) {
             calendarStartDate.set(Calendar.YEAR, year);
         } else {
             calendarStartDate.set(Calendar.YEAR, year - 1);
         }
-        CalendarWrapper startDate = new CalendarWrapper(calendarStartDate);
+        var startDate = new CalendarWrapper(calendarStartDate);
         return daysDiff(startDate);
     }
 
@@ -162,7 +162,7 @@ final class CalendarWrapper {
     }
 
     int getPrevMonthLength() {
-        GregorianCalendar calendar = getCalendar();
+        var calendar = getCalendar();
         calendar.set(Calendar.DAY_OF_MONTH, 1);
         setPrevMonth(calendar);
         return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -186,7 +186,7 @@ final class CalendarWrapper {
     }
 
     private int getPrevYearLength() {
-        GregorianCalendar calendar = getCalendar();
+        var calendar = getCalendar();
         calendar.set(Calendar.YEAR, year - 1);
         return calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
     }

@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
@@ -125,7 +124,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * unrecognized stays freely editable, and a table being created has no earlier header to preserve.
      */
     private void preservingKnownHeader(Runnable write) {
-        boolean headerWasKnown = isUpdateMode() && XlsHelper.isKnownTableHeader(currentHeader());
+        var headerWasKnown = isUpdateMode() && XlsHelper.isKnownTableHeader(currentHeader());
         write.run();
         if (headerWasKnown && !XlsHelper.isKnownTableHeader(currentHeader())) {
             throw new BadRequestException("table.header.unrecognized.message");
@@ -134,21 +133,21 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void writeBody(RawTableView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_DEVELOPER);
-        int maxSourceRow = tableView.source.size();
-        List<IGridRegion> mergeRegions = new ArrayList<>();
+        var maxSourceRow = tableView.source.size();
+        var mergeRegions = new ArrayList<IGridRegion>();
 
         // Phase 1: Write all cell values and track merge regions
-        for (int row = 0; row < maxSourceRow; row++) {
-            List<RawTableCell> rowCells = tableView.source.get(row);
+        for (var row = 0; row < maxSourceRow; row++) {
+            var rowCells = tableView.source.get(row);
             requireWritableRow(rowCells);
-            for (int col = 0; col < rowCells.size(); col++) {
-                RawTableCell cell = rowCells.get(col);
+            for (var col = 0; col < rowCells.size(); col++) {
+                var cell = rowCells.get(col);
                 if (cell == null || Boolean.TRUE.equals(cell.covered())) {
                     // Covered cells are skipped
                     continue;
                 }
                 // Write origin cell
-                Object value = cell.value();
+                var value = cell.value();
                 createOrUpdateCell(tableBody, buildCellKey(col, row), value);
 
                 buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, col)
@@ -194,7 +193,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (!isUpdateMode()) {
             throw new IllegalStateException("Append operation is only allowed in update mode.");
         }
-        int tableColumns = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER).getWidth();
+        var tableColumns = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER).getWidth();
         for (var row : tableAppend.getRows()) {
             requireWritableRow(row);
             requireColumnsWithinTable(row.size(), tableColumns);
@@ -202,20 +201,20 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
-            int startRow = Tool.height(tableBody.getRegion());
-            List<IGridRegion> mergeRegions = new ArrayList<>();
+            var startRow = Tool.height(tableBody.getRegion());
+            var mergeRegions = new ArrayList<IGridRegion>();
 
             // Write rows and track merge regions
-            int currentRow = startRow;
+            var currentRow = startRow;
             for (var row : tableAppend.getRows()) {
-                int col = 0;
+                var col = 0;
                 for (var cell : row) {
                     if (cell == null || Boolean.TRUE.equals(cell.covered())) {
                         // Covered cells are skipped
                         col++;
                         continue;
                     }
-                    Object value = cell.value();
+                    var value = cell.value();
                     createOrUpdateCell(tableBody, buildCellKey(col, currentRow), value);
 
                     // Track merge region if cell has span
@@ -324,13 +323,13 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         // The first row is the header; a new row goes at index 1..height (height appends to the end).
         requirePosition(position, 1, Tool.height(developerView.getRegion()));
         requireNotEmpty(rows);
-        int width = Tool.width(developerView.getRegion());
+        var width = Tool.width(developerView.getRegion());
         for (var row : rows) {
             requireRowWidth(row, width);
         }
         // Insert one row at a time: a single multi-row grid insert at the table's top boundary corrupts the region.
         // Row insertion lands the blank after the given index, so insert after the preceding row.
-        for (int i = 0; i < rows.size(); i++) {
+        for (var i = 0; i < rows.size(); i++) {
             insertBlankRows(developerView, position - 1 + i);
             writeRow(developerView, position + i, rows.get(i), false);
         }
@@ -341,12 +340,12 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         // The first column carries the leading labels; a new column goes at index 1..width (width appends to the end).
         requirePosition(position, 1, Tool.width(developerView.getRegion()));
         requireNotEmpty(columns);
-        int height = Tool.height(developerView.getRegion());
+        var height = Tool.height(developerView.getRegion());
         for (var column : columns) {
             requireColumnHeight(column, height);
         }
         // Insert one column at a time. Column insertion lands the blank at the given index (unlike row insertion).
-        for (int i = 0; i < columns.size(); i++) {
+        for (var i = 0; i < columns.size(); i++) {
             insertBlankColumns(developerView, position + i);
             writeColumn(developerView, position + i, columns.get(i), false);
         }
@@ -355,13 +354,13 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void appendRows(List<List<RawCellInput>> rows) {
         var developerView = developerView();
         requireNotEmpty(rows);
-        int width = Tool.width(developerView.getRegion());
+        var width = Tool.width(developerView.getRegion());
         for (var row : rows) {
             requireRowWidth(row, width);
         }
         // Writing past the last row grows the table by one, so each row extends the table in turn.
-        int startRow = Tool.height(developerView.getRegion());
-        for (int i = 0; i < rows.size(); i++) {
+        var startRow = Tool.height(developerView.getRegion());
+        for (var i = 0; i < rows.size(); i++) {
             writeRow(developerView, startRow + i, rows.get(i), false);
         }
     }
@@ -369,12 +368,12 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void appendColumns(List<List<RawCellInput>> columns) {
         var developerView = developerView();
         requireNotEmpty(columns);
-        int height = Tool.height(developerView.getRegion());
+        var height = Tool.height(developerView.getRegion());
         for (var column : columns) {
             requireColumnHeight(column, height);
         }
-        int startColumn = Tool.width(developerView.getRegion());
-        for (int i = 0; i < columns.size(); i++) {
+        var startColumn = Tool.width(developerView.getRegion());
+        for (var i = 0; i < columns.size(); i++) {
             writeColumn(developerView, startColumn + i, columns.get(i), false);
         }
     }
@@ -431,10 +430,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void updateRange(int row, int column, List<List<RawCellInput>> cells) {
         requireNotEmpty(cells);
         var developerView = developerView();
-        int height = Tool.height(developerView.getRegion());
-        int width = Tool.width(developerView.getRegion());
-        int rangeHeight = cells.size();
-        int rangeWidth = requireRectangularRange(cells);
+        var height = Tool.height(developerView.getRegion());
+        var width = Tool.width(developerView.getRegion());
+        var rangeHeight = cells.size();
+        var rangeWidth = requireRectangularRange(cells);
         requireRangeMultiCell(rangeHeight, rangeWidth);
         requireRangeInBounds(row, column, rangeHeight, rangeWidth, height, width);
         // A written row that becomes entirely blank would split the table, exactly as updateRow guards against;
@@ -447,10 +446,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void writeBlock(IGridTable developerView, int top, int left, List<List<RawCellInput>> cells,
                             int width, int height) {
-        List<IGridRegion> mergeRegions = new ArrayList<>();
-        for (int r = 0; r < cells.size(); r++) {
-            List<RawCellInput> rowCells = cells.get(r);
-            for (int c = 0; c < rowCells.size(); c++) {
+        var mergeRegions = new ArrayList<IGridRegion>();
+        for (var r = 0; r < cells.size(); r++) {
+            var rowCells = cells.get(r);
+            for (var c = 0; c < rowCells.size(); c++) {
                 writeCellInput(developerView, top + r, left + c, rowCells.get(c), true, width, height, mergeRegions);
             }
         }
@@ -465,10 +464,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void mergeCells(int row, int column, int rowspan, int colspan) {
         var developerView = developerView();
-        int height = Tool.height(developerView.getRegion());
-        int width = Tool.width(developerView.getRegion());
+        var height = Tool.height(developerView.getRegion());
+        var width = Tool.width(developerView.getRegion());
         // Span subtraction (not row + rowspan) keeps the bounds check safe from int overflow on huge spans.
-        boolean withinBounds = row >= 0 && row < height && column >= 0 && column < width
+        var withinBounds = row >= 0 && row < height && column >= 0 && column < width
                 && rowspan >= 1 && colspan >= 1 && rowspan <= height - row && colspan <= width - column;
         if (!withinBounds || (rowspan < 2 && colspan < 2)) {
             throw new BadRequestException("table.action.merge.range.invalid.message",
@@ -484,8 +483,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private void clearCoveredCells(IGridTable developerView, int row, int column, int rowspan, int colspan) {
-        for (int r = 0; r < rowspan; r++) {
-            for (int c = 0; c < colspan; c++) {
+        for (var r = 0; r < rowspan; r++) {
+            for (var c = 0; c < colspan; c++) {
                 if (r != 0 || c != 0) {
                     createOrUpdateCell(developerView, buildCellKey(column + c, row + r), null);
                 }
@@ -503,10 +502,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private static void requireNoMergeDataLoss(IGridTable developerView, int row, int column, int rowspan, int colspan) {
         var tableRegion = developerView.getRegion();
         var grid = developerView.getGrid();
-        Set<String> distinctValues = new HashSet<>();
-        for (int r = 0; r < rowspan; r++) {
-            for (int c = 0; c < colspan; c++) {
-                String value = grid.getCell(tableRegion.getLeft() + column + c, tableRegion.getTop() + row + r)
+        var distinctValues = new HashSet<String>();
+        for (var r = 0; r < rowspan; r++) {
+            for (var c = 0; c < colspan; c++) {
+                var value = grid.getCell(tableRegion.getLeft() + column + c, tableRegion.getTop() + row + r)
                         .getStringValue();
                 if (value != null && !value.isBlank()) {
                     distinctValues.add(value);
@@ -592,8 +591,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                 : Math.max(Tool.width(developerView.getRegion()), fixedIndex + 1);
         int spanHeight = horizontal ? Math.max(Tool.height(developerView.getRegion()), fixedIndex + 1)
                 : Tool.height(developerView.getRegion());
-        List<IGridRegion> mergeRegions = new ArrayList<>();
-        for (int i = 0; i < cells.size(); i++) {
+        var mergeRegions = new ArrayList<IGridRegion>();
+        for (var i = 0; i < cells.size(); i++) {
             int row = horizontal ? fixedIndex : i;
             int col = horizontal ? i : fixedIndex;
             writeCellInput(developerView, row, col, cells.get(i), skipCovered, spanWidth, spanHeight, mergeRegions);
@@ -642,8 +641,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private static void requireCellInBounds(IGridTable developerView, int row, int column) {
-        int height = Tool.height(developerView.getRegion());
-        int width = Tool.width(developerView.getRegion());
+        var height = Tool.height(developerView.getRegion());
+        var width = Tool.width(developerView.getRegion());
         if (row < 0 || row >= height || column < 0 || column >= width) {
             throw new BadRequestException("table.action.cell.out-of-bounds.message",
                     new Object[]{row, column, height - 1, width - 1});
@@ -656,8 +655,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      */
     private static boolean isCoveredByMerge(IGridTable developerView, int row, int column) {
         var region = developerView.getRegion();
-        int absColumn = region.getLeft() + column;
-        int absRow = region.getTop() + row;
+        var absColumn = region.getLeft() + column;
+        var absRow = region.getTop() + row;
         var merged = developerView.getGrid().getRegionContaining(absColumn, absRow);
         return merged != null && (merged.getLeft() != absColumn || merged.getTop() != absRow);
     }
@@ -679,10 +678,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private static void requireNoConflictingMerge(IGridTable developerView, int row, int column,
                                                   int rowspan, int colspan) {
         var tableRegion = developerView.getRegion();
-        int left = tableRegion.getLeft() + column;
-        int top = tableRegion.getTop() + row;
-        int right = left + colspan - 1;
-        int bottom = top + rowspan - 1;
+        var left = tableRegion.getLeft() + column;
+        var top = tableRegion.getTop() + row;
+        var right = left + colspan - 1;
+        var bottom = top + rowspan - 1;
         var grid = developerView.getGrid();
         for (int i = 0, n = grid.getNumberOfMergedRegions(); i < n; i++) {
             requireNotStraddling(grid.getMergedRegion(i), left, top, right, bottom, row, column);
@@ -691,9 +690,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private static void requireNotStraddling(IGridRegion existing, int left, int top, int right, int bottom,
                                              int row, int column) {
-        boolean intersects = left <= existing.getRight() && existing.getLeft() <= right
+        var intersects = left <= existing.getRight() && existing.getLeft() <= right
                 && top <= existing.getBottom() && existing.getTop() <= bottom;
-        boolean cornerInside = existing.getLeft() >= left && existing.getLeft() <= right
+        var cornerInside = existing.getLeft() >= left && existing.getLeft() <= right
                 && existing.getTop() >= top && existing.getTop() <= bottom;
         if (intersects && !cornerInside) {
             throw new BadRequestException("table.action.merge.overlap.message", new Object[]{row, column});
@@ -756,7 +755,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * drops every row beyond it. A single blank cell among non-blank ones is fine.
      */
     private static boolean hasWritableValueOrSpan(Object value, Integer colspan, Integer rowspan) {
-        boolean blankValue = value == null || (value instanceof String s && s.isBlank());
+        var blankValue = value == null || (value instanceof String s && s.isBlank());
         return !blankValue
                 || (colspan != null && colspan > 1)
                 || (rowspan != null && rowspan > 1);
@@ -766,8 +765,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (cells.stream().anyMatch(Objects::isNull)) {
             throw new BadRequestException("table.action.cells.required.message");
         }
-        int rangeWidth = cells.get(0).size();
-        boolean uneven = cells.stream().anyMatch(rowCells -> rowCells.size() != rangeWidth);
+        var rangeWidth = cells.get(0).size();
+        var uneven = cells.stream().anyMatch(rowCells -> rowCells.size() != rangeWidth);
         if (uneven || rangeWidth == 0) {
             throw new BadRequestException("table.action.range.not-rectangular.message");
         }

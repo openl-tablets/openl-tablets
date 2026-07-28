@@ -61,9 +61,9 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_byId() throws ProjectException {
-        String repoId = "qwerty";
-        String projectName = "projectName";
-        String projectId = encode(repoId, projectName);
+        var repoId = "qwerty";
+        var projectName = "projectName";
+        var projectId = encode(repoId, projectName);
 
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProject(repoId, projectName)).thenReturn(rulesProject);
@@ -75,9 +75,9 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_securityError() throws ProjectException {
-        String repoId = "qwerty";
-        String projectName = "projectName";
-        String projectId = encode(repoId, projectName);
+        var repoId = "qwerty";
+        var projectName = "projectName";
+        var projectId = encode(repoId, projectName);
 
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProject(repoId, projectName)).thenReturn(rulesProject);
@@ -104,9 +104,9 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_notFound() throws ProjectException {
-        String repositoryId = "design-repo";
-        String projectName = "projectName";
-        String projectId = encode(repositoryId, projectName);
+        var repositoryId = "design-repo";
+        var projectName = "projectName";
+        var projectId = encode(repositoryId, projectName);
 
         when(userWorkspace.getProject(repositoryId, projectName)).thenThrow(new ProjectException("Not found"));
         var designRepo = mock(DesignTimeRepository.class);
@@ -124,10 +124,10 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_mappedName() throws ProjectException {
-        String repoId = "design-repo";
-        String projectBusinessName = "projectName";
-        String projectMappedName = projectBusinessName + ":123456789";
-        String projectId = encode(repoId, projectMappedName);
+        var repoId = "design-repo";
+        var projectBusinessName = "projectName";
+        var projectMappedName = projectBusinessName + ":123456789";
+        var projectId = encode(repoId, projectMappedName);
 
         when(userWorkspace.getProject(repoId, projectMappedName)).thenThrow(new ProjectException("Not found"));
         var designRepo = mock(DesignTimeRepository.class);
@@ -147,10 +147,10 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_mappedName_fallsBackToNameLookup() throws ProjectException {
-        String repoId = "design-repo";
-        String projectBusinessName = "projectName";
-        String projectMappedName = projectBusinessName + ":123456789";
-        String projectId = encode(repoId, projectMappedName);
+        var repoId = "design-repo";
+        var projectBusinessName = "projectName";
+        var projectMappedName = projectBusinessName + ":123456789";
+        var projectId = encode(repoId, projectMappedName);
 
         when(userWorkspace.getProject(repoId, projectMappedName)).thenThrow(new ProjectException("Not found"));
         var designRepo = mock(DesignTimeRepository.class);
@@ -169,7 +169,7 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_byName_singleMatch() {
-        String name = "MyProject";
+        var name = "MyProject";
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of(rulesProject));
         when(designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))).thenReturn(true);
@@ -180,7 +180,7 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_byName_ambiguous() {
-        String name = "MyProject";
+        var name = "MyProject";
         var p1 = mock(RulesProject.class);
         var p2 = mock(RulesProject.class);
         var repo1 = mock(Repository.class);
@@ -203,7 +203,7 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_byName_fallbackToRepoScan() throws ProjectException {
-        String name = "MyProject";
+        var name = "MyProject";
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of());
 
         var designRepo = mock(DesignTimeRepository.class);
@@ -226,7 +226,7 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_byName_fallbackToRepoScan_ambiguous() throws ProjectException {
-        String name = "MyProject";
+        var name = "MyProject";
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of());
 
         var designRepo = mock(DesignTimeRepository.class);
@@ -254,8 +254,8 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_byName_fallbackToRepoScan_mappedFolders() throws ProjectException {
-        String businessName = "MyProject";
-        String mappedName = businessName + ":hash";
+        var businessName = "MyProject";
+        var mappedName = businessName + ":hash";
         when(userWorkspace.getProjectsByName(businessName)).thenReturn(List.of());
 
         var designRepo = mock(DesignTimeRepository.class);
@@ -281,7 +281,7 @@ class ProjectIdentityConverterTest {
 
     @Test
     void convert_byName_notFound() {
-        String name = "MyProject";
+        var name = "MyProject";
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of());
 
         var designRepo = mock(DesignTimeRepository.class);

@@ -20,10 +20,10 @@ public class ContainsInArrayIndexedEvaluatorV2 extends AContainsInArrayIndexedEv
             return null;
         }
 
-        EqualsIndexV2.Builder builder = new EqualsIndexV2.Builder();
+        var builder = new EqualsIndexV2.Builder();
         builder.setConditionCasts(conditionCasts);
         while (iterator.hasNext()) {
-            int ruleN = iterator.nextInt();
+            var ruleN = iterator.nextInt();
             builder.addRule(ruleN);
 
             if (condition.isEmpty(ruleN)) {
@@ -31,11 +31,11 @@ public class ContainsInArrayIndexedEvaluatorV2 extends AContainsInArrayIndexedEv
                 continue;
             }
 
-            Object values = condition.getParamValue(0, ruleN);
+            var values = condition.getParamValue(0, ruleN);
 
-            int length = Array.getLength(values);
+            var length = Array.getLength(values);
 
-            for (int j = 0; j < length; j++) {
+            for (var j = 0; j < length; j++) {
                 Object value = Array.get(values, j);
                 value = conditionCasts.castToInputType(value);
                 builder.putValueToRule(value, ruleN);

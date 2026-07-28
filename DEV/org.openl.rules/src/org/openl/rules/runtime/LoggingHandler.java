@@ -15,7 +15,7 @@ public class LoggingHandler {
     }
 
     static boolean isEnabled() {
-        LoggingCapability cap = INSTANCE.get();
+        var cap = INSTANCE.get();
         if (cap == null) {
             return false;
         }

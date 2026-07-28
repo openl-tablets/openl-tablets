@@ -17,13 +17,13 @@ public class TableNameChecker {
         if (s == null || s.length() == 0) {
             return true;
         }
-        char[] c = s.toCharArray();
+        var c = s.toCharArray();
 
         if (!Character.isJavaIdentifierStart(c[0])) {
             return true;
         }
 
-        for (int i = 1; i < c.length; i++) {
+        for (var i = 1; i < c.length; i++) {
             if (!Character.isJavaIdentifierPart(c[i])) {
                 return true;
             }

@@ -13,8 +13,8 @@ public class MatchingExpressionsParser {
         String operationName;
         String contextAttribute;
         if (StringUtils.isNotEmpty(matchingExpressionStr)) {
-            int openBracketIndex = matchingExpressionStr.indexOf("(");
-            int closeBracketIndex = matchingExpressionStr.lastIndexOf(")");
+            var openBracketIndex = matchingExpressionStr.indexOf("(");
+            var closeBracketIndex = matchingExpressionStr.lastIndexOf(")");
 
             if (openBracketIndex < 0 || closeBracketIndex < 0) {
                 throw new OpenLRuntimeException("Matching expression string is not valid.");

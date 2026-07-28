@@ -45,9 +45,9 @@ class DeployClasspathJarsBeanTest {
         // 4. Deployer service is available.
         // 4.1 Deploy of last file is successful.
         var done = new CountDownLatch(3);
-        AtomicBoolean available = new AtomicBoolean(false);
+        var available = new AtomicBoolean(false);
         when(unstableDeployerService.isReady()).thenAnswer(invocation -> {
-            final boolean result = available.get();
+            final var result = available.get();
             if (!result) {
                 available.set(true);
             }

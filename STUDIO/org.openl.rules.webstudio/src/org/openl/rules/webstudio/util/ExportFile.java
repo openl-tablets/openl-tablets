@@ -31,7 +31,7 @@ public final class ExportFile {
             input = new FileInputStream(content);
             input.transferTo(res.getOutputStream());
         } catch (final IOException e) {
-            String msg = "Failed to write content of '" + content.getAbsolutePath() + "' into response.";
+            var msg = "Failed to write content of '" + content.getAbsolutePath() + "' into response.";
             log.error(msg, e);
             WebStudioUtils.addErrorMessage(msg, e.getMessage());
         } finally {

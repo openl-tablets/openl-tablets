@@ -1,11 +1,8 @@
 package org.openl.engine;
 
 import org.openl.CompiledOpenClass;
-import org.openl.IOpenBinder;
-import org.openl.IOpenVM;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodHeader;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
@@ -53,7 +50,7 @@ public final class OpenLManager {
                                              IOpenMethodHeader methodHeader,
                                              IBindingContext bindingContext) {
 
-        CompositeMethod compositeMethod = new CompositeMethod(methodHeader, null);
+        var compositeMethod = new CompositeMethod(methodHeader, null);
 
         compileMethod(openl, source, compositeMethod, bindingContext);
 
@@ -71,7 +68,7 @@ public final class OpenLManager {
     public static IOpenMethodHeader makeMethodHeader(OpenL openl,
                                                      IOpenSourceCodeModule source,
                                                      IBindingContext bindingContext) {
-        IParsedCode parsedCode = openl.getParser().parseAsMethodHeader(source);
+        var parsedCode = openl.getParser().parseAsMethodHeader(source);
         IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, true);
         if (topNode instanceof IBoundMethodHeader header) {
             return header.getMethodHeader();
@@ -82,7 +79,7 @@ public final class OpenLManager {
     public static IParameterDeclaration makeParameterDeclaration(OpenL openl,
                                                                  IOpenSourceCodeModule source,
                                                                  IBindingContext bindingContext) {
-        IParsedCode parsedCode = openl.getParser().parseAsParameterDeclaration(source);
+        var parsedCode = openl.getParser().parseAsParameterDeclaration(source);
         IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, false);
         if (topNode instanceof ParameterDeclarationNode node) {
             return node.getParameterDeclaration();
@@ -94,7 +91,7 @@ public final class OpenLManager {
                                       String code,
                                       IOpenSourceCodeModule source,
                                       IBindingContext bindingContext) {
-        IParsedCode parsedCode = openl.getParser()
+        var parsedCode = openl.getParser()
                 .parseAsType(code != null ? new StringSourceCodeModule(code, source.getUri()) : source);
         IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, false);
         if (topNode instanceof TypeBoundNode) {
@@ -124,14 +121,14 @@ public final class OpenLManager {
                                                             IOpenClass declaringClass,
                                                             IBindingContext bindingContext) {
 
-        OpenMethodHeader header = new OpenMethodHeader(methodName, NullOpenClass.the, signature, declaringClass);
-        CompositeMethod compositeMethod = new CompositeMethod(header, null);
+        var header = new OpenMethodHeader(methodName, NullOpenClass.the, signature, declaringClass);
+        var compositeMethod = new CompositeMethod(header, null);
 
-        MethodBindingContext methodBindingContext = new MethodBindingContext(header, bindingContext);
-        IParsedCode parsedCode = openl.getParser().parseAsMethodBody(source);
+        var methodBindingContext = new MethodBindingContext(header, bindingContext);
+        var parsedCode = openl.getParser().parseAsMethodBody(source);
         IBoundNode topNode = getBoundNode(openl, methodBindingContext, parsedCode, true);
 
-        IOpenClass retType = methodBindingContext.getReturnType();
+        var retType = methodBindingContext.getReturnType();
         if (retType == NullOpenClass.the && topNode != null) {
             retType = topNode.getType();
         }
@@ -158,9 +155,9 @@ public final class OpenLManager {
                                      CompositeMethod compositeMethod,
                                      IBindingContext bindingContext) {
 
-        IOpenMethodHeader header = compositeMethod.getHeader();
-        MethodBindingContext methodBindingContext = new MethodBindingContext(header, bindingContext);
-        IParsedCode parsedCode = openl.getParser().parseAsMethodBody(source);
+        var header = compositeMethod.getHeader();
+        var methodBindingContext = new MethodBindingContext(header, bindingContext);
+        var parsedCode = openl.getParser().parseAsMethodBody(source);
         IBoundNode topNode = getBoundNode(openl, methodBindingContext, parsedCode, true);
 
         if (topNode instanceof IBoundMethodNode node) {
@@ -174,7 +171,7 @@ public final class OpenLManager {
                                                             IOpenSourceCodeModule source,
                                                             boolean executionMode,
                                                             IDependencyManager dependencyManager) {
-        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
+        var compileManager = new OpenLCompileManager(openl);
         return compileManager.compileModuleWithErrors(source, executionMode, dependencyManager);
     }
 
@@ -188,22 +185,22 @@ public final class OpenLManager {
      */
     public static Object run(OpenL openl, IOpenSourceCodeModule source) throws CompositeOpenlException {
 
-        IParsedCode parsedCode = openl.getParser().parseAsMethodBody(source);
-        SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
+        var parsedCode = openl.getParser().parseAsMethodBody(source);
+        var parsingErrors = parsedCode.getErrors();
         if (parsingErrors.length > 0) {
             throw new CompositeOpenlException("Parsing Error:", parsingErrors, null);
         }
-        IOpenBinder binder = openl.getBinder();
-        IBoundCode boundCode = binder.bind(parsedCode, null);
-        SyntaxNodeException[] bindingErrors = boundCode.getErrors();
+        var binder = openl.getBinder();
+        var boundCode = binder.bind(parsedCode, null);
+        var bindingErrors = boundCode.getErrors();
 
         if (bindingErrors.length > 0) {
             throw new CompositeOpenlException("Binding Error:", bindingErrors, boundCode.getMessages());
         }
 
-        IBoundNode boundNode = boundCode.getTopNode();
+        var boundNode = boundCode.getTopNode();
 
-        IOpenVM vm = openl.getVm();
+        var vm = openl.getVm();
 
         return vm.getRunner().run((IBoundMethodNode) boundNode, new Object[0]);
     }
@@ -220,7 +217,7 @@ public final class OpenLManager {
                                                IOpenMethodHeader header,
                                                IBindingContext bindingContext) {
 
-        IOpenClass type = header.getType();
+        var type = header.getType();
 
         if (!OpenClassUtils.isVoid(type) && !NullOpenClass.isAnyNull(type)) {
 
@@ -242,7 +239,7 @@ public final class OpenLManager {
                                           IBindingContext bindingContext,
                                           IParsedCode parsedCode,
                                           boolean allowParsingErrors) {
-        SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
+        var parsingErrors = parsedCode.getErrors();
         if (parsingErrors.length > 0) {
             for (SyntaxNodeException parsingError : parsingErrors) {
                 bindingContext.addError(parsingError);
@@ -253,8 +250,8 @@ public final class OpenLManager {
         }
         FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
-        IOpenBinder binder = openl.getBinder();
-        IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
+        var binder = openl.getBinder();
+        var boundCode = binder.bind(parsedCode, bindingContext);
 
         return boundCode.getTopNode();
     }

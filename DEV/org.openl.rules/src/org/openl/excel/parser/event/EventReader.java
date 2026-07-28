@@ -56,7 +56,7 @@ public class EventReader implements ExcelReader {
     @Override
     public TableStyles getTableStyles(SheetDescriptor sheet, IGridRegion tableRegion) {
         try {
-            TableStyleListener listener = new TableStyleListener((EventSheetDescriptor) sheet, tableRegion);
+            var listener = new TableStyleListener((EventSheetDescriptor) sheet, tableRegion);
             listener.process(fileName);
 
             return listener.getTableStyles();
@@ -67,7 +67,7 @@ public class EventReader implements ExcelReader {
 
     private void initialize() {
         try {
-            WorkbookListener workbookListener = new WorkbookListener();
+            var workbookListener = new WorkbookListener();
             workbookListener.process(fileName);
             this.listener = workbookListener;
         } catch (IOException e) {

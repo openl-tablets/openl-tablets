@@ -52,7 +52,7 @@ class DivisionInvariantsTest {
     @FieldSource("INT_PAIRS")
     void identityByte(int a, int n) {
         byte ab = (byte) a, nb = (byte) n;
-        int q = Quotient.quotient(ab, nb);
+        var q = Quotient.quotient(ab, nb);
         byte r = Remainder.remainder(ab, nb);
         assertEquals(ab, nb * q + r);
     }
@@ -61,7 +61,7 @@ class DivisionInvariantsTest {
     @FieldSource("INT_PAIRS")
     void identityShort(int a, int n) {
         short as = (short) a, ns = (short) n;
-        int q = Quotient.quotient(as, ns);
+        var q = Quotient.quotient(as, ns);
         short r = Remainder.remainder(as, ns);
         assertEquals(as, ns * q + r);
     }
@@ -69,8 +69,8 @@ class DivisionInvariantsTest {
     @ParameterizedTest(name = "int ({0}, {1})")
     @FieldSource("INT_PAIRS")
     void identityInt(int a, int n) {
-        int q = Quotient.quotient(a, n);
-        int r = Remainder.remainder(a, n);
+        var q = Quotient.quotient(a, n);
+        var r = Remainder.remainder(a, n);
         assertEquals(a, n * q + r);
     }
 
@@ -78,24 +78,24 @@ class DivisionInvariantsTest {
     @FieldSource("INT_PAIRS")
     void identityLong(int a, int n) {
         long al = a, nl = n;
-        long q = Quotient.quotient(al, nl);
-        long r = Remainder.remainder(al, nl);
+        var q = Quotient.quotient(al, nl);
+        var r = Remainder.remainder(al, nl);
         assertEquals(al, nl * q + r);
     }
 
     @ParameterizedTest(name = "float ({0}, {1})")
     @FieldSource("FLOAT_PAIRS")
     void identityFloat(float a, float n) {
-        float q = Quotient.quotient(a, n);
-        float r = Remainder.remainder(a, n);
+        var q = Quotient.quotient(a, n);
+        var r = Remainder.remainder(a, n);
         assertEquals(a, n * q + r, 1e-6f);
     }
 
     @ParameterizedTest(name = "double ({0}, {1})")
     @FieldSource("DOUBLE_PAIRS")
     void identityDouble(double a, double n) {
-        double q = Quotient.quotient(a, n);
-        double r = Remainder.remainder(a, n);
+        var q = Quotient.quotient(a, n);
+        var r = Remainder.remainder(a, n);
         assertEquals(a, n * q + r, 1e-12);
     }
 
@@ -137,8 +137,8 @@ class DivisionInvariantsTest {
     @ParameterizedTest(name = "int ({0}, {1})")
     @FieldSource("INT_PAIRS")
     void modIsNormalizedRemainderInt(int a, int n) {
-        int r = Remainder.remainder(a, n);
-        int m = Modular.mod(a, n);
+        var r = Remainder.remainder(a, n);
+        var m = Modular.mod(a, n);
         int expected = (r != 0 && Integer.signum(r) != Integer.signum(n)) ? r + n : r;
         assertEquals(expected, m);
     }
@@ -147,8 +147,8 @@ class DivisionInvariantsTest {
     @FieldSource("INT_PAIRS")
     void modIsNormalizedRemainderLong(int a, int n) {
         long al = a, nl = n;
-        long r = Remainder.remainder(al, nl);
-        long m = Modular.mod(al, nl);
+        var r = Remainder.remainder(al, nl);
+        var m = Modular.mod(al, nl);
         long expected = (r != 0L && Long.signum(r) != Long.signum(nl)) ? r + nl : r;
         assertEquals(expected, m);
     }
@@ -156,8 +156,8 @@ class DivisionInvariantsTest {
     @ParameterizedTest(name = "double ({0}, {1})")
     @FieldSource("DOUBLE_PAIRS")
     void modIsNormalizedRemainderDouble(double a, double n) {
-        double r = Remainder.remainder(a, n);
-        double m = Modular.mod(a, n);
+        var r = Remainder.remainder(a, n);
+        var m = Modular.mod(a, n);
         double expected = (r != 0.0 && Math.signum(r) != Math.signum(n)) ? r + n : r;
         assertEquals(expected, m, 1e-12);
     }

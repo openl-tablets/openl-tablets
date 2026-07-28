@@ -17,7 +17,6 @@ import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.GroovyScriptFile;
-import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 import org.openl.rules.project.model.ExposedMethods;
@@ -137,21 +136,21 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
-        RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
+        var projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
                 repositoryId,
                 getProjectName(),
                 getProjectFolder(),
                 comment);
 
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        var converter = new OpenAPIScaffoldingConverter();
         try {
-            ProjectModel projectModel = getProjectModel(projectBuilder, converter);
+            var projectModel = getProjectModel(projectBuilder, converter);
             Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
             List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
             List<DataModel> dataModels = projectModel.getDataModels();
             EnvironmentModel environmentModel;
-            boolean dataTypesArePresented = CollectionUtils.isNotEmpty(datatypeModels);
-            boolean spreadsheetsArePresented = CollectionUtils.isNotEmpty(spreadsheetModels);
+            var dataTypesArePresented = CollectionUtils.isNotEmpty(datatypeModels);
+            var spreadsheetsArePresented = CollectionUtils.isNotEmpty(spreadsheetModels);
 
             if (!dataTypesArePresented && !spreadsheetsArePresented) {
                 throw new OpenAPIProjectException("Uploaded file has invalid structure.");
@@ -175,8 +174,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                     uploadedOpenAPIFile.getName(),
                     "Error uploading openAPI file.");
 
-            OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-            boolean hasAnnotationTemplateClass = generated.hasAnnotationTemplateClass();
+            var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+            var hasAnnotationTemplateClass = generated.hasAnnotationTemplateClass();
             if (hasAnnotationTemplateClass) {
                 addGroovyScriptFile(projectBuilder, generated.getAnnotationTemplateGroovyFile());
             }
@@ -204,7 +203,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
     private void addGroovyScriptFile(RulesProjectBuilder projectBuilder,
                                      GroovyScriptFile groovyScriptFile) throws ProjectException {
-        String path = openAPIHelper.makePathToTheGeneratedFile(groovyScriptFile.getPath());
+        var path = openAPIHelper.makePathToTheGeneratedFile(groovyScriptFile.getPath());
         addFile(projectBuilder,
                 IOUtils.toInputStream(groovyScriptFile.getScriptText()),
                 path,
@@ -215,7 +214,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                          InputStream inputStream,
                          String fileName,
                          String errorMessage) throws ProjectException {
-        try (InputStream file = inputStream) {
+        try (var file = inputStream) {
             projectBuilder.addFile(fileName, file);
         } catch (IOException e) {
             throw new ProjectException(errorMessage, e);
@@ -235,23 +234,23 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     }
 
     private ProjectDescriptor defineDescriptor(boolean genJavaClasses, Set<String> algorithmsInclude) {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
-        OpenAPI openAPI = new OpenAPI();
+        var descriptor = new ProjectDescriptor();
+        var openAPI = new OpenAPI();
         openAPI.setAlgorithmModuleName(algorithmsModuleName);
         openAPI.setModelModuleName(modelsModuleName);
         openAPI.setMode(OpenAPI.Mode.GENERATION);
 
         descriptor.setName(projectName);
-        List<Module> modules = new ArrayList<>();
-        Module rulesModule = new Module();
+        var modules = new ArrayList<Module>();
+        var rulesModule = new Module();
         rulesModule.setRulesRootPath(algorithmsPath);
         rulesModule.setName(algorithmsModuleName);
-        ExposedMethods filter = new ExposedMethods();
+        var filter = new ExposedMethods();
         filter.setIncludes(algorithmsInclude);
         descriptor.setExposedMethods(filter);
         modules.add(rulesModule);
 
-        Module modelsModule = new Module();
+        var modelsModule = new Module();
         modelsModule.setName(modelsModuleName);
         modelsModule.setRulesRootPath(modelsPath);
         modules.add(modelsModule);
@@ -260,7 +259,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         descriptor.setOpenapi(openAPI);
         descriptor.setModules(modules);
 
-        List<String> classpath = new ArrayList<>();
+        var classpath = new ArrayList<String>();
         if (genJavaClasses) {
             classpath.add(OpenAPIHelper.DEF_JAVA_CLASS_PATH);
         }

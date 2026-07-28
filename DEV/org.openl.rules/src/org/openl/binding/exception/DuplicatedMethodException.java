@@ -44,7 +44,7 @@ public class DuplicatedMethodException extends OpenlNotCheckedException {
             return super.getMessage();
         }
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("Method ");
         MethodUtil.printMethod(newMethod, sb);
         sb.append(" has already been defined.");

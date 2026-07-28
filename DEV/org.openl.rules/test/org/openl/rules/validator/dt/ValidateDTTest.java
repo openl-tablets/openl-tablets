@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.validator.DecisionTableValidationResult;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 class ValidateDTTest extends BaseOpenlBuilderHelper {
 
@@ -20,11 +19,11 @@ class ValidateDTTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testHello1() {
-        String tableName = "Rules int tableAScore(String maritalStatus, String gender, int tyde, int dsr)";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var tableName = "Rules int tableAScore(String maritalStatus, String gender, int tyde, int dsr)";
+        var resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
 
-        Object vv = resultTsn.getValidationResult();
+        var vv = resultTsn.getValidationResult();
 
         assertEquals(8, ((DecisionTableValidationResult) vv).getOverlappings().length);
         assertEquals(0, ((DecisionTableValidationResult) vv).getUncovered().length);
@@ -35,11 +34,11 @@ class ValidateDTTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testHello2() {
-        String tableName = "SimpleRules String check2(String dd1, String dd2)";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var tableName = "SimpleRules String check2(String dd1, String dd2)";
+        var resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
 
-        Object vv = resultTsn.getValidationResult();
+        var vv = resultTsn.getValidationResult();
 
         assertEquals(1, ((DecisionTableValidationResult) vv).getOverlappingBlocks().size());
         assertEquals(2, ((DecisionTableValidationResult) vv).getOverlappingOverrides().size());
@@ -49,11 +48,11 @@ class ValidateDTTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testHello3() {
-        String tableName = "Rules String check3(int dd1, String dd2)";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var tableName = "Rules String check3(int dd1, String dd2)";
+        var resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
 
-        Object vv = resultTsn.getValidationResult();
+        var vv = resultTsn.getValidationResult();
 
         assertEquals(1, ((DecisionTableValidationResult) vv).getOverlappings().length);
         assertEquals(1, ((DecisionTableValidationResult) vv).getUncovered().length);
@@ -62,11 +61,11 @@ class ValidateDTTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testHello4() {
-        String tableName = "Rules String check4(int dd1, String dd2)";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var tableName = "Rules String check4(int dd1, String dd2)";
+        var resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
 
-        Object vv = resultTsn.getValidationResult();
+        var vv = resultTsn.getValidationResult();
 
         assertNull(vv);
     }

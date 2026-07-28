@@ -27,7 +27,7 @@ public class JdbcDBRepositoryFactory implements RepositoryFactory {
 
     @Override
     public Repository create(Function<String, String> settings) {
-        JdbcDBRepository repository = new JdbcDBRepository();
+        var repository = new JdbcDBRepository();
         RepositoryInstatiator.setParams(repository, settings);
         repository.initialize();
         return repository;

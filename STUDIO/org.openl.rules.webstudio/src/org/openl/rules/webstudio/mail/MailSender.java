@@ -44,10 +44,10 @@ public class MailSender {
      * @return true - if e-mail has been sent successful, false - if the service is off.
      */
     public boolean sendVerificationMail(User user, HttpServletRequest httpServletRequest) {
-        String token = RandomStringUtils.secure().next(8, false, true);
-        boolean emailWasSent = false;
+        var token = RandomStringUtils.secure().next(8, false, true);
+        var emailWasSent = false;
 
-        String verificationLink = createVerificationLink(httpServletRequest, token);
+        var verificationLink = createVerificationLink(httpServletRequest, token);
 
         try {
             if (isValidEmailSettings()) {
@@ -70,7 +70,7 @@ public class MailSender {
                 msg.saveChanges();
 
                 // Send email
-                try (Transport transport = getTransport(settings.getUrl(), settings.getUser(), settings.getPassword())) {
+                try (var transport = getTransport(settings.getUrl(), settings.getUser(), settings.getPassword())) {
                     transport.sendMessage(msg, msg.getAllRecipients());
                     userSettingManagementService.setProperty(user.getUsername(), MAIL_VERIFY_TOKEN, token);
                     emailWasSent = true;
@@ -84,17 +84,17 @@ public class MailSender {
     }
 
     public Transport getTransport(String url, String user, String password) throws MessagingException {
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty("mail.smtp.starttls.enable", "true");
         props.setProperty("mail.smtps.starttls.enable", "true");
         Session session = Session.getInstance(props);
-        Transport transport = session.getTransport(new URLName(url));
+        var transport = session.getTransport(new URLName(url));
         transport.connect(user, password);
         return transport;
     }
 
     private String createVerificationLink(HttpServletRequest httpServletRequest, String token) {
-        String root = httpServletRequest.getRequestURL().toString();
+        var root = httpServletRequest.getRequestURL().toString();
         if (root.contains("/web")) {
             root = root.substring(0, root.lastIndexOf("/web"));
         } else if (root.contains("/rest")) {

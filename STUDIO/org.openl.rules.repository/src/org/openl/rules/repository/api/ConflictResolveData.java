@@ -38,8 +38,8 @@ public class ConflictResolveData implements AdditionalData<ConflictResolveData> 
 
             @Override
             public FileItem next() {
-                FileItem oldPath = delegate.next();
-                FileData data = oldPath.getData();
+                var oldPath = delegate.next();
+                var data = oldPath.getData();
                 data.setName(converter.apply(oldPath.getData().getName()));
                 return new FileItem(data, oldPath.getStream());
             }

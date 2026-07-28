@@ -42,8 +42,8 @@ final class PassCoder {
 
         SecretKeySpec secretKey = getKey(privateKey);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, algorithmParameterSpec);
-        byte[] toEncrypt = strToEncrypt.getBytes(StandardCharsets.UTF_8);
-        byte[] encrypted = cipher.doFinal(toEncrypt);
+        var toEncrypt = strToEncrypt.getBytes(StandardCharsets.UTF_8);
+        var encrypted = cipher.doFinal(toEncrypt);
         return Base64.getEncoder().encodeToString(encrypted);
     }
 
@@ -63,8 +63,8 @@ final class PassCoder {
         Cipher cipher = Cipher.getInstance(c);
         SecretKeySpec secretKey = getKey(privateKey);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, algorithmParameterSpec);
-        byte[] toDecrypt = Base64.getDecoder().decode(strToDecrypt);
-        byte[] decripted = cipher.doFinal(toDecrypt);
+        var toDecrypt = Base64.getDecoder().decode(strToDecrypt);
+        var decripted = cipher.doFinal(toDecrypt);
         return new String(decripted, StandardCharsets.UTF_8);
     }
 

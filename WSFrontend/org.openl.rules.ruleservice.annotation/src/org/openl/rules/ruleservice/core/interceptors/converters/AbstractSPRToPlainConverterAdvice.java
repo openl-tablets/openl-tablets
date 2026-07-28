@@ -81,9 +81,9 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
         if (convertToType == null) {
             synchronized (this) {
                 if (convertToType == null) {
-                    Pair<Class<?>, IOpenClass> convertToType1 = Pair.of(null, null);
-                    IOpenClass openClass = openMember.getType();
-                    int dim = 0;
+                    var convertToType1 = Pair.<Class<?>, IOpenClass>of(null, null);
+                    var openClass = openMember.getType();
+                    var dim = 0;
                     while (openClass.isArray()) {
                         openClass = openClass.getComponentClass();
                         dim++;

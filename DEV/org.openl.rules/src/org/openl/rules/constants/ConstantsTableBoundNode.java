@@ -66,25 +66,25 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
     private void processRow(ILogicalTable row, IBindingContext cxt) {
 
-        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
+        var rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
 
         if (ParserUtils.isBlankOrCommented(rowSrc.getCode())) {
             return;
         }
         if (row.getWidth() < 2) {
-            String errorMessage = "Bad table structure: expected {header} / {type | name}.";
+            var errorMessage = "Bad table structure: expected {header} / {type | name}.";
             BindHelper.processError(errorMessage, rowSrc, cxt);
             return;
         }
 
         GridCellSourceCodeModule typeCellSource = DatatypeTableBoundNode.getCellSource(row, cxt, 0);
-        String typeName = typeCellSource.getCode();
+        var typeName = typeCellSource.getCode();
         IOpenClass constantType = OpenLManager.makeType(cxt.getOpenL(), typeName, typeCellSource, cxt);
 
         GridCellSourceCodeModule nameCellSource = DatatypeTableBoundNode.getCellSource(row, cxt, 1);
-        String constantName = nameCellSource.getCode();
+        var constantName = nameCellSource.getCode();
         if (TableNameChecker.isInvalidJavaIdentifier(constantName)) {
-            String errorMessage = "Bad constant name: %s".formatted(constantName);
+            var errorMessage = "Bad constant name: %s".formatted(constantName);
             BindHelper.processError(errorMessage, nameCellSource, cxt);
         }
 
@@ -100,8 +100,8 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
             if (DefaultValue.DEFAULT.equals(value)) {
                 objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
             } else if (RuleRowHelper.isFormula(value)) {
-                SubTextSourceCodeModule source = new SubTextSourceCodeModule(defaultValueSrc, 1);
-                OpenMethodHeader methodHeader = new OpenMethodHeader(constantName,
+                var source = new SubTextSourceCodeModule(defaultValueSrc, 1);
+                var methodHeader = new OpenMethodHeader(constantName,
                         constantType,
                         new MethodSignature(),
                         null);
@@ -137,19 +137,19 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                         objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
                     }
                 } catch (RuntimeException e) {
-                    String message = "Cannot parse cell value '%s'.".formatted(value);
+                    var message = "Cannot parse cell value '%s'.".formatted(value);
                     BindHelper.processError(message, e, defaultValueSrc, cxt);
                 }
             }
         }
 
         try {
-            FieldMetaInfo fieldMetaInfo = new FieldMetaInfo(constantType.getName(),
+            var fieldMetaInfo = new FieldMetaInfo(constantType.getName(),
                     constantName,
                     tableSyntaxNode,
                     tableSyntaxNode.getUri());
 
-            ConstantOpenField constantField = new ConstantOpenField(constantName,
+            var constantField = new ConstantOpenField(constantName,
                     objectValue,
                     value,
                     constantType,
@@ -168,12 +168,12 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, bindingContext);
         normalizedData = dataTable;
 
-        int tableHeight = 0;
+        var tableHeight = 0;
         if (dataTable != null) {
             tableHeight = dataTable.getHeight();
         }
 
-        for (int i = 0; i < tableHeight; i++) {
+        for (var i = 0; i < tableHeight; i++) {
             processRow(dataTable.getRow(i), bindingContext);
         }
     }
@@ -186,7 +186,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
         addConstants(bindingContext);
 
-        ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
+        var tableBody = getTableSyntaxNode().getTableBody();
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
     }
 

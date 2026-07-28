@@ -62,7 +62,7 @@ public class TableMethod extends ExecutableRulesMethod {
     @Override
     public BindingDependencies getDependencies() {
 
-        BindingDependencies bindingDependencies = new RulesBindingDependencies();
+        var bindingDependencies = new RulesBindingDependencies();
         method.updateDependency(bindingDependencies);
 
         return bindingDependencies;

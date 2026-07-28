@@ -11,7 +11,7 @@ public class FormatterAdapter implements IFormatter {
 
     @Override
     public String format(Object obj) {
-        StringBuilder buf = new StringBuilder();
+        var buf = new StringBuilder();
         return DefaultFormat.format(obj, buf).toString();
     }
 

@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,7 +33,7 @@ public class RulesFrontendImpl implements RulesFrontend {
     @Override
     public void registerService(OpenLService service) {
         Objects.requireNonNull(service, "service cannot be null");
-        OpenLService replacedService = runningServices.put(service.getName(), service);
+        var replacedService = runningServices.put(service.getName(), service);
         if (replacedService != null) {
             log.warn("Service '{}' is already registered. Replaced with new service bean.", service.getName());
         }
@@ -75,7 +74,7 @@ public class RulesFrontendImpl implements RulesFrontend {
                           Object[] params) throws MethodInvocationException {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         Objects.requireNonNull(ruleName, "ruleName cannot be null");
-        OpenLService service = getService(serviceName);
+        var service = getService(serviceName);
         if (service == null) {
             throw new MethodInvocationException("Service '%s' is not found.".formatted(serviceName));
         }
@@ -84,8 +83,8 @@ public class RulesFrontendImpl implements RulesFrontend {
                 Method serviceMethod = MethodUtil
                         .getMatchingAccessibleMethod(service.getServiceBean().getClass(), ruleName, inputParamsTypes);
                 if (serviceMethod == null) {
-                    StringBuilder sb = new StringBuilder();
-                    boolean f = true;
+                    var sb = new StringBuilder();
+                    var f = true;
                     for (Class<?> param : inputParamsTypes) {
                         if (!f) {
                             sb.append(",");
@@ -102,7 +101,7 @@ public class RulesFrontendImpl implements RulesFrontend {
                 } catch (IllegalAccessException e) {
                     throw new InternalError(e.toString());
                 } catch (InvocationTargetException e) {
-                    Throwable t = e.getCause();
+                    var t = e.getCause();
                     throw new MethodInvocationException(t.toString(), t);
                 }
             } else {
@@ -117,7 +116,7 @@ public class RulesFrontendImpl implements RulesFrontend {
     }
 
     private OpenLService getService(String serviceName) {
-        Lock lock = RuleServiceRedeployLock.getInstance().getReadLock();
+        var lock = RuleServiceRedeployLock.getInstance().getReadLock();
         try {
             lock.lock();
             return runningServices.get(serviceName);
@@ -137,7 +136,7 @@ public class RulesFrontendImpl implements RulesFrontend {
         log.debug("Executing rule from service with name='{}', ruleName='{}'.", serviceName, ruleName);
 
         Class<?>[] paramTypes = new Class<?>[params.length];
-        for (int i = 0; i < params.length; i++) {
+        for (var i = 0; i < params.length; i++) {
             paramTypes[i] = params[i] != null ? params[i].getClass() : null;
         }
         return execute(serviceName, ruleName, paramTypes, params);
@@ -155,10 +154,10 @@ public class RulesFrontendImpl implements RulesFrontend {
 
         Object result = null;
 
-        OpenLService service = getService(serviceName);
+        var service = getService(serviceName);
         if (service != null) {
             try {
-                Method serviceMethod = service.getServiceBean().getClass().getMethod(ClassUtils.getter(fieldName));
+                var serviceMethod = service.getServiceBean().getClass().getMethod(ClassUtils.getter(fieldName));
                 result = serviceMethod.invoke(service.getServiceBean());
             } catch (Exception e) {
                 if (e.getCause() instanceof RuleServiceWrapperException) {

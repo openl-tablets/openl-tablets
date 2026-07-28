@@ -68,7 +68,7 @@ public final class OpenLFuzzyUtils {
         } else {
             cache = openClassRecursivelyCacheForReadableFields.get();
         }
-        Map<String, Map<Token, IOpenField[][]>> cache1 = cache.computeIfAbsent(openClass, e -> new HashMap<>());
+        var cache1 = cache.computeIfAbsent(openClass, e -> new HashMap<>());
         final String tokenizedPrefix = toTokenString(tokenPrefix);
         Map<Token, IOpenField[][]> ret = cache1.get(tokenizedPrefix);
         if (ret == null) {
@@ -77,16 +77,16 @@ public final class OpenLFuzzyUtils {
                 map = buildTokensMapToOpenClassFieldsRecursively(openClass, startLevel, writable);
             } else {
                 map = buildTokensMapToOpenClassFieldsRecursively(openClass, startLevel, writable);
-                Map<Token, LinkedList<LinkedList<IOpenField>>> updatedMap = new HashMap<>(map);
+                var updatedMap = new HashMap<Token, LinkedList<LinkedList<IOpenField>>>(map);
                 for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
-                    Token updatedToken = new Token(toTokenString(tokenizedPrefix + " " + entry.getKey().getValue()),
+                    var updatedToken = new Token(toTokenString(tokenizedPrefix + " " + entry.getKey().getValue()),
                             entry.getKey().getDistance());
                     updatedMap.put(updatedToken, entry.getValue());
                 }
                 map = updatedMap;
             }
 
-            Map<Token, LinkedList<IOpenField>[]> tmp = new HashMap<>();
+            var tmp = new HashMap<Token, LinkedList<IOpenField>[]>();
             for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
                 tmp.put(entry.getKey(), entry.getValue().toArray(new LinkedList[]{}));
             }
@@ -94,7 +94,7 @@ public final class OpenLFuzzyUtils {
             ret = new HashMap<>();
             for (Entry<Token, LinkedList<IOpenField>[]> entry : tmp.entrySet()) {
                 IOpenField[][] m = new IOpenField[entry.getValue().length][];
-                int i = 0;
+                var i = 0;
                 for (LinkedList<IOpenField> x : entry.getValue()) {
                     m[i] = x.toArray(new IOpenField[]{});
                     i++;
@@ -120,18 +120,18 @@ public final class OpenLFuzzyUtils {
         if (deepLevel >= DEEP_LEVEL) {
             return Collections.emptyMap();
         }
-        Map<Token, LinkedList<LinkedList<IOpenField>>> ret = new HashMap<>();
+        var ret = new HashMap<Token, LinkedList<LinkedList<IOpenField>>>();
         if (!openClass.isSimple()) {
             for (IOpenField field : openClass.getFields()) {
                 if (!field.isStatic() && !field.isConst()) {
                     if (writable ? field.isWritable() : field.isReadable()) {
-                        String fieldName = field.getName();
+                        var fieldName = field.getName();
                         String t = OpenLFuzzyUtils.toTokenString(phoneticFix(fieldName));
-                        LinkedList<IOpenField> fields = new LinkedList<>();
+                        var fields = new LinkedList<IOpenField>();
                         fields.add(field);
                         LinkedList<LinkedList<IOpenField>> x = null;
                         for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : ret.entrySet()) {
-                            Token token = entry.getKey();
+                            var token = entry.getKey();
                             if (token.getValue().equals(t) && entry.getKey().getDistance() == deepLevel) {
                                 x = entry.getValue();
                                 break;
@@ -145,26 +145,26 @@ public final class OpenLFuzzyUtils {
                             x.add(fields);
                         }
 
-                        IOpenClass type = field.getType();
+                        var type = field.getType();
                         if (!type.isSimple() && !type.isArray()) {
-                            Map<Token, LinkedList<LinkedList<IOpenField>>> map = buildTokensMapToOpenClassFieldsRecursively(
+                            var map = buildTokensMapToOpenClassFieldsRecursively(
                                     type,
                                     deepLevel + 1,
                                     writable);
                             for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
                                 if (!entry.getValue().isEmpty()) {
-                                    Token k = new Token(t + " " + entry.getKey().getValue(),
+                                    var k = new Token(t + " " + entry.getKey().getValue(),
                                             entry.getKey().getDistance() + 1);
-                                    LinkedList<LinkedList<IOpenField>> v = ret.computeIfAbsent(k,
+                                    var v = ret.computeIfAbsent(k,
                                             e -> new LinkedList<>());
                                     for (LinkedList<IOpenField> y : entry.getValue()) {
-                                        LinkedList<IOpenField> y1 = new LinkedList<>(y);
+                                        var y1 = new LinkedList<IOpenField>(y);
                                         y1.addFirst(field);
                                         v.add(y1);
                                     }
                                     v = ret.computeIfAbsent(entry.getKey(), e -> new LinkedList<>());
                                     for (LinkedList<IOpenField> y : entry.getValue()) {
-                                        LinkedList<IOpenField> y1 = new LinkedList<>(y);
+                                        var y1 = new LinkedList<IOpenField>(y);
                                         y1.addFirst(field);
                                         v.add(y1);
                                     }
@@ -186,9 +186,9 @@ public final class OpenLFuzzyUtils {
     }
 
     private static String[] concatTokens(String[] tokens, String pattern) {
-        List<String> t = new ArrayList<>();
-        StringBuilder sbBuilder = new StringBuilder();
-        boolean g = false;
+        var t = new ArrayList<String>();
+        var sbBuilder = new StringBuilder();
+        var g = false;
         for (String s : tokens) {
             if (s.length() == 1 && s.matches(pattern)) {
                 g = true;
@@ -209,14 +209,14 @@ public final class OpenLFuzzyUtils {
     }
 
     private static String[] cleanUpTokens(String[] tokens) {
-        List<String> t = new ArrayList<>();
+        var t = new ArrayList<String>();
         for (String token : tokens) {
-            String s = token.trim().toLowerCase();
+            var s = token.trim().toLowerCase();
             if (s.isEmpty()) {
                 continue;
             }
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < s.length(); i++) {
+            var sb = new StringBuilder();
+            for (var i = 0; i < s.length(); i++) {
                 if (Character.isLetterOrDigit(s.charAt(i))) {
                     sb.append(s.charAt(i));
                 }
@@ -232,14 +232,14 @@ public final class OpenLFuzzyUtils {
         if (source == null) {
             return StringUtils.EMPTY;
         }
-        String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_-]|\\.|,|;)");
+        var tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_-]|\\.|,|;)");
 
         tokens = concatTokens(tokens, "\\p{Lu}+");
         tokens = concatTokens(tokens, "\\d+");
         tokens = cleanUpTokens(tokens);
 
-        StringBuilder sb = new StringBuilder();
-        boolean f = false;
+        var sb = new StringBuilder();
+        var f = false;
         for (String s : tokens) {
             if (!f) {
                 f = true;
@@ -254,8 +254,8 @@ public final class OpenLFuzzyUtils {
     // Matching (graph theory) in bigraph
     // Ford–Fulkerson algorithm
     public static List<Pair<Integer, Integer>> findMaximumMatching(List<Pair<Integer, Integer>> edges) {
-        int n1 = 0;
-        int n2 = 0;
+        var n1 = 0;
+        var n2 = 0;
         // Find vertex numbers
         for (Pair<Integer, Integer> e : edges) {
             if (e.getLeft() > n1) {
@@ -267,15 +267,15 @@ public final class OpenLFuzzyUtils {
         }
         n1++;
         n2++;
-        int n = n1 + n2 + 2;
-        int s = n1 + n2;
-        int t = n1 + n2 + 1;
+        var n = n1 + n2 + 2;
+        var s = n1 + n2;
+        var t = n1 + n2 + 1;
         int[][] edgesMatrix = new int[n][n];
         // Build graph
-        for (int i = 0; i < n1; i++) {
+        for (var i = 0; i < n1; i++) {
             edgesMatrix[s][i] = 1;
         }
-        for (int i = n1; i < n1 + n2; i++) {
+        for (var i = n1; i < n1 + n2; i++) {
             edgesMatrix[i][t] = 1;
         }
         for (Pair<Integer, Integer> e : edges) {
@@ -291,10 +291,10 @@ public final class OpenLFuzzyUtils {
             Arrays.fill(d, Integer.MAX_VALUE);
             d[s] = 0;
             // Deijstra to find a path
-            for (int i = 0; i < n; i++) {
-                int k = -1;
-                int min = Integer.MAX_VALUE;
-                for (int j = 0; j < n; j++) {
+            for (var i = 0; i < n; i++) {
+                var k = -1;
+                var min = Integer.MAX_VALUE;
+                for (var j = 0; j < n; j++) {
                     if (f[j] && d[j] < min) {
                         min = d[j];
                         k = j;
@@ -304,7 +304,7 @@ public final class OpenLFuzzyUtils {
                     break;
                 }
                 f[k] = false;
-                for (int j = 0; j < n; j++) {
+                for (var j = 0; j < n; j++) {
                     if (edgesMatrix[k][j] > 0 && (d[k] != Integer.MAX_VALUE && d[k] + edgesMatrix[k][j] < d[j])) {
                         d[j] = d[k] + edgesMatrix[k][j];
                         m[j] = k;
@@ -314,16 +314,16 @@ public final class OpenLFuzzyUtils {
             if (d[t] == Integer.MAX_VALUE || d[t] == 0) {
                 break;
             }
-            int j = t;
+            var j = t;
             while (j != s) {
                 edgesMatrix[m[j]][j] = edgesMatrix[m[j]][j] - 1;
                 edgesMatrix[j][m[j]] = edgesMatrix[j][m[j]] + 1;
                 j = m[j];
             }
         }
-        List<Pair<Integer, Integer>> ret = new ArrayList<>();
-        for (int i = 0; i < n1; i++) {
-            for (int j = n1; j < n1 + n2; j++) {
+        var ret = new ArrayList<Pair<Integer, Integer>>();
+        for (var i = 0; i < n1; i++) {
+            for (var j = n1; j < n1 + n2; j++) {
                 if (edgesMatrix[j][i] > 0) {
                     ret.add(Pair.of(i, j - n1));
                 }
@@ -335,22 +335,22 @@ public final class OpenLFuzzyUtils {
     public static List<FuzzyResult> fuzzyExtract(String source, Token[] tokens, boolean ignoreDistances) {
         source = toTokenString(source);
 
-        String[] sourceTokens = source.split(" ");
+        var sourceTokens = source.split(" ");
 
         String[][] tokensList = new String[tokens.length][];
-        for (int i = 0; i < tokens.length; i++) {
+        for (var i = 0; i < tokens.length; i++) {
             tokensList[i] = tokens[i].getValue().split(" ");
         }
 
         double[][][] distances = new double[tokensList.length][sourceTokens.length][];
         boolean[] sm = new boolean[sourceTokens.length];
-        for (int k = 0; k < sourceTokens.length; k++) {
+        for (var k = 0; k < sourceTokens.length; k++) {
             sm[k] = TOKENS_STRONG_MATCH.contains(sourceTokens[k]);
         }
-        for (int i = 0; i < tokensList.length; i++) {
-            for (int k = 0; k < sourceTokens.length; k++) {
+        for (var i = 0; i < tokensList.length; i++) {
+            for (var k = 0; k < sourceTokens.length; k++) {
                 double[] w = new double[tokensList[i].length];
-                for (int q = 0; q < tokensList[i].length; q++) {
+                for (var q = 0; q < tokensList[i].length; q++) {
                     if (sm[k] || TOKENS_STRONG_MATCH.contains(tokensList[i][q])) {
                         w[q] = Objects.equals(sourceTokens[k], tokensList[i][q]) ? 1.0d : 0d;
                     } else {
@@ -361,22 +361,22 @@ public final class OpenLFuzzyUtils {
             }
         }
 
-        BuildBySimilarity buildBySimilarity1 = new BuildBySimilarity(distances, 1.0d, sourceTokens, tokens, tokensList)
+        var buildBySimilarity1 = new BuildBySimilarity(distances, 1.0d, sourceTokens, tokens, tokensList)
                 .invoke();
-        BuildBySimilarity buildBySimilarity = new BuildBySimilarity(distances,
+        var buildBySimilarity = new BuildBySimilarity(distances,
                 ACCEPTABLE_SIMILARITY_VALUE,
                 sourceTokens,
                 tokens,
                 tokensList).invoke();
-        int maxMatchedTokens = buildBySimilarity.getMaxMatchedTokens();
+        var maxMatchedTokens = buildBySimilarity.getMaxMatchedTokens();
         if (buildBySimilarity1.getMaxMatchedTokens() == buildBySimilarity.getMaxMatchedTokens()) {
             buildBySimilarity = buildBySimilarity1;
         } else {
-            double a = ACCEPTABLE_SIMILARITY_VALUE;
-            double b = 1.0d;
+            var a = ACCEPTABLE_SIMILARITY_VALUE;
+            var b = 1.0d;
             while (b - a > 1e-4) {
-                double p = (a + b) / 2;
-                BuildBySimilarity pSimilarity = new BuildBySimilarity(distances, p, sourceTokens, tokens, tokensList)
+                var p = (a + b) / 2;
+                var pSimilarity = new BuildBySimilarity(distances, p, sourceTokens, tokens, tokensList)
                         .invoke();
                 if (pSimilarity.maxMatchedTokens == maxMatchedTokens) {
                     a = p;
@@ -388,15 +388,15 @@ public final class OpenLFuzzyUtils {
         }
 
         List<Pair<String, String>> similarity = buildBySimilarity.getSimilarity();
-        int[] f = buildBySimilarity.getF();
+        var f = buildBySimilarity.getF();
 
         if (maxMatchedTokens == 0) {
             return Collections.emptyList();
         }
 
-        int missedTokensMin = Integer.MAX_VALUE;
-        int minDistance = Integer.MAX_VALUE;
-        for (int i = 0; i < tokensList.length; i++) {
+        var missedTokensMin = Integer.MAX_VALUE;
+        var minDistance = Integer.MAX_VALUE;
+        for (var i = 0; i < tokensList.length; i++) {
             if (f[i] == maxMatchedTokens) {
                 if (missedTokensMin > tokensList[i].length - f[i]) {
                     missedTokensMin = tokensList[i].length - f[i];
@@ -407,15 +407,15 @@ public final class OpenLFuzzyUtils {
             }
         }
 
-        List<Token> ret = new ArrayList<>();
-        int best = 0;
-        int bestL = Integer.MAX_VALUE;
-        for (int i = 0; i < tokensList.length; i++) {
+        var ret = new ArrayList<Token>();
+        var best = 0;
+        var bestL = Integer.MAX_VALUE;
+        for (var i = 0; i < tokensList.length; i++) {
             if (f[i] == maxMatchedTokens && tokensList[i].length - f[i] == missedTokensMin && (ignoreDistances || tokens[i]
                     .getDistance() == minDistance)) {
-                Pair<String, String> pair = similarity.get(i);
+                var pair = similarity.get(i);
                 if (!ignoreDistances) {
-                    int d = StringUtils.getFuzzyDistance(pair.getRight(), pair.getLeft(), Locale.ENGLISH);
+                    var d = StringUtils.getFuzzyDistance(pair.getRight(), pair.getLeft(), Locale.ENGLISH);
                     if (d > best) {
                         best = d;
                         bestL = StringUtils.getLevenshteinDistance(pair.getRight(), pair.getLeft());
@@ -423,7 +423,7 @@ public final class OpenLFuzzyUtils {
                         ret.add(tokens[i]);
                     } else {
                         if (d == best) {
-                            int l = StringUtils.getLevenshteinDistance(pair.getRight(), pair.getLeft());
+                            var l = StringUtils.getLevenshteinDistance(pair.getRight(), pair.getLeft());
                             if (l < bestL) {
                                 bestL = l;
                                 ret.clear();
@@ -440,8 +440,8 @@ public final class OpenLFuzzyUtils {
                 }
             }
         }
-        int missedTokensMin1 = missedTokensMin;
-        double acceptableSimilarity = buildBySimilarity.getAcceptableSimilarity();
+        var missedTokensMin1 = missedTokensMin;
+        var acceptableSimilarity = buildBySimilarity.getAcceptableSimilarity();
         return ret.stream()
                 .map(e -> new FuzzyResult(e,
                         maxMatchedTokens,
@@ -562,20 +562,20 @@ public final class OpenLFuzzyUtils {
             similarity = new ArrayList<>();
             maxMatchedTokens = 0;
             f = new int[tokensList.length];
-            for (int i = 0; i < tokensList.length; i++) {
-                int c = 0;
-                List<String> source1 = new ArrayList<>();
-                List<String> target1 = new ArrayList<>();
-                List<Pair<Integer, Integer>> edges = new ArrayList<>();
-                for (int k = 0; k < sourceTokens.length; k++) {
-                    for (int q = 0; q < tokensList[i].length; q++) {
-                        double d = distances[i][k][q];
+            for (var i = 0; i < tokensList.length; i++) {
+                var c = 0;
+                var source1 = new ArrayList<String>();
+                var target1 = new ArrayList<String>();
+                var edges = new ArrayList<Pair<Integer, Integer>>();
+                for (var k = 0; k < sourceTokens.length; k++) {
+                    for (var q = 0; q < tokensList[i].length; q++) {
+                        var d = distances[i][k][q];
                         if (d >= acceptableSimilarity) {
                             edges.add(Pair.of(k, q));
                         }
                     }
                 }
-                List<Pair<Integer, Integer>> maximumMatching = findMaximumMatching(edges);
+                var maximumMatching = findMaximumMatching(edges);
                 for (Pair<Integer, Integer> pair : maximumMatching) {
                     source1.add(sourceTokens[pair.getLeft()]);
                     target1.add(tokensList[i][pair.getRight()]);

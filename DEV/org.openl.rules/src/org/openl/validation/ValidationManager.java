@@ -17,7 +17,7 @@ public class ValidationManager {
     private static final ThreadLocal<Boolean> validationEnabled = new ThreadLocal<>(); // Workaround
 
     public static boolean isValidationEnabled() {
-        Boolean validationIsOn = validationEnabled.get();
+        var validationIsOn = validationEnabled.get();
         return validationIsOn == null || validationIsOn;
     }
 
@@ -30,7 +30,7 @@ public class ValidationManager {
     }
 
     public static void validate(ICompileContext context, IOpenClass openClass, IBindingContext bindingContext) {
-        List<ValidationResult> validationResults = processValidation(context, openClass);
+        var validationResults = processValidation(context, openClass);
         for (ValidationResult validationResult : validationResults) {
             bindingContext.addMessages(validationResult.getMessages());
         }
@@ -46,7 +46,7 @@ public class ValidationManager {
         if (!ValidationManager.isValidationEnabled()) {
             return Collections.emptyList();
         }
-        List<ValidationResult> results = new ArrayList<>();
+        var results = new ArrayList<ValidationResult>();
         // Check that compile context initialized. If context is null or
         // validation switched off then skip validation process.
         if (context != null) {

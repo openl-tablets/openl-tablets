@@ -15,11 +15,11 @@ public class StyleHandler extends DefaultHandler {
         } else if (startCellXfs && "xf".equals(localName)) {
             styleTable.addStyle(Integer.parseInt(attributes.getValue("numFmtId")));
         } else if ("numFmt".equals(localName)) {
-            int numFmtId = Integer.parseInt(attributes.getValue("numFmtId"));
-            String formatCode = attributes.getValue("formatCode");
+            var numFmtId = Integer.parseInt(attributes.getValue("numFmtId"));
+            var formatCode = attributes.getValue("formatCode");
             styleTable.addFormatString(numFmtId, formatCode);
         } else if (startCellXfs && "alignment".equals(localName)) {
-            String indent = attributes.getValue("indent");
+            var indent = attributes.getValue("indent");
             if (indent != null) {
                 styleTable.addIndent(Short.parseShort(indent));
             }

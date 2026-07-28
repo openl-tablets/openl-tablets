@@ -30,7 +30,6 @@ import org.apache.poi.hssf.record.StringRecord;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.util.CellRangeAddress;
 
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.MergedCell;
@@ -58,10 +57,10 @@ public class WorkbookListener implements HSSFListener {
     private short indent;
 
     void process(String fileName) throws IOException {
-        try (POIFSFileSystem poifs = new POIFSFileSystem(new File(fileName))) {
+        try (var poifs = new POIFSFileSystem(new File(fileName))) {
             formatListener = new StyleTrackingListener(this);
-            HSSFEventFactory factory = new HSSFEventFactory();
-            HSSFRequest request = new HSSFRequest();
+            var factory = new HSSFEventFactory();
+            var request = new HSSFRequest();
             request.addListenerForAllRecords(formatListener);
             factory.processWorkbookEvents(request, poifs);
         }
@@ -76,15 +75,15 @@ public class WorkbookListener implements HSSFListener {
 
         switch (record.getSid()) {
             case DateWindow1904Record.sid:
-                DateWindow1904Record d1904 = (DateWindow1904Record) record;
+                var d1904 = (DateWindow1904Record) record;
                 use1904Windowing = d1904.getWindowing() != 0;
                 break;
             case BoundSheetRecord.sid:
-                BoundSheetRecord bsr = (BoundSheetRecord) record;
+                var bsr = (BoundSheetRecord) record;
                 sheets.add(new EventSheetDescriptor(bsr.getSheetname(), sheets.size(), bsr.getPositionOfBof()));
                 break;
             case BOFRecord.sid:
-                BOFRecord bof = (BOFRecord) record;
+                var bof = (BOFRecord) record;
                 if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
                     sheetIndex++;
 
@@ -95,12 +94,12 @@ public class WorkbookListener implements HSSFListener {
                 }
                 break;
             case DimensionsRecord.sid:
-                DimensionsRecord dr = (DimensionsRecord) record;
+                var dr = (DimensionsRecord) record;
                 getSheet().setFirstRowNum(dr.getFirstRow());
                 getSheet().setFirstColNum(dr.getFirstCol());
 
-                int rowsCount = dr.getLastRow() - dr.getFirstRow();
-                int colsCount = dr.getLastCol() - dr.getFirstCol();
+                var rowsCount = dr.getLastRow() - dr.getFirstRow();
+                var colsCount = dr.getLastCol() - dr.getFirstCol();
                 log.debug("Array size: {}:{}", rowsCount, colsCount);
                 Object[][] cells = new Object[rowsCount][colsCount];
                 cellsMap.put(getSheet().getName(), cells);
@@ -109,7 +108,7 @@ public class WorkbookListener implements HSSFListener {
                 sstRecord = (SSTRecord) record;
                 break;
             case BoolErrRecord.sid:
-                BoolErrRecord berec = (BoolErrRecord) record;
+                var berec = (BoolErrRecord) record;
 
                 if (berec.isBoolean()) {
 
@@ -123,7 +122,7 @@ public class WorkbookListener implements HSSFListener {
                 }
                 break;
             case FormulaRecord.sid: // Cell value from a formula
-                FormulaRecord frec = (FormulaRecord) record;
+                var frec = (FormulaRecord) record;
 
                 row = frec.getRow();
                 column = frec.getColumn();
@@ -154,7 +153,7 @@ public class WorkbookListener implements HSSFListener {
             case StringRecord.sid:
                 if (outputNextStringRecord) {
                     // String for formula
-                    StringRecord srec = (StringRecord) record;
+                    var srec = (StringRecord) record;
                     value = StringUtils.trimToNull(srec.getString());
                     row = nextRow;
                     column = nextColumn;
@@ -168,7 +167,7 @@ public class WorkbookListener implements HSSFListener {
                 }
                 break;
             case LabelRecord.sid: // Strings stored directly in the cell
-                LabelRecord lrec = (LabelRecord) record;
+                var lrec = (LabelRecord) record;
 
                 row = lrec.getRow();
                 column = lrec.getColumn();
@@ -180,7 +179,7 @@ public class WorkbookListener implements HSSFListener {
                 setValue(row, column, value);
                 break;
             case LabelSSTRecord.sid: // String in the shared string table
-                LabelSSTRecord lsrec = (LabelSSTRecord) record;
+                var lsrec = (LabelSSTRecord) record;
 
                 row = lsrec.getRow();
                 column = lsrec.getColumn();
@@ -196,7 +195,7 @@ public class WorkbookListener implements HSSFListener {
                 }
                 break;
             case NumberRecord.sid: // Numeric cell value
-                NumberRecord numrec = (NumberRecord) record;
+                var numrec = (NumberRecord) record;
 
                 row = numrec.getRow();
                 column = numrec.getColumn();
@@ -209,7 +208,7 @@ public class WorkbookListener implements HSSFListener {
                 setValue(row, column, value);
                 break;
             case RKRecord.sid: // Excel internal number record
-                RKRecord rkrec = (RKRecord) record;
+                var rkrec = (RKRecord) record;
 
                 row = rkrec.getRow();
                 column = rkrec.getColumn();
@@ -221,26 +220,26 @@ public class WorkbookListener implements HSSFListener {
                 setValue(row, column, value);
                 break;
             case MergeCellsRecord.sid:
-                MergeCellsRecord mergeRec = (MergeCellsRecord) record;
+                var mergeRec = (MergeCellsRecord) record;
 
                 short numAreas = mergeRec.getNumAreas();
-                for (int i = 0; i < numAreas; i++) {
-                    CellRangeAddress rangeAddress = mergeRec.getAreaAt(i);
-                    int firstMergeRow = rangeAddress.getFirstRow();
-                    int firstMergeCol = rangeAddress.getFirstColumn();
-                    int lastMergeRow = rangeAddress.getLastRow();
-                    int lastMergeCol = rangeAddress.getLastColumn();
+                for (var i = 0; i < numAreas; i++) {
+                    var rangeAddress = mergeRec.getAreaAt(i);
+                    var firstMergeRow = rangeAddress.getFirstRow();
+                    var firstMergeCol = rangeAddress.getFirstColumn();
+                    var lastMergeRow = rangeAddress.getLastRow();
+                    var lastMergeCol = rangeAddress.getLastColumn();
 
                     // Mark cells merged with Left. Don't include first column.
-                    for (int r = firstMergeRow; r <= lastMergeRow; r++) {
-                        for (int c = firstMergeCol + 1; c <= lastMergeCol; c++) {
+                    for (var r = firstMergeRow; r <= lastMergeRow; r++) {
+                        for (var c = firstMergeCol + 1; c <= lastMergeCol; c++) {
                             setValue(r, c, MergedCell.MERGE_WITH_LEFT);
                         }
                     }
 
                     // Mark cells merged with Up. Only first column starting
                     // from second row.
-                    for (int r = firstMergeRow + 1; r <= lastMergeRow; r++) {
+                    for (var r = firstMergeRow + 1; r <= lastMergeRow; r++) {
                         setValue(r, firstMergeCol, MergedCell.MERGE_WITH_UP);
                     }
                 }
@@ -252,8 +251,8 @@ public class WorkbookListener implements HSSFListener {
 
     private Object getDateOrIntOrDouble(CellValueRecordInterface record, double d) {
         Object value;
-        int formatIndex = formatListener.getFormatIndex(record);
-        String formatString = formatListener.getFormatString(formatIndex);
+        var formatIndex = formatListener.getFormatIndex(record);
+        var formatString = formatListener.getFormatString(formatIndex);
         if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex, formatString)) {
             value = DateUtil.getJavaDate(d, use1904Windowing);
         } else {
@@ -263,20 +262,20 @@ public class WorkbookListener implements HSSFListener {
     }
 
     private void setValue(int row, int column, Object value) {
-        EventSheetDescriptor sheet = getSheet();
-        int rowInArray = row - sheet.getFirstRowNum();
-        int columnInArray = column - sheet.getFirstColNum();
+        var sheet = getSheet();
+        var rowInArray = row - sheet.getFirstRowNum();
+        var columnInArray = column - sheet.getFirstColNum();
 
         ensureCorrectSize(sheet.getName(), rowInArray, columnInArray);
         cellsMap.get(sheet.getName())[rowInArray][columnInArray] = value;
     }
 
     private void ensureCorrectSize(String sheetName, int row, int col) {
-        Object[][] cells = cellsMap.get(sheetName);
-        int maxRows = Math.max(row + 1, cells.length);
+        var cells = cellsMap.get(sheetName);
+        var maxRows = Math.max(row + 1, cells.length);
 
         int columnCount = cells.length == 0 ? 0 : cells[0].length;
-        int maxCols = Math.max(col + 1, columnCount);
+        var maxCols = Math.max(col + 1, columnCount);
 
         if (maxRows > cells.length || maxCols > columnCount) {
             // Can occur when merged region is greater than last row and column
@@ -292,7 +291,7 @@ public class WorkbookListener implements HSSFListener {
     }
 
     private void arrayCopy(Object[][] from, Object[][] to) {
-        for (int i = 0; i < from.length; i++) {
+        for (var i = 0; i < from.length; i++) {
             System.arraycopy(from[i], 0, to[i], 0, from[i].length);
         }
     }

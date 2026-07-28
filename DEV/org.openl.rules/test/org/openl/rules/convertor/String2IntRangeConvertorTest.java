@@ -8,7 +8,7 @@ class String2IntRangeConvertorTest {
 
     @Test
     void testParseNull() {
-        String2IntRangeConvertor converter = new String2IntRangeConvertor();
+        var converter = new String2IntRangeConvertor();
         assertNull(converter.parse(null, null));
     }
 

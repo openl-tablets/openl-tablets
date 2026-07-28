@@ -13,7 +13,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.openl.OpenClassUtil;
-import org.openl.binding.IBoundCode;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.impl.DefaultCompileContext;
 import org.openl.rules.diff.tree.DiffTreeNode;
@@ -21,13 +20,10 @@ import org.openl.rules.diff.xls.XlsProjectionDiffer;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
-import org.openl.syntax.code.IParsedCode;
-import org.openl.types.IOpenClass;
 import org.openl.xls.Parser;
 
 /**
@@ -58,21 +54,21 @@ public class XlsDiff2 {
     }
 
     private List<XlsTable> load(IOpenSourceCodeModule src) {
-        final ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        final var oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader classLoader = null;
         try {
             classLoader = new OpenLClassLoader(oldCl);
             Thread.currentThread().setContextClassLoader(classLoader);
 
-            IParsedCode pc = new Parser().parseAsModule(src);
-            IBoundCode bc = new XlsBinder(new DefaultCompileContext()).bind(pc);
-            IOpenClass ioc = bc.getTopNode().getType();
+            var pc = new Parser().parseAsModule(src);
+            var bc = new XlsBinder(new DefaultCompileContext()).bind(pc);
+            var ioc = bc.getTopNode().getType();
 
-            XlsMetaInfo xmi = (XlsMetaInfo) ioc.getMetaInfo();
-            XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
+            var xmi = (XlsMetaInfo) ioc.getMetaInfo();
+            var xsn = xmi.getXlsModuleNode();
 
-            TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
-            List<XlsTable> tables = new ArrayList<>(nodes.length);
+            var nodes = xsn.getXlsTableSyntaxNodes();
+            var tables = new ArrayList<XlsTable>(nodes.length);
             for (TableSyntaxNode node : nodes) {
                 tables.add(new XlsTable(node));
             }
@@ -104,7 +100,7 @@ public class XlsDiff2 {
     }
 
     private void add(String guess, DiffPair r) {
-        List<DiffPair> list = diffGuess.computeIfAbsent(guess, e -> new ArrayList<>());
+        var list = diffGuess.computeIfAbsent(guess, e -> new ArrayList<>());
         list.add(r);
     }
 
@@ -115,13 +111,13 @@ public class XlsDiff2 {
             @Override
             public boolean remove(XlsTable t1, XlsTable t2) {
                 if (t1.getSheetName().equals(t2.getSheetName())) {
-                    String s1 = t1.getLocation().getStart().toString();
-                    String s2 = t2.getLocation().getStart().toString();
+                    var s1 = t1.getLocation().getStart().toString();
+                    var s2 = t2.getLocation().getStart().toString();
                     if (s1.equals(s2)) {
-                        boolean sameName = t1.getTableName().equals(t2.getTableName());
+                        var sameName = t1.getTableName().equals(t2.getTableName());
 
-                        String e1 = t1.getLocation().getEnd().toString();
-                        String e2 = t2.getLocation().getEnd().toString();
+                        var e1 = t1.getLocation().getEnd().toString();
+                        var e2 = t2.getLocation().getEnd().toString();
                         if (e1.equals(e2)) {
                             if (sameName) {
                                 add(GUESS_SAME, new DiffPair(t1, t2));
@@ -145,7 +141,7 @@ public class XlsDiff2 {
             @Override
             public boolean remove(XlsTable t1, XlsTable t2) {
                 if (t1.getSheetName().equals(t2.getSheetName())) {
-                    boolean sameName = t1.getTableName().equals(t2.getTableName());
+                    var sameName = t1.getTableName().equals(t2.getTableName());
                     if (sameName) {
                         add(GUESS_MAY_BE_SAME, new DiffPair(t1, t2));
                         return true;
@@ -159,11 +155,11 @@ public class XlsDiff2 {
     private void iterate(IterClosure closure) {
         Iterator<XlsTable> i1 = tables1.iterator();
         while (i1.hasNext()) {
-            XlsTable t1 = i1.next();
+            var t1 = i1.next();
 
             Iterator<XlsTable> i2 = tables2.iterator();
             while (i2.hasNext()) {
-                XlsTable t2 = i2.next();
+                var t2 = i2.next();
 
                 if (closure.remove(t1, t2)) {
                     i1.remove();
@@ -175,7 +171,7 @@ public class XlsDiff2 {
     }
 
     private DiffTreeNode buildTree() {
-        DiffTreeBuilder2 builder = new DiffTreeBuilder2();
+        var builder = new DiffTreeBuilder2();
         builder.setProjectionDiffer(new XlsProjectionDiffer());
 
         // 1. Pairs v1:v2
@@ -200,11 +196,11 @@ public class XlsDiff2 {
     }
 
     private void checkGrid(DiffPair pair) {
-        IGridTable grid1 = pair.getTable1().getTable().getGridTable();
-        IGridTable grid2 = pair.getTable2().getTable().getGridTable();
+        var grid1 = pair.getTable1().getTable().getGridTable();
+        var grid2 = pair.getTable2().getTable().getGridTable();
 
-        List<ICell> diff1 = new ArrayList<>();
-        List<ICell> diff2 = new ArrayList<>();
+        var diff1 = new ArrayList<ICell>();
+        var diff2 = new ArrayList<ICell>();
 
         if (grid1.getWidth() == grid2.getWidth() || grid1.getHeight() == grid2.getHeight()) {
             if (grid1.getWidth() == grid2.getWidth()) {
@@ -226,26 +222,26 @@ public class XlsDiff2 {
     }
 
     private void compareRows(IGridTable grid1, IGridTable grid2, List<ICell> diff1, List<ICell> diff2) {
-        ArrayList<Integer> grid1MatchedRows = new ArrayList<>();
+        var grid1MatchedRows = new ArrayList<Integer>();
         // For each row from grid1, the value of the corresponding row from grid2 (if found)
         // and the difference between them are stored.
-        Map<Integer, RowDiff> grid1RowsState = new HashMap<>();
+        var grid1RowsState = new HashMap<Integer, RowDiff>();
         // This index is needed so that for each n+1 row from grid1, the corresponding row from grid2 is not lower
         // than the corresponding row from grid2, for row n from grid1.
-        int grid2LastMatched = 0;
+        var grid2LastMatched = 0;
         // Below we fill grid1RowsState for those rows from grid1 that have a complete match with the rows from grid2
         // if there are no such rows, then the index is set to -1.
-        int grid1Height = grid1.getHeight();
-        int grid2Height = grid2.getHeight();
-        for (int grid1Row = 0; grid1Row < grid1Height; grid1Row++) {
-            boolean followingRow = true;
-            for (int grid2Row = grid2LastMatched; grid2Row < grid2Height; grid2Row++) {
-                List<ICell> diffs = getDiffs(grid1, grid2, grid1Row, grid2Row);
+        var grid1Height = grid1.getHeight();
+        var grid2Height = grid2.getHeight();
+        for (var grid1Row = 0; grid1Row < grid1Height; grid1Row++) {
+            var followingRow = true;
+            for (var grid2Row = grid2LastMatched; grid2Row < grid2Height; grid2Row++) {
+                var diffs = getDiffs(grid1, grid2, grid1Row, grid2Row);
                 if (diffs.size() == 0) {
                     if (!followingRow && grid1Row != grid2Row && grid1Row < grid1Height + 1) {
                         // Check if the next line matches the one found.
                         // For cases when several identical lines can go in a row.
-                        List<ICell> nextRowDiffs = getDiffs(grid1, grid2, grid1Row + 1, grid2Row);
+                        var nextRowDiffs = getDiffs(grid1, grid2, grid1Row + 1, grid2Row);
                         if (nextRowDiffs.size() == 0) {
                             break;
                         }
@@ -273,18 +269,18 @@ public class XlsDiff2 {
             // the range must be between the previous and next found match against grid2.
             int from = grid1row > 1 ? grid1RowsState.get(grid1row - 1).getRowIndex() + 1 : grid1row;
             Optional<Integer> nextMatched = grid1MatchedRows.stream().filter(i -> i > grid1row).findFirst();
-            int to = nextMatched.map(i -> grid1RowsState.get(i).getRowIndex()).orElseGet(grid2::getHeight);
-            List<RowDiff> allRowDiffs = new ArrayList<>();
+            var to = nextMatched.map(i -> grid1RowsState.get(i).getRowIndex()).orElseGet(grid2::getHeight);
+            var allRowDiffs = new ArrayList<RowDiff>();
             if (from < to) {
                 for (; from < to; from++) {
                     allRowDiffs.add(new RowDiff().setRowIndex(from).setDiff(getDiffs(grid1, grid2, grid1row, from)));
                 }
-                Optional<RowDiff> minDiff = allRowDiffs.stream().min(Comparator.comparingInt(o -> o.getDiff().size()));
-                RowDiff rowDiff = minDiff.orElse(new RowDiff());
+                var minDiff = allRowDiffs.stream().min(Comparator.comparingInt(o -> o.getDiff().size()));
+                var rowDiff = minDiff.orElse(new RowDiff());
                 grid1RowsState.get(grid1row).setRowIndex(rowDiff.getRowIndex()).setDiff(rowDiff.getDiff());
             } else {
                 // If there are no rows in the range, then we assume that the row was deleted.
-                for (int grid1Col = 0; grid1Col < grid1.getWidth(); grid1Col++) {
+                for (var grid1Col = 0; grid1Col < grid1.getWidth(); grid1Col++) {
                     diff1.add(grid1.getCell(grid1Col, grid1row));
                 }
             }
@@ -292,19 +288,19 @@ public class XlsDiff2 {
         diff1.addAll(
                 grid1RowsState.values().stream().map(RowDiff::getDiff).flatMap(List::stream).collect(Collectors.toList()));
         // For grid2 we compare the rows found for grid1, if there are no such rows, we assume that the row was added.
-        for (int grid2Row = 0; grid2Row < grid2Height; grid2Row++) {
-            int finalGrid2Row = grid2Row;
+        for (var grid2Row = 0; grid2Row < grid2Height; grid2Row++) {
+            var finalGrid2Row = grid2Row;
             Optional<Integer> matchedKey = grid1RowsState.keySet()
                     .stream()
                     .filter(key -> grid1RowsState.get(key).getRowIndex() == finalGrid2Row)
                     .findFirst();
             if (matchedKey.isPresent()) {
-                int rowIndex = matchedKey.get();
+                var rowIndex = matchedKey.get();
                 if (!grid1RowsState.get(rowIndex).getDiff().isEmpty()) {
                     diff2.addAll(getDiffs(grid2, grid1, grid2Row, rowIndex));
                 }
             } else {
-                for (int grid2Col = 0; grid2Col < grid2.getWidth(); grid2Col++) {
+                for (var grid2Col = 0; grid2Col < grid2.getWidth(); grid2Col++) {
                     diff2.add(grid2.getCell(grid2Col, grid2Row));
                 }
             }
@@ -312,10 +308,10 @@ public class XlsDiff2 {
     }
 
     private List<ICell> getDiffs(IGridTable grid1, IGridTable grid2, int y1, int y2) {
-        List<ICell> diff = new ArrayList<>();
-        for (int x = 0; x < grid1.getWidth(); x++) {
-            ICell c1 = grid1.getCell(x, y1);
-            ICell c2 = grid2.getCell(x, y2);
+        var diff = new ArrayList<ICell>();
+        for (var x = 0; x < grid1.getWidth(); x++) {
+            var c1 = grid1.getCell(x, y1);
+            var c2 = grid2.getCell(x, y2);
             if (notEquals(c1, c2)) {
                 diff.add(c1);
             }
@@ -350,8 +346,8 @@ public class XlsDiff2 {
     private void compareCols(IGridTable grid1, IGridTable grid2, List<ICell> diff1, List<ICell> diff2) {
         // compareRows is hard enough :)
         // let reuse it
-        List<ICell> iDiff1 = new ArrayList<>();
-        List<ICell> iDiff2 = new ArrayList<>();
+        var iDiff1 = new ArrayList<ICell>();
+        var iDiff2 = new ArrayList<ICell>();
         compareRows(grid1.transpose(), grid2.transpose(), iDiff1, iDiff2);
 
         // fix diff -- invert coordinates
@@ -364,8 +360,8 @@ public class XlsDiff2 {
     }
 
     private boolean notEquals(ICell c1, ICell c2) {
-        Object o1 = c1.getObjectValue();
-        Object o2 = c2.getObjectValue();
+        var o1 = c1.getObjectValue();
+        var o2 = c2.getObjectValue();
 
         // TODO compare value, comment, value and so on...
         if (o1 == null) {

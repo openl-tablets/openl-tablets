@@ -15,7 +15,7 @@ class ArrayLoadTest {
     void testMultiRowArrayLoad() {
         ITestI instance = TestUtils.create(SRC, ITestI.class);
 
-        Customer[] customers = instance.getCustomers();
+        var customers = instance.getCustomers();
         assertEquals(2, customers.length);
 
         assertEquals(5, customers[0].getProblems().length);

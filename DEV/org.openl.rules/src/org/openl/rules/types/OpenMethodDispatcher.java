@@ -82,7 +82,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         //
         this.candidates.add(this.delegate);
         if (this.delegate instanceof ITablePropertiesMethod) {
-            int idx = this.candidates.size() - 1;
+            var idx = this.candidates.size() - 1;
             this.candidatesToDimensionKey.put(idx, new DimensionPropertiesMethodKey(this.delegate));
         }
     }
@@ -172,7 +172,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
         // Gets the runtime context.
         //
-        IRuntimeContext context = env.getContext();
+        var context = env.getContext();
 
         // Get matching method.
         //
@@ -191,14 +191,14 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         // Check that founded required method.
         //
         if (method == null) {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.append("Method signature: ");
             MethodUtil.printMethod(this, sb);
             sb.append("\n");
             sb.append("Context: ");
             sb.append(context.toString());
 
-            String message = "Appropriate overloaded method for '%1$s' is not found. Details: \n%2$s"
+            var message = "Appropriate overloaded method for '%1$s' is not found. Details: \n%2$s"
                     .formatted(getName(), sb);
 
             throw new OpenLRuntimeException(message);
@@ -217,7 +217,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * Invokes appropriate method using runtime context.
      */
     private <R> R invokeInner(Object target, Object[] params, IRuntimeEnv env) {
-        IOpenMethod method = findMatchingMethod(env);
+        var method = findMatchingMethod(env);
         env.getTracer().put(this, "rule", method);
         return (R) method.invoke(target, params, env);
     }
@@ -229,7 +229,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * @param newMethod     The methods that we are trying to add.
      */
     private IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod) {
-        int compareResult = TableVersionComparator.getInstance().compare(existedMethod, newMethod);
+        var compareResult = TableVersionComparator.getInstance().compare(existedMethod, newMethod);
         if (compareResult > 0) {
             return newMethod;
         } else if (compareResult == 0) {
@@ -241,7 +241,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
     private int searchTheSameMethod(DimensionPropertiesMethodKey newMethodPropertiesKey) {
         for (Map.Entry<Integer, DimensionPropertiesMethodKey> it : candidatesToDimensionKey.entrySet()) {
-            DimensionPropertiesMethodKey existedMethodPropertiesKey = it.getValue();
+            var existedMethodPropertiesKey = it.getValue();
             if (existedMethodPropertiesKey.hashCode() == newMethodPropertiesKey.hashCode() && newMethodPropertiesKey
                     .equals(existedMethodPropertiesKey)) {
                 return it.getKey();
@@ -258,7 +258,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     public void addMethod(IOpenMethod method) {
         // Evaluate the candidate method key.
         //
-        MethodKey candidateKey = new MethodKey(method);
+        var candidateKey = new MethodKey(method);
         IOpenMethod candidate = WrapperLogic.unwrapOpenMethod(method);
 
         // Check that candidate has the same method signature and list of
@@ -266,7 +266,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         // methods and delegate cannot be overloaded by candidate.
         //
         if (delegateKey.equals(candidateKey)) {
-            int i = -1;
+            var i = -1;
             DimensionPropertiesMethodKey dimensionMethodKey = null;
             if (candidate instanceof ITablePropertiesMethod) {
                 dimensionMethodKey = new DimensionPropertiesMethodKey(candidate);
@@ -277,26 +277,26 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 signatures.add(method.getSignature());
                 types.add(method.getType());
                 if (dimensionMethodKey != null) {
-                    int idx = candidates.size() - 1;
+                    var idx = candidates.size() - 1;
                     candidatesToDimensionKey.put(idx, dimensionMethodKey);
                 }
                 type = getDeclaringClass().getRulesModuleBindingContext().findClosestClass(type, method.getType());
                 signature = mergeMethodSignature(signature, method.getSignature());
             } else {
-                IOpenMethod existedMethod = candidates.get(i);
+                var existedMethod = candidates.get(i);
                 candidate = useActiveOrNewerVersion(existedMethod, candidate);
                 candidates.set(i, candidate);
                 candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
                 signatures.set(i, method.getSignature());
                 types.set(i, method.getType());
 
-                IOpenClass t = types.getFirst();
-                for (int j = 1; j < types.size(); j++) {
+                var t = types.getFirst();
+                for (var j = 1; j < types.size(); j++) {
                     t = getDeclaringClass().getRulesModuleBindingContext().findClosestClass(t, types.get(j));
                 }
                 type = t;
-                IMethodSignature s = signatures.getFirst();
-                for (int j = 1; j < types.size(); j++) {
+                var s = signatures.getFirst();
+                for (var j = 1; j < types.size(); j++) {
                     s = mergeMethodSignature(s, signatures.get(j));
                 }
                 signature = s;
@@ -308,10 +308,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     }
 
     private IMethodSignature mergeMethodSignature(IMethodSignature signature1, IMethodSignature signature2) {
-        IOpenClass[] parameterTypes = signature1.getParameterTypes();
+        var parameterTypes = signature1.getParameterTypes();
         IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            IOpenClass t = getDeclaringClass().getRulesModuleBindingContext()
+        for (var i = 0; i < parameterTypes.length; i++) {
+            var t = getDeclaringClass().getRulesModuleBindingContext()
                     .findClosestClass(signature1.getParameterType(i), signature2.getParameterType(i));
             parameterDeclarations[i] = new ParameterDeclaration(t, signature1.getParameterName(i));
         }

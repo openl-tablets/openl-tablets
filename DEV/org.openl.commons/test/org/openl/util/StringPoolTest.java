@@ -23,7 +23,7 @@ class StringPoolTest {
 
     @Test
     void testFirstIntern() {
-        String str = "FirstIntern";
+        var str = "FirstIntern";
         String res = StringPool.intern(str);
 
         assertSame(str, res, "The returned string has not the same reference");
@@ -33,9 +33,9 @@ class StringPoolTest {
 
     @Test
     void testSecondIntern() {
-        String str1 = new String("intern");
+        var str1 = new String("intern");
         String res1 = StringPool.intern(str1);
-        String str2 = new String("intern");
+        var str2 = new String("intern");
         String res2 = StringPool.intern(str2);
 
         assertNotSame(str1, str2, "The test params has the same reference");
@@ -58,7 +58,7 @@ class StringPoolTest {
     @Test
     void testGC() throws InterruptedException {
         StringPool.intern(new String("intern1"));
-        String str = new String("intern2"); // Strong Reference
+        var str = new String("intern2"); // Strong Reference
         StringPool.intern(str);
         StringPool.intern(new String("intern3"));
         System.gc();

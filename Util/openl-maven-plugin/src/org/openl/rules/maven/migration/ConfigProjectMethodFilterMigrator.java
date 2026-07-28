@@ -197,10 +197,10 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
             var tokens = new ArrayList<String>();
             var literal = new StringBuilder();
             var derivable = true;
-            for (int i = 0; i < regexp.length(); i++) {
-                char c = regexp.charAt(i);
+            for (var i = 0; i < regexp.length(); i++) {
+                var c = regexp.charAt(i);
                 if (c == '\\' && i + 1 < regexp.length()) {
-                    char escaped = regexp.charAt(++i);
+                    var escaped = regexp.charAt(++i);
                     regex.append('\\').append(escaped);
                     if (Character.isLetterOrDigit(escaped)) {
                         derivable = false; // \d, \w, \Q… — regex constructs, not plain literals

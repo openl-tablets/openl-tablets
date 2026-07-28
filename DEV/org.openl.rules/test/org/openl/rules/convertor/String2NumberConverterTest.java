@@ -28,98 +28,98 @@ class String2NumberConverterTest {
     @Test
     void testParse() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("3.1415", null);
+        var result = converter.parse("3.1415", null);
         assertEquals(3.1415d, result);
     }
 
     @Test
     void testParseNegative() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("-2.1415", null);
+        var result = converter.parse("-2.1415", null);
         assertEquals(-2.1415d, result);
     }
 
     @Test
     void testParseWithoutLeadingZero() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("-.123456789", null);
+        var result = converter.parse("-.123456789", null);
         assertEquals(-.123456789d, result);
     }
 
     @Test
     void testParseWithLeadingZeros() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("0001.111000", null);
+        var result = converter.parse("0001.111000", null);
         assertEquals(1.111d, result);
     }
 
     @Test
     void testParsePrecision() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("-1.99999999999999934", null);
+        var result = converter.parse("-1.99999999999999934", null);
         assertEquals(-1.99999999999999934d, result);
     }
 
     @Test
     void testParseMaxLong() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("9223372036854775807", null);
+        var result = converter.parse("9223372036854775807", null);
         assertEquals(Long.MAX_VALUE, result);
     }
 
     @Test
     void testParseMinLong() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("-9223372036854775808", null);
+        var result = converter.parse("-9223372036854775808", null);
         assertEquals(Long.MIN_VALUE, result);
     }
 
     @Test
     void testParseExcessMaxLong() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("9223372036854775808", null);
+        var result = converter.parse("9223372036854775808", null);
         assertEquals(9223372036854775808d, result);
     }
 
     @Test
     void testParseExcessMinLong() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("-9223372036854775809", null);
+        var result = converter.parse("-9223372036854775809", null);
         assertEquals(-9223372036854775809d, result);
     }
 
     @Test
     void testParsePercents() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("17.5%", null);
+        var result = converter.parse("17.5%", null);
         assertEquals(0.175d, result);
     }
 
     @Test
     void testParseE() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("1.234E2", null);
+        var result = converter.parse("1.234E2", null);
         assertEquals(123.4d, result);
     }
 
     @Test
     void testParseENegative() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("-1.23E-3", null);
+        var result = converter.parse("-1.23E-3", null);
         assertEquals(-0.00123d, result);
     }
 
     @Test
     void testParseELong() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("-1.23E4", null);
+        var result = converter.parse("-1.23E4", null);
         assertEquals(-12300L, result);
     }
 
     @Test
     void testParseWithFormat() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("-3.1415$", "#,###$");
+        var result = converter.parse("-3.1415$", "#,###$");
         assertEquals(-3.1415d, result);
     }
 
@@ -132,21 +132,21 @@ class String2NumberConverterTest {
     @Test
     void testParseNaN() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("NaN", null);
+        var result = converter.parse("NaN", null);
         assertEquals(Double.NaN, result);
     }
 
     @Test
     void testParsePlusInfinity() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("Infinity", null);
+        var result = converter.parse("Infinity", null);
         assertEquals(Double.POSITIVE_INFINITY, result);
     }
 
     @Test
     void testParseMinusInfinity() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        Number result = converter.parse("-Infinity", null);
+        var result = converter.parse("-Infinity", null);
         assertEquals(Double.NEGATIVE_INFINITY, result);
     }
 

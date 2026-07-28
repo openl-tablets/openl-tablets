@@ -66,7 +66,7 @@ class RulesFrontendTest {
     @Test
     void testProxyServicesNotExistedService() throws RuleServiceUndeployException, MethodInvocationException {
         assertEquals(3, frontend.getServiceNames().size());
-        Object result = frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10);
+        var result = frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10);
         assertEquals("World, Good Morning!", result);
         serviceManager.getServiceByDeploy("RulesFrontendTest/multimodule");
 

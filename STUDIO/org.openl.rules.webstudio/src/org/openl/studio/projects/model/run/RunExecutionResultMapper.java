@@ -16,7 +16,6 @@ import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.rest.compile.MessageDescription;
-import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
@@ -43,12 +42,12 @@ public class RunExecutionResultMapper {
                     .build();
         }
 
-        ITestUnit firstUnit = testUnits.getFirst();
+        var firstUnit = testUnits.getFirst();
 
         // Convert result the same way as legacy TestDownloadController#manualJson:
         // SpreadsheetResult must be converted to Map/bean with proper naming strategy.
         // getActualResult() returns Throwable when execution fails — skip conversion in that case.
-        Object actualResult = firstUnit.getActualResult();
+        var actualResult = firstUnit.getActualResult();
         JsonNode resultValue = null;
         ObjectNode resultSchema = null;
         if (!(actualResult instanceof Throwable)) {
@@ -86,7 +85,7 @@ public class RunExecutionResultMapper {
         }).toList();
 
         // Map errors
-        List<MessageDescription> errors = new ArrayList<>();
+        var errors = new ArrayList<MessageDescription>();
         firstUnit.getErrors().stream()
                 .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
                 .sorted(Comparator.comparing(MessageDescription::severity).thenComparing(MessageDescription::id))

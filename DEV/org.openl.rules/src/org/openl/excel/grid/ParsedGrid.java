@@ -8,7 +8,6 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.excel.parser.AlignedValue;
-import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.ExcelReaderFactory;
 import org.openl.excel.parser.ExtendedValue;
 import org.openl.excel.parser.MergedCell;
@@ -76,7 +75,7 @@ public class ParsedGrid extends AGrid {
 
     @Override
     public int getMaxColumnIndex(int row) {
-        int internalRow = row - getFirstRowNum();
+        var internalRow = row - getFirstRowNum();
 
         if (cells.length <= internalRow) {
             return 0;
@@ -116,14 +115,14 @@ public class ParsedGrid extends AGrid {
 
     @Override
     public boolean isEmpty(int col, int row) {
-        Object value = getCellValue(row, col);
+        var value = getCellValue(row, col);
         return value == null || value instanceof String s && StringUtils.isBlank(s);
     }
 
     @Override
     public IGridTable[] getTables() {
         tables = super.getTables();
-        for (int t = 0; t < tables.length; t++) {
+        for (var t = 0; t < tables.length; t++) {
             tables[t] = new EditableGridTable(tables[t]);
         }
         return tables;
@@ -131,16 +130,16 @@ public class ParsedGrid extends AGrid {
 
     private void findRegions() {
         // This algorithm can be improved. Feel free to modify it if it becomes bottleneck.
-        LinkedHashSet<CellRowCol> startPoints = new LinkedHashSet<>();
+        var startPoints = new LinkedHashSet<CellRowCol>();
 
         // Find top left points
-        for (int i = 0; i < cells.length; i++) {
-            Object[] row = cells[i];
-            for (int j = 0; j < row.length; j++) {
-                Object col = row[j];
+        for (var i = 0; i < cells.length; i++) {
+            var row = cells[i];
+            for (var j = 0; j < row.length; j++) {
+                var col = row[j];
 
                 if (col instanceof MergedCell) {
-                    CellRowCol rowCol = findTopLeft(i, j);
+                    var rowCol = findTopLeft(i, j);
                     startPoints.add(rowCol);
                 }
             }
@@ -148,8 +147,8 @@ public class ParsedGrid extends AGrid {
 
         // Find bottom right points and create regions
         for (CellRowCol start : startPoints) {
-            CellRowCol end = findBottomRight(start.row, start.col);
-            GridRegion region = new GridRegion(getFirstRowNum() + start.row,
+            var end = findBottomRight(start.row, start.col);
+            var region = new GridRegion(getFirstRowNum() + start.row,
                     getFirstColNum() + start.col,
                     getFirstRowNum() + end.row,
                     getFirstColNum() + end.col);
@@ -175,8 +174,8 @@ public class ParsedGrid extends AGrid {
     }
 
     private CellRowCol findBottomRight(int internalRow, int internalCol) {
-        int endRow = internalRow;
-        int endCol = internalCol;
+        var endRow = internalRow;
+        var endCol = internalCol;
         while (endRow < cells.length - 1 && cells[endRow + 1][endCol] == MergedCell.MERGE_WITH_UP) {
             endRow++;
         }
@@ -190,16 +189,16 @@ public class ParsedGrid extends AGrid {
     /////////////////////////// Methods used in ParsedCell ///////////////////////////////////
 
     protected Object getCellValue(int row, int column) {
-        int internalRow = row - getFirstRowNum();
-        int internalCol = column - getFirstColNum();
+        var internalRow = row - getFirstRowNum();
+        var internalCol = column - getFirstColNum();
 
         if (internalRow < 0 || internalCol < 0 || cells.length <= internalRow || cells[internalRow].length <= internalCol) {
             return null;
         }
 
-        Object value = cells[internalRow][internalCol];
+        var value = cells[internalRow][internalCol];
         if (value instanceof MergedCell) {
-            CellRowCol topLeft = findTopLeft(internalRow, internalCol);
+            var topLeft = findTopLeft(internalRow, internalCol);
             value = cells[topLeft.row][topLeft.col];
         }
         if (value instanceof ExtendedValue extendedValue) {
@@ -210,24 +209,24 @@ public class ParsedGrid extends AGrid {
     }
 
     protected ICellStyle getCellStyle(int row, int column) {
-        int internalRow = row - getFirstRowNum();
-        int internalCol = column - getFirstColNum();
+        var internalRow = row - getFirstRowNum();
+        var internalCol = column - getFirstColNum();
 
         if (internalRow < 0 || internalCol < 0 || cells.length <= internalRow || cells[internalRow].length <= internalCol) {
             return null;
         }
 
-        Object value = cells[internalRow][internalCol];
+        var value = cells[internalRow][internalCol];
         short indent = value instanceof AlignedValue av ? av.getIndent() : 0;
         return new IndentedStyle(indent, this, row, column);
     }
 
     protected TableStyles getTableStyles(int row, int column) {
-        int internalRow = row - getFirstRowNum();
-        int internalCol = column - getFirstColNum();
+        var internalRow = row - getFirstRowNum();
+        var internalCol = column - getFirstColNum();
 
         if (internalRow >= 0 && internalCol >= 0 && cells.length > internalRow && cells[internalRow].length > internalCol) {
-            CellRowCol topLeft = findTopLeft(internalRow, internalCol);
+            var topLeft = findTopLeft(internalRow, internalCol);
             row -= internalRow - topLeft.row;
             column -= internalCol - topLeft.col;
         }
@@ -247,16 +246,16 @@ public class ParsedGrid extends AGrid {
 
         TableStyles styles = null;
         for (IGridTable table : tables) {
-            IGridRegion region = table.getRegion();
+            var region = table.getRegion();
 
             // Sometimes we need extra column and row to show the border of a table.
             // We need to know the styles of the cells lefter, above, righter and below the table.
             int left = region.getLeft() == 0 ? 0 : region.getLeft() - 1;
             int top = region.getTop() == 0 ? 0 : region.getTop() - 1;
-            IGridRegion extendedRegion = new GridRegion(top, left, region.getBottom() + 1, region.getRight() + 1);
+            var extendedRegion = new GridRegion(top, left, region.getBottom() + 1, region.getRight() + 1);
 
             if (IGridRegion.Tool.contains(extendedRegion, column, row)) {
-                try (ExcelReader excelReader = ExcelReaderFactory.sequentialFactory().create(workbookPath)) {
+                try (var excelReader = ExcelReaderFactory.sequentialFactory().create(workbookPath)) {
                     styles = excelReader.getTableStyles(sheetDescriptor, extendedRegion);
                 } catch (Exception e) {
                     // Fallback to empty style
@@ -330,7 +329,7 @@ public class ParsedGrid extends AGrid {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            CellRowCol that = (CellRowCol) o;
+            var that = (CellRowCol) o;
             return row == that.row && col == that.col;
         }
 

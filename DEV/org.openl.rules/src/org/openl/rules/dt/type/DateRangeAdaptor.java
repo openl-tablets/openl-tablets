@@ -23,7 +23,7 @@ public class DateRangeAdaptor implements IRangeAdaptor<DateRange, Long> {
         if (range == null) {
             return null;
         }
-        long max = range.getUpperBound();
+        var max = range.getUpperBound();
         if (max != Long.MAX_VALUE && range.getType().right == Range.Bound.CLOSED) {
             max += 1;
         }
@@ -35,7 +35,7 @@ public class DateRangeAdaptor implements IRangeAdaptor<DateRange, Long> {
         if (range == null) {
             return null;
         }
-        Long min = range.getLowerBound();
+        var min = range.getLowerBound();
         if (range.getType().left == Range.Bound.OPEN) {
             min++;
         }

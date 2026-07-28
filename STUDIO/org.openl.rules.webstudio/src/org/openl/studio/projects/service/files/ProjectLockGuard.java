@@ -35,7 +35,7 @@ class ProjectLockGuard {
      */
     void requireUnlocked(Collection<String> paths) {
         for (AProject project : designTimeRepository.getProjects(repoId)) {
-            String realPath = project.getRealPath();
+            var realPath = project.getRealPath();
             if (paths.stream().anyMatch(path -> affects(path, realPath))) {
                 requireNotLockedByAnotherUser(project, realPath);
             }

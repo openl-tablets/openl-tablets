@@ -87,8 +87,8 @@ class PatAuthenticationFilterTest {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
-        UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER");
-        Authentication authentication = new PatAuthenticationToken(
+        var userDetails = createUserDetails("jdoe", "ROLE_USER");
+        var authentication = new PatAuthenticationToken(
                 userDetails,
                 null,
                 userDetails.getAuthorities()
@@ -226,8 +226,8 @@ class PatAuthenticationFilterTest {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token   " + TEST_TOKEN_VALUE + "   ");
 
-        UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER");
-        Authentication authentication = new PatAuthenticationToken(
+        var userDetails = createUserDetails("jdoe", "ROLE_USER");
+        var authentication = new PatAuthenticationToken(
                 userDetails,
                 null,
                 userDetails.getAuthorities()
@@ -252,8 +252,8 @@ class PatAuthenticationFilterTest {
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
         // Existing authentication for jdoe
-        UserDetails existingUserDetails = createUserDetails("jdoe", "ROLE_USER");
-        Authentication existingAuth = new PatAuthenticationToken(
+        var existingUserDetails = createUserDetails("jdoe", "ROLE_USER");
+        var existingAuth = new PatAuthenticationToken(
                 existingUserDetails,
                 null,
                 existingUserDetails.getAuthorities()
@@ -261,8 +261,8 @@ class PatAuthenticationFilterTest {
         when(securityContext.getAuthentication()).thenReturn(existingAuth);
 
         // New PAT authentication also for jdoe
-        UserDetails newUserDetails = createUserDetails("jdoe", "ROLE_USER");
-        Authentication newAuth = new PatAuthenticationToken(
+        var newUserDetails = createUserDetails("jdoe", "ROLE_USER");
+        var newAuth = new PatAuthenticationToken(
                 newUserDetails,
                 null,
                 newUserDetails.getAuthorities()
@@ -290,8 +290,8 @@ class PatAuthenticationFilterTest {
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
         // Existing authentication for jdoe
-        UserDetails existingUserDetails = createUserDetails("jdoe", "ROLE_USER");
-        Authentication existingAuth = new PatAuthenticationToken(
+        var existingUserDetails = createUserDetails("jdoe", "ROLE_USER");
+        var existingAuth = new PatAuthenticationToken(
                 existingUserDetails,
                 null,
                 existingUserDetails.getAuthorities()
@@ -299,8 +299,8 @@ class PatAuthenticationFilterTest {
         when(securityContext.getAuthentication()).thenReturn(existingAuth);
 
         // New PAT authentication for jsmith
-        UserDetails newUserDetails = createUserDetails("jsmith", "ROLE_ADMIN");
-        Authentication newAuth = new PatAuthenticationToken(
+        var newUserDetails = createUserDetails("jsmith", "ROLE_ADMIN");
+        var newAuth = new PatAuthenticationToken(
                 newUserDetails,
                 null,
                 newUserDetails.getAuthorities()
@@ -329,7 +329,7 @@ class PatAuthenticationFilterTest {
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
         // Existing anonymous authentication
-        AnonymousAuthenticationToken anonymousAuth = new AnonymousAuthenticationToken(
+        var anonymousAuth = new AnonymousAuthenticationToken(
                 "key",
                 "anonymousUser",
                 java.util.List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
@@ -337,8 +337,8 @@ class PatAuthenticationFilterTest {
         when(securityContext.getAuthentication()).thenReturn(anonymousAuth);
 
         // New PAT authentication
-        UserDetails newUserDetails = createUserDetails("jdoe", "ROLE_USER");
-        Authentication newAuth = new PatAuthenticationToken(
+        var newUserDetails = createUserDetails("jdoe", "ROLE_USER");
+        var newAuth = new PatAuthenticationToken(
                 newUserDetails,
                 null,
                 newUserDetails.getAuthorities()
@@ -373,8 +373,8 @@ class PatAuthenticationFilterTest {
         when(securityContext.getAuthentication()).thenReturn(existingAuth);
 
         // New PAT authentication
-        UserDetails newUserDetails = createUserDetails("jdoe", "ROLE_USER");
-        Authentication newAuth = new PatAuthenticationToken(
+        var newUserDetails = createUserDetails("jdoe", "ROLE_USER");
+        var newAuth = new PatAuthenticationToken(
                 newUserDetails,
                 null,
                 newUserDetails.getAuthorities()
@@ -403,7 +403,7 @@ class PatAuthenticationFilterTest {
         when(securityContext.getAuthentication()).thenReturn(null);
 
         // Act
-        boolean required = filter.authenticationIsRequired("jdoe");
+        var required = filter.authenticationIsRequired("jdoe");
 
         // Assert
         assertTrue(required, "Authentication should be required when no existing auth");
@@ -417,7 +417,7 @@ class PatAuthenticationFilterTest {
         when(securityContext.getAuthentication()).thenReturn(existingAuth);
 
         // Act
-        boolean required = filter.authenticationIsRequired("jdoe");
+        var required = filter.authenticationIsRequired("jdoe");
 
         // Assert
         assertTrue(required, "Authentication should be required when existing auth is not authenticated");
@@ -426,7 +426,7 @@ class PatAuthenticationFilterTest {
     @Test
     void testAuthenticationIsRequired_AnonymousAuth() {
         // Arrange
-        AnonymousAuthenticationToken anonymousAuth = new AnonymousAuthenticationToken(
+        var anonymousAuth = new AnonymousAuthenticationToken(
                 "key",
                 "anonymousUser",
                 java.util.List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
@@ -434,7 +434,7 @@ class PatAuthenticationFilterTest {
         when(securityContext.getAuthentication()).thenReturn(anonymousAuth);
 
         // Act
-        boolean required = filter.authenticationIsRequired("jdoe");
+        var required = filter.authenticationIsRequired("jdoe");
 
         // Assert
         assertTrue(required, "Authentication should be required when existing auth is anonymous");
@@ -443,8 +443,8 @@ class PatAuthenticationFilterTest {
     @Test
     void testAuthenticationIsRequired_SameUser() {
         // Arrange
-        UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER");
-        Authentication existingAuth = new PatAuthenticationToken(
+        var userDetails = createUserDetails("jdoe", "ROLE_USER");
+        var existingAuth = new PatAuthenticationToken(
                 userDetails,
                 null,
                 userDetails.getAuthorities()
@@ -452,7 +452,7 @@ class PatAuthenticationFilterTest {
         when(securityContext.getAuthentication()).thenReturn(existingAuth);
 
         // Act
-        boolean required = filter.authenticationIsRequired("jdoe");
+        var required = filter.authenticationIsRequired("jdoe");
 
         // Assert
         assertFalse(required, "Authentication should NOT be required when same user is already authenticated");
@@ -461,8 +461,8 @@ class PatAuthenticationFilterTest {
     @Test
     void testAuthenticationIsRequired_DifferentUser() {
         // Arrange
-        UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER");
-        Authentication existingAuth = new PatAuthenticationToken(
+        var userDetails = createUserDetails("jdoe", "ROLE_USER");
+        var existingAuth = new PatAuthenticationToken(
                 userDetails,
                 null,
                 userDetails.getAuthorities()
@@ -470,7 +470,7 @@ class PatAuthenticationFilterTest {
         when(securityContext.getAuthentication()).thenReturn(existingAuth);
 
         // Act
-        boolean required = filter.authenticationIsRequired("jsmith");
+        var required = filter.authenticationIsRequired("jsmith");
 
         // Assert
         assertTrue(required, "Authentication should be required when different user");
@@ -481,10 +481,10 @@ class PatAuthenticationFilterTest {
         // Arrange - Test that token is parsed correctly and passed to service
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
-        ArgumentCaptor<PatToken> tokenCaptor = ArgumentCaptor.forClass(PatToken.class);
+        var tokenCaptor = ArgumentCaptor.forClass(PatToken.class);
 
-        UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER");
-        Authentication authentication = new PatAuthenticationToken(
+        var userDetails = createUserDetails("jdoe", "ROLE_USER");
+        var authentication = new PatAuthenticationToken(
                 userDetails,
                 null,
                 userDetails.getAuthorities()
@@ -499,7 +499,7 @@ class PatAuthenticationFilterTest {
         // Assert - Verify the token was parsed and passed with correct publicId and secret
         verify(patAuthService).resolveAuthentication(tokenCaptor.capture());
 
-        PatToken capturedToken = tokenCaptor.getValue();
+        var capturedToken = tokenCaptor.getValue();
         assertEquals(TEST_PUBLIC_ID, capturedToken.publicId());
         assertEquals(TEST_SECRET, capturedToken.secret());
     }

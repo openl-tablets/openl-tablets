@@ -48,7 +48,7 @@ public final class FastVectorInt implements Cloneable, Serializable {
     @Override
     public Object clone() {
         try {
-            FastVectorInt v = (FastVectorInt) super.clone();
+            var v = (FastVectorInt) super.clone();
             v.m_data = m_data.clone();
             // v.m_data = new int[m_data.length];
             // System.arraycopy(m_data, 0, v.m_data, 0, m_data.length);
@@ -68,7 +68,7 @@ public final class FastVectorInt implements Cloneable, Serializable {
     }
 
     void grow() {
-        int[] old = m_data;
+        var old = m_data;
 
         m_data = new int[m_data.length * 2];
         System.arraycopy(old, 0, m_data, 0, m_size);

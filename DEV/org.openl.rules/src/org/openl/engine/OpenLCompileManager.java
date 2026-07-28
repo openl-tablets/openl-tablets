@@ -11,10 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.CompiledOpenClass;
-import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundCode;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyBindingContext;
@@ -26,10 +24,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IDependency;
-import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.ProcessedCode;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 
 /**
@@ -62,8 +57,8 @@ public class OpenLCompileManager {
     CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source,
                                               boolean executionMode,
                                               IDependencyManager dependencyManager) {
-        ProcessedCode processedCode = getProcessedCode(source, executionMode, dependencyManager);
-        IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
+        var processedCode = getProcessedCode(source, executionMode, dependencyManager);
+        var openClass = processedCode.getBoundCode().getTopNode().getType();
         return new CompiledOpenClass(openClass, processedCode.getAllMessages(), processedCode.getMessages());
     }
 
@@ -91,15 +86,15 @@ public class OpenLCompileManager {
                                         IBindingContext bindingContext,
                                         IDependencyManager dependencyManager) {
 
-        IParsedCode parsedCode = openl.getParser().parseAsModule(source);
+        var parsedCode = openl.getParser().parseAsModule(source);
 
-        Collection<OpenLMessage> allMessages = new LinkedHashSet<>();
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        var allMessages = new LinkedHashSet<OpenLMessage>();
+        var messages = new LinkedHashSet<OpenLMessage>();
 
         // compile source dependencies
-        Set<ResolvedDependency> dependencies = new LinkedHashSet<>();
+        var dependencies = new LinkedHashSet<ResolvedDependency>();
         if (dependencyManager != null) {
-            Collection<IDependency> allDeps = new LinkedHashSet<>(Arrays.asList(parsedCode.getDependencies()));
+            var allDeps = new LinkedHashSet<IDependency>(Arrays.asList(parsedCode.getDependencies()));
             allDeps.addAll(getExternalDependencies(source));
             for (IDependency dependency : allDeps) {
                 try {
@@ -110,18 +105,18 @@ public class OpenLCompileManager {
             }
         }
 
-        List<ResolvedDependency> sortedResolvedDependencies = new ArrayList<>(dependencies);
+        var sortedResolvedDependencies = new ArrayList<ResolvedDependency>(dependencies);
         sortedResolvedDependencies.sort(COMP);
 
-        Set<CompiledDependency> compiledDependencies = new LinkedHashSet<>();
+        var compiledDependencies = new LinkedHashSet<CompiledDependency>();
         if (CollectionUtils.isNotEmpty(sortedResolvedDependencies)) {
             if (dependencyManager != null) {
                 for (ResolvedDependency dependency : sortedResolvedDependencies) {
                     try {
-                        CompiledDependency loadedDependency = dependencyManager.loadDependency(dependency);
-                        OpenLClassLoader currentClassLoader = (OpenLClassLoader) Thread.currentThread()
+                        var loadedDependency = dependencyManager.loadDependency(dependency);
+                        var currentClassLoader = (OpenLClassLoader) Thread.currentThread()
                                 .getContextClassLoader();
-                        ClassLoader dependencyClassLoader = loadedDependency.getClassLoader();
+                        var dependencyClassLoader = loadedDependency.getClassLoader();
                         if (dependencyClassLoader != currentClassLoader
                                 && !(dependencyClassLoader instanceof OpenLClassLoader loader
                                 && loader
@@ -131,8 +126,8 @@ public class OpenLCompileManager {
                         }
                         compiledDependencies.add(loadedDependency);
 
-                        CompiledOpenClass compiledOpenClass = loadedDependency.getCompiledOpenClass();
-                        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
+                        var compiledOpenClass = loadedDependency.getCompiledOpenClass();
+                        var openClass = compiledOpenClass.getOpenClassWithErrors();
                         if (openClass instanceof ExtendableModuleOpenClass extendableModuleOpenClass) {
                             extendableModuleOpenClass.applyToDependentParsedCode(parsedCode);
                         }
@@ -161,21 +156,21 @@ public class OpenLCompileManager {
             parsedCode.setExternalParams(externalParams);
             if (externalParams.containsKey(ADDITIONAL_WARN_MESSAGES_KEY)) {
                 @SuppressWarnings("unchecked")
-                Set<String> warnMessages = (Set<String>) externalParams.get(ADDITIONAL_WARN_MESSAGES_KEY);
+                var warnMessages = (Set<String>) externalParams.get(ADDITIONAL_WARN_MESSAGES_KEY);
                 for (String message : warnMessages) {
                     messages.add(OpenLMessagesUtils.newWarnMessage(message));
                 }
             }
             if (externalParams.containsKey(ADDITIONAL_ERROR_MESSAGES_KEY)) {
                 @SuppressWarnings("unchecked")
-                Set<String> errorMessage = (Set<String>) externalParams.get(ADDITIONAL_ERROR_MESSAGES_KEY);
+                var errorMessage = (Set<String>) externalParams.get(ADDITIONAL_ERROR_MESSAGES_KEY);
                 for (String message : errorMessage) {
                     messages.add(OpenLMessagesUtils.newErrorMessage(message));
                 }
             }
         }
 
-        IOpenBinder binder = openl.getBinder();
+        var binder = openl.getBinder();
         if (bindingContext == null) {
             bindingContext = binder.makeBindingContext();
         }
@@ -187,14 +182,14 @@ public class OpenLCompileManager {
         // packages.
         FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
-        IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
+        var boundCode = binder.bind(parsedCode, bindingContext);
         allMessages
                 .addAll(bindingContext != null && bindingContext.isExecutionMode()
                         ? clearOpenLMessagesForExecutionMode(
                         boundCode.getMessages())
                         : boundCode.getMessages());
 
-        SyntaxNodeException[] bindingErrors = boundCode.getErrors();
+        var bindingErrors = boundCode.getErrors();
 
         messages.addAll(OpenLMessagesUtils.newErrorMessages(bindingErrors));
         allMessages.addAll(messages);
@@ -204,7 +199,7 @@ public class OpenLCompileManager {
 
     private Collection<OpenLMessage> clearOpenLMessagesForExecutionMode(Collection<OpenLMessage> messages) {
         // OpenLWarnMessage has a ref to TableSyntaxNode, this is workaround to clean this data in execution mode
-        Collection<OpenLMessage> ret = new ArrayList<>();
+        var ret = new ArrayList<OpenLMessage>();
         for (OpenLMessage message : messages) {
             if (message instanceof OpenLWarnMessage) {
                 ret.add(OpenLMessagesUtils.newWarnMessage(message.getSummary()));

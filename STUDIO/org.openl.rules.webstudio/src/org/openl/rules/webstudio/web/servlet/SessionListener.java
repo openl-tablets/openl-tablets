@@ -33,14 +33,14 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
     private void printSession(HttpSession session) {
         if (log.isDebugEnabled()) {
-            long creationTime = 0;
+            var creationTime = 0L;
             try {
                 creationTime = session.getCreationTime();
             } catch (IllegalStateException e) {
                 log.debug("Session is invalidated, cannot get Creation Time.");
             }
 
-            long lastAccessedTime = 0;
+            var lastAccessedTime = 0L;
             try {
                 lastAccessedTime = session.getLastAccessedTime();
             } catch (IllegalStateException e) {
@@ -66,7 +66,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
     @Override
     public void sessionCreated(HttpSessionEvent event) {
-        HttpSession session = event.getSession();
+        var session = event.getSession();
         printSession(session);
         log.debug("sessionCreated: {}", session);
         SpringInitializer.addSessionCache(session);
@@ -75,13 +75,13 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
     @Override
     public void sessionDestroyed(HttpSessionEvent event) {
-        HttpSession session = event.getSession();
+        var session = event.getSession();
         log.debug("sessionDestroyed: {}", session);
         printSession(session);
         SpringInitializer.removeSessionCache(session, session.getId());
         publishSessionEvent(session, new HttpSessionDestroyedEvent(session));
 
-        RulesUserSession obj = getUserRules(session);
+        var obj = getUserRules(session);
         if (obj == null) {
             log.debug("!!! no rulesUserSession");
         } else {
@@ -99,11 +99,11 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
     @Override
     public void sessionDidActivate(HttpSessionEvent event) {
-        HttpSession session = event.getSession();
+        var session = event.getSession();
         log.debug("sessionDidActivate: {}", session);
         printSession(session);
 
-        RulesUserSession rulesUserSession = getUserRules(session);
+        var rulesUserSession = getUserRules(session);
         if (rulesUserSession != null) {
             rulesUserSession.sessionDidActivate();
         }
@@ -111,11 +111,11 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
     @Override
     public void sessionWillPassivate(HttpSessionEvent event) {
-        HttpSession session = event.getSession();
+        var session = event.getSession();
         log.debug("sessionWillPassivate: {}", session);
         printSession(session);
 
-        RulesUserSession rulesUserSession = getUserRules(session);
+        var rulesUserSession = getUserRules(session);
         if (rulesUserSession != null) {
             rulesUserSession.sessionWillPassivate();
         }
@@ -123,7 +123,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
     @Override
     public void sessionIdChanged(HttpSessionEvent event, String oldSessionId) {
-        HttpSession session = event.getSession();
+        var session = event.getSession();
         log.debug("sessionIdChanged: {}", session);
         printSession(session);
 

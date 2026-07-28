@@ -3,12 +3,10 @@ package org.openl.rules.tbasic;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
@@ -35,30 +33,30 @@ public class RowParser implements IRowParser {
                                ValueNecessity columnNecessity) throws SyntaxNodeException {
 
         if (columnNecessity == ValueNecessity.REQUIRED && columnValue.isEmpty()) {
-            IOpenSourceCodeModule source = columnValue.asSourceCodeModule();
+            var source = columnValue.asSourceCodeModule();
             if (source.getUri() == null) {
                 // Column <columnName> is absent. Point to <operation> cell instead.
-                String errMsg = "%s is required for operation %s.".formatted(columnName, operation);
+                var errMsg = "%s is required for operation %s.".formatted(columnName, operation);
                 throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
             } else {
                 // Column <columnName> exists but still is empty. Point to empty <columnValue> cell.
-                String errMsg = "Operation must have value in %s.".formatted(columnName);
+                var errMsg = "Operation must have value in %s.".formatted(columnName);
                 throw SyntaxNodeExceptionUtils.createError(errMsg, source);
             }
         }
 
         if (columnNecessity == ValueNecessity.PROHIBITED && !columnValue.isEmpty()) {
-            String errMsg = "Operation must not have value in %s.".formatted(columnName);
+            var errMsg = "Operation must not have value in %s.".formatted(columnName);
             throw SyntaxNodeExceptionUtils.createError(errMsg, columnValue.asSourceCodeModule());
         }
     }
 
     private TableParserSpecificationBean getSpecification(StringValue operation,
                                                           boolean multiline) throws SyntaxNodeException {
-        String operationName = operation.getValue();
-        boolean foundButNotMatch = false;
+        var operationName = operation.getValue();
+        var foundButNotMatch = false;
         for (TableParserSpecificationBean specification : specifications) {
-            String specKeyword = specification.getKeyword();
+            var specKeyword = specification.getKeyword();
             if (operationName.equalsIgnoreCase(specKeyword)) {
                 if (specification.isMultiline() == multiline) {
                     return specification;
@@ -83,7 +81,7 @@ public class RowParser implements IRowParser {
                     operation.asSourceCodeModule());
         }
 
-        String errMsg = "No such operation: " + operationName;
+        var errMsg = "No such operation: " + operationName;
         throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
     }
 
@@ -92,16 +90,16 @@ public class RowParser implements IRowParser {
      * is multiline or not
      */
     private boolean[] guessMultiline(List<AlgorithmTreeNode> nodes) {
-        int size = nodes.size();
+        var size = nodes.size();
         boolean[] multilines = new boolean[size];
-        for (int i = 0; i < size - 1; i++) {
-            AlgorithmTreeNode node = nodes.get(i);
-            AlgorithmRow row = node.getAlgorithmRow();
-            int i1 = row.getOperationLevel();
+        for (var i = 0; i < size - 1; i++) {
+            var node = nodes.get(i);
+            var row = node.getAlgorithmRow();
+            var i1 = row.getOperationLevel();
 
-            AlgorithmTreeNode nextNode = nodes.get(i + 1);
-            AlgorithmRow nextRow = nextNode.getAlgorithmRow();
-            int i2 = nextRow.getOperationLevel();
+            var nextNode = nodes.get(i + 1);
+            var nextRow = nextNode.getAlgorithmRow();
+            var i2 = nextRow.getOperationLevel();
 
             multilines[i] = i1 < i2;
         }
@@ -116,31 +114,31 @@ public class RowParser implements IRowParser {
         // TODO: refactor. Create AlgorithmNodeWithGuess decorator over the AlgorithmTreeNode
         // and work with this entity
         //
-        boolean[] guessedMultilines = guessMultiline(nodes);
+        var guessedMultilines = guessMultiline(nodes);
 
-        List<AlgorithmTreeNode> treeNodes = new ArrayList<>();
-        Map<Integer, AlgorithmTreeNode> parentTree = new HashMap<>();
+        var treeNodes = new ArrayList<AlgorithmTreeNode>();
+        var parentTree = new HashMap<Integer, AlgorithmTreeNode>();
 
-        int prevIndent = 0;
-        for (int i = 0; i < nodes.size(); i++) {
-            AlgorithmTreeNode node = nodes.get(i);
-            AlgorithmRow row = node.getAlgorithmRow();
+        var prevIndent = 0;
+        for (var i = 0; i < nodes.size(); i++) {
+            var node = nodes.get(i);
+            var row = node.getAlgorithmRow();
 
-            TableParserSpecificationBean specification = validateRow(row, guessedMultilines[i]);
+            var specification = validateRow(row, guessedMultilines[i]);
             node.setSpecification(specification);
 
-            int indent = row.getOperationLevel();
+            var indent = row.getOperationLevel();
             if (indent == 0) {
                 treeNodes.add(node);
                 parentTree.clear();
             } else {
-                StringValue operation = row.getOperation();
+                var operation = row.getOperation();
                 if (indent > prevIndent + 1) {
-                    String errMsg = "Incorrect operation indention! Expected %d.".formatted(prevIndent + 1);
+                    var errMsg = "Incorrect operation indention! Expected %d.".formatted(prevIndent + 1);
                     throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
                 }
                 if (parentTree.isEmpty()) {
-                    String errMsg = "Incorrect operation indention! Could not find parent operation with 0 indention.";
+                    var errMsg = "Incorrect operation indention! Could not find parent operation with 0 indention.";
                     throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
                 }
 
@@ -155,12 +153,12 @@ public class RowParser implements IRowParser {
 
     private List<AlgorithmTreeNode> prepareNodes() {
         // cut off commented rows, pack labels
-        List<AlgorithmTreeNode> nodes = new ArrayList<>();
+        var nodes = new ArrayList<AlgorithmTreeNode>();
 
-        AlgorithmTreeNode lastNode = new AlgorithmTreeNode();
+        var lastNode = new AlgorithmTreeNode();
         for (AlgorithmRow row : rows) {
-            StringValue operation = row.getOperation();
-            StringValue label = row.getLabel();
+            var operation = row.getOperation();
+            var label = row.getLabel();
 
             if (operation == null) {
                 throw new OpenlNotCheckedException(
@@ -201,12 +199,12 @@ public class RowParser implements IRowParser {
 
     private TableParserSpecificationBean validateRow(AlgorithmRow row,
                                                      boolean guessedMultiline) throws SyntaxNodeException {
-        StringValue operation = row.getOperation();
-        TableParserSpecificationBean spec = getSpecification(operation, guessedMultiline);
+        var operation = row.getOperation();
+        var spec = getSpecification(operation, guessedMultiline);
 
         // check Label
         if (spec.getLabel() == ValueNecessity.REQUIRED && row.getLabel().isEmpty()) {
-            String errMsg = "Label is obligatory for this operation.";
+            var errMsg = "Label is obligatory for this operation.";
             throw SyntaxNodeExceptionUtils.createError(errMsg, row.getLabel().asSourceCodeModule());
         }
 
@@ -216,8 +214,8 @@ public class RowParser implements IRowParser {
         checkRowValue(operation, AFTER, row.getAfter(), spec.getBeforeAndAfter());
 
         // check Top Level
-        int indent = row.getOperationLevel();
-        ValueNecessity specTopLevel = spec.getTopLevel();
+        var indent = row.getOperationLevel();
+        var specTopLevel = spec.getTopLevel();
         if (specTopLevel == ValueNecessity.PROHIBITED && indent == 0) {
             throw SyntaxNodeExceptionUtils.createError("Operation cannot be a top level element! It should be nested.",
                     operation.asSourceCodeModule());

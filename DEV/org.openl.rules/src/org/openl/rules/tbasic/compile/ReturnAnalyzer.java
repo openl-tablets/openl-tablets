@@ -8,7 +8,6 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -50,9 +49,9 @@ public class ReturnAnalyzer {
     private SuitablityAsReturn analyzeIFOperation(List<AlgorithmTreeNode> nodesToAnalyze,
                                                   boolean isMultiline,
                                                   IBindingContext bindingContext) {
-        SuitablityAsReturn result = SuitablityAsReturn.RETURN;
+        var result = SuitablityAsReturn.RETURN;
         // checks only IF and ELSE branches
-        for (int i = 0; i < 2; i++) {
+        for (var i = 0; i < 2; i++) {
             SuitablityAsReturn suitablityOfNode;
             if (isMultiline) {
                 suitablityOfNode = analyzeSequence(nodesToAnalyze.get(i).getChildren(), bindingContext);
@@ -73,7 +72,7 @@ public class ReturnAnalyzer {
             if (hasTypeAsReturn(nodeToAnalyze.getAlgorithmRow().getCondition(), bindingContext)) {
                 return SuitablityAsReturn.RETURN;
             } else {
-                IOpenSourceCodeModule errorSource = nodeToAnalyze.getAlgorithmRow().getCondition().asSourceCodeModule();
+                var errorSource = nodeToAnalyze.getAlgorithmRow().getCondition().asSourceCodeModule();
                 BindHelper
                         .processError(
                                 "Incorrect return type. Return type of function declared as '" + returnType
@@ -93,14 +92,14 @@ public class ReturnAnalyzer {
     }
 
     private SuitablityAsReturn analyzeSequence(List<AlgorithmTreeNode> nodesToAnalyze, IBindingContext bindingContext) {
-        SuitablityAsReturn result = SuitablityAsReturn.RETURN;
+        var result = SuitablityAsReturn.RETURN;
         for (int i = 0, linkedNodesGroupSize; i < nodesToAnalyze.size(); i += linkedNodesGroupSize) {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToAnalyze, i);
 
             if (linkedNodesGroupSize == 1) {
                 result = analyzeNode(nodesToAnalyze.get(i), bindingContext);
             } else {
-                List<AlgorithmTreeNode> nodesToAnalyze1 = nodesToAnalyze.subList(i, i + linkedNodesGroupSize);
+                var nodesToAnalyze1 = nodesToAnalyze.subList(i, i + linkedNodesGroupSize);
                 SuitablityAsReturn result1;
                 if (TBasicSpecificationKey.IF.toString()
                         .equals(nodesToAnalyze1.getFirst().getSpecificationKeyword()) && TBasicSpecificationKey.ELSE.toString()
@@ -115,7 +114,7 @@ public class ReturnAnalyzer {
             }
 
             if (result == SuitablityAsReturn.RETURN && i + linkedNodesGroupSize < nodesToAnalyze.size()) {
-                IOpenSourceCodeModule errorSource = nodesToAnalyze.get(i + linkedNodesGroupSize)
+                var errorSource = nodesToAnalyze.get(i + linkedNodesGroupSize)
                         .getAlgorithmRow()
                         .getOperation()
                         .asSourceCodeModule();
@@ -128,7 +127,7 @@ public class ReturnAnalyzer {
     }
 
     private boolean canBeGrouped(AlgorithmTreeNode nodeToAnalyze) {
-        String currentNodeKeyword = nodeToAnalyze.getSpecificationKeyword();
+        var currentNodeKeyword = nodeToAnalyze.getSpecificationKeyword();
         String[] operationNamesToGroup = AlgorithmCompilerTool
                 .whatOperationsToGroup(currentNodeKeyword);
         return operationNamesToGroup != null;
@@ -146,7 +145,7 @@ public class ReturnAnalyzer {
             // for void functions return must be empty
             return fieldContent.getValue().equals("");
         }
-        IOpenClass typeOfField = compiler.getTypeOfField(fieldContent, bindingContext);
+        var typeOfField = compiler.getTypeOfField(fieldContent, bindingContext);
         return returnType.equals(typeOfField);
     }
 }

@@ -20,7 +20,7 @@ public class TypesCombinationNotSupportedException extends OpenlNotCheckedExcept
 
     @Override
     public String getMessage() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         sb.append("Combination of types are not support:\n");
         for (IOpenClass type : type) {

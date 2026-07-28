@@ -63,14 +63,14 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     private DependencyType resolveDependencyType(ResolvedDependency dependency) {
-        IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
+        var dependencyLoader = findDependencyLoader(dependency);
         return dependencyLoader != null && dependencyLoader.isProjectLoader() ? DependencyType.PROJECT
                 : DependencyType.MODULE;
     }
 
     @Override
     public CompiledDependency loadDependency(ResolvedDependency dependency) throws OpenLCompilationException {
-        ThreadPriority priority = threadPriority.get();
+        var priority = threadPriority.get();
         if (priority == null) {
             threadPriority.set(ThreadPriority.HIGH);
         }
@@ -89,7 +89,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         throw new OpenLCompilationException("Compilation is interrupted", e);
                     }
                 }
-                Long currentThreadVersion = threadVersion.get();
+                var currentThreadVersion = threadVersion.get();
                 if (currentThreadVersion == null) {
                     threadVersion.set(version.get());
                     try {
@@ -198,20 +198,20 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     private Set<IDependencyLoader> buildDependencyLoaders(Set<ProjectDescriptor> projects) {
-        Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
+        var dependencyLoaders = new HashSet<IDependencyLoader>();
         for (ProjectDescriptor project : projects) {
             try {
                 Collection<Module> modulesOfProject = project.getModules();
                 if (!modulesOfProject.isEmpty()) {
                     for (final Module m : modulesOfProject) {
-                        WebStudioDependencyLoader moduleDependencyLoader = new WebStudioDependencyLoader(project,
+                        var moduleDependencyLoader = new WebStudioDependencyLoader(project,
                                 m,
                                 this);
                         dependencyLoaders.add(moduleDependencyLoader);
                     }
                 }
 
-                WebStudioDependencyLoader projectDependencyLoader = new WebStudioDependencyLoader(project, null, this);
+                var projectDependencyLoader = new WebStudioDependencyLoader(project, null, this);
                 dependencyLoaders.add(projectDependencyLoader);
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
@@ -259,7 +259,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     public void expand(Set<ProjectDescriptor> projects) {
-        Set<IDependencyLoader> dependencyLoaders = buildDependencyLoaders(projects);
+        var dependencyLoaders = buildDependencyLoaders(projects);
         addDependencyLoaders(dependencyLoaders);
     }
 

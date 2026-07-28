@@ -177,7 +177,7 @@ public class SimpleProjectEngineFactory<T> {
 
     private Set<ProjectDescriptor> getDependentProjects(ProjectDescriptor project,
                                                         Collection<ProjectDescriptor> projectsInWorkspace) {
-        Set<ProjectDescriptor> projectDescriptors = new HashSet<>();
+        var projectDescriptors = new HashSet<ProjectDescriptor>();
         addDependentProjects(projectDescriptors, project, projectsInWorkspace);
         return projectDescriptors;
     }
@@ -211,12 +211,12 @@ public class SimpleProjectEngineFactory<T> {
     }
 
     protected Collection<ProjectDescriptor> buildProjectDescriptors() throws ProjectResolvingException {
-        Collection<ProjectDescriptor> projectDescriptors = new ArrayList<>();
+        var projectDescriptors = new ArrayList<ProjectDescriptor>();
         ProjectResolver projectResolver = ProjectResolver.getInstance();
-        ProjectDescriptor projectDescriptor = getProjectDescriptor();
+        var projectDescriptor = getProjectDescriptor();
         if (projectDependencies != null) {
             var projects = new ArrayList<ProjectDescriptor>();
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            var oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 if (classLoader != null) {
                     Thread.currentThread().setContextClassLoader(classLoader);
@@ -234,7 +234,7 @@ public class SimpleProjectEngineFactory<T> {
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
-            Set<ProjectDescriptor> dependentProjects = getDependentProjects(projectDescriptor, projects);
+            var dependentProjects = getDependentProjects(projectDescriptor, projects);
             projectDescriptors.addAll(dependentProjects);
         }
         projectDescriptors.add(projectDescriptor);
@@ -274,7 +274,7 @@ public class SimpleProjectEngineFactory<T> {
     public final synchronized ProjectDescriptor getProjectDescriptor() throws ProjectResolvingException {
         if (this.projectDescriptor == null) {
             ProjectResolver projectResolver = ProjectResolver.getInstance();
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            var oldClassLoader = Thread.currentThread().getContextClassLoader();
             ProjectDescriptor pd;
             try {
                 if (classLoader != null) {
@@ -297,10 +297,10 @@ public class SimpleProjectEngineFactory<T> {
     public final synchronized RulesInstantiationStrategy getRulesInstantiationStrategy() throws RulesInstantiationException,
             ProjectResolvingException {
         if (rulesInstantiationStrategy == null) {
-            RulesInstantiationStrategy instantiationStrategy = getStrategy(getProjectDescriptor().getModules(),
+            var instantiationStrategy = getStrategy(getProjectDescriptor().getModules(),
                     getDependencyManager());
 
-            Map<String, Object> parameters = ProjectExternalDependenciesHelper
+            var parameters = ProjectExternalDependenciesHelper
                     .buildExternalParamsWithProjectDependencies(externalParameters, getProjectDescriptor());
 
             instantiationStrategy.setExternalParameters(parameters);

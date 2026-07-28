@@ -11,7 +11,6 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +18,6 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
-import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.ICell;
@@ -78,13 +76,13 @@ class MergedRegionsTest {
         }
 
         public static TestDesctiption parse(String descriptionString) {
-            TestDesctiption test = new TestDesctiption();
-            StringTokenizer tokenizer = new StringTokenizer(descriptionString, "&");
+            var test = new TestDesctiption();
+            var tokenizer = new StringTokenizer(descriptionString, "&");
             while (tokenizer.hasMoreElements()) {
-                String param = (String) tokenizer.nextElement();
-                int index = param.indexOf('=');
-                String key = param.substring(0, index);
-                String value = param.substring(index + 1);
+                var param = (String) tokenizer.nextElement();
+                var index = param.indexOf('=');
+                var key = param.substring(0, index);
+                var value = param.substring(index + 1);
                 if ("test".equals(key)) {
                     test.testRegion = new XlsGridRegion(CellRangeAddress.valueOf(value));
                 } else if ("result".equals(key)) {
@@ -129,12 +127,12 @@ class MergedRegionsTest {
     private static final String __src = "test/rules/MergedRegions.xls";
 
     private List<TestDesctiption> findAllTests(IWritableGrid grid) {
-        List<TestDesctiption> result = new ArrayList<>();
-        for (int row = 0; row <= grid.getMaxRowIndex(); row++) {
-            for (int column = 0; column <= grid.getMaxColumnIndex(row); column++) {
-                ICell cell = grid.getCell(column, row);
+        var result = new ArrayList<TestDesctiption>();
+        for (var row = 0; row <= grid.getMaxRowIndex(); row++) {
+            for (var column = 0; column <= grid.getMaxColumnIndex(row); column++) {
+                var cell = grid.getCell(column, row);
                 if (cell != null) {
-                    String descriptionString = cell.getStringValue();
+                    var descriptionString = cell.getStringValue();
                     if (TestDesctiption.isTestDescriptionString(descriptionString)) {
                         result.add(TestDesctiption.parse(descriptionString));
                     }
@@ -147,12 +145,12 @@ class MergedRegionsTest {
     private void compareTablesByCell(IGridRegion testRegion,
                                      IGridRegion expectedRegion,
                                      XlsSheetGridModel grid) throws DifferentCellsException {
-        int height = Math.max(IGridRegion.Tool.height(testRegion), IGridRegion.Tool.height(expectedRegion));
-        int width = Math.max(IGridRegion.Tool.width(testRegion), IGridRegion.Tool.width(expectedRegion));
-        for (int row = 0; row <= height; row++) {
-            for (int column = 0; column <= width; column++) {
-                XlsCell resultCell = (XlsCell) grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);
-                XlsCell expectedCell = (XlsCell) grid.getCell(expectedRegion.getLeft() + column,
+        var height = Math.max(IGridRegion.Tool.height(testRegion), IGridRegion.Tool.height(expectedRegion));
+        var width = Math.max(IGridRegion.Tool.width(testRegion), IGridRegion.Tool.width(expectedRegion));
+        for (var row = 0; row <= height; row++) {
+            for (var column = 0; column <= width; column++) {
+                var resultCell = (XlsCell) grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);
+                var expectedCell = (XlsCell) grid.getCell(expectedRegion.getLeft() + column,
                         expectedRegion.getTop() + row);
                 Cell resultXLSCell = PoiExcelHelper.getOrCreateCell(testRegion.getLeft() + column,
                         testRegion.getTop() + row,
@@ -187,8 +185,8 @@ class MergedRegionsTest {
                 .isPartOfTheMergedRegion(second.getAbsoluteColumn(), second.getAbsoluteRow())) {
             return false;
         }
-        String firstValue = first.getStringValue();
-        String secondValue = second.getStringValue();
+        var firstValue = first.getStringValue();
+        var secondValue = second.getStringValue();
         if (firstValue != null) {
             return firstValue.equals(secondValue);
         } else {
@@ -206,8 +204,8 @@ class MergedRegionsTest {
         if (first.getCellType() != second.getCellType()) {
             return false;
         }
-        Object firstValue = extractCellValue(first);
-        Object secondValue = extractCellValue(second);
+        var firstValue = extractCellValue(first);
+        var secondValue = extractCellValue(second);
         if (firstValue != null) {
             return firstValue.equals(secondValue);
         } else {
@@ -216,7 +214,7 @@ class MergedRegionsTest {
     }
 
     private Object extractCellValue(Cell cell) {
-        CellType type = cell.getCellType();
+        var type = cell.getCellType();
         return switch (type) {
             case BLANK -> null;
             case BOOLEAN -> cell.getBooleanCellValue();
@@ -243,15 +241,15 @@ class MergedRegionsTest {
 
     @Test
     void testDeleteRows() {
-        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
+        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
+        var sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteRows")),
                 workbook);
-        XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
+        var grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(8, tests.size());
-        IGridTable table = grid.getTables()[0];
-        MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
+        var table = grid.getTables()[0];
+        var metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction removeRowsAction = GridTool
                     .removeRows(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
@@ -261,15 +259,15 @@ class MergedRegionsTest {
 
     @Test
     void testInsertRows() {
-        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
+        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
+        var sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertRows")),
                 workbook);
-        XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
+        var grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(7, tests.size());
-        IGridTable table = grid.getTables()[0];
-        MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
+        var table = grid.getTables()[0];
+        var metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction insertRowsAction = GridTool
                     .insertRows(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
@@ -279,15 +277,15 @@ class MergedRegionsTest {
 
     @Test
     void testDeleteColumns() {
-        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
+        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
+        var sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteColumns")),
                 workbook);
-        XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
+        var grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(6, tests.size());
-        IGridTable table = grid.getTables()[0];
-        MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
+        var table = grid.getTables()[0];
+        var metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction removeColumnsAction = GridTool
                     .removeColumns(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
@@ -297,15 +295,15 @@ class MergedRegionsTest {
 
     @Test
     void testInsertColumn() {
-        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
+        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
+        var sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertColumns")),
                 workbook);
-        XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
+        var grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(7, tests.size());
-        IGridTable table = grid.getTables()[0];
-        MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
+        var table = grid.getTables()[0];
+        var metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction insertColumnsAction = GridTool
                     .insertColumns(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);

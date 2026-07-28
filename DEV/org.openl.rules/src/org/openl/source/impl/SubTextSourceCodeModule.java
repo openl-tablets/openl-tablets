@@ -52,7 +52,7 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
 
     @Override
     public String getCode() {
-        String code = baseModule.getCode();
+        var code = baseModule.getCode();
 
         int end = endPosition <= 0 ? code.length() + endPosition : endPosition;
         return code.substring(startPosition, end);

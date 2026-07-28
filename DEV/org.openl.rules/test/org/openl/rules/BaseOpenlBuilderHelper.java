@@ -5,7 +5,6 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -22,7 +21,7 @@ public abstract class BaseOpenlBuilderHelper {
     private final CompiledOpenClass compiledOpenClass;
 
     public BaseOpenlBuilderHelper(String src) {
-        RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<>(src);
+        var engineFactory = new RulesEngineFactory<Object>(src);
         compiledOpenClass = engineFactory.getCompiledOpenClass();
     }
 
@@ -41,10 +40,10 @@ public abstract class BaseOpenlBuilderHelper {
     }
 
     protected TableSyntaxNode findDispatcherForMethod(String methodName) {
-        IOpenClass moduleOpenClass = getCompiledOpenClass().getOpenClass();
+        var moduleOpenClass = getCompiledOpenClass().getOpenClass();
         for (IOpenMethod method : moduleOpenClass.getMethods()) {
             if (method.getInfo() != null && method.getInfo().getSyntaxNode() instanceof TableSyntaxNode) {
-                TableSyntaxNode tsn = (TableSyntaxNode) method.getInfo().getSyntaxNode();
+                var tsn = (TableSyntaxNode) method.getInfo().getSyntaxNode();
                 if (DispatcherTablesBuilder.isDispatcherTable(tsn) && method.getName().endsWith(methodName)) {
                     return tsn;
                 }

@@ -34,7 +34,7 @@ class TestDescriptionTest {
 
     @Test
     void testNotModifyInputParameters() {
-        TestDescription description = new TestDescription(createTestMethodMock(), null, arguments, null);
+        var description = new TestDescription(createTestMethodMock(), null, arguments, null);
 
         testRunner.runTest(description, target, env, 1);
         assertEquals("test", arguments[0].value);
@@ -44,16 +44,16 @@ class TestDescriptionTest {
     }
 
     private IOpenMethod createTestMethodMock() {
-        IMethodSignature signature = createMethodSignatureMock();
+        var signature = createMethodSignatureMock();
         IOpenMethod method = mock(IOpenMethod.class);
 
         when(method.getSignature()).thenReturn(signature);
 
         when(method.invoke(any(), any(Object[].class), any(IRuntimeEnv.class))).thenAnswer((Answer<Void>) invocation -> {
-            Object[] params = (Object[]) invocation.getArguments()[1];
+            var params = (Object[]) invocation.getArguments()[1];
 
             // Modify method input parameters
-            SomeArgument someArgument = (SomeArgument) params[0];
+            var someArgument = (SomeArgument) params[0];
             someArgument.value = "modified" + someArgument.value;
             return null;
         });

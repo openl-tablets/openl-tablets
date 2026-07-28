@@ -11,13 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
-import org.openl.dependency.ResolvedDependency;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 
 class MessagesDelegatingTest {
@@ -58,9 +56,9 @@ class MessagesDelegatingTest {
     private Collection<OpenLMessage> getAllMessageForModule(String rules) throws Exception {
         // it is passed through the dependency manager to receive the same
         // instances of OpenLMessages
-        IDependency dependency = new Dependency(DependencyType.MODULE,
+        var dependency = new Dependency(DependencyType.MODULE,
                 new IdentifierNode(IXlsTableNames.DEPENDENCY, null, rules, null));
-        Collection<ResolvedDependency> resolvedDependencies = dependencyManager.resolveDependency(dependency, false);
+        var resolvedDependencies = dependencyManager.resolveDependency(dependency, false);
         return dependencyManager.loadDependency(resolvedDependencies.iterator().next()).getCompiledOpenClass().getAllMessages();
     }
 

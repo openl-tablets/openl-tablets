@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.CompiledOpenClass;
 import org.openl.rules.BaseOpenlBuilderHelper;
 
 class DatatypeWithIncorrectPropertyTest extends BaseOpenlBuilderHelper {
@@ -15,7 +14,7 @@ class DatatypeWithIncorrectPropertyTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testHaveOnlyOneError() {
-        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
+        var compiledOpenClass = getCompiledOpenClass();
 
         assertTrue(compiledOpenClass.hasErrors(), "Expected an error in the project");
         assertEquals(1, compiledOpenClass.getAllMessages().size(), "Datatype must have only one error");

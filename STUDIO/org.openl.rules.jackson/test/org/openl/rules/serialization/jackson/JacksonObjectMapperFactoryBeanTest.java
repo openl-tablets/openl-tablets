@@ -9,9 +9,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import org.junit.jupiter.api.Test;
 
@@ -27,28 +25,28 @@ class JacksonObjectMapperFactoryBeanTest {
 
     @Test
     void testSpreadsheetResult() throws ClassNotFoundException, IOException {
-        JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        SpreadsheetResult value = new SpreadsheetResult();
+        var bean = new JacksonObjectMapperFactoryBean();
+        var objectMapper = bean.createJacksonObjectMapper();
+        var value = new SpreadsheetResult();
         value.setResults(new Object[3][3]);
         value.setColumnNames(new String[3]);
         value.setRowNames(new String[3]);
-        String text = objectMapper.writeValueAsString(value);
-        SpreadsheetResult result = objectMapper.readValue(text, SpreadsheetResult.class);
+        var text = objectMapper.writeValueAsString(value);
+        var result = objectMapper.readValue(text, SpreadsheetResult.class);
         assertNotNull(result);
     }
 
     @Test
     void testRange() throws ClassNotFoundException, IOException {
-        JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        String text = objectMapper
+        var bean = new JacksonObjectMapperFactoryBean();
+        var objectMapper = bean.createJacksonObjectMapper();
+        var text = objectMapper
                 .writeValueAsString(new DoubleRange("(0; 1)"));
-        DoubleRange result = objectMapper.readValue(text, DoubleRange.class);
+        var result = objectMapper.readValue(text, DoubleRange.class);
         assertNotNull(result);
 
         text = objectMapper.writeValueAsString(new IntRange(199, 299));
-        IntRange intRange = objectMapper.readValue(text, IntRange.class);
+        var intRange = objectMapper.readValue(text, IntRange.class);
         assertNotNull(intRange);
         assertEquals(199, intRange.getMin());
         assertEquals(299, intRange.getMax());
@@ -56,16 +54,16 @@ class JacksonObjectMapperFactoryBeanTest {
 
     @Test
     void testIRulesRuntimeContext() throws ClassNotFoundException, IOException {
-        DefaultRulesRuntimeContext context = new DefaultRulesRuntimeContext();
-        Date date = new Date();
+        var context = new DefaultRulesRuntimeContext();
+        var date = new Date();
         context.setCurrentDate(date);
         context.setLob("LOB");
         context.setLocale(Locale.FRANCE);
-        JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        String text = objectMapper.writeValueAsString(context);
+        var bean = new JacksonObjectMapperFactoryBean();
+        var objectMapper = bean.createJacksonObjectMapper();
+        var text = objectMapper.writeValueAsString(context);
 
-        IRulesRuntimeContext iRulesRuntimeContext = objectMapper.readValue(text, IRulesRuntimeContext.class);
+        var iRulesRuntimeContext = objectMapper.readValue(text, IRulesRuntimeContext.class);
 
         assertEquals(date, iRulesRuntimeContext.getCurrentDate());
         assertEquals("LOB", iRulesRuntimeContext.getLob());
@@ -92,21 +90,21 @@ class JacksonObjectMapperFactoryBeanTest {
 
     @Test
     void testOverrideTypesSmart() throws ClassNotFoundException, IOException {
-        JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
+        var bean = new JacksonObjectMapperFactoryBean();
         bean.setDefaultTypingMode(DefaultTypingMode.OBJECT_AND_NON_CONCRETE);
         bean.setPolymorphicTypeValidation(true);
-        Set<String> overrideTypes = new HashSet<>();
+        var overrideTypes = new HashSet<String>();
         overrideTypes.add(Animal.class.getName());
         overrideTypes.add(Dog.class.getName());
         overrideTypes.add(Cat.class.getName());
         bean.setOverrideTypes(overrideTypes);
-        Wrapper wrapper = new Wrapper();
+        var wrapper = new Wrapper();
         wrapper.animal = new Dog();
         wrapper.animals = new Animal[]{new Dog()};
         wrapper.arrayOfAnimals = new Animal[]{new Dog()};
-        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        String text = objectMapper.writeValueAsString(wrapper);
-        Wrapper w = objectMapper.readValue(text, Wrapper.class);
+        var objectMapper = bean.createJacksonObjectMapper();
+        var text = objectMapper.writeValueAsString(wrapper);
+        var w = objectMapper.readValue(text, Wrapper.class);
         assertNotNull(w);
         assertTrue(w.animal instanceof Dog);
         assertNotNull(w.animals);
@@ -119,22 +117,22 @@ class JacksonObjectMapperFactoryBeanTest {
 
     @Test
     void testOverrideTypesEnable() throws ClassNotFoundException, IOException {
-        JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
+        var bean = new JacksonObjectMapperFactoryBean();
         bean.setDefaultTypingMode(DefaultTypingMode.OBJECT_AND_NON_CONCRETE);
         bean.setPolymorphicTypeValidation(true);
-        Set<String> overrideTypes = new HashSet<>();
+        var overrideTypes = new HashSet<String>();
         overrideTypes.add(Wrapper.class.getName());
         overrideTypes.add(Animal.class.getName());
         overrideTypes.add(Dog.class.getName());
         overrideTypes.add(Cat.class.getName());
         bean.setOverrideTypes(overrideTypes);
-        Wrapper wrapper = new Wrapper();
+        var wrapper = new Wrapper();
         wrapper.animal = new Dog();
         wrapper.animals = new Animal[]{new Dog()};
         wrapper.arrayOfAnimals = new Animal[]{new Dog()};
-        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        String text = objectMapper.writeValueAsString(wrapper);
-        Wrapper w = objectMapper.readValue(text, Wrapper.class);
+        var objectMapper = bean.createJacksonObjectMapper();
+        var text = objectMapper.writeValueAsString(wrapper);
+        var w = objectMapper.readValue(text, Wrapper.class);
         assertNotNull(w);
         assertTrue(w.animal instanceof Dog);
         assertNotNull(w.animals);
@@ -148,18 +146,18 @@ class JacksonObjectMapperFactoryBeanTest {
     @Test
     void testOverrideTypesEnableMissedClass() throws ClassNotFoundException, IOException {
         assertThrows(InvalidTypeIdException.class, () -> {
-            JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
+            var bean = new JacksonObjectMapperFactoryBean();
             bean.setDefaultTypingMode(DefaultTypingMode.NON_FINAL);
             bean.setPolymorphicTypeValidation(true);
-            Set<String> overrideTypes = new HashSet<>();
+            var overrideTypes = new HashSet<String>();
             overrideTypes.add(Animal.class.getName());
             overrideTypes.add(Dog.class.getName());
             overrideTypes.add(Cat.class.getName());
             bean.setOverrideTypes(overrideTypes);
-            Wrapper wrapper = new Wrapper();
+            var wrapper = new Wrapper();
             wrapper.animal = new Dog();
-            ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-            String text = objectMapper.writeValueAsString(wrapper).replace("$Wrapper", "$Wrapper1");
+            var objectMapper = bean.createJacksonObjectMapper();
+            var text = objectMapper.writeValueAsString(wrapper).replace("$Wrapper", "$Wrapper1");
             objectMapper.readValue(text, Wrapper.class);
         });
     }

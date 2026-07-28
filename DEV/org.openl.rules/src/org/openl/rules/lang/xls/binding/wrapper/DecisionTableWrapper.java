@@ -83,7 +83,7 @@ public final class DecisionTableWrapper extends AbstractDecisionTableWrapper imp
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        DecisionTableWrapper that = (DecisionTableWrapper) o;
+        var that = (DecisionTableWrapper) o;
         return delegate.equals(that.delegate);
     }
 

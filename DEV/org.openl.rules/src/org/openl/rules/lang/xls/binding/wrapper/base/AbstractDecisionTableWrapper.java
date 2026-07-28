@@ -314,7 +314,7 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractDecisionTableWrapper that = (AbstractDecisionTableWrapper) o;
+        var that = (AbstractDecisionTableWrapper) o;
         return delegate.equals(that.delegate);
     }
 

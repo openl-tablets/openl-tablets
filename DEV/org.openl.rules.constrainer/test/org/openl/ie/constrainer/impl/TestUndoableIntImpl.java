@@ -30,9 +30,9 @@ class TestUndoableIntImpl {
 
     @Test
     void testCreateUndo() {
-        UndoableIntImpl undoableInt = new UndoableIntImpl(C, 10);
+        var undoableInt = new UndoableIntImpl(C, 10);
         Undo[] stages = new Undo[100];
-        for (int i = 1; i <= 100; i++) {
+        for (var i = 1; i <= 100; i++) {
             stages[i - 1] = undoableInt.createUndo();
             stages[i - 1].undoable(undoableInt);
             undoableInt.setValue(10 + i);
@@ -40,13 +40,13 @@ class TestUndoableIntImpl {
         }
 
         // ascending order
-        for (int i = 0; i < 100; i++) {
+        for (var i = 0; i < 100; i++) {
             stages[i].undo();
             assertEquals(10 + i, undoableInt.value());
         }
 
         // descending order
-        for (int i = 99; i >= 0; i--) {
+        for (var i = 99; i >= 0; i--) {
             stages[i].undo();
             assertEquals(10 + i, undoableInt.value());
         }

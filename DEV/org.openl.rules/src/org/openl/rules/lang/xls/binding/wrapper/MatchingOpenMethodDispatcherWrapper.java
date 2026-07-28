@@ -80,7 +80,7 @@ public final class MatchingOpenMethodDispatcherWrapper extends AbstractMatchingO
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        MatchingOpenMethodDispatcherWrapper that = (MatchingOpenMethodDispatcherWrapper) o;
+        var that = (MatchingOpenMethodDispatcherWrapper) o;
         return delegate.equals(that.delegate);
     }
 

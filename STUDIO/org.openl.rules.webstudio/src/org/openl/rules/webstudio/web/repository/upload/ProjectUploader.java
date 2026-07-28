@@ -70,8 +70,8 @@ public class ProjectUploader {
         }
         try {
             // Get the last file
-            ProjectFile file = uploadedFiles.getLast();
-            String fileName = file.getName();
+            var file = uploadedFiles.getLast();
+            var fileName = file.getName();
             if (FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
                 projectCreator = new OpenAPIProjectCreator(file,
                         repositoryId,
@@ -107,7 +107,7 @@ public class ProjectUploader {
                         uploadedFiles.toArray(new ProjectFile[0]));
                 uploadedFiles.toArray(new ProjectFile[0]);
             }
-            RulesProject rulesProject = projectCreator.createRulesProject();
+            var rulesProject = projectCreator.createRulesProject();
             if (!designRepositoryAclService.createAcl(rulesProject,
                     List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
                     true)) {
@@ -116,7 +116,7 @@ public class ProjectUploader {
             }
             createdProjectName = projectCreator.getCreatedProjectName();
             // Get just created project, because creator API doesn't create internals states for ProjectState
-            RulesProject createdProject = userWorkspace.getProject(repositoryId, createdProjectName);
+            var createdProject = userWorkspace.getProject(repositoryId, createdProjectName);
             if (!userWorkspace.isOpenedOtherProject(createdProject)) {
                 createdProject.open();
                 createdProjectName = createdProject.getName();

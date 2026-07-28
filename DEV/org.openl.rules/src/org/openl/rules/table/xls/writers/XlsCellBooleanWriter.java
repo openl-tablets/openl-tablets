@@ -10,7 +10,7 @@ public class XlsCellBooleanWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
-        Boolean boolValue = (Boolean) getValueToWrite();
+        var boolValue = (Boolean) getValueToWrite();
         getCellToWrite().setCellValue(boolValue);
     }
 }

@@ -69,8 +69,8 @@ public class DatatypeHelper {
             return dataPart.transpose();
         }
 
-        int verticalTitles = 0;
-        int horizontalTitles = 0;
+        var verticalTitles = 0;
+        var horizontalTitles = 0;
         if (dataPart.getWidth() > MAXIMUM_COLUMNS_COUNT_NO_TITLES) {
             verticalTitles = countTitles(dataPart);
         }
@@ -84,12 +84,12 @@ public class DatatypeHelper {
             return dataPart.transpose();
         }
 
-        int verticalCount = countTypes(dataPart, cxt);
+        var verticalCount = countTypes(dataPart, cxt);
         if (verticalCount == dataPart.getHeight() && verticalCount >= dataPart.getWidth()) {
             // There is no need to check horizontal types.
             return dataPart;
         }
-        int horizontalCount = countTypes(dataPart.transpose(), cxt);
+        var horizontalCount = countTypes(dataPart.transpose(), cxt);
 
         if (verticalCount < horizontalCount) {
             return dataPart.transpose();
@@ -107,27 +107,27 @@ public class DatatypeHelper {
 
     private static boolean isDefault(ICell cell) {
         // Type name and field name cannot be blank or start with number but default value can.
-        String value = cell.getStringValue();
+        var value = cell.getStringValue();
         if (StringUtils.isBlank(value)) {
             return true;
         }
 
-        char firstChar = value.charAt(0);
+        var firstChar = value.charAt(0);
         return '0' <= firstChar && firstChar <= '9';
 
     }
 
     private static int countTypes(ILogicalTable table, IBindingContext cxt) {
 
-        int height = table.getHeight();
-        int count = 1; // The first cell is always type name, there is no need to check it. Start from the second one.
+        var height = table.getHeight();
+        var count = 1; // The first cell is always type name, there is no need to check it. Start from the second one.
 
         cxt.pushErrors();
         try {
-            for (int i = 1; i < height; ++i) {
-                ILogicalTable row = table.getRow(i);
-                GridCellSourceCodeModule source = new GridCellSourceCodeModule(row.getSource(), cxt);
-                String code = row.getCell(0, 0).getStringValue();
+            for (var i = 1; i < height; ++i) {
+                var row = table.getRow(i);
+                var source = new GridCellSourceCodeModule(row.getSource(), cxt);
+                var code = row.getCell(0, 0).getStringValue();
                 if (StringUtils.isBlank(code)) {
                     continue;
                 }
@@ -143,11 +143,11 @@ public class DatatypeHelper {
     }
 
     private static int countTitles(ILogicalTable table) {
-        int width = table.getWidth();
-        int count = 0; // The first cell is always title, there is no need to check it. Start from the second one.
-        ILogicalTable row = table.getRow(0);
-        for (int i = 1; i < width; i++) {
-            String code = row.getCell(i, 0).getStringValue();
+        var width = table.getWidth();
+        var count = 0; // The first cell is always title, there is no need to check it. Start from the second one.
+        var row = table.getRow(0);
+        for (var i = 1; i < width; i++) {
+            var code = row.getCell(i, 0).getStringValue();
 
             if (StringUtils.isBlank(code)) {
                 continue;

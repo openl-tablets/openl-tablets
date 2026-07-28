@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
 class FloatSerializer extends NumberSerializers.FloatSerializer {
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        Float number = (Float) value;
+        var number = (Float) value;
         if (Float.isFinite(number)) {
             // Serialize Float without scientific notation
             gen.writeNumber(new BigDecimal(value.toString()).toPlainString());

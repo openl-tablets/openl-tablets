@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.URIish;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -48,9 +47,9 @@ class GitRootFactoryTest {
 
     @Test
     void testLocalNew() throws IOException {
-        GitRootFactory gitRootFactory = new GitRootFactory();
+        var gitRootFactory = new GitRootFactory();
 
-        GitRoot gitRoot = gitRootFactory.create("design", localFolder.getAbsolutePath(), localRepositoriesFolder.getAbsolutePath());
+        var gitRoot = gitRootFactory.create("design", localFolder.getAbsolutePath(), localRepositoriesFolder.getAbsolutePath());
 
         assertFalse(gitRoot.remote());
         assertTrue(gitRoot.empty());
@@ -60,9 +59,9 @@ class GitRootFactoryTest {
     @Test
     void testLocalExisting() throws IOException {
         ZipUtils.extractAll(new File("target/test-classes/repositories/GitRootFactoryTest/local.zip"), localFolder);
-        GitRootFactory gitRootFactory = new GitRootFactory();
+        var gitRootFactory = new GitRootFactory();
 
-        GitRoot gitRoot = gitRootFactory.create("design", localFolder.getAbsolutePath(), localRepositoriesFolder.getAbsolutePath());
+        var gitRoot = gitRootFactory.create("design", localFolder.getAbsolutePath(), localRepositoriesFolder.getAbsolutePath());
 
         assertFalse(gitRoot.remote());
         assertFalse(gitRoot.empty());
@@ -71,30 +70,30 @@ class GitRootFactoryTest {
 
     @Test
     void testLocalExistingNotGitRepository() {
-        File repositoryFolder = new File(localFolder, "local");
-        File repositorySubFolder = new File(repositoryFolder, ".git");
+        var repositoryFolder = new File(localFolder, "local");
+        var repositorySubFolder = new File(repositoryFolder, ".git");
         assertTrue(repositorySubFolder.mkdirs());
 
-        GitRootFactory gitRootFactory = new GitRootFactory();
+        var gitRootFactory = new GitRootFactory();
 
         assertThrows(IOException.class, () -> gitRootFactory.create("design", repositoryFolder.getAbsolutePath(), localRepositoriesFolder.getAbsolutePath()));
     }
 
     @Test
     void testLocalExistingNotAFolder() throws IOException {
-        File repositoryFile = new File(localFolder, "local");
+        var repositoryFile = new File(localFolder, "local");
         Files.writeString(repositoryFile.toPath(), "test");
 
-        GitRootFactory gitRootFactory = new GitRootFactory();
+        var gitRootFactory = new GitRootFactory();
 
         assertThrows(IOException.class, () -> gitRootFactory.create("design", repositoryFile.getAbsolutePath(), localRepositoriesFolder.getAbsolutePath()));
     }
 
     @Test
     void testRemoteNew() throws IOException {
-        GitRootFactory gitRootFactory = new GitRootFactory();
+        var gitRootFactory = new GitRootFactory();
 
-        GitRoot gitRoot = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
+        var gitRoot = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
 
         assertTrue(gitRoot.remote());
         assertTrue(gitRoot.empty());
@@ -103,11 +102,11 @@ class GitRootFactoryTest {
 
     @Test
     void testRemoteExisting() throws IOException {
-        GitRootFactory gitRootFactory = new GitRootFactory();
-        GitRoot gitRootEmpty = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
+        var gitRootFactory = new GitRootFactory();
+        var gitRootEmpty = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
         ZipUtils.extractAll(new File("target/test-classes/repositories/GitRootFactoryTest/remote.zip"), gitRootEmpty.localGitRoot());
 
-        GitRoot gitRoot = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
+        var gitRoot = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
 
         assertTrue(gitRoot.remote());
         assertFalse(gitRoot.empty());
@@ -116,12 +115,12 @@ class GitRootFactoryTest {
 
     @Test
     void testRemoteExistingNotAGitRepository() throws IOException {
-        GitRootFactory gitRootFactory = new GitRootFactory();
-        GitRoot gitRootInitial = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
-        File subFolder = new File(gitRootInitial.localGitRoot(), "sub");
+        var gitRootFactory = new GitRootFactory();
+        var gitRootInitial = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
+        var subFolder = new File(gitRootInitial.localGitRoot(), "sub");
         assertTrue(subFolder.mkdirs());
 
-        GitRoot gitRoot = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
+        var gitRoot = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
 
         assertTrue(gitRoot.remote());
         assertTrue(gitRoot.empty());
@@ -131,11 +130,11 @@ class GitRootFactoryTest {
 
     @Test
     void testRemoteExistingNotAFolder() throws IOException {
-        GitRootFactory gitRootFactory = new GitRootFactory();
-        GitRoot gitRootInitial = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
+        var gitRootFactory = new GitRootFactory();
+        var gitRootInitial = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
         Files.writeString(gitRootInitial.localGitRoot().toPath(), "test");
 
-        GitRoot gitRoot = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
+        var gitRoot = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
 
         assertTrue(gitRoot.remote());
         assertTrue(gitRoot.empty());
@@ -145,20 +144,20 @@ class GitRootFactoryTest {
 
     @Test
     void testUpdatedURI() throws IOException {
-        GitRootFactory gitRootFactory = new GitRootFactory();
-        GitRoot gitRootEmpty = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
+        var gitRootFactory = new GitRootFactory();
+        var gitRootEmpty = gitRootFactory.create("design", REMOTE_URI, localRepositoriesFolder.getAbsolutePath());
         ZipUtils.extractAll(new File("target/test-classes/repositories/GitRootFactoryTest/remote.zip"), gitRootEmpty.localGitRoot());
 
         //Here a scheme is http instead of https
-        String httpUrl = "http://repo.example.com/fake.git";
-        GitRoot gitRoot = gitRootFactory.create("design", httpUrl, localRepositoriesFolder.getAbsolutePath());
+        var httpUrl = "http://repo.example.com/fake.git";
+        var gitRoot = gitRootFactory.create("design", httpUrl, localRepositoriesFolder.getAbsolutePath());
 
         assertTrue(gitRoot.remote());
         assertFalse(gitRoot.empty());
         assertEquals(localRepositoriesFolder, gitRoot.localGitRoot().getParentFile());
         assertEquals(gitRootEmpty.localGitRoot(), gitRoot.localGitRoot());
-        try (Repository repository = Git.open(gitRoot.localGitRoot()).getRepository()) {
-            String remoteUrl = repository.getConfig()
+        try (var repository = Git.open(gitRoot.localGitRoot()).getRepository()) {
+            var remoteUrl = repository.getConfig()
                     .getString(ConfigConstants.CONFIG_REMOTE_SECTION,
                             Constants.DEFAULT_REMOTE_NAME,
                             ConfigConstants.CONFIG_KEY_URL);
@@ -168,25 +167,25 @@ class GitRootFactoryTest {
 
     @Test
     void testDomainIsNotCaseSensitive() throws IOException {
-        String httpUrlLower = "http://repo.example.com/fake.git";
-        String httpUrlMixedCase = "http://Repo.Example.Com/fake.git";
-        GitRootFactory gitRootFactory = new GitRootFactory();
+        var httpUrlLower = "http://repo.example.com/fake.git";
+        var httpUrlMixedCase = "http://Repo.Example.Com/fake.git";
+        var gitRootFactory = new GitRootFactory();
 
-        GitRoot gitRootLowerCase = gitRootFactory.create("design", httpUrlLower, localRepositoriesFolder.getAbsolutePath());
-        GitRoot gitRootMixedCase = gitRootFactory.create("design", httpUrlMixedCase, localRepositoriesFolder.getAbsolutePath());
+        var gitRootLowerCase = gitRootFactory.create("design", httpUrlLower, localRepositoriesFolder.getAbsolutePath());
+        var gitRootMixedCase = gitRootFactory.create("design", httpUrlMixedCase, localRepositoriesFolder.getAbsolutePath());
 
         assertEquals(gitRootMixedCase.localGitRoot(), gitRootLowerCase.localGitRoot());
     }
 
     @Test
     void testCollision() throws IOException {
-        GitRootFactory gitRootFactory = new GitRootFactory();
-        String httpUrl = "https://different-repo.example.com/fake.git";
-        GitRoot gitRootEmpty = gitRootFactory.create("design", httpUrl, localRepositoriesFolder.getAbsolutePath());
+        var gitRootFactory = new GitRootFactory();
+        var httpUrl = "https://different-repo.example.com/fake.git";
+        var gitRootEmpty = gitRootFactory.create("design", httpUrl, localRepositoriesFolder.getAbsolutePath());
         //Collision is modelled here since remote.zip has a different URL than in httpUrl
         ZipUtils.extractAll(new File("target/test-classes/repositories/GitRootFactoryTest/remote.zip"), gitRootEmpty.localGitRoot());
 
-        GitRoot gitRoot = gitRootFactory.create("design", httpUrl, localRepositoriesFolder.getAbsolutePath());
+        var gitRoot = gitRootFactory.create("design", httpUrl, localRepositoriesFolder.getAbsolutePath());
 
         assertTrue(gitRoot.remote());
         assertTrue(gitRoot.empty());

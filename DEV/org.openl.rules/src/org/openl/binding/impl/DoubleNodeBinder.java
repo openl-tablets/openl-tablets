@@ -22,9 +22,9 @@ public class DoubleNodeBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
-        String s = node.getText();
+        var s = node.getText();
 
-        int len = s.length();
+        var len = s.length();
 
         if (Character.toUpperCase(s.charAt(len - 1)) == 'F') {
             return new LiteralBoundNode(node, Float.valueOf(s.substring(0, len - 1)), JavaOpenClass.FLOAT);

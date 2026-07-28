@@ -96,7 +96,7 @@ public class DatatypeOpenField extends AOpenField {
             return null;
         }
         try {
-            Object res = getGetter().invoke(target);
+            var res = getGetter().invoke(target);
             return res != null ? res : getType().nullObject();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new OpenLRuntimeException(e);

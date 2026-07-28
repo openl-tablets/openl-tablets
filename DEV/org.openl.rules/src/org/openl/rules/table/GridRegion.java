@@ -64,7 +64,7 @@ public class GridRegion implements IGridRegion {
 
     @Override
     public int hashCode() {
-        int result = bottom;
+        var result = bottom;
         result = 31 * result + left;
         result = 31 * result + right;
         result = 31 * result + top;
@@ -82,7 +82,7 @@ public class GridRegion implements IGridRegion {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        GridRegion other = (GridRegion) obj;
+        var other = (GridRegion) obj;
         if (bottom != other.bottom) {
             return false;
         }

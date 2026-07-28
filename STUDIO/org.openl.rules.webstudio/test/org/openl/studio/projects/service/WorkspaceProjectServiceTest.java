@@ -27,7 +27,6 @@ import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.ArgumentCaptor;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
@@ -106,7 +105,7 @@ class WorkspaceProjectServiceTest {
         when(repository.isBranchProtected("main")).thenReturn(true);
         when(repository.getBranches(null)).thenReturn(branchNames);
 
-        List<ProjectBranchInfo> result = service.getBranches(project);
+        var result = service.getBranches(project);
 
         assertEquals(List.of("feature", "main"), result.stream().map(ProjectBranchInfo::name).toList());
         assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::base).toList());
@@ -797,7 +796,7 @@ class WorkspaceProjectServiceTest {
         // The search narrows by substring. Shortening the name appends a mark the table's own display name never
         // carries, so searching for the shortened form would find nothing and answer a successful create with no
         // table at all.
-        ArgumentCaptor<Predicate<TableSyntaxNode>> selector = forClass(Predicate.class);
+        var selector = forClass(Predicate.class);
         verify(projectModel).search(selector.capture(), eq(SearchScope.CURRENT_MODULE));
         assertTrue(selector.getValue().test(datatypeNode("Datatype " + longName)));
     }
@@ -1026,7 +1025,7 @@ class WorkspaceProjectServiceTest {
         when(user.getUserName()).thenReturn("user");
         var localRepoRoot = tempDir.resolve("local-repository-" + System.nanoTime());
         var localRepository = new LocalRepository(localRepoRoot, MetainfoRegistry.open(localRepoRoot));
-        FileData designFileData = repository.check(projectName);
+        var designFileData = repository.check(projectName);
         var project = new RulesProject(user, localRepository, null, repository, designFileData, mock(LockEngine.class));
         project.setFileData(designFileData);
         return project;

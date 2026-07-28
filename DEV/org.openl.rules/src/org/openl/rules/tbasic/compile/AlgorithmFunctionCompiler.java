@@ -5,11 +5,9 @@ import java.util.List;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
-import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmFunction;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
 
 /**
@@ -42,14 +40,14 @@ public class AlgorithmFunctionCompiler {
 
     private void analyzeReturnCorrectness(IBindingContext bindingContext) {
         if (!functionBody.isEmpty()) {
-            int i = 0;
+            var i = 0;
             for (AlgorithmTreeNode algorithmTreeNode : functionBody) {
-                StringValue operation = algorithmTreeNode.getAlgorithmRow().getOperation();
+                var operation = algorithmTreeNode.getAlgorithmRow().getOperation();
                 if (operation != null && TBasicSpecificationKey.RETURN.toString().equals(operation.toString())) {
-                    SuitablityAsReturn status = new ReturnAnalyzer(getReturnType(), compiler)
+                    var status = new ReturnAnalyzer(getReturnType(), compiler)
                             .analyze(functionBody.get(i).getChildren(), bindingContext);
                     if (status == SuitablityAsReturn.NONE) {
-                        IOpenSourceCodeModule errorSource = functionBody.get(i)
+                        var errorSource = functionBody.get(i)
                                 .getAlgorithmRow()
                                 .getOperation()
                                 .asSourceCodeModule();

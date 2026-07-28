@@ -6,7 +6,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.validation.BindingResult;
 
 import org.openl.rules.rest.model.ChangePasswordModel;
 import org.openl.rules.rest.model.InternalPasswordModel;
@@ -56,28 +54,28 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testUserInfo_firstName_notValid() {
-        UserInfoModel userInfoModel = getValidUserInfoModel();
+        var userInfoModel = getValidUserInfoModel();
         String wrongFirstName = RandomStringUtils.random(26, "John");
         userInfoModel.setFirstName(wrongFirstName);
-        BindingResult bindingResult = validateAndGetResult(userInfoModel);
+        var bindingResult = validateAndGetResult(userInfoModel);
         assertFieldError("firstName", MUST_BE_LESS_THAN_25, wrongFirstName, bindingResult.getFieldError("firstName"));
     }
 
     @Test
     void testUserInfo_lastName_notValid() {
-        UserInfoModel userInfoModel = getValidUserInfoModel();
+        var userInfoModel = getValidUserInfoModel();
         String wrongLastName = RandomStringUtils.random(26, "Smith");
         userInfoModel.setLastName(wrongLastName);
-        BindingResult bindingResult = validateAndGetResult(userInfoModel);
+        var bindingResult = validateAndGetResult(userInfoModel);
         assertFieldError("lastName", MUST_BE_LESS_THAN_25, wrongLastName, bindingResult.getFieldError("lastName"));
     }
 
     @Test
     void testUserInfo_displayName_notValid() {
-        UserInfoModel userInfoModel = getValidUserInfoModel();
+        var userInfoModel = getValidUserInfoModel();
         String wrongDisplayName = RandomStringUtils.random(65, "John Smith");
         userInfoModel.setDisplayName(wrongDisplayName);
-        BindingResult bindingResult = validateAndGetResult(userInfoModel);
+        var bindingResult = validateAndGetResult(userInfoModel);
         assertFieldError("displayName",
                 "Must be less than 64.",
                 wrongDisplayName,
@@ -86,18 +84,18 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testUserInfo_email_notValid() {
-        UserInfoModel userInfoModel = getValidUserInfoModel();
+        var userInfoModel = getValidUserInfoModel();
         userInfoModel.setEmail("wrongEmail");
-        BindingResult bindingResult = validateAndGetResult(userInfoModel);
+        var bindingResult = validateAndGetResult(userInfoModel);
         assertFieldError("email", "The email address is invalid.", "wrongEmail", bindingResult.getFieldError("email"));
     }
 
     @Test
     void testEditUserInfo_requiredFields() {
-        UserInfoEditModel userInfoEditModel = getValidUserInfoEditModel();
+        var userInfoEditModel = getValidUserInfoEditModel();
 
         userInfoEditModel.setEmail("");
-        BindingResult bindingResult = validateAndGetResult(userInfoEditModel);
+        var bindingResult = validateAndGetResult(userInfoEditModel);
         assertFieldError("email", CANNOT_BE_EMPTY, "", bindingResult.getFieldError("email"));
 
         userInfoEditModel.setEmail("jsmith@email").setDisplayName("");
@@ -117,7 +115,7 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testEditUser_valid() {
-        UserEditModel userEditModel = getValidUserEditModel();
+        var userEditModel = getValidUserEditModel();
 
         assertNull(validateAndGetResult(userEditModel));
 
@@ -127,17 +125,17 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testEditUser_password_notValid() {
-        UserEditModel userEditModel = getValidUserEditModel();
+        var userEditModel = getValidUserEditModel();
         String wrongPassword = RandomStringUtils.random(26, "pass");
         userEditModel.setPassword(wrongPassword);
-        BindingResult bindingResult = validateAndGetResult(userEditModel);
+        var bindingResult = validateAndGetResult(userEditModel);
         assertFieldError("password", MUST_BE_LESS_THAN_25, wrongPassword, bindingResult.getFieldError("password"));
     }
 
     @Test
     void testEditUser_requiredFields() {
-        UserEditModel userEditModel = getValidUserEditModel().setEmail("");
-        BindingResult bindingResult = validateAndGetResult(userEditModel);
+        var userEditModel = getValidUserEditModel().setEmail("");
+        var bindingResult = validateAndGetResult(userEditModel);
         assertFieldError("email", CANNOT_BE_EMPTY, "", bindingResult.getFieldError("email"));
 
         userEditModel.setEmail("jsmith@email").setDisplayName(" ");
@@ -148,7 +146,7 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
     @Test
     void testCreateUser_valid() {
         when(userManagementService.getUser(anyString())).thenReturn(null);
-        UserCreateModel userCreateModel = getValidUserCreateModel();
+        var userCreateModel = getValidUserCreateModel();
 
         assertNull(validateAndGetResult(getValidUserCreateModel()));
 
@@ -167,7 +165,7 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testCreateUser_noGroups_valid() {
-        UserCreateModel userCreateModel = getValidUserCreateModel();
+        var userCreateModel = getValidUserCreateModel();
         userCreateModel.setGroups(null);
         assertNull(validateAndGetResult(userCreateModel));
     }
@@ -175,8 +173,8 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
     @Test
     void testCreateUser_requiredFields() {
         when(userManagementService.getUser(anyString())).thenReturn(null);
-        UserCreateModel userCreateModel = getValidUserCreateModel().setEmail("");
-        BindingResult bindingResult = validateAndGetResult(userCreateModel);
+        var userCreateModel = getValidUserCreateModel().setEmail("");
+        var bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("email", CANNOT_BE_EMPTY, "", bindingResult.getFieldError("email"));
 
         userCreateModel.setEmail("jsmith@email").setDisplayName("");
@@ -187,11 +185,11 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
     @Test
     void testCreateUser_password_notValid() {
         when(userManagementService.getUser(anyString())).thenReturn(null);
-        UserCreateModel userCreateModel = getValidUserCreateModel();
+        var userCreateModel = getValidUserCreateModel();
 
-        InternalPasswordModel wrongInternalPassword = new InternalPasswordModel().setPassword(null);
+        var wrongInternalPassword = new InternalPasswordModel().setPassword(null);
         userCreateModel.setInternalPassword(wrongInternalPassword);
-        BindingResult bindingResult = validateAndGetResult(userCreateModel);
+        var bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("internalPassword",
                 CANNOT_BE_EMPTY,
                 wrongInternalPassword,
@@ -209,11 +207,11 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
     @Test
     void testCreateUser_username_notValid() {
         when(userManagementService.getUser(anyString())).thenReturn(null);
-        UserCreateModel userCreateModel = getValidUserCreateModel();
+        var userCreateModel = getValidUserCreateModel();
 
         String wrongUsername = RandomStringUtils.random(26, "jsmith");
         userCreateModel.setUsername(wrongUsername);
-        BindingResult bindingResult = validateAndGetResult(userCreateModel);
+        var bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username", MUST_BE_LESS_THAN_25, wrongUsername, bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername(null);
@@ -336,10 +334,10 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testEditUserProfile_valid() {
-        UserProfileEditModel userProfileEditModel = getValidUserProfileEditModel();
+        var userProfileEditModel = getValidUserProfileEditModel();
         when(currentUserInfo.getUserName()).thenReturn("jsmith");
         when(passwordEncoder.matches("pass", "passHash")).thenReturn(true);
-        SimpleUser existedUser = new SimpleUser();
+        var existedUser = new SimpleUser();
         existedUser.setPassword("passHash");
         when(userManagementService.getUser(anyString())).thenReturn(existedUser);
 
@@ -353,14 +351,14 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
     void testEditUserProfile_password_notValid() {
         when(passwordEncoder.matches("pass", "passHash")).thenReturn(true);
         when(currentUserInfo.getUserName()).thenReturn("jsmith");
-        SimpleUser existedUser = new SimpleUser();
+        var existedUser = new SimpleUser();
         existedUser.setPassword("passHash");
-        UserProfileEditModel userProfileEditModel = getValidUserProfileEditModel();
+        var userProfileEditModel = getValidUserProfileEditModel();
 
-        ChangePasswordModel changePasswordModel = new ChangePasswordModel().setNewPassword("pass2");
+        var changePasswordModel = new ChangePasswordModel().setNewPassword("pass2");
         userProfileEditModel.setChangePassword(changePasswordModel);
         when(userManagementService.getUser(anyString())).thenReturn(existedUser);
-        BindingResult bindingResult = validateAndGetResult(userProfileEditModel);
+        var bindingResult = validateAndGetResult(userProfileEditModel);
         assertFieldError("changePassword",
                 "Enter your password.",
                 changePasswordModel,
@@ -391,11 +389,11 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testEditUserProfile_requiredFields() {
-        UserProfileEditModel userProfileEditModel = getValidUserProfileEditModel()
+        var userProfileEditModel = getValidUserProfileEditModel()
                 .setChangePassword(new ChangePasswordModel());
 
         userProfileEditModel.setEmail("");
-        BindingResult bindingResult = validateAndGetResult(userProfileEditModel);
+        var bindingResult = validateAndGetResult(userProfileEditModel);
         assertFieldError("email", CANNOT_BE_EMPTY, "", bindingResult.getFieldError("email"));
 
         userProfileEditModel.setEmail("jsmith@email").setDisplayName(" ");
@@ -404,7 +402,7 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     private UserCreateModel getValidUserCreateModel() {
-        Set<String> groups = new HashSet<>();
+        var groups = new HashSet<String>();
         groups.add("Administrators");
         return new UserCreateModel().setDisplayName("John Smith")
                 .setFirstName("John")
@@ -416,7 +414,7 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     private UserEditModel getValidUserEditModel() {
-        Set<String> groups = new HashSet<>();
+        var groups = new HashSet<String>();
         groups.add("Administrators");
         return new UserEditModel().setDisplayName("John Smith")
                 .setFirstName("John")

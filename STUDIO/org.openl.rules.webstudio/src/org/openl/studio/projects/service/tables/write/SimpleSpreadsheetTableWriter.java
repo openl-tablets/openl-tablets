@@ -39,7 +39,7 @@ public class SimpleSpreadsheetTableWriter extends ExecutableTableWriter<SimpleSp
     @Override
     protected void mergeHeaderCells(SimpleSpreadsheetView tableView) {
         if (!isUpdateMode()) {
-            int latestCol = STEP_VALUE_COLUMN;
+            var latestCol = STEP_VALUE_COLUMN;
             if (CollectionUtils.isNotEmpty(tableView.properties)) {
                 latestCol = NUMBER_PROPERTIES_COLUMNS - 1;
             }
@@ -53,7 +53,7 @@ public class SimpleSpreadsheetTableWriter extends ExecutableTableWriter<SimpleSp
     protected void updateBusinessBody(SimpleSpreadsheetView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
 
-        int row = 0;
+        var row = 0;
         createOrUpdateCell(tableBody, buildCellKey(STEP_NAME_COLUMN, row), "Steps");
         createOrUpdateCell(tableBody, buildCellKey(STEP_VALUE_COLUMN, row), "Value");
         row++;
@@ -97,7 +97,7 @@ public class SimpleSpreadsheetTableWriter extends ExecutableTableWriter<SimpleSp
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
-            int row = IGridRegion.Tool.height(tableBody.getRegion());
+            var row = IGridRegion.Tool.height(tableBody.getRegion());
             for (var step : appendTable.getSteps()) {
                 write(tableBody, row, step);
                 row++;

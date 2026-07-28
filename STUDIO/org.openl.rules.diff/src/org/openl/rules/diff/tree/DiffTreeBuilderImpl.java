@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import org.openl.rules.diff.differs.ProjectionDiffer;
@@ -33,19 +32,19 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
             throw new IllegalStateException("projectionDiffer has not been set.");
         }
 
-        DiffTreeNodeImpl root = new DiffTreeNodeImpl();
+        var root = new DiffTreeNodeImpl();
         buildTree(root, projections);
         diffTree(root);
         return root;
     }
 
     protected void buildTree(DiffTreeNodeImpl root, Projection[] projections) {
-        int len = projections.length;
+        var len = projections.length;
 
         DiffElement[] diffElements = new DiffElementImpl[len];
 
-        for (int i = 0; i < len; i++) {
-            Projection p = projections[i];
+        for (var i = 0; i < len; i++) {
+            var p = projections[i];
             diffElements[i] = new DiffElementImpl(p);
         }
 
@@ -55,18 +54,18 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
     }
 
     protected void buildSubTree(DiffTreeNodeImpl node) {
-        DiffElement[] elements = node.getElements();
-        int len = elements.length;
+        var elements = node.getElements();
+        var len = elements.length;
 
         @SuppressWarnings("unchecked")
         List<Projection>[] children = new List[len];
 
-        for (int i = 0; i < len; i++) {
-            Projection p = elements[i].getProjection();
+        for (var i = 0; i < len; i++) {
+            var p = elements[i].getProjection();
             children[i] = getChildren(p);
         }
 
-        List<DiffTreeNode> diffChildren = combineChildren(children);
+        var diffChildren = combineChildren(children);
         node.setChildren(diffChildren);
 
         for (DiffTreeNode child : diffChildren) {
@@ -83,34 +82,34 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
     }
 
     protected List<DiffTreeNode> combineChildren(List<Projection>[] children) {
-        int len = children.length;
-        Set<ProjectionKey> uniqKeys = new TreeSet<>();
+        var len = children.length;
+        var uniqKeys = new TreeSet<ProjectionKey>();
 
         @SuppressWarnings("unchecked")
         Map<ProjectionKey, Projection>[] n2p = new HashMap[len];
 
-        for (int i = 0; i < len; i++) {
-            Map<ProjectionKey, Projection> map = new HashMap<>();
+        for (var i = 0; i < len; i++) {
+            var map = new HashMap<ProjectionKey, Projection>();
             n2p[i] = map;
 
             for (Projection p : children[i]) {
-                ProjectionKey key = new ProjectionKey(p);
+                var key = new ProjectionKey(p);
 
                 map.put(key, p);
                 uniqKeys.add(key);
             }
         }
 
-        List<DiffTreeNode> result = new ArrayList<>(uniqKeys.size());
+        var result = new ArrayList<DiffTreeNode>(uniqKeys.size());
         for (ProjectionKey key : uniqKeys) {
             DiffElementImpl[] diffElements = new DiffElementImpl[len];
 
-            for (int j = 0; j < len; j++) {
-                Projection p = n2p[j].get(key);
+            for (var j = 0; j < len; j++) {
+                var p = n2p[j].get(key);
                 diffElements[j] = new DiffElementImpl(p);
             }
 
-            DiffTreeNodeImpl node = new DiffTreeNodeImpl();
+            var node = new DiffTreeNodeImpl();
             node.setElements(diffElements);
             result.add(node);
         }
@@ -126,14 +125,14 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         }
 
         // ... to top
-        DiffElement[] elements = node.getElements();
-        int len = elements.length;
+        var elements = node.getElements();
+        var len = elements.length;
 
-        DiffElementImpl first = (DiffElementImpl) elements[0];
-        Projection original = first.getProjection();
+        var first = (DiffElementImpl) elements[0];
+        var original = first.getProjection();
         first.asOriginal(original != null);
 
-        for (int i = 1; i < len; i++) {
+        for (var i = 1; i < len; i++) {
             compare(node, 0, i);
         }
     }
@@ -142,9 +141,9 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
      * originalIdx & otherIdx have the same type and name
      */
     protected void compare(DiffTreeNodeImpl node, int originalIdx, int otherIdx) {
-        Projection original = node.getElement(originalIdx).getProjection();
-        DiffElementImpl diff = (DiffElementImpl) node.getElement(otherIdx);
-        Projection other = diff.getProjection();
+        var original = node.getElement(originalIdx).getProjection();
+        var diff = (DiffElementImpl) node.getElement(otherIdx);
+        var other = diff.getProjection();
 
         if (original == null) {
             if (other == null) {
@@ -157,17 +156,17 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
                 diff.asRemoved();
             } else {
                 // full compare
-                boolean selfEqual = projectionDiffer.compare(original, other);
+                var selfEqual = projectionDiffer.compare(original, other);
 
-                boolean hierarhyEqual = true;
-                boolean childrenEqual = true;
+                var hierarhyEqual = true;
+                var childrenEqual = true;
 
                 for (DiffTreeNode child : node.getChildren()) {
-                    DiffElement ce1 = child.getElement(originalIdx);
-                    DiffElement ce2 = child.getElement(otherIdx);
+                    var ce1 = child.getElement(originalIdx);
+                    var ce2 = child.getElement(otherIdx);
 
-                    Projection p1 = ce1.getProjection();
-                    Projection p2 = ce2.getProjection();
+                    var p1 = ce1.getProjection();
+                    var p2 = ce2.getProjection();
 
                     if (!ce2.isHierarhyEqual() || p1 == null || p2 == null) {
                         hierarhyEqual = false;
@@ -198,7 +197,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
 
         @Override
         public int compareTo(ProjectionKey o) {
-            int diff = type.compareTo(o.type);
+            var diff = type.compareTo(o.type);
             if (diff == 0) {
                 diff = name.compareTo(o.name);
             }

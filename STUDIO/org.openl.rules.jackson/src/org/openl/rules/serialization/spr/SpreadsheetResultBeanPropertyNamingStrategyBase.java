@@ -20,24 +20,24 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
 
     protected String toUpperCamelCase(String input) {
         input = JavaKeywordUtils.toJavaIdentifier(input);
-        char c = input.charAt(0);
-        char uc = Character.toUpperCase(c);
+        var c = input.charAt(0);
+        var uc = Character.toUpperCase(c);
         if (c == uc) {
             return input;
         }
-        StringBuilder sb = new StringBuilder(input);
+        var sb = new StringBuilder(input);
         sb.setCharAt(0, uc);
         return sb.toString();
     }
 
     protected String toLowerCamelCase(String input) {
         input = JavaKeywordUtils.toJavaIdentifier(input);
-        char c = input.charAt(0);
-        char uc = Character.toLowerCase(c);
+        var c = input.charAt(0);
+        var uc = Character.toLowerCase(c);
         if (c == uc) {
             return input;
         }
-        StringBuilder sb = new StringBuilder(input);
+        var sb = new StringBuilder(input);
         sb.setCharAt(0, uc);
         return sb.toString();
     }
@@ -54,7 +54,7 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
 
     private String getName(AnnotatedMember member, String defaultName) {
         if (member.hasAnnotation(SpreadsheetCell.class)) {
-            SpreadsheetCell spreadsheetCell = member.getAnnotation(SpreadsheetCell.class);
+            var spreadsheetCell = member.getAnnotation(SpreadsheetCell.class);
             if (StringUtils.isEmpty(spreadsheetCell.column())) {
                 return transform(spreadsheetCell.row());
             } else if (StringUtils.isEmpty(spreadsheetCell.row())) {

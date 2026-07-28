@@ -13,9 +13,6 @@ import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
-import org.openl.rules.table.ICell;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenClassUtils;
@@ -32,36 +29,36 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
 
     @Override
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
-        SpreadsheetCell[][] cells = getBoundNode().getCells();
+        var cells = getBoundNode().getCells();
         if (cells == null || cells.length == 0 || cells[0].length == 0) {
             return null;
         }
-        ICell firstCell = cells[0][0].getSourceCell();
+        var firstCell = cells[0][0].getSourceCell();
 
-        int r = row - firstCell.getAbsoluteRow();
-        int c = col - firstCell.getAbsoluteColumn();
+        var r = row - firstCell.getAbsoluteRow();
+        var c = col - firstCell.getAbsoluteColumn();
 
         if (r < 0 || c < 0) {
             return headerMetaInfo.get(CellKey.CellKeyFactory.getCellKey(col, row));
         }
 
-        SpreadsheetCell spreadsheetCell = findCell(cells, row, col);
+        var spreadsheetCell = findCell(cells, row, col);
         if (spreadsheetCell == null || spreadsheetCell.isEmpty()) {
             return null;
         }
 
-        ICell sourceCell = spreadsheetCell.getSourceCell();
-        IOpenClass type = spreadsheetCell.getType();
+        var sourceCell = spreadsheetCell.getSourceCell();
+        var type = spreadsheetCell.getType();
 
-        String stringValue = sourceCell.getStringValue();
+        var stringValue = sourceCell.getStringValue();
         if (stringValue != null) {
             List<NodeUsage> nodeUsages = null;
-            int from = -1;
+            var from = -1;
             if (stringValue.startsWith("=")) {
                 nodeUsages = new ArrayList<>();
                 from = 0;
                 if (type != null) {
-                    String description = "Cell type: " + MethodUtil.printType(type);
+                    var description = "Cell type: " + MethodUtil.printType(type);
                     nodeUsages.add(new SimpleNodeUsage(from, from + 1, description, null, NodeType.OTHER));
                 }
             } else if (stringValue.startsWith("{") && stringValue.endsWith("}")) {
@@ -69,20 +66,20 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                 from = 0;
             }
 
-            IOpenMethod method = spreadsheetCell.getMethod();
+            var method = spreadsheetCell.getMethod();
             if (from > -1) {
                 from += 1; // next symbol after '=' or '{'
 
                 if (method instanceof CompositeMethod compositeMethod) {
-                    List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils
+                    var parsedNodeUsages = MetaInfoReaderUtils
                             .getNodeUsages(compositeMethod, stringValue, from);
                     nodeUsages.addAll(parsedNodeUsages);
                 }
             }
-            boolean isRet = spreadsheetCell.isReturnCell();
+            var isRet = spreadsheetCell.isReturnCell();
 
             if (method == null && type != null) {
-                boolean multiValue = type.isArray();
+                var multiValue = type.isArray();
                 if (multiValue) {
                     type = OpenClassUtils.getRootComponentClass(type);
                 }
@@ -103,9 +100,9 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
     }
 
     private SpreadsheetCell findCell(SpreadsheetCell[][] cells, int row, int col) {
-        ICell firstCell = cells[0][0].getSourceCell();
-        int r = row - firstCell.getAbsoluteRow();
-        int c = col - firstCell.getAbsoluteColumn();
+        var firstCell = cells[0][0].getSourceCell();
+        var r = row - firstCell.getAbsoluteRow();
+        var c = col - firstCell.getAbsoluteColumn();
 
         if (r >= cells.length) {
             r = cells.length - 1;
@@ -116,8 +113,8 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
         }
 
         // Optimistic approach: check that we already found needed cell
-        SpreadsheetCell spreadsheetCell = cells[r][c];
-        ICell sourceCell = spreadsheetCell.getSourceCell();
+        var spreadsheetCell = cells[r][c];
+        var sourceCell = spreadsheetCell.getSourceCell();
         if (sourceCell.getAbsoluteRow() == row && sourceCell.getAbsoluteColumn() == col) {
             return spreadsheetCell;
         }

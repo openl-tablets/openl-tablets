@@ -3,7 +3,6 @@ package org.openl.studio.common.validation;
 import java.util.List;
 
 import org.springframework.util.Assert;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import org.springframework.validation.Validator;
 
@@ -66,9 +65,9 @@ public class BeanValidationProvider {
 
         @Override
         public void validate() {
-            Object target = getTarget();
+            var target = getTarget();
             Assert.state(target != null, "No target to validate");
-            BindingResult bindingResult = getBindingResult();
+            var bindingResult = getBindingResult();
             // Call each validator with the same binding result
             for (Validator validator : getValidators()) {
                 validator.validate(target, bindingResult);

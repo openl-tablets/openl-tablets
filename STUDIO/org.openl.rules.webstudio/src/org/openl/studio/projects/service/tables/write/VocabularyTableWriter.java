@@ -34,7 +34,7 @@ public class VocabularyTableWriter extends TableWriter<VocabularyView> {
 
     @Override
     protected void updateHeader(VocabularyView tableView) {
-        String headerSign = getBusinessTableType(tableView) + " " + tableView.name + " " + TYPE_OPEN + tableView.type + TYPE_CLOSE;
+        var headerSign = getBusinessTableType(tableView) + " " + tableView.name + " " + TYPE_OPEN + tableView.type + TYPE_CLOSE;
         var gridTable = getGridTable();
         createOrUpdateCell(gridTable, buildCellKey(0, 0), headerSign);
         if (!isUpdateMode() && CollectionUtils.isNotEmpty(tableView.properties)) {
@@ -46,7 +46,7 @@ public class VocabularyTableWriter extends TableWriter<VocabularyView> {
     @Override
     protected void updateBusinessBody(VocabularyView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
-        int row = 0;
+        var row = 0;
         for (var value : tableView.values) {
             createOrUpdateCell(tableBody, buildCellKey(0, row), value.value);
             row++;
@@ -67,7 +67,7 @@ public class VocabularyTableWriter extends TableWriter<VocabularyView> {
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
-            int row = IGridRegion.Tool.height(tableBody.getRegion());
+            var row = IGridRegion.Tool.height(tableBody.getRegion());
             for (var value : tableAppend.getValues()) {
                 createOrUpdateCell(tableBody, buildCellKey(0, row), value.value);
                 row++;

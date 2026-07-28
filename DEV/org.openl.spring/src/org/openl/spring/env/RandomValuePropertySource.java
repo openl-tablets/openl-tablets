@@ -30,8 +30,8 @@ class RandomValuePropertySource extends PropertySource<Random> {
             var range = name.substring(11, name.length() - 1);
             String[] values = StringUtils.split(range, ',');
 
-            int min = 0;
-            int max = Integer.valueOf(values[0]);
+            var min = 0;
+            var max = Integer.valueOf(values[0]);
             if (values.length > 1) {
                 min = max;
                 max = Integer.valueOf(values[1]);
@@ -48,8 +48,8 @@ class RandomValuePropertySource extends PropertySource<Random> {
             var range = name.substring(12, name.length() - 1);
             String[] values = StringUtils.split(range, ',');
 
-            long min = 0;
-            long max = Long.valueOf(values[0]);
+            var min = 0L;
+            var max = Long.valueOf(values[0]);
             if (values.length > 1) {
                 min = max;
                 max = Long.valueOf(values[1]);

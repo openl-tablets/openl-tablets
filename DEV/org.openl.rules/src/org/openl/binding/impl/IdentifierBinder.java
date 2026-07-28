@@ -26,7 +26,7 @@ import org.openl.types.java.JavaOpenClass;
 public class IdentifierBinder extends ANodeBinder {
 
     protected FieldBoundNode bindAsOpenField(ISyntaxNode node, boolean strictMatch, IBindingContext bindingContext) {
-        String fieldName = node.getText();
+        var fieldName = node.getText();
 
         // According to "6.4.2. Obscuring" of Java Language Specification:
         // A simple name may occur in contexts where it may potentially be interpreted as the name of a variable,
@@ -48,8 +48,8 @@ public class IdentifierBinder extends ANodeBinder {
     }
 
     protected TypeBoundNode bindAsType(ISyntaxNode node, IBindingContext bindingContext) {
-        String typeName = node.getText();
-        IOpenClass type = bindingContext.findType(typeName);
+        var typeName = node.getText();
+        var type = bindingContext.findType(typeName);
         if (type != null) {
             type = type.toStaticClass();
             BindHelper.checkOnDeprecation(node, bindingContext, type);
@@ -60,16 +60,16 @@ public class IdentifierBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        IBoundNode strictMatchBoundNode = bindAsOpenField(node, true, bindingContext);
+        var strictMatchBoundNode = bindAsOpenField(node, true, bindingContext);
         if (strictMatchBoundNode != null) {
             return strictMatchBoundNode;
         }
 
-        IBoundNode typeBoundNode = bindAsType(node, bindingContext);
+        var typeBoundNode = bindAsType(node, bindingContext);
         if (typeBoundNode != null) {
             return typeBoundNode;
         }
-        FieldBoundNode nonStrictMatchBoundNode = bindAsOpenField(node, false, bindingContext);
+        var nonStrictMatchBoundNode = bindAsOpenField(node, false, bindingContext);
         if (nonStrictMatchBoundNode != null) {
             if (!node.getText().equals(nonStrictMatchBoundNode.getFieldName().replaceAll("\\s", ""))) {
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
@@ -83,15 +83,15 @@ public class IdentifierBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) {
-        String fieldName = node.getText();
-        IOpenClass type = target.getType();
-        int dims = 0;
+        var fieldName = node.getText();
+        var type = target.getType();
+        var dims = 0;
         while (type.isArray() && !"length".equals(fieldName)) { // special case for arr[].length
             dims++;
             type = type.getComponentClass();
         }
         IOpenField field;
-        boolean strictMatch = isStrictMatch(node);
+        var strictMatch = isStrictMatch(node);
         if (target.isStaticTarget()) {
             field = type.getStaticField(fieldName, strictMatch);
         } else {
@@ -116,15 +116,15 @@ public class IdentifierBinder extends ANodeBinder {
                     type instanceof StaticOpenClass soc ? soc.getDelegate().getName() : type.getName()));
         }
 
-        IOpenClass t = field.getType();
-        int dim = 0;
+        var t = field.getType();
+        var dim = 0;
         while (t.isArray()) {
             t = t.getComponentClass();
             dim++;
         }
 
         if (type instanceof WrapModuleSpecificTypes && t instanceof ModuleSpecificType) {
-            IOpenClass newType = bindingContext.findType(t.getName());
+            var newType = bindingContext.findType(t.getName());
             if (newType != null) {
                 if (dim > 0) {
                     newType = newType.getArrayType(dim);
@@ -160,7 +160,7 @@ public class IdentifierBinder extends ANodeBinder {
                                                 IBindingContext bindingContext) {
         Collection<IOpenField> matchingFields = ex.getMatchingFields();
         if (matchingFields.stream().allMatch(e -> e instanceof OpenFieldDelegator)) {
-            long arraysCount = matchingFields.stream()
+            var arraysCount = matchingFields.stream()
                     .filter(e -> ((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField)
                     .count();
             if (matchingFields.size() - arraysCount == 1) {

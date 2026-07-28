@@ -208,8 +208,8 @@ public class Cloner {
 
     private static void registerCloner(String privateClass, ICloner<?> fastCloner) {
         try {
-            ClassLoader classLoader = Cloner.class.getClassLoader();
-            Class<?> subListClz = classLoader.loadClass(privateClass);
+            var classLoader = Cloner.class.getClassLoader();
+            var subListClz = classLoader.loadClass(privateClass);
             cloners.put(subListClz, fastCloner);
         } catch (ClassNotFoundException ignore) {
             // ignore, seems a jdk does not have mentioned private class
@@ -233,7 +233,7 @@ public class Cloner {
         if (source == null) {
             return null;
         }
-        Map<Object, Object> clones = new IdentityHashMap<>();
+        var clones = new IdentityHashMap<Object, Object>();
         return clone(source, clones);
     }
 
@@ -254,8 +254,8 @@ public class Cloner {
         }
 
         var cloner = getCloner(clazz);
-        Object instance = cloner.getInstance(source);
-        Object target = instance;
+        var instance = cloner.getInstance(source);
+        var target = instance;
         if (instance instanceof Wrapper w) {
             target = w.target;
             instance = w.unmodifiable;

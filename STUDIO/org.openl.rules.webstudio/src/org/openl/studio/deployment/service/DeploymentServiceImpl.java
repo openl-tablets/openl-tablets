@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
@@ -91,8 +90,8 @@ public class DeploymentServiceImpl implements DeploymentService {
         var repository = deploymentManager.getDeployRepository(config.getId());
         var basePath = deploymentManager.repositoryFactoryProxy.getBasePath(config.getId());
 
-        Map<String, Deployment> latestDeployments = new HashMap<>();
-        Map<String, Integer> versionsList = new HashMap<>();
+        var latestDeployments = new HashMap<String, Deployment>();
+        var versionsList = new HashMap<String, Integer>();
 
         Collection<FileData> fileDatas;
         if (repository.supports().folders()) {
@@ -103,11 +102,11 @@ public class DeploymentServiceImpl implements DeploymentService {
             fileDatas = repository.list(basePath);
         }
         for (FileData fileData : fileDatas) {
-            String deploymentFolderName = fileData.getName().substring(basePath.length()).split("/")[0];
-            int separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
+            var deploymentFolderName = fileData.getName().substring(basePath.length()).split("/")[0];
+            var separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
 
-            String deploymentName = deploymentFolderName;
-            int version = 0;
+            var deploymentName = deploymentFolderName;
+            var version = 0;
             CommonVersionImpl commonVersion;
             if (separatorPosition >= 0) {
                 deploymentName = deploymentFolderName.substring(0, separatorPosition);
@@ -116,20 +115,20 @@ public class DeploymentServiceImpl implements DeploymentService {
             } else {
                 commonVersion = new CommonVersionImpl(fileData.getVersion());
             }
-            Integer previous = versionsList.put(deploymentName, version);
+            var previous = versionsList.put(deploymentName, version);
             if (previous != null && previous > version) {
                 // rollback
                 versionsList.put(deploymentName, previous);
             } else {
                 // put the latest deployment
-                String folderPath = basePath + deploymentFolderName;
+                var folderPath = basePath + deploymentFolderName;
                 boolean folderStructure;
                 if (repository.supports().folders()) {
                     folderStructure = !repository.listFolders(folderPath + "/").isEmpty();
                 } else {
                     folderStructure = false;
                 }
-                Deployment deployment = new Deployment(repository,
+                var deployment = new Deployment(repository,
                         folderPath,
                         deploymentName,
                         commonVersion,

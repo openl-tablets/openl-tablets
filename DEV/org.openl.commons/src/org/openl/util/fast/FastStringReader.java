@@ -75,7 +75,7 @@ public class FastStringReader extends Reader {
         if (next >= length) {
             return -1;
         }
-        int n = Math.min(length - next, len);
+        var n = Math.min(length - next, len);
         str.getChars(next, next + n, cbuf, off);
         next += n;
         return n;
@@ -102,7 +102,7 @@ public class FastStringReader extends Reader {
             return 0;
         }
         // Bound skip by beginning and end of the source
-        long n = Math.min(length - next, ns);
+        var n = Math.min(length - next, ns);
         n = Math.max(-next, n);
         next += n;
         return n;

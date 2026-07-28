@@ -20,7 +20,7 @@ class TestUnitTest {
         when(test.getExpectedResult()).thenReturn(0.93);
         when(test.getFields()).thenReturn(Collections.singletonList(new ThisField(JavaOpenClass.DOUBLE)));
 
-        ITestUnit unit = new TestUnit(test, 0.93, null, 100);
+        var unit = new TestUnit(test, 0.93, null, 100);
 
         assertEquals(0.93, unit.getActualResult());
         assertEquals(TestStatus.TR_OK, unit.getResultStatus());

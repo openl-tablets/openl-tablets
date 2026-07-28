@@ -57,8 +57,8 @@ public class OpenLMessageSource {
     private Map<String, String> loadProperties(String basename) {
         var result = new HashMap<String, String>();
 
-        String propFileName = basename + ".properties";
-        URL url = classLoader.getResource(propFileName);
+        var propFileName = basename + ".properties";
+        var url = classLoader.getResource(propFileName);
         if (url != null) {
             try {
                 PropertiesUtils.load(url, result::put);
@@ -73,7 +73,7 @@ public class OpenLMessageSource {
             }
             if (urls != null) {
                 while (urls.hasMoreElements()) {
-                    URL url1 = urls.nextElement();
+                    var url1 = urls.nextElement();
                     try {
                         PropertiesUtils.load(url1, result::putIfAbsent);
                     } catch (IOException ex) {
@@ -98,10 +98,10 @@ public class OpenLMessageSource {
      * @return the message bundle
      */
     private MessageBundle loadMessageBundle(String basename, Locale locale) {
-        String language = locale.getLanguage();
-        String country = locale.getCountry();
-        String variant = locale.getVariant();
-        StringBuilder temp = new StringBuilder(basename);
+        var language = locale.getLanguage();
+        var country = locale.getCountry();
+        var variant = locale.getVariant();
+        var temp = new StringBuilder(basename);
 
         var properties = new HashMap<String, String>(getProperties(basename));
 
@@ -142,7 +142,7 @@ public class OpenLMessageSource {
             if (code == null) {
                 return null;
             }
-            String msg = properties.get(code);
+            var msg = properties.get(code);
             if (msg == null) {
                 return code;
             }

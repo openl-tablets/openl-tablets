@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 class ArrayInPropSectionTest extends BaseOpenlBuilderHelper {
 
@@ -18,8 +17,8 @@ class ArrayInPropSectionTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testLoadingArrayInPropertyTableSection() {
-        final String tableName = "Rules DoubleValue driverRiskScoreOverloadTest(String driverRisk)";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        final var tableName = "Rules DoubleValue driverRiskScoreOverloadTest(String driverRisk)";
+        var resultTsn = findTable(tableName);
 
         if (resultTsn != null) {
             assertEquals(resultTsn.getTableProperties().getTableProperties().size(),

@@ -6,14 +6,12 @@ import java.util.Optional;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
-import org.openl.meta.IMetaInfo;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenClassUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
 /**
@@ -33,26 +31,26 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
 
     @Override
     public Optional<NodeUsage> create(IBoundNode boundNode, String sourceString, int startIndex) {
-        ISyntaxNode syntaxNode = boundNode.getSyntaxNode();
+        var syntaxNode = boundNode.getSyntaxNode();
         if (boundNode instanceof ArrayInitializerNode) {
             syntaxNode = syntaxNode.getParent();
         }
         IdentifierNode identifierNode = getIdentifierNode(syntaxNode);
-        IOpenClass type = boundNode.getType();
+        var type = boundNode.getType();
         if (type == null || identifierNode == null || !"type.name".equals(identifierNode.getType())) {
             return Optional.empty();
         }
-        ILocation location = identifierNode.getSourceLocation();
+        var location = identifierNode.getSourceLocation();
         if (location == null || !location.isTextLocation()) {
             return Optional.empty();
         }
         IOpenClass componentOpenClass = OpenClassUtils.getRootComponentClass(type);
-        TextInfo textInfo = new TextInfo(sourceString);
-        int pstart = location.getStart().getAbsolutePosition(textInfo) + startIndex;
-        int pend = location.getEnd().getAbsolutePosition(textInfo) + startIndex + 1; // 1 - is because location returns
+        var textInfo = new TextInfo(sourceString);
+        var pstart = location.getStart().getAbsolutePosition(textInfo) + startIndex;
+        var pend = location.getEnd().getAbsolutePosition(textInfo) + startIndex + 1; // 1 - is because location returns
         // 'end' inclusively
         if (componentOpenClass instanceof JavaOpenClass) {
-            StringBuilder description = new StringBuilder();
+            var description = new StringBuilder();
             if (StringUtils.isNotBlank(componentOpenClass.getPackageName())) {
                 description.append(componentOpenClass.getPackageName()).append('\n');
             }
@@ -60,11 +58,11 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
             description.append(MethodUtil.printType(componentOpenClass));
             return Optional.of(new SimpleNodeUsage(pstart, pend, description.toString(), null, NodeType.OTHER));
         } else {
-            IMetaInfo typeMeta = componentOpenClass.getMetaInfo();
+            var typeMeta = componentOpenClass.getMetaInfo();
             if (typeMeta == null) {
                 return Optional.empty();
             }
-            SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(pstart,
+            var simpleNodeUsage = new SimpleNodeUsage(pstart,
                     pend,
                     typeMeta.getDisplayName(INamedThing.SHORT),
                     typeMeta.getSourceUrl(),
@@ -96,7 +94,7 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
     }
 
     static IdentifierNode getIdentifierNode(ISyntaxNode syntaxNode) {
-        ISyntaxNode res = syntaxNode;
+        var res = syntaxNode;
         while (res.getNumberOfChildren() > 0 && !(res instanceof IdentifierNode)) {
             res = res.getChild(0);
         }

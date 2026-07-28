@@ -14,7 +14,6 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
-import org.openl.CompiledOpenClass;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.runtime.RulesEngineFactory;
@@ -30,8 +29,6 @@ import org.openl.studio.projects.service.trace.TraceDebugger;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.studio.projects.service.trace.WatchCapture;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * Validates stack mapping and frame freezing against a real suspended debug session.
@@ -48,21 +45,21 @@ class TraceDebugMapperTest {
 
     @Test
     void mapsStackAndFreezesFrameVariables() {
-        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
-        IOpenClass module = compiled.getOpenClass();
-        IOpenMethod myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
+        var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        var module = compiled.getOpenClass();
+        var myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
         assertNotNull(myRule, "MyRule must compile");
 
-        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        var debugger = new TraceDebugger(DebugListener.NOOP);
         debugger.start("mapper-test", compiled.getClassLoader(), true, () -> {
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
             myRule.invoke(module.newInstance(env), new Object[0], env);
         });
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(10_000));
 
         try {
-            TraceDebugMapper mapper = mapper();
+            var mapper = mapper();
             List<DebugFrame> stack = debugger.stack();
 
             var stackView = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null);
@@ -91,14 +88,14 @@ class TraceDebugMapperTest {
 
     @Test
     void carriesPerFrameStepOutlineWithoutValues() {
-        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
-        IOpenClass module = compiled.getOpenClass();
-        IOpenMethod myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
+        var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        var module = compiled.getOpenClass();
+        var myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
         assertNotNull(myRule, "MyRule must compile");
 
-        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        var debugger = new TraceDebugger(DebugListener.NOOP);
         debugger.start("outline-test", compiled.getClassLoader(), true, () -> {
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
             myRule.invoke(module.newInstance(env), new Object[0], env);
         });
@@ -125,14 +122,14 @@ class TraceDebugMapperTest {
 
     @Test
     void buildsAFriendlyErrorWithTableAndTechnicalDetail() {
-        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
-        IOpenClass module = compiled.getOpenClass();
-        IOpenMethod myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
+        var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        var module = compiled.getOpenClass();
+        var myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
         assertNotNull(myRule, "MyRule must compile");
 
-        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        var debugger = new TraceDebugger(DebugListener.NOOP);
         debugger.start("error-mapper-test", compiled.getClassLoader(), true, () -> {
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
             myRule.invoke(module.newInstance(env), new Object[0], env);
         });
@@ -144,7 +141,7 @@ class TraceDebugMapperTest {
             List<DebugFrame> stack = debugger.stack();
 
             var errorView = TraceDebugMapper.toStackView(DebugStatus.ERROR, stack, new IllegalStateException("kaboom"));
-            DebugError error = errorView.error();
+            var error = errorView.error();
             assertNotNull(error, "an errored session carries a structured error");
             assertEquals("MyRule", error.table(), "the failing table is named");
             assertEquals("IllegalStateException", error.type(), "the technical type is exposed for drill-down");
@@ -224,7 +221,7 @@ class TraceDebugMapperTest {
     @Test
     void shapesStatsIntoSortedHotspots() {
         // Per-table stats already aggregated by the hook: B ran twice (self 50), C once (self 30), A once (20).
-        List<TableProfile> stats = List.of(
+        var stats = List.of(
                 new TableProfile("uA", "A", FrameKind.SPREADSHEET, 1, ms(20), ms(100)),
                 new TableProfile("uB", "B", FrameKind.SPREADSHEET, 2, ms(50), ms(50)),
                 new TableProfile("uC", "C", FrameKind.SPREADSHEET, 1, ms(30), ms(50)));
@@ -248,7 +245,7 @@ class TraceDebugMapperTest {
 
     @Test
     void capsHotspotsToTopWithoutFlaggingTruncation() {
-        List<TableProfile> stats = List.of(
+        var stats = List.of(
                 new TableProfile("uA", "A", FrameKind.SPREADSHEET, 1, ms(10), ms(60)),
                 new TableProfile("uB", "B", FrameKind.SPREADSHEET, 1, ms(30), ms(30)),
                 new TableProfile("uC", "C", FrameKind.SPREADSHEET, 1, ms(20), ms(20)));
@@ -263,7 +260,7 @@ class TraceDebugMapperTest {
 
     @Test
     void flagsTruncationWhenTheExecutedTreeHitTheNodeCap() {
-        List<TableProfile> stats = List.of(
+        var stats = List.of(
                 new TableProfile("uA", "A", FrameKind.SPREADSHEET, 1, ms(30), ms(60)),
                 new TableProfile("uB", "B", FrameKind.SPREADSHEET, 1, ms(30), ms(30)));
 
@@ -277,11 +274,11 @@ class TraceDebugMapperTest {
     @Test
     void pagesALoopsChildrenAtTheRequestedLimit() {
         // A single step that called table B 150 times in a loop.
-        List<CallNode> kids = new ArrayList<>();
-        for (int i = 0; i < 150; i++) {
+        var kids = new ArrayList<CallNode>();
+        for (var i = 0; i < 150; i++) {
             kids.add(leaf("uB", "B", 1));
         }
-        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(200),
+        var root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(200),
                 List.of(new CallNode.Step("R0C0", "$s", ms(200), kids)), null, null);
 
         var page = TraceDebugMapper.toChildrenView(root, "uA", 0, "R0C0", 0, 100);
@@ -335,7 +332,7 @@ class TraceDebugMapperTest {
 
     @Test
     void marksExpandableStepsWithTheirChildCountAndChildlessStepsWithout() {
-        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10),
+        var root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10),
                 List.of(new CallNode.Step("R0C0", "$called", ms(10), List.of(leaf("uB", "B", 5))),
                         new CallNode.Step("R1C0", "$plain", ms(1), List.of())), null, null);
 
@@ -352,8 +349,8 @@ class TraceDebugMapperTest {
 
     @Test
     void reportsDroppedSubCallsSoTheTruncationGapIsVisible() {
-        CallNode dropped = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null, 42, 0);
-        CallNode kept = new CallNode("uB", "B", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
+        var dropped = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null, 42, 0);
+        var kept = new CallNode("uB", "B", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
 
         assertEquals(42L, treeOf(dropped).notRetained(), "a node reports how many of its sub-calls were dropped");
         assertNull(treeOf(kept).notRetained(), "a node that kept every sub-call carries no dropped count");
@@ -366,7 +363,7 @@ class TraceDebugMapperTest {
 
     @Test
     void mapsTheCallNodeExecutionIndexSoALoopIterationCanBeReplayed() {
-        CallNode root = new CallNode("uA", "A", 7, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
+        var root = new CallNode("uA", "A", 7, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
 
         var view = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
                 StackRenderOptions.FULL, false);
@@ -377,7 +374,7 @@ class TraceDebugMapperTest {
 
     @Test
     void compactViewKeepsStepsOnlyOnTheActiveFrame() {
-        List<DebugFrame> stack = List.of(
+        var stack = List.of(
                 debugFrame(FrameKind.METHOD, "uRoot", "Root", 1),
                 debugFrame(FrameKind.SPREADSHEET, "uChild", "Child", 2));
 
@@ -395,7 +392,7 @@ class TraceDebugMapperTest {
 
     @Test
     void groupsWatchCapturesIntoPerCellSeriesInExecutionOrder() {
-        List<WatchCapture> captures = List.of(
+        var captures = List.of(
                 new WatchCapture("$Factor", "Cov", "uCov", 0, List.of("Root", "Cov"), "uCov#R2C0", 1.0),
                 new WatchCapture("$Factor", "Cov", "uCov", 1, List.of("Root", "Cov"), "uCov#R2C0", 83.372),
                 new WatchCapture("$Other", "Cov", "uCov", 0, List.of("Root", "Cov"), "uCov#R3C0", 2.0));
@@ -417,8 +414,8 @@ class TraceDebugMapperTest {
 
     @Test
     void capsWatchSeriesPointsButReportsTheFullTotal() {
-        List<WatchCapture> captures = new ArrayList<>();
-        for (int i = 0; i < 150; i++) {
+        var captures = new ArrayList<WatchCapture>();
+        for (var i = 0; i < 150; i++) {
             captures.add(new WatchCapture("$Loop", "T", "uT", i, List.of("T"), "uT#R0C0", i));
         }
 
@@ -431,7 +428,7 @@ class TraceDebugMapperTest {
 
     @Test
     void splitsTheSameCellNameInDifferentTablesIntoSeparateSeries() {
-        List<WatchCapture> captures = List.of(
+        var captures = List.of(
                 new WatchCapture("$X", "A", "uA", 0, List.of("A"), "uA#R0C0", 1),
                 new WatchCapture("$X", "B", "uB", 0, List.of("B"), "uB#R0C0", 2));
 
@@ -452,7 +449,7 @@ class TraceDebugMapperTest {
 
     /** Root A → step calls B and C; B → loop step calls D, E, F. Three levels, for the lazy-tree tests. */
     private static CallNode lazyTreeFixture() {
-        CallNode b = new CallNode("uB", "B", 0, FrameKind.SPREADSHEET, ms(10),
+        var b = new CallNode("uB", "B", 0, FrameKind.SPREADSHEET, ms(10),
                 List.of(new CallNode.Step("R1C1", "$loop", ms(10),
                         List.of(leaf("uD", "D", 1), leaf("uE", "E", 1), leaf("uF", "F", 1)))), null, null);
         return new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(20),

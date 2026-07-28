@@ -52,7 +52,7 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
     @Override
     public void addTo(ModuleOpenClass openClass) {
 
-        TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
+        var tableSyntaxNode = getTableSyntaxNode();
 
         field = new DataOpenField(table, openClass);
         openClass.addField(field);

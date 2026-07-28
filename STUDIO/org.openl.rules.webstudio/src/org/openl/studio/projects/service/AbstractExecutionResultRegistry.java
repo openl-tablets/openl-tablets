@@ -45,7 +45,7 @@ public abstract class AbstractExecutionResultRegistry<T> {
         Objects.requireNonNull(projectId, "projectId");
         Objects.requireNonNull(task, "task");
 
-        Entry<T> previous = ref.getAndSet(new Entry<>(projectId, tableId, task));
+        var previous = ref.<T>getAndSet(new Entry<T>(projectId, tableId, task));
         if (previous != null && !previous.task.isDone()) {
             previous.task.cancel(true);
         }
@@ -66,7 +66,7 @@ public abstract class AbstractExecutionResultRegistry<T> {
      * Cancels the task if it's still running.
      */
     public void clear() {
-        Entry<T> e = ref.getAndSet(null);
+        var e = ref.<T>getAndSet(null);
         if (e != null && !e.task().isDone()) {
             e.task().cancel(true);
         }

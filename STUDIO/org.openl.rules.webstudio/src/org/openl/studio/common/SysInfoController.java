@@ -2,7 +2,6 @@ package org.openl.studio.common;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,7 +44,7 @@ public class SysInfoController {
     @RequestMapping(value = "/public/info/http.json")
     public Map<Object, Object> getHttpInfo(HttpServletRequest request,
                                            @Parameter(hidden = true) @RequestHeader HttpHeaders headers) {
-        LinkedHashMap<Object, Object> info = new LinkedHashMap<>();
+        var info = new LinkedHashMap<Object, Object>();
 
         info.put("Protocol", request.getProtocol());
         info.put("Method", request.getMethod());
@@ -70,8 +69,8 @@ public class SysInfoController {
         info.put("QueryString", request.getQueryString());
         info.put("Parameters", request.getParameterMap());
 
-        ServletContext servletContext = request.getServletContext();
-        LinkedHashMap<Object, Object> context = new LinkedHashMap<>();
+        var servletContext = request.getServletContext();
+        var context = new LinkedHashMap<Object, Object>();
         context.put("ContextPath", servletContext.getContextPath());
         context.put("ServerInfo", servletContext.getServerInfo());
         context.put("ServletContextName", servletContext.getServletContextName());

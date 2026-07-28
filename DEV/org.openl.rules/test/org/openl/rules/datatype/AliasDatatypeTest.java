@@ -44,7 +44,7 @@ class AliasDatatypeTest {
     void test1() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
-        int res = instance.test1("CA");
+        var res = instance.test1("CA");
         assertEquals(1, res);
     }
 
@@ -52,7 +52,7 @@ class AliasDatatypeTest {
     void test11() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
-        int res = instance.testStringAliasType("CA");
+        var res = instance.testStringAliasType("CA");
         assertEquals(1, res);
     }
 
@@ -69,7 +69,7 @@ class AliasDatatypeTest {
     void test3() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
-        int res = instance.test2(1);
+        var res = instance.test2(1);
         assertEquals(3, res);
     }
 
@@ -77,7 +77,7 @@ class AliasDatatypeTest {
     void test31() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
-        int res = instance.testIntAliasType(1);
+        var res = instance.testIntAliasType(1);
         assertEquals(3, res);
     }
 
@@ -94,7 +94,7 @@ class AliasDatatypeTest {
     void test41() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
-        int res = instance.testIntRangeAliasType2(15);
+        var res = instance.testIntRangeAliasType2(15);
         assertEquals(1, res);
 
         res = instance.testIntRangeAliasType2(1000);
@@ -114,7 +114,7 @@ class AliasDatatypeTest {
     void test6() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
-        int res = instance.method2();
+        var res = instance.method2();
         assertEquals(1, res);
     }
 
@@ -122,7 +122,7 @@ class AliasDatatypeTest {
     void test7() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
-        boolean res = instance.method3(5);
+        var res = instance.method3(5);
         assertTrue(res);
 
         res = instance.method3(-1);
@@ -133,10 +133,10 @@ class AliasDatatypeTest {
     void test8() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
-        String res = instance.method4("New York");
+        var res = instance.method4("New York");
         assertEquals("New York", res);
 
-        String res2 = instance.method5("New York");
+        var res2 = instance.method5("New York");
         assertEquals("New York", res2);
     }
 
@@ -144,7 +144,7 @@ class AliasDatatypeTest {
     void testArrays() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
-        int res = instance.testAliasTypeAsArrays("AR");
+        var res = instance.testAliasTypeAsArrays("AR");
         assertEquals(1, res);
 
         res = instance.testAliasTypeAsArrays("NY");

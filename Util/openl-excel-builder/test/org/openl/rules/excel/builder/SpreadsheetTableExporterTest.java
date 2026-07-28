@@ -12,14 +12,10 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
-import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
@@ -33,23 +29,23 @@ class SpreadsheetTableExporterTest {
 
     @Test
     void testSpreadsheetExport() throws IOException {
-        SpreadsheetModel resultModel = new SpreadsheetModel();
+        var resultModel = new SpreadsheetModel();
         resultModel.setType("Double");
         resultModel.setName("TestDoubleSpr");
 
-        InputParameter inputParameter = new ParameterModel(new TypeInfo(String.class), "name");
+        var inputParameter = new ParameterModel(new TypeInfo(String.class), "name");
         resultModel.setParameters(Collections.singletonList(inputParameter));
-        StepModel doubleStep = new StepModel("simpleCalculation", "Double", "=0.0d");
-        StepModel stringStep = new StepModel("calculateName", "String", "=" + "\"\"");
-        StepModel sprStep = new StepModel("calculateIndex", "IndexCalculation", "=new IndexCalculation()");
-        StepModel booleanStep = new StepModel("booleanStep", "Boolean", "=false");
-        StepModel dateStep = new StepModel("dateStep", "Date", "=new Date()");
-        StepModel integerStep = new StepModel("integerStep", "Integer", "=0");
-        StepModel longStep = new StepModel("longStep", "Long", "=0L");
+        var doubleStep = new StepModel("simpleCalculation", "Double", "=0.0d");
+        var stringStep = new StepModel("calculateName", "String", "=" + "\"\"");
+        var sprStep = new StepModel("calculateIndex", "IndexCalculation", "=new IndexCalculation()");
+        var booleanStep = new StepModel("booleanStep", "Boolean", "=false");
+        var dateStep = new StepModel("dateStep", "Date", "=new Date()");
+        var integerStep = new StepModel("integerStep", "Integer", "=0");
+        var longStep = new StepModel("longStep", "Long", "=0L");
         resultModel
                 .setSteps(Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, integerStep, longStep));
 
-        ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
+        var projectModel = new ProjectModel(TEST_PROJECT,
                 false,
                 Collections.emptySet(),
                 Collections.emptyList(),
@@ -58,80 +54,80 @@ class SpreadsheetTableExporterTest {
 
         ExcelFileBuilder.generateProject(projectModel);
 
-        try (XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream("../openl-excel-builder/spr_test_project.xlsx"))) {
-            XSSFSheet dtsSheet = wb.getSheet(SPR_RESULT_SHEET);
+        try (var wb = new XSSFWorkbook(new FileInputStream("../openl-excel-builder/spr_test_project.xlsx"))) {
+            var dtsSheet = wb.getSheet(SPR_RESULT_SHEET);
             assertNotNull(dtsSheet);
-            XSSFRow headerRow = dtsSheet.getRow(TOP_MARGIN);
+            var headerRow = dtsSheet.getRow(TOP_MARGIN);
             assertNotNull(headerRow);
-            String headerText = headerRow.getCell(1).getStringCellValue();
+            var headerText = headerRow.getCell(1).getStringCellValue();
             assertEquals("Spreadsheet Double TestDoubleSpr ( String name )", headerText);
-            XSSFRow sprSubHeaderRow = dtsSheet.getRow(TOP_MARGIN + 1);
+            var sprSubHeaderRow = dtsSheet.getRow(TOP_MARGIN + 1);
             assertNotNull(sprSubHeaderRow);
-            XSSFCell stepHeaderCell = sprSubHeaderRow.getCell(1);
+            var stepHeaderCell = sprSubHeaderRow.getCell(1);
             assertNotNull(stepHeaderCell);
             assertEquals("Step", stepHeaderCell.getStringCellValue());
-            XSSFCell valueHeaderCell = sprSubHeaderRow.getCell(2);
+            var valueHeaderCell = sprSubHeaderRow.getCell(2);
             assertNotNull(valueHeaderCell);
             assertEquals("Formula", valueHeaderCell.getStringCellValue());
 
-            XSSFRow firstStepRow = dtsSheet.getRow(TOP_MARGIN + 2);
+            var firstStepRow = dtsSheet.getRow(TOP_MARGIN + 2);
             assertNotNull(firstStepRow);
-            XSSFCell nameCell = firstStepRow.getCell(1);
+            var nameCell = firstStepRow.getCell(1);
             assertNotNull(nameCell);
             assertEquals("simpleCalculation", nameCell.getStringCellValue());
-            XSSFCell valueCell = firstStepRow.getCell(2);
+            var valueCell = firstStepRow.getCell(2);
             assertNotNull(valueCell);
             assertEquals("=0.0d", valueCell.getStringCellValue());
 
-            XSSFRow secondStepRow = dtsSheet.getRow(TOP_MARGIN + 3);
+            var secondStepRow = dtsSheet.getRow(TOP_MARGIN + 3);
             assertNotNull(secondStepRow);
-            XSSFCell secondNameCell = secondStepRow.getCell(1);
+            var secondNameCell = secondStepRow.getCell(1);
             assertNotNull(secondNameCell);
             assertEquals("calculateName", secondNameCell.getStringCellValue());
-            XSSFCell secondValueCell = secondStepRow.getCell(2);
+            var secondValueCell = secondStepRow.getCell(2);
             assertNotNull(secondValueCell);
             assertEquals("=\"\"", secondValueCell.getStringCellValue());
 
-            XSSFRow sprCallStepRow = dtsSheet.getRow(TOP_MARGIN + 4);
+            var sprCallStepRow = dtsSheet.getRow(TOP_MARGIN + 4);
             assertNotNull(sprCallStepRow);
-            XSSFCell sprNameCell = sprCallStepRow.getCell(1);
+            var sprNameCell = sprCallStepRow.getCell(1);
             assertNotNull(sprNameCell);
             assertEquals("calculateIndex", sprNameCell.getStringCellValue());
-            XSSFCell sprCellCall = sprCallStepRow.getCell(2);
+            var sprCellCall = sprCallStepRow.getCell(2);
             assertNotNull(sprCellCall);
             assertEquals("=new IndexCalculation()", sprCellCall.getStringCellValue());
 
-            XSSFRow booleanRow = dtsSheet.getRow(TOP_MARGIN + 5);
+            var booleanRow = dtsSheet.getRow(TOP_MARGIN + 5);
             assertNotNull(booleanRow);
-            XSSFCell boolCell = booleanRow.getCell(1);
+            var boolCell = booleanRow.getCell(1);
             assertNotNull(boolCell);
             assertEquals("booleanStep", boolCell.getStringCellValue());
-            XSSFCell boolValueCell = booleanRow.getCell(2);
+            var boolValueCell = booleanRow.getCell(2);
             assertNotNull(boolValueCell);
             assertEquals("=false", boolValueCell.getStringCellValue());
 
-            XSSFRow dateRow = dtsSheet.getRow(TOP_MARGIN + 6);
+            var dateRow = dtsSheet.getRow(TOP_MARGIN + 6);
             assertNotNull(dateRow);
-            XSSFCell dateNameCell = dateRow.getCell(1);
+            var dateNameCell = dateRow.getCell(1);
             assertNotNull(dateNameCell);
             assertEquals("dateStep", dateNameCell.getStringCellValue());
-            XSSFCell dateValueCell = dateRow.getCell(2);
+            var dateValueCell = dateRow.getCell(2);
             assertEquals("=new Date()", dateValueCell.getStringCellValue());
 
-            XSSFRow integerStepRow = dtsSheet.getRow(TOP_MARGIN + 7);
+            var integerStepRow = dtsSheet.getRow(TOP_MARGIN + 7);
             assertNotNull(integerStepRow);
-            XSSFCell integerNameCell = integerStepRow.getCell(1);
+            var integerNameCell = integerStepRow.getCell(1);
             assertNotNull(integerNameCell);
             assertEquals("integerStep", integerNameCell.getStringCellValue());
-            XSSFCell integerValueCell = integerStepRow.getCell(2);
+            var integerValueCell = integerStepRow.getCell(2);
             assertEquals("=0", integerValueCell.getStringCellValue());
 
-            XSSFRow longStepRow = dtsSheet.getRow(TOP_MARGIN + 8);
+            var longStepRow = dtsSheet.getRow(TOP_MARGIN + 8);
             assertNotNull(longStepRow);
-            XSSFCell longNameCell = longStepRow.getCell(1);
+            var longNameCell = longStepRow.getCell(1);
             assertNotNull(longNameCell);
             assertEquals("longStep", longNameCell.getStringCellValue());
-            XSSFCell longValueCell = longStepRow.getCell(2);
+            var longValueCell = longStepRow.getCell(2);
             assertEquals("=0L", longValueCell.getStringCellValue());
         }
 
@@ -139,8 +135,8 @@ class SpreadsheetTableExporterTest {
 
     @AfterAll
     static void clean() throws IOException {
-        File dir = new File("../openl-excel-builder");
-        File[] files = dir.listFiles();
+        var dir = new File("../openl-excel-builder");
+        var files = dir.listFiles();
         assertNotNull(files);
         for (File file : files) {
             if (file.getName().equals("spr_test_project.xlsx")) {

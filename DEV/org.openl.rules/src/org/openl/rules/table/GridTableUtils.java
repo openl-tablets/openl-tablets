@@ -18,7 +18,7 @@ public class GridTableUtils {
      * @return Original table if table is decorator and current table otherwise.
      */
     public static IGridTable getOriginalTable(IGridTable table) {
-        IGridTable resultTable = table;
+        var resultTable = table;
 
         while (resultTable instanceof AGridTableDecorator) {
             resultTable = ((AGridTableDecorator) resultTable).getOriginalGridTable();
@@ -34,14 +34,14 @@ public class GridTableUtils {
      * @return a the regions of the table.
      */
     public static List<IGridRegion> getGridRegions(ILogicalTable table) {
-        int height = table.getHeight();
-        int width = table.getWidth();
-        List<IGridRegion> regions = new ArrayList<>();
+        var height = table.getHeight();
+        var width = table.getWidth();
+        var regions = new ArrayList<IGridRegion>();
 
         // Go through all possible cells
-        for (int row = 0; row < height; row++) {
-            for (int column = 0; column < width; column++) {
-                ICell cell = table.getCell(column, row);
+        for (var row = 0; row < height; row++) {
+            for (var column = 0; column < width; column++) {
+                var cell = table.getCell(column, row);
                 regions.add(cell.getAbsoluteRegion());
             }
         }

@@ -21,7 +21,7 @@ public class CXFServlet extends CXFNonSpringServlet {
     @Override
     protected void loadBus(ServletConfig servletConfig) {
         ApplicationContext ac = SpringInitializer.getApplicationContext(servletConfig.getServletContext());
-        Bus cxf = ac.getBean("cxf", Bus.class);
+        var cxf = ac.getBean("cxf", Bus.class);
         setBus(cxf);
     }
 

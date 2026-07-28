@@ -17,7 +17,6 @@ import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.types.IOpenField;
-import org.openl.types.IParameterDeclaration;
 
 /**
  * Provides access to the elements of the Decision table as data.
@@ -82,19 +81,19 @@ public class DecisionTableDataType extends ComponentOpenClass {
         }
         if (conditionParameterFields != null && !conditionParameterFields.isEmpty()) {
             if (conditionParameterFields.size() == 1) {
-                IOpenField f = conditionParameterFields.getFirst();
+                var f = conditionParameterFields.getFirst();
                 if (traceUsedFields) {
                     usedFields.add(f);
                 }
                 return f;
             } else {
-                List<IOpenField> decisionRowFields = conditionParameterFields.stream()
+                var decisionRowFields = conditionParameterFields.stream()
                         .filter(e -> e instanceof DecisionRowField)
                         .collect(Collectors.toList());
                 if (decisionRowFields.size() != 1) {
                     throw new AmbiguousFieldException(fname, conditionParameterFields);
                 } else {
-                    IOpenField f = decisionRowFields.getFirst();
+                    var f = decisionRowFields.getFirst();
                     if (traceUsedFields) {
                         usedFields.add(f);
                     }
@@ -125,13 +124,13 @@ public class DecisionTableDataType extends ComponentOpenClass {
     }
 
     private void addParameterFields(DecisionTable decisionTable, IDecisionRow decisionRow) {
-        ConditionOrActionDataType dataType = new ConditionOrActionDataType(decisionRow, this.getOpenl());
-        DecisionRowField decisionRowField = new DecisionRowField(decisionTable, decisionRow, dataType, this);
+        var dataType = new ConditionOrActionDataType(decisionRow, this.getOpenl());
+        var decisionRowField = new DecisionRowField(decisionTable, decisionRow, dataType, this);
         addDecisionTableField(decisionRowField);
-        IParameterDeclaration[] pdd = decisionRow.getParams();
-        for (int i = 0; i < pdd.length; i++) {
+        var pdd = decisionRow.getParams();
+        for (var i = 0; i < pdd.length; i++) {
             if (pdd[i] != null) {
-                IOpenField f = new ConditionOrActionDirectParameterField(decisionTable, decisionRow, i, this);
+                var f = new ConditionOrActionDirectParameterField(decisionTable, decisionRow, i, this);
                 addDecisionTableField(f);
             }
         }

@@ -11,12 +11,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -111,12 +109,12 @@ class ProjectFilesServiceImplVersionGitTest {
     }
 
     private void seedRemoteRepository() throws GitAPIException, IOException {
-        try (Git git = Git.init().setDirectory(remoteRoot).call()) {
-            File rootDir = git.getRepository().getDirectory().getParentFile();
+        try (var git = Git.init().setDirectory(remoteRoot).call()) {
+            var rootDir = git.getRepository().getDirectory().getParentFile();
 
             writeFile(new File(rootDir, FILE_PATH), "version one");
             git.add().addFilepattern(".").call();
-            RevCommit first = git.commit()
+            var first = git.commit()
                     .setMessage("Add sample")
                     .setCommitter("Test", "test@openl.org")
                     .call();
@@ -124,7 +122,7 @@ class ProjectFilesServiceImplVersionGitTest {
 
             writeFile(new File(rootDir, FILE_PATH), "version two");
             git.add().addFilepattern(".").call();
-            RevCommit second = git.commit()
+            var second = git.commit()
                     .setMessage("Update sample")
                     .setCommitter("Test", "test@openl.org")
                     .call();
@@ -143,8 +141,8 @@ class ProjectFilesServiceImplVersionGitTest {
     }
 
     private static void writeFile(File file, String content) throws IOException {
-        Path path = file.toPath();
-        Path parent = path.getParent();
+        var path = file.toPath();
+        var parent = path.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
         }

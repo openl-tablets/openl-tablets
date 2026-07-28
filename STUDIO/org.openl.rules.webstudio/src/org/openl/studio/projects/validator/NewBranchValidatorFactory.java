@@ -27,8 +27,8 @@ public class NewBranchValidatorFactory implements Function<BranchRepository, New
     @Override
     public NewBranchValidator apply(BranchRepository branchRepository) {
         var key_prefix = Comments.REPOSITORY_PREFIX + branchRepository.getId();
-        String customRegex = environment.getProperty(key_prefix + ".new-branch.regex");
-        String customRegexError = environment.getProperty(key_prefix + ".new-branch.regex-error");
+        var customRegex = environment.getProperty(key_prefix + ".new-branch.regex");
+        var customRegexError = environment.getProperty(key_prefix + ".new-branch.regex-error");
         return new NewBranchValidator(branchRepository, customRegex, customRegexError);
     }
 }

@@ -4,12 +4,8 @@ import java.util.Date;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.openl.rules.lang.xls.load.CellLoader;
@@ -55,15 +51,15 @@ public class XlsCell implements ICell {
 
     @Override
     public ICellStyle getStyle() {
-        Cell cell = getCell();
+        var cell = getCell();
         if (cell == null) {
             return null;
         }
-        CellStyle style = cell.getCellStyle();
+        var style = cell.getCellStyle();
         if (style == null) {
             return null;
         }
-        Workbook workbook = gridModel.getSheetSource().getSheet().getWorkbook();
+        var workbook = gridModel.getSheetSource().getSheet().getWorkbook();
         return new XlsCellStyle(style, workbook);
     }
 
@@ -79,7 +75,7 @@ public class XlsCell implements ICell {
 
     @Override
     public IGridRegion getAbsoluteRegion() {
-        IGridRegion absoluteRegion = getRegion();
+        var absoluteRegion = getRegion();
         if (absoluteRegion == null) {
             absoluteRegion = new GridRegion(row, column, row, column);
         }
@@ -93,11 +89,11 @@ public class XlsCell implements ICell {
 
     @Override
     public ICellFont getFont() {
-        Cell cell = getCell();
+        var cell = getCell();
         if (cell == null) {
             return null;
         }
-        Font font = gridModel.getSheetSource()
+        var font = gridModel.getSheetSource()
                 .getSheet()
                 .getWorkbook()
                 .getFontAt(cell.getCellStyle().getFontIndexAsInt());
@@ -132,14 +128,14 @@ public class XlsCell implements ICell {
             // In other case get string value of top left cell of the region.
             return extractCellValue();
         } else {
-            ICell topLeftCell = getTopLeftCellFromRegion();
+            var topLeftCell = getTopLeftCellFromRegion();
             return topLeftCell.getObjectValue();
         }
     }
 
     @Override
     public String getStringValue() {
-        Object res = getObjectValue();
+        var res = getObjectValue();
         return res == null ? null : String.valueOf(res);
     }
 
@@ -150,20 +146,20 @@ public class XlsCell implements ICell {
     @Override
     public ICell getTopLeftCellFromRegion() {
         // Gets the top left cell in this region
-        int row = region.getTop();
-        int col = region.getLeft();
+        var row = region.getTop();
+        var col = region.getLeft();
         return gridModel.getCell(col, row);
     }
 
     private boolean isCurrentCellATopLeftCellInRegion() {
-        ICell topLeftCell = getTopLeftCellFromRegion();
+        var topLeftCell = getTopLeftCellFromRegion();
         return topLeftCell.getColumn() == this.column && topLeftCell.getRow() == this.row;
     }
 
     private Object extractCellValue() {
-        Cell cell = getCell();
+        var cell = getCell();
         if (cell != null) {
-            CellType type = cell.getCellType();
+            var type = cell.getCellType();
             if (type == CellType.FORMULA) {
                 // Replace IGrid.CELL_TYPE_FORMULA with the type from the formula result
                 type = cell.getCachedFormulaResultType();
@@ -178,7 +174,7 @@ public class XlsCell implements ICell {
                     if (DateUtil.isCellDateFormatted(cell)) {
                         return cell.getDateCellValue();
                     }
-                    double value = cell.getNumericCellValue();
+                    var value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
                 case STRING:
                     String str = StringUtils.trimToNull(cell.getStringCellValue());
@@ -192,26 +188,26 @@ public class XlsCell implements ICell {
 
     @Override
     public String getFormula() {
-        Cell cell = getCell();
+        var cell = getCell();
         if (cell == null && region == null) {
             return null;
         } else if (region == null || isCurrentCellATopLeftCellInRegion()) {
             return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
         } else {
-            ICell topLeftCell = getTopLeftCellFromRegion();
+            var topLeftCell = getTopLeftCellFromRegion();
             return topLeftCell.getType() == IGrid.CELL_TYPE_FORMULA ? topLeftCell.getFormula() : null;
         }
     }
 
     @Override
     public int getType() {
-        Cell cell = getCell();
+        var cell = getCell();
         if (cell == null && region == null) {
             return IGrid.CELL_TYPE_BLANK;
         } else if (region == null || isCurrentCellATopLeftCellInRegion()) {
             return getIGridCellType(cell.getCellType());
         } else {
-            ICell topLeftCell = getTopLeftCellFromRegion();
+            var topLeftCell = getTopLeftCellFromRegion();
             return topLeftCell.getType();
         }
 
@@ -229,7 +225,7 @@ public class XlsCell implements ICell {
 
     @Override
     public double getNativeNumber() {
-        Cell cell = getCell();
+        var cell = getCell();
         if (cell == null) {
             return 0;
         }
@@ -238,12 +234,12 @@ public class XlsCell implements ICell {
 
     @Override
     public int getNativeType() {
-        Cell cell = getCell();
+        var cell = getCell();
         if (cell == null) {
             return IGrid.CELL_TYPE_BLANK;
         }
 
-        CellType type = cell.getCellType();
+        var type = cell.getCellType();
         if (type == CellType.FORMULA) {
             return getIGridCellType(cell.getCachedFormulaResultType());
         }
@@ -261,7 +257,7 @@ public class XlsCell implements ICell {
      */
     @Override
     public Date getNativeDate() {
-        Cell cell = getCell();
+        var cell = getCell();
         if (cell == null) {
             return null;
         }
@@ -272,8 +268,8 @@ public class XlsCell implements ICell {
             } catch (NumberFormatException npe) {
                 throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
             }
-            Workbook workbook = cell.getSheet().getWorkbook();
-            boolean date1904 = false;
+            var workbook = cell.getSheet().getWorkbook();
+            var date1904 = false;
             if (workbook instanceof XSSFWorkbook fWorkbook1) {
                 date1904 = fWorkbook1.isDate1904();
             } else if (workbook instanceof HSSFWorkbook fWorkbook) {
@@ -291,13 +287,13 @@ public class XlsCell implements ICell {
 
     @Override
     public ICellComment getComment() {
-        Cell cell = getCell();
+        var cell = getCell();
         if (cell != null) {
-            Comment comment = cell.getCellComment();
+            var comment = cell.getCellComment();
             if (comment != null) {
                 return new XlsCellComment(comment);
             } else if (region != null && !isCurrentCellATopLeftCellInRegion()) {
-                ICell topLeftCell = getTopLeftCellFromRegion();
+                var topLeftCell = getTopLeftCellFromRegion();
                 return topLeftCell.getComment();
             }
         }

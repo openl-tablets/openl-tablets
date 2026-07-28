@@ -15,7 +15,7 @@ public class MatchAlgorithmFactory {
 
     static {
         // add well-known algorithms
-        IMatchAlgorithmCompilerBuilder matchBuilder = new MatchAlgorithmCompilerBuilder();
+        var matchBuilder = new MatchAlgorithmCompilerBuilder();
         registerBuilder("MATCH", matchBuilder);
         registerBuilder("WEIGHTED", new WeightAlgorithmCompilerBuilder());
         registerBuilder("SCORE", new ScoreAlgorithmCompilerBuilder());

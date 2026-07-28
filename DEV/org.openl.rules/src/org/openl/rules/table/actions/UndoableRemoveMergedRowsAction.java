@@ -17,8 +17,8 @@ public class UndoableRemoveMergedRowsAction extends UndoableRemoveRowsAction {
 
     @Override
     protected int getNumberToRemove(IGridTable table) {
-        int cellHeight = getOriginalTable(table).getCell(col, startRow).getHeight();
-        int numberToRemove = nRows;
+        var cellHeight = getOriginalTable(table).getCell(col, startRow).getHeight();
+        var numberToRemove = nRows;
         if (cellHeight > 1) { // merged cell
             numberToRemove += cellHeight - 1;
         }

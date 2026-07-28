@@ -20,9 +20,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -42,14 +40,14 @@ public class WorkspaceCompileController {
         var response = TableTestsInfo.builder();
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         if (webStudio != null) {
-            List<TableBean.TableDescription> tableDescriptions = new ArrayList<>();
-            ProjectModel model = webStudio.getModel();
-            IOpenLTable table = model.getTableById(tableId);
+            var tableDescriptions = new ArrayList<TableBean.TableDescription>();
+            var model = webStudio.getModel();
+            var table = model.getTableById(tableId);
             if (table != null) {
-                IOpenMethod[] allTests = model.getTestAndRunMethods(table.getUri(), false);
+                var allTests = model.getTestAndRunMethods(table.getUri(), false);
                 if (allTests != null) {
                     for (IOpenMethod test : allTests) {
-                        TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
+                        var syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
                         tableDescriptions
                                 .add(new TableBean.TableDescription(webStudio.url("table", syntaxNode.getUri()),
                                         syntaxNode.getId(),
@@ -73,13 +71,13 @@ public class WorkspaceCompileController {
         if (webStudio == null) {
             return response.build();
         }
-        ProjectModel model = webStudio.getModel();
-        IOpenLTable table = model.getTableById(tableId);
-        final boolean projectCompilationCompleted = model.isProjectCompilationCompleted();
+        var model = webStudio.getModel();
+        var table = model.getTableById(tableId);
+        final var projectCompilationCompleted = model.isProjectCompilationCompleted();
         TableRunState state = !projectCompilationCompleted ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN;
         if (table != null) {
-            String tableUri = table.getUri();
-            List<OpenLMessage> errors = model.getOpenedModuleMessagesByTsn(tableUri, Severity.ERROR);
+            var tableUri = table.getUri();
+            var errors = model.getOpenedModuleMessagesByTsn(tableUri, Severity.ERROR);
             List<OpenLMessage> warnings;
             if (!errors.isEmpty()) {
                 state = TableRunState.CANNOT_RUN;
@@ -106,7 +104,7 @@ public class WorkspaceCompileController {
             }
 
             // if the current table is a test then check tested target tables on errors.
-            List<Pair<String, TableBean.TableDescription>> targetTableUrlPairs = new ArrayList<>();
+            var targetTableUrlPairs = new ArrayList<Pair<String, TableBean.TableDescription>>();
             for (TableBean.TableDescription targetTable : OpenLTableLogic
                     .getTargetTables(table, model, !projectCompilationCompleted)) {
                 targetTableUrlPairs.add(Pair.of(webStudio.url("table", targetTable.getUri()), targetTable));
@@ -138,7 +136,7 @@ public class WorkspaceCompileController {
         if (webStudio == null || webStudio.getModel() == null) {
             return new TableUrl(null);
         }
-        IOpenLTable table = webStudio.getModel().getTableById(tableId);
+        var table = webStudio.getModel().getTableById(tableId);
         return new TableUrl(table == null ? null : webStudio.url("table", table.getUri()));
     }
 

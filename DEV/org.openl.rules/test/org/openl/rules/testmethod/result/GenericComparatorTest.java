@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class GenericComparatorTest {
     @Test
     void test() {
-        GenericComparator comparator = new GenericComparator();
+        var comparator = new GenericComparator();
         assertTrue(comparator.isEqual(null, null));
         assertTrue(comparator.isEqual(10, 10));
         assertFalse(comparator.isEqual(null, "hello"));

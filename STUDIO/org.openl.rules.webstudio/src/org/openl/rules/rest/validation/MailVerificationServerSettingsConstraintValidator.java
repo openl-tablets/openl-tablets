@@ -1,6 +1,5 @@
 package org.openl.rules.rest.validation;
 
-import jakarta.mail.Transport;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -38,7 +37,7 @@ public class MailVerificationServerSettingsConstraintValidator implements Constr
         }
 
         // Finally, try to connect to the mail server to validate settings
-        try (Transport transport = mailSender.getTransport(value.getUrl(), value.getUsername(), value.getPassword())) {
+        try (var transport = mailSender.getTransport(value.getUrl(), value.getUsername(), value.getPassword())) {
             return transport.isConnected();
         } catch (Exception e) {
             log.warn("Error on changing email server configuration: ", e);

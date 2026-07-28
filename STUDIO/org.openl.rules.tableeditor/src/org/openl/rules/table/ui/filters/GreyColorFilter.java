@@ -18,7 +18,7 @@ public class GreyColorFilter implements IColorFilter {
             color = BLACK;
         }
 
-        int avg = (color[0] + color[1] + color[2]) / 3;
+        var avg = (color[0] + color[1] + color[2]) / 3;
 
         avg = (int) (avg * brightness);
 

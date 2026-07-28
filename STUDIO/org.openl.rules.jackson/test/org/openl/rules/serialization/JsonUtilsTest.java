@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,7 +32,7 @@ class JsonUtilsTest {
         Object[][] results = new Object[][]{new Object[]{"ROW1COLUMN1", "ROW1COLUMN2"},
                 new Object[]{"ROW2COLUMN1", "ROW2COLUMN2"}};
 
-        SpreadsheetResult spreadsheetResult = new SpreadsheetResult();
+        var spreadsheetResult = new SpreadsheetResult();
         spreadsheetResult.setColumnNames(columnNames);
         spreadsheetResult.setRowNames(rowNames);
         spreadsheetResult.setResults(results);
@@ -70,7 +69,7 @@ class JsonUtilsTest {
 
     @Test
     void fromJSONTest() throws IOException {
-        final Car expected = new Car("BMW", null);
+        final var expected = new Car("BMW", null);
         assertEquals(expected, JsonUtils.fromJSON("{\"model\":\"BMW\",\"year\":null}", Car.class));
         assertEquals(expected,
                 JsonUtils.fromJSON("{\"model\":\"BMW\",\"year\":null}", Car.class, new Class[]{Car.class}));
@@ -83,7 +82,7 @@ class JsonUtilsTest {
 
     @Test
     void splitJSONTest() throws IOException {
-        Map<String, String> actual = JsonUtils.splitJSON("{\"context\":{}, \"car\":{\"model\":\"BMW\",\"year\":null}}");
+        var actual = JsonUtils.splitJSON("{\"context\":{}, \"car\":{\"model\":\"BMW\",\"year\":null}}");
         assertNotNull(actual);
         assertEquals(2, actual.size());
         assertEquals("{}", actual.get("context"));
@@ -129,7 +128,7 @@ class JsonUtilsTest {
                 return true;
             if (o == null || getClass() != o.getClass())
                 return false;
-            Car car = (Car) o;
+            var car = (Car) o;
             return Objects.equals(model, car.model) && Objects.equals(year, car.year);
         }
 
@@ -154,14 +153,14 @@ class JsonUtilsTest {
 
     @Test
     void getObjectMapperTest_notNull() {
-        KeyClass key = new KeyClass("Project1");
+        var key = new KeyClass("Project1");
         ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
         assertNotNull(objectMapper1);
     }
 
     @Test
     void getObjectMapperTest_Cached() {
-        KeyClass key = new KeyClass("Project2");
+        var key = new KeyClass("Project2");
         ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
         assertNotNull(objectMapper1);
         ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
@@ -171,7 +170,7 @@ class JsonUtilsTest {
 
     @Test
     void getObjectMapperTest_GC_keep() {
-        KeyClass key = new KeyClass("Project3");
+        var key = new KeyClass("Project3");
         ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
         Runtime rt = Runtime.getRuntime();
         rt.gc();
@@ -186,7 +185,7 @@ class JsonUtilsTest {
 
     @Test
     void getObjectMapperTest_GC_no_longer() {
-        KeyClass key = new KeyClass("Project4");
+        var key = new KeyClass("Project4");
         ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
         Runtime rt = Runtime.getRuntime();
         key = null;
@@ -203,9 +202,9 @@ class JsonUtilsTest {
 
     @Test
     void splitJSONTest_CachedObjectMapper() throws IOException {
-        KeyClass key = new KeyClass("Project4");
+        var key = new KeyClass("Project4");
         ObjectMapper objectMapper = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
-        Map<String, String> actual = JsonUtils.splitJSON("{\"context\":{}, \"car\":{\"model\":\"BMW\",\"year\":null}}", objectMapper);
+        var actual = JsonUtils.splitJSON("{\"context\":{}, \"car\":{\"model\":\"BMW\",\"year\":null}}", objectMapper);
         assertNotNull(actual);
         assertEquals(2, actual.size());
         assertEquals("{}", actual.get("context"));

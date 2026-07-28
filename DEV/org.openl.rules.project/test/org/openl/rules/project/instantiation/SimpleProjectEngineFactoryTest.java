@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.lang.reflect.Method;
-
 import org.junit.jupiter.api.Test;
 
 import org.openl.exception.OpenlNotCheckedException;
@@ -51,10 +49,10 @@ class SimpleProjectEngineFactoryTest {
                 .setProject("test-resources/test1/third")
                 .setWorkspace("test-resources/test1")
                 .build();
-        Object instance = simpleProjectEngineFactory.newInstance();
+        var instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         assertNotNull(simpleProjectEngineFactory.getInterfaceClass());
-        Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass().getMethod("sayHello");
+        var sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass().getMethod("sayHello");
         assertNotNull(sayHelloMethod);
     }
 
@@ -69,7 +67,7 @@ class SimpleProjectEngineFactoryTest {
                 .setWorkspace("test-resources/test1")
                 .setInterfaceClass(SayHello.class)
                 .build();
-        Object instance = simpleProjectEngineFactory.newInstance();
+        var instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         assertNotNull(simpleProjectEngineFactory.getInterfaceClass());
         assertEquals(SayHello.class, simpleProjectEngineFactory.getInterfaceClass());
@@ -82,10 +80,10 @@ class SimpleProjectEngineFactoryTest {
                 .setProject("test-resources/test1/third")
                 .setProjectDependencies("test-resources/test1/first", "test-resources/test1/second")
                 .build();
-        Object instance = simpleProjectEngineFactory.newInstance();
+        var instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         assertNotNull(simpleProjectEngineFactory.getInterfaceClass());
-        Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass().getMethod("sayHello");
+        var sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass().getMethod("sayHello");
         assertNotNull(sayHelloMethod);
     }
 
@@ -153,8 +151,8 @@ class SimpleProjectEngineFactoryTest {
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setLob("lob2");
 
-        Method method = serviceClass.getMethod("hello", IRulesRuntimeContext.class, int.class);
-        Object result = method.invoke(instance, context, 10);
+        var method = serviceClass.getMethod("hello", IRulesRuntimeContext.class, int.class);
+        var result = method.invoke(instance, context, 10);
         assertEquals("Good Morning, World!", result);
 
         method = serviceClass.getMethod("getData1", IRulesRuntimeContext.class);

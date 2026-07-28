@@ -33,8 +33,8 @@ public final class DomainImplWithHoles extends DomainImpl {
         if (value < _min || value > _max) {
             return false;
         }
-        for (int i = 0; i < _values.size(); i++) {
-            DomainInterval interval = (DomainInterval) _values.elementAt(i);
+        for (var i = 0; i < _values.size(); i++) {
+            var interval = (DomainInterval) _values.elementAt(i);
             if (value >= interval.from && value <= interval.to) {
                 return true;
             }
@@ -45,9 +45,9 @@ public final class DomainImplWithHoles extends DomainImpl {
     public void force(FastVector values) // throws Failure
     {
         _values = values;
-        DomainInterval first = (DomainInterval) _values.firstElement();
+        var first = (DomainInterval) _values.firstElement();
         _min = first.from;
-        DomainInterval last = (DomainInterval) _values.lastElement();
+        var last = (DomainInterval) _values.lastElement();
         _max = last.to;
     }
 
@@ -87,8 +87,8 @@ public final class DomainImplWithHoles extends DomainImpl {
         // constrainer().addUndo(_variable);
         _variable.addUndo();
 
-        for (int i = 0; i < _values.size(); i++) {
-            DomainInterval interval = (DomainInterval) _values.elementAt(i);
+        for (var i = 0; i < _values.size(); i++) {
+            var interval = (DomainInterval) _values.elementAt(i);
             if (value >= interval.from && value <= interval.to) {
                 if (interval.from == interval.to) {
                     if (_values.size() == 1) {
@@ -101,9 +101,9 @@ public final class DomainImplWithHoles extends DomainImpl {
                 } else if (value == interval.to) {
                     interval.to--;
                 } else {
-                    int to1 = value - 1;
-                    int from2 = value + 1;
-                    int to2 = interval.to;
+                    var to1 = value - 1;
+                    var from2 = value + 1;
+                    var to2 = interval.to;
                     interval.to = to1;
                     _values.insertElementAt(new DomainInterval(from2, to2), i + 1);
                 }
@@ -128,7 +128,7 @@ public final class DomainImplWithHoles extends DomainImpl {
 
         // remove a hole
         while (!_values.isEmpty()) {
-            DomainInterval interval = (DomainInterval) _values.lastElement();
+            var interval = (DomainInterval) _values.lastElement();
             if (M < interval.from) {
                 _values.removeLast();
                 continue;
@@ -143,7 +143,7 @@ public final class DomainImplWithHoles extends DomainImpl {
             break;
         }
 
-        DomainInterval interval = (DomainInterval) _values.lastElement();
+        var interval = (DomainInterval) _values.lastElement();
         _max = interval.to;
 
         return true;
@@ -164,7 +164,7 @@ public final class DomainImplWithHoles extends DomainImpl {
 
         // remove hole
         while (!_values.isEmpty()) {
-            DomainInterval interval = (DomainInterval) _values.firstElement();
+            var interval = (DomainInterval) _values.firstElement();
             if (m > interval.to) {
                 _values.removeElementAt(0);
                 continue;
@@ -179,7 +179,7 @@ public final class DomainImplWithHoles extends DomainImpl {
             break;
         }
 
-        DomainInterval interval = (DomainInterval) _values.firstElement();
+        var interval = (DomainInterval) _values.firstElement();
         _min = interval.from;
         return true;
     }
@@ -208,9 +208,9 @@ public final class DomainImplWithHoles extends DomainImpl {
 
     @Override
     public int size() {
-        int s = 0;
-        for (int i = 0; i < _values.size(); i++) {
-            DomainInterval interval = (DomainInterval) _values.elementAt(i);
+        var s = 0;
+        for (var i = 0; i < _values.size(); i++) {
+            var interval = (DomainInterval) _values.elementAt(i);
             s += interval.to - interval.from + 1;
         }
         return s;

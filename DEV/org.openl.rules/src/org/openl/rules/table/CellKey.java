@@ -37,7 +37,7 @@ public final class CellKey {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        CellKey k = (CellKey) obj;
+        var k = (CellKey) obj;
         return col == k.col && row == k.row;
     }
 

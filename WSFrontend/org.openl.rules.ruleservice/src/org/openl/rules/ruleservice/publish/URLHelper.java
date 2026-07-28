@@ -13,13 +13,13 @@ public final class URLHelper {
     }
 
     public static String processURL(String url) {
-        String ret = url;
+        var ret = url;
         while (ret.charAt(0) == '/') {
             ret = ret.substring(1);
         }
-        String[] parts = ret.split("/", -1);
-        StringBuilder sb = new StringBuilder();
-        boolean f = false;
+        var parts = ret.split("/", -1);
+        var sb = new StringBuilder();
+        var f = false;
         for (String s : parts) {
             if (!f) {
                 f = true;
@@ -29,7 +29,7 @@ public final class URLHelper {
             sb.append(URLEncoder.encode(s, StandardCharsets.UTF_8).replaceAll("\\+", "%20"));
         }
         try {
-            URI uri = new URI(sb.toString());
+            var uri = new URI(sb.toString());
             uri = uri.normalize();
             return uri.toString();
         } catch (URISyntaxException e) {

@@ -23,7 +23,7 @@ class BeanCloner<T> implements ICloner<T> {
     BeanCloner(Class<T> clazz) {
         var allFields = clazz.getFields();
         for (var field : allFields) {
-            int modifiers = field.getModifiers();
+            var modifiers = field.getModifiers();
             if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
                 this.fields.put(field.getName(), new FieldGetSetter(field));
             }

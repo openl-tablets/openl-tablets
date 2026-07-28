@@ -20,7 +20,7 @@ public final class RuleServiceOpenLServiceInstantiationHelper {
     public static IOpenMember getOpenMember(String methodName, Class<?>[] paramTypes, Object serviceTarget) {
         for (Class<?> clazz : serviceTarget.getClass().getInterfaces()) {
             try {
-                Method m = clazz.getMethod(methodName, paramTypes);
+                var m = clazz.getMethod(methodName, paramTypes);
                 return findOpenMember(m, serviceTarget);
             } catch (NoSuchMethodException ignored) {
                 // method not found on this interface; try next

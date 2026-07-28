@@ -8,7 +8,6 @@
 package org.openl.util.print;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -73,13 +72,13 @@ public class NicePrinterAdaptor {
     }
 
     public static String shortTypeName(String classname) {
-        int idx = classname.lastIndexOf('.');
+        var idx = classname.lastIndexOf('.');
         return idx < 0 ? classname : classname.substring(idx + 1);
     }
 
     public Object getProperty(Object obj, String propertyName) {
         try {
-            Method m = obj.getClass().getMethod(ClassUtils.getter(propertyName));
+            var m = obj.getClass().getMethod(ClassUtils.getter(propertyName));
             return m.invoke(obj);
         } catch (Exception t) {
             return null;
@@ -91,7 +90,7 @@ public class NicePrinterAdaptor {
     }
 
     public Object getUniqueID(Object obj) {
-        Object id = getProperty(obj, "name");
+        var id = getProperty(obj, "name");
         if (id == null) {
             id = getProperty(obj, "id");
         }
@@ -103,7 +102,7 @@ public class NicePrinterAdaptor {
     }
 
     public void printArray(Object ary, int newID, NicePrinter printer) {
-        int len = Array.getLength(ary);
+        var len = Array.getLength(ary);
         if (len == 0) {
             printer.getBuffer().append("[]");
             return;
@@ -112,7 +111,7 @@ public class NicePrinterAdaptor {
         printer.getBuffer().append('{');
         printer.incIdent();
 
-        for (int i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             printer.startNewLine();
             printer.getBuffer().append('[').append(i).append("]=");
             printer.print(Array.get(ary, i), this);
@@ -126,7 +125,7 @@ public class NicePrinterAdaptor {
     public void printCollection(Collection<?> c, int newID, NicePrinter printer) {
         Object[] ary = new Object[c.size()];
         Iterator<?> it = c.iterator();
-        for (int i = 0; it.hasNext(); i++) {
+        for (var i = 0; it.hasNext(); i++) {
             ary[i] = it.next();
         }
         printArray(ary, newID, printer);
@@ -134,14 +133,14 @@ public class NicePrinterAdaptor {
 
     @SuppressWarnings("unchecked")
     public void printMap(Map map, Comparator<Map.Entry<Object, Object>> mapEntryComparator, NicePrinter printer) {
-        int len = map.size();
+        var len = map.size();
         if (len == 0) {
             printer.getBuffer().append("[]");
             return;
         }
         Map.Entry<Object, Object>[] entries = new Map.Entry[len];
         Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
-        for (int i = 0; it.hasNext(); i++) {
+        for (var i = 0; it.hasNext(); i++) {
             entries[i] = it.next();
         }
 
@@ -154,7 +153,7 @@ public class NicePrinterAdaptor {
         printer.getBuffer().append('{');
         printer.incIdent();
 
-        for (int i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             printer.startNewLine();
             printer.getBuffer().append(entries[i].getKey()).append("=");
             printer.print(entries[i].getValue(), this);
@@ -186,7 +185,7 @@ public class NicePrinterAdaptor {
     public void printReference(Object obj, int id, NicePrinter printer) {
         printer.getBuffer().append(shortTypeName(getTypeName(obj)));
 
-        Object objID = getUniqueID(obj);
+        var objID = getUniqueID(obj);
         if (objID == null) {
             objID = String.valueOf(id);
         }
@@ -195,9 +194,9 @@ public class NicePrinterAdaptor {
 
     private static String printDouble(double dd) {
         double d = dd < 0 ? -dd : dd;
-        double x = 1;
+        var x = 1D;
         var nf = NumberFormat.getNumberInstance(Locale.US);
-        for (int i = 0; i < 7; i++) {
+        for (var i = 0; i < 7; i++) {
             if (d > x) {
                 nf.setMinimumFractionDigits(0);
                 nf.setMaximumFractionDigits(2 + i);

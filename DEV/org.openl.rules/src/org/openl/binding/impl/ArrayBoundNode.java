@@ -36,9 +36,9 @@ final class ArrayBoundNode extends ABoundNode {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         int[] dims = new int[children.length];
-        IOpenClass componentType = arrayType;
+        var componentType = arrayType;
 
-        for (int i = 0; i < children.length; i++) {
+        for (var i = 0; i < children.length; i++) {
             dims[i] = (Integer) children[i].evaluate(env);
             componentType = componentType.getComponentClass();
         }

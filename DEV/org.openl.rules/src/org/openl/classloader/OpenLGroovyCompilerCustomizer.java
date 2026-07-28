@@ -1,10 +1,8 @@
 package org.openl.classloader;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -61,14 +59,14 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
             throw new IllegalStateException("Failed to initialize a field", e);
         }
         Annotation[] tmp = null;
-        try (InputStream inputStream = OpenLGroovyCompilerCustomizer.class
+        try (var inputStream = OpenLGroovyCompilerCustomizer.class
                 .getResourceAsStream("OpenLGroovyCompilerCustomizer.ifMissedIgnoreAnnotations")) {
             if (inputStream != null) {
-                Scanner scanner = new Scanner(inputStream);
-                Collection<Annotation> annotations = new ArrayList<>();
+                var scanner = new Scanner(inputStream);
+                var annotations = new ArrayList<Annotation>();
                 while (scanner.hasNext()) {
-                    String className = scanner.nextLine();
-                    int p = className.lastIndexOf('.');
+                    var className = scanner.nextLine();
+                    var p = className.lastIndexOf('.');
                     if (p > 0) {
                         annotations.add(new Annotation(className.substring(0, p), className.substring(p + 1)));
                     } else {
@@ -84,7 +82,7 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
 
     private Annotation isIfNotFoundThenIgnoreAnnotation(SourceUnit sourceUnit, AnnotationNode annotationNode) {
         for (Annotation annotation : ifMissedIgnoreAnnotations) {
-            ClassNode annotationClassNode = annotationNode.getClassNode();
+            var annotationClassNode = annotationNode.getClassNode();
             if (annotationClassNode.getPackageName() == null && Objects.equals(annotation.nameWithoutPackage,
                     annotationClassNode.getNameWithoutPackage())) {
                 // Import case
@@ -130,8 +128,8 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
     private void removeImports(SourceUnit source) {
         try {
             @SuppressWarnings("unchecked")
-            List<ImportNode> imports = (List<ImportNode>) importsField.get(source.getAST());
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            var imports = (List<ImportNode>) importsField.get(source.getAST());
+            var cl = Thread.currentThread().getContextClassLoader();
             imports.removeIf(e -> {
                 for (Annotation annotation : ifMissedIgnoreAnnotations) {
                     if (Objects.equals(annotation.packageName, e.getType().getPackageName()) && Objects
@@ -150,11 +148,11 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
     }
 
     private void removeAnnotationsIfNotFoundInClassloader(SourceUnit source, List<AnnotationNode> annotationNodes) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        var cl = Thread.currentThread().getContextClassLoader();
         Iterator<AnnotationNode> itr = annotationNodes.iterator();
         while (itr.hasNext()) {
-            AnnotationNode annotationNode = itr.next();
-            Annotation annotation = isIfNotFoundThenIgnoreAnnotation(source, annotationNode);
+            var annotationNode = itr.next();
+            var annotation = isIfNotFoundThenIgnoreAnnotation(source, annotationNode);
             if (annotation != null) {
                 try {
                     cl.loadClass(annotation.packageName + "." + annotation.nameWithoutPackage);

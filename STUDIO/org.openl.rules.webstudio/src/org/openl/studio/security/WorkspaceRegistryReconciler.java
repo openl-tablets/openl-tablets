@@ -34,7 +34,7 @@ public class WorkspaceRegistryReconciler implements ApplicationListener<Interact
 
     @Override
     public void onApplicationEvent(InteractiveAuthenticationSuccessEvent event) {
-        String username = event.getAuthentication().getName();
+        var username = event.getAuthentication().getName();
         Thread.ofVirtual().name("workspace-reconcile-" + username).start(() -> reconcile(username));
     }
 

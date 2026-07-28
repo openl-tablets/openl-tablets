@@ -16,14 +16,14 @@ public class SetBoldAction extends AUndoableCellAction {
 
     @Override
     public void doAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
 
         grid.setCellFontBold(getCol(), getRow(), bold);
     }
 
     @Override
     public void undoAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
         grid.setCellFontBold(getCol(), getRow(), !bold);
     }
 

@@ -27,7 +27,7 @@ final class DefaultOpenApiProcessor implements Function<UriInfo, OpenAPI> {
     @Override
     @SneakyThrows
     public OpenAPI apply(UriInfo uriInfo) {
-        OpenAPI result = mapper.readValue(getClass().getResourceAsStream("/openapi-default.json"), OpenAPI.class);
+        var result = mapper.readValue(getClass().getResourceAsStream("/openapi-default.json"), OpenAPI.class);
         result.getInfo().setTitle(title);
         var servers = new ArrayList<Server>();
         servers.add(new Server().url(StringUtils.substringBeforeLast(uriInfo.getRequestUri().toString(), "/")));

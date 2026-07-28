@@ -39,21 +39,21 @@ public class CustomTemplatesResolver extends TemplatesResolver {
 
     @Override
     public ProjectFile[] getProjectFiles(String category, String templateName) {
-        String url = templatesPath + "/" + category + "/" + templateName;
+        var url = templatesPath + "/" + category + "/" + templateName;
 
-        List<ProjectFile> templateFiles = getProjectFilesRecursively(url, "");
+        var templateFiles = getProjectFilesRecursively(url, "");
 
         return templateFiles.toArray(new ProjectFile[0]);
     }
 
     private List<ProjectFile> getProjectFilesRecursively(String baseUrl, final String folder) {
-        List<ProjectFile> templateFiles = new ArrayList<>();
+        var templateFiles = new ArrayList<ProjectFile>();
 
         try {
             String locationPattern = folder.isEmpty() ? (baseUrl + "/*") : (baseUrl + "/" + folder + "/*");
-            Resource[] resources = resourcePatternResolver.getResources(locationPattern);
+            var resources = resourcePatternResolver.getResources(locationPattern);
             for (Resource resource : resources) {
-                String filename = resource.getFilename();
+                var filename = resource.getFilename();
                 String relativePath = folder.isEmpty() ? filename : (folder + "/" + filename);
                 if (resource.getFile().isDirectory()) {
                     templateFiles.addAll(getProjectFilesRecursively(baseUrl, relativePath));
@@ -68,7 +68,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
     }
 
     private List<String> getFolders(String folderPattern) {
-        List<String> folderNames = new ArrayList<>();
+        var folderNames = new ArrayList<String>();
         try {
             for (Resource folder : resourcePatternResolver.getResources(folderPattern)) {
                 if (folder.getFile().isDirectory()) {

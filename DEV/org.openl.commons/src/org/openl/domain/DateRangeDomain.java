@@ -80,8 +80,8 @@ public class DateRangeDomain implements IDomain<Date> {
     private static Date truncate(Date min) {
         final Calendar cal = Calendar.getInstance();
         cal.setTime(min);
-        Date date = cal.getTime();
-        long time = date.getTime();
+        var date = cal.getTime();
+        var time = date.getTime();
 
         // see http://issues.apache.org/jira/browse/LANG-59
         time -= cal.get(Calendar.MILLISECOND);
@@ -131,7 +131,7 @@ public class DateRangeDomain implements IDomain<Date> {
             return -1;
         }
 
-        Calendar date = new GregorianCalendar();
+        var date = new GregorianCalendar();
         date.setTime(value);
         return (int) daysBetween(min, date);
     }
@@ -145,7 +145,7 @@ public class DateRangeDomain implements IDomain<Date> {
         if (index >= size()) {
             return null;
         }
-        Calendar date = (Calendar) min.clone();
+        var date = (Calendar) min.clone();
         date.add(Calendar.DATE, index);
         return date.getTime();
     }
@@ -169,7 +169,7 @@ public class DateRangeDomain implements IDomain<Date> {
 
     @Override
     public int hashCode() {
-        int result = min.hashCode();
+        var result = min.hashCode();
         result = 31 * result + max.hashCode();
         return result;
     }

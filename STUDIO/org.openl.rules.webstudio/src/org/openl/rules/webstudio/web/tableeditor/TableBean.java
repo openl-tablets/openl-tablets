@@ -1,11 +1,9 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
@@ -13,20 +11,16 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.service.TableServiceImpl;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestMethodBoundNode;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUtils;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.test.Utils;
@@ -67,7 +61,7 @@ public class TableBean {
         id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         WebStudio studio = WebStudioUtils.getWebStudio();
-        final ProjectModel model = studio.getModel();
+        final var model = studio.getModel();
 
         table = model.getTableById(id);
 
@@ -82,7 +76,7 @@ public class TableBean {
             uri = table.getUri();
             // Save URI because some actions don't provide table ID
             studio.setTableUri(uri);
-            boolean currentOpenedModule = !model.isProjectCompilationCompleted();
+            var currentOpenedModule = !model.isProjectCompilationCompleted();
             method = currentOpenedModule ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
             copyable = editable && table
@@ -94,7 +88,7 @@ public class TableBean {
             model.getRecentlyVisitedTables().setLastVisitedTable(table);
             // Check the save table parameter
             String saveTable1 = WebStudioUtils.getRequestParameter("saveTable");
-            boolean saveTable = saveTable1 == null || Boolean.parseBoolean(saveTable1);
+            var saveTable = saveTable1 == null || Boolean.parseBoolean(saveTable1);
             if (saveTable) {
                 storeTable();
             }
@@ -103,7 +97,7 @@ public class TableBean {
 
     private void storeTable() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        RecentlyVisitedTables recentlyVisitedTables = model.getRecentlyVisitedTables();
+        var recentlyVisitedTables = model.getRecentlyVisitedTables();
         recentlyVisitedTables.add(table);
     }
 
@@ -150,10 +144,10 @@ public class TableBean {
             ParameterWithValueDeclaration[] contextParams = TestUtils
                     .getContextParams(new TestSuite((TestSuiteMethod) method), testCase);
             Utils.getDb(WebStudioUtils.getProjectModel(), false);
-            ParameterWithValueDeclaration[] inputParams = testCase.getExecutionParams();
+            var inputParams = testCase.getExecutionParams();
 
             params = new ParameterWithValueDeclaration[contextParams.length + inputParams.length];
-            int n = 0;
+            var n = 0;
             for (ParameterWithValueDeclaration contextParam : contextParams) {
                 params[n++] = contextParam;
             }
@@ -209,11 +203,11 @@ public class TableBean {
     public String removeTable() throws Throwable {
         try {
             final WebStudio studio = WebStudioUtils.getWebStudio();
-            IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
+            var gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
 
             gridTable.edit();
             new TableServiceImpl().removeTable(gridTable);
-            XlsSheetGridModel sheetModel = (XlsSheetGridModel) gridTable.getGrid();
+            var sheetModel = (XlsSheetGridModel) gridTable.getGrid();
             sheetModel.getSheetSource().getWorkbookSource().save();
             gridTable.stopEditing();
             WebStudioUtils.getExternalContext()
@@ -221,7 +215,7 @@ public class TableBean {
                     .remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
             studio.compile();
-            RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
+            var visitedTables = studio.getModel().getRecentlyVisitedTables();
             visitedTables.remove(table);
         } catch (Exception e) {
             throw e.getCause() == null ? e : e.getCause();
@@ -231,7 +225,7 @@ public class TableBean {
 
     public boolean beforeEditAction() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
+        var currentProject = studio.getCurrentProject();
         if (currentProject != null) {
             try {
                 return currentProject.tryLock();
@@ -250,13 +244,13 @@ public class TableBean {
         String editorId = WebStudioUtils
                 .getRequestParameter(org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
-        Map<?, ?> editorModelMap = (Map<?, ?>) WebStudioUtils.getExternalContext()
+        var editorModelMap = (Map<?, ?>) WebStudioUtils.getExternalContext()
                 .getSessionMap()
                 .get(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
-        TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
+        var editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
-        Workbook workbook = editorModel.getSheetSource().getWorkbookSource().getWorkbook();
+        var workbook = editorModel.getSheetSource().getWorkbookSource().getWorkbook();
         if (workbook instanceof XSSFWorkbook fWorkbook) {
             XSSFOptimizer.removeUnusedStyles(fWorkbook);
         }
@@ -275,7 +269,7 @@ public class TableBean {
 
     public String getRequestId() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
+        var currentProject = studio.getCurrentProject();
         String requestId = currentProject == null ? "" : currentProject.getRepository().getId();
         String projectName = currentProject == null ? "" : currentProject.getName();
         return REQUEST_ID_FORMAT.formatted(requestId, projectName);
@@ -285,16 +279,16 @@ public class TableBean {
         if (StringUtils.isBlank(requestId)) {
             return;
         }
-        Matcher matcher = REQUEST_ID_PATTERN.matcher(requestId);
+        var matcher = REQUEST_ID_PATTERN.matcher(requestId);
         if (!matcher.matches()) {
             return;
         }
 
-        String repositoryId = matcher.group(1);
-        String projectName = matcher.group(2);
+        var repositoryId = matcher.group(1);
+        var projectName = matcher.group(2);
 
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getProject(repositoryId, projectName);
+        var currentProject = studio.getProject(repositoryId, projectName);
         if (currentProject != null) {
             try {
                 if (!currentProject.isModified()) {
@@ -308,7 +302,7 @@ public class TableBean {
 
     public boolean getCanRun() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
+        var currentProject = studio.getCurrentProject();
         if (currentProject == null) {
             return false;
         }
@@ -317,7 +311,7 @@ public class TableBean {
 
     public boolean getCanBenchmark() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
+        var currentProject = studio.getCurrentProject();
         if (currentProject == null) {
             return false;
         }
@@ -327,7 +321,7 @@ public class TableBean {
     public Integer getRowIndex() {
         if (runnableTestMethods.length > 0 && !runnableTestMethods[0].hasId()) {
             if (method instanceof TestSuiteMethod suiteMethod) {
-                TestMethodBoundNode boundNode = suiteMethod.getBoundNode();
+                var boundNode = suiteMethod.getBoundNode();
                 if (boundNode != null && !boundNode.getTable().getHeaderTable().isNormalOrientation()) {
                     // Currently row indexes aren't supported for transposed test tables
                     return null;

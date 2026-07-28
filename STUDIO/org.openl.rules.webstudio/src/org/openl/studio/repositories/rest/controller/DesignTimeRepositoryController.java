@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -194,8 +193,8 @@ public class DesignTimeRepositoryController {
                                           @Parameter(description = "repos.create-project.param.status.desc", schema = @Schema(allowableValues = {"OPENED", "CLOSED"})) @RequestParam(value = "status", required = false) @Nullable ProjectStatus status,
                                           @Parameter(description = "repos.create-project.param.force.desc") @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) throws IOException,
             ProjectException {
-        boolean hasFiles = files != null && !files.isEmpty();
-        boolean archiveUpload = hasFiles && files.size() == 1 && FileTypeHelper.isZipFile(files.getFirst().getOriginalFilename());
+        var hasFiles = files != null && !files.isEmpty();
+        var archiveUpload = hasFiles && files.size() == 1 && FileTypeHelper.isZipFile(files.getFirst().getOriginalFilename());
         if (!hasFiles && StringUtils.isBlank(templateName)) {
             throw new BadRequestException("repos.create-project.no-source.message");
         }
@@ -216,7 +215,7 @@ public class DesignTimeRepositoryController {
                 : getCommentsService(repository.getId()).createProject(projectName);
 
         // Validate the project name and comment for EVERY create mode (archive, excel, openapi, template).
-        CreateUpdateProjectModel model = new CreateUpdateProjectModel(repository.getId(), getUserName(),
+        var model = new CreateUpdateProjectModel(repository.getId(), getUserName(),
                 StringUtils.trimToNull(projectName), StringUtils.trimToNull(path), resolvedComment, overwrite);
         validationProvider.validate(model);
 
@@ -228,7 +227,7 @@ public class DesignTimeRepositoryController {
             // Excel/OpenAPI uploads and templates: reject duplicate names and comment violations up front,
             // matching the archive path and the legacy tab (the content dispatcher has no such guard).
             validationProvider.validate(model, createUpdateProjectModelValidator);
-            FileData data = createFromContent(repository, projectName, path, resolvedComment, files,
+            var data = createFromContent(repository, projectName, path, resolvedComment, files,
                     templateType, templateCategory, templateName, modelsPath, algorithmsPath, modelsModuleName,
                     algorithmsModuleName);
             result = mapFileDataResponse(data, repository.supports());
@@ -243,7 +242,7 @@ public class DesignTimeRepositoryController {
     private ProjectViewModel createFromArchive(Repository repository, String projectName, MultipartFile file,
                                                CreateUpdateProjectModel model) throws IOException, ProjectException {
         final Path archiveTmp = Files.createTempFile(projectName, ".zip");
-        final Lock lock = getLock(repository, model);
+        final var lock = getLock(repository, model);
         try {
             IOUtils.copyAndClose(file.getInputStream(), Files.newOutputStream(archiveTmp));
             if (!lock.tryLock(getUserName(), 15, TimeUnit.SECONDS)) {
@@ -251,7 +250,7 @@ public class DesignTimeRepositoryController {
             }
             validationProvider.validate(model, createUpdateProjectModelValidator);
             validationProvider.validate(archiveTmp, zipArchiveValidator);
-            FileData data = zipProjectSaveStrategy.save(model, archiveTmp);
+            var data = zipProjectSaveStrategy.save(model, archiveTmp);
             var project = designTimeRepository.getProject(repository.getId(), projectName);
             ProjectCreationService.grantContributorAclIfAbsent(designRepositoryAclService, project);
             projectCreationService.registerExtensibleTagsAfterDesignChange(project);
@@ -270,7 +269,7 @@ public class DesignTimeRepositoryController {
             return projectCreationService.createFromTemplate(repository.getId(), StringUtils.trimToNull(projectName),
                     path, templateType, templateCategory, templateName, comment, null);
         }
-        List<ProjectFile> projectFiles = new ArrayList<>();
+        var projectFiles = new ArrayList<ProjectFile>();
         try {
             for (MultipartFile file : files) {
                 projectFiles.add(new ProjectFile(file.getOriginalFilename(), file.getInputStream()));
@@ -329,7 +328,7 @@ public class DesignTimeRepositoryController {
                                                           String comment) {
         String resolved = StringUtils.isNotBlank(comment) ? comment
                 : getCommentsService(repository.getId()).createProject(projectName);
-        CreateUpdateProjectModel model = new CreateUpdateProjectModel(repository.getId(), getUserName(),
+        var model = new CreateUpdateProjectModel(repository.getId(), getUserName(),
                 StringUtils.trimToNull(projectName), StringUtils.trimToNull(path), resolved, false);
         validationProvider.validate(model);
         validationProvider.validate(model, createUpdateProjectModelValidator);
@@ -337,7 +336,7 @@ public class DesignTimeRepositoryController {
     }
 
     private Lock getLock(Repository repository, CreateUpdateProjectModel model) {
-        StringBuilder lockId = new StringBuilder(model.getRepoName());
+        var lockId = new StringBuilder(model.getRepoName());
         if (repository.supports().branches()) {
             lockId.append("/[branches]/").append(((BranchRepository) repository).getBaseBranch()).append('/');
         }
@@ -358,13 +357,13 @@ public class DesignTimeRepositoryController {
     }
 
     private String getUserName() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        var auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getName();
     }
 
     private void allowedToPush(Repository repo, boolean force) {
         if (repo.supports().branches()) {
-            BranchRepository branchRepo = (BranchRepository) repo;
+            var branchRepo = (BranchRepository) repo;
             bypassService.requireBypassOrThrow(branchRepo, branchRepo.getBranch(), repo.getId(), force);
         }
     }

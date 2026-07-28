@@ -21,9 +21,7 @@ import java.util.Arrays;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.xssf.usermodel.IndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -31,13 +29,11 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import org.openl.CompiledOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.types.IOpenClass;
 import org.openl.util.NumberUtils;
 
 class TestResultExportTest {
@@ -70,13 +66,13 @@ class TestResultExportTest {
                 .setExecutionMode(false)
                 .build();
 
-        CompiledOpenClass openLRules = factory.getCompiledOpenClass();
-        IOpenClass openClass = openLRules.getOpenClassWithErrors();
+        var openLRules = factory.getCompiledOpenClass();
+        var openClass = openLRules.getOpenClassWithErrors();
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
 
         TestUnitsResults[] results = new TestUnitsResults[tests.length];
-        for (int i = 0; i < tests.length; i++) {
-            TestSuiteMethod test = tests[i];
+        for (var i = 0; i < tests.length; i++) {
+            var test = tests[i];
             results[i] = new TestSuite(test).invokeSequentially(openClass, 1);
         }
 
@@ -91,8 +87,8 @@ class TestResultExportTest {
                 .setProject(path)
                 .setExecutionMode(false)
                 .build();
-        CompiledOpenClass openLRules = factory.getCompiledOpenClass();
-        IOpenClass openClass = openLRules.getOpenClassWithErrors();
+        var openLRules = factory.getCompiledOpenClass();
+        var openClass = openLRules.getOpenClassWithErrors();
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
         for (TestSuiteMethod test : tests) {
             if (test.getName().equals(testName)) {
@@ -106,16 +102,16 @@ class TestResultExportTest {
     @Test
     void allResultsInFirstPage() throws Exception {
         File xlsx;
-        try (TempFileExporter export = new TempFileExporter()) {
+        try (var export = new TempFileExporter()) {
             xlsx = export.createExcelFile(testResults, -1);
             assertTrue(xlsx.exists());
 
-            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+            try (var workbook = new XSSFWorkbook(xlsx)) {
                 assertEquals(2, workbook.getNumberOfSheets());
                 assertNotNull(workbook.getSheet("Parameters 1"));
 
-                XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = BaseExport.FIRST_ROW;
+                var sheet = workbook.getSheetAt(0);
+                var rowNum = BaseExport.FIRST_ROW;
                 rowNum = checkDriverPremiumTest(sheet, rowNum);
 
                 rowNum += BaseExport.SPACE_BETWEEN_RESULTS + 1;
@@ -133,18 +129,18 @@ class TestResultExportTest {
     @Test
     void oneResultPerPage() throws Exception {
         File xlsx;
-        try (TempFileExporter export = new TempFileExporter()) {
+        try (var export = new TempFileExporter()) {
             xlsx = export.createExcelFile(testResults, 1);
             assertTrue(xlsx.exists());
 
-            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+            try (var workbook = new XSSFWorkbook(xlsx)) {
                 assertEquals(6, workbook.getNumberOfSheets());
                 assertNotNull(workbook.getSheet("Parameters 1"));
                 assertNotNull(workbook.getSheet("Parameters 2"));
                 assertNotNull(workbook.getSheet("Parameters 3"));
 
-                XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = BaseExport.FIRST_ROW;
+                var sheet = workbook.getSheetAt(0);
+                var rowNum = BaseExport.FIRST_ROW;
                 rowNum = checkDriverPremiumTest(sheet, rowNum);
                 assertEquals(rowNum, sheet.getLastRowNum());
 
@@ -166,24 +162,24 @@ class TestResultExportTest {
     @Test
     void testTrivialParameters() throws Exception {
         File xlsx;
-        try (TempFileExporter export = new TempFileExporter()) {
+        try (var export = new TempFileExporter()) {
             xlsx = export.createExcelFile(trivialResults, -1);
             assertTrue(xlsx.exists());
 
-            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+            try (var workbook = new XSSFWorkbook(xlsx)) {
                 assertEquals(2, workbook.getNumberOfSheets());
                 assertNotNull(workbook.getSheet("Result 1"));
                 assertNotNull(workbook.getSheet("Parameters 1"));
 
-                XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = BaseExport.FIRST_ROW;
+                var sheet = workbook.getSheetAt(0);
+                var rowNum = BaseExport.FIRST_ROW;
                 assertRowText(sheet.getRow(rowNum), "HelloTest");
 
                 rowNum++;
                 assertRowText(sheet.getRow(rowNum), "2 test cases (1 failed)");
 
                 rowNum += 2;
-                XSSFRow row = sheet.getRow(rowNum);
+                var row = sheet.getRow(rowNum);
                 assertRowText(row, "ID", "Status", "Hour", "Result");
                 assertRowColors(row, HEADER, HEADER, HEADER, HEADER);
                 assertComments(row, 3, (String) null);
@@ -210,15 +206,15 @@ class TestResultExportTest {
         File xlsx;
         TestUnitsResults singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 0);
 
-        try (TempFileExporter export = new TempFileExporter()) {
+        try (var export = new TempFileExporter()) {
             xlsx = export.createExcelFile(new TestUnitsResults[]{singleTestCase}, -1);
             assertTrue(xlsx.exists());
 
-            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+            try (var workbook = new XSSFWorkbook(xlsx)) {
                 assertEquals(2, workbook.getNumberOfSheets());
 
-                XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = BaseExport.FIRST_ROW;
+                var sheet = workbook.getSheetAt(0);
+                var rowNum = BaseExport.FIRST_ROW;
                 assertRowText(sheet.getRow(rowNum), "HelloTest");
 
                 rowNum++;
@@ -229,16 +225,16 @@ class TestResultExportTest {
         assertFalse(xlsx.exists());
 
         singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 1);
-        try (TempFileExporter export = new TempFileExporter()) {
+        try (var export = new TempFileExporter()) {
             xlsx = export.createExcelFile(new TestUnitsResults[]{singleTestCase}, -1);
             assertTrue(xlsx.exists());
 
-            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+            try (var workbook = new XSSFWorkbook(xlsx)) {
                 assertEquals(2, workbook.getNumberOfSheets());
                 assertNotNull(workbook.getSheet("Parameters 1"));
 
-                XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = BaseExport.FIRST_ROW;
+                var sheet = workbook.getSheetAt(0);
+                var rowNum = BaseExport.FIRST_ROW;
                 assertRowText(sheet.getRow(rowNum), "HelloTest");
 
                 rowNum++;
@@ -252,24 +248,24 @@ class TestResultExportTest {
     @Test
     void testParametersWithPrimaryKey() throws Exception {
         File xlsx;
-        try (TempFileExporter export = new TempFileExporter()) {
+        try (var export = new TempFileExporter()) {
             xlsx = export.createExcelFile(resultsWithPK, -1);
             assertTrue(xlsx.exists());
 
-            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+            try (var workbook = new XSSFWorkbook(xlsx)) {
                 assertEquals(2, workbook.getNumberOfSheets());
                 assertNotNull(workbook.getSheet("Parameters 1"));
 
                 // Test the case when parameter is referenced by primary key
-                XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = BaseExport.FIRST_ROW;
+                var sheet = workbook.getSheetAt(0);
+                var rowNum = BaseExport.FIRST_ROW;
                 assertRowText(sheet.getRow(rowNum), "DriverPremiumTest1");
 
                 rowNum++;
                 assertRowText(sheet.getRow(rowNum), "3 test cases (1 failed)");
 
                 rowNum += 2;
-                XSSFRow row = sheet.getRow(rowNum);
+                var row = sheet.getRow(rowNum);
                 assertRowText(row,
                         "ID",
                         "Status",
@@ -349,17 +345,17 @@ class TestResultExportTest {
     @Test
     void twoResultsPerPage() throws Exception {
         File xlsx;
-        try (TempFileExporter export = new TempFileExporter()) {
+        try (var export = new TempFileExporter()) {
             xlsx = export.createExcelFile(testResults, 2);
             assertTrue(xlsx.exists());
 
-            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+            try (var workbook = new XSSFWorkbook(xlsx)) {
                 assertEquals(4, workbook.getNumberOfSheets());
                 assertNotNull(workbook.getSheet("Parameters 1"));
                 assertNotNull(workbook.getSheet("Parameters 2"));
 
-                XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = BaseExport.FIRST_ROW;
+                var sheet = workbook.getSheetAt(0);
+                var rowNum = BaseExport.FIRST_ROW;
                 rowNum = checkDriverPremiumTest(sheet, rowNum);
 
                 rowNum += BaseExport.SPACE_BETWEEN_RESULTS + 1;
@@ -381,23 +377,23 @@ class TestResultExportTest {
         File xlsx;
         TestUnitsResults[] results = runTests("test-resources/test/export/EPBDS-7147-partial-object-initialization");
 
-        try (TempFileExporter export = new TempFileExporter()) {
+        try (var export = new TempFileExporter()) {
             xlsx = export.createExcelFile(results, -1);
             assertTrue(xlsx.exists());
 
-            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+            try (var workbook = new XSSFWorkbook(xlsx)) {
                 assertEquals(2, workbook.getNumberOfSheets());
                 assertNotNull(workbook.getSheet("Parameters 1"));
 
-                XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = BaseExport.FIRST_ROW;
+                var sheet = workbook.getSheetAt(0);
+                var rowNum = BaseExport.FIRST_ROW;
                 assertRowText(sheet.getRow(rowNum), "TestDataDReturnTest7");
 
                 rowNum++;
                 assertRowText(sheet.getRow(rowNum), "3 test cases");
 
                 rowNum += 2;
-                XSSFRow row = sheet.getRow(rowNum);
+                var row = sheet.getRow(rowNum);
                 assertRowText(row, "ID", "Status", "obj", "Result field 2");
                 assertRowColors(row, HEADER, HEADER, HEADER, HEADER);
 
@@ -428,7 +424,7 @@ class TestResultExportTest {
         assertRowText(sheet.getRow(rowNum), "3 test cases (1 failed)");
 
         rowNum += 2;
-        XSSFRow row = sheet.getRow(rowNum);
+        var row = sheet.getRow(rowNum);
         assertRowText(row, "ID", "Status", "Driver", "Expected Age Type", "Expected Eligibility", "Expected Risk");
         assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
 
@@ -457,7 +453,7 @@ class TestResultExportTest {
         assertRowText(sheet.getRow(rowNum), "2 test cases");
 
         rowNum += 2;
-        XSSFRow row = sheet.getRow(rowNum);
+        var row = sheet.getRow(rowNum);
         assertRowText(row,
                 "ID",
                 "Status",
@@ -489,7 +485,7 @@ class TestResultExportTest {
         assertRowText(sheet.getRow(rowNum), "3 test cases");
 
         rowNum += 2;
-        XSSFRow row = sheet.getRow(rowNum);
+        var row = sheet.getRow(rowNum);
         assertRowText(row,
                 "ID",
                 "Status",
@@ -520,38 +516,38 @@ class TestResultExportTest {
     }
 
     private void assertRowText(XSSFRow row, String... values) {
-        int column = BaseExport.FIRST_COLUMN;
+        var column = BaseExport.FIRST_COLUMN;
 
-        String sheetName = row.getSheet().getSheetName();
+        var sheetName = row.getSheet().getSheetName();
         for (String value : values) {
-            String message = "Incorrect text in: {" + sheetName + "[" + row.getRowNum() + ", " + column + "]}";
+            var message = "Incorrect text in: {" + sheetName + "[" + row.getRowNum() + ", " + column + "]}";
             assertEquals(value, asString(row.getCell(column)), message);
             column++;
         }
 
-        String message = "There are extra cells in row " + row.getRowNum() + " of sheet " + sheetName;
+        var message = "There are extra cells in row " + row.getRowNum() + " of sheet " + sheetName;
         assertEquals(column, row.getLastCellNum(), message);
     }
 
     private void assertRowColors(XSSFRow row, Integer... colors) {
-        int column = BaseExport.FIRST_COLUMN;
+        var column = BaseExport.FIRST_COLUMN;
 
-        XSSFSheet sheet = row.getSheet();
-        String sheetName = sheet.getSheetName();
-        XSSFWorkbook workbook = sheet.getWorkbook();
-        IndexedColorMap indexedColors = workbook.getStylesSource().getIndexedColors();
+        var sheet = row.getSheet();
+        var sheetName = sheet.getSheetName();
+        var workbook = sheet.getWorkbook();
+        var indexedColors = workbook.getStylesSource().getIndexedColors();
         for (Integer color : colors) {
             XSSFColor expected = color == null ? null : new XSSFColor(convertRGB(color), indexedColors);
-            String message = "Incorrect color in: {" + sheetName + "[" + row.getRowNum() + ", " + column + "]}";
+            var message = "Incorrect color in: {" + sheetName + "[" + row.getRowNum() + ", " + column + "]}";
             assertEquals(expected, row.getCell(column).getCellStyle().getFillForegroundColorColor(), message);
             column++;
         }
     }
 
     private void assertComments(XSSFRow row, int firstResultColumn, String... expectedTexts) {
-        int columnNum = firstResultColumn;
+        var columnNum = firstResultColumn;
         for (String expectedText : expectedTexts) {
-            XSSFComment comment = row.getCell(BaseExport.FIRST_COLUMN + columnNum).getCellComment();
+            var comment = row.getCell(BaseExport.FIRST_COLUMN + columnNum).getCellComment();
 
             if (expectedText == null) {
                 assertNull(comment);
@@ -589,7 +585,7 @@ class TestResultExportTest {
 
         File createExcelFile(TestUnitsResults[] results, int testsPerPage) throws IOException {
             tempFile = File.createTempFile("test-results", ".xlsx");
-            try (FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+            try (var outputStream = new FileOutputStream(tempFile)) {
                 new TestResultExport().export(outputStream, testsPerPage, results);
             }
             return tempFile;

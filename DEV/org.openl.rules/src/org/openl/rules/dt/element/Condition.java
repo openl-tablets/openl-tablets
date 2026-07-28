@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.openl.OpenL;
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.BinaryOpNode;
@@ -72,7 +71,7 @@ public class Condition extends FunctionalRow implements ICondition {
 
     @Override
     public IParameterDeclaration[] getParams() {
-        IParameterDeclaration[] params = super.getParams();
+        var params = super.getParams();
         return params == null ? IParameterDeclaration.EMPTY : params;
     }
 
@@ -123,8 +122,8 @@ public class Condition extends FunctionalRow implements ICondition {
              * IMPORTANT NOTE: Performance optimization when condition parameter is not used in the expression. No need
              * to execute expression per each ruleNumber cause the result will be always the same.
              */
-            DecisionTableRuntimePool runtimePool = (DecisionTableRuntimePool) env.getLocalFrame()[0];
-            DecisionValue decisionValue = (DecisionValue) runtimePool.getConditionExecutionResult(getName());
+            var runtimePool = (DecisionTableRuntimePool) env.getLocalFrame()[0];
+            var decisionValue = (DecisionValue) runtimePool.getConditionExecutionResult(getName());
             if (decisionValue == null) {
                 decisionValue = makeDecision(ruleN, target, dtParams, env);
                 runtimePool.pushConditionExecutionResultToPool(getName(), decisionValue);
@@ -139,8 +138,8 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     private DecisionValue makeDecision(int ruleN, Object target, Object[] dtParams, IRuntimeEnv env) {
-        Object[] params = mergeParams(target, dtParams, env, ruleN);
-        Object result = getMethod().invoke(target, params, env);
+        var params = mergeParams(target, dtParams, env, ruleN);
+        var result = getMethod().invoke(target, params, env);
         if (comparisonCast != null) {
             result = comparisonCast.convert(result);
             return Objects.equals(result, params[params.length - 1]) ? DecisionValue.TRUE_VALUE
@@ -166,9 +165,9 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     private boolean isDependentOnInputParams(CompositeMethod method) {
-        IParameterDeclaration[] params = getParams();
+        var params = getParams();
 
-        BindingDependencies dependencies = new RulesBindingDependencies();
+        var dependencies = new RulesBindingDependencies();
         method.updateDependency(dependencies);
 
         for (IOpenField field : dependencies.getFieldsMap().values()) {
@@ -202,27 +201,27 @@ public class Condition extends FunctionalRow implements ICondition {
                                                         IBindingContext bindingContext) throws Exception {
 
         if (!GridTableUtils.isSingleCellTable(getCodeTable())) {
-            ILogicalTable redundantRow = getCodeTable().getRow(1); // Bind error to the redundant expression definition
-            IOpenSourceCodeModule errorSrc = new GridCellSourceCodeModule(redundantRow.getSource(), bindingContext);
+            var redundantRow = getCodeTable().getRow(1); // Bind error to the redundant expression definition
+            var errorSrc = new GridCellSourceCodeModule(redundantRow.getSource(), bindingContext);
             throw SyntaxNodeExceptionUtils
                     .createError(MessageUtils.getConditionMultipleExpressionErrorMessage(getName()), errorSrc);
         }
 
-        IOpenSourceCodeModule source = super.getExpressionSource(tableSyntaxNode,
+        var source = super.getExpressionSource(tableSyntaxNode,
                 signature,
                 methodParamType,
                 declaringClass,
                 openl,
                 bindingContext);
 
-        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+        for (var i = 0; i < signature.getNumberOfParameters(); i++) {
             if (signature.getParameterName(i).equals(source.getCode())) {
                 userDefinedOpenSourceCodeModule = source;
                 prepareParams(declaringClass, signature, methodParamType, source, openl, bindingContext);
                 if (params.length == 1) {
                     if (params[0].getType()
                             .isArray() && params[0].getType().getComponentClass().getInstanceClass() != null) {
-                        IOpenClass inputType = signature.getParameterType(i);
+                        var inputType = signature.getParameterType(i);
                         ConditionCasts conditionCasts = ConditionHelper
                                 .findConditionCasts(params[0].getType().getComponentClass(), inputType, bindingContext);
                         if (conditionCasts.isCastToConditionTypeExists() || (conditionCasts
@@ -452,7 +451,7 @@ public class Condition extends FunctionalRow implements ICondition {
 
         var returnType = JavaOpenClass.getOpenClass(Boolean.class);
         var staticExprCtx = new BindingContext(openl.getBinder(), returnType, openl);
-        OpenMethodHeader methodHeader = new OpenMethodHeader("run", returnType, signature, null);
+        var methodHeader = new OpenMethodHeader("run", returnType, signature, null);
         var compiledMethod = OpenLManager.makeMethod(openl,
                 staticSourceCodeModule,
                 methodHeader,

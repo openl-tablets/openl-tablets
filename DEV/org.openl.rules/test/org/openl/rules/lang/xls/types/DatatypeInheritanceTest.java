@@ -11,7 +11,6 @@ import org.openl.message.Severity;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
-import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
 /**
@@ -26,10 +25,10 @@ class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testFieldsAccess() {
-        XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
-        IOpenClass parentType = moduleOpenClass.findType("ParentType");
-        IOpenClass childType = moduleOpenClass.findType("ChildType");
-        IOpenClass secondLevelChildType = moduleOpenClass.findType("SecondLevelChildType");
+        var moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
+        var parentType = moduleOpenClass.findType("ParentType");
+        var childType = moduleOpenClass.findType("ChildType");
+        var secondLevelChildType = moduleOpenClass.findType("SecondLevelChildType");
         assertNotNull(parentType.getField("field2"));
 
         assertNotNull(childType.getField("field1"));
@@ -44,7 +43,7 @@ class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testWarning() {
-        boolean wasFound = false;
+        var wasFound = false;
         for (OpenLMessage message : getCompiledOpenClass().getAllMessages()) {
             if (message.getSeverity() == Severity.WARN) {
                 if (message.getSummary().equals("Field 'field1' is already declared in parent class 'ParentType'.")) {
@@ -57,7 +56,7 @@ class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testError() {
-        boolean wasFound = false;
+        var wasFound = false;
         for (OpenLMessage message : getCompiledOpenClass().getAllMessages()) {
             if (message.getSeverity() == Severity.ERROR) {
                 if (message.getSummary()
@@ -71,16 +70,16 @@ class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testToStringMethod() {
-        XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
-        IOpenClass childType = moduleOpenClass.findType("ChildType");
-        IOpenClass secondLevelChildType = moduleOpenClass.findType("SecondLevelChildType");
+        var moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
+        var childType = moduleOpenClass.findType("ChildType");
+        var secondLevelChildType = moduleOpenClass.findType("SecondLevelChildType");
 
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        String childTypeToStringResult = (String) childType.getMethod("toString", IOpenClass.EMPTY)
+        var env = new SimpleVM().getRuntimeEnv();
+        var childTypeToStringResult = (String) childType.getMethod("toString", IOpenClass.EMPTY)
                 .invoke(childType.newInstance(env), new Object[]{}, env);
         assertTrue(childTypeToStringResult.contains("field5"));
         assertTrue(childTypeToStringResult.startsWith("ChildType"));
-        String secondLevelChildTypeToStringResult = (String) secondLevelChildType
+        var secondLevelChildTypeToStringResult = (String) secondLevelChildType
                 .getMethod("toString", IOpenClass.EMPTY)
                 .invoke(secondLevelChildType.newInstance(env), new Object[]{}, env);
         assertTrue(secondLevelChildTypeToStringResult.contains("field7"));

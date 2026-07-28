@@ -16,11 +16,11 @@ public class WhereExpressionNodeBinder extends ANodeBinder {
     private static IBoundNode[] makeLocalVarsFromWhere(ISyntaxNode whereNode,
                                                        IBindingContext bindingContext) {
 
-        int n = whereNode.getNumberOfChildren();
+        var n = whereNode.getNumberOfChildren();
 
         IBoundNode[] boundNodes = new IBoundNode[n + 1];
 
-        for (int i = 0; i < n; i++) {
+        for (var i = 0; i < n; i++) {
             boundNodes[i] = makeLocalVar(whereNode.getChild(i), bindingContext);
         }
 

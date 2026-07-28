@@ -9,7 +9,6 @@ import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.studio.projects.service.AbstractMethodExecutorService;
-import org.openl.types.IOpenClass;
 
 /**
  * Builds a debug session and runs it on a dedicated worker thread.
@@ -26,13 +25,13 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
 
     @Override
     public DebugSession startSession(TraceDebugStartRequest request) {
-        CompiledOpenClass compiled = compiledOf(request);
-        IOpenClass openClass = compiled.getOpenClassWithErrors();
-        ClassLoader classLoader = compiled.getClassLoader();
+        var compiled = compiledOf(request);
+        var openClass = compiled.getOpenClassWithErrors();
+        var classLoader = compiled.getClassLoader();
 
-        TestSuite testSuite = buildTestSuite(request);
+        var testSuite = buildTestSuite(request);
 
-        TraceDebugger debugger = new TraceDebugger(request.listener());
+        var debugger = new TraceDebugger(request.listener());
         debugger.setBreakpoints(request.breakpoints());
         debugger.setWatches(request.watches());
         // Build the export replay's suite lazily, only if "Trace into File" is actually used. Building it
@@ -41,7 +40,7 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
         // the export never re-enters the interactive suite while its worker is parked mid-run. Resolve the class
         // to run against at export time too, from the same model buildTestSuite resolves the method from, so an
         // in-place recompile between start and export cannot pair a fresh method with the stale start-time class.
-        DebugSession session = new DebugSession(request.projectId(), request.tableId(), debugger, classLoader,
+        var session = new DebugSession(request.projectId(), request.tableId(), debugger, classLoader,
                 tracer -> buildTestSuite(request).invokeSequentially(compiledOf(request).getOpenClassWithErrors(), 1, tracer));
 
         debugger.start("trace-debug-" + request.tableId(), classLoader, request.stopAtEntry(), request.profiling(),
@@ -73,7 +72,7 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
         if (testRanges == null) {
             return 0;
         }
-        int[] indices = method.getIndices(testRanges);
+        var indices = method.getIndices(testRanges);
         return indices.length > 0 ? indices[0] : 0;
     }
 }

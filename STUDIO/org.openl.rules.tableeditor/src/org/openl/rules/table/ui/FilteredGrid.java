@@ -1,6 +1,5 @@
 package org.openl.rules.table.ui;
 
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.FormattedCell;
@@ -28,7 +27,7 @@ public class FilteredGrid extends AGrid {
     private void formatCell(FormattedCell fcell, int col, int row) {
         if (formatFilters != null) {
             for (IGridFilter formatFilter : formatFilters) {
-                IGridSelector selector = formatFilter.getGridSelector();
+                var selector = formatFilter.getGridSelector();
                 if (selector == null || selector.selectCoords(col, row)) {
                     try {
                         // Side effect of method call is setting object value of
@@ -52,9 +51,9 @@ public class FilteredGrid extends AGrid {
     }
 
     private synchronized FormattedCell getFormattedCell(int col, int row) {
-        ICell cell = delegate.getCell(col, row);
-        CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(row, col);
-        FormattedCell cellToFormat = new FormattedCell(cell, metaInfo);
+        var cell = delegate.getCell(col, row);
+        var metaInfo = metaInfoReader.getMetaInfo(row, col);
+        var cellToFormat = new FormattedCell(cell, metaInfo);
 
         formatCell(cellToFormat, col, row);
 

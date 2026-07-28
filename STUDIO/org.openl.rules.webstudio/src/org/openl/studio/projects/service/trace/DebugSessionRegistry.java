@@ -50,7 +50,7 @@ public class DebugSessionRegistry {
     /** Register a new session, terminating any previous one. */
     public DebugSession start(DebugSession session) {
         reaper.register(session);
-        DebugSession previous = ref.getAndSet(session);
+        var previous = ref.getAndSet(session);
         if (previous != null) {
             reaper.unregister(previous);
             previous.terminate();
@@ -60,7 +60,7 @@ public class DebugSessionRegistry {
 
     /** The active session if it belongs to the given project, otherwise {@code null}. */
     public @Nullable DebugSession find(ProjectIdModel projectId) {
-        DebugSession session = ref.get();
+        var session = ref.get();
         if (session == null || !session.getProjectId().equals(projectId)) {
             return null;
         }
@@ -70,7 +70,7 @@ public class DebugSessionRegistry {
 
     /** Terminate and drop the active session. */
     public void clear() {
-        DebugSession session = ref.getAndSet(null);
+        var session = ref.getAndSet(null);
         if (session != null) {
             reaper.unregister(session);
             session.terminate();
@@ -85,7 +85,7 @@ public class DebugSessionRegistry {
     public void setBreakpoints(Collection<String> uris) {
         breakpoints.clear();
         breakpoints.addAll(uris);
-        DebugSession session = ref.get();
+        var session = ref.get();
         if (session != null) {
             session.getDebugger().setBreakpoints(breakpoints());
         }
@@ -103,7 +103,7 @@ public class DebugSessionRegistry {
     public void setWatches(Collection<String> cells) {
         watches.clear();
         watches.addAll(cells);
-        DebugSession session = ref.get();
+        var session = ref.get();
         if (session != null) {
             session.getDebugger().setWatches(watches());
         }

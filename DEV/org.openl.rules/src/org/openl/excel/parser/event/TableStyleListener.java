@@ -46,7 +46,6 @@ import org.apache.poi.hssf.usermodel.HSSFShapeFactory;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.formula.WorkbookDependentFormula;
-import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.util.CellAddress;
 
 import org.openl.excel.parser.TableStyles;
@@ -81,29 +80,29 @@ public class TableStyleListener implements HSSFListener {
     }
 
     void process(String fileName) throws IOException {
-        try (POIFSFileSystem poifs = new POIFSFileSystem(new File(fileName))) {
-            HSSFEventFactory factory = new HSSFEventFactory();
-            HSSFRequest request = new HSSFRequest();
-            SharedValueListener sharedFormulaListener = new SharedValueListener(sheet);
+        try (var poifs = new POIFSFileSystem(new File(fileName))) {
+            var factory = new HSSFEventFactory();
+            var request = new HSSFRequest();
+            var sharedFormulaListener = new SharedValueListener(sheet);
             request.addListenerForAllRecords(sharedFormulaListener);
             factory.processWorkbookEvents(request, poifs);
             sharedValueManager = sharedFormulaListener.getSharedValueManager();
         }
 
-        try (POIFSFileSystem poifs = new POIFSFileSystem(new File(fileName))) {
+        try (var poifs = new POIFSFileSystem(new File(fileName))) {
             this.directory = poifs.getRoot();
 
-            final StyleTrackingListener formatListener = new StyleTrackingListener(this);
+            final var formatListener = new StyleTrackingListener(this);
 
             // Default HSSFEventFactory does not include ContinueRecord items in the stream and it breaks Comments
             // parsing
             // for some cases. So we used to override processEvents() and initialize RecordFactoryInputStream
             // to include ContinueRecord items in the stream.
-            HSSFEventFactory factory = new HSSFEventFactory() {
+            var factory = new HSSFEventFactory() {
                 @Override
                 public void processEvents(HSSFRequest req, InputStream in) {
                     // Include ContinueRecord items
-                    RecordFactoryInputStream recordStream = new RecordFactoryInputStream(in, true);
+                    var recordStream = new RecordFactoryInputStream(in, true);
 
                     Record r;
                     while ((r = recordStream.nextRecord()) != null) {
@@ -112,7 +111,7 @@ public class TableStyleListener implements HSSFListener {
                 }
             };
 
-            HSSFRequest request = new HSSFRequest();
+            var request = new HSSFRequest();
             request.addListenerForAllRecords(formatListener);
             factory.processWorkbookEvents(request, poifs);
 
@@ -142,13 +141,13 @@ public class TableStyleListener implements HSSFListener {
 
         switch (record.getSid()) {
             case BoundSheetRecord.sid:
-                BoundSheetRecord bsr = (BoundSheetRecord) record;
+                var bsr = (BoundSheetRecord) record;
                 if (bsr.getSheetname().equals(sheet.getName())) {
                     sheets.add(new EventSheetDescriptor(bsr.getSheetname(), sheets.size(), bsr.getPositionOfBof()));
                 }
                 break;
             case BOFRecord.sid:
-                BOFRecord bof = (BOFRecord) record;
+                var bof = (BOFRecord) record;
                 if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
                     if (!sheetsSorted) {
                         sheets.sort(Comparator.comparingInt(EventSheetDescriptor::getOffset));
@@ -163,8 +162,8 @@ public class TableStyleListener implements HSSFListener {
                 break;
             case FormulaRecord.sid: // Cell value from a formula
                 if (isNeededSheet()) {
-                    FormulaRecord r = (FormulaRecord) record;
-                    int row = r.getRow();
+                    var r = (FormulaRecord) record;
+                    var row = r.getRow();
                     short column = r.getColumn();
 
                     if (IGridRegion.Tool.contains(tableRegion, column, row)) {
@@ -182,8 +181,8 @@ public class TableStyleListener implements HSSFListener {
             case RKRecord.sid: // Excel internal number record
             case BlankRecord.sid:
                 if (isNeededSheet()) {
-                    CellValueRecordInterface r = (CellValueRecordInterface) record;
-                    int row = r.getRow();
+                    var r = (CellValueRecordInterface) record;
+                    var row = r.getRow();
                     short column = r.getColumn();
 
                     if (IGridRegion.Tool.contains(tableRegion, column, row)) {
@@ -206,7 +205,7 @@ public class TableStyleListener implements HSSFListener {
 
     private void processFormula(Record record) {
         if (currentFormula != null) {
-            int row = currentFormula.getRow();
+            var row = currentFormula.getRow();
             short column = currentFormula.getColumn();
             try {
                 StringRecord cachedText = null;
@@ -215,11 +214,11 @@ public class TableStyleListener implements HSSFListener {
                 } else {
                     currentFormula.setCachedResultBoolean(false);
                 }
-                FormulaRecordAggregate formulaAggregate = new FormulaRecordAggregate(currentFormula,
+                var formulaAggregate = new FormulaRecordAggregate(currentFormula,
                         cachedText,
                         sharedValueManager);
-                Ptg[] formulaTokens = formulaAggregate.getFormulaTokens();
-                boolean workbookDependentFormula = Arrays.stream(formulaTokens)
+                var formulaTokens = formulaAggregate.getFormulaTokens();
+                var workbookDependentFormula = Arrays.stream(formulaTokens)
                         .anyMatch(t -> t instanceof WorkbookDependentFormula);
                 if (workbookDependentFormula) {
                     formulas.put(new CellAddress(row, column), "");
@@ -236,8 +235,8 @@ public class TableStyleListener implements HSSFListener {
 
     private void saveStyleIndex(CellValueRecordInterface r, int row, short column) {
         short styleIndex = r.getXFIndex();
-        int internalRow = row - tableRegion.getTop();
-        int internalCol = column - tableRegion.getLeft();
+        var internalRow = row - tableRegion.getTop();
+        var internalCol = column - tableRegion.getLeft();
         cellIndexes[internalRow][internalCol] = styleIndex;
     }
 
@@ -246,7 +245,7 @@ public class TableStyleListener implements HSSFListener {
     }
 
     private void collectComments() {
-        int loc = findFirstDrawingRecord();
+        var loc = findFirstDrawingRecord();
         if (loc >= 0) {
             EscherAggregate r;
             try {
@@ -256,17 +255,17 @@ public class TableStyleListener implements HSSFListener {
                 comments = Collections.emptyList();
                 return;
             }
-            EscherContainerRecord dgContainer = r.getEscherContainer();
+            var dgContainer = r.getEscherContainer();
             if (dgContainer == null) {
                 return;
             }
 
-            EscherContainerRecord spgrContainer = dgContainer.getChildContainers().getFirst();
+            var spgrContainer = dgContainer.getChildContainers().getFirst();
             List<EscherContainerRecord> spgrChildren = spgrContainer.getChildContainers();
 
-            CommentsCollector commentCollector = new CommentsCollector();
-            for (int i = 1; i < spgrChildren.size(); i++) {
-                EscherContainerRecord spContainer = spgrChildren.get(i);
+            var commentCollector = new CommentsCollector();
+            for (var i = 1; i < spgrChildren.size(); i++) {
+                var spContainer = spgrChildren.get(i);
                 HSSFShapeFactory.createShapeTree(spContainer, r, commentCollector, directory);
             }
             comments = commentCollector.getComments();
@@ -274,9 +273,9 @@ public class TableStyleListener implements HSSFListener {
     }
 
     private int findFirstDrawingRecord() {
-        int size = shapeRecords.size();
-        for (int i = 0; i < size; i++) {
-            RecordBase rb = shapeRecords.get(i);
+        var size = shapeRecords.size();
+        for (var i = 0; i < size; i++) {
+            var rb = shapeRecords.get(i);
             if (rb instanceof Record record && record.getSid() == DrawingRecord.sid) {
                 return i;
             }

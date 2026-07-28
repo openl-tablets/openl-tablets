@@ -84,13 +84,13 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
-        IOpenClass openClass = delegate.findClosestClass(openClass1, openClass2);
+        var openClass = delegate.findClosestClass(openClass1, openClass2);
         return findOpenClass(openClass);
     }
 
     @Override
     public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
-        IOpenClass openClass = delegate.findParentClass(openClass1, openClass2);
+        var openClass = delegate.findParentClass(openClass1, openClass2);
         return findOpenClass(openClass);
     }
 

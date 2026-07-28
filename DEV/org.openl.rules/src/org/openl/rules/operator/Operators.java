@@ -852,7 +852,7 @@ public class Operators {
     }
 
     public static Integer subtract(Date d1, Date d2) {
-        Double diff = DateInterval.between(d2, d1).toDays();
+        var diff = DateInterval.between(d2, d1).toDays();
         return diff == null ? null : diff.intValue();
     }
 
