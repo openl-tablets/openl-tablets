@@ -198,6 +198,43 @@ describe('SimpleTraceTree', () => {
             { key: 'uR#S3@0', stepType: 'over' }))
     })
 
+    // A step whose formula reuses another step's result appears in the tree as a stepRef node.
+    const referencingTree = () => callNode('uR', 0, [
+        { ref: 'S1', label: '$Value$S1', status: 'executed', childrenTotal: 2 }, // original, called uA twice
+        { ref: 'S2', label: '$Value$S2', status: 'executed', children: [
+            { uri: 'uR', name: '$Value$S1', instance: 0, kind: 'stepRef',
+                durationMillis: 0, selfMillis: 0, steps: [], refStep: 'S1' }, // reuses S1
+        ]},
+    ])
+
+    it('renders a referenced step inline in the business view — expandable and inspectable in place', async () => {
+        // The advanced tree shows a dead REF link to the original; the business view draws the referenced
+        // step right here so its subtree and value are one expand/click away, no hunt for the original.
+        setStore({ simpleTree: referencingTree() })
+        render(<SimpleTraceTree />)
+
+        await userEvent.click(screen.getByTestId('simple-toggle-tree/S2')) // reveal the reference under S2
+        const ref = screen.getByTestId('simple-step-tree/S2#0')
+        expect(ref).toHaveTextContent('$Value$S1') // drawn as the referenced step, not a bare link
+        expect(ref).toHaveTextContent('tree.referenceTag') // still marked as a reference
+
+        // It carries the original's own subtree: expanding it reveals S1's two calls inline — no jump.
+        await userEvent.click(screen.getByTestId('simple-toggle-tree/S2#0'))
+        expect(screen.getByTestId('simple-node-tree/S2#0#0')).toHaveTextContent('uA')
+        expect(screen.getByTestId('simple-node-tree/S2#0#1')).toHaveTextContent('uA')
+
+        // Clicking it inspects the original step in place, with the reference row's own selection key so
+        // only this row highlights (not the original occurrence elsewhere).
+        await userEvent.click(screen.getByTestId('simple-step-tree/S2#0'))
+        expect(inspect).toHaveBeenCalledWith(expect.objectContaining({
+            key: 'uR#S1@0',
+            selectionKey: 'tree/S2#0',
+            frameUri: 'uR',
+            stepType: 'over',
+            focus: expect.objectContaining({ ref: 'S1', ownerUri: 'uR', ownerInstance: 0 }),
+        }))
+    })
+
     it('shows a static cell and reads it by running its owning table through', async () => {
         setStore()
         render(<SimpleTraceTree />)
