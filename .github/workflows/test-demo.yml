@@ -10,7 +10,7 @@ name: "DEMO package test"
 on:
   schedule:
     # Every week at 03:00 UTC on Wednesday
-    - cron: '0 3 * * 3'
+    - cron: '0 3 * * 1,4'
   workflow_dispatch:
     inputs:
       branch:
@@ -186,4 +186,4 @@ jobs:
             DEMO/demo-${{ runner.os }}.log.txt
           if-no-files-found: ignore
           archive: false
-          retention-days: 3
+          retention-days: 10
