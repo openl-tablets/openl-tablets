@@ -38,7 +38,7 @@ class CrossStepCallTreeTest {
                 .orElseThrow();
 
         var debugger = new TraceDebugger(DebugListener.NOOP);
-        debugger.start("cross-step", compiled.getClassLoader(), false, true, () -> {
+        debugger.start("cross-step", compiled.getClassLoader(), false, true, false, () -> {
             var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
             var target = module.newInstance(env);
@@ -94,7 +94,7 @@ class CrossStepCallTreeTest {
                 .orElseThrow();
 
         var debugger = new TraceDebugger(DebugListener.NOOP);
-        debugger.start("cross-step-timing", compiled.getClassLoader(), false, true, () -> {
+        debugger.start("cross-step-timing", compiled.getClassLoader(), false, true, false, () -> {
             var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
             var target = module.newInstance(env);

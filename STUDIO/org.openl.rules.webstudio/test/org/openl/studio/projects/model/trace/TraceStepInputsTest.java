@@ -136,7 +136,7 @@ class TraceStepInputsTest {
         // The executed tree lists static cells too, flagged constant, sorted into their grid position —
         // so the trace tree shows the whole table like the grid does.
         TraceDebugger local = new TraceDebugger(DebugListener.NOOP);
-        local.start("tree-static-test", classLoader, false, true, () -> {
+        local.start("tree-static-test", classLoader, false, true, false, () -> {
             IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(local.tracer());
             test.invoke(module.newInstance(env), new Object[0], env);
@@ -179,7 +179,7 @@ class TraceStepInputsTest {
         // A DT node in the executed tree breaks down like the legacy detailed trace: one row per evaluated
         // condition (matched or not), then the returned rule — instead of a bare fired-rule step.
         TraceDebugger local = new TraceDebugger(DebugListener.NOOP);
-        local.start("tree-dt-test", classLoader, false, true, () -> {
+        local.start("tree-dt-test", classLoader, false, true, false, () -> {
             IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(local.tracer());
             test.invoke(module.newInstance(env), new Object[0], env);
@@ -206,6 +206,38 @@ class TraceStepInputsTest {
             assertEquals(1, returned.size(), "exactly one returned-rule row");
             assertTrue(returned.get(0).label() != null && returned.get(0).label().startsWith("Returned rule: ["),
                     "the returned rule keeps the legacy label: " + returned.get(0).label());
+        } finally {
+            local.terminate(20_000);
+        }
+    }
+
+    @Test
+    void detailedTitlesCarryTheSignatureResultAndCellValues() {
+        // The business view builds the classic detailed titles: a table node reads as its kind, signature and
+        // result; a spreadsheet cell as its value. (The advanced debugger passes false and keeps plain names.)
+        TraceDebugger local = new TraceDebugger(DebugListener.NOOP);
+        local.start("tree-detailed-test", classLoader, false, true, true, () -> {
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            env.setTracer(local.tracer());
+            test.invoke(module.newInstance(env), new Object[0], env);
+        });
+        try {
+            assertEquals(DebugStatus.COMPLETED, local.awaitInitialHalt(20_000));
+            CallNode tree = local.completedTree();
+            assertNotNull(tree);
+            // The root spreadsheet node reads as its kind prefix and signature, not a bare name.
+            assertTrue(tree.name().startsWith("SpreadSheet ") && tree.name().contains("BankRatingCalculation("),
+                    "the root carries its kind prefix and signature: " + tree.name());
+
+            // A decision table reads with the "DT" prefix, its signature, and its result after "=".
+            CallNode dt = findNode(tree, n -> n.kind() == FrameKind.DECISION_TABLE);
+            assertNotNull(dt);
+            assertTrue(dt.name().startsWith("DT ") && dt.name().contains("NonZeroValues(") && dt.name().contains(" = "),
+                    "the DT node reads like the legacy detailed trace: " + dt.name());
+
+            // A spreadsheet cell carries its computed value after "=".
+            assertTrue(tree.steps().stream().anyMatch(s -> s.label() != null && s.label().contains(" = ")),
+                    "cells carry their value: " + tree.steps().stream().map(CallNode.Step::label).toList());
         } finally {
             local.terminate(20_000);
         }

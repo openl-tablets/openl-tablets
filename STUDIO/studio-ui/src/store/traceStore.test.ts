@@ -595,7 +595,7 @@ describe('traceStore simple mode', () => {
 
         const state = useTraceStore.getState()
         expect(startTrace).toHaveBeenCalledWith('p1', expect.objectContaining(
-            { stopAtEntry: false, profiling: true }))
+            { stopAtEntry: false, profiling: true, detailedTitles: true }))
         expect(getTreeChildren).toHaveBeenCalledWith('p1', 'uR', 0, 'S1', 0, expect.any(Number))
         expect(state.simpleTree?.uri).toBe('uR')
         expect(state.simpleChildren[JSON.stringify(['uR', 0, 'S1'])]).toHaveLength(2)

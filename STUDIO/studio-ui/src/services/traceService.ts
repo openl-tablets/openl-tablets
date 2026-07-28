@@ -130,6 +130,7 @@ export const traceService = {
             fromModule?: string
             stopAtEntry?: boolean
             profiling?: boolean
+            detailedTitles?: boolean
             includeTree?: boolean
             inputJson?: string
         }
@@ -140,6 +141,7 @@ export const traceService = {
         if (options.fromModule) params.set('fromModule', options.fromModule)
         params.set('stopAtEntry', String(options.stopAtEntry ?? true))
         if (options.profiling) params.set('profiling', 'true')
+        if (options.detailedTitles) params.set('detailedTitles', 'true')
         if (options.includeTree === false) params.set('includeTree', 'false')
 
         // Not retried: starting a session is not idempotent, so replaying a lost-response POST would spawn

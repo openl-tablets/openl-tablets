@@ -186,7 +186,8 @@ const TraceDetails: React.FC = () => {
 
     return (
         <div className={styles.details} data-testid="debug-details">
-            {title && <span className={styles.frameTitle}>{title}</span>}
+            {/* The business view already names the rule in the tree; a title here would just duplicate it. */}
+            {advanced && title && <span className={styles.frameTitle}>{title}</span>}
             {/* Parameters and Result come first, so they stay reachable above a large traced table. */}
             {variablesLoading ? (
                 <div className={styles.detailsCentered}>
