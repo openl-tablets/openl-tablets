@@ -2,7 +2,7 @@ package org.openl.rules.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -58,7 +58,7 @@ public class AppServer {
                     .version(HttpClient.Version.HTTP_1_1)
                     .connectTimeout(Duration.ofSeconds(60)) // wait a minute, it is usual enough a second
                     .build();
-            var uri = new URL("http", "localhost", port, "/admin/healthcheck/readiness").toURI();
+            var uri = new URI("http://localhost:" + port + "/admin/healthcheck/readiness");
             var req = HttpRequest.newBuilder()
                     .uri(uri)
                     .timeout(Duration.ofSeconds(60)) // wait a minute, it is usual enough a second
