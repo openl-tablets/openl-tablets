@@ -228,7 +228,7 @@ class WorkspaceProjectServiceTest {
         // One declaration in rules.xml, one module in the answer, whatever the pattern matched.
         assertEquals(List.of("Rules"), result.descriptor.modules().stream().map(ModuleViewModel::name).toList());
         assertEquals(List.of("rules/*.xlsx"), result.descriptor.modules().stream().map(ModuleViewModel::path).toList());
-        var matched = result.descriptor.modules().get(0).modules();
+        var matched = result.descriptor.modules().getFirst().modules();
         assertEquals(List.of("Rating"), matched.stream().map(ModuleViewModel::name).toList());
         assertEquals(List.of("rules/Rating.xlsx"), matched.stream().map(ModuleViewModel::path).toList());
         // The modules and sources come from the file, so neither is flagged as a default.
@@ -251,7 +251,7 @@ class WorkspaceProjectServiceTest {
         assertEquals(List.of("rules/**/*.xlsx", "tests/**/*.xlsx"),
                 result.descriptor.modules().stream().map(ModuleViewModel::path).toList());
         assertEquals(List.of("Pricing"),
-                result.descriptor.modules().get(0).modules().stream().map(ModuleViewModel::name).toList());
+                result.descriptor.modules().getFirst().modules().stream().map(ModuleViewModel::name).toList());
         assertEquals(List.of("PricingTest"),
                 result.descriptor.modules().get(1).modules().stream().map(ModuleViewModel::name).toList());
         // The file declares neither modules nor sources, so both are the engine's defaults.
@@ -278,7 +278,7 @@ class WorkspaceProjectServiceTest {
         assertEquals(List.of("*.xlsx"), result.descriptor.modules().stream().map(ModuleViewModel::path).toList());
         // The file in the folder below is out of the pattern's reach.
         assertEquals(List.of("Pricing.xlsx"),
-                result.descriptor.modules().get(0).modules().stream().map(ModuleViewModel::path).toList());
+                result.descriptor.modules().getFirst().modules().stream().map(ModuleViewModel::path).toList());
     }
 
     @Test

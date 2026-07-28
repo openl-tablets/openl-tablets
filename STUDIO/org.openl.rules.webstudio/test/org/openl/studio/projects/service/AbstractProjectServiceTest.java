@@ -111,7 +111,7 @@ class AbstractProjectServiceTest {
                 .map(count -> count.id())
                 .sorted()
                 .toList());
-        assertEquals(List.of("Benefits", "Payroll"), response.getTagCounts().get(0).values().stream()
+        assertEquals(List.of("Benefits", "Payroll"), response.getTagCounts().getFirst().values().stream()
                 .map(count -> count.id())
                 .sorted()
                 .toList());
@@ -140,7 +140,7 @@ class AbstractProjectServiceTest {
                 .map(count -> count.id())
                 .sorted()
                 .toList());
-        assertEquals(List.of("Benefits", "Payroll"), response.getTagCounts().get(0).values().stream()
+        assertEquals(List.of("Benefits", "Payroll"), response.getTagCounts().getFirst().values().stream()
                 .map(count -> count.id())
                 .sorted()
                 .toList());
@@ -206,8 +206,8 @@ class AbstractProjectServiceTest {
 
         assertEquals(List.of("Beta"), service.statusedNames);
         assertEquals(1, response.getStatuses().size());
-        assertEquals("Beta", response.getStatuses().get(0).projectId().getProjectName());
-        assertEquals(CompileState.IDLE, response.getStatuses().get(0).compileState());
+        assertEquals("Beta", response.getStatuses().getFirst().projectId().getProjectName());
+        assertEquals(CompileState.IDLE, response.getStatuses().getFirst().compileState());
     }
 
     @Test

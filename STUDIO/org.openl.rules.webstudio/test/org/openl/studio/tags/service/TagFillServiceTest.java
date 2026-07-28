@@ -101,9 +101,9 @@ class TagFillServiceTest {
         var preview = service.preview();
 
         assertEquals(1, preview.size());
-        assertEquals("Policy-rules", preview.get(0).projectName());
-        assertTrue(preview.get(0).modifiable());
-        var states = preview.get(0).tags().stream()
+        assertEquals("Policy-rules", preview.getFirst().projectName());
+        assertTrue(preview.getFirst().modifiable());
+        var states = preview.getFirst().tags().stream()
                 .collect(java.util.stream.Collectors.toMap(TagFillItem::type, TagFillItem::state));
         // Configured value; new value of an extensible type; value no fixed-value type has; already assigned.
         assertEquals(TagFillState.ASSIGN, states.get("Domain"));
@@ -135,7 +135,7 @@ class TagFillServiceTest {
         when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy")));
         workspaceHolds(project);
 
-        assertEquals(false, service.preview().get(0).modifiable());
+        assertEquals(false, service.preview().getFirst().modifiable());
     }
 
     @Test

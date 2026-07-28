@@ -86,7 +86,7 @@ class PomlessConverterTest {
         assertTrue(plan.hoistDeps().isEmpty(), "OpenL siblings are never hoisted to the anchor");
         assertEquals(1, plan.rulesXmlDeps().size(),
                 "the OpenL sibling dep moves into rules.xml so its GAV is explicit alongside <name>");
-        var moved = plan.rulesXmlDeps().get(0);
+        var moved = plan.rulesXmlDeps().getFirst();
         assertEquals("domain", moved.getArtifactId());
         assertEquals(OpenLPackagings.ZIP_DEPENDENCY_TYPE, moved.getType(),
                 "type=zip is preserved so writeRulesXmlDeps emits the canonical 3-seg coordinate (g:a:v)");
@@ -107,7 +107,7 @@ class PomlessConverterTest {
 
         assertTrue(plan.deletable(), "a provided java dep doesn't block deletion");
         assertEquals(1, plan.hoistDeps().size(), "provided/tile deps go to the anchor");
-        assertEquals("message-bundle", plan.hoistDeps().get(0).getArtifactId());
+        assertEquals("message-bundle", plan.hoistDeps().getFirst().getArtifactId());
         assertTrue(plan.rulesXmlDeps().isEmpty(), "provided/tile deps must not go to rules.xml (not packaged)");
     }
 
@@ -128,7 +128,7 @@ class PomlessConverterTest {
         assertTrue(plan.deletable());
         assertTrue(plan.hoistDeps().isEmpty(), "a packaged jar must NOT be hoisted to the anchor");
         assertEquals(1, plan.rulesXmlDeps().size(), "a compile/default jar goes into the project's rules.xml");
-        assertEquals("rating-details-store", plan.rulesXmlDeps().get(0).getArtifactId());
+        assertEquals("rating-details-store", plan.rulesXmlDeps().getFirst().getArtifactId());
     }
 
     @Test
@@ -206,7 +206,7 @@ class PomlessConverterTest {
         var plan = PomlessConverter.analyze(project);
 
         assertEquals(1, plan.rulesXmlDeps().size());
-        assertEquals("1.13.0", plan.rulesXmlDeps().get(0).getVersion(),
+        assertEquals("1.13.0", plan.rulesXmlDeps().getFirst().getVersion(),
                 "a version-less (managed) jar dep must be backfilled from the effective model, never left null");
     }
 
@@ -239,7 +239,7 @@ class PomlessConverterTest {
         var plan = PomlessConverter.analyze(project);
 
         assertEquals(1, plan.rulesXmlDeps().size());
-        assertEquals("3.5-SNAPSHOT", plan.rulesXmlDeps().get(0).getVersion(),
+        assertEquals("3.5-SNAPSHOT", plan.rulesXmlDeps().getFirst().getVersion(),
                 "the interpolated version must win over the raw '${revision}' so rules.xml carries the real value");
     }
 

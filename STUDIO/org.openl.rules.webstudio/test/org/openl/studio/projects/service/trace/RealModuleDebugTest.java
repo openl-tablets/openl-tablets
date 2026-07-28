@@ -43,7 +43,7 @@ class RealModuleDebugTest {
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(10_000));
         List<DebugFrame> stack = debugger.stack();
         assertFalse(stack.isEmpty(), "stack must not be empty when suspended");
-        var top = stack.get(stack.size() - 1);
+        var top = stack.getLast();
         assertEquals(FrameKind.SPREADSHEET, top.getKind(), "MyRule is a spreadsheet");
         assertNotNull(top.getUri(), "frame must carry a table URI");
         assertEquals("MyRule", top.getName());

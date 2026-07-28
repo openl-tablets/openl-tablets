@@ -85,11 +85,11 @@ class RepoFileRootAncestorsGitTest {
         var matches = root.searchAncestors("services/rating/AGENTS.md");
 
         assertEquals(3, matches.size());
-        assertEquals("services/rating/AGENTS.md", matches.get(0).getPath());
+        assertEquals("services/rating/AGENTS.md", matches.getFirst().getPath());
         assertEquals("services/AGENTS.md", matches.get(1).getPath());
         assertEquals("AGENTS.md", matches.get(2).getPath());
-        assertEquals("AGENTS.md", matches.get(0).getName());
-        assertEquals("services/rating", matches.get(0).getBasePath());
+        assertEquals("AGENTS.md", matches.getFirst().getName());
+        assertEquals("services/rating", matches.getFirst().getBasePath());
     }
 
     @Test

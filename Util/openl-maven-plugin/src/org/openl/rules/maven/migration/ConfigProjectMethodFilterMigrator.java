@@ -245,7 +245,7 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
                 return ""; // pure wildcard — the regexp matches everything, so does the '*' glob
             }
             if (tokens.size() != 6
-                    || tokens.get(0) != null || tokens.get(2) != null || tokens.get(4) != null
+                    || tokens.getFirst() != null || tokens.get(2) != null || tokens.get(4) != null
                     || !"(".equals(tokens.get(3)) || !")".equals(tokens.get(5))) {
                 return null;
             }

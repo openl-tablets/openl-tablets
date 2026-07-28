@@ -40,7 +40,7 @@ class ProjectModulesTest {
 
         assertEquals(List.of("rules/Main.xlsx", "rules/**/*.xlsx"), paths(modules));
         // A module declared by its own path stands for itself and holds nothing.
-        assertNull(modules.get(0).modules());
+        assertNull(modules.getFirst().modules());
         var pattern = modules.get(1);
         assertEquals("Rules", pattern.name());
         assertEquals(List.of("rules/Auto.xlsx", "rules/Home.xlsx"), paths(pattern.modules()));
@@ -51,14 +51,14 @@ class ProjectModulesTest {
         var modules = ProjectModules.map(List.of(module("Tests", "tests/**/*.xlsx")), List.of());
 
         assertEquals(1, modules.size());
-        assertEquals(List.of(), modules.get(0).modules());
+        assertEquals(List.of(), modules.getFirst().modules());
     }
 
     @Test
     void namesAModuleAfterItsFileWhenTheDeclarationLeavesTheNameOut() {
         var modules = ProjectModules.map(List.of(module(null, "rules/Pricing.xlsx")), List.of());
 
-        assertEquals("Pricing", modules.get(0).name());
+        assertEquals("Pricing", modules.getFirst().name());
     }
 
     @Test
@@ -67,6 +67,6 @@ class ProjectModulesTest {
         var modules = ProjectModules.map(List.of(), List.of(module("Main", "Main.xlsx")));
 
         assertEquals(List.of("Main.xlsx"), paths(modules));
-        assertNull(modules.get(0).modules());
+        assertNull(modules.getFirst().modules());
     }
 }

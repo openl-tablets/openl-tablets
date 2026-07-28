@@ -575,7 +575,7 @@ class ProjectDescriptorTest {
         var pd = ProjectDescriptor.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
         assertNotNull(pd);
         assertEquals(2, pd.getClasspath().size());
-        assertEquals("lib/*.jar", pd.getClasspath().get(0));
+        assertEquals("lib/*.jar", pd.getClasspath().getFirst());
         assertEquals("lib/extra.jar", pd.getClasspath().get(1));
     }
 
@@ -620,7 +620,7 @@ class ProjectDescriptorTest {
         var pd = ProjectDescriptor.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
         assertNotNull(pd);
         assertEquals(3, pd.getModules().size());
-        assertEquals("rules/A.xlsx", pd.getModules().get(0).getRulesRootPath());
+        assertEquals("rules/A.xlsx", pd.getModules().getFirst().getRulesRootPath());
         assertNull(pd.getModules().get(1).getRulesRootPath());
         assertNull(pd.getModules().get(2).getRulesRootPath());
     }

@@ -194,7 +194,7 @@ class ConfigProjectMethodFilterMigratorTest {
         ConfigProjectMethodFilterMigrator.transform(descriptor, () -> PrefixOnlyInterface.class);
 
         assertEquals(Set.of("_api_*"), descriptor.getExposedMethods().getIncludes());
-        assertNull(descriptor.getModules().get(0).getMethodFilter());
+        assertNull(descriptor.getModules().getFirst().getMethodFilter());
         assertNull(descriptor.getModules().get(1).getMethodFilter());
     }
 
