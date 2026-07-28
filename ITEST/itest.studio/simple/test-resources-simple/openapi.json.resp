@@ -12094,10 +12094,7 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ParameterValue"
-                  }
+                  "$ref": "#/components/schemas/StepInputsView"
                 }
               }
             },
@@ -24291,6 +24288,26 @@ Content-Type: application/json
             }
           }
         ]
+      },
+      "StepInputsView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cell": {
+            "type": "string",
+            "description": "***"
+          },
+          "inputs": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ParameterValue"
+            }
+          },
+          "result": {
+            "$ref": "#/components/schemas/ParameterValue"
+          }
+        }
       },
       "StepValueView": {
         "type": "object",

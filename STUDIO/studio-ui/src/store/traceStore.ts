@@ -537,9 +537,16 @@ export const useTraceStore = create<DebugState>((set, get) => {
         },
 
         selectFrame: async (index) => {
-            const { projectId, status, stackVersion } = get()
+            const { projectId, status, stackVersion, advanced, simpleFocus } = get()
             if (!projectId) return
             set({ selectedFrameIndex: index })
+            // A focused step in the business view shows only its own inputs, result and cell — all from the
+            // step-inputs endpoint. The heavy frame-variables payload (every cell value, the grid, the
+            // decision breakdown) is never rendered for a focused step, so don't fetch it.
+            if (!advanced && simpleFocus) {
+                set({ variables: null, variablesLoading: false })
+                return
+            }
             if (!isInspectable(status)) {
                 set({ variables: null, variablesLoading: false })
                 return
