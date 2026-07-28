@@ -412,16 +412,11 @@ The trace window opens in the **business view**: one **Run** button, the calcula
 
 *The trace window*
 
--   **Toolbar** — the **Run** button before the calculation runs, the calculation status, and the **Advanced** switch.
+-   **Toolbar** — the **Run** button before the calculation runs and the **Advanced** switch.
 -   **Left panel** — the calculation tree: every rule that executed, in the order it was called. Each rule reads with its signature and result, and each spreadsheet cell with its value — a decision table as `DT Double NonZeroValues(Double value) = 754299` — the way the classic trace showed it. (The advanced debugger keeps the tree lean, without these values.)
 -   **Right panel**, also called **Details** — everything about the selected rule: its inputs, its result, the table itself, and any errors.
 
-The **status** appears while the calculation runs and when it ends:
-
--   **Calculating** — the calculation is in progress.
--   **Finished** — the calculation completed.
--   **Failed** — the calculation failed. A banner reports what went wrong; **Show technical details** reveals the underlying error for developers.
--   **Stopped** — the run was ended before it finished.
+While the calculation runs, a progress note counts the rules as the tree is prepared. The business view shows no status pill of its own — the finished tree is the answer. If the calculation fails, a banner reports what went wrong, and **Show technical details** reveals the underlying error for developers. (The advanced debugger adds the full **Running**, **Paused**, **Finished**, and **Stopped** status.)
 
 #### Exploring the Calculation
 
