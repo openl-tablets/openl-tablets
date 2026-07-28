@@ -65,6 +65,39 @@ export const useStyles = createStyles(({ css, token }) => ({
     conditionFalse: css`
         background: ${token.colorErrorBg};
     `,
+    // The colour key, shown under the table — but only for the states this table actually paints.
+    legend: css`
+        display: flex;
+        flex-wrap: wrap;
+        gap: ${token.marginSM}px;
+        margin-top: ${token.marginXS}px;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorTextTertiary};
+    `,
+    legendItem: css`
+        display: inline-flex;
+        align-items: center;
+        gap: ${token.marginXXS}px;
+    `,
+    swatch: css`
+        width: 12px;
+        height: 12px;
+        border-radius: ${token.borderRadiusSM}px;
+        border: 1px solid ${token.colorBorderSecondary};
+    `,
+    swatchCurrent: css`
+        background: ${token.colorWarningBg};
+    `,
+    swatchResult: css`
+        background: ${token.colorSuccessBg};
+        box-shadow: inset 0 0 0 1px ${token.colorSuccess};
+    `,
+    swatchMet: css`
+        background: ${token.colorSuccessBg};
+    `,
+    swatchNotMet: css`
+        background: ${token.colorErrorBg};
+    `,
     truncated: css`
         margin-top: ${token.marginXS}px;
         font-size: ${token.fontSizeSM}px;

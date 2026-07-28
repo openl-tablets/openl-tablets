@@ -263,4 +263,61 @@ describe('TraceTableView', () => {
         screen.getByTestId('trace-table')
         expect(getFrameHighlights).not.toHaveBeenCalled()
     })
+
+    it('keys the legend to only the states the table actually paints, not all four every time', async () => {
+        getFrameHighlights.mockResolvedValue([
+            { cell: 'A1', state: 'conditionTrue' },
+            { cell: 'A2', state: 'conditionFalse' },
+            { cell: 'B1', state: 'result' },
+        ])
+        cacheTable('tbl', {
+            id: 'tbl', name: 'T',
+            source: [[{ cell: 'A1', value: 'c1' }, { cell: 'B1', value: 'r' }], [{ cell: 'A2', value: 'c2' }]],
+        })
+
+        await act(async () => {
+            render(<TraceTableView frameIndex={0} />)
+        })
+
+        expect(screen.getByTestId('trace-legend')).toBeInTheDocument()
+        expect(screen.getByText('legend.conditionMet')).toBeInTheDocument()
+        expect(screen.getByText('legend.conditionNotMet')).toBeInTheDocument()
+        expect(screen.getByText('legend.result')).toBeInTheDocument()
+        expect(screen.queryByText('legend.current')).toBeNull() // no current cell → no such legend entry
+    })
+
+    it('shows no legend at all when the table paints no highlights', async () => {
+        getFrameHighlights.mockResolvedValue([])
+        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'v' }]]})
+
+        await act(async () => {
+            render(<TraceTableView frameIndex={0} />)
+        })
+
+        expect(screen.queryByTestId('trace-legend')).toBeNull()
+    })
+
+    it('hides the legend in the business view when only the current cell is highlighted — it is suppressed there', async () => {
+        getFrameHighlights.mockResolvedValue([{ cell: 'B1', state: 'current' }])
+        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]]})
+
+        await act(async () => {
+            render(<TraceTableView dimOthers frameIndex={0} />)
+        })
+
+        // The current highlight is suppressed in the dimmed view, so neither its entry nor the legend appears.
+        expect(screen.queryByTestId('trace-legend')).toBeNull()
+    })
+
+    it('keys the current-step entry in the advanced view, where the current cell is painted', async () => {
+        getFrameHighlights.mockResolvedValue([{ cell: 'B1', state: 'current' }])
+        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]]})
+
+        await act(async () => {
+            render(<TraceTableView frameIndex={0} />)
+        })
+
+        expect(screen.getByTestId('trace-legend')).toBeInTheDocument()
+        expect(screen.getByText('legend.current')).toBeInTheDocument()
+    })
 })
