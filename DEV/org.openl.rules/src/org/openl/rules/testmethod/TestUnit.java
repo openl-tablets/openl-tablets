@@ -1,7 +1,6 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.openl.message.OpenLMessage;
@@ -91,7 +90,7 @@ public class TestUnit extends BaseTestUnit {
         if (actualError != null) {
             return OpenLMessagesUtils.newErrorMessages(actualError);
         } else {
-            return Collections.emptyList();
+            return List.of();
         }
     }
 

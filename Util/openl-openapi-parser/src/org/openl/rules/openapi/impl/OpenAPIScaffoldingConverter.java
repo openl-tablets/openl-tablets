@@ -62,7 +62,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     public static final String SPR_RESULT_LINK = SCHEMAS_LINK + SPREADSHEET_RESULT;
     public static final String RESULT = "Result";
     public static final Pattern PARAMETERS_BRACKETS_MATCHER = Pattern.compile("\\{.*?}");
-    private static final Set<String> IGNORED_FIELDS = Set.copyOf(Collections.singletonList("@class"));
+    private static final Set<String> IGNORED_FIELDS = Set.copyOf(List.of("@class"));
     public static final String SPREADSHEET_RESULT_CLASS_NAME = SpreadsheetResult.class.getName();
     public static final String GET_PREFIX = "get";
 
@@ -273,7 +273,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 dts,
                 dataModels,
                 isRuntimeContextProvided ? sprModelsWithRC : spreadsheetModels,
-                isRuntimeContextProvided ? sprModelsDivided.get(false) : Collections.emptyList());
+                isRuntimeContextProvided ? sprModelsDivided.get(false) : List.of());
     }
 
     private Set<String> retrieveAllFieldsRefs(Set<String> datatypeRefs, Map<String, Set<String>> refsWithFields) {
@@ -281,7 +281,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         var queue = new ArrayDeque<String>(datatypeRefs);
         while (!queue.isEmpty()) {
             final var dtRef = queue.poll();
-            refsWithFields.getOrDefault(dtRef, Collections.emptySet())
+            refsWithFields.getOrDefault(dtRef, Set.of())
                     .stream()
                     .filter(x -> !datatypeRefs.contains(x) && !allFieldsRefs.contains(x))
                     .filter(allFieldsRefs::add)
@@ -356,7 +356,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             var model = new SpreadsheetModel();
             model.setName(modelName);
             model.setType(SPREADSHEET_RESULT);
-            model.setParameters(Collections.emptyList());
+            model.setParameters(List.of());
             Schema<?> schema = getSchemas(openAPI).get(modelName);
             List<StepModel> steps = new ArrayList<>();
             if (schema != null) {
@@ -864,8 +864,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     }
 
     private List<StepModel> makeSingleStep(String stepType) {
-        return Collections
-                .singletonList(new StepModel(OpenAPIScaffoldingConverter.RESULT, stepType, makeValue(stepType)));
+        return List
+                .of(new StepModel(OpenAPIScaffoldingConverter.RESULT, stepType, makeValue(stepType)));
     }
 
     private OperationInfo getOperationInfo(Operation operation, PathItem.HttpMethod method) {
@@ -936,7 +936,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     private DatatypeModel createSimpleModel(String type) {
         var dm = new DatatypeModel("");
-        dm.setFields(Collections.singletonList(new FieldModel("this", type)));
+        dm.setFields(List.of(new FieldModel("this", type)));
         return dm;
     }
 

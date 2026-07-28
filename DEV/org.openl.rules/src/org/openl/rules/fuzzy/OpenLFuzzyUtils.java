@@ -118,7 +118,7 @@ public final class OpenLFuzzyUtils {
             int deepLevel,
             boolean writable) {
         if (deepLevel >= DEEP_LEVEL) {
-            return Collections.emptyMap();
+            return Map.of();
         }
         var ret = new HashMap<Token, LinkedList<LinkedList<IOpenField>>>();
         if (!openClass.isSimple()) {
@@ -391,7 +391,7 @@ public final class OpenLFuzzyUtils {
         var f = buildBySimilarity.getF();
 
         if (maxMatchedTokens == 0) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         var missedTokensMin = Integer.MAX_VALUE;

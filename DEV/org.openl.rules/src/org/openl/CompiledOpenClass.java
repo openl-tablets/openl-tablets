@@ -2,6 +2,7 @@ package org.openl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import org.openl.message.OpenLMessage;
@@ -34,10 +35,10 @@ public class CompiledOpenClass {
     public CompiledOpenClass(IOpenClass openClass,
                              Collection<OpenLMessage> allMessages,
                              Collection<OpenLMessage> messages) {
-        this.messages = messages != null ? Collections.unmodifiableCollection(messages) : Collections.emptyList();
+        this.messages = messages != null ? Collections.unmodifiableCollection(messages) : List.of();
         this.openClass = Objects.requireNonNull(openClass, "openClass cannot be null");
         if (allMessages == null) {
-            this.allMessages = Collections.emptyList();
+            this.allMessages = List.of();
         } else {
             this.allMessages = Collections.unmodifiableCollection(allMessages);
             this.hasErrors = !OpenLMessagesUtils.filterMessagesBySeverity(allMessages, Severity.ERROR).isEmpty();

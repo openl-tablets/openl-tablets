@@ -2,8 +2,8 @@ package org.openl.studio.projects.service.tests;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.scheduling.annotation.Async;
@@ -107,7 +107,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
         TestUnitsResults testUnitsResults;
         Collection<IOpenMethod> methods = (testedMethod instanceof OpenMethodDispatcher dispatcher)
                 ? dispatcher.getCandidates()
-                : Collections.singleton(testedMethod);
+                : Set.of(testedMethod);
         var noErrors = true;
         for (IOpenMethod method : methods) {
             if (!model.getErrorsByUri(method.getInfo().getSourceUrl()).isEmpty()) {

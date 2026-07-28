@@ -4,7 +4,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -180,7 +179,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
         var type = ParameterProcessor.getParameterType(apiParameter);
         ParameterProcessor.applyAnnotations(parameter,
                 type,
-                Collections.singletonList(apiParameter),
+                List.of(apiParameter),
                 components,
                 new String[0],
                 methodInfo.getConsumes(),
@@ -261,7 +260,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
         }
         ParameterProcessor.applyAnnotations(parameter,
                 parameterType,
-                paramInfo.getParameter() != null ? List.of(paramInfo.getParameter()) : Collections.emptyList(),
+                paramInfo.getParameter() != null ? List.of(paramInfo.getParameter()) : List.of(),
                 components,
                 new String[0],
                 methodInfo.getConsumes(),

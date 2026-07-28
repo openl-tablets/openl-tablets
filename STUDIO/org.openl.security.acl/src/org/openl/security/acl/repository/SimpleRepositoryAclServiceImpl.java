@@ -1,7 +1,6 @@
 package org.openl.security.acl.repository;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -93,11 +92,11 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public List<Permission> listPermissions(String repositoryId, String path, Sid sid) {
         if (sid == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         var oi = oidProvider.getRepositoryOid(repositoryId, path);
         var permissions = listPermissions(oi, List.of(sid));
-        return permissions.getOrDefault(sid, Collections.emptyList());
+        return permissions.getOrDefault(sid, List.of());
     }
 
     @Override
@@ -111,8 +110,8 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public List<Permission> listRootPermissions(Sid sid) {
         var rootOid = oidProvider.getRootOid();
-        var permissions = listPermissions(rootOid, sid == null ? Collections.emptyList() : List.of(sid));
-        return permissions.getOrDefault(sid, Collections.emptyList());
+        var permissions = listPermissions(rootOid, sid == null ? List.of() : List.of(sid));
+        return permissions.getOrDefault(sid, List.of());
     }
 
     protected Map<Sid, List<Permission>> listPermissions(ObjectIdentity objectIdentity, List<Sid> sids) {
@@ -131,7 +130,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             }
             return map;
         } catch (NotFoundException e) {
-            return Collections.emptyMap();
+            return Map.of();
         }
     }
 

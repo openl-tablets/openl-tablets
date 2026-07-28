@@ -39,15 +39,15 @@ public class TableProperties implements ITableProperties {
 
     private TableSyntaxNode categoryPropertiesTableSyntaxNode;
 
-    private Map<String, Object> categoryProperties = Collections.emptyMap();
+    private Map<String, Object> categoryProperties = Map.of();
 
-    private Map<String, Object> externalModuleProperties = Collections.emptyMap();
+    private Map<String, Object> externalModuleProperties = Map.of();
 
-    private Map<String, Object> moduleProperties = Collections.emptyMap();
+    private Map<String, Object> moduleProperties = Map.of();
 
-    private Map<String, Object> globalProperties = Collections.emptyMap();
+    private Map<String, Object> globalProperties = Map.of();
 
-    private Map<String, Object> defaultProperties = Collections.emptyMap();
+    private Map<String, Object> defaultProperties = Map.of();
 
     /**
      * The result <code>{@link Map}</code> will contain all pairs from downLevelProperties and pairs from
@@ -726,7 +726,7 @@ public class TableProperties implements ITableProperties {
     @Override
     public void setCategoryProperties(Map<String, Object> categoryProperties) {
         if (categoryProperties == null) {
-            this.categoryProperties = Collections.emptyMap();
+            this.categoryProperties = Map.of();
         } else {
             this.categoryProperties = extractPropertiesMap(categoryProperties);
         }
@@ -744,7 +744,7 @@ public class TableProperties implements ITableProperties {
     @Override
     public void setModuleProperties(Map<String, Object> moduleProperties) {
         if (moduleProperties == null) {
-            this.moduleProperties = Collections.emptyMap();
+            this.moduleProperties = Map.of();
         } else {
             this.moduleProperties = extractPropertiesMap(moduleProperties);
         }
@@ -754,7 +754,7 @@ public class TableProperties implements ITableProperties {
     @Override
     public void setGlobalProperties(Map<String, Object> globalProperties) {
         if (globalProperties == null) {
-            this.globalProperties = Collections.emptyMap();
+            this.globalProperties = Map.of();
         } else {
             this.globalProperties = extractPropertiesMap(globalProperties);
         }
@@ -780,7 +780,7 @@ public class TableProperties implements ITableProperties {
     @Override
     public void setDefaultProperties(Map<String, Object> defaultProperties) {
         if (defaultProperties == null) {
-            this.defaultProperties = Collections.emptyMap();
+            this.defaultProperties = Map.of();
         } else {
             this.defaultProperties = Collections.unmodifiableMap(defaultProperties);
         }
@@ -814,7 +814,7 @@ public class TableProperties implements ITableProperties {
     @Override
     public void setExternalProperties(Map<String, Object> externalProperties) {
         if (externalProperties == null) {
-            this.externalModuleProperties = Collections.emptyMap();
+            this.externalModuleProperties = Map.of();
         } else {
             this.externalModuleProperties = extractPropertiesMap(externalProperties);
         }

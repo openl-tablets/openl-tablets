@@ -3,8 +3,8 @@ package org.openl.rules.ruleservice.core;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -257,7 +257,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         if (getServiceInvocationAdviceListeners() != null) {
             return getServiceInvocationAdviceListeners().getIfAvailable();
         } else {
-            return Collections.emptyList();
+            return List.of();
         }
     }
 

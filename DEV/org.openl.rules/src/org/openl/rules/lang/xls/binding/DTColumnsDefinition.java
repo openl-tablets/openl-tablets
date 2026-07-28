@@ -68,7 +68,7 @@ public class DTColumnsDefinition {
     }
 
     public Set<String> getExternalParameters() {
-        return Objects.requireNonNullElse(externalParameters, Collections.emptySet());
+        return Objects.requireNonNullElse(externalParameters, Set.of());
     }
 
     public void setExternalParameters(Set<String> externalParameters) {
@@ -91,7 +91,7 @@ public class DTColumnsDefinition {
         if (value != null) {
             return Collections.unmodifiableList(value);
         } else {
-            return Collections.emptyList();
+            return List.of();
         }
     }
 

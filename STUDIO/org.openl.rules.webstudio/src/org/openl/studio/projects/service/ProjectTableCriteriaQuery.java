@@ -3,6 +3,7 @@ package org.openl.studio.projects.service;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,10 +20,10 @@ public class ProjectTableCriteriaQuery {
     private final boolean includeOther;
 
     private ProjectTableCriteriaQuery(Builder builder) {
-        this.kinds = builder.kinds == null ? Collections.emptyList()
+        this.kinds = builder.kinds == null ? List.of()
                 : Collections.unmodifiableCollection(builder.kinds);
         this.name = builder.name;
-        this.properties = builder.properties == null ? Collections.emptyMap() : Map.copyOf(builder.properties);
+        this.properties = builder.properties == null ? Map.of() : Map.copyOf(builder.properties);
         this.includeOther = builder.includeOther;
     }
 

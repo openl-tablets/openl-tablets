@@ -7,7 +7,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -75,7 +75,7 @@ public class ZipProjectSaveStrategy {
         Predicate<Path> filter = p -> zipFilter.accept(p.toString());
         var charset = zipCharsetDetector.detectCharset(() -> Files.newInputStream(zipArchive));
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(zipArchive),
-                Collections.singletonMap("encoding", charset.name()))) {
+                Map.of("encoding", charset.name()))) {
 
             final var root = fs.getPath("/");
             if (repository.supports().folders()) {

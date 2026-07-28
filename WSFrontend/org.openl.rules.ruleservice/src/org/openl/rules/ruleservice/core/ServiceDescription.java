@@ -83,14 +83,14 @@ public final class ServiceDescription {
         this.annotationTemplateClassName = annotationTemplateClassName;
         this.rulesDeploy = rulesDeploy;
         if (configuration == null) {
-            this.configuration = Collections.emptyMap();
+            this.configuration = Map.of();
         } else {
             this.configuration = Collections.unmodifiableMap(configuration);
         }
         if (modules != null) {
             this.modules = Collections.unmodifiableCollection(modules);
         } else {
-            this.modules = Collections.emptySet();
+            this.modules = Set.of();
         }
 
         this.publishers = publishers;

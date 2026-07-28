@@ -204,11 +204,11 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         initializeGit(true);
 
         if (isEmpty()) {
-            return Collections.emptyList();
+            return List.of();
         }
         var objectId = resolveBranchId();
         if (objectId == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         return iterate(path, new ListCommand(objectId));
     }
@@ -2012,7 +2012,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private static TreeWalk createTreeWalk(ObjectReader or, String path) {
-        TreeFilter t = AndTreeFilter.create(PathFilterGroup.create(Collections.singleton(PathFilter.create(path))),
+        TreeFilter t = AndTreeFilter.create(PathFilterGroup.create(Set.of(PathFilter.create(path))),
                 TreeFilter.ANY_DIFF);
         var tw = new TreeWalk(or);
         tw.setFilter(t);
@@ -2613,7 +2613,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 List<String> projectBranches = branches.getProjectBranches().get(projectPath);
                 List<String> result;
                 if (projectBranches == null) {
-                    result = new ArrayList<>(Collections.singletonList(branch));
+                    result = new ArrayList<>(List.of(branch));
                 } else {
                     result = new ArrayList<>(projectBranches);
                     result.sort(String.CASE_INSENSITIVE_ORDER);
@@ -2889,7 +2889,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private String getMergeMessage(Ref r) throws IOException {
-        var userMessage = new MergeMessageFormatter().format(Collections.singletonList(r),
+        var userMessage = new MergeMessageFormatter().format(List.of(r),
                 git.getRepository().exactRef(Constants.HEAD));
         if (escapedCommentTemplate == null) {
             return userMessage;
@@ -3146,7 +3146,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
                 return files;
             } else {
-                return Collections.emptyList();
+                return List.of();
             }
         }
     }
@@ -3169,7 +3169,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 }
             }
 
-            return Collections.emptyList();
+            return List.of();
         }
 
         private List<FileData> collectFolderData(TreeWalk rootWalk, String baseFolder) throws IOException {

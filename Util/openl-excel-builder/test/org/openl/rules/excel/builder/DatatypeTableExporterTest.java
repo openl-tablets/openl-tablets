@@ -15,9 +15,9 @@ import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -73,14 +73,14 @@ class DatatypeTableExporterTest {
         var oneMoreModel = new DatatypeModel("NextModel");
         var nextModelField = new FieldModel("color", STRING_TYPE, "red");
         oneMoreModel.setParent("Test");
-        oneMoreModel.setFields(Collections.singletonList(nextModelField));
+        oneMoreModel.setFields(List.of(nextModelField));
 
         var projectModel = new ProjectModel(TEST_PROJECT,
                 false,
                 asSet(dt, oneMoreModel),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList());
+                List.of(),
+                List.of(),
+                List.of());
         ExcelFileBuilder.generateProject(projectModel);
 
         try (var wb = new XSSFWorkbook(

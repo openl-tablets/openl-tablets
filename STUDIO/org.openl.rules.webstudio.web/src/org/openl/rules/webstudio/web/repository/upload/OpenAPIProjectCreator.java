@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -157,7 +156,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             }
 
             environmentModel = new EnvironmentModel();
-            environmentModel.setDependencies(Collections.singletonList(modelsModuleName));
+            environmentModel.setDependencies(List.of(modelsModuleName));
 
             addFile(projectBuilder,
                     openAPIHelper.generateDataTypesFile(datatypeModels),

@@ -1,6 +1,5 @@
 package org.openl.excel.parser.event.style;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +41,7 @@ public class EventTableStyles implements TableStyles {
         this.customFormats = customFormats;
         this.palette = palette;
         this.fonts = fonts;
-        this.comments = comments == null ? Collections.emptyList() : comments;
+        this.comments = comments == null ? List.of() : comments;
         this.formulas = formulas;
     }
 

@@ -6,7 +6,6 @@ import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -112,7 +111,7 @@ final class WizardUtils {
             resources = classLoader.getResources(path);
         } catch (IOException e) {
             log.debug(e.getMessage(), e);
-            return Collections.emptySet();
+            return Set.of();
         }
 
         var classes = new HashSet<Class<?>>();

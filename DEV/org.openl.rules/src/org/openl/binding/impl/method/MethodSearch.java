@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -579,7 +578,7 @@ public final class MethodSearch {
                                                    Iterable<IOpenMethod> methods,
                                                    boolean allowMultiCallParams) throws AmbiguousMethodException {
         final int nParams = callParams.length;
-        Iterable<IOpenMethod> filtered = methods == null ? Collections.emptyList()
+        Iterable<IOpenMethod> filtered = methods == null ? List.of()
                 : CollectionUtils.findAll(methods,
                 method -> method.getName().equals(name) && (method
                         .getSignature()

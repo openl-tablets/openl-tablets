@@ -1,11 +1,11 @@
 package org.openl.rules.calc;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Stack;
 
 import org.openl.binding.exception.AmbiguousFieldException;
@@ -44,7 +44,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     @Override
     public Collection<IOpenClass> superClasses() {
-        return Collections.singleton(AnySpreadsheetResultOpenClass.INSTANCE);
+        return Set.of(AnySpreadsheetResultOpenClass.INSTANCE);
     }
 
     @Override

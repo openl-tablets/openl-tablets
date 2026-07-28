@@ -1,6 +1,5 @@
 package org.openl.security.acl.repository;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -106,11 +105,11 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     @Transactional
     public List<Permission> listPermissions(AProjectArtefact projectArtefact, Sid sid) {
         if (sid == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         var oi = oidProvider.getArtifactOid(projectArtefact);
         var permissions = listPermissions(oi, List.of(sid));
-        return permissions.getOrDefault(sid, Collections.emptyList());
+        return permissions.getOrDefault(sid, List.of());
     }
 
     @Override

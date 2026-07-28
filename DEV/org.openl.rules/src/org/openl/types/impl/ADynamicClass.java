@@ -5,8 +5,8 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.exception.DuplicatedFieldException;
@@ -188,7 +188,7 @@ public abstract class ADynamicClass extends AOpenClass {
 
     @Override
     public Collection<IOpenClass> superClasses() {
-        return Collections.emptyList();
+        return List.of();
     }
 
 }

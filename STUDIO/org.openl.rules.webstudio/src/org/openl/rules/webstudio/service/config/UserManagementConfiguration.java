@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.service.config;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -79,7 +78,7 @@ public class UserManagementConfiguration {
             if (adminUsers.isSuperuser(user)) {
                 return List.of(Privileges.ADMIN);
             }
-            return Collections.emptyList();
+            return List.of();
         };
     }
 

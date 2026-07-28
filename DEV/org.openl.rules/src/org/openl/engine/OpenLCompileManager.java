@@ -3,7 +3,6 @@ package org.openl.engine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -218,6 +217,6 @@ public class OpenLCompileManager {
             dependencies = (List<IDependency>) params.get(EXTERNAL_DEPENDENCIES_KEY);
 
         }
-        return dependencies == null ? Collections.emptyList() : dependencies;
+        return dependencies == null ? List.of() : dependencies;
     }
 }

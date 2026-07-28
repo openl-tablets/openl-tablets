@@ -17,6 +17,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -199,7 +200,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public Collection<IOpenClass> superClasses() {
-        return Collections.singleton(getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes());
+        return Set.of(getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes());
     }
 
     protected IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousFieldException {

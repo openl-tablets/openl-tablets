@@ -48,16 +48,16 @@ public class StoreLogDataMapper {
         customAnnotations.add(Value.class);
         CUSTOM_ANNOTATIONS = Collections.unmodifiableSet(customAnnotations);
 
-        Set<Class<? extends Annotation>> mappingAnnotations = new HashSet<>();
-        mappingAnnotations.add(Publisher.class);
-        mappingAnnotations.add(IncomingTime.class);
-        mappingAnnotations.add(OutcomingTime.class);
-        mappingAnnotations.add(MethodName.class);
-        mappingAnnotations.add(Url.class);
-        mappingAnnotations.add(Request.class);
-        mappingAnnotations.add(Response.class);
-        mappingAnnotations.add(ServiceName.class);
-        mappingAnnotations.add(KafkaMessageHeader.class);
+        Set<Class<? extends Annotation>> mappingAnnotations = new HashSet<>(Set.of(
+                Publisher.class,
+                IncomingTime.class,
+                OutcomingTime.class,
+                MethodName.class,
+                Url.class,
+                Request.class,
+                Response.class,
+                ServiceName.class,
+                KafkaMessageHeader.class));
 
         MAPPING_ANNOTATIONS = Collections.unmodifiableSet(mappingAnnotations);
     }

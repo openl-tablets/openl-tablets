@@ -9,7 +9,8 @@ import static org.openl.rules.excel.builder.export.EnvironmentTableExporter.ENV_
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
@@ -28,20 +29,20 @@ class EnvironmentTableExporterTest {
     @Test
     void testSpreadsheetExport() throws IOException {
         var environmentModel = new EnvironmentModel();
-        environmentModel.setDependencies(Collections.singletonList(MODEL));
-        environmentModel.setImports(Collections.singletonList(IMPORTED_VALUE));
+        environmentModel.setDependencies(List.of(MODEL));
+        environmentModel.setImports(List.of(IMPORTED_VALUE));
 
         var projectModel = new ProjectModel(TEST_PROJECT,
                 false,
-                Collections.emptySet(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList());
+                Set.of(),
+                List.of(),
+                List.of(),
+                List.of());
 
         byte[] bytes;
         try (var sos = new ByteArrayOutputStream()) {
             ExcelFileBuilder.generateAlgorithmsModule(projectModel.getSpreadsheetResultModels(),
-                    Collections.emptyList(),
+                    List.of(),
                     sos,
                     environmentModel);
             bytes = sos.toByteArray();

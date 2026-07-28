@@ -189,7 +189,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
 
         public EqualsIndexV2 build() {
             if (map == null) {
-                result = Collections.emptyMap();
+                result = Map.of();
             } else {
                 for (Map.Entry<Object, DecisionTableRuleNodeBuilder> element : map.entrySet()) {
                     result.put(element.getKey(), element.getValue().makeRulesAry());

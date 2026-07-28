@@ -1,7 +1,6 @@
 package org.openl.rules.tbasic.compile;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
@@ -90,7 +89,7 @@ public class AlgoritmNodesCompiler {
         ConversionRuleBean conversionRule = ConversionRulesController
                 .getConvertionRule(nodesToCompile, bindingContext);
         if (conversionRule == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         // the first operation always contains definition

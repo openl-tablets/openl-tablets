@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -699,8 +698,8 @@ class GitRepositoryTest {
                 var resolveText = "foo\nbar\nbaz";
                 var mergeMessage = "Merge with " + theirCommit;
 
-                var resolveConflicts = Collections
-                        .singletonList(new FileItem(filePath, IOUtils.toInputStream(resolveText)));
+                var resolveConflicts = List
+                        .of(new FileItem(filePath, IOUtils.toInputStream(resolveText)));
 
                 FileData fileData = createFileData(filePath, text2);
                 fileData.setVersion(baseCommit);
@@ -762,7 +761,7 @@ class GitRepositoryTest {
             var text2 = "foo\nbaz";
             FileData fileData = createFileData(filePath, text2);
             InputStream stream = IOUtils.toInputStream(text2);
-            repository2.save(Collections.singletonList(new FileItem(fileData, stream)));
+            repository2.save(List.of(new FileItem(fileData, stream)));
 
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
@@ -856,8 +855,8 @@ class GitRepositoryTest {
                         new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
                         new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
 
-                var resolveConflicts = Collections
-                        .singletonList(new FileItem(conflictedFile, IOUtils.toInputStream(resolveText)));
+                var resolveConflicts = List
+                        .of(new FileItem(conflictedFile, IOUtils.toInputStream(resolveText)));
 
                 var folderData2 = new FileData();
                 folderData2.setName("rules/project1");
@@ -973,7 +972,7 @@ class GitRepositoryTest {
                         new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
                         new FileItem(conflictedFile, null));
 
-                var resolveConflicts = Collections.singletonList(new FileItem(conflictedFile, null));
+                var resolveConflicts = List.of(new FileItem(conflictedFile, null));
 
                 var folderData2 = new FileData();
                 folderData2.setName("rules/project1");

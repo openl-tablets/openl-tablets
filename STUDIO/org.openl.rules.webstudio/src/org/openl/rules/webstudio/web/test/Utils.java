@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.test;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 import jakarta.servlet.http.HttpSession;
 
 import org.openl.CompiledOpenClass;
@@ -87,7 +87,7 @@ public final class Utils {
                 var testSuite = new TestSuite(testSuiteMethod);
                 TestUnitsResults testUnitsResults;
                 Collection<IOpenMethod> methods = (testedMethod instanceof OpenMethodDispatcher omd) ? omd
-                        .getCandidates() : Collections.singleton(testedMethod);
+                        .getCandidates() : Set.of(testedMethod);
                 var noErrors = true;
                 for (IOpenMethod method : methods) {
                     noErrors = noErrors && model.getErrorsByUri(method.getInfo().getSourceUrl()).isEmpty();

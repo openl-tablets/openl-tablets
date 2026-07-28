@@ -81,7 +81,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private final boolean dispatchingValidationEnabled;
 
-    private Collection<String> imports = Collections.emptySet();
+    private Collection<String> imports = Set.of();
 
     private final ClassLoader classLoader;
 

@@ -299,7 +299,7 @@ class ZippedLocalRepositoryTest {
 
     private static <T, K> Map<K, T> flatMap(List<T> list, Function<T, K> key) {
         if (CollectionUtils.isEmpty(list)) {
-            return Collections.emptyMap();
+            return Map.of();
         }
         return list.stream().collect(Collectors.toMap(key, it -> it));
     }

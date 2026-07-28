@@ -14,8 +14,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.AfterAll;
@@ -37,7 +37,7 @@ class DataTableExporterTest {
     @Test
     void writeDataTables() throws IOException {
         var noFieldsModel = new DatatypeModel("NoFieldsModel");
-        noFieldsModel.setFields(Collections.singletonList(new FieldModel("this", "Double")));
+        noFieldsModel.setFields(List.of(new FieldModel("this", "Double")));
         var emptyModel = new DataModel("emptyDataTAble", "Object", null, noFieldsModel);
 
         var dt = new DatatypeModel("Test");

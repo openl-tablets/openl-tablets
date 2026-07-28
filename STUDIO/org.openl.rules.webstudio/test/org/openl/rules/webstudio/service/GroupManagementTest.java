@@ -263,23 +263,23 @@ class GroupManagementTest {
                 mappedGroups.get("Administrators").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
-        assertCollectionEquals(Collections.emptyList(),
+        assertCollectionEquals(List.of(),
                 mappedGroups.get("Analysts").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
-        assertCollectionEquals(Collections.emptyList(),
+        assertCollectionEquals(List.of(),
                 mappedGroups.get("Deployers").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
-        assertCollectionEquals(Collections.emptyList(),
+        assertCollectionEquals(List.of(),
                 mappedGroups.get("Developers").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
-        assertCollectionEquals(Collections.emptyList(),
+        assertCollectionEquals(List.of(),
                 mappedGroups.get("Testers").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
-        assertCollectionEquals(Collections.emptyList(),
+        assertCollectionEquals(List.of(),
                 mappedGroups.get("Viewers").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
@@ -340,7 +340,7 @@ class GroupManagementTest {
     @Test
     void testSaveLongGroupName() {
         initOneUser();
-        externalGroupService.mergeAllForUser("jdoe", Collections.singleton(new SimpleGrantedAuthority("foo-bar".repeat(9))));
+        externalGroupService.mergeAllForUser("jdoe", Set.of(new SimpleGrantedAuthority("foo-bar".repeat(9))));
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getInsert());
         assertEquals(2, queryCount.getDelete());
@@ -435,7 +435,7 @@ class GroupManagementTest {
         userManagementService.updateAuthorities("jdoe", Set.of("Analysts"));
         assertEquals(1, userDao.getGroupsForUser("jdoe").size());
 
-        userManagementService.updateAuthorities("jdoe", Collections.emptySet());
+        userManagementService.updateAuthorities("jdoe", Set.of());
         assertTrue(userDao.getGroupsForUser("jdoe").isEmpty());
     }
 

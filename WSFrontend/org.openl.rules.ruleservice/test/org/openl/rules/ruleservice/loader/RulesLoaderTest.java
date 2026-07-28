@@ -8,7 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ class RulesLoaderTest {
                 .map(IProjectFolder::getName)
                 .sorted()
                 .collect(Collectors.toList());
-        assertEquals(Collections.emptyList(), d0);
+        assertEquals(List.of(), d0);
 
         // First version deploy
         updateProject(repository, "deployment1", "project1", false);
@@ -53,7 +53,7 @@ class RulesLoaderTest {
                 .map(IProjectFolder::getName)
                 .sorted()
                 .collect(Collectors.toList());
-        assertEquals(Collections.singletonList("project1"), d1);
+        assertEquals(List.of("project1"), d1);
 
         updateProject(repository, "deployment1", "project2", false);
         var d2 = ruleServiceLoader.getDeployments()
@@ -72,7 +72,7 @@ class RulesLoaderTest {
                 .map(IProjectFolder::getName)
                 .sorted()
                 .collect(Collectors.toList());
-        assertEquals(Collections.singletonList("project2"), d3);
+        assertEquals(List.of("project2"), d3);
 
         updateProject(repository, "deployment1", "project2", false);
         var d4 = ruleServiceLoader.getDeployments()
@@ -81,7 +81,7 @@ class RulesLoaderTest {
                 .map(IProjectFolder::getName)
                 .sorted()
                 .collect(Collectors.toList());
-        assertEquals(Collections.singletonList("project2"), d4);
+        assertEquals(List.of("project2"), d4);
 
         updateProject(repository, "org.openl.tablets.tutorial4", "org.openl.tablets.tutorial4", false);
         var d5 = ruleServiceLoader.getDeployments()

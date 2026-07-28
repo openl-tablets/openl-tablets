@@ -1,7 +1,6 @@
 package org.openl.rules.lang.xls.types.meta;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +125,7 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                             metaInfo.getSourceUrl(),
                             type,
                             NodeType.DATATYPE);
-                    return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
+                    return new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage));
                 }
             }
 

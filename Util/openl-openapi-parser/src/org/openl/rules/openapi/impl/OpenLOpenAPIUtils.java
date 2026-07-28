@@ -6,7 +6,6 @@ import static org.openl.rules.openapi.impl.OpenAPITypeUtils.SCHEMAS_LINK;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -514,7 +513,7 @@ public class OpenLOpenAPIUtils {
                 .isNotEmpty(openAPI.getComponents().getSchemas())) {
             return openAPI.getComponents().getSchemas();
         }
-        return Collections.emptyMap();
+        return Map.of();
     }
 
     public static Map<String, Schema> getAllFields(OpenAPIRefResolver openAPIRefResolver, ComposedSchema cs) {
@@ -562,7 +561,7 @@ public class OpenLOpenAPIUtils {
         } else if (composed.getOneOf() != null && !composed.getOneOf().isEmpty()) {
             result = composed.getOneOf();
         } else {
-            result = Collections.emptyList();
+            result = List.of();
         }
         return result;
     }
@@ -689,7 +688,7 @@ public class OpenLOpenAPIUtils {
                 var parameterModel = new ParameterModel(typeInfo,
                         StringUtils.uncapitalize(normalizeName(name)),
                         name);
-                result = Collections.singletonList(parameterModel);
+                result = List.of(parameterModel);
             } else {
                 result = properties.entrySet()
                         .stream()
@@ -730,7 +729,7 @@ public class OpenLOpenAPIUtils {
                         .extractType(openAPIRefResolver, mediaType.getContent().getSchema(), false);
                 var type = typeInfo.getSimpleName();
                 if (StringUtils.isBlank(type)) {
-                    result = Collections.emptyList();
+                    result = List.of();
                 } else {
                     var parameter = type;
                     if (typeInfo.getDimension() > 0) {
@@ -739,8 +738,8 @@ public class OpenLOpenAPIUtils {
                     if (OpenAPITypeUtils.isPrimitiveType(type)) {
                         parameter += "Param";
                     }
-                    result = new ArrayList<>(Collections
-                            .singletonList(new ParameterModel(typeInfo, StringUtils.uncapitalize(parameter), parameter)));
+                    result = new ArrayList<>(List
+                            .of(new ParameterModel(typeInfo, StringUtils.uncapitalize(parameter), parameter)));
                 }
             }
         }

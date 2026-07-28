@@ -1,7 +1,6 @@
 package org.openl.rules.dt.index;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +85,7 @@ public class EqualsIndex extends ARuleIndex {
 
         public EqualsIndex build() {
             if (map == null) {
-                nodeMap = Collections.emptyMap();
+                nodeMap = Map.of();
             } else {
                 var rulesToNode = new HashMap<List<Integer>, DecisionTableRuleNode>();
                 for (Map.Entry<Object, DecisionTableRuleNodeBuilder> element : map.entrySet()) {

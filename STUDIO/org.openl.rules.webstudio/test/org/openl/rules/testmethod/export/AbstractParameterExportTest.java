@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -111,7 +110,7 @@ class AbstractParameterExportTest {
     }
 
     protected List<TestUnitsResults> mockResults(ParameterWithValueDeclaration[]... paramsForEachCase) {
-        return Collections.singletonList(mockResult("TestRule", paramsForEachCase));
+        return List.of(mockResult("TestRule", paramsForEachCase));
     }
 
     protected TestUnitsResults mockResult(String testMethodName, ParameterWithValueDeclaration[]... paramsForEachCase) {

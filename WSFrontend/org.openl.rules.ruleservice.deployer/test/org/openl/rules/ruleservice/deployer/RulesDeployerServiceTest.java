@@ -19,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,7 +67,7 @@ class RulesDeployerServiceTest {
     private <T extends Repository> void init(Class<T> repo, boolean local) throws IOException {
         mockedDeployRepo = mock(repo);
         when(mockedDeployRepo.supports()).thenReturn(new FeaturesBuilder(mockedDeployRepo).setLocal(local).build());
-        when(mockedDeployRepo.list(anyString())).thenReturn(Collections.emptyList());
+        when(mockedDeployRepo.list(anyString())).thenReturn(List.of());
         deployer = new RulesDeployerService(mockedDeployRepo, DEPLOY_PATH);
     }
 
@@ -138,7 +137,7 @@ class RulesDeployerServiceTest {
     @Test
     void test_deploy_singleDeployment_whenNotOverridableAndDeployedAlready() throws Exception {
         init(Repository.class, false);
-        when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(Collections.singletonList(new FileData()));
+        when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(List.of(new FileData()));
         try (var is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, false);
         }
@@ -148,7 +147,7 @@ class RulesDeployerServiceTest {
     @Test
     void test_deploy_singleDeployment_whenOverridableAndDeployedAlready() throws Exception {
         init(Repository.class, false);
-        when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(Collections.singletonList(new FileData()));
+        when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(List.of(new FileData()));
         try (var is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
         }

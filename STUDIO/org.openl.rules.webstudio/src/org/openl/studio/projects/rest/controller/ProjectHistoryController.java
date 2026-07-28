@@ -1,7 +1,6 @@
 package org.openl.studio.projects.rest.controller;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import jakarta.servlet.http.HttpSession;
 
@@ -36,7 +35,7 @@ public class ProjectHistoryController {
     public List<ProjectHistoryItem> getProjectHistory(HttpSession session) {
         var webStudio = WebStudioUtils.getWebStudio(session);
         if (webStudio == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         return projectHistoryService.getProjectHistory(webStudio);
     }

@@ -14,10 +14,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -162,7 +162,7 @@ class OpenAPIProjectCreatorTest {
                                 MOCK_ALGORITHM_PATH,
                                 MOCK_MODEL_NAME,
                                 MOCK_ALGORITHM_NAME,
-                                Collections.emptyMap());
+                                Map.of());
                         projectCreator.createRulesProject();
                     } finally {
                         Optional.ofNullable(projectCreator).ifPresent(OpenAPIProjectCreator::destroy);

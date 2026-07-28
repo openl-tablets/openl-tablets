@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -44,7 +45,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     @Setter
     private String supportedGroups = null;
     private DeploymentNameMatcher deploymentMatcher = DeploymentNameMatcher.DEFAULT;
-    private Collection<String> defaultPublishers = Collections.emptyList();
+    private Collection<String> defaultPublishers = List.of();
 
     /**
      * {@inheritDoc}
@@ -179,7 +180,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
             }
             return supportedGroupSet;
         }
-        return Collections.emptySet();
+        return Set.of();
     }
 
     private boolean serviceGroupSupported(RulesDeploy rulesDeploy) {
@@ -247,7 +248,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
             this.defaultPublishers = new HashSet<>();
             Collections.addAll(this.defaultPublishers, defaultPublishers);
         } else {
-            this.defaultPublishers = Collections.emptyList();
+            this.defaultPublishers = List.of();
         }
     }
 

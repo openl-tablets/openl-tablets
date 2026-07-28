@@ -2,7 +2,6 @@ package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,9 +56,9 @@ public class ProjectTags {
                 }
             } catch (ProjectException | IOException e) {
                 log.error(e.getMessage(), e);
-                return Collections.emptyMap();
+                return Map.of();
             }
         }
-        return Collections.emptyMap();
+        return Map.of();
     }
 }

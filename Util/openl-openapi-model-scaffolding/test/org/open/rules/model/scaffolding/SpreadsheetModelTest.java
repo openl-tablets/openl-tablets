@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -129,7 +128,7 @@ class SpreadsheetModelTest {
         assertNotEquals(first, third);
         assertNotEquals(first.hashCode(), third.hashCode());
 
-        third.setParameters(Collections.singletonList(date));
+        third.setParameters(List.of(date));
         assertNotEquals(first, third);
         assertNotEquals(first.hashCode(), third.hashCode());
 
@@ -154,13 +153,13 @@ class SpreadsheetModelTest {
         SpreadsheetModel spr = new SpreadsheetModel();
         spr.setName(SPR_NAME);
         spr.setType(STRING);
-        spr.setSteps(Collections.emptyList());
+        spr.setSteps(List.of());
         spr.setPathInfo(xyzInfo);
 
         SpreadsheetModel secondSpr = new SpreadsheetModel();
         secondSpr.setName(SPR_NAME);
         secondSpr.setType(STRING);
-        secondSpr.setSteps(Collections.emptyList());
+        secondSpr.setSteps(List.of());
         secondSpr.setPathInfo(xyzInfo);
 
         assertEquals(spr, secondSpr);
@@ -170,7 +169,7 @@ class SpreadsheetModelTest {
         SpreadsheetModel thirdSpr = new SpreadsheetModel();
         secondSpr.setName(SPR_NAME);
         secondSpr.setType(STRING);
-        secondSpr.setSteps(Collections.emptyList());
+        secondSpr.setSteps(List.of());
         secondSpr.setPathInfo(xyInfo);
 
         assertNotEquals(spr, thirdSpr);

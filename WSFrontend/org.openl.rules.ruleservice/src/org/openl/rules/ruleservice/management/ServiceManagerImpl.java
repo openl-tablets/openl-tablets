@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -70,7 +71,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     private Collection<RuleServicePublisher> supportedPublishers;
     @Autowired(required = false)
     @Setter
-    private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
+    private Collection<RuleServicePublisherListener> listeners = List.of();
 
     @Getter
     private ServiceDescription serviceDescriptionInProcess;
@@ -118,7 +119,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             return services;
         } catch (Exception e) {
             log.error("Failed to gather services to be deployed.", e);
-            return Collections.emptyMap();
+            return Map.of();
         }
     }
 
@@ -265,7 +266,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
         }
         var exception = service.getException();
-        return exception != null ? Collections.singleton(exception.toString()) : Collections.emptyList();
+        return exception != null ? Set.of(exception.toString()) : List.of();
     }
 
     @Override
@@ -454,6 +455,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     @PreDestroy
     public void destroy() throws Exception {
-        undeployUnnecessary(Collections.emptyMap());
+        undeployUnnecessary(Map.of());
     }
 }

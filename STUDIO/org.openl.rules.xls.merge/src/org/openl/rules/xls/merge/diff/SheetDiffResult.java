@@ -1,7 +1,6 @@
 package org.openl.rules.xls.merge.diff;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,7 +54,7 @@ public class SheetDiffResult {
      * @return sheets collection
      */
     public Collection<String> getDiffSheets(DiffStatus diff) {
-        return diffResults.getOrDefault(diff, Collections.emptySet());
+        return diffResults.getOrDefault(diff, Set.of());
     }
 
     /**

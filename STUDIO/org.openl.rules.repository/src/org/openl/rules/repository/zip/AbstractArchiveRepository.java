@@ -108,8 +108,8 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
     }
 
     private Path root;
-    private Map<String, Path> storage = Collections.emptyMap();
-    private Map<Path, String> pathAliases = Collections.emptyMap();
+    private Map<String, Path> storage = Map.of();
+    private Map<Path, String> pathAliases = Map.of();
     private String id;
     private String name;
 
@@ -286,7 +286,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
         try {
             fs = FileSystems.getFileSystem(jarURI);
         } catch (FileSystemNotFoundException ignored) {
-            fs = FileSystems.newFileSystem(jarURI, Collections.emptyMap());
+            fs = FileSystems.newFileSystem(jarURI, Map.of());
             openedFileSystems.put(path, fs);
         }
         return fs.getPath(CompoundPath.PATH_SEPARATOR);
@@ -312,7 +312,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
             return list(path);
         }
 
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

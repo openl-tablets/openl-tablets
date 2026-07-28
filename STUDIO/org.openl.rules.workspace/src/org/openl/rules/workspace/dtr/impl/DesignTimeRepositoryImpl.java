@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -326,7 +325,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         projectsVersions.clear();
         exceptions.clear();
         for (Repository repository : repositories) {
-            Collection<FileData> fileDatas = Collections.emptyList();
+            Collection<FileData> fileDatas = List.of();
             try {
                 var path = rulesLocation;
                 if (repository.supports().folders()) {

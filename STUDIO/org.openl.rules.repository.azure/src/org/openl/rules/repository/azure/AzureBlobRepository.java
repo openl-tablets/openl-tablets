@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -567,10 +566,10 @@ public class AzureBlobRepository implements Repository {
 
     private List<FileData> getFilesForCommit(AzureCommit commit, String filterPath) {
         if (commit == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         final List<FileInfo> files = commit.getFiles();
-        return files == null ? Collections.emptyList()
+        return files == null ? List.of()
                 : files.stream()
                 .filter(fileInfo -> fileInfo.getPath().startsWith(filterPath))
                 .map(fileInfo -> {

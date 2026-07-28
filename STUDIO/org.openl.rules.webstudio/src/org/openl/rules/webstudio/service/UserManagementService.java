@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.service;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -79,7 +78,7 @@ public class UserManagementService {
     public List<org.openl.rules.security.User> getUsersInGroup(String groupName) {
         return userDao.getUsersInGroup(groupName)
                 .stream()
-                .map(user -> createSecurityUser(user, Collections.emptySet()))
+                .map(user -> createSecurityUser(user, Set.of()))
                 .collect(Collectors.toList());
     }
 

@@ -1,6 +1,5 @@
 package org.openl.rules.model.scaffolding.data;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,7 +44,7 @@ public class DataModel implements MethodModel {
 
     @Override
     public List<InputParameter> getParameters() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

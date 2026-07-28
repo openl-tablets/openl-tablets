@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.dependencies;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -101,7 +100,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         } else {
                             return new CompiledDependency(dependency,
                                     new CompiledOpenClass(NullOpenClass.the,
-                                            Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())),
+                                            List.of(new CompilationInterruptedOpenLErrorMessage())),
                                     resolveDependencyType(dependency));
                         }
                     } finally {
@@ -116,7 +115,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                     } else {
                         return new CompiledDependency(dependency,
                                 new CompiledOpenClass(NullOpenClass.the,
-                                        Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())),
+                                        List.of(new CompilationInterruptedOpenLErrorMessage())),
                                 resolveDependencyType(dependency));
                     }
                 }
@@ -174,7 +173,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                     compiledDependency = this.loadDependency(dependency);
                 } catch (OpenLCompilationException e) {
                     compiledDependency = new CompiledDependency(dependency,
-                            new CompiledOpenClass(NullOpenClass.the, Collections.singletonList(new OpenLErrorMessage(e))),
+                            new CompiledOpenClass(NullOpenClass.the, List.of(new OpenLErrorMessage(e))),
                             resolveDependencyType(dependency));
                 }
                 if (compiledDependency.getCompiledOpenClass()

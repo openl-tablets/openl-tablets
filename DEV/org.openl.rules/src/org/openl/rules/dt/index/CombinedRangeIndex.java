@@ -1,6 +1,6 @@
 package org.openl.rules.dt.index;
 
-import java.util.Collections;
+import java.util.List;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.DecisionTableRuleNode;
@@ -48,7 +48,7 @@ public class CombinedRangeIndex implements IRuleIndex {
 
     @Override
     public Iterable<? extends DecisionTableRuleNode> nodes() {
-        return Collections.singletonList(nextNode);
+        return List.of(nextNode);
     }
 
     @Override

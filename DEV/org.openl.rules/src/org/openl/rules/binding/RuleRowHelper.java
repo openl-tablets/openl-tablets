@@ -4,8 +4,8 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -474,7 +474,7 @@ public final class RuleRowHelper {
                 metaInfo.getDisplayName(INamedThing.SHORT),
                 metaInfo.getSourceUrl(),
                 nodeType);
-        return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
+        return new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage));
     }
 
     private static void setMetaInfo(IMetaHolder holder,

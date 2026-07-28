@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -252,7 +251,7 @@ public class RulesDeployerService implements Closeable {
     private void deployInternal(String name, Path pathToArchive, boolean ignoreIfExists) throws IOException {
         validateSignature(pathToArchive);
         var originalName = name != null ? name : FileUtils.getBaseName(pathToArchive.getFileName().toString());
-        try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(pathToArchive), Collections.emptyMap())) {
+        try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(pathToArchive), Map.of())) {
             final var root = fs.getPath("/");
             if (isRulesProject(root)) {
                 var projectName = getProjectDescriptor(root)

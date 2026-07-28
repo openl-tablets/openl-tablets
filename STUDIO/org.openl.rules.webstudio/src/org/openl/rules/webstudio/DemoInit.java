@@ -2,10 +2,10 @@ package org.openl.rules.webstudio;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import jakarta.annotation.PostConstruct;
 
 import lombok.extern.slf4j.Slf4j;
@@ -128,7 +128,7 @@ public class DemoInit {
                 userWorkspace,
                 "Project " + projectName + " is created.",
                 zipFilter,
-                Collections.emptyMap(),
+                Map.of(),
                 templateFiles);
         try {
             try {

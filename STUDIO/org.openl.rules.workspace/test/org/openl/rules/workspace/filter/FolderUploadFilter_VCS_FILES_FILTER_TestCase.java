@@ -3,7 +3,7 @@ package org.openl.rules.workspace.filter;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ class FolderUploadFilter_VCS_FILES_FILTER_TestCase {
     @BeforeEach
     void setUp() throws Exception {
         instance = new AndPathFilter(Arrays.asList(new FolderNamePathFilter(Arrays.asList(".svn", "CVS")),
-                new FileNamePathFilter(Collections.singletonList(".cvsignore"))));
+                new FileNamePathFilter(List.of(".cvsignore"))));
     }
 
     @Test

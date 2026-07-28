@@ -2,7 +2,6 @@ package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -297,11 +296,11 @@ public class RulesProject extends UserWorkspaceProject {
                     historyFileDatas = designRepository.listHistory(designFolderName);
                 } else {
                     // Local repository does not have versions
-                    historyFileDatas = Collections.emptyList();
+                    historyFileDatas = List.of();
                 }
             } catch (IOException ex) {
                 log.error(ex.getMessage(), ex);
-                historyFileDatas = Collections.emptyList();
+                historyFileDatas = List.of();
             }
         }
         return historyFileDatas;
@@ -604,7 +603,7 @@ public class RulesProject extends UserWorkspaceProject {
                 throw new ProjectException(e.getMessage(), e);
             }
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     public void setSelectedBranches(Collection<String> branches) throws ProjectException {

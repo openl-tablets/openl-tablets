@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -76,7 +75,7 @@ public class ProjectDescriptorArtefactResolver {
 
     public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException {
         var pd = getProjectDescriptor(project);
-        return (pd != null && pd.getDependencies() != null) ? pd.getDependencies() : Collections.emptyList();
+        return (pd != null && pd.getDependencies() != null) ? pd.getDependencies() : List.of();
     }
 
     public String getLogicalName(AProject project) {

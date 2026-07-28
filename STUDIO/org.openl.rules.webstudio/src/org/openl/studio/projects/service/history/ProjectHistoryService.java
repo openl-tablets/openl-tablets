@@ -10,7 +10,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -48,7 +47,7 @@ public class ProjectHistoryService {
         var dir = new File(projectHistoryPath);
         var historyListFiles = dir.list();
         if (historyListFiles == null || historyListFiles.length == 1) {
-            return Collections.emptyList();
+            return List.of();
         }
         Arrays.sort(historyListFiles, Comparator.reverseOrder());
         var collect = Arrays.stream(historyListFiles)

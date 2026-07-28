@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,7 +51,7 @@ public class ParsedCode implements IParsedCode {
         this.syntaxErrors = syntaxErrors;
         this.source = source;
         if (messages == null) {
-            this.messages = Collections.emptyList();
+            this.messages = List.of();
         } else {
             this.messages = Collections.unmodifiableCollection(new LinkedHashSet<>(messages));
         }

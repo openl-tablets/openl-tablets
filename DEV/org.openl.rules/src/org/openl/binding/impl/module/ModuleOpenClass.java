@@ -98,7 +98,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     public Set<CompiledDependency> getDependencies() {
         if (usingModules == null) {
-            return Collections.emptySet();
+            return Set.of();
         }
         return Collections.unmodifiableSet(usingModules);
     }
