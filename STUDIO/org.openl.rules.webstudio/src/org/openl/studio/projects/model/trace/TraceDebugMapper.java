@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -377,7 +378,7 @@ public class TraceDebugMapper {
         }
         String currentRef = currentRef(frame);
         var steps = new ArrayList<StepValueView>();
-        forEachDisplayCell(spreadsheet, cell -> {
+        forEachCell(spreadsheet, TraceDebugMapper::isDisplayCell, cell -> {
             String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
             var builder = StepValueView.builder()
                     .ref(ref)
@@ -434,7 +435,7 @@ public class TraceDebugMapper {
             var executedRefs = executedRefs(frame);
             String currentRef = currentRef(frame);
             var steps = new ArrayList<StepValueView>();
-            forEachCell(spreadsheet, cell -> {
+            forEachCell(spreadsheet, TraceDebugMapper::isStepCell, cell -> {
                 String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
                 steps.add(StepValueView.builder()
                         .ref(ref)
@@ -848,13 +849,18 @@ public class TraceDebugMapper {
                 Object result = executed.get(ref);
                 Object value = result == null ? null : field.get(result, null);
                 narrowed.add(cellField);
-                return new StepInput(0, cell.getRowIndex() * 10_000 + cell.getColumnIndex(),
+                return new StepInput(0, gridOrder(cell.getRowIndex(), cell.getColumnIndex()),
                         cellField.getName() + "." + field.getName(), value, field.getType());
             } catch (Exception e) {
                 return null;
             }
         }
         return null;
+    }
+
+    /** A cell's position key for a table-shaped ordering: row-major, with room for many columns per row. */
+    private static int gridOrder(int row, int column) {
+        return row * 10_000 + column;
     }
 
     /** One executed cell of a referenced range, named by its OpenL cell name. */
@@ -869,7 +875,7 @@ public class TraceDebugMapper {
         if (!executed.containsKey(ref)) {
             return null;
         }
-        return new StepInput(0, row * 10_000 + column, SpreadsheetCellNames.of(spreadsheet, cell),
+        return new StepInput(0, gridOrder(row, column), SpreadsheetCellNames.of(spreadsheet, cell),
                 executed.get(ref), cell.getType());
     }
 
@@ -882,7 +888,7 @@ public class TraceDebugMapper {
             if (!executed.containsKey(ref)) {
                 return null;
             }
-            int order = used.getRowIndex() * 10_000 + used.getColumnIndex();
+            int order = gridOrder(used.getRowIndex(), used.getColumnIndex());
             return new StepInput(0, order, field.getName(), executed.get(ref), cellField.getType());
         }
         if (field instanceof ILocalVar) {
@@ -962,25 +968,16 @@ public class TraceDebugMapper {
         return XlsUtil.xlsCellPresentation(region.getLeft(), region.getTop());
     }
 
-    /** Apply an action to every real spreadsheet step cell, in grid order. */
-    private static void forEachCell(Spreadsheet spreadsheet, Consumer<SpreadsheetCell> action) {
-        for (SpreadsheetCell[] row : spreadsheet.getCells()) {
-            for (SpreadsheetCell cell : row) {
-                if (isStepCell(cell)) {
-                    action.accept(cell);
-                }
-            }
-        }
-    }
-
     /**
-     * Apply an action to every displayable cell, in grid order: the executable steps plus the plain
-     * value and constant cells, so a rendered grid shows the whole table, not only what can run.
+     * Apply an action to every cell the filter accepts, in grid order. Callers pass {@link #isStepCell} for
+     * the executable steps only, or {@link #isDisplayCell} to also include the plain value and constant cells
+     * so a rendered grid shows the whole table, not only what can run.
      */
-    private static void forEachDisplayCell(Spreadsheet spreadsheet, Consumer<SpreadsheetCell> action) {
+    private static void forEachCell(Spreadsheet spreadsheet, Predicate<SpreadsheetCell> filter,
+                                    Consumer<SpreadsheetCell> action) {
         for (SpreadsheetCell[] row : spreadsheet.getCells()) {
             for (SpreadsheetCell cell : row) {
-                if (isDisplayCell(cell)) {
+                if (filter.test(cell)) {
                     action.accept(cell);
                 }
             }

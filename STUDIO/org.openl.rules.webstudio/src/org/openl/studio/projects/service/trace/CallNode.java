@@ -54,12 +54,6 @@ public record CallNode(String uri, String name, int instance, FrameKind kind, lo
         public Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children) {
             this(ref, label, durationNanos, children, false, null);
         }
-
-        /** A spreadsheet display cell, executed or static. */
-        public Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children,
-                    boolean constant) {
-            this(ref, label, durationNanos, children, constant, null);
-        }
     }
 
     /**

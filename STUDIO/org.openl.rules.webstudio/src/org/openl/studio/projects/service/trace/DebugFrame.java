@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
@@ -200,11 +199,12 @@ public final class DebugFrame {
                         continue;
                     }
                     SpreadsheetCellType type = cell.getSpreadsheetCellType();
-                    String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
-                    if ((type == SpreadsheetCellType.VALUE || type == SpreadsheetCellType.CONSTANT)
-                            && !covered.contains(ref)) {
-                        steps.add(new CallNode.Step(intern.apply(ref),
-                                staticCellLabel(spreadsheet, cell, intern, detailedTitles), 0, List.of(), true));
+                    if (type == SpreadsheetCellType.VALUE || type == SpreadsheetCellType.CONSTANT) {
+                        String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
+                        if (!covered.contains(ref)) {
+                            steps.add(new CallNode.Step(intern.apply(ref),
+                                    staticCellLabel(spreadsheet, cell, intern, detailedTitles), 0, List.of(), true, null));
+                        }
                     }
                 }
             }
@@ -242,21 +242,31 @@ public final class DebugFrame {
         return value == null ? intern.apply(name) : name + " = " + value;
     }
 
-    /** The spreadsheet cell for a step's {@code RnCm} reference, or {@code null} when it is not a grid cell. */
-    private static @Nullable SpreadsheetCell cellAt(Spreadsheet spreadsheet, String ref) {
+    /** The row and column of an {@code RnCm} reference, or {@code null} when it is not a grid cell reference. */
+    private static int @Nullable [] parseRowCol(String ref) {
         int c = ref.indexOf('C');
         if (ref.isEmpty() || ref.charAt(0) != 'R' || c < 0) {
             return null;
         }
         try {
-            int row = Integer.parseInt(ref.substring(1, c));
-            int col = Integer.parseInt(ref.substring(c + 1));
-            SpreadsheetCell[][] cells = spreadsheet.getCells();
-            if (row >= 0 && row < cells.length && col >= 0 && col < cells[row].length) {
-                return cells[row][col];
-            }
+            return new int[]{Integer.parseInt(ref.substring(1, c)), Integer.parseInt(ref.substring(c + 1))};
         } catch (NumberFormatException ignored) {
             // A non-numeric reference is not a grid cell.
+            return null;
+        }
+    }
+
+    /** The spreadsheet cell for a step's {@code RnCm} reference, or {@code null} when it is not a grid cell. */
+    private static @Nullable SpreadsheetCell cellAt(Spreadsheet spreadsheet, String ref) {
+        int[] rowCol = parseRowCol(ref);
+        if (rowCol == null) {
+            return null;
+        }
+        SpreadsheetCell[][] cells = spreadsheet.getCells();
+        int row = rowCol[0];
+        int col = rowCol[1];
+        if (row >= 0 && row < cells.length && col >= 0 && col < cells[row].length) {
+            return cells[row][col];
         }
         return null;
     }
@@ -269,7 +279,7 @@ public final class DebugFrame {
         List<CallNode.Step> steps = new ArrayList<>();
         int index = 0;
         for (ConditionCheck check : new LinkedHashSet<>(conditionChecks)) {
-            String label = "Condition: " + check.conditionName() + ", Rules: " + ruleNames(decisionTable, check.rules());
+            String label = TraceTextFormatter.conditionLine(check.conditionName(), ruleNames(decisionTable, check.rules()));
             steps.add(new CallNode.Step(intern.apply("c" + index++), intern.apply(label), 0, List.of(), false,
                     check.successful() ? DecisionRow.MATCHED : DecisionRow.UNMATCHED));
         }
@@ -278,7 +288,8 @@ public final class DebugFrame {
         for (ExecutedStep step : executedSteps) {
             if (covered.add(step.ref())) {
                 String rules = step.label() == null ? step.ref() : step.label();
-                steps.add(new CallNode.Step(intern.apply(step.ref()), intern.apply("Returned rule: [" + rules + "]"),
+                steps.add(new CallNode.Step(intern.apply(step.ref()),
+                        intern.apply(TraceTextFormatter.returnedRuleLine(List.of(rules))),
                         step.durationNanos(), List.copyOf(childrenOf(step.ref())), false, DecisionRow.RETURNED));
             }
         }
@@ -286,26 +297,17 @@ public final class DebugFrame {
     }
 
     /**
-     * Rule names of the given indices as {@code [R1, R2]}, matching the legacy condition-node labels. An
-     * index node can list the same rule several times; the names are distinct so the label stays readable.
+     * Rule names of the given indices, matching the legacy condition-node labels. An index node can list the
+     * same rule several times; the names are distinct so the label stays readable.
      */
-    private static String ruleNames(IDecisionTable decisionTable, int[] rules) {
-        return Arrays.stream(rules).distinct().mapToObj(decisionTable::getRuleName)
-                .collect(Collectors.joining(", ", "[", "]"));
+    private static List<String> ruleNames(IDecisionTable decisionTable, int[] rules) {
+        return Arrays.stream(rules).distinct().mapToObj(decisionTable::getRuleName).toList();
     }
 
     /** Grid position of a spreadsheet step by its {@code RnCm} reference, for a table-shaped ordering. */
     private static long gridOrder(CallNode.Step step) {
-        String ref = step.ref();
-        int c = ref.indexOf('C');
-        if (ref.isEmpty() || ref.charAt(0) != 'R' || c < 0) {
-            return Long.MAX_VALUE;
-        }
-        try {
-            return Long.parseLong(ref.substring(1, c)) * 10_000 + Long.parseLong(ref.substring(c + 1));
-        } catch (NumberFormatException e) {
-            return Long.MAX_VALUE;
-        }
+        int[] rowCol = parseRowCol(step.ref());
+        return rowCol == null ? Long.MAX_VALUE : (long) rowCol[0] * 10_000 + rowCol[1];
     }
 
     private List<CallNode> childrenOf(String ref) {
