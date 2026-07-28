@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Checkbox, Empty, Spin, Tooltip, Typography } from 'antd'
+import { Checkbox, Empty, Spin, Typography } from 'antd'
 import { CaretDownOutlined, CaretRightOutlined, LinkOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
@@ -26,8 +26,8 @@ interface SimpleRow {
     expandKey?: string
     /** What a click inspects: re-runs execution through this row so its inputs and result are readable. */
     target?: SimpleInspectTarget
-    /** For a step-reference row, the key of the original step row it points at. */
-    refTargetKey?: string
+    /** True when a step row is a reference rendered inline (the same step used again elsewhere). */
+    isRef?: boolean
     /** For a capped-branch note, how many sub-calls were dropped. */
     count?: number
 }
@@ -91,10 +91,29 @@ const flattenSimple = (
     showDetailed: boolean
 ): SimpleRow[] => {
     const rows: SimpleRow[] = []
-    const walkNode = (node: CallNodeView, depth: number, path: string, refBase?: string): void => {
+    const walkNode = (node: CallNodeView, depth: number, path: string, refOwner?: CallNodeView): void => {
         if (node.kind === 'stepRef') {
-            rows.push({ type: 'ref', key: path, depth, node,
-                ...(node.refStep && refBase ? { refTargetKey: `${refBase}/${node.refStep}` } : {}) })
+            // The business view renders a referenced step INLINE — its label, icon, click-to-inspect and
+            // its own expandable subtree — right where it is used, so how it was computed is one expand
+            // away instead of a hunt for the original elsewhere in the tree. (The advanced tree jumps.)
+            const original = node.refStep && refOwner
+                ? refOwner.steps.find(s => s.ref === node.refStep)
+                : undefined
+            if (refOwner && original) {
+                const kids = original.children
+                    ?? children[treeChildKey(refOwner.uri, refOwner.instance, original.ref)] ?? []
+                rows.push({ type: 'step', key: path, depth, step: original, owner: refOwner, isRef: true,
+                    // Run to the original step to read its inputs/result; the row's own path keeps the
+                    // highlight here rather than lighting up the original occurrence elsewhere too.
+                    target: { ...stepTarget(refOwner, original), selectionKey: path },
+                    ...(kids.length > 0 ? { expandKey: path } : {}) })
+                if (kids.length > 0 && expanded.has(path)) {
+                    kids.forEach((kid, i) => walkNode(kid, depth + 1, `${path}#${i}`, refOwner))
+                }
+                return
+            }
+            // The original is not in the snapshot (should not happen once the tree is downloaded): a marker.
+            rows.push({ type: 'ref', key: path, depth, node })
             return
         }
         const open = expanded.has(path)
@@ -117,7 +136,7 @@ const flattenSimple = (
             rows.push({ type: 'step', key: stepPath, depth: depth + 1, step, owner: node,
                 target: stepTarget(node, step), ...(kids.length > 0 ? { expandKey: stepPath } : {}) })
             if (kids.length > 0 && expanded.has(stepPath)) {
-                kids.forEach((kid, i) => walkNode(kid, depth + 2, `${stepPath}#${i}`, path))
+                kids.forEach((kid, i) => walkNode(kid, depth + 2, `${stepPath}#${i}`, node))
             }
         }
         if ((node.notRetained ?? 0) > 0) {
@@ -148,7 +167,7 @@ const SimpleTraceTree: React.FC = () => {
     const status = useTraceStore(s => s.status)
     const showDetailed = useTraceStore(s => s.showDetailed)
     const setShowDetailed = useTraceStore(s => s.setShowDetailed)
-    const { treeRef, flashKey, jumpToRow } = useFlashJump()
+    const { treeRef, flashKey } = useFlashJump()
 
     // The root starts open so the run's top-level steps read at a glance; everything deeper is collapsed.
     // Keyed on the snapshot: only a new Run replaces it, while inspect re-runs never touch the expansions.
@@ -264,6 +283,9 @@ const SimpleTraceTree: React.FC = () => {
                 {twisty(row.expandKey)}
                 {stepIcon(row.owner?.kind)}
                 <Typography.Text className={styles.labelText} ellipsis={{ tooltip: label }}>{label}</Typography.Text>
+                {/* A referenced step reads exactly like its original occurrence, tagged so it is clear it
+                    is the same step used again — its subtree and value are browsable right here. */}
+                {row.isRef && <span className={styles.kind}>{t('tree.referenceTag')}</span>}
             </div>
         )
     }
@@ -277,23 +299,22 @@ const SimpleTraceTree: React.FC = () => {
         />
     )
 
+    // Fallback for a reference whose original step is missing from the snapshot (should not happen once
+    // the tree is downloaded): a plain, non-interactive marker. The common case renders inline as a step.
     const renderRef = (row: SimpleRow): React.ReactNode => {
         const node = row.node as CallNodeView
-        const jump = row.refTargetKey ? () => jumpToRow(row.refTargetKey as string) : undefined
         return (
-            <Tooltip key={row.key} title={t('tree.referenceHint')}>
-                <div
-                    className={cx(styles.row, styles.inactive, row.refTargetKey && styles.runnable)}
-                    data-testid={`simple-ref-${row.key}`}
-                    style={indent(row.depth)}
-                    {...(jump && { onClick: jump, onKeyDown: onActivate(jump), role: 'button', tabIndex: 0 })}
-                >
-                    <span className={styles.chevronSlot} />
-                    <LinkOutlined className={styles.refIcon} />
-                    <span className={styles.leafLabel}>{node.name}</span>
-                    <span className={styles.kind}>{t('tree.referenceTag')}</span>
-                </div>
-            </Tooltip>
+            <div
+                key={row.key}
+                className={cx(styles.row, styles.inactive)}
+                data-testid={`simple-ref-${row.key}`}
+                style={indent(row.depth)}
+            >
+                <span className={styles.chevronSlot} />
+                <LinkOutlined className={styles.refIcon} />
+                <span className={styles.leafLabel}>{node.name}</span>
+                <span className={styles.kind}>{t('tree.referenceTag')}</span>
+            </div>
         )
     }
 
