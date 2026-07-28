@@ -87,6 +87,13 @@ public class TraceDebugMapper {
     /** Upper bound on executed children returned per step, so a table looped thousands of times stays renderable. */
     private static final int MAX_TREE_CHILDREN = 100;
 
+    /**
+     * Node budget for the one-shot full tree the business view downloads. The whole executed tree is
+     * serialized deep up to this many nodes in a single response; a branch beyond it is cut and marked
+     * truncated. This bounds the response so one request replaces the thousands of lazy page fetches.
+     */
+    private static final int MAX_FULL_TREE_NODES = 50_000;
+
     /** Default number of hotspots in the profile overview when the caller does not ask for a specific size. */
     public static final int DEFAULT_PROFILE_TOP = 20;
 
@@ -132,7 +139,8 @@ public class TraceDebugMapper {
                 .frames(views)
                 .error(buildStackError(frames, error))
                 .tree(completedTree == null || !options.includeTree() ? null
-                        : toShallowCallNodeView(completedTree))
+                        : options.fullTree() ? toCappedTree(completedTree)
+                                : toShallowCallNodeView(completedTree))
                 .profile(completedTree == null ? null
                         : buildProfileSummary(profileStats, options.profileTop(), completedTree.durationNanos(),
                                 treeTruncated))
@@ -523,10 +531,24 @@ public class TraceDebugMapper {
     }
 
     private static StepValueView toStepView(CallNode.Step step, boolean shallow) {
+        var builder = stepViewBase(step);
+        if (shallow) {
+            // Children are fetched on demand; report only the count, so the client shows the step as
+            // expandable and knows how many executions to page through.
+            return builder.childrenTotal(step.children().isEmpty() ? null : step.children().size()).build();
+        }
+        return builder
+                .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
+                .childrenTotal(childrenTotalOf(step.children()))
+                .build();
+    }
+
+    /** A step's identity and timings, without its children — the part shared by every serialization depth. */
+    private static StepValueView.StepValueViewBuilder stepViewBase(CallNode.Step step) {
         // A condition row (like a static cell) has no execution of its own — no timings.
         boolean condition = step.decision() == DecisionRow.MATCHED || step.decision() == DecisionRow.UNMATCHED;
         boolean noTimings = step.constant() || condition;
-        var builder = StepValueView.builder()
+        return StepValueView.builder()
                 .ref(step.ref())
                 .label(step.label())
                 .status(StepStatus.EXECUTED)
@@ -537,14 +559,58 @@ public class TraceDebugMapper {
                 .durationMillis(noTimings ? null : toMillis(step.durationNanos()))
                 .selfMillis(noTimings ? null
                         : selfMillis(step.durationNanos(), sumDurations(step.children().stream())));
-        if (shallow) {
-            // Children are fetched on demand; report only the count, so the client shows the step as
-            // expandable and knows how many executions to page through.
-            return builder.childrenTotal(step.children().isEmpty() ? null : step.children().size()).build();
+    }
+
+    /**
+     * Serialize the whole executed tree in one payload for the business view: deep, with every step's
+     * sub-calls inline, so the client browses it offline without paging. Bounded to {@link #MAX_FULL_TREE_NODES}
+     * nodes — a branch beyond the budget is cut, and its step reports the full child count so the client can
+     * mark how many executions are omitted. The advanced view keeps the shallow, lazily paged tree.
+     */
+    static CallNodeView toCappedTree(CallNode root) {
+        return toCappedTree(root, MAX_FULL_TREE_NODES);
+    }
+
+    /** Same as {@link #toCappedTree(CallNode)} with an explicit node budget, so a test can force truncation. */
+    static CallNodeView toCappedTree(CallNode root, int budget) {
+        return toCappedNode(root, new int[]{budget});
+    }
+
+    private static CallNodeView toCappedNode(CallNode node, int[] budget) {
+        List<StepValueView> steps = node.steps().stream().map(step -> toCappedStep(step, budget)).toList();
+        long childrenNanos = node.childNanos() > 0 ? node.childNanos()
+                : sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
+        return CallNodeView.builder()
+                .uri(node.uri())
+                .name(node.name())
+                .instance(node.instance())
+                .kind(node.kind())
+                .durationMillis(toMillis(node.durationNanos()))
+                .selfMillis(selfMillis(node.durationNanos(), childrenNanos))
+                .steps(steps)
+                .dispatch(node.dispatch())
+                .refStep(node.refStep())
+                .notRetained(node.notRetained() > 0 ? node.notRetained() : null)
+                .build();
+    }
+
+    private static StepValueView toCappedStep(CallNode.Step step, int[] budget) {
+        var builder = stepViewBase(step);
+        List<CallNode> kids = step.children();
+        if (kids.isEmpty()) {
+            return builder.build();
+        }
+        // Serialize children deep, decrementing the shared budget, up to the per-step cap. Whatever the
+        // budget cannot fit is omitted; the full count is reported so the client marks it truncated.
+        int limit = Math.min(kids.size(), MAX_TREE_CHILDREN);
+        List<CallNodeView> included = new ArrayList<>();
+        for (int i = 0; i < limit && budget[0] > 0; i++) {
+            budget[0]--;
+            included.add(toCappedNode(kids.get(i), budget));
         }
         return builder
-                .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
-                .childrenTotal(childrenTotalOf(step.children()))
+                .children(included.isEmpty() ? null : included)
+                .childrenTotal(included.size() < kids.size() ? kids.size() : null)
                 .build();
     }
 

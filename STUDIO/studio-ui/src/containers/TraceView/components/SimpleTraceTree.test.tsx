@@ -46,8 +46,6 @@ const setStore = (extra: Record<string, unknown> = {}): void => {
         simpleChildren: sampleChildren(),
         simpleReady: true,
         simpleLoading: false,
-        simpleLoadedCount: 0,
-        simpleTotalCount: null,
         simpleSelectedKey: null,
         simpleInspect: inspect,
         status: 'completed',
@@ -69,18 +67,13 @@ describe('SimpleTraceTree', () => {
         expect(screen.getByText('simple.pressRun')).toBeInTheDocument()
     })
 
-    it('shows the calculation progress while the run executes', () => {
-        setStore({ simpleTree: null, simpleReady: false, simpleLoading: true, status: 'running' })
+    it('shows a single calculation progress while the one request runs — no per-page count', () => {
+        // One request runs the whole calculation and returns the tree; there is nothing to page, so the
+        // meaningless "N of M" line is gone — just that the calculation is running.
+        setStore({ simpleTree: null, simpleReady: false, simpleLoading: true })
         render(<SimpleTraceTree />)
 
         expect(screen.getByTestId('simple-tree-progress')).toHaveTextContent('simple.calculating')
-    })
-
-    it('shows the download progress while the tree is prepared', () => {
-        setStore({ simpleReady: false, simpleLoading: true, simpleLoadedCount: 5, simpleTotalCount: 9 })
-        render(<SimpleTraceTree />)
-
-        expect(screen.getByTestId('simple-tree-progress')).toHaveTextContent('simple.preparing')
     })
 
     it('renders the root open with its steps, and deeper branches collapsed', () => {
@@ -113,6 +106,26 @@ describe('SimpleTraceTree', () => {
 
         // uA runs twice; the advanced tree marks the 2nd pass "#2", but the business view stays plain.
         expect(screen.getByTestId('simple-node-tree/S1#1')).not.toHaveTextContent('#2')
+    })
+
+    it('marks a capped step with how many executions the full tree omitted', async () => {
+        // The one-shot full tree keeps a looped step's first sub-calls inline and reports the full count;
+        // the rest read as omitted (the size-cap "not retained" marker), never silently missing.
+        const cappedTree = () => callNode('uR', 0, [
+            { ref: 'S1', label: '$Value$S1', status: 'executed', childrenTotal: 5, children: [
+                callNode('uA', 0, [{ ref: 'SA', status: 'executed' }]),
+                callNode('uA', 1, [{ ref: 'SA', status: 'executed' }]),
+            ]},
+        ])
+        setStore({ simpleTree: cappedTree(), simpleChildren: {} })
+        render(<SimpleTraceTree />)
+
+        await userEvent.click(screen.getByTestId('simple-toggle-tree/S1'))
+
+        expect(screen.getByTestId('simple-node-tree/S1#0')).toHaveTextContent('uA')
+        expect(screen.getByTestId('simple-node-tree/S1#1')).toHaveTextContent('uA')
+        // 5 executed − 2 kept inline = 3 omitted, shown as the truncation marker.
+        expect(screen.getByText('tree.notRetained')).toBeInTheDocument()
     })
 
     const decisionTree = () => {

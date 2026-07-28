@@ -133,10 +133,16 @@ const flattenSimple = (
                 continue
             }
             const kids = step.children ?? children[treeChildKey(node.uri, node.instance, step.ref)] ?? []
+            // The one-shot full tree is capped: a step looped past the limit carries its first sub-calls
+            // inline and reports the full count, so the rest read as "omitted" rather than silently missing.
+            const omitted = (step.childrenTotal ?? kids.length) - kids.length
             rows.push({ type: 'step', key: stepPath, depth: depth + 1, step, owner: node,
-                target: stepTarget(node, step), ...(kids.length > 0 ? { expandKey: stepPath } : {}) })
-            if (kids.length > 0 && expanded.has(stepPath)) {
+                target: stepTarget(node, step), ...(kids.length > 0 || omitted > 0 ? { expandKey: stepPath } : {}) })
+            if (expanded.has(stepPath)) {
                 kids.forEach((kid, i) => walkNode(kid, depth + 2, `${stepPath}#${i}`, node))
+                if (omitted > 0) {
+                    rows.push({ type: 'notRetained', key: `${stepPath}/omitted`, depth: depth + 2, count: omitted })
+                }
             }
         }
         if ((node.notRetained ?? 0) > 0) {
@@ -160,11 +166,8 @@ const SimpleTraceTree: React.FC = () => {
     const children = useTraceStore(s => s.simpleChildren)
     const ready = useTraceStore(s => s.simpleReady)
     const preparing = useTraceStore(s => s.simpleLoading)
-    const loaded = useTraceStore(s => s.simpleLoadedCount)
-    const total = useTraceStore(s => s.simpleTotalCount)
     const selectedKey = useTraceStore(s => s.simpleSelectedKey)
     const inspect = useTraceStore(s => s.simpleInspect)
-    const status = useTraceStore(s => s.status)
     const showDetailed = useTraceStore(s => s.showDetailed)
     const setShowDetailed = useTraceStore(s => s.setShowDetailed)
     const { treeRef, flashKey } = useFlashJump()
@@ -182,14 +185,12 @@ const SimpleTraceTree: React.FC = () => {
     )
 
     if (preparing) {
+        // One request runs the whole calculation and returns the tree deep, so there is nothing to page
+        // and no count to show — just that the calculation is running.
         return (
             <div className={styles.progress} data-testid="simple-tree-progress">
                 <Spin size="small" />
-                <span>
-                    {status === 'running'
-                        ? t('simple.calculating')
-                        : t('simple.preparing', { loaded, total: total ?? loaded })}
-                </span>
+                <span>{t('simple.calculating')}</span>
             </div>
         )
     }

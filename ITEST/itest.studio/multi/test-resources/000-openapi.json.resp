@@ -11609,6 +11609,15 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "fullTree",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {

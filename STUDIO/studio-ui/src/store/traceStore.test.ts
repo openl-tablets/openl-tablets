@@ -611,23 +611,25 @@ describe('traceStore simple mode', () => {
         expect(order['x@0']).toBeUndefined()
     })
 
-    it('runs the whole trace profiled and downloads the full tree for offline browsing', async () => {
+    it('runs the whole trace profiled and gets the full tree in one request for offline browsing', async () => {
         cancelTrace.mockResolvedValue(undefined)
-        startTrace.mockResolvedValue({ status: 'completed', frames: [], tree: sampleRoot(),
+        // The full tree arrives deep in the start response — every step's sub-calls inline.
+        startTrace.mockResolvedValue({ status: 'completed', frames: [],
+            tree: callNode('uR', 0, [{ ref: 'S1', status: 'executed', children: sampleChildrenPage().children }]),
             profile: { nodeCount: 3 } } as any)
-        getTreeChildren.mockResolvedValue(sampleChildrenPage() as any)
         getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
 
         await useTraceStore.getState().simpleRun()
 
         const state = useTraceStore.getState()
         expect(startTrace).toHaveBeenCalledWith('p1', expect.objectContaining(
-            { stopAtEntry: false, profiling: true, detailedTitles: true }))
-        expect(getTreeChildren).toHaveBeenCalledWith('p1', 'uR', 0, 'S1', 0, expect.any(Number))
+            { stopAtEntry: false, profiling: true, detailedTitles: true, fullTree: true }))
+        // No per-branch paging: the one request carries the whole tree.
+        expect(getTreeChildren).not.toHaveBeenCalled()
         expect(state.simpleTree?.uri).toBe('uR')
-        expect(state.simpleChildren[JSON.stringify(['uR', 0, 'S1'])]).toHaveLength(2)
         expect(state.simpleReady).toBe(true)
         expect(state.simpleLoading).toBe(false)
+        // The order is built straight from the inline tree.
         expect(state.simpleOrder['uA@1']).toEqual({ pre: 4, end: 5 })
     })
 
