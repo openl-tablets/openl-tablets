@@ -224,6 +224,11 @@ export interface StepValueView {
     cell?: string | null
     /** True for a plain value or constant cell: static table content that never executes. */
     constant?: boolean | null
+    /**
+     * Decision-table breakdown row kind: a matched or unmatched condition, or the returned rule. Present
+     * only on the sub-steps of a decision-table node; absent on every other step.
+     */
+    decision?: 'matched' | 'unmatched' | 'returned' | null
     status: 'executed' | 'current' | 'pending'
     value?: TraceParameterValue | null
     /** Tables this step called. Absent in the lazily-loaded executed tree (fetched on expand); inline for a live frame. */

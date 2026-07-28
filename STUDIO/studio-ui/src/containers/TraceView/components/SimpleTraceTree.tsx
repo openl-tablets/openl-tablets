@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Empty, Spin, Tooltip } from 'antd'
+import { Checkbox, Empty, Spin, Tooltip } from 'antd'
 import { CaretDownOutlined, CaretRightOutlined, LinkOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
 import type { SimpleInspectTarget, SimpleStepFocus } from 'store/traceStore'
 import type { CallNodeView, StepValueView } from 'types/trace'
+import ConditionRow from './ConditionRow'
+import { displaySteps, isCondition } from './decisionRows'
 import DispatchBadge from './DispatchBadge'
 import { onActivate } from './keyboardActivate'
 import { kindIcon, stepIcon } from './TraceIcons'
@@ -13,7 +15,7 @@ import { useStyles } from './TraceTree.styles'
 
 /** One row of the flattened simple tree: a rule call, one of its steps, a step reference, or a capped note. */
 interface SimpleRow {
-    type: 'node' | 'step' | 'ref' | 'notRetained'
+    type: 'node' | 'step' | 'condition' | 'ref' | 'notRetained'
     key: string
     depth: number
     node?: CallNodeView
@@ -85,7 +87,8 @@ const stepTarget = (owner: CallNodeView, step: StepValueView): SimpleInspectTarg
 const flattenSimple = (
     root: CallNodeView,
     children: Record<string, CallNodeView[]>,
-    expanded: Set<string>
+    expanded: Set<string>,
+    showDetailed: boolean
 ): SimpleRow[] => {
     const rows: SimpleRow[] = []
     const walkNode = (node: CallNodeView, depth: number, path: string, refBase?: string): void => {
@@ -100,8 +103,16 @@ const flattenSimple = (
         if (!open) {
             return
         }
-        for (const step of node.steps) {
+        // The business view stays plain by default: a decision table shows only its returned rule, unless
+        // "Show detailed trace" is on, which reveals the per-condition breakdown like the classic trace.
+        const steps = displaySteps(node.steps, showDetailed)
+        for (const step of steps) {
             const stepPath = `${path}/${step.ref}`
+            // A decision-table condition is an info row: its synthetic ref runs nothing, so it is not clickable.
+            if (isCondition(step)) {
+                rows.push({ type: 'condition', key: stepPath, depth: depth + 1, step })
+                continue
+            }
             const kids = step.children ?? children[treeChildKey(node.uri, node.instance, step.ref)] ?? []
             rows.push({ type: 'step', key: stepPath, depth: depth + 1, step, owner: node,
                 target: stepTarget(node, step), ...(kids.length > 0 ? { expandKey: stepPath } : {}) })
@@ -135,6 +146,8 @@ const SimpleTraceTree: React.FC = () => {
     const selectedKey = useTraceStore(s => s.simpleSelectedKey)
     const inspect = useTraceStore(s => s.simpleInspect)
     const status = useTraceStore(s => s.status)
+    const showDetailed = useTraceStore(s => s.showDetailed)
+    const setShowDetailed = useTraceStore(s => s.setShowDetailed)
     const { treeRef, flashKey, jumpToRow } = useFlashJump()
 
     // The root starts open so the run's top-level steps read at a glance; everything deeper is collapsed.
@@ -145,8 +158,8 @@ const SimpleTraceTree: React.FC = () => {
     }, [tree])
 
     const rows = useMemo(
-        () => (tree && ready ? flattenSimple(tree, children, expanded) : []),
-        [tree, ready, children, expanded]
+        () => (tree && ready ? flattenSimple(tree, children, expanded, showDetailed) : []),
+        [tree, ready, children, expanded, showDetailed]
     )
 
     if (preparing) {
@@ -258,6 +271,15 @@ const SimpleTraceTree: React.FC = () => {
         )
     }
 
+    const renderCondition = (row: SimpleRow): React.ReactNode => (
+        <ConditionRow
+            key={row.key}
+            depth={row.depth}
+            step={row.step as StepValueView}
+            testId={`simple-condition-${row.key}`}
+        />
+    )
+
     const renderRef = (row: SimpleRow): React.ReactNode => {
         const node = row.node as CallNodeView
         const jump = row.refTargetKey ? () => jumpToRow(row.refTargetKey as string) : undefined
@@ -293,6 +315,7 @@ const SimpleTraceTree: React.FC = () => {
         switch (row.type) {
             case 'node': return renderNode(row)
             case 'step': return renderStep(row)
+            case 'condition': return renderCondition(row)
             case 'ref': return renderRef(row)
             default: return renderNotRetained(row)
         }
@@ -302,6 +325,16 @@ const SimpleTraceTree: React.FC = () => {
         <div ref={treeRef} className={styles.tree} data-testid="simple-tree">
             <div className={styles.header}>
                 <span>{t('tree.title')}</span>
+                <span className={styles.headerControls}>
+                    <Checkbox
+                        checked={showDetailed}
+                        className={styles.detailedToggle}
+                        data-testid="simple-detailed"
+                        onChange={(e) => setShowDetailed(e.target.checked)}
+                    >
+                        {t('tree.showDetailed')}
+                    </Checkbox>
+                </span>
             </div>
             {rows.map(render)}
         </div>

@@ -65,9 +65,10 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     swatchResult: css`
         background: ${token.colorSuccessBg};
+        box-shadow: inset 0 0 0 1px ${token.colorSuccess};
     `,
     swatchMet: css`
-        background: ${token.colorInfoBg};
+        background: ${token.colorSuccessBg};
     `,
     swatchNotMet: css`
         background: ${token.colorErrorBg};

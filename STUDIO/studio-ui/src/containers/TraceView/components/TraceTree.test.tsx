@@ -465,4 +465,57 @@ describe('TraceTree', () => {
         await waitFor(() => expect(getTreeChildren).toHaveBeenLastCalledWith('p1', 'uRoot', 0, 'R0C0', 1, 100))
         expect(await screen.findByText('Call1')).toBeInTheDocument()
     })
+
+    // A decision-table node whose executed tree carries the legacy per-condition breakdown.
+    const decisionTree = (): CallNodeView => ({
+        uri: 'uDT', name: 'NonZeroValues', instance: 0, kind: 'decisionTable', durationMillis: 1, selfMillis: 1,
+        steps: [
+            { ref: 'c0', label: 'Condition: MC1, Rules: [R1]', status: 'executed', decision: 'unmatched' },
+            { ref: 'c1', label: 'Condition: MC1, Rules: [R2]', status: 'executed', decision: 'matched' },
+            { ref: 'R2', label: 'Returned rule: [R2]', status: 'executed', decision: 'returned' },
+        ],
+    })
+
+    it('breaks a decision table into its conditions and returned rule, like the legacy detailed trace', () => {
+        useTraceStore.setState({
+            status: 'completed', profiling: true, showDetailed: true, frames: [], tree: decisionTree(),
+        })
+        render(<TraceTree />)
+
+        // An unmatched condition shows a red cross, a matched one a green check — each with the legacy label.
+        const unmatched = screen.getByTestId('tree-condition-tree/c0')
+        const matched = screen.getByTestId('tree-condition-tree/c1')
+        expect(unmatched).toHaveTextContent('Condition: MC1, Rules: [R1]')
+        expect(unmatched.querySelector('[data-icon="close"]')).toBeInTheDocument()
+        expect(matched.querySelector('[data-icon="check"]')).toBeInTheDocument()
+        // The returned rule keeps the legacy title; its icon is the same rule icon the business tree uses.
+        const returned = screen.getByTestId('tree-returned-tree/R2')
+        expect(returned).toHaveTextContent('Returned rule: [R2]')
+        expect(returned.querySelector('svg')).toBeInTheDocument()
+    })
+
+    it('hides the per-condition breakdown when Show detailed trace is turned off, keeping the returned rule', async () => {
+        useTraceStore.setState({
+            status: 'completed', profiling: true, showDetailed: true, frames: [], tree: decisionTree(),
+        })
+        render(<TraceTree />)
+
+        await userEvent.click(screen.getByTestId('trace-detailed')) // turn detail off
+
+        expect(screen.queryByTestId('tree-condition-tree/c0')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('tree-condition-tree/c1')).not.toBeInTheDocument()
+        expect(screen.getByText('Returned rule: [R2]')).toBeInTheDocument() // the returned rule stays
+    })
+
+    it('keeps a decision table plain by default, showing only its returned rule until detail is on', () => {
+        // Default off (business-plain): the executed tree carries the conditions, but they stay hidden.
+        useTraceStore.setState({ status: 'completed', profiling: true, frames: [], tree: decisionTree() })
+        render(<TraceTree />)
+
+        expect(screen.queryByTestId('tree-condition-tree/c0')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('tree-condition-tree/c1')).not.toBeInTheDocument()
+        expect(screen.getByText('Returned rule: [R2]')).toBeInTheDocument()
+        // The toggle is offered so the analyst can reveal the breakdown.
+        expect(screen.getByTestId('trace-detailed')).toBeInTheDocument()
+    })
 })

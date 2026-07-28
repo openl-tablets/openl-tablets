@@ -3,6 +3,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import org.openl.studio.projects.model.trace.DecisionRow;
 import org.openl.studio.projects.model.trace.DispatchInfo;
 import org.openl.studio.projects.model.trace.FrameKind;
 
@@ -43,13 +44,21 @@ public record CallNode(String uri, String name, int instance, FrameKind kind, lo
      * @param children      the table invocations this step made, in execution order
      * @param constant      true for a plain value or constant cell: static content that never executes,
      *                      listed so the tree shows the whole table like the grid does
+     * @param decision      decision-table breakdown row kind (matched/unmatched condition, or the returned
+     *                      rule), so the tree shows the legacy condition-by-rule breakdown; {@code null} otherwise
      */
     public record Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children,
-                       boolean constant) {
+                       boolean constant, @Nullable DecisionRow decision) {
 
         /** An executed sub-step — the common case. */
         public Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children) {
-            this(ref, label, durationNanos, children, false);
+            this(ref, label, durationNanos, children, false, null);
+        }
+
+        /** A spreadsheet display cell, executed or static. */
+        public Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children,
+                    boolean constant) {
+            this(ref, label, durationNanos, children, constant, null);
         }
     }
 

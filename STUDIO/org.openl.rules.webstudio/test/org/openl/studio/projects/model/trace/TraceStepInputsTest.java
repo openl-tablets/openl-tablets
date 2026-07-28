@@ -1,6 +1,7 @@
 package org.openl.studio.projects.model.trace;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -171,6 +172,63 @@ class TraceStepInputsTest {
                 .findFirst();
         assertTrue(description.isPresent(), "the static description text is a listed cell: "
                 + variables.steps().stream().map(StepValueView::label).toList());
+    }
+
+    @Test
+    void decisionTableExpandsIntoConditionsAndReturnedRule() {
+        // A DT node in the executed tree breaks down like the legacy detailed trace: one row per evaluated
+        // condition (matched or not), then the returned rule — instead of a bare fired-rule step.
+        TraceDebugger local = new TraceDebugger(DebugListener.NOOP);
+        local.start("tree-dt-test", classLoader, false, true, () -> {
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            env.setTracer(local.tracer());
+            test.invoke(module.newInstance(env), new Object[0], env);
+        });
+        try {
+            assertEquals(DebugStatus.COMPLETED, local.awaitInitialHalt(20_000));
+            CallNode dt = findNode(local.completedTree(), n -> n.kind() == FrameKind.DECISION_TABLE);
+            assertNotNull(dt, "the run calls the NonZeroValues decision table");
+            assertEquals("NonZeroValues", dt.name());
+
+            List<CallNode.Step> conditions = dt.steps().stream()
+                    .filter(s -> s.decision() == DecisionRow.MATCHED || s.decision() == DecisionRow.UNMATCHED)
+                    .toList();
+            assertFalse(conditions.isEmpty(), "conditions are listed: "
+                    + dt.steps().stream().map(CallNode.Step::label).toList());
+            assertTrue(conditions.stream().allMatch(s -> s.label() != null && s.label().startsWith("Condition: ")),
+                    "condition rows read like the legacy trace");
+            assertTrue(conditions.stream().anyMatch(s -> s.decision() == DecisionRow.MATCHED)
+                            && conditions.stream().anyMatch(s -> s.decision() == DecisionRow.UNMATCHED),
+                    "both a matched and an unmatched condition are shown");
+
+            List<CallNode.Step> returned = dt.steps().stream()
+                    .filter(s -> s.decision() == DecisionRow.RETURNED).toList();
+            assertEquals(1, returned.size(), "exactly one returned-rule row");
+            assertTrue(returned.get(0).label() != null && returned.get(0).label().startsWith("Returned rule: ["),
+                    "the returned rule keeps the legacy label: " + returned.get(0).label());
+        } finally {
+            local.terminate(20_000);
+        }
+    }
+
+    /** Depth-first search of the executed tree for the first node matching the predicate. */
+    private static @org.jspecify.annotations.Nullable CallNode findNode(
+            @org.jspecify.annotations.Nullable CallNode node, java.util.function.Predicate<CallNode> match) {
+        if (node == null) {
+            return null;
+        }
+        if (match.test(node)) {
+            return node;
+        }
+        for (CallNode.Step step : node.steps()) {
+            for (CallNode child : step.children()) {
+                CallNode found = findNode(child, match);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     @Test

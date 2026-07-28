@@ -24307,6 +24307,15 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "decision": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "matched",
+              "unmatched",
+              "returned"
+            ]
+          },
           "durationMillis": {
             "type": "number",
             "format": "double",

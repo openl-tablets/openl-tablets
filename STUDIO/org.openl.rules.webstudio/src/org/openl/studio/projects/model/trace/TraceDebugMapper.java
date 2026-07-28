@@ -523,6 +523,9 @@ public class TraceDebugMapper {
     }
 
     private static StepValueView toStepView(CallNode.Step step, boolean shallow) {
+        // A condition row (like a static cell) has no execution of its own — no timings.
+        boolean condition = step.decision() == DecisionRow.MATCHED || step.decision() == DecisionRow.UNMATCHED;
+        boolean noTimings = step.constant() || condition;
         var builder = StepValueView.builder()
                 .ref(step.ref())
                 .label(step.label())
@@ -530,8 +533,9 @@ public class TraceDebugMapper {
                 // Static content has no execution of its own: no timings, and the flag lets a client
                 // read the cell instead of trying to run to it.
                 .constant(step.constant() ? Boolean.TRUE : null)
-                .durationMillis(step.constant() ? null : toMillis(step.durationNanos()))
-                .selfMillis(step.constant() ? null
+                .decision(step.decision())
+                .durationMillis(noTimings ? null : toMillis(step.durationNanos()))
+                .selfMillis(noTimings ? null
                         : selfMillis(step.durationNanos(), sumDurations(step.children().stream())));
         if (shallow) {
             // Children are fetched on demand; report only the count, so the client shows the step as
