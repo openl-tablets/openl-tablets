@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -66,6 +67,8 @@ public final class DebugFrame {
     @Getter(lombok.AccessLevel.NONE)
     private final Map<Object, ExecutedStep> executedByExecutor = new IdentityHashMap<>();
     private final List<ConditionCheck> conditionChecks = new ArrayList<>();
+    /** Rules whose action fired (the returned rule(s)), recorded as they fire — for the returned-rule highlight. */
+    private final Set<Integer> firedRules = new LinkedHashSet<>();
     /** Returned sub-calls grouped by the step that made them; populated only in profiling mode. */
     private final Map<String, List<CallNode>> executedChildren = new LinkedHashMap<>();
 
@@ -133,6 +136,13 @@ public final class DebugFrame {
     void recordConditionCheck(ConditionCheck check) {
         if (conditionChecks.size() < MAX_RECORDED_PER_FRAME) {
             conditionChecks.add(check);
+        }
+    }
+
+    /** Remember a fired decision-table rule, so the returned rule and its result can be highlighted later. */
+    void recordFiredRules(int[] rules) {
+        for (int rule : rules) {
+            firedRules.add(rule);
         }
     }
 
