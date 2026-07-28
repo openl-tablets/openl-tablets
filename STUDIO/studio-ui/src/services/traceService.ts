@@ -133,6 +133,7 @@ export const traceService = {
             profiling?: boolean
             detailedTitles?: boolean
             includeTree?: boolean
+            fullTree?: boolean
             inputJson?: string
         }
     ): Promise<DebugStackView> => {
@@ -144,6 +145,8 @@ export const traceService = {
         if (options.profiling) params.set('profiling', 'true')
         if (options.detailedTitles) params.set('detailedTitles', 'true')
         if (options.includeTree === false) params.set('includeTree', 'false')
+        // The business view downloads the whole executed tree once, deep, instead of paging every branch.
+        if (options.fullTree) params.set('fullTree', 'true')
 
         // Not retried: starting a session is not idempotent, so replaying a lost-response POST would spawn
         // and immediately discard a second worker. A transient failure surfaces to the caller instead.

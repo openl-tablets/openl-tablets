@@ -123,6 +123,7 @@ public class ProjectsTraceDebugController {
             @RequestParam(value = "includeTree", defaultValue = "true") @Parameter(description = "trace.param.include-tree.desc") boolean includeTree,
             @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop,
             @RequestParam(value = "view", defaultValue = "full") @Parameter(description = "trace.param.view.desc") StackViewMode view,
+            @RequestParam(value = "fullTree", defaultValue = "false") @Parameter(description = "trace.param.full-tree.desc") boolean fullTree,
             @RequestBody(required = false) @Parameter(description = "trace.param.input-json.desc") String inputJson) {
 
         parameterRegistry.clear();
@@ -167,7 +168,7 @@ public class ProjectsTraceDebugController {
         // cache is not later pinned to a different module by a concurrent open (e.g. GET /breakpoint-tables).
         createMapper(session);
         session.getDebugger().awaitInitialHalt(STEP_TIMEOUT_MILLIS);
-        return inspectStack(session, renderOptions(includeTree, profileTop, view));
+        return inspectStack(session, renderOptions(includeTree, profileTop, view, fullTree));
     }
 
     @Operation(summary = "trace.status.summary", description = "trace.status.desc")
@@ -185,7 +186,7 @@ public class ProjectsTraceDebugController {
             @RequestParam(value = "includeTree", defaultValue = "true") @Parameter(description = "trace.param.include-tree.desc") boolean includeTree,
             @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop,
             @RequestParam(value = "view", defaultValue = "full") @Parameter(description = "trace.param.view.desc") StackViewMode view) {
-        return inspectStack(requireSession(project), renderOptions(includeTree, profileTop, view));
+        return inspectStack(requireSession(project), renderOptions(includeTree, profileTop, view, false));
     }
 
     @Operation(summary = "trace.tree-children.summary", description = "trace.tree-children.desc")
@@ -225,7 +226,7 @@ public class ProjectsTraceDebugController {
                 // and let the WebSocket deliver the next stop.
                 return TraceDebugMapper.toStackView(result, List.of(), null);
             }
-            return stackView(session, renderOptions(includeTree, profileTop, view));
+            return stackView(session, renderOptions(includeTree, profileTop, view, false));
         });
     }
 
@@ -461,8 +462,9 @@ public class ProjectsTraceDebugController {
         });
     }
 
-    private static StackRenderOptions renderOptions(boolean includeTree, int profileTop, StackViewMode view) {
-        return new StackRenderOptions(includeTree, profileTop, view == StackViewMode.COMPACT);
+    private static StackRenderOptions renderOptions(boolean includeTree, int profileTop, StackViewMode view,
+                                                    boolean fullTree) {
+        return new StackRenderOptions(includeTree, profileTop, view == StackViewMode.COMPACT, fullTree);
     }
 
     /**

@@ -10,7 +10,6 @@ import type {
     ProfileSummaryView,
     RawTableView,
     StepType,
-    StepValueView,
     TraceParameterValue,
     WatchView,
 } from 'types/trace'
@@ -131,14 +130,10 @@ interface DebugState {
     simpleChildren: Record<string, CallNodeView[]>
     /** Execution-order ranges by breakpoint key, deciding whether a click can resume or must restart. */
     simpleOrder: Record<string, SimpleOrderRange>
-    /** True once the whole tree is downloaded and browsable. */
+    /** True once the tree has arrived and is browsable. */
     simpleReady: boolean
-    /** True while the simple run executes and its tree downloads. */
+    /** True while the simple run executes and its tree arrives. */
     simpleLoading: boolean
-    /** Calls downloaded so far, for the preparation progress line. */
-    simpleLoadedCount: number
-    /** Full call count of the run (from the profile), or null when unknown. */
-    simpleTotalCount: number | null
     /** Breakpoint key of the row whose values are being shown, for the selection highlight. */
     simpleSelectedKey: string | null
     /** Order range of the last inspected row; a later row can be resumed to, an earlier one needs a restart. */
@@ -275,8 +270,6 @@ const initialState = {
     simpleOrder: {},
     simpleReady: false,
     simpleLoading: false,
-    simpleLoadedCount: 0,
-    simpleTotalCount: null,
     simpleSelectedKey: null,
     simpleLastInspected: null,
     simpleFocus: null,
@@ -292,8 +285,6 @@ const SIMPLE_SNAPSHOT_RESET = {
     simpleOrder: {},
     simpleReady: false,
     simpleLoading: false,
-    simpleLoadedCount: 0,
-    simpleTotalCount: null,
     simpleSelectedKey: null,
     simpleLastInspected: null,
     simpleFocus: null,
@@ -306,12 +297,6 @@ const isInspectable = (status: DebugStatus | null): boolean =>
 
 /** Sub-calls requested per lazy /tree/children page; the server caps a page at this size too. */
 const TREE_PAGE_SIZE = 100
-
-/** Sub-calls per page while downloading the whole tree up front (simple mode) — large pages, few requests. */
-const SIMPLE_FETCH_PAGE = 500
-
-/** Parallel page downloads while the simple mode pulls the whole tree. */
-const SIMPLE_FETCH_CONCURRENCY = 4
 
 export const useTraceStore = create<DebugState>((set, get) => {
     // True only while a quiet inspect restart cancels the old session and starts a fresh one, so the old
@@ -381,61 +366,6 @@ export const useTraceStore = create<DebugState>((set, get) => {
      */
     const beginRun = (extra: Partial<DebugState> = {}): void =>
         set({ loading: true, error: null, runId: get().runId + 1, ...extra })
-
-    /**
-     * Download the entire executed tree: every step's sub-calls, breadth-first, so the simple view can
-     * expand any branch instantly without further backend calls. Returns null when the download fails or
-     * a newer run supersedes it (the token no longer matches the current runId).
-     */
-    const downloadTree = async (
-        projectId: string,
-        root: CallNodeView,
-        token: number
-    ): Promise<Record<string, CallNodeView[]> | null> => {
-        const children: Record<string, CallNodeView[]> = {}
-        const tasks: { uri: string; instance: number; step: StepValueView }[] = []
-        let loaded = 0
-        const enqueue = (node: CallNodeView): void => {
-            loaded += 1
-            for (const step of node.steps) {
-                if (step.children) {
-                    step.children.forEach(enqueue)
-                } else if ((step.childrenTotal ?? 0) > 0) {
-                    tasks.push({ uri: node.uri, instance: node.instance, step })
-                }
-            }
-        }
-        enqueue(root)
-        const worker = async (): Promise<void> => {
-            for (let task = tasks.pop(); task; task = tasks.pop()) {
-                const collected: CallNodeView[] = []
-                const total = task.step.childrenTotal ?? 0
-                let pageSize = -1
-                // Page until the reported total is collected; an empty or shrinking page ends the loop
-                // early rather than spinning on a total the server no longer agrees with.
-                while (collected.length < total && pageSize !== 0) {
-                    const page = await traceService.getTreeChildren(
-                        projectId, task.uri, task.instance, task.step.ref, collected.length, SIMPLE_FETCH_PAGE)
-                    if (get().runId !== token) return
-                    pageSize = page.children?.length ?? 0
-                    collected.push(...(page.children ?? []))
-                }
-                children[treeChildKey(task.uri, task.instance, task.step.ref)] = collected
-                collected.forEach(enqueue)
-                set({ simpleLoadedCount: loaded })
-            }
-        }
-        try {
-            // A few workers drain the queue in parallel; each downloaded level may enqueue deeper ones.
-            await Promise.all(Array.from({ length: SIMPLE_FETCH_CONCURRENCY }, worker))
-        } catch (error: any) {
-            if (get().runId === token) {
-                set({ error: error?.message || 'Failed to load the calculation tree' })
-            }
-            return null
-        }
-        return get().runId === token ? children : null
-    }
 
     /** Restart the session from the top with the current settings, re-applying the user's breakpoints. */
     const restart = async (): Promise<void> => {
@@ -863,26 +793,21 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 await get().terminate()
                 set({ status: 'running' })
                 // One full profiled run: the response arrives once the whole calculation has finished,
-                // carrying the executed tree to download.
+                // carrying the entire executed tree deep (fullTree) — so the business view browses it
+                // offline without paging thousands of branches. Detailed titles (signature, result, cell
+                // values) are the business view's default; the advanced debugger never asks for either,
+                // keeping its tree shallow and lazily paged.
                 const stack = await traceService.startTrace(projectId, launchOptions(
-                    // Detailed titles (signature, result, cell values) are the business view's default — the
-                    // advanced debugger never asks for them, keeping its tree lean.
                     { tableId, fromModule, testRanges, inputJson },
-                    { stopAtEntry: false, profiling: true, detailedTitles: true }
+                    { stopAtEntry: false, profiling: true, detailedTitles: true, fullTree: true }
                 ))
                 if (get().runId !== token) return
                 applyStack(stack)
                 const tree = stack.tree ?? null
-                set({ simpleTree: tree, simpleTotalCount: stack.profile?.nodeCount ?? null })
                 if (tree) {
-                    const children = await downloadTree(projectId, tree, token)
-                    if (children) {
-                        set({
-                            simpleChildren: children,
-                            simpleOrder: buildSimpleOrder(tree, children),
-                            simpleReady: true,
-                        })
-                    }
+                    // The tree arrived whole, with every step's sub-calls inline, so the order is built
+                    // straight from it — no further fetches, no per-page counters.
+                    set({ simpleTree: tree, simpleOrder: buildSimpleOrder(tree, {}), simpleReady: true })
                 }
             } catch (error: any) {
                 if (get().runId === token) {

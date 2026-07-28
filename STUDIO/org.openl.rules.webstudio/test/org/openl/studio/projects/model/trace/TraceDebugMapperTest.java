@@ -304,6 +304,55 @@ class TraceDebugMapperTest {
     }
 
     @Test
+    void fullTreeSerializesTheWholeTreeDeepInOneResponse() {
+        // The business view asks for the full tree: instead of the shallow lazy root, every step's sub-calls
+        // are inline, recursively, so the client browses the whole tree offline without paging.
+        var tree = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, lazyTreeFixture(), List.of(),
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, false, true), false).tree();
+
+        assertNotNull(tree);
+        var step = tree.steps().get(0);
+        assertNotNull(step.children(), "the full tree carries the step's sub-calls inline, not lazily");
+        assertEquals(List.of("B", "C"), step.children().stream().map(CallNodeView::name).toList());
+        // Depth too: B's own loop iterations are present without a second request.
+        var bLoop = step.children().get(0).steps().get(0);
+        assertNotNull(bLoop.children(), "grandchildren are inline as well — the whole subtree is one payload");
+        assertEquals(3, bLoop.children().size());
+    }
+
+    @Test
+    void fullTreeCapsAStepAtTheChildLimitAndReportsTheOmittedCount() {
+        // A step looped past MAX_TREE_CHILDREN keeps only the first 100 inline; the full count is reported so
+        // the client marks how many executions are omitted.
+        List<CallNode> kids = new ArrayList<>();
+        for (int i = 0; i < 150; i++) {
+            kids.add(leaf("uB", "B", 1));
+        }
+        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(200),
+                List.of(new CallNode.Step("R0C0", "$s", ms(200), kids)), null, null);
+
+        var step = TraceDebugMapper.toCappedTree(root).steps().get(0);
+
+        assertEquals(100, step.children().size(), "only the first 100 iterations are serialized inline");
+        assertEquals(150, step.childrenTotal(), "the full count marks the branch as truncated");
+    }
+
+    @Test
+    void fullTreeCutsBranchesBeyondTheNodeBudgetAndMarksThemTruncated() {
+        // With a tiny budget the deep serialization stops once the budget is spent: the first sub-call is
+        // included, the rest are cut and their step reports the full count so the client shows the truncation.
+        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(20),
+                List.of(new CallNode.Step("R0C0", "$s", ms(20),
+                        List.of(leaf("uB", "B", 5), leaf("uC", "C", 5), leaf("uD", "D", 5)))), null, null);
+
+        var step = TraceDebugMapper.toCappedTree(root, 1).steps().get(0);
+
+        assertEquals(1, step.children().size(), "the budget admitted only the first sub-call");
+        assertEquals("B", step.children().get(0).name());
+        assertEquals(3, step.childrenTotal(), "the omitted sub-calls are reported as truncated");
+    }
+
+    @Test
     void fetchesAStepsChildrenLazilyOneLevelDeep() {
         CallNode root = lazyTreeFixture();
 
@@ -388,7 +437,7 @@ class TraceDebugMapperTest {
         assertNotNull(full.frames().get(1).steps());
 
         var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null, List.of(),
-                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true), false);
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true, false), false);
         assertNull(compact.frames().getFirst().steps(), "compact drops the non-active frame's steps");
         assertTrue(compact.frames().get(1).active(), "the top frame is the active one");
         assertNotNull(compact.frames().get(1).steps(), "the active frame keeps its steps");
