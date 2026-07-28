@@ -277,10 +277,9 @@ public class Condition extends FunctionalRow implements ICondition {
             return "contains(%s, %s)".formatted(param.getName(), source.getCode());
         }
         if (conditionCasts.isCastToConditionTypeExists()) {
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                    """
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("""
                     PERFORMANCE: Condition '%s' uses additional type casting \
-                    from '%s' to '%s' in calculation time for each table row.""",
+                    from '%s' to '%s' in calculation time for each table row.""".formatted(
                     getName(),
                     methodType.getName(),
                     param.getType().getComponentClass().getName()), tableSyntaxNode));
@@ -289,10 +288,9 @@ public class Condition extends FunctionalRow implements ICondition {
                     param.getType().getComponentClass().getName(),
                     source.getCode());
         } else if (conditionCasts.isCastToInputTypeExists()) {
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                    """
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("""
                     PERFORMANCE: Condition '%s' uses additional type casting \
-                    from '%s' to '%s' in calculation time for each table row.""",
+                    from '%s' to '%s' in calculation time for each table row.""".formatted(
                     getName(),
                     param.getType().getComponentClass().getInstanceClass().getTypeName(),
                     methodType.getName()), tableSyntaxNode));
@@ -312,10 +310,9 @@ public class Condition extends FunctionalRow implements ICondition {
                                       IParameterDeclaration param,
                                       IBindingContext bindingContext) {
         if (isIntRangeType(param.getType()) && NumberUtils.isFloatPointType(methodType.getInstanceClass())) {
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                    """
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("""
                     PERFORMANCE: Condition '%s' uses additional type casting \
-                    from '%s' to '%s' in calculation time for each table row.""",
+                    from '%s' to '%s' in calculation time for each table row.""".formatted(
                     getName(),
                     param.getType().getName(),
                     DoubleRange.class.getTypeName()), tableSyntaxNode));

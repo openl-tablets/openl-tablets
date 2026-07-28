@@ -27,10 +27,9 @@ final class ArrayOneElementCast implements IArrayOneElementCast, IOpenCast {
             if (Array.getLength(from) == 1) {
                 return openCast.convert(Array.get(from, 0));
             } else {
-                throw new ClassCastException(String.format(
-                        """
+                throw new ClassCastException("""
                         Cannot convert '%s' to '%s'. \
-                        The number of elements in the array is '%s' instead of only one element that is expected.""",
+                        The number of elements in the array is '%s' instead of only one element that is expected.""".formatted(
                         from.getClass().getTypeName(),
                         to.getName(),
                         Array.getLength(from)));

@@ -12,7 +12,7 @@ public final class RulesDeployHelper {
             var rootClasses = rootClassNamesBinding.split(",", -1);
             var rootClassNamesBindingClasses = new HashSet<String>();
             for (String className : rootClasses) {
-                if (className != null && className.trim().length() > 0) {
+                if (className != null && !className.trim().isEmpty()) {
                     rootClassNamesBindingClasses.add(className.trim());
                 }
             }

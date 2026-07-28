@@ -98,7 +98,7 @@ public final class OpenClassUtils {
             }
 
             if (!contains) {
-                validationMessage = String.format("The value '%s' is outside of valid domain '%s'. Valid values: %s",
+                validationMessage = "The value '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
                         value,
                         paramType.getName(),
                         DomainUtils.toString(domain));

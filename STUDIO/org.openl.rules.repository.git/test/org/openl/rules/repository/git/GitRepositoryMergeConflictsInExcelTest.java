@@ -302,8 +302,8 @@ class GitRepositoryMergeConflictsInExcelTest {
             var mergeCommit = git.log().setMaxCount(1).call().iterator().next();
             masterToBranchMergeCommit = mergeCommit.getName();
             var actualCommitMessage = mergeCommit.getFullMessage();
-            String expectedCommitMessage = String.format(
-                    "Merge commit with %s\n\n Automatically resolved conflicts:\n\t" + expectedMrMessage1,
+            String expectedCommitMessage = (
+                    "Merge commit with %s\n\n Automatically resolved conflicts:\n\t" + expectedMrMessage1).formatted(
                     testCaseData.theirRevision);
             assertEquals(expectedCommitMessage, actualCommitMessage);
 
@@ -331,8 +331,8 @@ class GitRepositoryMergeConflictsInExcelTest {
             var mergeCommit = git.log().setMaxCount(1).call().iterator().next();
             branchToMasterMergeCommit = mergeCommit.getName();
             var actualCommitMessage = mergeCommit.getFullMessage();
-            String expectedCommitMessage = String.format(
-                    "Merge commit with %s\n\n Automatically resolved conflicts:\n\t" + expectedMrMessage2,
+            String expectedCommitMessage = (
+                    "Merge commit with %s\n\n Automatically resolved conflicts:\n\t" + expectedMrMessage2).formatted(
                     testCaseData.ourRevision);
             assertEquals(expectedCommitMessage, actualCommitMessage);
         }

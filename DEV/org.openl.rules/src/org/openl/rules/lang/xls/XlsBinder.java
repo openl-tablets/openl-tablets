@@ -541,7 +541,7 @@ public class XlsBinder implements IOpenBinder {
                     .equals(tableSyntaxNode.getNodeType()) && (x1.endsWith("[") || x1.endsWith("]"))) {
                 return null;
             }
-            while (x1.length() > 0 && x1.charAt(x1.length() - 1) == ' ' || x1.charAt(x1.length() - 1) == '[' || x1
+            while (!x1.isEmpty() && x1.charAt(x1.length() - 1) == ' ' || x1.charAt(x1.length() - 1) == '[' || x1
                     .charAt(x1.length() - 1) == ']') {
                 x1 = x1.substring(0, x1.length() - 1);
             }

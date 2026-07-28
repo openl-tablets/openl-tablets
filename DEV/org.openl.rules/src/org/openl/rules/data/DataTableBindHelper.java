@@ -216,7 +216,7 @@ public class DataTableBindHelper {
             }
             // if it's field chain started with array index
             var openClass = tableType;
-            while (openClass.isArray() && fieldName.length() > 0 && fieldName.charAt(0) == '[') {
+            while (openClass.isArray() && !fieldName.isEmpty() && fieldName.charAt(0) == '[') {
                 var arrayIndex = false;
                 var endIndex = fieldName.indexOf(']');
                 for (var j = 1; j < endIndex; j++) {
@@ -600,7 +600,7 @@ public class DataTableBindHelper {
 
             var code = cellSourceModule.getCode();
 
-            if (code.length() != 0) {
+            if (!code.isEmpty()) {
 
                 IdentifierNode[] fieldAccessorChainTokens = null;
                 try {
