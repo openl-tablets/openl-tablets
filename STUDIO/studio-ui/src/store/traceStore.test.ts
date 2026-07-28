@@ -848,4 +848,30 @@ describe('traceStore simple mode', () => {
         expect(useTraceStore.getState().simpleTree).toBe(snapshot) // the original tree never changes
         expect(useTraceStore.getState().simpleReady).toBe(true)
     })
+
+    it('keeps the previously inspected table on the panel through a restart — never flashes the root', async () => {
+        // A prior inspection left a deep table (uA) on screen. Clicking an earlier node forces a fresh run,
+        // but the panel must not flash the fresh root and its parameters: the frames stay on uA until the
+        // target inspection settles (the resume here is mocked, so no settle happens).
+        const previous = [
+            { index: 0, uri: 'uR', instance: 0, completed: true } as any,
+            { index: 1, uri: 'uA', instance: 0, completed: false } as any,
+        ]
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: { pre: 5, end: 9 },
+            frames: previous, selectedFrameIndex: 1 })
+        cancelTrace.mockResolvedValue(undefined)
+        getStack.mockRejectedValue(new Error('no session'))
+        startTrace.mockResolvedValue(suspended([{ index: 0, uri: 'uR', instance: 0, completed: false } as any]))
+        setBreakpoints.mockResolvedValue(undefined)
+        resume.mockResolvedValue(undefined)
+
+        await useTraceStore.getState().simpleInspect(
+            { key: 'uB@0', frameUri: 'uB', frameInstance: 0, stepType: 'out', label: 'uB' })
+
+        expect(cancelTrace).toHaveBeenCalled() // an earlier node needs a fresh run
+        expect(resume).toHaveBeenCalled() // run to the target with an inclusive breakpoint
+        // The fresh root stack was never applied: the previous table and selection are untouched.
+        expect(useTraceStore.getState().frames).toBe(previous)
+        expect(useTraceStore.getState().selectedFrameIndex).toBe(1)
+    })
 })
