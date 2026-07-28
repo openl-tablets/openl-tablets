@@ -454,23 +454,47 @@ export const useTraceStore = create<DebugState>((set, get) => {
     }
 
     /**
-     * Restart the session for a business-mode inspect WITHOUT blanking the panel. The backend session is
-     * cancelled and a fresh one started, but the last frame and its table stay on screen until the new stack
-     * settles — so navigating within one table just moves the highlight instead of tearing the table down and
-     * rebuilding it. Unlike {@link restart} it never routes through {@code terminate}, which clears the stack.
+     * Restart the session for a business-mode inspect WITHOUT blanking the panel — and without ever painting
+     * the root. The backend session is cancelled and a fresh one started at the root entry, but that root
+     * stack is NOT applied to the panel: the previously inspected table stays on screen until the target
+     * inspection settles. The fresh stack is returned so the caller can decide how to reach the target from
+     * the root, instead of reading it from the (still previous) displayed frames.
+     *
+     * <p>This is what keeps navigating flicker-free on a deep call tree: the panel goes straight from the
+     * previous table to the target's, never flashing the root and its parameters in between. Unlike
+     * {@link restart} it never routes through {@code terminate}, which clears the stack.
      */
-    const restartQuietly = async (): Promise<void> => {
-        const { projectId } = get()
-        if (!projectId) return
+    const restartQuietly = async (): Promise<DebugStackView | null> => {
+        const { projectId, tableId, fromModule, testRanges, inputJson } = get()
+        if (!projectId || !tableId) return null
         restarting = true
+        // Bump the run id and raise loading so any late echo — the cancelled session's, or the fresh
+        // session's own entry suspension — is dropped instead of painting the root mid-restart.
+        beginRun({ status: 'pending' })
         try {
             try {
                 await traceService.cancelTrace(projectId)
             } catch {
                 // The fresh session started next supersedes it.
             }
-            await get().start()
+            let stack: DebugStackView
+            try {
+                stack = await traceService.getStack(projectId)
+            } catch {
+                stack = await traceService.startTrace(projectId, launchOptions(
+                    { tableId, fromModule, testRanges, inputJson },
+                    { stopAtEntry: true, ...(get().profiling ? { profiling: true } : {}) }
+                ))
+            }
+            // Apply the fresh session's identity and status ONLY — never its root stack, so the panel keeps
+            // the previous table until the target inspection settles.
+            set({ status: stack.status, ...(stack.sessionId ? { sessionId: stack.sessionId } : {}) })
+            return stack
+        } catch (error: any) {
+            set({ status: 'error', error: error?.message || 'Failed to restart trace' })
+            return null
         } finally {
+            set({ loading: false })
             restarting = false
         }
     }
@@ -722,6 +746,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 return
             }
             if (status === 'suspended') {
+                // A quiet inspect restart parks the fresh session at its entry; that suspension echo must
+                // not paint the root — the previous table stays until the target inspection settles.
+                if (restarting) return
                 // A synchronous step applies the authoritative stack from its own response; the WS
                 // notification for that same suspension would only trigger a duplicate stack+variables fetch.
                 if (get().loading) return
@@ -882,15 +909,18 @@ export const useTraceStore = create<DebugState>((set, get) => {
             // everything the previous inspection already ran — its own subtree included. Anything else
             // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.
             const canResume = status === 'suspended' && last !== null && order !== null && order.pre > last.end
+            let freshStack: DebugStackView | null = null
             if (!canResume) {
-                await restartQuietly()
-                if (get().status !== 'suspended') return
+                freshStack = await restartQuietly()
+                if (!freshStack || freshStack.status !== 'suspended') return
             }
             // Execute in place only when paused exactly at the target: a call at its fresh entry (the
             // root right after a restart), or the owning frame already ON the clicked step's line (the
             // very next step after the previously inspected one). There the target's own entry point is
             // already behind us, so an inclusive breakpoint would never fire — one step finishes it.
-            const top = get().frames.at(-1)
+            // A quiet restart leaves the previous table on the panel, so read the fresh root from the
+            // returned stack rather than the (still previous) displayed frames.
+            const top = (freshStack?.frames ?? get().frames).at(-1)
             const atTarget = top && top.uri === frameUri && top.instance === frameInstance && !top.completed
                 && (stepType === 'over' ? top.location?.ref === focus?.ref : !top.location)
             if (atTarget) {
