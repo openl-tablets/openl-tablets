@@ -168,6 +168,14 @@ Content-Type: application/json
       "pos": "B50:C55"
     },
     {
+      "id": "a16d6bcf9c9df034fc4882a519a8d705",
+      "tableType": "Data",
+      "kind": "Data",
+      "name": "LossFreeDiscountCalc",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B2:E10"
+    },
+    {
       "id": "c6b479d0645a4fea79b818f569295462",
       "tableType": "Test",
       "kind": "Test",
@@ -212,6 +220,6 @@ Content-Type: application/json
   ],
   "pageNumber": 0,
   "pageSize": 50,
-  "numberOfElements": 23,
-  "total": 23
+  "numberOfElements": 24,
+  "total": 24
 }

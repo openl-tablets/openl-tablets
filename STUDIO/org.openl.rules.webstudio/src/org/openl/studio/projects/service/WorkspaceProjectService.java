@@ -1342,7 +1342,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 ? displayName.substring(0, displayName.length() - SHORTENED_NAME_MARK.length())
                 : displayName;
         var query = ProjectTableCriteriaQuery.builder().name(searchedName).includeOther(true).build();
-        return moduleModel.search(buildTableSelector(query), SearchScope.CURRENT_PROJECT)
+        return moduleModel.search(buildTableSelector(query), SearchScope.CURRENT_MODULE)
                 .stream()
                 .map(summaryTableReader::read)
                 .filter(table -> table.name.equalsIgnoreCase(tableName) || table.name.equalsIgnoreCase(displayName))
@@ -1686,9 +1686,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!(createTableRequest.table() instanceof RawTableView rawTable)) {
             throw new BadRequestException("table.new-module.raw-source.message");
         }
-        // Locked before anything is checked: a name free at the moment of the check must still be free at the
-        // moment of the write. A project without modules never opens, so the session has no current project to
-        // lock; the project the module is written to is locked instead.
+        // A project without modules never opens, so the session has no current project to lock; the project the
+        // module is written to is locked instead.
         var lockedBefore = project.isLockedByMe();
         project.tryLockOrThrow();
         ProjectDescriptor projectDescriptor;
@@ -1708,10 +1707,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             // Required whether or not the project has a module to compile first: without a name the table is written
             // and then cannot be found again, which answers a successful create with an empty body.
             tableCreatorService.requireTableName(newTableName);
-            if (!modules.isEmpty()) {
-                var projectModel = openProject(projectDescriptor, project, modules.getFirst()).awaitCompiled();
-                tableCreatorService.requireUniqueTable(projectModel, newTableName);
-            }
         } catch (RuntimeException e) {
             // Every check above answers ordinary input, and a rejected request leaves no lock behind: the project
             // would otherwise stay reserved for a write that never happened, and clearing a lock its owner never

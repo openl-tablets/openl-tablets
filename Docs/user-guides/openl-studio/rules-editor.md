@@ -13,7 +13,7 @@ The following topics are included in this chapter:
 -   [Modifying Tables](#modifying-tables)
 -   [Referring to Tables](#referring-to-tables)
 -   [Managing Range Data Types](#managing-range-data-types)
--   [Creating Tables by Copying](#creating-tables-by-copying)
+-   [Copying a Table](#copying-a-table)
 -   [Performing a Search](#performing-a-search)
 -   [Creating Tables](#creating-tables)
 -   [Comparing Excel Files](#comparing-excel-files)
@@ -477,46 +477,32 @@ To create a range, proceed as follows:
 
 A range can also be modified using ‘\>’, ‘\<’ and ‘=’ controls as described in the beginning of this section.
 
-### Creating Tables by Copying
-
-A table can be created based on another table using one of the following methods:
-
--   [Copying the Existing Table](#copying-the-existing-table)
--   [Creating a New Version of the Table](#creating-a-new-version-of-the-table)
--   [Creating a Table as a New Business Dimension Version](#creating-a-table-as-a-new-business-dimension-version)
-
-#### Copying the Existing Table
+### Copying a Table
 
 To create a table as a copy of the existing table, proceed as follows:
 
 1.  In the module list, select a table to copy.
 2.  Click the **Copy Table** icon ![](images/copy-table-icon.png).
-    The system displays the **Copy Table** form with **New Table** selected by default.
+    OpenL Studio displays the **Copy table "TableName"** window.
 
-    ![](images/copy-table-dialog.png)
+    ![Copy table window with destination and properties](images/copy-table-dialog.png "Copy table window")
 
-    *Copying the existing table*
+    *Copying an existing table*
 
-1.  If necessary, modify the **Name** field value.
-2.  To change the workbook and worksheet where the copy must be saved, click the link in the **Save To** area and in the corresponding drop-down list, select the required module and category.
-3.  To save the copied table in a new category, use the **New** option.
-4.  Click **Copy** to save your changes.
+1.  Enter a valid OpenL identifier in **Table Name**. It may match an existing table name when the table is
+    distinguished by its signature or properties.
+2.  Select or enter the destination **Module**.
+3.  Select or enter the destination **Sheet**.
+4.  Review the property name and value rows. The names are properties applicable to the copied table's type:
+    - complete the last row to add another property;
+    - use the row controls to insert or delete a property;
+    - select a suggested property name or enter one;
+    - enter text directly, select a date in the date picker, select or clear a Boolean check box, or select an enum
+      display value from the dropdown, according to the property type.
+      The date picker follows the user's locale; OpenL Studio writes the selected date as ISO 8601 `yyyy-MM-dd`.
+5.  Click **Copy** to save your changes.
 
 The table appears in the module list.
-
-#### Creating a New Version of the Table
-
-To create a new version of the existing table, proceed as described in [Using Table Versioning](editing-testing.md#using-table-versioning). In that case, dimensional properties of a new version are exactly the same as for the original one. OpenL Tablets allows creating an overloaded table from an existing one.
-
-#### Creating a Table as a New Business Dimension Version
-
-To create a table as a new business dimension version, proceed as follows:
-
-1.  In the module list, select a table and click the **Copy Table** icon.
-2.  In the **Copy as** list, select **New Business Dimension Version**.
-3.  Specify business dimension properties as required.
-4.  If necessary, modify the workbook and worksheet values in the **Save as** area.
-5.  Click **Copy** to save the table.
 
 ### Performing a Search
 
@@ -636,10 +622,12 @@ To create a table:
    - **Data** — columns generated from the selected Datatype.
    - **Environment** — Key and Value. Key is suggested from the three keywords OpenL acts on — `dependency`,
      `import` and `include`. An Environment table carries no name of its own.
-   - **Properties** — Property and Value. Property is suggested from the properties a Properties table may
-     declare. The skeleton starts with the mandatory `scope` property set to `Module`; change it to `Global` or to
-     `Category` — adding a `category` row to name the category — as required. A Properties table carries no name of
-     its own.
+   - **Properties** — Property and Value. Property is suggested from the properties that may appear in a Properties
+     table. Its value uses the editor declared for that property: text, date picker, Boolean check box, or enum
+     dropdown. Enum lists show display values and write their codes. Dates follow the user's locale in the date picker
+     and are written as ISO 8601 `yyyy-MM-dd`. The skeleton starts with the mandatory `scope` property set to `Module`;
+     change it to `Global` or to `Category` — adding a `category` row to name the category — as required. A Properties
+     table carries no name of its own.
    - **Free Form Table** — a plain grid, with the sheet's own column letters over it and nothing else. It has no
      header cell and no name: OpenL does not recognize such a table, and names it after whatever its first cell
      says. It is written exactly as it stands. Only that first cell is required — OpenL reads a table from it.
@@ -647,8 +635,9 @@ To create a table:
 3. Enter the table name, where the table type has one. It is required wherever it is shown.
 
    The name must be a valid identifier — letters, digits, `_` and `$`, not starting with a digit — because it
-   becomes the name OpenL compiles. Constants, Environment, Properties and Free Form tables carry no name and do
-   not show the field.
+   becomes the name OpenL compiles. It may match an existing table name: signatures and properties supplied by the
+   file name, a Properties table, or the table's own properties section distinguish table overloads and versions.
+   Constants, Environment, Properties and Free Form tables carry no name and do not show the field.
 
 4. In **Module**, choose the module that receives the table, then choose the sheet. Both fields suggest what the
    project already has and accept anything else typed into them. The sheets offered are the ones the chosen

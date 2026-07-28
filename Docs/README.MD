@@ -90,7 +90,7 @@ Integration patterns with popular frameworks:
 - **[Technology Stack](architecture/technology-stack.md)** - Complete technology inventory (Java, Spring, React, etc.)
 - **[Dependencies](architecture/dependencies.md)** - Module dependency graph and external dependencies
 - **[Legacy System Map](architecture/legacy-system-map.md)** - Legacy vs modern components, migration status
-- **[Table Creation](architecture/table-creation.md)** - How the table-creation dialog builds a table
+- **[Table Creation and Copying](architecture/table-creation.md)** - How the dialog builds and copies a table
 
 ### Specifications
 - **[Table Types](ref/table-types.md)** - Every OpenL table type and its header syntax

@@ -18,6 +18,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.PropertyDefinitionView;
+import org.openl.studio.projects.model.PropertyValueView;
 import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
@@ -34,13 +35,13 @@ class ProjectMetadataServiceTest {
 
     @Test
     void describesWhatAValueOfEachPropertyLooksLike() {
-        var properties = service.getProperties();
+        var properties = service.getProperties(null);
 
         // A dimension property offers the values of its enum, several at a time.
         var state = property(properties, "state");
         assertEquals("enum", state.type());
         assertTrue(state.multiple());
-        assertTrue(state.values().contains("AL"));
+        assertTrue(state.values().contains(new PropertyValueView("AL", "Alabama")));
         // One value out of the same kind of list.
         var origin = property(properties, "origin");
         assertEquals("enum", origin.type());
@@ -56,7 +57,7 @@ class ProjectMetadataServiceTest {
 
     @Test
     void offersOnlyPropertiesAPropertiesTableMayDeclare() {
-        var names = service.getProperties().stream().map(PropertyDefinitionView::name).toList();
+        var names = service.getProperties(null).stream().map(PropertyDefinitionView::name).toList();
 
         // Stamped by OpenL Studio, never typed.
         assertFalse(names.contains("createdBy"));
@@ -65,6 +66,24 @@ class ProjectMetadataServiceTest {
         assertFalse(names.contains("description"));
         assertFalse(names.contains("active"));
         assertTrue(names.containsAll(List.of("scope", "category")));
+    }
+
+    @Test
+    void offersPropertiesForTheRequestedTableTypeAndLevel() {
+        var rules = service.getProperties("Rules").stream().map(PropertyDefinitionView::name).toList();
+        var spreadsheet = service.getProperties("Spreadsheet").stream().map(PropertyDefinitionView::name).toList();
+
+        assertTrue(rules.containsAll(List.of("version", "active", "failOnMiss")));
+        assertFalse(rules.contains("scope"));
+        assertFalse(rules.contains("autoType"));
+        assertTrue(spreadsheet.containsAll(List.of("version", "active", "autoType")));
+        assertFalse(spreadsheet.contains("scope"));
+        assertFalse(spreadsheet.contains("failOnMiss"));
+    }
+
+    @Test
+    void rejectsAnUnknownTableType() {
+        assertThrows(BadRequestException.class, () -> service.getProperties("Unknown"));
     }
 
     @Test

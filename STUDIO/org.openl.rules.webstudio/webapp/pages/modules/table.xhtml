@@ -376,13 +376,19 @@
                                     </h:outputLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink rendered="#{tableBean.copyable}"
-                                        onclick="return onBeforeEdit();"
-                                        oncomplete="ws.nav.go('#{studio.url('copyTable')}?id=#{tableBean.id}')" title="Create a new table based on the existing one"
-                                        styleClass="toolbarButton">
-                                        <img src="#{contextPath}/webresource/images/copyTable.gif" />
-                                        <div>Copy</div>
-                                    </a4j:commandLink>
+                                    <c:if test="#{tableBean.copyable}">
+                                        <a href="javascript:void(0)"
+                                            class="toolbarButton"
+                                            title="Create a new table based on the existing one"
+                                            data-project-id="#{studio.currentProjectId}"
+                                            data-module-name="#{studio.currentModule.name}"
+                                            data-source-table-id="#{tableBean.id}"
+                                            data-project-url="#{utils.toUrl(studio.currentProject.repository.id, studio.currentProject.name)}"
+                                            onclick="return ws.ui.openTableModal(this, 'openCopyTableModal', onBeforeEdit);">
+                                            <img src="#{contextPath}/webresource/images/copyTable.gif" />
+                                            <div>Copy</div>
+                                        </a>
+                                    </c:if>
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{tableBean.removeTable}" title="Delete the table"

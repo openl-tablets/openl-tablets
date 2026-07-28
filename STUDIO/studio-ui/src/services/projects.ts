@@ -20,9 +20,12 @@ export const getProjectModules = (projectId: string): Promise<ProjectModule[]> =
 export const getModuleSheets = (projectId: string, moduleName: string): Promise<string[]> =>
     projectResource(projectId, `modules/${encodeURIComponent(moduleName)}/sheets`)
 
-/** Properties a table of the project may declare. */
-export const getProjectProperties = (projectId: string): Promise<ProjectProperty[]> =>
-    projectResource(projectId, 'properties')
+/**
+ * Properties applicable to one place in a workbook. Without a table kind, returns properties for the contents of a
+ * Properties table. With a kind, returns properties for the table's own properties section.
+ */
+export const getProjectProperties = (projectId: string, tableType?: string): Promise<ProjectProperty[]> =>
+    projectResource(projectId, `properties${tableType ? `?tableType=${encodeURIComponent(tableType)}` : ''}`)
 
 
 /** A file to upload into a project, addressed by its project-relative '/'-separated path. */

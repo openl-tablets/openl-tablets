@@ -402,10 +402,14 @@ public class ProjectsController {
 
     @GetMapping("/{projectId}/properties")
     @Operation(summary = "projects.properties.list.summary")
-    public List<PropertyDefinitionView> getProperties(@ProjectId @PathVariable("projectId") RulesProject project) {
+    public List<PropertyDefinitionView> getProperties(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @RequestParam(value = "tableType", required = false)
+            @Parameter(description = "projects.properties.list.param.table-type.desc")
+            @Nullable String tableType) {
         // The properties are the same for every project, but the path variable is still resolved: resolving it is
         // what checks that the caller may read this project.
-        return metadataService.getProperties();
+        return metadataService.getProperties(tableType);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}")

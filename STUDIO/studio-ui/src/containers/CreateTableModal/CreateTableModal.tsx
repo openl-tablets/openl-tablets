@@ -89,6 +89,7 @@ import {
 } from '../tableModals/shared'
 import { useSharedStyles } from '../tableModals/sharedStyles'
 import { useSheetLoader } from '../tableModals/useSheetLoader'
+import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
 import { useStyles } from './CreateTableModal.styles'
 
 const DEFAULT_TABLE_NAME = 'NewTable'
@@ -901,6 +902,18 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             )
         }
         if (column.editor === 'text') {
+            if (preset === 'properties' && columnIndex === 1) {
+                const definition = properties.find(property => property.name === String(rows[rowIndex]?.[0] ?? ''))
+                return (
+                    <PropertyValueInput
+                        {...common}
+                        definition={definition}
+                        onChange={next => updateCell(rowIndex, columnIndex, next)}
+                        placeholder=""
+                        value={value}
+                    />
+                )
+            }
             return (
                 <Input
                     {...common}
@@ -914,9 +927,15 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         return (
             <SuggestInput
                 {...common}
-                onChange={next => updateCell(rowIndex, columnIndex, next)}
                 options={suggestionsFor(column.editor)}
                 value={String(value)}
+                onChange={next => {
+                    updateCell(rowIndex, columnIndex, next)
+                    if (preset === 'properties' && columnIndex === 0) {
+                        const definition = properties.find(property => property.name === next)
+                        updateCell(rowIndex, 1, initialPropertyValue(definition))
+                    }
+                }}
             />
         )
     }

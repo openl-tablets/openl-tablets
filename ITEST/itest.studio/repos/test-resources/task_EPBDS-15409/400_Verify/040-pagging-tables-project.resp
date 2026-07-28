@@ -4,6 +4,14 @@ Content-Type: application/json
 {
   "content": [
     {
+      "id": "be271364faadb34a625a7711c8900b6f",
+      "tableType": "Data",
+      "kind": "Data",
+      "name": "states",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B25:C86"
+    },
+    {
       "id": "fc832505fba8bba61221f9eb03ffeb5c",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
@@ -32,6 +40,6 @@ Content-Type: application/json
   ],
   "pageNumber": 2,
   "pageSize": 10,
-  "numberOfElements": 3,
-  "total": 23
+  "numberOfElements": 4,
+  "total": 24
 }

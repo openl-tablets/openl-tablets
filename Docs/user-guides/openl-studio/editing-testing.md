@@ -116,7 +116,8 @@ When opening a Data Table in the same project, these properties are not availabl
 
 *The Decision table properties that are not available for a Data table*
 
-When performing the “Copy” action, properties unsuitable for the current table type do not appear in the form.
+The **Copy table** window reads the properties explicitly defined on the source table. It displays them as editable
+property name and value rows and suggests the property names declared by the project.
 
 To add a new property for the selected table, perform the following steps:
 
@@ -142,7 +143,8 @@ To add a new property for the selected table, perform the following steps:
 
 ### Using Table Versioning
 
-The table versioning mechanism is based on copying the existing table and is initiated in OpenL Studio by clicking the **Copy** button. Then select **New Version** in the **Copy as** list, enter the data as needed and click **Copy** to save.
+The table versioning mechanism groups tables with the same identity and dimensional properties by their Version
+property.
 
 A new table version has the same identity, that is, signature and dimensional properties of the previous version. When a new table version is created, the previous version becomes inactive since only one table version can be active at a time. By default, all tables are active. The following is an example of an inactive table version.
 

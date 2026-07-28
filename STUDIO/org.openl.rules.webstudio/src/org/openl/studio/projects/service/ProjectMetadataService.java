@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.excel.parser.ExcelUtils;
@@ -21,9 +22,12 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.PropertyDefinitionView;
+import org.openl.studio.projects.model.PropertyValueView;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.util.EnumUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Describes what a project holds: the properties its tables may carry, and the worksheets of one of its modules.
@@ -54,9 +58,28 @@ public class ProjectMetadataService {
     private final ProjectFilesService projectFilesService;
     private final ProjectFileRootFactory projectFileRootFactory;
 
-    /** Properties a table may declare. Fixed by OpenL, so the same for every project. */
-    public List<PropertyDefinitionView> getProperties() {
-        return PROPERTIES;
+    /**
+     * Properties applicable to one place in a workbook.
+     *
+     * <p>Without a table type, these are the properties a Properties table may declare at Global, Module or Category
+     * scope. With a table type, these are the properties the table itself may declare at Table scope.
+     *
+     * @param tableType public table kind, or {@code null} for the contents of a Properties table
+     */
+    public List<PropertyDefinitionView> getProperties(@Nullable String tableType) {
+        if (StringUtils.isBlank(tableType)) {
+            return PROPERTIES;
+        }
+        var internalType = OpenLTableUtils.getTableTypeItems().inverse().get(tableType);
+        if (internalType == null) {
+            throw new BadRequestException("project.properties.table-type.message", new Object[]{tableType});
+        }
+        return Arrays.stream(TablePropertyDefinitionUtils.getDefaultDefinitionsForTable(
+                        internalType, InheritanceLevel.TABLE, true))
+                .filter(definition -> definition.getDeprecation() == null)
+                .map(ProjectMetadataService::describe)
+                .sorted((left, right) -> String.CASE_INSENSITIVE_ORDER.compare(left.name(), right.name()))
+                .toList();
     }
 
     /**
@@ -89,12 +112,20 @@ public class ProjectMetadataService {
         }
         var element = type.isArray() ? type.getComponentType() : type;
         if (element.isEnum()) {
+            var codes = EnumUtils.getNames(element);
+            var values = EnumUtils.getValues(element);
             return new PropertyDefinitionView(definition.getName(),
                     "enum",
                     type.isArray(),
-                    List.of(EnumUtils.getNames(element)));
+                    IntStream.range(0, codes.length)
+                            .mapToObj(index -> new PropertyValueView(codes[index], values[index]))
+                            .toList());
         }
-        return new PropertyDefinitionView(definition.getName(), scalarType(element), type.isArray(), List.of());
+        return new PropertyDefinitionView(
+                definition.getName(),
+                scalarType(element),
+                type.isArray(),
+                List.of());
     }
 
     /** What a value that is not one of a list looks like. */

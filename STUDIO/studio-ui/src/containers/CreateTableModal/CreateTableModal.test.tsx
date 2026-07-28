@@ -113,9 +113,25 @@ vi.mock('antd', async () => {
     )
     const MockSpin = ({ children }: { children?: React.ReactNode }) => <>{children}</>
     const MockTooltip = ({ children }: { children?: React.ReactNode }) => <>{children}</>
+    const MockDatePicker = ({
+        onChange,
+        ...props
+    }: {
+        onChange?: (date: { format: (pattern: string) => string } | null) => void
+        'data-testid'?: string
+    }) => (
+        <input
+            data-testid={props['data-testid']}
+            type="date"
+            onChange={event => onChange?.({
+                format: pattern => pattern === 'YYYY-MM-DD' ? event.target.value : `unexpected:${pattern}`,
+            })}
+        />
+    )
     return {
         ...actual,
         AutoComplete: MockAutoComplete,
+        DatePicker: MockDatePicker,
         Modal: MockModal,
         Select: MockSelect,
         Spin: MockSpin,
@@ -144,8 +160,23 @@ const executableTables: ProjectTable[] = [{
     signature: 'Eligibility(Integer age, String country)',
 }]
 
-const projectProperties: ProjectProperty[] = ['active', 'category', 'scope']
-    .map(name => ({ name, type: 'text', multiple: false, values: []}))
+const projectProperties: ProjectProperty[] = [
+    { name: 'active', type: 'boolean', multiple: false, values: []},
+    { name: 'category', type: 'text', multiple: false, values: []},
+    { name: 'scope', type: 'text', multiple: false, values: []},
+    {
+        name: 'state',
+        type: 'enum',
+        multiple: false,
+        values: [{ code: 'AL', value: 'Alabama' }, { code: 'AK', value: 'Alaska' }],
+    },
+    {
+        name: 'effectiveDate',
+        type: 'date',
+        multiple: false,
+        values: [],
+    },
+]
 
 const mockGetModules = getProjectModules as MockedFunction<typeof getProjectModules>
 const mockGetTables = getProjectTables as MockedFunction<typeof getProjectTables>
@@ -681,6 +712,31 @@ describe('CreateTableModal', () => {
             ['scope', 'Module'],
             ['myCustomProperty', 'on'],
         ])
+    })
+
+    it('uses typed property editors and writes enum codes in a Properties table', async () => {
+        const user = userEvent.setup()
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
+
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'properties')
+        await user.type(screen.getByTestId('create-table-cell-1-0'), 'state')
+        const enumValue = screen.getByTestId('create-table-cell-1-1')
+        expect(within(enumValue).getByRole('option', { name: 'Alabama' })).toHaveValue('AL')
+        await user.selectOptions(enumValue, 'AL')
+        await user.type(screen.getByTestId('create-table-cell-2-0'), 'effectiveDate')
+        const dateValue = screen.getByTestId('create-table-cell-2-1')
+        expect(dateValue).toHaveAttribute('type', 'date')
+        await user.type(dateValue, '2026-01-02')
+        await user.type(screen.getByTestId('create-table-cell-3-0'), 'active')
+        expect(screen.getByTestId('create-table-cell-3-1')).toHaveAttribute('type', 'checkbox')
+        await user.click(createButton())
+
+        await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
+        expect(mockCreateTable.mock.calls[0]![1].table.source[2]?.map(cell => cell.value)).toEqual(['state', 'AL'])
+        expect(mockCreateTable.mock.calls[0]![1].table.source[3]?.map(cell => cell.value))
+            .toEqual(['effectiveDate', '2026-01-02'])
     })
 
     it('omits a named wildcard declaration, which resolves to no module', async () => {

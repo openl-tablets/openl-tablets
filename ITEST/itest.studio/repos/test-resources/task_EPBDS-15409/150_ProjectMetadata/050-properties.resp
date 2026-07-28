@@ -31,19 +31,58 @@ Content-Type: application/json
     "type": "enum",
     "multiple": true,
     "values": [
-      "AB",
-      "BC",
-      "PE",
-      "MB",
-      "NB",
-      "NS",
-      "NU",
-      "ON",
-      "QC",
-      "SK",
-      "NL",
-      "YT",
-      "NT"
+      {
+        "code": "AB",
+        "value": "Alberta"
+      },
+      {
+        "code": "BC",
+        "value": "Colombie-Britannique"
+      },
+      {
+        "code": "PE",
+        "value": "Île-du-Prince-Édouard"
+      },
+      {
+        "code": "MB",
+        "value": "Manitoba"
+      },
+      {
+        "code": "NB",
+        "value": "Nouveau-Brunswick"
+      },
+      {
+        "code": "NS",
+        "value": "Nouvelle-Écosse"
+      },
+      {
+        "code": "NU",
+        "value": "Nunavut"
+      },
+      {
+        "code": "ON",
+        "value": "Ontario"
+      },
+      {
+        "code": "QC",
+        "value": "Québec"
+      },
+      {
+        "code": "SK",
+        "value": "Saskatchewan"
+      },
+      {
+        "code": "NL",
+        "value": "Terre-Neuve-et-Labrador"
+      },
+      {
+        "code": "YT",
+        "value": "Yukon"
+      },
+      {
+        "code": "NT",
+        "value": "Territoires du Nord-Ouest"
+      }
     ]
   },
   {
@@ -51,8 +90,14 @@ Content-Type: application/json
     "type": "enum",
     "multiple": true,
     "values": [
-      "QC",
-      "HQ"
+      {
+        "code": "QC",
+        "value": "Québec"
+      },
+      {
+        "code": "HQ",
+        "value": "Hors Québec"
+      }
     ]
   },
   {
@@ -66,107 +111,410 @@ Content-Type: application/json
     "type": "enum",
     "multiple": true,
     "values": [
-      "AE",
-      "AL",
-      "AR",
-      "AS",
-      "AT",
-      "AU",
-      "BA",
-      "BB",
-      "BE",
-      "BG",
-      "BH",
-      "BO",
-      "BR",
-      "BY",
-      "CA",
-      "CH",
-      "CK",
-      "CL",
-      "CN",
-      "CO",
-      "CR",
-      "CS",
-      "CY",
-      "CZ",
-      "DE",
-      "DK",
-      "DO",
-      "DZ",
-      "EC",
-      "EE",
-      "EG",
-      "ES",
-      "FI",
-      "FJ",
-      "FR",
-      "GB",
-      "GR",
-      "GT",
-      "HK",
-      "HN",
-      "HR",
-      "HU",
-      "ID",
-      "IE",
-      "IL",
-      "IN",
-      "IQ",
-      "IS",
-      "IT",
-      "JM",
-      "JO",
-      "JP",
-      "KW",
-      "LB",
-      "LT",
-      "LU",
-      "LV",
-      "MA",
-      "MK",
-      "MT",
-      "MX",
-      "MY",
-      "NI",
-      "NL",
-      "NO",
-      "NZ",
-      "OM",
-      "PA",
-      "PE",
-      "PG",
-      "PH",
-      "PL",
-      "PR",
-      "PT",
-      "PY",
-      "QA",
-      "RO",
-      "RU",
-      "SA",
-      "SB",
-      "SD",
-      "SE",
-      "SG",
-      "SI",
-      "SK",
-      "SV",
-      "SY",
-      "TH",
-      "TN",
-      "TO",
-      "TR",
-      "TW",
-      "UA",
-      "US",
-      "UY",
-      "VE",
-      "VN",
-      "VU",
-      "WS",
-      "YE",
-      "ZA"
+      {
+        "code": "AE",
+        "value": "United Arab Emirates"
+      },
+      {
+        "code": "AL",
+        "value": "Albania"
+      },
+      {
+        "code": "AR",
+        "value": "Argentina"
+      },
+      {
+        "code": "AS",
+        "value": "American Samoa"
+      },
+      {
+        "code": "AT",
+        "value": "Austria"
+      },
+      {
+        "code": "AU",
+        "value": "Australia"
+      },
+      {
+        "code": "BA",
+        "value": "Bosnia And Herzegowina"
+      },
+      {
+        "code": "BB",
+        "value": "Barbados"
+      },
+      {
+        "code": "BE",
+        "value": "Belgium"
+      },
+      {
+        "code": "BG",
+        "value": "Bulgaria"
+      },
+      {
+        "code": "BH",
+        "value": "Bahrain"
+      },
+      {
+        "code": "BO",
+        "value": "Bolivia"
+      },
+      {
+        "code": "BR",
+        "value": "Brazil"
+      },
+      {
+        "code": "BY",
+        "value": "Belarus"
+      },
+      {
+        "code": "CA",
+        "value": "Canada"
+      },
+      {
+        "code": "CH",
+        "value": "Switzerland"
+      },
+      {
+        "code": "CK",
+        "value": "Cook Islands"
+      },
+      {
+        "code": "CL",
+        "value": "Chile"
+      },
+      {
+        "code": "CN",
+        "value": "China"
+      },
+      {
+        "code": "CO",
+        "value": "Colombia"
+      },
+      {
+        "code": "CR",
+        "value": "Costa Rica"
+      },
+      {
+        "code": "CS",
+        "value": "Serbia And Montenegro"
+      },
+      {
+        "code": "CY",
+        "value": "Cyprus"
+      },
+      {
+        "code": "CZ",
+        "value": "Czech Republic"
+      },
+      {
+        "code": "DE",
+        "value": "Germany"
+      },
+      {
+        "code": "DK",
+        "value": "Denmark"
+      },
+      {
+        "code": "DO",
+        "value": "Dominican Republic"
+      },
+      {
+        "code": "DZ",
+        "value": "Algeria"
+      },
+      {
+        "code": "EC",
+        "value": "Ecuador"
+      },
+      {
+        "code": "EE",
+        "value": "Estonia"
+      },
+      {
+        "code": "EG",
+        "value": "Egypt"
+      },
+      {
+        "code": "ES",
+        "value": "Spain"
+      },
+      {
+        "code": "FI",
+        "value": "Finland"
+      },
+      {
+        "code": "FJ",
+        "value": "Fiji"
+      },
+      {
+        "code": "FR",
+        "value": "France"
+      },
+      {
+        "code": "GB",
+        "value": "United Kingdom"
+      },
+      {
+        "code": "GR",
+        "value": "Greece"
+      },
+      {
+        "code": "GT",
+        "value": "Guatemala"
+      },
+      {
+        "code": "HK",
+        "value": "Hong Kong"
+      },
+      {
+        "code": "HN",
+        "value": "Honduras"
+      },
+      {
+        "code": "HR",
+        "value": "Croatia"
+      },
+      {
+        "code": "HU",
+        "value": "Hungary"
+      },
+      {
+        "code": "ID",
+        "value": "Indonesia"
+      },
+      {
+        "code": "IE",
+        "value": "Ireland"
+      },
+      {
+        "code": "IL",
+        "value": "Israel"
+      },
+      {
+        "code": "IN",
+        "value": "India"
+      },
+      {
+        "code": "IQ",
+        "value": "Iraq"
+      },
+      {
+        "code": "IS",
+        "value": "Iceland"
+      },
+      {
+        "code": "IT",
+        "value": "Italy"
+      },
+      {
+        "code": "JM",
+        "value": "Jamaica"
+      },
+      {
+        "code": "JO",
+        "value": "Jordan"
+      },
+      {
+        "code": "JP",
+        "value": "Japan"
+      },
+      {
+        "code": "KW",
+        "value": "Kuwait"
+      },
+      {
+        "code": "LB",
+        "value": "Lebanon"
+      },
+      {
+        "code": "LT",
+        "value": "Lithuania"
+      },
+      {
+        "code": "LU",
+        "value": "Luxembourg"
+      },
+      {
+        "code": "LV",
+        "value": "Latvia"
+      },
+      {
+        "code": "MA",
+        "value": "Morocco"
+      },
+      {
+        "code": "MK",
+        "value": "Macedonia"
+      },
+      {
+        "code": "MT",
+        "value": "Malta"
+      },
+      {
+        "code": "MX",
+        "value": "Mexico"
+      },
+      {
+        "code": "MY",
+        "value": "Malaysia"
+      },
+      {
+        "code": "NI",
+        "value": "Nicaragua"
+      },
+      {
+        "code": "NL",
+        "value": "Netherlands"
+      },
+      {
+        "code": "NO",
+        "value": "Norway"
+      },
+      {
+        "code": "NZ",
+        "value": "New Zealand"
+      },
+      {
+        "code": "OM",
+        "value": "Oman"
+      },
+      {
+        "code": "PA",
+        "value": "Panama"
+      },
+      {
+        "code": "PE",
+        "value": "Peru"
+      },
+      {
+        "code": "PG",
+        "value": "Papua New Guinea"
+      },
+      {
+        "code": "PH",
+        "value": "Philippines"
+      },
+      {
+        "code": "PL",
+        "value": "Poland"
+      },
+      {
+        "code": "PR",
+        "value": "Puerto Rico"
+      },
+      {
+        "code": "PT",
+        "value": "Portugal"
+      },
+      {
+        "code": "PY",
+        "value": "Paraguay"
+      },
+      {
+        "code": "QA",
+        "value": "Qatar"
+      },
+      {
+        "code": "RO",
+        "value": "Romania"
+      },
+      {
+        "code": "RU",
+        "value": "Russian Federation"
+      },
+      {
+        "code": "SA",
+        "value": "Saudi Arabia"
+      },
+      {
+        "code": "SB",
+        "value": "Solomon Islands"
+      },
+      {
+        "code": "SD",
+        "value": "Sudan"
+      },
+      {
+        "code": "SE",
+        "value": "Sweden"
+      },
+      {
+        "code": "SG",
+        "value": "Singapore"
+      },
+      {
+        "code": "SI",
+        "value": "Slovenia"
+      },
+      {
+        "code": "SK",
+        "value": "Slovakia"
+      },
+      {
+        "code": "SV",
+        "value": "El Salvador"
+      },
+      {
+        "code": "SY",
+        "value": "Syrian Arab Republic"
+      },
+      {
+        "code": "TH",
+        "value": "Thailand"
+      },
+      {
+        "code": "TN",
+        "value": "Tunisia"
+      },
+      {
+        "code": "TO",
+        "value": "Tonga"
+      },
+      {
+        "code": "TR",
+        "value": "Turkey"
+      },
+      {
+        "code": "TW",
+        "value": "Taiwan"
+      },
+      {
+        "code": "UA",
+        "value": "Ukraine"
+      },
+      {
+        "code": "US",
+        "value": "United States"
+      },
+      {
+        "code": "UY",
+        "value": "Uruguay"
+      },
+      {
+        "code": "VE",
+        "value": "Venezuela"
+      },
+      {
+        "code": "VN",
+        "value": "Viet Nam"
+      },
+      {
+        "code": "VU",
+        "value": "Vanuatu"
+      },
+      {
+        "code": "WS",
+        "value": "Samoa"
+      },
+      {
+        "code": "YE",
+        "value": "Yemen"
+      },
+      {
+        "code": "ZA",
+        "value": "South Africa"
+      }
     ]
   },
   {
@@ -174,77 +522,290 @@ Content-Type: application/json
     "type": "enum",
     "multiple": true,
     "values": [
-      "ALL",
-      "DZD",
-      "ARS",
-      "AUD",
-      "BHD",
-      "BYR",
-      "BOB",
-      "BAM",
-      "BRL",
-      "CAD",
-      "CLP",
-      "CNY",
-      "COP",
-      "CRC",
-      "HRK",
-      "CZK",
-      "DKK",
-      "DOP",
-      "EGP",
-      "EUR",
-      "GTQ",
-      "HNL",
-      "HKD",
-      "HUF",
-      "ISK",
-      "INR",
-      "IDR",
-      "IQD",
-      "ILS",
-      "JPY",
-      "JOD",
-      "KWD",
-      "LVL",
-      "LBP",
-      "LTL",
-      "MKD",
-      "MYR",
-      "MXN",
-      "MAD",
-      "NZD",
-      "NIO",
-      "NOK",
-      "OMR",
-      "PAB",
-      "PYG",
-      "PEN",
-      "PHP",
-      "PLN",
-      "QAR",
-      "RON",
-      "RUB",
-      "SAR",
-      "RSD",
-      "SGD",
-      "ZAR",
-      "SDG",
-      "SEK",
-      "CHF",
-      "SYP",
-      "TWD",
-      "THB",
-      "TND",
-      "TRY",
-      "UAH",
-      "AED",
-      "GBP",
-      "USD",
-      "UYU",
-      "VEF",
-      "VND",
-      "YER"
+      {
+        "code": "ALL",
+        "value": "Albania, Leke"
+      },
+      {
+        "code": "DZD",
+        "value": "Algeria, Dinars"
+      },
+      {
+        "code": "ARS",
+        "value": "Argentina, Pesos"
+      },
+      {
+        "code": "AUD",
+        "value": "Australia, Dollars"
+      },
+      {
+        "code": "BHD",
+        "value": "Bahrain, Dinars"
+      },
+      {
+        "code": "BYR",
+        "value": "Belarus, Rubles"
+      },
+      {
+        "code": "BOB",
+        "value": "Bolivia, Bolivianos"
+      },
+      {
+        "code": "BAM",
+        "value": "Bosnia and Herzegovina, Convertible Marka"
+      },
+      {
+        "code": "BRL",
+        "value": "Brazil, Real"
+      },
+      {
+        "code": "CAD",
+        "value": "Canada, Dollars"
+      },
+      {
+        "code": "CLP",
+        "value": "Chile, Pesos"
+      },
+      {
+        "code": "CNY",
+        "value": "China, Yuan Renminbi"
+      },
+      {
+        "code": "COP",
+        "value": "Colombia, Pesos"
+      },
+      {
+        "code": "CRC",
+        "value": "Costa Rica, Colones"
+      },
+      {
+        "code": "HRK",
+        "value": "Croatia, Kuna"
+      },
+      {
+        "code": "CZK",
+        "value": "Czech Republic, Koruny"
+      },
+      {
+        "code": "DKK",
+        "value": "Denmark, Kroner"
+      },
+      {
+        "code": "DOP",
+        "value": "Dominican Republic, Pesos"
+      },
+      {
+        "code": "EGP",
+        "value": "Egypt, Pounds"
+      },
+      {
+        "code": "EUR",
+        "value": "Euro"
+      },
+      {
+        "code": "GTQ",
+        "value": "Guatemala, Quetzales"
+      },
+      {
+        "code": "HNL",
+        "value": "Honduras, Lempiras"
+      },
+      {
+        "code": "HKD",
+        "value": "Hong Kong, Dollars"
+      },
+      {
+        "code": "HUF",
+        "value": "Hungary, Forint"
+      },
+      {
+        "code": "ISK",
+        "value": "Iceland, Kronur"
+      },
+      {
+        "code": "INR",
+        "value": "India, Rupees"
+      },
+      {
+        "code": "IDR",
+        "value": "Indonesia, Rupiahs"
+      },
+      {
+        "code": "IQD",
+        "value": "Iraq, Dinars"
+      },
+      {
+        "code": "ILS",
+        "value": "Israel, New Shekels"
+      },
+      {
+        "code": "JPY",
+        "value": "Japan, Yen"
+      },
+      {
+        "code": "JOD",
+        "value": "Jordan, Dinars"
+      },
+      {
+        "code": "KWD",
+        "value": "Kuwait, Dinars"
+      },
+      {
+        "code": "LVL",
+        "value": "Latvia, Lati"
+      },
+      {
+        "code": "LBP",
+        "value": "Lebanon, Pounds"
+      },
+      {
+        "code": "LTL",
+        "value": "Lithuania, Litai"
+      },
+      {
+        "code": "MKD",
+        "value": "Macedonia, Denars"
+      },
+      {
+        "code": "MYR",
+        "value": "Malaysia, Ringgits"
+      },
+      {
+        "code": "MXN",
+        "value": "Mexico, Pesos"
+      },
+      {
+        "code": "MAD",
+        "value": "Morocco, Dirhams"
+      },
+      {
+        "code": "NZD",
+        "value": "New Zealand, Dollars"
+      },
+      {
+        "code": "NIO",
+        "value": "Nicaragua, Cordobas"
+      },
+      {
+        "code": "NOK",
+        "value": "Norway, Kroner"
+      },
+      {
+        "code": "OMR",
+        "value": "Oman, Rials"
+      },
+      {
+        "code": "PAB",
+        "value": "Panama, Balboa"
+      },
+      {
+        "code": "PYG",
+        "value": "Paraguay, Guarani"
+      },
+      {
+        "code": "PEN",
+        "value": "Peru, Nuevos Soles"
+      },
+      {
+        "code": "PHP",
+        "value": "Philippines, Pesos"
+      },
+      {
+        "code": "PLN",
+        "value": "Poland, Zlotych"
+      },
+      {
+        "code": "QAR",
+        "value": "Qatar, Rials"
+      },
+      {
+        "code": "RON",
+        "value": "Romania, New Lei"
+      },
+      {
+        "code": "RUB",
+        "value": "Russia, Rubles"
+      },
+      {
+        "code": "SAR",
+        "value": "Saudi Arabia, Riyals"
+      },
+      {
+        "code": "RSD",
+        "value": "Serbia, Dinars"
+      },
+      {
+        "code": "SGD",
+        "value": "Singapore, Dollars"
+      },
+      {
+        "code": "ZAR",
+        "value": "South Africa, Rand"
+      },
+      {
+        "code": "SDG",
+        "value": "Sudan, Pounds"
+      },
+      {
+        "code": "SEK",
+        "value": "Sweden, Kronor"
+      },
+      {
+        "code": "CHF",
+        "value": "Switzerland, Francs"
+      },
+      {
+        "code": "SYP",
+        "value": "Syria, Pounds"
+      },
+      {
+        "code": "TWD",
+        "value": "Taiwan, New Dollars"
+      },
+      {
+        "code": "THB",
+        "value": "Thailand, Baht"
+      },
+      {
+        "code": "TND",
+        "value": "Tunisia, Dinars"
+      },
+      {
+        "code": "TRY",
+        "value": "Turkey, Lira"
+      },
+      {
+        "code": "UAH",
+        "value": "Ukraine, Hryvnia"
+      },
+      {
+        "code": "AED",
+        "value": "United Arab Emirates, Dirhams"
+      },
+      {
+        "code": "GBP",
+        "value": "United Kingdom, Pounds"
+      },
+      {
+        "code": "USD",
+        "value": "United States of America, Dollars"
+      },
+      {
+        "code": "UYU",
+        "value": "Uruguay, Pesos"
+      },
+      {
+        "code": "VEF",
+        "value": "Venezuela, Bolivares Fuertes"
+      },
+      {
+        "code": "VND",
+        "value": "Viet Nam, Dong"
+      },
+      {
+        "code": "YER",
+        "value": "Yemen, Rials"
+      }
     ]
   },
   {
@@ -264,8 +825,14 @@ Content-Type: application/json
     "type": "enum",
     "multiple": false,
     "values": [
-      "SKIP",
-      "RETURN"
+      {
+        "code": "SKIP",
+        "value": "Skip"
+      },
+      {
+        "code": "RETURN",
+        "value": "Return"
+      }
     ]
   },
   {
@@ -291,45 +858,162 @@ Content-Type: application/json
     "type": "enum",
     "multiple": true,
     "values": [
-      "ALB",
-      "ARA",
-      "BEL",
-      "BUL",
-      "CAT",
-      "CHI",
-      "SCR",
-      "CZE",
-      "DAN",
-      "DUT",
-      "ENG",
-      "FIN",
-      "FRE",
-      "GER",
-      "GRE",
-      "HEB",
-      "HIN",
-      "HUN",
-      "IND",
-      "GLE",
-      "ITA",
-      "JPN",
-      "LAV",
-      "LIT",
-      "MAC",
-      "MAY",
-      "MLT",
-      "NOR",
-      "POL",
-      "POR",
-      "RUM",
-      "RUS",
-      "SCC",
-      "SLO",
-      "SPA",
-      "THA",
-      "TUR",
-      "UKR",
-      "VIE"
+      {
+        "code": "ALB",
+        "value": "Albanian"
+      },
+      {
+        "code": "ARA",
+        "value": "Arabic"
+      },
+      {
+        "code": "BEL",
+        "value": "Belarussian"
+      },
+      {
+        "code": "BUL",
+        "value": "Bulgarian"
+      },
+      {
+        "code": "CAT",
+        "value": "Catalan"
+      },
+      {
+        "code": "CHI",
+        "value": "Chinese"
+      },
+      {
+        "code": "SCR",
+        "value": "Croatian"
+      },
+      {
+        "code": "CZE",
+        "value": "Czech"
+      },
+      {
+        "code": "DAN",
+        "value": "Danish"
+      },
+      {
+        "code": "DUT",
+        "value": "Dutch"
+      },
+      {
+        "code": "ENG",
+        "value": "English"
+      },
+      {
+        "code": "FIN",
+        "value": "Finnish"
+      },
+      {
+        "code": "FRE",
+        "value": "French"
+      },
+      {
+        "code": "GER",
+        "value": "German"
+      },
+      {
+        "code": "GRE",
+        "value": "Greek"
+      },
+      {
+        "code": "HEB",
+        "value": "Hebrew"
+      },
+      {
+        "code": "HIN",
+        "value": "Hindi"
+      },
+      {
+        "code": "HUN",
+        "value": "Hungarian"
+      },
+      {
+        "code": "IND",
+        "value": "Indonesian"
+      },
+      {
+        "code": "GLE",
+        "value": "Irish"
+      },
+      {
+        "code": "ITA",
+        "value": "Italian"
+      },
+      {
+        "code": "JPN",
+        "value": "Japanese"
+      },
+      {
+        "code": "LAV",
+        "value": "Latvian"
+      },
+      {
+        "code": "LIT",
+        "value": "Lithuanian"
+      },
+      {
+        "code": "MAC",
+        "value": "Macedonian"
+      },
+      {
+        "code": "MAY",
+        "value": "Malay"
+      },
+      {
+        "code": "MLT",
+        "value": "Maltese"
+      },
+      {
+        "code": "NOR",
+        "value": "Norwegian"
+      },
+      {
+        "code": "POL",
+        "value": "Polish"
+      },
+      {
+        "code": "POR",
+        "value": "Portuguese"
+      },
+      {
+        "code": "RUM",
+        "value": "Romanian"
+      },
+      {
+        "code": "RUS",
+        "value": "Russian"
+      },
+      {
+        "code": "SCC",
+        "value": "Serbian"
+      },
+      {
+        "code": "SLO",
+        "value": "Slovak"
+      },
+      {
+        "code": "SPA",
+        "value": "Spanish"
+      },
+      {
+        "code": "THA",
+        "value": "Thai"
+      },
+      {
+        "code": "TUR",
+        "value": "Turkish"
+      },
+      {
+        "code": "UKR",
+        "value": "Ukrainian"
+      },
+      {
+        "code": "VIE",
+        "value": "Vietnamese"
+      }
     ]
   },
   {
@@ -349,8 +1033,14 @@ Content-Type: application/json
     "type": "enum",
     "multiple": false,
     "values": [
-      "Base",
-      "Deviation"
+      {
+        "code": "Base",
+        "value": "Base"
+      },
+      {
+        "code": "Deviation",
+        "value": "Deviation"
+      }
     ]
   },
   {
@@ -376,9 +1066,18 @@ Content-Type: application/json
     "type": "enum",
     "multiple": false,
     "values": [
-      "ALWAYS",
-      "NEVER",
-      "ANALYZE"
+      {
+        "code": "ALWAYS",
+        "value": "Always"
+      },
+      {
+        "code": "NEVER",
+        "value": "Never"
+      },
+      {
+        "code": "ANALYZE",
+        "value": "Analyze"
+      }
     ]
   },
   {
@@ -386,10 +1085,22 @@ Content-Type: application/json
     "type": "enum",
     "multiple": true,
     "values": [
-      "NCSA",
-      "EU",
-      "EMEA",
-      "APJ"
+      {
+        "code": "NCSA",
+        "value": "Americas"
+      },
+      {
+        "code": "EU",
+        "value": "European Union"
+      },
+      {
+        "code": "EMEA",
+        "value": "Europe; Middle East; Africa"
+      },
+      {
+        "code": "APJ",
+        "value": "Asia Pacific; Japan"
+      }
     ]
   },
   {
@@ -415,62 +1126,230 @@ Content-Type: application/json
     "type": "enum",
     "multiple": true,
     "values": [
-      "AL",
-      "AK",
-      "AS",
-      "AZ",
-      "AR",
-      "CA",
-      "CO",
-      "CT",
-      "DC",
-      "DE",
-      "FL",
-      "GA",
-      "GU",
-      "HI",
-      "ID",
-      "IL",
-      "IN",
-      "IA",
-      "KS",
-      "KY",
-      "LA",
-      "ME",
-      "MD",
-      "MA",
-      "MI",
-      "MN",
-      "MS",
-      "MO",
-      "MT",
-      "NE",
-      "NV",
-      "NH",
-      "NJ",
-      "NM",
-      "NY",
-      "NC",
-      "ND",
-      "MP",
-      "OH",
-      "OK",
-      "OR",
-      "PA",
-      "PR",
-      "RI",
-      "SC",
-      "SD",
-      "TN",
-      "TX",
-      "UT",
-      "VT",
-      "VI",
-      "VA",
-      "WA",
-      "WV",
-      "WI",
-      "WY"
+      {
+        "code": "AL",
+        "value": "Alabama"
+      },
+      {
+        "code": "AK",
+        "value": "Alaska"
+      },
+      {
+        "code": "AS",
+        "value": "American Samoa"
+      },
+      {
+        "code": "AZ",
+        "value": "Arizona"
+      },
+      {
+        "code": "AR",
+        "value": "Arkansas"
+      },
+      {
+        "code": "CA",
+        "value": "California"
+      },
+      {
+        "code": "CO",
+        "value": "Colorado"
+      },
+      {
+        "code": "CT",
+        "value": "Connecticut"
+      },
+      {
+        "code": "DC",
+        "value": "District of Columbia"
+      },
+      {
+        "code": "DE",
+        "value": "Delaware"
+      },
+      {
+        "code": "FL",
+        "value": "Florida"
+      },
+      {
+        "code": "GA",
+        "value": "Georgia"
+      },
+      {
+        "code": "GU",
+        "value": "Guam"
+      },
+      {
+        "code": "HI",
+        "value": "Hawaii"
+      },
+      {
+        "code": "ID",
+        "value": "Idaho"
+      },
+      {
+        "code": "IL",
+        "value": "Illinois"
+      },
+      {
+        "code": "IN",
+        "value": "Indiana"
+      },
+      {
+        "code": "IA",
+        "value": "Iowa"
+      },
+      {
+        "code": "KS",
+        "value": "Kansas"
+      },
+      {
+        "code": "KY",
+        "value": "Kentucky"
+      },
+      {
+        "code": "LA",
+        "value": "Louisiana"
+      },
+      {
+        "code": "ME",
+        "value": "Maine"
+      },
+      {
+        "code": "MD",
+        "value": "Maryland"
+      },
+      {
+        "code": "MA",
+        "value": "Massuchusets"
+      },
+      {
+        "code": "MI",
+        "value": "Michigan"
+      },
+      {
+        "code": "MN",
+        "value": "Minnesota"
+      },
+      {
+        "code": "MS",
+        "value": "Mississipi"
+      },
+      {
+        "code": "MO",
+        "value": "Missouri"
+      },
+      {
+        "code": "MT",
+        "value": "Montana"
+      },
+      {
+        "code": "NE",
+        "value": "Nebraska"
+      },
+      {
+        "code": "NV",
+        "value": "Nevada"
+      },
+      {
+        "code": "NH",
+        "value": "New Hampshire"
+      },
+      {
+        "code": "NJ",
+        "value": "New Jersey"
+      },
+      {
+        "code": "NM",
+        "value": "New Mexico"
+      },
+      {
+        "code": "NY",
+        "value": "New York"
+      },
+      {
+        "code": "NC",
+        "value": "North California"
+      },
+      {
+        "code": "ND",
+        "value": "North Dakota"
+      },
+      {
+        "code": "MP",
+        "value": "Northern Mariana Islands"
+      },
+      {
+        "code": "OH",
+        "value": "Ohio"
+      },
+      {
+        "code": "OK",
+        "value": "Oklahoma"
+      },
+      {
+        "code": "OR",
+        "value": "Oregon"
+      },
+      {
+        "code": "PA",
+        "value": "Pennsylvania"
+      },
+      {
+        "code": "PR",
+        "value": "Puerto Rico"
+      },
+      {
+        "code": "RI",
+        "value": "Rhode Island"
+      },
+      {
+        "code": "SC",
+        "value": "South California"
+      },
+      {
+        "code": "SD",
+        "value": "South Dakota"
+      },
+      {
+        "code": "TN",
+        "value": "Tennessee"
+      },
+      {
+        "code": "TX",
+        "value": "Texas"
+      },
+      {
+        "code": "UT",
+        "value": "Utah"
+      },
+      {
+        "code": "VT",
+        "value": "Vermont"
+      },
+      {
+        "code": "VI",
+        "value": "Virgin Islands"
+      },
+      {
+        "code": "VA",
+        "value": "Virginia"
+      },
+      {
+        "code": "WA",
+        "value": "Washington"
+      },
+      {
+        "code": "WV",
+        "value": "West Virginia"
+      },
+      {
+        "code": "WI",
+        "value": "Wisconsin"
+      },
+      {
+        "code": "WY",
+        "value": "Wyoming"
+      }
     ]
   },
   {
@@ -484,11 +1363,26 @@ Content-Type: application/json
     "type": "enum",
     "multiple": true,
     "values": [
-      "MW",
-      "NE",
-      "SE",
-      "SW",
-      "W"
+      {
+        "code": "MW",
+        "value": "Midwest"
+      },
+      {
+        "code": "NE",
+        "value": "Northeast"
+      },
+      {
+        "code": "SE",
+        "value": "Southeast"
+      },
+      {
+        "code": "SW",
+        "value": "Southwest"
+      },
+      {
+        "code": "W",
+        "value": "West"
+      }
     ]
   },
   {
@@ -496,8 +1390,14 @@ Content-Type: application/json
     "type": "enum",
     "multiple": false,
     "values": [
-      "ON",
-      "OFF"
+      {
+        "code": "ON",
+        "value": "On"
+      },
+      {
+        "code": "OFF",
+        "value": "Off"
+      }
     ]
   }
 ]
