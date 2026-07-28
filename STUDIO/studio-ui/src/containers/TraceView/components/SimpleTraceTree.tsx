@@ -10,7 +10,6 @@ import { displaySteps, isCondition } from './decisionRows'
 import DispatchBadge from './DispatchBadge'
 import { onActivate } from './keyboardActivate'
 import { kindIcon, stepIcon } from './TraceIcons'
-import { useFlashJump } from './useFlashJump'
 import { useStyles } from './TraceTree.styles'
 
 /** One row of the flattened simple tree: a rule call, one of its steps, a step reference, or a capped note. */
@@ -33,8 +32,9 @@ interface SimpleRow {
 }
 
 const nodeTarget = (node: CallNodeView): SimpleInspectTarget => ({
+    // The selection highlight falls back to the run key when no distinct selectionKey is given, and a
+    // table row's run key already uniquely identifies it — so no separate selectionKey is needed here.
     key: `${node.uri}@${node.instance}`,
-    selectionKey: `${node.uri}@${node.instance}`,
     frameUri: node.uri,
     frameInstance: node.instance,
     stepType: 'out',
@@ -69,9 +69,10 @@ const stepTarget = (owner: CallNodeView, step: StepValueView): SimpleInspectTarg
             focus,
         }
     }
+    // The run key already IS the step's unique key, so the selection highlight's `?? key` fallback covers
+    // it — only the static-cell branch above, whose run key is the shared owning table, needs a distinct one.
     return {
         key: selectionKey,
-        selectionKey,
         frameUri: owner.uri,
         frameInstance: owner.instance,
         stepType: 'over',
@@ -170,7 +171,6 @@ const SimpleTraceTree: React.FC = () => {
     const inspect = useTraceStore(s => s.simpleInspect)
     const showDetailed = useTraceStore(s => s.showDetailed)
     const setShowDetailed = useTraceStore(s => s.setShowDetailed)
-    const { treeRef, flashKey } = useFlashJump()
 
     // The root starts open so the run's top-level steps read at a glance; everything deeper is collapsed.
     // Keyed on the snapshot: only a new Run replaces it, while inspect re-runs never touch the expansions.
@@ -278,8 +278,7 @@ const SimpleTraceTree: React.FC = () => {
                 style={indent(row.depth)}
                 tabIndex={0}
                 className={cx(styles.row, styles.runnable,
-                    selectedKey === (target.selectionKey ?? target.key) && styles.selected,
-                    flashKey === row.key && styles.flashed)}
+                    selectedKey === (target.selectionKey ?? target.key) && styles.selected)}
             >
                 {twisty(row.expandKey)}
                 {stepIcon(row.owner?.kind)}
@@ -341,7 +340,7 @@ const SimpleTraceTree: React.FC = () => {
     }
 
     return (
-        <div ref={treeRef} className={styles.tree} data-testid="simple-tree">
+        <div className={styles.tree} data-testid="simple-tree">
             <div className={styles.header}>
                 <span>{t('tree.title')}</span>
                 <span className={styles.headerControls}>

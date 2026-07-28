@@ -95,7 +95,12 @@ final class TraceTextFormatter {
         return type == null || type.isSimple() || ClassUtils.isAssignable(type.getInstanceClass(), Date.class);
     }
 
-    private static String format(Object o, boolean smartNumbers) {
+    /**
+     * Render a non-void, non-null value: a number (with full precision when {@code smartNumbers}), an array
+     * as {@code {a,b}}, else the type's formatter with a {@code String.valueOf} fallback. Shared with
+     * {@link TraceTitleFormatter}, which layers its collection handling on top.
+     */
+    static String format(Object o, boolean smartNumbers) {
         if (o == null) {
             // A null element inside an array; the top-level null is already handled by the caller.
             return "null";

@@ -1,5 +1,4 @@
 package org.openl.studio.projects.service.trace;
-import java.lang.reflect.Array;
 import java.util.Date;
 
 import org.jspecify.annotations.Nullable;
@@ -7,7 +6,6 @@ import org.jspecify.annotations.Nullable;
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.studio.projects.model.trace.FrameKind;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -81,7 +79,8 @@ final class TraceTitleFormatter {
             return "null";
         }
         if (canBeFormatted(type)) {
-            return format(value);
+            // Scalar/array/date rendering is shared with the text (export) formatter; smart numbers on.
+            return TraceTextFormatter.format(value, true);
         }
         if (isCollection(type)) {
             return isEmpty(type, value) ? "{}" : "Collection of " + componentName(type);
@@ -118,27 +117,5 @@ final class TraceTitleFormatter {
     private static String componentName(IOpenClass type) {
         IOpenClass component = type.getComponentClass();
         return (component == null ? type : component).getDisplayName(INamedThing.SHORT);
-    }
-
-    private static String format(Object value) {
-        if (value instanceof Number) {
-            return FormattersManager.getFormatter(value.getClass(), null).format(value);
-        }
-        if (value.getClass().isArray()) {
-            StringBuilder buf = new StringBuilder("{");
-            for (int i = 0; i < Array.getLength(value); i++) {
-                if (i > 0) {
-                    buf.append(',');
-                }
-                Object element = Array.get(value, i);
-                buf.append(element == null ? "null" : format(element));
-            }
-            return buf.append('}').toString();
-        }
-        try {
-            return FormattersManager.format(value);
-        } catch (Exception e) {
-            return String.valueOf(value);
-        }
     }
 }

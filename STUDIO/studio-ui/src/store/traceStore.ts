@@ -136,8 +136,8 @@ interface DebugState {
     simpleLoading: boolean
     /** Breakpoint key of the row whose values are being shown, for the selection highlight. */
     simpleSelectedKey: string | null
-    /** Order range of the last inspected row; a later row can be resumed to, an earlier one needs a restart. */
-    simpleLastInspected: SimpleOrderRange | null
+    /** End position of the last inspected row's subtree; a row starting after it can be resumed to, else restart. */
+    simpleLastInspected: number | null
     /** The clicked step when the last inspection was a step, so Details presents the step, not the frame. */
     simpleFocus: SimpleStepFocus | null
 
@@ -829,11 +829,11 @@ export const useTraceStore = create<DebugState>((set, get) => {
             const order = get().simpleOrder[key] ?? null
             const last = get().simpleLastInspected
             // The highlight follows the clicked row (selectionKey); the run follows the target (key).
-            set({ simpleSelectedKey: clickedKey, simpleLastInspected: order, simpleFocus: focus ?? null })
+            set({ simpleSelectedKey: clickedKey, simpleLastInspected: order?.end ?? null, simpleFocus: focus ?? null })
             // Execution can only move forward: a row is still reachable by resuming when it starts after
             // everything the previous inspection already ran — its own subtree included. Anything else
             // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.
-            const canResume = status === 'suspended' && last !== null && order !== null && order.pre > last.end
+            const canResume = status === 'suspended' && last !== null && order !== null && order.pre > last
             let freshStack: DebugStackView | null = null
             if (!canResume) {
                 freshStack = await restartQuietly()

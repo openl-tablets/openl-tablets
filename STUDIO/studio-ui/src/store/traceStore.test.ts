@@ -693,7 +693,7 @@ describe('traceStore simple mode', () => {
     })
 
     it('does nothing when the clicked row is already the one on screen', async () => {
-        primeSimpleReady({ status: 'suspended', simpleSelectedKey: 'uA@1', simpleLastInspected: { pre: 0, end: 0 } })
+        primeSimpleReady({ status: 'suspended', simpleSelectedKey: 'uA@1', simpleLastInspected: 0 })
 
         await useTraceStore.getState().simpleInspect(
             { key: 'uA@1', frameUri: 'uA', frameInstance: 1, stepType: 'out', label: 'uA' })
@@ -705,7 +705,7 @@ describe('traceStore simple mode', () => {
     })
 
     it('executes the very next step in place — its line is already current, so no breakpoint can reach it', async () => {
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: { pre: 0, end: 0 } })
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 0 })
         step.mockResolvedValue(suspended([
             { index: 0, uri: 'uR', instance: 0, completed: false, location: { kind: 'cell', ref: 'S1' } } as any]))
         getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
@@ -723,7 +723,7 @@ describe('traceStore simple mode', () => {
     })
 
     it('remembers the clicked step so Details presents the step, not the paused frame', async () => {
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: { pre: 0, end: 0 } })
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 0 })
         setBreakpoints.mockResolvedValue(undefined)
         resume.mockResolvedValue(undefined)
         useTraceStore.setState({ frames: [{ index: 0, uri: 'uR', instance: 0, completed: true } as any]})
@@ -738,7 +738,7 @@ describe('traceStore simple mode', () => {
     })
 
     it('resumes instead of restarting when the clicked call starts after the last inspected subtree', async () => {
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: { pre: 2, end: 3 } }) // paused after uA@0
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 3 }) // paused after uA@0
         setBreakpoints.mockResolvedValue(undefined)
         resume.mockResolvedValue(undefined)
         useTraceStore.setState({ frames: [{ index: 0, uri: 'uA', instance: 0, completed: true } as any]})
@@ -752,7 +752,7 @@ describe('traceStore simple mode', () => {
 
     it('restarts for a sub-call of the last inspected call — it already executed during the step out', async () => {
         // uR@0 was inspected: its whole subtree (0..5) has executed by now.
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: { pre: 0, end: 5 } })
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 5 })
         cancelTrace.mockResolvedValue(undefined)
         getStack.mockRejectedValue(new Error('no session'))
         startTrace.mockResolvedValue(suspended([
@@ -785,7 +785,7 @@ describe('traceStore simple mode', () => {
 
     it('drops the resume anchor when the run finishes without reaching the target', () => {
         getStack.mockResolvedValue({ status: 'completed', frames: []} as any)
-        useTraceStore.setState({ simpleLastInspected: { pre: 4, end: 5 } })
+        useTraceStore.setState({ simpleLastInspected: 5 })
 
         // A conditionally-skipped target never fires its breakpoint; the run just finishes.
         useTraceStore.getState().onSocketStatus('completed')
@@ -859,7 +859,7 @@ describe('traceStore simple mode', () => {
             { index: 0, uri: 'uR', instance: 0, completed: true } as any,
             { index: 1, uri: 'uA', instance: 0, completed: false } as any,
         ]
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: { pre: 5, end: 9 },
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 9,
             frames: previous, selectedFrameIndex: 1 })
         cancelTrace.mockResolvedValue(undefined)
         getStack.mockRejectedValue(new Error('no session'))

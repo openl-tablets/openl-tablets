@@ -149,7 +149,9 @@ const TraceDetails: React.FC = () => {
     // A focused step is presented like the classic trace presented a spreadsheet cell, sharpened to the
     // step itself: the Parameters are the values its formula consumed and the Result is the step's own
     // returned value (already named `return`) — both from the single step-inputs payload.
-    const title = stepView ? stepView.label : frame?.name
+    // Only the advanced view shows a title, and it never has a focused step (focus is forced to null there),
+    // so the title is always the frame's name — never a step label.
+    const title = frame?.name
     const tableIndex = stepView ? ownerIndex : selectedFrameIndex
     // The cell address comes from the owner's live step outline; a static cell is absent there, so fall
     // back to the step-inputs payload, which addresses every cell including static ones.
