@@ -508,10 +508,42 @@ Content-Type: application/json
   },
   "steps": [
     {
+      "ref": "R0C0",
+      "label": "$Description$CapitalDynamic",
+      "cell": "F57",
+      "status": "executed",
+      "value": {
+        "name": "R0C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Calculate Capital Dynamic (%)",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
+    },
+    {
       "ref": "R0C1",
       "label": "$Value$CapitalDynamic",
       "cell": "G57",
       "status": "pending"
+    },
+    {
+      "ref": "R1C0",
+      "label": "$Description$CapitalDynamicScore",
+      "cell": "F58",
+      "status": "executed",
+      "value": {
+        "name": "R1C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Capital Dynamic Score D1",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
     },
     {
       "ref": "R1C1",
@@ -520,10 +552,42 @@ Content-Type: application/json
       "status": "pending"
     },
     {
+      "ref": "R2C0",
+      "label": "$Description$QuickLiquidityDynamic",
+      "cell": "F59",
+      "status": "executed",
+      "value": {
+        "name": "R2C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Calculate Quick Liquidity Dynamic (%)",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
+    },
+    {
       "ref": "R2C1",
       "label": "$Value$QuickLiquidityDynamic",
       "cell": "G59",
       "status": "pending"
+    },
+    {
+      "ref": "R3C0",
+      "label": "$Description$QuickLiquidityDynamicScore",
+      "cell": "F60",
+      "status": "executed",
+      "value": {
+        "name": "R3C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Quick Liquidity Dynamic Score D2",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
     },
     {
       "ref": "R3C1",
@@ -532,10 +596,42 @@ Content-Type: application/json
       "status": "pending"
     },
     {
+      "ref": "R4C0",
+      "label": "$Description$LiquidityDynamic",
+      "cell": "F61",
+      "status": "executed",
+      "value": {
+        "name": "R4C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Calculate Liquidity Dynamic (%)",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
+    },
+    {
       "ref": "R4C1",
       "label": "$Value$LiquidityDynamic",
       "cell": "G61",
       "status": "pending"
+    },
+    {
+      "ref": "R5C0",
+      "label": "$Description$LiquidityDynamicScore",
+      "cell": "F62",
+      "status": "executed",
+      "value": {
+        "name": "R5C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Liquidity Dynamic Score D3",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
     },
     {
       "ref": "R5C1",
@@ -544,10 +640,42 @@ Content-Type: application/json
       "status": "pending"
     },
     {
+      "ref": "R6C0",
+      "label": "$Description$ProfitDynamic",
+      "cell": "F63",
+      "status": "executed",
+      "value": {
+        "name": "R6C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Calculate Profit Dynamic (%)",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
+    },
+    {
       "ref": "R6C1",
       "label": "$Value$ProfitDynamic",
       "cell": "G63",
       "status": "pending"
+    },
+    {
+      "ref": "R7C0",
+      "label": "$Description$ProfitDynamicScore",
+      "cell": "F64",
+      "status": "executed",
+      "value": {
+        "name": "R7C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Profit Dynamic Score D4",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
     },
     {
       "ref": "R7C1",
@@ -556,16 +684,64 @@ Content-Type: application/json
       "status": "pending"
     },
     {
+      "ref": "R8C0",
+      "label": "$Description$LiabilitiesToCustomersDynamic",
+      "cell": "F65",
+      "status": "executed",
+      "value": {
+        "name": "R8C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Calculate Liabilities to Customers Dynamic (%)",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
+    },
+    {
       "ref": "R8C1",
       "label": "$Value$LiabilitiesToCustomersDynamic",
       "cell": "G65",
       "status": "pending"
     },
     {
+      "ref": "R9C0",
+      "label": "$Description$LiabilitiesToCustomersDynamicScore",
+      "cell": "F66",
+      "status": "executed",
+      "value": {
+        "name": "R9C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Liabilities to Customers Dynamic Score D5",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
+    },
+    {
       "ref": "R9C1",
       "label": "$Value$LiabilitiesToCustomersDynamicScore",
       "cell": "G66",
       "status": "pending"
+    },
+    {
+      "ref": "R10C0",
+      "label": "$Description$BalanceDynamicIndex",
+      "cell": "F67",
+      "status": "executed",
+      "value": {
+        "name": "R10C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Balance Dynamic Index\nB1 = (D1 + D2 + D3 + D4 + D5) / 5",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
     },
     {
       "ref": "R10C1",

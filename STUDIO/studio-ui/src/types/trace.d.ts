@@ -222,6 +222,8 @@ export interface StepValueView {
     label?: string | null
     /** A1 address of the step's source cell in the raw table (spreadsheet cells only), for highlighting. */
     cell?: string | null
+    /** True for a plain value or constant cell: static table content that never executes. */
+    constant?: boolean | null
     status: 'executed' | 'current' | 'pending'
     value?: TraceParameterValue | null
     /** Tables this step called. Absent in the lazily-loaded executed tree (fetched on expand); inline for a live frame. */

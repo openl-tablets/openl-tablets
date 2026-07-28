@@ -22,10 +22,12 @@ const inspect = vi.fn()
 const callNode = (uri: string, instance: number, steps: object[] = [], extra: object = {}): object =>
     ({ uri, name: uri, instance, kind: 'spreadsheet', durationMillis: 0, selfMillis: 0, steps, ...extra })
 
-// Root uR with three steps: S1 called uA twice, S2 made one call (uB), S3 called nothing.
-// All sub-calls are already downloaded into simpleChildren — the component never fetches.
+// Root uR: S1 called uA twice, S2 made one call (uB), S3 called nothing; S0 and S0b are static
+// description cells. All sub-calls are already downloaded — the component never fetches.
 const sampleTree = () => callNode('uR', 0, [
+    { ref: 'S0', label: '$Description$S1', status: 'executed', constant: true },
     { ref: 'S1', label: '$Value$S1', status: 'executed', childrenTotal: 2 },
+    { ref: 'S0b', label: '$Description$S2', status: 'executed', constant: true },
     { ref: 'S2', label: '$Value$S2', status: 'executed', childrenTotal: 1 },
     { ref: 'S3', label: '$Value$S3', status: 'executed' },
 ])
@@ -133,6 +135,45 @@ describe('SimpleTraceTree', () => {
 
         expect(inspect).toHaveBeenLastCalledWith(expect.objectContaining(
             { key: 'uR#S3@0', stepType: 'over' }))
+    })
+
+    it('shows a static cell and reads it by running its owning table through', async () => {
+        setStore()
+        render(<SimpleTraceTree />)
+
+        // The description cell is a tree row like any step…
+        expect(screen.getByTestId('simple-step-tree/S0')).toHaveTextContent('$Description$S1')
+
+        // …but it has no line to run to, so a click runs the whole owning table instead, while the
+        // selection key stays this cell's own so only its row highlights.
+        await userEvent.click(screen.getByTestId('simple-step-tree/S0'))
+
+        expect(inspect).toHaveBeenCalledWith(expect.objectContaining({
+            key: 'uR@0',
+            selectionKey: 'uR#S0@0',
+            frameUri: 'uR',
+            frameInstance: 0,
+            stepType: 'out',
+            focus: expect.objectContaining({ ref: 'S0', label: '$Description$S1' }),
+        }))
+    })
+
+    it('highlights only the clicked static cell — not the owner or its sibling static cells', () => {
+        // Old bug: a static cell shared the owning table's run key, so selecting one lit up every static
+        // cell of the table and the owner node. The selection now keys off the cell's own row.
+        setStore({ simpleSelectedKey: 'uR@0' }) // the owner's run key
+        const first = render(<SimpleTraceTree />)
+        const ownerHighlighted = screen.getByTestId('simple-node-tree').className
+        first.unmount()
+
+        setStore({ simpleSelectedKey: 'uR#S0@0' }) // one static cell's own key
+        render(<SimpleTraceTree />)
+        const owner = screen.getByTestId('simple-node-tree').className
+        const clicked = screen.getByTestId('simple-step-tree/S0').className
+        const sibling = screen.getByTestId('simple-step-tree/S0b').className
+
+        expect(owner).not.toBe(ownerHighlighted) // the owner is no longer co-highlighted
+        expect(clicked).not.toBe(sibling) // only the clicked static cell is highlighted
     })
 
     it('highlights the row whose values are being shown', async () => {

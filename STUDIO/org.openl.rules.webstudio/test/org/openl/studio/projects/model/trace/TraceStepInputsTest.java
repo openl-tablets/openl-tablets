@@ -19,6 +19,7 @@ import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.studio.projects.model.ParameterValue;
+import org.openl.studio.projects.service.trace.CallNode;
 import org.openl.studio.projects.service.trace.CurrentLocation;
 import org.openl.studio.projects.service.trace.DebugCommand;
 import org.openl.studio.projects.service.trace.DebugFrame;
@@ -127,6 +128,49 @@ class TraceStepInputsTest {
                 "$IsAdequateNormativeIndexCalculation"), names);
         assertEquals("Double", inputs.get(0).description());
         assertNotNull(inputs.get(0).value(), "the field is read off the recorded result");
+    }
+
+    @Test
+    void plainValueCellsAppearInTheExecutedTreeAsConstantSteps() {
+        // The executed tree lists static cells too, flagged constant, sorted into their grid position —
+        // so the trace tree shows the whole table like the grid does.
+        TraceDebugger local = new TraceDebugger(DebugListener.NOOP);
+        local.start("tree-static-test", classLoader, false, true, () -> {
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            env.setTracer(local.tracer());
+            test.invoke(module.newInstance(env), new Object[0], env);
+        });
+        try {
+            assertEquals(DebugStatus.COMPLETED, local.awaitInitialHalt(20_000));
+            CallNode tree = local.completedTree();
+            assertNotNull(tree);
+            assertEquals("BankRatingCalculation", tree.name());
+
+            var statics = tree.steps().stream().filter(CallNode.Step::constant).toList();
+            assertTrue(statics.stream().anyMatch(s -> "$Description$BankRatingGroup".equals(s.label())),
+                    "description cells are constant steps: "
+                            + statics.stream().map(CallNode.Step::label).toList());
+            // Grid ordering: the description cell of a row sits right before that row's value cell.
+            List<String> refs = tree.steps().stream().map(CallNode.Step::ref).toList();
+            assertTrue(refs.indexOf("R7C0") == refs.indexOf("R7C1") - 1,
+                    "steps are ordered by grid position: " + refs);
+        } finally {
+            local.terminate(20_000);
+        }
+    }
+
+    @Test
+    void plainValueCellsAreListedWithTheirStaticContent() {
+        // The Description column holds plain text cells, not formulas. They never execute, but the grid
+        // must still show them — the legacy trace listed every cell of the table, not only the steps.
+        var variables = mapper().freezeVariables(frame, classLoader, false);
+
+        var description = variables.steps().stream()
+                .filter(step -> step.value() != null && step.value().value() != null
+                        && step.value().value().asText().contains("Calculate Bank Rating Group"))
+                .findFirst();
+        assertTrue(description.isPresent(), "the static description text is a listed cell: "
+                + variables.steps().stream().map(StepValueView::label).toList());
     }
 
     @Test

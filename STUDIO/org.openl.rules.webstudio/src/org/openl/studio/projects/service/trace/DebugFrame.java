@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.trace;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -10,6 +11,9 @@ import java.util.function.UnaryOperator;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.studio.projects.model.trace.DispatchInfo;
 import org.openl.studio.projects.model.trace.FrameKind;
@@ -156,8 +160,42 @@ public final class DebugFrame {
                 steps.add(new CallNode.Step(intern.apply(ref), null, 0, List.copyOf(children)));
             }
         });
+        // A spreadsheet's plain value and constant cells never execute (cells evaluate lazily and these
+        // are read, not run), yet they are table content — list them so the tree shows the whole table,
+        // in grid order so a static line sits where the table puts it.
+        if (source instanceof Spreadsheet spreadsheet) {
+            for (SpreadsheetCell[] row : spreadsheet.getCells()) {
+                for (SpreadsheetCell cell : row) {
+                    if (cell == null) {
+                        continue;
+                    }
+                    SpreadsheetCellType type = cell.getSpreadsheetCellType();
+                    String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
+                    if ((type == SpreadsheetCellType.VALUE || type == SpreadsheetCellType.CONSTANT)
+                            && !covered.contains(ref)) {
+                        steps.add(new CallNode.Step(intern.apply(ref),
+                                intern.apply(SpreadsheetCellNames.of(spreadsheet, cell)), 0, List.of(), true));
+                    }
+                }
+            }
+            steps.sort(Comparator.comparingLong(DebugFrame::gridOrder));
+        }
         return new CallNode(intern.apply(uri), intern.apply(name), invocationIndex, kind, durationNanos,
                 steps, dispatch, null, notRetained, childNanos);
+    }
+
+    /** Grid position of a spreadsheet step by its {@code RnCm} reference, for a table-shaped ordering. */
+    private static long gridOrder(CallNode.Step step) {
+        String ref = step.ref();
+        int c = ref.indexOf('C');
+        if (ref.isEmpty() || ref.charAt(0) != 'R' || c < 0) {
+            return Long.MAX_VALUE;
+        }
+        try {
+            return Long.parseLong(ref.substring(1, c)) * 10_000 + Long.parseLong(ref.substring(c + 1));
+        } catch (NumberFormatException e) {
+            return Long.MAX_VALUE;
+        }
     }
 
     private List<CallNode> childrenOf(String ref) {

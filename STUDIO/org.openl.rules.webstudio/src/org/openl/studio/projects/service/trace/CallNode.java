@@ -35,14 +35,22 @@ public record CallNode(String uri, String name, int instance, FrameKind kind, lo
     }
 
     /**
-     * One executed sub-step (a spreadsheet cell or a decision-table rule) and the sub-calls it made.
+     * One sub-step (a spreadsheet cell or a decision-table rule) and the sub-calls it made.
      *
      * @param ref           short reference of the step (for example {@code R2C3})
      * @param label         human-readable name, or {@code null}
      * @param durationNanos real execution time of the step (its own work plus the tables it called)
      * @param children      the table invocations this step made, in execution order
+     * @param constant      true for a plain value or constant cell: static content that never executes,
+     *                      listed so the tree shows the whole table like the grid does
      */
-    public record Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children) {
+    public record Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children,
+                       boolean constant) {
+
+        /** An executed sub-step — the common case. */
+        public Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children) {
+            this(ref, label, durationNanos, children, false);
+        }
     }
 
     /**

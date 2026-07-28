@@ -23,6 +23,7 @@ import org.openl.studio.projects.model.ParameterValue;
  * @param ref      short reference of the step (for example {@code R2C3})
  * @param label    human-readable name, or {@code null}
  * @param cell     A1 address of the step's source cell in the raw table (spreadsheet cells only), or {@code null}
+ * @param constant true for a plain value or constant cell — static content that never executes, or {@code null}
  * @param status   whether the step has executed, is executing, or is still pending
  * @param value    the frozen computed value for an executed step, otherwise {@code null}
  * @param children the tables this step called (profiling mode only), capped, otherwise {@code null}
@@ -42,6 +43,9 @@ public record StepValueView(
 
         @Schema(description = "trace.field.step.cell.desc")
         @Nullable String cell,
+
+        @Schema(description = "trace.field.step.constant.desc")
+        @Nullable Boolean constant,
 
         @Schema(description = "trace.field.step.status.desc")
         StepStatus status,
