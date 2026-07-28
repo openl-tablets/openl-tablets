@@ -27,6 +27,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.base.INamedThing;
@@ -63,8 +64,10 @@ public class JavaOpenClass extends AOpenClass {
     public static final JavaOpenClass CLASS = new JavaOpenClass(Class.class, true);
     public static final JavaOpenClass CLS_VOID = new JavaOpenClass(Void.class, true);
 
+    @Getter
     protected final Class<?> instanceClass;
 
+    @Getter
     private final boolean simple;
 
     private volatile IAggregateInfo aggregateInfo;
@@ -215,11 +218,6 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     @Override
-    public Class<?> getInstanceClass() {
-        return instanceClass;
-    }
-
-    @Override
     public String getName() {
         if (name == null) {
             name = instanceClass.getTypeName();
@@ -269,11 +267,6 @@ public class JavaOpenClass extends AOpenClass {
 
     protected boolean isPublic(Member member) {
         return Modifier.isPublic(member.getModifiers());
-    }
-
-    @Override
-    public boolean isSimple() {
-        return simple;
     }
 
     @Override
@@ -401,6 +394,7 @@ public class JavaOpenClass extends AOpenClass {
 
     public static class JavaClassClassField implements IOpenField {
         private final Class<?> instanceClass;
+        @Getter
         private final IOpenClass declaringClass;
 
         public JavaClassClassField(Class<?> instanceClass, IOpenClass declaringClass) {
@@ -411,11 +405,6 @@ public class JavaOpenClass extends AOpenClass {
         @Override
         public Object get(Object target, IRuntimeEnv env) {
             return instanceClass;
-        }
-
-        @Override
-        public IOpenClass getDeclaringClass() {
-            return declaringClass;
         }
 
         @Override

@@ -10,6 +10,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -22,6 +24,7 @@ import org.openl.source.IOpenSourceCodeModule;
 
 public class TablePartProcessor {
 
+    @Getter
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
     /**
@@ -166,9 +169,5 @@ public class TablePartProcessor {
             var message = "Duplicated TablePart part # = " + tablePart.getPart();
             throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
         }
-    }
-
-    public Collection<OpenLMessage> getMessages() {
-        return messages;
     }
 }

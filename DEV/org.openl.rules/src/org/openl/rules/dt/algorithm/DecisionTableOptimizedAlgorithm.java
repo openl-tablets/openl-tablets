@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
@@ -538,25 +541,16 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         static final ConditionToEvaluatorHolder[] EMPTY_ARRAY = new ConditionToEvaluatorHolder[0];
         private final IndexInfo localInfo;
         private int uniqueKeysSize = -1;
+        @Getter
         private final ICondition condition;
+        @Getter
+        @Setter
         private IConditionEvaluator evaluator;
 
         ConditionToEvaluatorHolder(ICondition condition, IConditionEvaluator evaluator, IndexInfo localInfo) {
             this.condition = condition;
             this.evaluator = evaluator;
             this.localInfo = localInfo;
-        }
-
-        public ICondition getCondition() {
-            return condition;
-        }
-
-        public IConditionEvaluator getEvaluator() {
-            return evaluator;
-        }
-
-        public void setEvaluator(IConditionEvaluator evaluator) {
-            this.evaluator = evaluator;
         }
 
         public boolean isIndexed() {

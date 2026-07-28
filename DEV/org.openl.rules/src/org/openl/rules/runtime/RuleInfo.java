@@ -3,6 +3,9 @@ package org.openl.rules.runtime;
 import java.util.Arrays;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * The class what represents information about rule.
  */
@@ -11,41 +14,23 @@ public class RuleInfo {
     /**
      * Rule name.
      */
+    @Getter
+    @Setter
     private String name;
 
     /**
      * Return type of rule.
      */
+    @Getter
+    @Setter
     private Class<?> returnType;
 
     /**
      * Formal parameters types.
      */
+    @Getter
+    @Setter
     private Class<?>[] paramTypes;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Class<?> getReturnType() {
-        return returnType;
-    }
-
-    public void setReturnType(Class<?> returnType) {
-        this.returnType = returnType;
-    }
-
-    public Class<?>[] getParamTypes() {
-        return paramTypes;
-    }
-
-    public void setParamTypes(Class<?>[] paramTypes) {
-        this.paramTypes = paramTypes;
-    }
 
     @Override
     public boolean equals(Object o) {

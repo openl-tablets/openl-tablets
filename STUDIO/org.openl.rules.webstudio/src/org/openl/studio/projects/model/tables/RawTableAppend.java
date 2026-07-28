@@ -5,6 +5,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Request model for appending rows to raw tables.
@@ -16,17 +18,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public class RawTableAppend implements AppendTableView {
 
+    @Getter
     @Schema(description = "Rows to append as a 2D matrix of raw table cells")
+    @Setter
     @NotEmpty
     private List<List<@Valid RawTableCell>> rows;
-
-    public List<List<RawTableCell>> getRows() {
-        return rows;
-    }
-
-    public void setRows(List<List<RawTableCell>> rows) {
-        this.rows = rows;
-    }
 
     @Override
     public String getTableType() {

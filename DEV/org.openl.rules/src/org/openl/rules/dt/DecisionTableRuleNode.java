@@ -1,5 +1,7 @@
 package org.openl.rules.dt;
 
+import lombok.Getter;
+
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IntArrayIterator;
 import org.openl.rules.dt.index.IRuleIndex;
@@ -8,14 +10,11 @@ public class DecisionTableRuleNode implements IDecisionTableRuleNode {
 
     static final int[] ZERO_ARRAY = new int[0];
     private int[] rules;
+    @Getter
     private IRuleIndex nextIndex;
 
     public DecisionTableRuleNode(int[] rules) {
         this.rules = rules;
-    }
-
-    public IRuleIndex getNextIndex() {
-        return nextIndex;
     }
 
     public void setNextIndex(IRuleIndex nextIndex) {

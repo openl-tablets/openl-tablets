@@ -1,6 +1,7 @@
 package org.openl.rules.table;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -87,17 +88,8 @@ public abstract class Point {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class BigPoint extends Point {
+        @Getter
         final int column, row;
-
-        @Override
-        public int getColumn() {
-            return column;
-        }
-
-        @Override
-        public int getRow() {
-            return row;
-        }
 
         @Override
         public boolean equals(Object o) {

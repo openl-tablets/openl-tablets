@@ -3,6 +3,7 @@ package org.openl.excel.grid;
 import java.util.Date;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.DateUtil;
 
@@ -20,23 +21,15 @@ import org.openl.rules.table.xls.XlsUtil;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class ParsedCell implements ICell {
     private static final Object NOT_DEFINED = new Object();
+    @Getter
     private final int row;
+    @Getter
     private final int column;
     private final ParsedGrid grid;
     private Object value = NOT_DEFINED;
     private IGridRegion region;
 
     private transient TableStyles tableStyles;
-
-    @Override
-    public int getRow() {
-        return row;
-    }
-
-    @Override
-    public int getColumn() {
-        return column;
-    }
 
     @Override
     public int getAbsoluteRow() {

@@ -8,7 +8,9 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import org.openl.util.StringUtils;
 
@@ -26,11 +28,8 @@ public final class OpenAPI {
         YML("openapi.yml"),
         JSON("openapi.json");
 
+        @Getter
         private final String defaultFileName;
-
-        public String getDefaultFileName() {
-            return defaultFileName;
-        }
 
         public static Type chooseType(String extension) {
             if (Objects.equals("json", extension)) {
@@ -44,13 +43,21 @@ public final class OpenAPI {
         }
     }
 
+    @Getter
+    @Setter
     private String path;
 
+    @Getter
+    @Setter
     @XmlElement(name = "model-module-name")
     private String modelModuleName;
+    @Getter
+    @Setter
     @XmlElement(name = "algorithm-module-name")
     private String algorithmModuleName;
 
+    @Getter
+    @Setter
     private Mode mode;
 
     public OpenAPI() {
@@ -60,38 +67,6 @@ public final class OpenAPI {
         this.path = path;
         this.modelModuleName = modelModuleName;
         this.algorithmModuleName = algorithmModuleName;
-        this.mode = mode;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getModelModuleName() {
-        return modelModuleName;
-    }
-
-    public void setModelModuleName(String modelModuleName) {
-        this.modelModuleName = modelModuleName;
-    }
-
-    public String getAlgorithmModuleName() {
-        return algorithmModuleName;
-    }
-
-    public void setAlgorithmModuleName(String algorithmModuleName) {
-        this.algorithmModuleName = algorithmModuleName;
-    }
-
-    public Mode getMode() {
-        return mode;
-    }
-
-    public void setMode(Mode mode) {
         this.mode = mode;
     }
 

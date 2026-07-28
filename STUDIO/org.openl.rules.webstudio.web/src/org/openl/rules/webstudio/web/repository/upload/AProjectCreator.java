@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
@@ -19,9 +21,13 @@ import org.openl.util.IOUtils;
 public abstract class AProjectCreator {
 
 
+    @Getter(AccessLevel.PROTECTED)
     private final String projectName;
+    @Getter
     private final String projectFolder;
+    @Getter(AccessLevel.PROTECTED)
     private final UserWorkspace userWorkspace;
+    @Getter
     private String createdProjectName;
     private Map<String, String> tags;
 
@@ -30,18 +36,6 @@ public abstract class AProjectCreator {
         this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;
         this.tags = tags;
-    }
-
-    protected String getProjectName() {
-        return projectName;
-    }
-
-    public String getProjectFolder() {
-        return projectFolder;
-    }
-
-    protected UserWorkspace getUserWorkspace() {
-        return userWorkspace;
     }
 
     /**
@@ -76,10 +70,6 @@ public abstract class AProjectCreator {
                 throw new ProjectException("Project creating is failed.", e);
             }
         }
-    }
-
-    public String getCreatedProjectName() {
-        return createdProjectName;
     }
 
     protected InputStream changeFileIfNeeded(String fileName, InputStream inputStream) throws ProjectException {

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ddf.EscherContainerRecord;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
@@ -57,6 +58,7 @@ public class TableStyleListener implements HSSFListener {
 
     private final EventSheetDescriptor sheet;
     private final IGridRegion tableRegion;
+    @Getter
     private TableStyles tableStyles;
     private List<HSSFComment> comments;
     private final Map<CellAddress, String> formulas = new HashMap<>();
@@ -128,10 +130,6 @@ public class TableStyleListener implements HSSFListener {
                     comments,
                     formulas);
         }
-    }
-
-    public TableStyles getTableStyles() {
-        return tableStyles;
     }
 
     @Override

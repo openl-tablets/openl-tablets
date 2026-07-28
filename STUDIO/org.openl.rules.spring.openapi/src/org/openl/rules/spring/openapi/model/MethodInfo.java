@@ -8,6 +8,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.core.util.ReflectionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,13 +25,21 @@ public class MethodInfo {
 
     public static final String[] ALL_MEDIA_TYPES = new String[]{MediaType.ALL_VALUE};
 
+    @Getter
     private final HandlerMethod handler;
+    @Getter
     private final RequestMethod requestMethod;
+    @Getter
     private final String pathPattern;
+    @Getter
     private final String[] produces;
+    @Getter
     private final String[] consumes;
+    @Getter
     private final Operation operationAnnotation;
+    @Getter
     private final JsonView jsonView;
+    @Getter
     private final HttpStatus httpStatus;
 
     private MethodInfo(Builder from) {
@@ -44,26 +53,6 @@ public class MethodInfo {
         this.httpStatus = from.httpStatus;
     }
 
-    public HandlerMethod getHandler() {
-        return handler;
-    }
-
-    public Operation getOperationAnnotation() {
-        return operationAnnotation;
-    }
-
-    public JsonView getJsonView() {
-        return jsonView;
-    }
-
-    public String[] getProduces() {
-        return produces;
-    }
-
-    public String[] getConsumes() {
-        return consumes;
-    }
-
     public Class<?> getBeanType() {
         return handler.getBeanType();
     }
@@ -72,24 +61,12 @@ public class MethodInfo {
         return handler.getMethod();
     }
 
-    public RequestMethod getRequestMethod() {
-        return requestMethod;
-    }
-
     public boolean ignoreJsonView() {
         return operationAnnotation != null && operationAnnotation.ignoreJsonView();
     }
 
-    public String getPathPattern() {
-        return pathPattern;
-    }
-
     public Type getReturnType() {
         return OpenApiUtils.getType(handler.getReturnType());
-    }
-
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
     }
 
     public boolean isFormRequest() {

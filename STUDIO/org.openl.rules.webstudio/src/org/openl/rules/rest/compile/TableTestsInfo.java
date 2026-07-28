@@ -3,11 +3,13 @@ package org.openl.rules.rest.compile;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
 
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 
 public class TableTestsInfo {
 
+    @Getter
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<TableBean.TableDescription> allTests;
 
@@ -16,10 +18,6 @@ public class TableTestsInfo {
     public TableTestsInfo(Builder from) {
         this.allTests = from.allTests;
         this.compiled = from.compiled;
-    }
-
-    public List<TableBean.TableDescription> getAllTests() {
-        return allTests;
     }
 
     public boolean isCompiled() {

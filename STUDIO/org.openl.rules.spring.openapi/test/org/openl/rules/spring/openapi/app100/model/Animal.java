@@ -2,6 +2,8 @@ package org.openl.rules.spring.openapi.app100.model;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.Getter;
+import lombok.Setter;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
@@ -10,13 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 })
 public abstract class Animal {
 
+    @Getter
+    @Setter
     private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

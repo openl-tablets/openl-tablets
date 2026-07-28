@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.Getter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousTypeException;
@@ -25,6 +27,7 @@ public class DependencyBindingContext extends BindingContextDelegator {
 
     public static ExternalTypesRegistration externalTypesRegistration;
 
+    @Getter
     private final IDependencyManager dependencyManager;
 
     private final Set<String> loadedDependencies = new HashSet<>();
@@ -33,10 +36,6 @@ public class DependencyBindingContext extends BindingContextDelegator {
     public DependencyBindingContext(IBindingContext delegate, IDependencyManager dependencyManager) {
         super(delegate);
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
-    }
-
-    public IDependencyManager getDependencyManager() {
-        return dependencyManager;
     }
 
     @Override

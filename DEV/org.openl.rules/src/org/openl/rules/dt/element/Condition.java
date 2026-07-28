@@ -4,6 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
@@ -55,13 +58,23 @@ import org.openl.vm.IRuntimeEnv;
 
 public class Condition extends FunctionalRow implements ICondition {
 
+    @Setter
     private Invokable evaluator;
+    @Getter
+    @Setter
     private IConditionEvaluator conditionEvaluator;
     private IOpenSourceCodeModule userDefinedOpenSourceCodeModule;
+    @Setter
     private boolean conditionParametersUsed;
+    @Getter
+    @Setter
     private boolean ruleIdOrRuleNameUsed;
+    @Getter
+    @Setter
     private boolean dependentOnOtherColumnsParams;
+    @Setter
     private IOpenCast comparisonCast;
+    @Getter
     private CompositeMethod staticMethod;
     private CompositeMethod indexMethod;
 
@@ -73,16 +86,6 @@ public class Condition extends FunctionalRow implements ICondition {
     public IParameterDeclaration[] getParams() {
         var params = super.getParams();
         return params == null ? IParameterDeclaration.EMPTY : params;
-    }
-
-    @Override
-    public IConditionEvaluator getConditionEvaluator() {
-        return conditionEvaluator;
-    }
-
-    @Override
-    public void setConditionEvaluator(IConditionEvaluator conditionEvaluator) {
-        this.conditionEvaluator = conditionEvaluator;
     }
 
     @Override
@@ -98,11 +101,6 @@ public class Condition extends FunctionalRow implements ICondition {
     @Override
     public Invokable getEvaluator() {
         return evaluator == null ? getMethod() : evaluator;
-    }
-
-    @Override
-    public void setEvaluator(Invokable evaluator) {
-        this.evaluator = evaluator;
     }
 
     @Override
@@ -130,11 +128,6 @@ public class Condition extends FunctionalRow implements ICondition {
             }
             return decisionValue;
         }
-    }
-
-    @Override
-    public void setComparisonCast(IOpenCast comparisonCast) {
-        this.comparisonCast = comparisonCast;
     }
 
     private DecisionValue makeDecision(int ruleN, Object target, Object[] dtParams, IRuntimeEnv env) {
@@ -351,31 +344,6 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     @Override
-    public void setConditionParametersUsed(boolean conditionParametersUsed) {
-        this.conditionParametersUsed = conditionParametersUsed;
-    }
-
-    @Override
-    public boolean isRuleIdOrRuleNameUsed() {
-        return ruleIdOrRuleNameUsed;
-    }
-
-    @Override
-    public void setRuleIdOrRuleNameUsed(boolean ruleIdOrRuleNameUsed) {
-        this.ruleIdOrRuleNameUsed = ruleIdOrRuleNameUsed;
-    }
-
-    @Override
-    public boolean isDependentOnOtherColumnsParams() {
-        return dependentOnOtherColumnsParams;
-    }
-
-    @Override
-    public void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams) {
-        this.dependentOnOtherColumnsParams = dependentOnOtherColumnsParams;
-    }
-
-    @Override
     public boolean optimizeExpression(IMethodSignature signature,
                                       OpenL openl,
                                       IBindingContext bindingContext) {
@@ -460,11 +428,6 @@ public class Condition extends FunctionalRow implements ICondition {
                 methodHeader,
                 staticExprCtx);
         return staticExprCtx.getErrors().length == 0 ? compiledMethod : null;
-    }
-
-    @Override
-    public CompositeMethod getStaticMethod() {
-        return staticMethod;
     }
 
     @Override

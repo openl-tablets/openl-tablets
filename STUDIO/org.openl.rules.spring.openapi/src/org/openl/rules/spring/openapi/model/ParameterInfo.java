@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
@@ -16,11 +18,18 @@ import org.openl.rules.spring.openapi.OpenApiUtils;
  */
 public class ParameterInfo {
 
+    @Getter
     private final MethodInfo methodInfo;
+    @Getter
     private final MethodParameter methodParameter;
+    @Getter
     private final int index;
+    @Getter
     private final Type type;
+    @Getter
+    @Setter
     private Parameter parameter;
+    @Getter
     private final JsonView jsonView;
 
     public ParameterInfo(MethodInfo methodInfo, MethodParameter methodParameter, int index) {
@@ -35,34 +44,6 @@ public class ParameterInfo {
 
     public boolean hasAnnotation(Class<? extends Annotation> annotation) {
         return methodParameter.hasParameterAnnotation(annotation);
-    }
-
-    public MethodInfo getMethodInfo() {
-        return methodInfo;
-    }
-
-    public MethodParameter getMethodParameter() {
-        return methodParameter;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public Parameter getParameter() {
-        return parameter;
-    }
-
-    public void setParameter(Parameter parameter) {
-        this.parameter = parameter;
-    }
-
-    public JsonView getJsonView() {
-        return jsonView;
     }
 
     public <T extends Annotation> T getParameterAnnotation(Class<T> anno) {

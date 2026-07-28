@@ -4,29 +4,19 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
+import lombok.Setter;
 
 public class RepositoriesBatchModel {
 
+    @Getter
     @Parameter(description = "List of repository settings to create or update")
+    @Setter
     @Valid
     private List<CURepositoryConfigurationModel> createOrUpdate;
 
+    @Getter
     @Parameter(description = "List of repository IDs to delete")
+    @Setter
     private List<String> delete;
-
-    public List<CURepositoryConfigurationModel> getCreateOrUpdate() {
-        return createOrUpdate;
-    }
-
-    public void setCreateOrUpdate(List<CURepositoryConfigurationModel> createOrUpdate) {
-        this.createOrUpdate = createOrUpdate;
-    }
-
-    public List<String> getDelete() {
-        return delete;
-    }
-
-    public void setDelete(List<String> delete) {
-        this.delete = delete;
-    }
 }

@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -45,31 +46,16 @@ class MergedRegionsTest {
         private static final String testDescriptionFormat = "test=.+&result=.+&original=.+&from=\\d+&count=\\d+";
         private static final Pattern testDescriptionPattern = Pattern.compile(testDescriptionFormat);
 
+        @Getter
         private IGridRegion testRegion;
+        @Getter
         private IGridRegion expectedResultRegion;
+        @Getter
         private IGridRegion originalTableRegion;
+        @Getter
         private int from;
+        @Getter
         private int count;
-
-        public IGridRegion getTestRegion() {
-            return testRegion;
-        }
-
-        public IGridRegion getExpectedResultRegion() {
-            return expectedResultRegion;
-        }
-
-        public IGridRegion getOriginalTableRegion() {
-            return originalTableRegion;
-        }
-
-        public int getFrom() {
-            return from;
-        }
-
-        public int getCount() {
-            return count;
-        }
 
         private static boolean isTestDescriptionString(String descriptionString) {
 
@@ -108,16 +94,10 @@ class MergedRegionsTest {
     @RequiredArgsConstructor
     private static class DifferentCellsException extends Exception {
         private static final long serialVersionUID = 1L;
+        @Getter
         private final ICell resultCell;
+        @Getter
         private final ICell expectedCell;
-
-        public ICell getResultCell() {
-            return resultCell;
-        }
-
-        public ICell getExpectedCell() {
-            return expectedCell;
-        }
 
     }
 

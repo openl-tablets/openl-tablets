@@ -13,6 +13,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
+
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedTypeException;
@@ -49,6 +51,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     // This field is used to refer to correct module name that is used in the system, the name of XlsModuleOpenClass can
     // be different if the module name is not matched to the java naming restrictions.
+    @Getter
     private final String moduleName;
 
     public ModuleOpenClass(String moduleName, OpenL openl) {
@@ -68,10 +71,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
         }
 
         return buf.toString();
-    }
-
-    public String getModuleName() {
-        return moduleName;
     }
 
     protected boolean isDependencyMethodInheritable(IOpenMethod method) {

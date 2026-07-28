@@ -2,28 +2,21 @@ package org.openl.rules.openapi.impl;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 public class GroovyScriptFile {
 
+    @Getter
     private final String nameWithPackage;
+    @Getter
     private final String path;
+    @Getter
     private final String scriptText;
 
     public GroovyScriptFile(String nameWithPackage, String scriptText) {
         this.nameWithPackage = Objects.requireNonNull(nameWithPackage, "Groovy Interface name is null.");
         this.path = nameWithPackage.replace('.', '/') + ".groovy";
         this.scriptText = scriptText;
-    }
-
-    public String getNameWithPackage() {
-        return nameWithPackage;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public String getScriptText() {
-        return scriptText;
     }
 
     @Override

@@ -2,24 +2,23 @@ package org.openl.rules.dt;
 
 import java.util.BitSet;
 
+import lombok.Getter;
+
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.index.BitSetIterator;
 import org.openl.rules.dt.index.IRuleIndex;
 
 public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode implements IDecisionTableRuleNodeV2 {
 
+    @Getter
     private final BitSet ruleSet;
+    @Getter
     private final IRuleIndex nextIndex;
 
     public RangeIndexDecisionTableRuleNode(BitSet ruleSet, IRuleIndex nextIndex) {
         super(null);
         this.ruleSet = ruleSet;
         this.nextIndex = nextIndex;
-    }
-
-    @Override
-    public BitSet getRuleSet() {
-        return ruleSet;
     }
 
     @Override
@@ -35,11 +34,6 @@ public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode imple
         }
 
         return result;
-    }
-
-    @Override
-    public IRuleIndex getNextIndex() {
-        return nextIndex;
     }
 
     @Override

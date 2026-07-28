@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.ChangesetType;
@@ -33,35 +35,18 @@ import org.openl.util.db.SqlDBUtils;
 @Slf4j
 abstract class DBRepository implements Repository, Closeable {
 
+    @Getter
+    @Setter
     private String id;
+    @Getter
+    @Setter
     private String name;
     private volatile Settings settings;
     private ChangesMonitor monitor;
+    @Setter
     private int listenerTimerPeriod = 10;
 
     private volatile boolean initialized = false;
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public void setListenerTimerPeriod(int listenerTimerPeriod) {
-        this.listenerTimerPeriod = listenerTimerPeriod;
-    }
 
     @Override
     public List<FileData> list(String path) throws IOException {

@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import lombok.Getter;
+
 import org.openl.OpenL;
 import org.openl.types.IOpenClass;
 
@@ -20,12 +22,15 @@ import org.openl.types.IOpenClass;
  */
 public class OpenlBasedDataTableModel implements ITableModel {
 
+    @Getter
     private final String name;
+    @Getter
     private final IOpenClass type;
     private final OpenL openl;
     private final ColumnDescriptor[] columnDescriptors;
     private final List<ColumnDescriptor> idxs = new ArrayList<>();
     private final boolean hasColumnTitleRow;
+    @Getter
     private final int columnCount;
 
     //columnDescriptor must be sorted by getColumnIdx
@@ -95,16 +100,6 @@ public class OpenlBasedDataTableModel implements ITableModel {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
-    }
-
-    @Override
     public Object newInstance() {
         return type.newInstance(openl.getVm().getRuntimeEnv());
     }
@@ -115,10 +110,5 @@ public class OpenlBasedDataTableModel implements ITableModel {
             return idxs.get(idx);
         }
         return null;
-    }
-
-    @Override
-    public int getColumnCount() {
-        return columnCount;
     }
 }

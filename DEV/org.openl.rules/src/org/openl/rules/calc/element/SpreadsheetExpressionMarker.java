@@ -1,5 +1,7 @@
 package org.openl.rules.calc.element;
 
+import lombok.Getter;
+
 import org.openl.util.StringUtils;
 
 public enum SpreadsheetExpressionMarker {
@@ -8,6 +10,7 @@ public enum SpreadsheetExpressionMarker {
     CLOSED_CURLY_BRACKET("}"),
     EQUALS_SIGN("=");
 
+    @Getter
     private final String symbol;
 
     SpreadsheetExpressionMarker(String marker) {
@@ -31,9 +34,5 @@ public enum SpreadsheetExpressionMarker {
     @Override
     public String toString() {
         return name() + symbol;
-    }
-
-    public String getSymbol() {
-        return symbol;
     }
 }

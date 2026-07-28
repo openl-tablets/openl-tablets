@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.SpreadsheetVersion;
@@ -23,7 +24,9 @@ import org.openl.rules.table.IGridRegion;
 public class StyleIndexHandler extends DefaultHandler {
 
     private final IGridRegion tableRegion;
+    @Getter
     private final int[][] cellIndexes;
+    @Getter
     private final Map<CellAddress, String> formulas = new HashMap<>();
     private final int sheetIndex;
 
@@ -96,14 +99,6 @@ public class StyleIndexHandler extends DefaultHandler {
         }
     }
 
-    public int[][] getCellIndexes() {
-        return cellIndexes;
-    }
-
-    public Map<CellAddress, String> getFormulas() {
-        return formulas;
-    }
-
     private String convertSharedFormula(SharedFormulaDefinition formulaDefinition) {
         CellRangeAddress ref = CellRangeAddress.valueOf(formulaDefinition.getRef());
 
@@ -119,16 +114,10 @@ public class StyleIndexHandler extends DefaultHandler {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class SharedFormulaDefinition {
+        @Getter
         private final String value;
+        @Getter
         private final String ref;
-
-        public String getValue() {
-            return value;
-        }
-
-        public String getRef() {
-            return ref;
-        }
     }
 
 }

@@ -6,24 +6,20 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.rules.project.model.ProjectDescriptor;
 
 public final class ProjectResource {
+    @Getter
     private final URL url;
 
+    @Getter
     private final ProjectDescriptor projectDescriptor;
 
     ProjectResource(ProjectDescriptor projectDescriptor, URL url) {
         this.url = Objects.requireNonNull(url, "url cannot be null");
         this.projectDescriptor = Objects.requireNonNull(projectDescriptor, "projectDescriptor cannot be null");
-    }
-
-    public URL getUrl() {
-        return url;
-    }
-
-    public ProjectDescriptor getProjectDescriptor() {
-        return projectDescriptor;
     }
 
     public String getFile() {

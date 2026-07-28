@@ -1,5 +1,7 @@
 package org.openl.types.impl;
 
+import lombok.Getter;
+
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
@@ -12,16 +14,12 @@ import org.openl.types.IOpenMember;
 public class InternalDatatypeClass implements IOpenMember {
 
     private final IOpenClass domainOpenClass;
+    @Getter
     private final IOpenClass declaringClass;
 
     public InternalDatatypeClass(IOpenClass domenOpenClass, IOpenClass declaringClass) {
         this.domainOpenClass = domenOpenClass;
         this.declaringClass = declaringClass;
-    }
-
-    @Override
-    public IOpenClass getDeclaringClass() {
-        return declaringClass;
     }
 
     @Override

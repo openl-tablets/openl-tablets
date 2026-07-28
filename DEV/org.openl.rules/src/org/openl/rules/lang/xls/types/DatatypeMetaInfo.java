@@ -2,6 +2,7 @@ package org.openl.rules.lang.xls.types;
 
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.meta.IMetaInfo;
@@ -16,6 +17,7 @@ import org.openl.meta.IMetaInfo;
 public class DatatypeMetaInfo implements IMetaInfo {
 
     private final String displayName;
+    @Getter
     private final String sourceUrl;
 
     @Override
@@ -30,11 +32,6 @@ public class DatatypeMetaInfo implements IMetaInfo {
 
     public String getDisplayName() {
         return getDisplayName(0);
-    }
-
-    @Override
-    public String getSourceUrl() {
-        return sourceUrl;
     }
 
     @Override

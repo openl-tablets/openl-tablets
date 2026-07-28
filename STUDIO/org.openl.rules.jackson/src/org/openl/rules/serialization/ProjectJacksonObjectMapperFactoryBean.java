@@ -11,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import lombok.Getter;
+import lombok.Setter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.springframework.core.env.Environment;
@@ -48,26 +50,14 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     private final JacksonObjectMapperFactoryBean delegate = new JacksonObjectMapperFactoryBean();
 
+    @Setter
     private XlsModuleOpenClass xlsModuleOpenClass;
 
+    @Getter
+    @Setter
     private RulesDeploy rulesDeploy;
+    @Setter
     private Environment environment;
-
-    public RulesDeploy getRulesDeploy() {
-        return rulesDeploy;
-    }
-
-    public void setRulesDeploy(RulesDeploy rulesDeploy) {
-        this.rulesDeploy = rulesDeploy;
-    }
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
-
-    public void setXlsModuleOpenClass(XlsModuleOpenClass xlsModuleOpenClass) {
-        this.xlsModuleOpenClass = xlsModuleOpenClass;
-    }
 
     private DefaultTypingMode toDefaultTypingMode(String defaultTypingMode) {
         if (DefaultTypingMode.DISABLED.name().equalsIgnoreCase(defaultTypingMode.trim())) {

@@ -10,6 +10,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.fast.FastStringReader;
 
@@ -19,10 +22,13 @@ import org.openl.util.fast.FastStringReader;
 @Deprecated
 public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
 
+    @Getter
     private final IOpenSourceCodeModule[] modules;
     private String source;
 
     private final int[] modulesCount;
+    @Getter
+    @Setter
     private Map<String, Object> params;
 
     public CompositeSourceCodeModule(IOpenSourceCodeModule[] modules, String separator) {
@@ -30,10 +36,6 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
         this.modulesCount = new int[modules.length];
 
         makeCode(separator);
-    }
-
-    public IOpenSourceCodeModule[] getModules() {
-        return modules;
     }
 
     private void makeCode(String separator) {
@@ -81,15 +83,5 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
             }
         }
         return null;
-    }
-
-    @Override
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    @Override
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
     }
 }

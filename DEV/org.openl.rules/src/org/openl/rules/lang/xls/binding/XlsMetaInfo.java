@@ -1,9 +1,14 @@
 package org.openl.rules.lang.xls.binding;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 
 public class XlsMetaInfo implements IMetaInfo {
+    @Getter
+    @Setter
     XlsModuleSyntaxNode xlsModuleNode;
 
     public XlsMetaInfo(XlsModuleSyntaxNode xlsModuleNode) {
@@ -23,14 +28,6 @@ public class XlsMetaInfo implements IMetaInfo {
     @Override
     public String getSourceUrl() {
         return xlsModuleNode.getModule().getUri();
-    }
-
-    public XlsModuleSyntaxNode getXlsModuleNode() {
-        return xlsModuleNode;
-    }
-
-    public void setXlsModuleNode(XlsModuleSyntaxNode xlsModuleNode) {
-        this.xlsModuleNode = xlsModuleNode;
     }
 
 }

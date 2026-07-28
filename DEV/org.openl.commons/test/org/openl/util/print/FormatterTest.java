@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
+import lombok.Getter;
 import org.junit.jupiter.api.Test;
 
 class FormatterTest {
@@ -122,9 +123,13 @@ class FormatterTest {
 
     private static class MyType {
 
+        @Getter
         private final String str;
+        @Getter
         private final Double d;
+        @Getter
         private final Locale locale;
+        @Getter
         private final List<String> list;
 
         public MyType(String str, Double d, List<String> list, Locale locale) {
@@ -132,22 +137,6 @@ class FormatterTest {
             this.d = d;
             this.list = list;
             this.locale = locale;
-        }
-
-        public String getStr() {
-            return str;
-        }
-
-        public Double getD() {
-            return d;
-        }
-
-        public List<String> getList() {
-            return list;
-        }
-
-        public Locale getLocale() {
-            return locale;
         }
     }
 }

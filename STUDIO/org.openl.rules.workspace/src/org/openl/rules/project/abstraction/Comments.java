@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.Getter;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.util.StringUtils;
@@ -30,6 +31,7 @@ public final class Comments {
     private final String dateTimeFormat;
 
     private final String saveProjectTemplate;
+    @Getter
     private final String createProjectTemplate;
     private final String copiedFromTemplate;
     private final String restoredFromTemplate;
@@ -117,9 +119,5 @@ public final class Comments {
         return restoredFromTemplate.replace(REVISION, StringUtils.trimToEmpty(revisionNum))
                 .replace(AUTHOR, StringUtils.trimToEmpty(userName))
                 .replace(DATETIME, dateStr);
-    }
-
-    public String getCreateProjectTemplate() {
-        return createProjectTemplate;
     }
 }

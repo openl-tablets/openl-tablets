@@ -1,5 +1,8 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import org.openl.rules.dt.DecisionTableColumnHeaders;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
@@ -16,6 +19,7 @@ public abstract class ADispatcherTableColumn implements IDecisionTableColumn {
     /**
      * All rules for given condition.
      */
+    @Getter(AccessLevel.PROTECTED)
     private final DispatcherTableRules rules;
 
     /**
@@ -50,10 +54,6 @@ public abstract class ADispatcherTableColumn implements IDecisionTableColumn {
 
     int getRulesNumber() {
         return rules.getRulesNumber();
-    }
-
-    protected DispatcherTableRules getRules() {
-        return rules;
     }
 
     protected TablePropertyDefinition getProperty() {

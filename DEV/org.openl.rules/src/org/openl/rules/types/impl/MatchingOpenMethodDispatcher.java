@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -37,15 +40,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private List<IOpenMethod> candidatesSorted;
 
+    @Getter
+    @Setter
     private IOpenMethod decisionTableOpenMethod;
-
-    public IOpenMethod getDecisionTableOpenMethod() {
-        return decisionTableOpenMethod;
-    }
-
-    public void setDecisionTableOpenMethod(IOpenMethod decisionTableOpenMethod) {
-        this.decisionTableOpenMethod = decisionTableOpenMethod;
-    }
 
     public MatchingOpenMethodDispatcher() {
     }

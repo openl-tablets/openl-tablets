@@ -2,6 +2,7 @@ package org.openl.binding.impl.method;
 
 import java.lang.reflect.Array;
 
+import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.openl.types.IMethodCaller;
@@ -14,6 +15,7 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
 
     protected IMethodCaller methodCaller;
     protected Integer[] multiCallParameterIndexes;
+    @Getter
     protected IOpenClass type;
     protected Class<?> componentType;
 
@@ -128,11 +130,6 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
         if (results != null) {
             Array.set(results, index, value);
         }
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     public IOpenMethod getSourceMethod() {

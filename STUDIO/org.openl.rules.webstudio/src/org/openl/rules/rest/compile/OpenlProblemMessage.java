@@ -1,5 +1,6 @@
 package org.openl.rules.rest.compile;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.message.Severity;
@@ -7,44 +8,20 @@ import org.openl.message.Severity;
 @RequiredArgsConstructor
 public class OpenlProblemMessage {
 
+    @Getter
     private final long id;
+    @Getter
     private final String summary;
+    @Getter
     private final boolean hasStacktrace;
+    @Getter
     private final String[] errorCode;
+    @Getter
     private final boolean hasLinkToCell;
+    @Getter
     private final String tableId;
+    @Getter
     private final String errorCell;
+    @Getter
     private final Severity severity;
-
-    public long getId() {
-        return id;
-    }
-
-    public String getSummary() {
-        return summary;
-    }
-
-    public boolean isHasStacktrace() {
-        return hasStacktrace;
-    }
-
-    public String[] getErrorCode() {
-        return errorCode;
-    }
-
-    public boolean isHasLinkToCell() {
-        return hasLinkToCell;
-    }
-
-    public String getTableId() {
-        return tableId;
-    }
-
-    public String getErrorCell() {
-        return errorCell;
-    }
-
-    public Severity getSeverity() {
-        return severity;
-    }
 }

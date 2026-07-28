@@ -2,18 +2,15 @@ package org.openl.config;
 
 import java.util.Map;
 
+import lombok.Getter;
 import org.springframework.core.env.PropertyResolver;
 
 public class ReadOnlyPropertiesHolder implements PropertiesHolder {
+    @Getter
     protected PropertyResolver propertyResolver;
 
     public ReadOnlyPropertiesHolder(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
-    }
-
-    @Override
-    public PropertyResolver getPropertyResolver() {
-        return propertyResolver;
     }
 
     @Override

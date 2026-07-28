@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import lombok.Getter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
@@ -29,6 +31,7 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
     }
 
     public static class IndexParameterNode extends ABoundNode {
+        @Getter
         private final String name;
         private final IBoundNode typeBoundNode;
 
@@ -46,10 +49,6 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
         @Override
         public IOpenClass getType() {
             return typeBoundNode == null ? null : typeBoundNode.getType();
-        }
-
-        public String getName() {
-            return name;
         }
     }
 }

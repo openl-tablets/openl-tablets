@@ -1,22 +1,18 @@
 package org.openl.ie.constrainer.consistencyChecking;
 
+import lombok.Getter;
+
 public class IntPair {
 
+    @Getter
     private final int x;
+    @Getter
     private final int y;
 
     public IntPair(int x, int y) {
         super();
         this.x = x;
         this.y = y;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
     }
 
     @Override

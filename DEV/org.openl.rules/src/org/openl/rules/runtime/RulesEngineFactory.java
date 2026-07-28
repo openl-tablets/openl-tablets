@@ -5,8 +5,9 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
@@ -45,19 +46,19 @@ public class RulesEngineFactory<T> {
     private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
     private final IOpenSourceCodeModule sourceCode;
 
+    @Setter
     private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGenerator();
+    @Setter
     private Class<T> interfaceClass;
     private CompiledOpenClass compiledOpenClass;
+    @Getter
+    @Setter
     private boolean executionMode;
+    @Setter
     private IDependencyManager dependencyManager;
     private final IRuntimeEnvBuilder runtimeEnvBuilder = () -> new SimpleRulesVM().getRuntimeEnv();
     // Volatile is required for correct double locking checking pattern
     private volatile OpenL openl;
-
-    public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
-        this.interfaceClassGenerator = Objects.requireNonNull(interfaceClassGenerator,
-                "interfaceClassGenerator cannot be null");
-    }
 
     public RulesEngineFactory(String sourceFile) {
         sourceCode = new URLSourceCodeModule(sourceFile);
@@ -108,10 +109,6 @@ public class RulesEngineFactory<T> {
             }
         }
         return interfaceClass;
-    }
-
-    public void setInterfaceClass(Class<T> interfaceClass) {
-        this.interfaceClass = interfaceClass;
     }
 
     private CompiledOpenClass initializeOpenClass() {
@@ -172,18 +169,6 @@ public class RulesEngineFactory<T> {
             compiledOpenClass = initializeOpenClass();
         }
         return compiledOpenClass;
-    }
-
-    public boolean isExecutionMode() {
-        return executionMode;
-    }
-
-    public void setExecutionMode(boolean executionMode) {
-        this.executionMode = executionMode;
-    }
-
-    public void setDependencyManager(IDependencyManager dependencyManager) {
-        this.dependencyManager = dependencyManager;
     }
 
     private OpenL getOpenL() {

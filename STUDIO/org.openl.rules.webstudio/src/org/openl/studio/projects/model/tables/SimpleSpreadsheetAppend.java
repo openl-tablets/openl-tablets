@@ -3,6 +3,8 @@ package org.openl.studio.projects.model.tables;
 import java.util.Collection;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Request model for append lines to {@code SimpleSpreadsheet} table
@@ -11,16 +13,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public class SimpleSpreadsheetAppend implements AppendTableView {
 
+    @Getter
     @Schema(description = "Collection of spreadsheet steps/rows to append")
+    @Setter
     private Collection<SpreadsheetStepView> steps;
-
-    public Collection<SpreadsheetStepView> getSteps() {
-        return steps;
-    }
-
-    public void setSteps(Collection<SpreadsheetStepView> steps) {
-        this.steps = steps;
-    }
 
     @Override
     public String getTableType() {

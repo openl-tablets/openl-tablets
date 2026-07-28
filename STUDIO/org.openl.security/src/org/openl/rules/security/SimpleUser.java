@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
 public class SimpleUser implements User {
@@ -13,14 +15,28 @@ public class SimpleUser implements User {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @Getter
+    @Setter
     private String firstName;
+    @Getter
+    @Setter
     private String lastName;
+    @Getter
+    @Setter
     private String username;
     private String passwordHash;
     private Collection<? extends GrantedAuthority> privileges;
+    @Getter
+    @Setter
     private String email;
+    @Getter
+    @Setter
     private String displayName;
+    @Getter
+    @Setter
     private UserExternalFlags externalFlags;
+    @Getter
+    @Setter
     private Instant lastLoginTime;
 
     public SimpleUser() {
@@ -36,51 +52,6 @@ public class SimpleUser implements User {
         this.displayName = other.displayName;
         this.externalFlags = Objects.requireNonNull(other.externalFlags);
         this.lastLoginTime = other.lastLoginTime;
-    }
-
-    @Override
-    public UserExternalFlags getExternalFlags() {
-        return externalFlags;
-    }
-
-    public void setExternalFlags(UserExternalFlags externalFlags) {
-        this.externalFlags = externalFlags;
-    }
-
-    @Override
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    @Override
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
     }
 
     /**
@@ -118,24 +89,6 @@ public class SimpleUser implements User {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    @Override
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @Override
-    public Instant getLastLoginTime() {
-        return lastLoginTime;
-    }
-
-    public void setLastLoginTime(Instant lastLoginTime) {
-        this.lastLoginTime = lastLoginTime;
     }
 
     @Override

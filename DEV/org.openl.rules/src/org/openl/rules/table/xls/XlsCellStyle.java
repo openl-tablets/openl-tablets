@@ -4,6 +4,7 @@ import static org.openl.rules.table.xls.PoiExcelHelper.getCellBorderColors;
 import static org.openl.rules.table.xls.PoiExcelHelper.getCellBorderStyles;
 import static org.openl.rules.table.xls.PoiExcelHelper.toRgb;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -21,6 +22,7 @@ import org.openl.rules.table.ui.ICellStyle;
 @RequiredArgsConstructor
 public class XlsCellStyle implements ICellStyle {
 
+    @Getter
     private final CellStyle xlsStyle;
     private final Workbook workbook;
 
@@ -104,10 +106,6 @@ public class XlsCellStyle implements ICellStyle {
     @Override
     public String getFormatString() {
         return xlsStyle.getDataFormatString();
-    }
-
-    public CellStyle getXlsStyle() {
-        return xlsStyle;
     }
 
 }

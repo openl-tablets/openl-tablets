@@ -2,34 +2,22 @@ package org.openl.rules.openapi.impl;
 
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 
 public class SpreadsheetParserModel {
+    @Getter
+    @Setter
     private SpreadsheetModel model;
+    @Getter
+    @Setter
     private String returnRef;
+    @Getter
     private boolean refIsDataType;
 
     public SpreadsheetParserModel() {
-    }
-
-    public SpreadsheetModel getModel() {
-        return model;
-    }
-
-    public void setModel(SpreadsheetModel model) {
-        this.model = model;
-    }
-
-    public String getReturnRef() {
-        return returnRef;
-    }
-
-    public void setReturnRef(String returnRef) {
-        this.returnRef = returnRef;
-    }
-
-    public boolean isRefIsDataType() {
-        return refIsDataType;
     }
 
     public void setStoreInModels(boolean hasSelfLink) {

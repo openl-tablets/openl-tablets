@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -159,29 +160,17 @@ abstract class BaseParameterExport extends BaseExport {
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     static final class WriteTask implements Comparable<WriteTask> {
+        @Getter
         private final Cursor cursor;
+        @Getter
         private final Object value;
+        @Getter
         private final CellStyle style;
+        @Getter
         private final int height;
 
         WriteTask(Cursor cursor, Object value, CellStyle style) {
             this(cursor, value, style, 1);
-        }
-
-        public Cursor getCursor() {
-            return cursor;
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        public CellStyle getStyle() {
-            return style;
-        }
-
-        public int getHeight() {
-            return height;
         }
 
         @Override

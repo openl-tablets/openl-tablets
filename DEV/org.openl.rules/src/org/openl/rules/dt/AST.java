@@ -3,6 +3,7 @@ package org.openl.rules.dt;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import org.openl.binding.IBoundNode;
@@ -13,6 +14,7 @@ import org.openl.util.text.TextInfo;
 import org.openl.util.text.TextInterval;
 
 public class AST {
+    @Getter
     private final IBoundNode boundNode;
     private final Map<IBoundNode, ILocation> extensiveLocationMap;
     private final Map<IBoundNode, ILocation> locationMap;
@@ -121,10 +123,6 @@ public class AST {
             locationMap.put(boundNode, boundNode.getSyntaxNode().getSourceLocation());
         }
         return Pair.of(start, end);
-    }
-
-    public IBoundNode getBoundNode() {
-        return boundNode;
     }
 
     public ILocation getLocation(IBoundNode boundNode) {

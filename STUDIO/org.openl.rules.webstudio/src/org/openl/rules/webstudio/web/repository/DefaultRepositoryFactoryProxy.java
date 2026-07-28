@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.Getter;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.project.abstraction.Comments;
@@ -28,6 +29,7 @@ public class DefaultRepositoryFactoryProxy implements RepositoryFactoryProxy {
 
     private final Map<String, Repository> factories = new HashMap<>();
     private final PropertyResolver propertyResolver;
+    @Getter
     private final String repoListConfig;
     private final String defaultBasePathConfig;
 
@@ -44,11 +46,6 @@ public class DefaultRepositoryFactoryProxy implements RepositoryFactoryProxy {
         }
         this.propertyResolver = propertyResolver;
         this.defaultBasePathConfig = REPOSITORY_DEFAULT_BASE_PATH_TEMPLATE.formatted(mode.name().toLowerCase());
-    }
-
-    @Override
-    public String getRepoListConfig() {
-        return repoListConfig;
     }
 
     @Override

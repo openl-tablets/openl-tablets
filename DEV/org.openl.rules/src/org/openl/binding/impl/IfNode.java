@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
@@ -12,9 +14,13 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class IfNode extends ABoundNode {
 
+    @Getter
     private final IBoundNode conditionNode;
+    @Getter
     private final IBoundNode elseNode;
+    @Getter
     private final IBoundNode thenNode;
+    @Getter
     private final IOpenClass type;
 
     IfNode(ISyntaxNode syntaxNode, IBoundNode conditionNode, IBoundNode thenNode, IOpenClass type) {
@@ -44,23 +50,6 @@ public class IfNode extends ABoundNode {
 
         // if (condition) { TrueBranch } else { NullOrFalseBranch }
         return Boolean.TRUE.equals(res) ? thenNode.evaluate(env) : elseNode != null ? elseNode.evaluate(env) : null;
-    }
-
-    public IBoundNode getConditionNode() {
-        return conditionNode;
-    }
-
-    public IBoundNode getElseNode() {
-        return elseNode;
-    }
-
-    public IBoundNode getThenNode() {
-        return thenNode;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
 }

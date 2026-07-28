@@ -1,5 +1,6 @@
 package org.openl.rules.helpers;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.binding.impl.cast.IOpenCast;
@@ -11,29 +12,14 @@ import org.openl.types.IOpenClass;
  */
 @RequiredArgsConstructor
 public class AddAllMethodDetails implements MethodDetails {
+    @Getter
     private final Integer minDim;
+    @Getter
     private final Integer maxDim;
+    @Getter
     private final IOpenClass type;
+    @Getter
     private final boolean[] paramsAsElement;
+    @Getter
     private final IOpenCast[] openCasts;
-
-    public Integer getMinDim() {
-        return minDim;
-    }
-
-    public Integer getMaxDim() {
-        return maxDim;
-    }
-
-    public IOpenClass getType() {
-        return type;
-    }
-
-    public boolean[] getParamsAsElement() {
-        return paramsAsElement;
-    }
-
-    public IOpenCast[] getOpenCasts() {
-        return openCasts;
-    }
 }

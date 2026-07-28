@@ -8,11 +8,14 @@ import java.util.Map;
 import java.util.Objects;
 import jakarta.ws.rs.core.Response;
 
+import lombok.Getter;
+
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.runtime.AbstractOpenLMethodHandler;
 
 class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
+    @Getter
     private final Object target;
     private final Map<Method, Method> methodMap;
 
@@ -24,11 +27,6 @@ class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
     public JAXRSMethodHandler(Object target, Map<Method, Method> methodMap) {
         this.target = Objects.requireNonNull(target, "target cannot be null");
         this.methodMap = Objects.requireNonNull(methodMap, "methodMap cannot be null");
-    }
-
-    @Override
-    public Object getTarget() {
-        return target;
     }
 
     @Override

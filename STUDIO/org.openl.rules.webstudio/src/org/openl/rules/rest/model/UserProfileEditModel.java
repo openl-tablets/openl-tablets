@@ -2,16 +2,15 @@ package org.openl.rules.rest.model;
 
 import jakarta.validation.constraints.NotBlank;
 
+import lombok.Getter;
+
 import org.openl.rules.rest.validation.ChangePasswordConstraint;
 
 public class UserProfileEditModel extends UserProfileBaseModel {
 
     @ChangePasswordConstraint
+    @Getter
     private ChangePasswordModel changePassword;
-
-    public ChangePasswordModel getChangePassword() {
-        return changePassword;
-    }
 
     public UserProfileEditModel setChangePassword(ChangePasswordModel changePassword) {
         this.changePassword = changePassword;

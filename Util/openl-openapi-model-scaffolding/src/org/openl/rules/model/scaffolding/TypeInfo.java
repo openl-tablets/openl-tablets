@@ -2,12 +2,23 @@ package org.openl.rules.model.scaffolding;
 
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class TypeInfo {
 
+    @Getter
+    @Setter
     private String javaName;
+    @Getter
     private final String simpleName;
+    @Getter
+    @Setter
     private Type type;
+    @Getter
+    @Setter
     private int dimension;
+    @Getter
     private final boolean reference;
 
     public TypeInfo(Class<?> javaName) {
@@ -38,38 +49,6 @@ public class TypeInfo {
         this.type = type;
         this.dimension = dimension;
         this.reference = reference;
-    }
-
-    public String getJavaName() {
-        return javaName;
-    }
-
-    public void setJavaName(String javaName) {
-        this.javaName = javaName;
-    }
-
-    public String getSimpleName() {
-        return simpleName;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    public boolean isReference() {
-        return reference;
-    }
-
-    public int getDimension() {
-        return dimension;
-    }
-
-    public void setDimension(int dimension) {
-        this.dimension = dimension;
     }
 
     @Override

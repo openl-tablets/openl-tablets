@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.ToLongFunction;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -25,7 +26,9 @@ public class BenchmarkBean {
 
     private final RunTestHelper runTestHelper;
 
+    @Getter
     private final List<BenchmarkInfoView> benchmarks = new ArrayList<>();
+    @Getter
     private List<BenchmarkInfoView> comparedBenchmarks = List.of();
     private List<BenchmarkInfoView> benchmarkOrders;
 
@@ -87,10 +90,6 @@ public class BenchmarkBean {
         return null;
     }
 
-    public List<BenchmarkInfoView> getBenchmarks() {
-        return benchmarks;
-    }
-
     public boolean isAnyBencmarkSelected() {
         for (BenchmarkInfoView bi : benchmarks) {
             if (bi.isSelected()) {
@@ -116,10 +115,6 @@ public class BenchmarkBean {
         for (BenchmarkInfoView bi : benchmarks) {
             bi.setSelected(allBencmarkSelected);
         }
-    }
-
-    public List<BenchmarkInfoView> getComparedBenchmarks() {
-        return comparedBenchmarks;
     }
 
     public int getComparedOrder(BenchmarkInfoView bi) {

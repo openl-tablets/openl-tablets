@@ -5,6 +5,8 @@ package org.openl.binding.impl;
 
 import java.io.Serial;
 
+import lombok.Getter;
+
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
@@ -17,7 +19,9 @@ public class TypeCastException extends SyntaxNodeException {
     @Serial
     private static final long serialVersionUID = 5570752529258476343L;
 
+    @Getter
     private final IOpenClass from;
+    @Getter
     private final IOpenClass to;
 
     public TypeCastException(ISyntaxNode node, IOpenClass from, IOpenClass to) {
@@ -25,14 +29,6 @@ public class TypeCastException extends SyntaxNodeException {
 
         this.from = from;
         this.to = to;
-    }
-
-    public IOpenClass getFrom() {
-        return from;
-    }
-
-    public IOpenClass getTo() {
-        return to;
     }
 
 }

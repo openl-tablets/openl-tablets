@@ -5,13 +5,17 @@ import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 
 @Schema(allOf = AuthenticationSettings.class)
 public class NOPAuthenticationSettings extends AuthenticationSettings {
 
+    @Getter
     @NotNull
+    @Setter
     @Valid
     @JsonMerge
     private NOPUserSettings user;
@@ -36,13 +40,5 @@ public class NOPAuthenticationSettings extends AuthenticationSettings {
     public void revert(PropertiesHolder properties) {
         user.revert(properties);
         super.revert(properties);
-    }
-
-    public NOPUserSettings getUser() {
-        return user;
-    }
-
-    public void setUser(NOPUserSettings user) {
-        this.user = user;
     }
 }

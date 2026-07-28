@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.TreeMap;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -20,6 +22,7 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
     private final IBoundNode targetNode;
     private final IOpenCast openCast;
     private final Class<?> componentClass;
+    @Getter
     private final IOpenClass type;
 
     OrderByIndexNode(ISyntaxNode syntaxNode,
@@ -91,11 +94,6 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
             }
         }
         return CollectionUtils.toArray(objects, componentClass);
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     private static class OrderList extends ArrayList<Object> {

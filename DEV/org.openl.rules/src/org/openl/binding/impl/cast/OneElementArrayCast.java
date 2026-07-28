@@ -3,12 +3,15 @@ package org.openl.binding.impl.cast;
 import java.lang.reflect.Array;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.types.IOpenClass;
 
 final class OneElementArrayCast implements IOpenCast, IOneElementArrayCast {
 
     private final IOpenClass toComponentType;
     private final IOpenCast openCast;
+    @Getter
     private final int distance;
 
     OneElementArrayCast(IOpenClass toComponentType, IOpenCast openCast) {
@@ -26,11 +29,6 @@ final class OneElementArrayCast implements IOpenCast, IOneElementArrayCast {
         Object array = Array.newInstance(toComponentType.getInstanceClass(), 1);
         Array.set(array, 0, openCast.convert(from));
         return array;
-    }
-
-    @Override
-    public int getDistance() {
-        return distance;
     }
 
     @Override

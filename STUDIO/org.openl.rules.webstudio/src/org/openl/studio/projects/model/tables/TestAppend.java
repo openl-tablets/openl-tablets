@@ -3,6 +3,8 @@ package org.openl.studio.projects.model.tables;
 import java.util.Collection;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Request model for appending rows to Test tables
@@ -11,16 +13,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public class TestAppend implements AppendTableView {
 
+    @Getter
     @Schema(description = "Collection of test data rows to append")
+    @Setter
     private Collection<DataRowView> rows;
-
-    public Collection<DataRowView> getRows() {
-        return rows;
-    }
-
-    public void setRows(Collection<DataRowView> rows) {
-        this.rows = rows;
-    }
 
     @Override
     public String getTableType() {

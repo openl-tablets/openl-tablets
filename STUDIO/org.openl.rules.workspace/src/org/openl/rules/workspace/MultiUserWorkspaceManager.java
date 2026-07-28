@@ -3,6 +3,9 @@ package org.openl.rules.workspace;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -21,10 +24,12 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
     /**
      * Design Time Repository
      */
+    @Setter
     private DesignTimeRepository designTimeRepository;
     /**
      * Manager of Local Workspaces
      */
+    @Setter
     private LocalWorkspaceManager localWorkspaceManager;
     /**
      * Cache for User Workspaces. Concurrent: request threads and the workspace files watcher's
@@ -32,6 +37,8 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      */
     private final Map<String, UserWorkspace> userWorkspaces = new ConcurrentHashMap<>();
 
+    @Getter
+    @Setter
     private UserWorkspaceFactory userWorkspaceFactory = new DefaultUserWorkspaceFactory();
 
     private UserWorkspace createUserWorkspace(WorkspaceUser user) {
@@ -39,14 +46,6 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
                 .create(localWorkspaceManager, designTimeRepository, user);
         userWorkspace.addWorkspaceListener(this);
         return userWorkspace;
-    }
-
-    public UserWorkspaceFactory getUserWorkspaceFactory() {
-        return userWorkspaceFactory;
-    }
-
-    public void setUserWorkspaceFactory(UserWorkspaceFactory userWorkspaceFactory) {
-        this.userWorkspaceFactory = userWorkspaceFactory;
     }
 
     /**
@@ -78,14 +77,6 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      */
     public UserWorkspace getUserWorkspaceIfCreated(String userId) {
         return userWorkspaces.get(userId);
-    }
-
-    public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {
-        this.designTimeRepository = designTimeRepository;
-    }
-
-    public void setLocalWorkspaceManager(LocalWorkspaceManager localWorkspaceManager) {
-        this.localWorkspaceManager = localWorkspaceManager;
     }
 
     /**

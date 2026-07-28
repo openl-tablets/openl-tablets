@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.util.RuntimeExceptionWrapper;
@@ -23,6 +24,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 @RequiredArgsConstructor
 public class URLSourceCodeModule extends ASourceCodeModule {
+    @Getter
     private final URL url;
 
     public URLSourceCodeModule(String file) {
@@ -35,10 +37,6 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         } catch (MalformedURLException e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }
-    }
-
-    public URL getUrl() {
-        return url;
     }
 
     @Override

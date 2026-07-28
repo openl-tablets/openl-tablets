@@ -8,6 +8,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -89,23 +92,14 @@ public class DiffManager implements AutoCloseable {
     }
 
     private static class Comparison {
+        @Getter(AccessLevel.PACKAGE)
         private final ShowDiffController controller;
+        @Getter(AccessLevel.PACKAGE)
+        @Setter(AccessLevel.PACKAGE)
         private long accessTime;
 
         private Comparison(ShowDiffController controller, long accessTime) {
             this.controller = controller;
-            this.accessTime = accessTime;
-        }
-
-        ShowDiffController getController() {
-            return controller;
-        }
-
-        long getAccessTime() {
-            return accessTime;
-        }
-
-        void setAccessTime(long accessTime) {
             this.accessTime = accessTime;
         }
     }

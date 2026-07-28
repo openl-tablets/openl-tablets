@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -23,8 +24,10 @@ import org.openl.util.StringUtils;
 public class ProjectVersionCacheManager implements InitializingBean {
 
 
+    @Setter
     private DesignTimeRepository designRepository;
 
+    @Setter
     private ProjectVersionH2CacheDB projectVersionCacheDB;
 
     public String getDeployedProjectVersion(AProject project) throws IOException {
@@ -120,14 +123,6 @@ public class ProjectVersionCacheManager implements InitializingBean {
                 log.error("Error during project caching", e);
             }
         });
-    }
-
-    public void setDesignRepository(DesignTimeRepository designRepository) {
-        this.designRepository = designRepository;
-    }
-
-    public void setProjectVersionCacheDB(ProjectVersionH2CacheDB projectVersionCacheDB) {
-        this.projectVersionCacheDB = projectVersionCacheDB;
     }
 
 }

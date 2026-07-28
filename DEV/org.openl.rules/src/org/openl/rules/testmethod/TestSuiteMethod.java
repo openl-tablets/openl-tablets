@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.openl.binding.BindingDependencies;
@@ -41,9 +43,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     private final static String PRECISION_PARAM = "precision";
     private static final Pattern DASH_SEPARATOR = Pattern.compile("\\s[-]\\s");
+    @Getter
+    @Setter
     private IOpenMethod testedMethod;
     private TestDescription[] tests;
     private Map<String, Integer> indexes;
+    @Getter
     private final boolean runMethod;
     private DynamicObject[] testObjects;
     private final IDataBase db;
@@ -188,10 +193,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return getTests()[numberOfTest];
     }
 
-    public void setTestedMethod(IOpenMethod testedMethod) {
-        this.testedMethod = testedMethod;
-    }
-
     public String getColumnDisplayName(String columnTechnicalName) {
         var columnIndex = getColumnIndex(columnTechnicalName);
         return getColumnDisplayName(columnIndex);
@@ -233,17 +234,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return getDataModel().getColumnCount();
     }
 
-    public IOpenMethod getTestedMethod() {
-        return testedMethod;
-    }
-
     @Override
     protected TestUnitsResults innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         return new TestSuite(this).invoke(target, env);
-    }
-
-    public boolean isRunMethod() {
-        return runMethod;
     }
 
     /**

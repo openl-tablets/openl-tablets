@@ -2,6 +2,9 @@ package org.openl.rules.common.impl;
 
 import java.io.Serial;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
@@ -10,28 +13,21 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     @Serial
     private static final long serialVersionUID = -5156747482692477220L;
 
+    @Getter
     private int major = MAX_MM_INT;
+    @Getter
     private int minor = MAX_MM_INT;
+    @Getter
     private final String revision;
     private transient String versionName;
+    @Getter
     private final VersionInfo versionInfo;
 
+    @Getter
+    @Setter
     private String versionComment;
+    @Getter
     private boolean deleted = false;
-
-    @Override
-    public String getVersionComment() {
-        return versionComment;
-    }
-
-    @Override
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setVersionComment(String versionComment) {
-        this.versionComment = versionComment;
-    }
 
     public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo) {
         major = version.getMajor();
@@ -79,26 +75,6 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     @Override
     public boolean equals(Object o) {
         return this == o || (o instanceof ProjectVersion pv && compareTo(pv) == 0);
-    }
-
-    @Override
-    public int getMajor() {
-        return major;
-    }
-
-    @Override
-    public int getMinor() {
-        return minor;
-    }
-
-    @Override
-    public String getRevision() {
-        return revision;
-    }
-
-    @Override
-    public VersionInfo getVersionInfo() {
-        return versionInfo;
     }
 
     @Override

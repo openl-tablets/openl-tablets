@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Sid;
@@ -16,24 +17,18 @@ public class AclSubject {
 
     public static final Comparator<AclSubject> COMPARATOR = Comparator.comparing(AclSubject::getSid);
 
+    @Getter
     @Parameter(description = "SID name")
     @NotEmpty
     private final String sid;
 
+    @Getter
     @Parameter(description = "Is principal")
     private final Boolean principal;
 
     private AclSubject(Builder builder) {
         this.sid = builder.sid;
         this.principal = builder.principal;
-    }
-
-    public String getSid() {
-        return sid;
-    }
-
-    public Boolean getPrincipal() {
-        return principal;
     }
 
     public static AclSubject of(Sid sid) {

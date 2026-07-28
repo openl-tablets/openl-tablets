@@ -9,6 +9,7 @@ package org.openl.util.text;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TextInfo {
 
+    @Getter
     private final String text;
     private int[] lineTable;
 
@@ -47,10 +49,6 @@ public class TextInfo {
             scanText();
         }
         return lineTable;
-    }
-
-    public String getText() {
-        return text;
     }
 
     protected void scanText() {

@@ -2,6 +2,7 @@ package org.openl.excel.parser.sax;
 
 import java.util.Map;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.model.CommentsTable;
@@ -18,16 +19,12 @@ import org.openl.util.StringUtils;
 
 @RequiredArgsConstructor
 public class SAXTableStyles implements TableStyles {
+    @Getter
     private final IGridRegion region;
     private final int[][] cellIndexes;
     private final StylesTable stylesTable;
     private final CommentsTable sheetComments;
     private final Map<CellAddress, String> formulas;
-
-    @Override
-    public IGridRegion getRegion() {
-        return region;
-    }
 
     @Override
     public ICellStyle getStyle(int row, int column) {
@@ -71,17 +68,9 @@ public class SAXTableStyles implements TableStyles {
 
     @RequiredArgsConstructor
     private static class SAXCellComment implements ICellComment {
+        @Getter
         private final String text;
+        @Getter
         private final String author;
-
-        @Override
-        public String getText() {
-            return text;
-        }
-
-        @Override
-        public String getAuthor() {
-            return author;
-        }
     }
 }

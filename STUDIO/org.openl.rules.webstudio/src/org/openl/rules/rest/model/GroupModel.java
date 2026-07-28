@@ -1,22 +1,18 @@
 package org.openl.rules.rest.model;
 
+import lombok.Getter;
+
 public class GroupModel {
 
+    @Getter
     private String name;
 
+    @Getter
     private GroupType type;
-
-    public String getName() {
-        return name;
-    }
 
     public GroupModel setName(String name) {
         this.name = name;
         return this;
-    }
-
-    public GroupType getType() {
-        return type;
     }
 
     public GroupModel setType(GroupType type) {

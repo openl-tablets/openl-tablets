@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -139,22 +140,14 @@ class RulesProjectBranchMarksTest {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class BranchedDesignRepository extends StubDesignRepository implements BranchRepository {
 
+        @Getter
         private final String branch;
+        @Getter
         private final String baseBranch;
 
         @Override
         public Features supports() {
             return new FeaturesBuilder(this).setVersions(false).setFolders(true).setBranches(true).build();
-        }
-
-        @Override
-        public String getBranch() {
-            return branch;
-        }
-
-        @Override
-        public String getBaseBranch() {
-            return baseBranch;
         }
 
         @Override

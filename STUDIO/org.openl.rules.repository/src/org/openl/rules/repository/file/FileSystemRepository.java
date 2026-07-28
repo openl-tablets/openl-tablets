@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.ChangesetType;
@@ -43,39 +45,24 @@ import org.openl.util.FileUtils;
 @Slf4j
 public class FileSystemRepository implements Repository, Closeable {
 
+    @Getter
+    @Setter
     private Path root;
     private ChangesMonitor monitor;
+    @Getter
+    @Setter
     private String id;
+    @Setter
     private int listenerTimerPeriod = 10;
+    @Getter
+    @Setter
     private String name;
-
-    public void setRoot(Path root) {
-        this.root = root;
-    }
 
     public void setUri(String path) {
         this.root = Path.of(path);
     }
 
     public void initialize() {
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     /**
@@ -314,10 +301,6 @@ public class FileSystemRepository implements Repository, Closeable {
         return data;
     }
 
-    public Path getRoot() {
-        return root;
-    }
-
     @Override
     public void close() {
         if (monitor != null) {
@@ -439,10 +422,6 @@ public class FileSystemRepository implements Repository, Closeable {
                 return FileVisitResult.CONTINUE;
             }
         });
-    }
-
-    public void setListenerTimerPeriod(int listenerTimerPeriod) {
-        this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
 }

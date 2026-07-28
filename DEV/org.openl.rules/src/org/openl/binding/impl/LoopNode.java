@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.vm.IRuntimeEnv;
@@ -10,7 +12,9 @@ import org.openl.vm.IRuntimeEnv;
 public class LoopNode extends ABoundNode {
 
     private final IBoundNode initNode;
+    @Getter
     private final IBoundNode conditionNode;
+    @Getter
     private final IBoundNode blockCodeNode;
     private final IBoundNode afterNode;
 
@@ -47,13 +51,5 @@ public class LoopNode extends ABoundNode {
             }
         }
         return null;
-    }
-
-    public IBoundNode getConditionNode() {
-        return conditionNode;
-    }
-
-    public IBoundNode getBlockCodeNode() {
-        return blockCodeNode;
     }
 }

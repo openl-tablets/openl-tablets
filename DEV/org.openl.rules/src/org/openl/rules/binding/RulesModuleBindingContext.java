@@ -11,6 +11,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.LoggerFactory;
 
 import org.openl.binding.IBindingContext;
@@ -70,6 +73,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     private final PreBinderMethods preBinderMethods = new PreBinderMethods();
 
+    @Getter(AccessLevel.PRIVATE)
+    @Setter
     private boolean ignoreCustomSpreadsheetResultCompilation = false;
 
     public RulesModuleBindingContext(IBindingContext delegate, XlsModuleOpenClass module) {
@@ -805,14 +810,6 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public boolean isConstructor() {
             return false;
         }
-    }
-
-    private boolean isIgnoreCustomSpreadsheetResultCompilation() {
-        return ignoreCustomSpreadsheetResultCompilation;
-    }
-
-    public void setIgnoreCustomSpreadsheetResultCompilation(boolean ignoreCustomSpreadsheetResultCompilation) {
-        this.ignoreCustomSpreadsheetResultCompilation = ignoreCustomSpreadsheetResultCompilation;
     }
 
     private final IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();

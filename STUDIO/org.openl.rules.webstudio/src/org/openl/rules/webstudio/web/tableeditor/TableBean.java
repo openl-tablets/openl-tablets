@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.tableeditor;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -48,10 +49,15 @@ public class TableBean {
     private TestDescription[] runnableTestMethods = {}; // test units
     private IOpenMethod[] tests = {};
 
+    @Getter
     private String uri;
+    @Getter
     private String id;
+    @Getter
     private IOpenLTable table;
+    @Getter
     private boolean editable;
+    @Getter
     private boolean copyable;
 
     private final PropertyResolver propertyResolver;
@@ -126,10 +132,6 @@ public class TableBean {
         return isEditable() ? WebStudioUtils.getRequestParameter("mode") : null;
     }
 
-    public IOpenLTable getTable() {
-        return table;
-    }
-
     /**
      * Return test cases for current table.
      *
@@ -161,27 +163,11 @@ public class TableBean {
         return params;
     }
 
-    public String getUri() {
-        return uri;
-    }
-
-    public String getId() {
-        return id;
-    }
-
     /**
      * @return true if it is possible to create tests for current table.
      */
     public boolean isCanCreateTest() {
         return table != null && table.isExecutable() && isEditable();
-    }
-
-    public boolean isEditable() {
-        return editable;
-    }
-
-    public boolean isCopyable() {
-        return copyable;
     }
 
     public boolean isTablePart() {
@@ -336,20 +322,11 @@ public class TableBean {
 
     @RequiredArgsConstructor
     public static class TableDescription {
+        @Getter
         private final String uri;
+        @Getter
         private final String id;
+        @Getter
         private final String name;
-
-        public String getUri() {
-            return uri;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
     }
 }

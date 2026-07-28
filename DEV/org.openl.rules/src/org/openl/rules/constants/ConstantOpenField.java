@@ -1,5 +1,8 @@
 package org.openl.rules.constants;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -9,8 +12,12 @@ import org.openl.vm.IRuntimeEnv;
 public class ConstantOpenField extends AOpenField {
 
     private ModuleOpenClass declaringClass;
+    @Getter
     private Object value;
+    @Getter
     private String valueAsString;
+    @Getter
+    @Setter
     private IMemberMetaInfo memberMetaInfo;
 
     public ConstantOpenField() {
@@ -30,10 +37,6 @@ public class ConstantOpenField extends AOpenField {
         this.memberMetaInfo = memberMetaInfo;
     }
 
-    public String getValueAsString() {
-        return valueAsString;
-    }
-
     @Override
     public IOpenClass getDeclaringClass() {
         return declaringClass;
@@ -44,21 +47,9 @@ public class ConstantOpenField extends AOpenField {
         return value;
     }
 
-    public Object getValue() {
-        return value;
-    }
-
     @Override
     public boolean isWritable() {
         return false;
-    }
-
-    public IMemberMetaInfo getMemberMetaInfo() {
-        return memberMetaInfo;
-    }
-
-    public void setMemberMetaInfo(IMemberMetaInfo memberMetaInfo) {
-        this.memberMetaInfo = memberMetaInfo;
     }
 
     @Override

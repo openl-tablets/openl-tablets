@@ -1,6 +1,7 @@
 package org.openl.studio.common.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 import org.openl.studio.common.ApiExceptionControllerAdvice;
 
@@ -12,9 +13,11 @@ import org.openl.studio.common.ApiExceptionControllerAdvice;
  */
 public final class FieldError extends BaseError {
 
+    @Getter
     @Parameter(description = "Affected field of the validated object")
     private final String field;
 
+    @Getter
     @Parameter(description = "Rejected field value")
     private final Object rejectedValue;
 
@@ -22,14 +25,6 @@ public final class FieldError extends BaseError {
         super(from);
         this.field = from.field;
         this.rejectedValue = from.rejectedValue;
-    }
-
-    public String getField() {
-        return field;
-    }
-
-    public Object getRejectedValue() {
-        return rejectedValue;
     }
 
     public static Builder builder() {

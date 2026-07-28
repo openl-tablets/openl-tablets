@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.storelogdata.db;
 import java.util.Arrays;
 import java.util.Properties;
 
+import lombok.Setter;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -13,13 +14,9 @@ import org.openl.rules.ruleservice.storelogdata.PropertiesLoader;
 
 public class HibernateSessionFactoryBuilder implements ApplicationContextAware {
 
+    @Setter
     private ApplicationContext applicationContext;
     private volatile Properties applicationContextProperties;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
 
     private Properties getApplicationContextProperties() {
         if (this.applicationContextProperties == null) {

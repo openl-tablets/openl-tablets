@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.Goal;
@@ -28,6 +30,7 @@ public class DTCheckerImpl implements DTChecker {
     static public class CDecisionTableImpl implements CDecisionTable {
         private final IntBoolExp[] _rules;
         private final IntExpArray _vars;
+        @Getter
         private final boolean overrideAscending;
 
         public CDecisionTableImpl(IntBoolExp[][] data, IntExpArray vars, boolean overrideAscending) {
@@ -68,11 +71,6 @@ public class DTCheckerImpl implements DTChecker {
         @Override
         public IntExpArray getVars() {
             return _vars;
-        }
-
-        @Override
-        public boolean isOverrideAscending() {
-            return overrideAscending;
         }
     }
 

@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.element.ConditionCasts;
 
@@ -13,17 +15,13 @@ import org.openl.rules.dt.element.ConditionCasts;
  */
 public abstract class ARuleIndex implements IRuleIndex {
 
+    @Getter
     private final DecisionTableRuleNode emptyOrFormulaNodes;
     private final ConditionCasts conditionCasts;
 
     ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes, ConditionCasts conditionCasts) {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;
         this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");
-    }
-
-    @Override
-    public DecisionTableRuleNode getEmptyOrFormulaNodes() {
-        return emptyOrFormulaNodes;
     }
 
     @Override

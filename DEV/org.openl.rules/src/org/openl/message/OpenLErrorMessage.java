@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.exception.OpenLException;
 import org.openl.util.StringUtils;
 
@@ -13,15 +15,12 @@ import org.openl.util.StringUtils;
  */
 public class OpenLErrorMessage extends OpenLMessage {
 
+    @Getter
     private final OpenLException error;
 
     public OpenLErrorMessage(OpenLException error) {
         super(getOpenLExceptionMessage(error), Severity.ERROR);
         this.error = Objects.requireNonNull(error);
-    }
-
-    public OpenLException getError() {
-        return error;
     }
 
     @Override

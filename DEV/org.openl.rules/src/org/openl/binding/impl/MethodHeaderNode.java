@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundMethodHeader;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
@@ -11,6 +13,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class MethodHeaderNode extends ABoundNode implements IBoundMethodHeader {
 
+    @Getter
     private final IOpenMethodHeader methodHeader;
 
     MethodHeaderNode(ISyntaxNode syntaxNode, IOpenMethodHeader methodHeader) {
@@ -21,11 +24,6 @@ public class MethodHeaderNode extends ABoundNode implements IBoundMethodHeader {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IOpenMethodHeader getMethodHeader() {
-        return methodHeader;
     }
 
     @Override

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ArtefactPath;
@@ -27,8 +29,13 @@ import org.openl.util.IOUtils;
 public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
     private Map<String, AProjectArtefact> artefacts;
+    @Getter
     private ResourceTransformer resourceTransformer;
+    @Getter
+    @Setter
     private String folderPath;
+    @Getter
+    @Setter
     private String historyVersion;
 
     public AProjectFolder(AProject project, Repository repository, String folderPath, String historyVersion) {
@@ -380,11 +387,6 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         }
     }
 
-    @Override
-    public String getFolderPath() {
-        return folderPath;
-    }
-
     public String getRealPath() {
         var path = getFolderPath();
         var repository = getRepository();
@@ -404,10 +406,6 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         }
     }
 
-    public void setFolderPath(String folderPath) {
-        this.folderPath = folderPath;
-    }
-
     @Override
     public boolean isHistoric() {
         return historyVersion != null && isRepositoryVersionable();
@@ -415,14 +413,6 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
     protected boolean isRepositoryVersionable() {
         return getRepository().supports().versions();
-    }
-
-    public String getHistoryVersion() {
-        return historyVersion;
-    }
-
-    public void setHistoryVersion(String historyVersion) {
-        this.historyVersion = historyVersion;
     }
 
     @Override
@@ -455,9 +445,5 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
     public boolean hasArtefacts() {
         return !getArtefacts().isEmpty();
-    }
-
-    public ResourceTransformer getResourceTransformer() {
-        return resourceTransformer;
     }
 }

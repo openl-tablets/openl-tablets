@@ -1,5 +1,6 @@
 package org.openl.rules.tbasic.compile;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.table.IGridRegion;
@@ -13,6 +14,7 @@ import org.openl.source.IOpenSourceCodeModule;
 @RequiredArgsConstructor
 public class AlgorithmOperationSource {
     private final AlgorithmTreeNode sourceNode;
+    @Getter
     private final String operationFieldName;
 
     public IGridRegion getGridRegion() {
@@ -48,9 +50,5 @@ public class AlgorithmOperationSource {
 
     public AlgorithmRow getAlgorithmRow() {
         return sourceNode.getAlgorithmRow();
-    }
-
-    public String getOperationFieldName() {
-        return operationFieldName;
     }
 }

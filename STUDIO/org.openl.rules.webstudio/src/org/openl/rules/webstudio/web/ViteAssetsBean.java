@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.core.env.Environment;
@@ -34,6 +35,7 @@ public class ViteAssetsBean {
     private final Environment environment;
     private final ObjectMapper objectMapper;
 
+    @Getter
     private String html;
 
     @PostConstruct
@@ -69,10 +71,6 @@ public class ViteAssetsBean {
         } catch (IOException e) {
             throw new BeanInitializationException("Failed to read Vite manifest", e);
         }
-    }
-
-    public String getHtml() {
-        return html;
     }
 
     private static String buildHtml(String html, List<String> styles, List<String> scripts) {

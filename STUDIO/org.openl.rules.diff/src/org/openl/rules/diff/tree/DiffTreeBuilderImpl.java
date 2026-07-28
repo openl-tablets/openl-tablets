@@ -6,15 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import lombok.Setter;
+
 import org.openl.rules.diff.differs.ProjectionDiffer;
 import org.openl.rules.diff.hierarchy.Projection;
 
 public class DiffTreeBuilderImpl implements DiffTreeBuilder {
+    @Setter
     private ProjectionDiffer projectionDiffer;
-
-    public void setProjectionDiffer(ProjectionDiffer projectionDiffer) {
-        this.projectionDiffer = projectionDiffer;
-    }
 
     @Override
     public DiffTreeNode compare(Projection p1, Projection p2) {

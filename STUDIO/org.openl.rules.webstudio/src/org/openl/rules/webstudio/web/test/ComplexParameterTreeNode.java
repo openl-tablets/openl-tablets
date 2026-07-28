@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
@@ -18,6 +20,8 @@ import org.openl.vm.SimpleVM;
 public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private static final String COMPLEX_TYPE = "complex";
     private final String valueKey;
+    @Getter
+    @Setter
     private IOpenClass typeToCreate;
     private final ParameterRenderConfig config;
 
@@ -174,14 +178,6 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     public boolean isBaseType() {
         var type = getType();
         return type == JavaOpenClass.OBJECT || type.isAbstract();
-    }
-
-    public IOpenClass getTypeToCreate() {
-        return typeToCreate;
-    }
-
-    public void setTypeToCreate(IOpenClass typeToCreate) {
-        this.typeToCreate = typeToCreate;
     }
 
     public boolean isDisposeRestricted() {

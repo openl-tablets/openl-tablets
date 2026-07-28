@@ -7,6 +7,8 @@ package org.openl.rules.tableeditor.model;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 
 import org.openl.domain.EnumDomain;
@@ -65,19 +67,33 @@ public class TableEditorModel {
      */
     private static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
+    @Getter
     private final IOpenLTable table;
 
+    @Getter
     private final IGridTable gridTable;
     private final String view;
+    @Getter
+    @Setter
     private boolean showFormulas;
+    @Getter
+    @Setter
     private boolean collapseProps = false;
+    @Getter
+    @Setter
     private String beforeEditAction;
+    @Getter
+    @Setter
     private String beforeSaveAction;
+    @Getter
+    @Setter
     private String afterSaveAction;
     private MetaInfoWriter metaInfoWriter;
 
     private UndoableActions actions = new UndoableActions();
 
+    @Getter
+    @Setter
     private TableEditor tableEditor;
 
     public TableEditorModel(TableEditor editor) {
@@ -111,14 +127,6 @@ public class TableEditorModel {
         }
 
         table.getMetaInfoReader().release();
-    }
-
-    public IOpenLTable getTable() {
-        return table;
-    }
-
-    public IGridTable getGridTable() {
-        return gridTable;
     }
 
     public synchronized boolean hasRedo() {
@@ -452,53 +460,5 @@ public class TableEditorModel {
         var ua = actions.getUndoAction();
 
         ((IUndoableGridTableAction) ua).undoAction(gridTable);
-    }
-
-    public boolean isShowFormulas() {
-        return showFormulas;
-    }
-
-    public void setShowFormulas(boolean showFormulas) {
-        this.showFormulas = showFormulas;
-    }
-
-    public boolean isCollapseProps() {
-        return collapseProps;
-    }
-
-    public void setCollapseProps(boolean collapseProps) {
-        this.collapseProps = collapseProps;
-    }
-
-    public String getBeforeEditAction() {
-        return beforeEditAction;
-    }
-
-    public void setBeforeEditAction(String beforeEditAction) {
-        this.beforeEditAction = beforeEditAction;
-    }
-
-    public void setBeforeSaveAction(String beforeSaveAction) {
-        this.beforeSaveAction = beforeSaveAction;
-    }
-
-    public String getBeforeSaveAction() {
-        return beforeSaveAction;
-    }
-
-    public void setAfterSaveAction(String afterSaveAction) {
-        this.afterSaveAction = afterSaveAction;
-    }
-
-    public String getAfterSaveAction() {
-        return afterSaveAction;
-    }
-
-    public void setTableEditor(TableEditor tableEditor) {
-        this.tableEditor = tableEditor;
-    }
-
-    public TableEditor getTableEditor() {
-        return tableEditor;
     }
 }

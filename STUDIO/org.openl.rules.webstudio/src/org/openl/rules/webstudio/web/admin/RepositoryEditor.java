@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryMode;
@@ -21,6 +23,7 @@ public class RepositoryEditor {
     private final RepositoryFactoryProxy repositoryFactoryProxy;
     private final String repoListConfig;
 
+    @Getter
     private List<RepositoryConfiguration> repositoryConfigurations;
     private final List<RepositoryConfiguration> deletedConfigurations = new ArrayList<>();
 
@@ -56,10 +59,6 @@ public class RepositoryEditor {
             }
         });
         return configName + (max.incrementAndGet());
-    }
-
-    public List<RepositoryConfiguration> getRepositoryConfigurations() {
-        return repositoryConfigurations;
     }
 
     public Optional<RepositoryConfiguration> getRepositoryConfiguration(String id) {

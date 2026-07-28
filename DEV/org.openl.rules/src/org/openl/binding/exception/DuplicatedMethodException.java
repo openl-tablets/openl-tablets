@@ -8,6 +8,8 @@ package org.openl.binding.exception;
 
 import java.io.Serial;
 
+import lombok.Getter;
+
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenMethod;
@@ -20,22 +22,16 @@ public class DuplicatedMethodException extends OpenlNotCheckedException {
     @Serial
     private static final long serialVersionUID = 4145939391957085009L;
 
+    @Getter
     private final IOpenMethod existedMethod;
 
+    @Getter
     private final IOpenMethod newMethod;
 
     public DuplicatedMethodException(String msg, IOpenMethod existedMethod, IOpenMethod newMethod) {
         super(msg);
         this.existedMethod = existedMethod;
         this.newMethod = newMethod;
-    }
-
-    public IOpenMethod getExistedMethod() {
-        return existedMethod;
-    }
-
-    public IOpenMethod getNewMethod() {
-        return newMethod;
     }
 
     @Override

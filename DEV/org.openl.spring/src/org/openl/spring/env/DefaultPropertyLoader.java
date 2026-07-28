@@ -1,5 +1,6 @@
 package org.openl.spring.env;
 
+import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -23,6 +24,7 @@ public class DefaultPropertyLoader implements ApplicationContextInitializer<Conf
         initialize(environment);
     }
 
+    @Setter
     private Environment environment;
 
     @Override
@@ -40,11 +42,6 @@ public class DefaultPropertyLoader implements ApplicationContextInitializer<Conf
             ConfigLog.LOG.info("Register reference property processor...");
             propertySources.addLast(new RefPropertySource(environment, propertySources));
         }
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 
     @Override

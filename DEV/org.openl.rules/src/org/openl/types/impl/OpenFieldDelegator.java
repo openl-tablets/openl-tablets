@@ -6,6 +6,8 @@
 
 package org.openl.types.impl;
 
+import lombok.Getter;
+
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -15,6 +17,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  */
 public class OpenFieldDelegator implements IOpenField {
+    @Getter
     protected final IOpenField delegate;
 
     public OpenFieldDelegator(IOpenField field) {
@@ -61,10 +64,6 @@ public class OpenFieldDelegator implements IOpenField {
     @Override
     public String getDisplayName(int mode) {
         return delegate.getDisplayName(mode);
-    }
-
-    public IOpenField getDelegate() {
-        return delegate;
     }
 
     /**

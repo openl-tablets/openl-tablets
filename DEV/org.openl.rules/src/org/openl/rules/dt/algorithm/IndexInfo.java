@@ -1,5 +1,7 @@
 package org.openl.rules.dt.algorithm;
 
+import lombok.Getter;
+
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.dt.DecisionTable;
@@ -8,6 +10,7 @@ public class IndexInfo {
 
     int fromCondition;
     int toCondition; // defines a range of conditions to be included in the index
+    @Getter
     private DecisionTable table;
     private int toRule;
 
@@ -18,10 +21,6 @@ public class IndexInfo {
         toCondition = table.getConditionRows().length - 1;
         toRule = table.getNumberOfRules() - 1;
         return this;
-    }
-
-    public DecisionTable getTable() {
-        return table;
     }
 
     IndexInfo makeVerticalInfo() {

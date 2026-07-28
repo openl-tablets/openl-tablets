@@ -24,6 +24,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -545,11 +547,17 @@ public final class TestMojo extends BaseOpenLMojo {
     }
 
     private static class Summary {
+        @Getter(AccessLevel.PRIVATE)
         private final int runTests;
+        @Getter(AccessLevel.PRIVATE)
         private final int failedTests;
+        @Getter(AccessLevel.PRIVATE)
         private final int errors;
+        @Getter(AccessLevel.PRIVATE)
         private final List<String> summaryFailures;
+        @Getter(AccessLevel.PRIVATE)
         private final List<String> summaryErrors;
+        @Getter(AccessLevel.PRIVATE)
         private final boolean hasCompilationErrors;
 
         private Summary(int runTests,
@@ -564,30 +572,6 @@ public final class TestMojo extends BaseOpenLMojo {
             this.summaryFailures = Collections.unmodifiableList(summaryFailures);
             this.summaryErrors = Collections.unmodifiableList(summaryErrors);
             this.hasCompilationErrors = hasCompilationErrors;
-        }
-
-        private int getRunTests() {
-            return runTests;
-        }
-
-        private int getFailedTests() {
-            return failedTests;
-        }
-
-        private int getErrors() {
-            return errors;
-        }
-
-        private List<String> getSummaryFailures() {
-            return summaryFailures;
-        }
-
-        private List<String> getSummaryErrors() {
-            return summaryErrors;
-        }
-
-        private boolean isHasCompilationErrors() {
-            return hasCompilationErrors;
         }
     }
 }

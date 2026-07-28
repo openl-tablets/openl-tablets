@@ -2,13 +2,19 @@ package org.openl.rules.dt.storage;
 
 import static org.openl.rules.dt.storage.IStorage.StorageType.ELSE;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.dt.Expr;
 import org.openl.types.impl.CompositeMethod;
 
 public class ObjectStorage implements IStorage<Object> {
 
+    @Getter
     private final Object[] values;
     private Expr[] exprValues;
+    @Getter
+    @Setter
     private StorageInfo info;
 
     ObjectStorage(int size) {
@@ -67,19 +73,6 @@ public class ObjectStorage implements IStorage<Object> {
     @Override
     public Expr getExprValue(int index) {
         return exprValues[index];
-    }
-
-    @Override
-    public StorageInfo getInfo() {
-        return info;
-    }
-
-    public void setInfo(StorageInfo info) {
-        this.info = info;
-    }
-
-    public Object[] getValues() {
-        return values;
     }
 
     @Override

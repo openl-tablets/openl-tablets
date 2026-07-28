@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,6 +40,7 @@ import org.openl.types.java.JavaOpenClass;
 public class DecisionTableValidatedObject implements IDecisionTableValidatedObject, IConditionTransformer {
 
 
+    @Getter
     private final IDecisionTable decisionTable;
     private Map<String, IDomainAdaptor> domainMap;
 
@@ -52,11 +54,6 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
             domainMap = makeDomains();
         }
         return domainMap;
-    }
-
-    @Override
-    public IDecisionTable getDecisionTable() {
-        return decisionTable;
     }
 
     @Override

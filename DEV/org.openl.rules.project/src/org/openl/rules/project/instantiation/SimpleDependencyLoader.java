@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
@@ -25,11 +26,15 @@ import org.openl.validation.ValidationManager;
 public class SimpleDependencyLoader implements IDependencyLoader {
 
 
+    @Getter
     private final AbstractDependencyManager dependencyManager;
+    @Getter
     private final ResolvedDependency dependency;
     private volatile CompiledDependency compiledDependency;
     private final boolean executionMode;
+    @Getter
     private final ProjectDescriptor project;
+    @Getter
     private final Module module;
 
     @Override
@@ -40,16 +45,6 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     @Override
     public boolean isProjectLoader() {
         return module == null;
-    }
-
-    @Override
-    public ProjectDescriptor getProject() {
-        return project;
-    }
-
-    @Override
-    public Module getModule() {
-        return module;
     }
 
     public SimpleDependencyLoader(ProjectDescriptor project,
@@ -68,10 +63,6 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             return AbstractDependencyManager.buildResolvedDependency(module);
         }
         return AbstractDependencyManager.buildResolvedDependency(project);
-    }
-
-    public AbstractDependencyManager getDependencyManager() {
-        return dependencyManager;
     }
 
     @Override
@@ -166,11 +157,6 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     protected CompiledDependency onCompilationFailure(Exception ex,
                                                       AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
         throw new OpenLCompilationException("Failed to load dependency '%s'.".formatted(dependency), ex);
-    }
-
-    @Override
-    public ResolvedDependency getDependency() {
-        return dependency;
     }
 
     @Override

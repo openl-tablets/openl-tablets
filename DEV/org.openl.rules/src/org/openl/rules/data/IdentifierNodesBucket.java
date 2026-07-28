@@ -3,12 +3,17 @@ package org.openl.rules.data;
 import java.util.Arrays;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.syntax.impl.IdentifierNode;
 
 public class IdentifierNodesBucket {
 
+    @Getter
     private final IdentifierNode[] node;
+    @Getter
     private int length;
+    @Getter
     private String[] ids;
 
     public IdentifierNodesBucket(IdentifierNode[] node) {
@@ -23,18 +28,6 @@ public class IdentifierNodesBucket {
                 ids[i] = node[i].getIdentifier();
             }
         }
-    }
-
-    public IdentifierNode[] getNode() {
-        return node;
-    }
-
-    public int getLength() {
-        return length;
-    }
-
-    public String[] getIds() {
-        return ids;
     }
 
     @Override

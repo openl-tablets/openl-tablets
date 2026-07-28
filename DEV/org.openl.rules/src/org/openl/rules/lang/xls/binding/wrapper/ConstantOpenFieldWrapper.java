@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.constants.ConstantOpenField;
@@ -15,12 +16,10 @@ public class ConstantOpenFieldWrapper extends ConstantOpenField {
                 ConstantOpenFieldWrapper.class.getSuperclass());
     }
 
+    @Getter
     private final ConstantOpenField delegate;
+    @Getter
     private final IOpenClass type;
-
-    public ConstantOpenField getDelegate() {
-        return delegate;
-    }
 
     @Override
     public boolean isContextProperty() {
@@ -50,11 +49,6 @@ public class ConstantOpenFieldWrapper extends ConstantOpenField {
     @Override
     public String getName() {
         return delegate.getName();
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     @Override

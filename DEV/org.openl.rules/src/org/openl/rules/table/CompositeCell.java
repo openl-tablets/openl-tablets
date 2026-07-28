@@ -2,13 +2,18 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
+import lombok.Getter;
+
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
 public class CompositeCell implements ICell {
 
+    @Getter
     private final int column;
+    @Getter
     private final int row;
+    @Getter
     private final IGridRegion region;
     private final ICell delegate;
     private final IGridTable gridTable;
@@ -42,21 +47,6 @@ public class CompositeCell implements ICell {
     @Override
     public IGridRegion getAbsoluteRegion() {
         return new GridRegion(delegate.getRow(), delegate.getColumn(), delegate.getRow(), delegate.getColumn());
-    }
-
-    @Override
-    public int getColumn() {
-        return column;
-    }
-
-    @Override
-    public int getRow() {
-        return row;
-    }
-
-    @Override
-    public IGridRegion getRegion() {
-        return region;
     }
 
     @Override

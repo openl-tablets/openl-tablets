@@ -1,5 +1,7 @@
 package org.openl.rules.cmatch.matcher;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.convertor.IString2DataConvertor;
@@ -8,6 +10,7 @@ import org.openl.rules.helpers.INumberRange;
 
 @RequiredArgsConstructor
 public class NumberMatchMatcher implements IMatcher {
+    @Getter(AccessLevel.PROTECTED)
     private final Class<?> directClass;
     private final Class<?> rangeClass;
 
@@ -32,10 +35,6 @@ public class NumberMatchMatcher implements IMatcher {
             // throw exception from direct parsing
             throw directParseException;
         }
-    }
-
-    protected Class<?> getDirectClass() {
-        return directClass;
     }
 
     @Override

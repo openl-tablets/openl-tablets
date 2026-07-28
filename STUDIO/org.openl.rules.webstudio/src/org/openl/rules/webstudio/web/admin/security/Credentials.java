@@ -5,16 +5,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Schema(implementation = String.class)
 public class Credentials {
 
+    @Getter
     @Parameter(description = "Login to check the connection to the LDAP server. It will not be saved anywhere.", example = "admin")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private final String username;
 
+    @Getter
     @Parameter(description = "Password to check the connection to the LDAP server. It will not be saved anywhere.", example = "admin")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private final String password;
@@ -27,13 +30,5 @@ public class Credentials {
             throw new IllegalArgumentException("Invalid credentials value: " + encoded);
         }
         return new Credentials(parts[0], parts[1]);
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
     }
 }

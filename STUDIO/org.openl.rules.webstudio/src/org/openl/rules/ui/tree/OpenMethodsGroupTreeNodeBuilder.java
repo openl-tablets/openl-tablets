@@ -1,5 +1,8 @@
 package org.openl.rules.ui.tree;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 
 /**
@@ -10,13 +13,7 @@ public abstract class OpenMethodsGroupTreeNodeBuilder extends BaseTableTreeNodeB
     /**
      * Method groups dictionary.
      */
+    @Getter
+    @Setter
     private OverloadedMethodsDictionary openMethodGroupsDictionary;
-
-    public void setOpenMethodGroupsDictionary(OverloadedMethodsDictionary openMethodGroupsDictionary) {
-        this.openMethodGroupsDictionary = openMethodGroupsDictionary;
-    }
-
-    public OverloadedMethodsDictionary getOpenMethodGroupsDictionary() {
-        return openMethodGroupsDictionary;
-    }
 }

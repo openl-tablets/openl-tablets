@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.AOpenField;
@@ -11,9 +13,13 @@ import org.openl.types.impl.CollectionType;
 import org.openl.vm.IRuntimeEnv;
 
 public class CollectionElementWithMultiRowField extends AOpenField {
+    @Getter
     private final IOpenField field;
+    @Getter
     private final String fieldPathFromRoot;
+    @Getter
     private final boolean pkField;
+    @Getter
     private final CollectionType collectionType;
     private final IOpenClass arrayType;
 
@@ -147,28 +153,12 @@ public class CollectionElementWithMultiRowField extends AOpenField {
         return true;
     }
 
-    public String getFieldPathFromRoot() {
-        return fieldPathFromRoot;
-    }
-
     private static String getName(String name) {
         return name + "[]";
     }
 
-    public IOpenField getField() {
-        return field;
-    }
-
     private void setIntoTarget(Object target, Object array, IRuntimeEnv env) {
         field.set(target, array, env);
-    }
-
-    public boolean isPkField() {
-        return pkField;
-    }
-
-    public CollectionType getCollectionType() {
-        return collectionType;
     }
 
 }

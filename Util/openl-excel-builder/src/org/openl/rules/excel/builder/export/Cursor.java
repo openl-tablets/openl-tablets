@@ -2,12 +2,15 @@ package org.openl.rules.excel.builder.export;
 
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class Cursor {
 
+    @Getter
     private final int column;
+    @Getter
     private final int row;
 
     public Cursor moveLeft(int x) {
@@ -28,14 +31,6 @@ public class Cursor {
 
     public Cursor setColumn(int x) {
         return new Cursor(x, row);
-    }
-
-    public int getColumn() {
-        return column;
-    }
-
-    public int getRow() {
-        return row;
     }
 
     @Override

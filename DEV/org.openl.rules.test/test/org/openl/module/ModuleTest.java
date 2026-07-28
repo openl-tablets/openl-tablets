@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -38,95 +40,47 @@ class ModuleTest {
      * Attributes of this class are referenced in expressions from Person context
      */
     public static class Address {
+        @Getter
+        @Setter
         String street;
 
+        @Getter
+        @Setter
         String zip;
 
+        @Getter
+        @Setter
         String city;
-
-        public String getCity() {
-            return city;
-        }
-
-        public String getStreet() {
-            return street;
-        }
-
-        public String getZip() {
-            return zip;
-        }
-
-        public void setCity(String city) {
-            this.city = city;
-        }
-
-        public void setStreet(String street) {
-            this.street = street;
-        }
-
-        public void setZip(String zip) {
-            this.zip = zip;
-        }
     }
 
     /**
      * Data context class for arithmetic expressions
      */
     public static class Order {
+        @Getter
+        @Setter
         int quantity;
 
+        @Getter
+        @Setter
         double price;
-
-        public double getPrice() {
-            return price;
-        }
-
-        public int getQuantity() {
-            return quantity;
-        }
-
-        public void setPrice(double price) {
-            this.price = price;
-        }
-
-        public void setQuantity(int quantity) {
-            this.quantity = quantity;
-        }
     }
 
     /**
      * Sample data model to use in expressions Person is container, contains one address object
      */
     public static class Person {
+        @Getter
+        @Setter
         String name;
 
+        @Getter
+        @Setter
         int age;
 
+        @Getter
+        @Setter
         Address address;
-
-        public Address getAddress() {
-            return address;
-        }
-
-        public int getAge() {
-            return age;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setAddress(Address address) {
-            this.address = address;
-        }
-
-        public void setAge(int age) {
-            this.age = age;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
     }
 
     /**

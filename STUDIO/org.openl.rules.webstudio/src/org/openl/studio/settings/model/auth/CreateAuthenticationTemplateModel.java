@@ -5,21 +5,19 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Getter;
 
 import org.openl.rules.webstudio.web.admin.security.UserMode;
 
 @JsonDeserialize(builder = CreateAuthenticationTemplateModel.Builder.class)
 public class CreateAuthenticationTemplateModel {
 
+    @Getter
     @NotNull
     private final UserMode userMode;
 
     private CreateAuthenticationTemplateModel(Builder builder) {
         this.userMode = builder.userMode;
-    }
-
-    public UserMode getUserMode() {
-        return userMode;
     }
 
     @JsonCreator

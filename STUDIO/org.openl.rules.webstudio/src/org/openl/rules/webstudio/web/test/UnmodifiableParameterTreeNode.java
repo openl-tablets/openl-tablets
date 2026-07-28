@@ -2,6 +2,9 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.LinkedHashMap;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.types.IOpenClass;
 
@@ -9,6 +12,8 @@ public class UnmodifiableParameterTreeNode extends ParameterDeclarationTreeNode 
 
     private static final String UNMODIFIABLE_TYPE = "unmodifiable";
 
+    @Getter
+    @Setter
     private String warnMessage;
 
     public UnmodifiableParameterTreeNode(String fieldName,
@@ -37,13 +42,5 @@ public class UnmodifiableParameterTreeNode extends ParameterDeclarationTreeNode 
     @Override
     protected Object constructValueInternal() {
         return getValue();
-    }
-
-    public String getWarnMessage() {
-        return warnMessage;
-    }
-
-    public void setWarnMessage(String warnMessage) {
-        this.warnMessage = warnMessage;
     }
 }

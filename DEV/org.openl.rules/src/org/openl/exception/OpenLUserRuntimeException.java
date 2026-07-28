@@ -3,6 +3,7 @@ package org.openl.exception;
 import java.io.Serial;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.util.print.NicePrinter;
@@ -12,6 +13,7 @@ public class OpenLUserRuntimeException extends OpenLRuntimeException {
 
     @Serial
     private static final long serialVersionUID = -6327856390127472929L;
+    @Getter
     protected final Object body;
 
     public OpenLUserRuntimeException(String message) {
@@ -20,10 +22,6 @@ public class OpenLUserRuntimeException extends OpenLRuntimeException {
 
     public OpenLUserRuntimeException(String code, String message) {
         this.body = new UserCodedMessage(code, message);
-    }
-
-    public Object getBody() {
-        return body;
     }
 
     @Override

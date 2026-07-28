@@ -3,25 +3,17 @@ package org.openl.rules.repository.api;
 import java.util.Iterator;
 import java.util.function.Function;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ConflictResolveData implements AdditionalData<ConflictResolveData> {
+    @Getter
     private final String commitToMerge;
+    @Getter
     private final Iterable<FileItem> resolvedFiles;
+    @Getter
     private final String mergeMessage;
-
-    public String getCommitToMerge() {
-        return commitToMerge;
-    }
-
-    public Iterable<FileItem> getResolvedFiles() {
-        return resolvedFiles;
-    }
-
-    public String getMergeMessage() {
-        return mergeMessage;
-    }
 
     @Override
     public ConflictResolveData convertPaths(final Function<String, String> converter) {

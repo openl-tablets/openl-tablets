@@ -10,7 +10,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,9 +52,13 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
+    @Getter
+    @Setter
     private String tableName;
+    @Getter
     private final OpenL openl;
     private IBindingContext bindingContext;
+    @Getter(AccessLevel.PROTECTED)
     private XlsModuleOpenClass xlsModuleOpenClass;
     private final Map<DTColumnsDefinition, PreBindDetails> definitions = new HashMap<>();
     private boolean initialized = false;
@@ -59,14 +66,6 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     public ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
         super(tableSyntaxNode);
         this.openl = Objects.requireNonNull(openl, "openl cannot be null");
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
     }
 
     public void preBind(XlsModuleOpenClass module, IBindingContext bindingContext) {
@@ -294,17 +293,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         private final IOpenMethodHeader header;
     }
 
-    public OpenL getOpenl() {
-        return openl;
-    }
-
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         return null;
-    }
-
-    protected XlsModuleOpenClass getXlsModuleOpenClass() {
-        return xlsModuleOpenClass;
     }
 
     @Override

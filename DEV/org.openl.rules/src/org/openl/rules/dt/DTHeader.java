@@ -2,12 +2,21 @@ package org.openl.rules.dt;
 
 import java.util.Arrays;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 abstract class DTHeader {
+    @Getter(AccessLevel.PACKAGE)
     final int[] methodParameterIndexes;
+    @Getter(AccessLevel.PACKAGE)
     final int column;
+    @Getter
     final int row;
+    @Getter(AccessLevel.PACKAGE)
     final String statement;
+    @Getter(AccessLevel.PACKAGE)
     final int width;
+    @Getter
     final int widthForMerge;
     final boolean horizontal;
 
@@ -39,20 +48,8 @@ abstract class DTHeader {
 
     abstract boolean isRule();
 
-    int getWidth() {
-        return width;
-    }
-
-    String getStatement() {
-        return statement;
-    }
-
     boolean isMethodParameterUsed() {
         return getMethodParameterIndexes().length != 0;
-    }
-
-    int[] getMethodParameterIndexes() {
-        return methodParameterIndexes;
     }
 
     int getMethodParameterIndex() {
@@ -60,18 +57,6 @@ abstract class DTHeader {
             return methodParameterIndexes[0];
         }
         throw new IllegalStateException();
-    }
-
-    int getColumn() {
-        return column;
-    }
-
-    public int getRow() {
-        return row;
-    }
-
-    public int getWidthForMerge() {
-        return widthForMerge;
     }
 
     private String getTypeString() {

@@ -1,47 +1,26 @@
 package org.openl.rules.context.properties;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.types.IOpenClass;
 
 public class ContextPropertyDefinition {
 
+    @Getter
+    @Setter
     private String name;
 
+    @Getter
+    @Setter
     private IOpenClass type;
 
+    @Getter
+    @Setter
     private String description;
+    @Getter
+    @Setter
     private Constraints constraints;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public IOpenClass getType() {
-        return type;
-    }
-
-    public void setType(IOpenClass type) {
-        this.type = type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Constraints getConstraints() {
-        return constraints;
-    }
-
-    public void setConstraints(Constraints constraints) {
-        this.constraints = constraints;
-    }
 
 }

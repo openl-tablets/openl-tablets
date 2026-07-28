@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.binding;
 
+import lombok.Getter;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
@@ -26,9 +28,13 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AMethodBasedNode extends ATableBoundNode implements IMemberBoundNode {
 
+    @Getter
     private final OpenL openl;
+    @Getter
     private final IOpenMethodHeader header;
+    @Getter
     private ExecutableRulesMethod method;
+    @Getter
     private final ModuleOpenClass module;
 
     public AMethodBasedNode(TableSyntaxNode methodNode, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
@@ -36,22 +42,6 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         this.header = header;
         this.openl = openl;
         this.module = module;
-    }
-
-    public OpenL getOpenl() {
-        return openl;
-    }
-
-    public IOpenMethodHeader getHeader() {
-        return header;
-    }
-
-    public ExecutableRulesMethod getMethod() {
-        return method;
-    }
-
-    public ModuleOpenClass getModule() {
-        return module;
     }
 
     @Override

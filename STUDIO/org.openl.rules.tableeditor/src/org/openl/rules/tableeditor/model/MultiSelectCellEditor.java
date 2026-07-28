@@ -1,5 +1,8 @@
 package org.openl.rules.tableeditor.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.tableeditor.event.TableEditorController;
 
 public class MultiSelectCellEditor extends ComboBoxCellEditor {
@@ -7,7 +10,11 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
     private static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
 
     public static class MultiChoiceParam extends ComboBoxParam {
+        @Getter
+        @Setter
         private String separator;
+        @Getter
+        @Setter
         private String separatorEscaper;
 
         public MultiChoiceParam(String[] choices, String[] displayValues, String separator, String separatorEscaper) {
@@ -15,22 +22,6 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
             super(choices, displayValues);
             this.separator = separator;
             this.setSeparatorEscaper(separatorEscaper);
-        }
-
-        public String getSeparator() {
-            return separator;
-        }
-
-        public void setSeparator(String separator) {
-            this.separator = separator;
-        }
-
-        public void setSeparatorEscaper(String separatorEscaper) {
-            this.separatorEscaper = separatorEscaper;
-        }
-
-        public String getSeparatorEscaper() {
-            return separatorEscaper;
         }
     }
 

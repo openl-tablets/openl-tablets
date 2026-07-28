@@ -3,6 +3,8 @@ package org.openl.binding.impl.module;
 import java.util.Arrays;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
@@ -14,16 +16,12 @@ import org.openl.types.NullOpenClass;
 
 public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
 
+    @Getter
     private final IOpenClass type;
 
     public ModuleSpecificOpenMethod(IOpenMethod delegate, IOpenClass type) {
         super(delegate);
         this.type = Objects.requireNonNull(type, "type cannot be null");
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     public static IMethodCaller findMethodCaller(IOpenClass type,

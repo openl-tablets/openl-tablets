@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
@@ -41,7 +42,9 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final Set<ProjectDescriptor> projects;
+    @Getter
     private final AtomicLong version = new AtomicLong(0);
+    @Getter
     private final ThreadLocal<Long> threadVersion = new ThreadLocal<>();
     private final AtomicLong highThreadPriorityFlag = new AtomicLong(0);
     private final ThreadLocal<ThreadPriority> threadPriority = new ThreadLocal<>();
@@ -49,6 +52,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private volatile boolean paused = false;
     private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onCompilationCompleteListeners = new CopyOnWriteArrayList<>();
     private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onResetCompleteListeners = new CopyOnWriteArrayList<>();
+    @Getter
     private final boolean canUnload;
 
     public WebStudioWorkspaceRelatedDependencyManager(Collection<ProjectDescriptor> projects,
@@ -154,14 +158,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
 
     public void resume() {
         paused = false;
-    }
-
-    public ThreadLocal<Long> getThreadVersion() {
-        return threadVersion;
-    }
-
-    public AtomicLong getVersion() {
-        return version;
     }
 
     public void loadDependencyAsync(ResolvedDependency dependency, Consumer<CompiledDependency> consumer) {
@@ -298,9 +294,5 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 }
             }
         }
-    }
-
-    public boolean isCanUnload() {
-        return canUnload;
     }
 }

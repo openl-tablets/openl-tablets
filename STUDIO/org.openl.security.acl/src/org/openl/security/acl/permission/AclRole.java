@@ -3,6 +3,7 @@ package org.openl.security.acl.permission;
 
 import java.util.stream.Stream;
 
+import lombok.Getter;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.CumulativePermission;
 import org.springframework.security.acls.model.Permission;
@@ -38,7 +39,9 @@ public enum AclRole {
      */
     VIEWER("Viewer", BasePermission.READ);
 
+    @Getter
     private final String description;
+    @Getter
     private final CumulativePermission cumulativePermission;
 
     AclRole(String description, Permission... permissions) {
@@ -51,16 +54,8 @@ public enum AclRole {
                         });
     }
 
-    public CumulativePermission getCumulativePermission() {
-        return cumulativePermission;
-    }
-
     public int getMask() {
         return cumulativePermission.getMask();
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public static AclRole getRole(int mask) {

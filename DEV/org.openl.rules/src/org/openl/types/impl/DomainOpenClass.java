@@ -3,6 +3,9 @@ package org.openl.types.impl;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -24,12 +27,19 @@ import org.openl.vm.IRuntimeEnv;
 public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     private volatile StaticOpenClass staticOpenClass;
 
+    @Getter
+    @Setter
     private IDomain<?> domain;
 
     private IAggregateInfo aggregateInfo;
+    @Getter
     private final IOpenClass baseClass;
+    @Getter
     private final String name;
+    @Getter
+    @Setter
     private IMetaInfo metaInfo;
+    @Getter
     private final ModuleOpenClass module;
 
     public DomainOpenClass(String name,
@@ -53,20 +63,6 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
         return "`" + module.getModuleName() + "`." + getName();
     }
 
-    @Override
-    public ModuleOpenClass getModule() {
-        return module;
-    }
-
-    @Override
-    public IDomain<?> getDomain() {
-        return domain;
-    }
-
-    public void setDomain(IDomain<?> domain) {
-        this.domain = domain;
-    }
-
     /**
      * Overriden to add the possibility to return special aggregate info for DomainOpenClass
      *
@@ -83,10 +79,6 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     @Override
     public String getDisplayName(int mode) {
         return getName();
-    }
-
-    public IOpenClass getBaseClass() {
-        return baseClass;
     }
 
     @Override
@@ -115,18 +107,8 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     }
 
     @Override
-    public IMetaInfo getMetaInfo() {
-        return metaInfo;
-    }
-
-    @Override
     public IOpenMethod getMethod(String mname, IOpenClass[] classes) {
         return baseClass.getMethod(mname, classes);
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -210,11 +192,6 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     @Override
     public Object nullObject() {
         return baseClass.nullObject();
-    }
-
-    @Override
-    public void setMetaInfo(IMetaInfo metaInfo) {
-        this.metaInfo = metaInfo;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.openl.rules.validation.properties.dimentional;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.table.IWritableGrid;
@@ -8,8 +9,10 @@ import org.openl.rules.table.IWritableGrid;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
 
+    @Getter
     private final IDecisionTableColumn condition;
 
+    @Getter(AccessLevel.PACKAGE)
     private final int conditionNumber;
 
     @Override
@@ -20,14 +23,6 @@ public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
         writeTitle(gridModel, columnStartIndex, rowStartIndex);
         writeRuleValue(gridModel, numberOfRules, columnStartIndex, rowStartIndex);
         return condition.getNumberOfLocalParameters();
-    }
-
-    public IDecisionTableColumn getCondition() {
-        return condition;
-    }
-
-    int getConditionNumber() {
-        return conditionNumber;
     }
 
     protected abstract void writeColumnType(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);

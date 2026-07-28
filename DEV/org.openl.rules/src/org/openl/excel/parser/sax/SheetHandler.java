@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellAddress;
@@ -33,8 +34,10 @@ public class SheetHandler extends DefaultHandler {
     private final MinimalStyleTable stylesTable;
 
     private final LruCache<Integer, String> lruCache = new LruCache<>(50);
+    @Getter
     private Object[][] cells = new Object[0][];
 
+    @Getter
     private CellAddress start = CellAddress.A1;
     private CellAddress effectiveStart = null;
     private CellAddress effectiveEnd = null;
@@ -68,10 +71,6 @@ public class SheetHandler extends DefaultHandler {
         this.use1904Windowing = use1904Windowing;
         this.stylesTable = stylesTable;
         this.parserDateUtil = parserDateUtil;
-    }
-
-    public Object[][] getCells() {
-        return cells;
     }
 
     @Override
@@ -370,10 +369,6 @@ public class SheetHandler extends DefaultHandler {
         for (var i = 0; i < from.length; i++) {
             System.arraycopy(from[i], 0, to[toRow + i], toCol, from[i].length);
         }
-    }
-
-    public CellAddress getStart() {
-        return start;
     }
 
     private static class LruCache<A, B> extends LinkedHashMap<A, B> {

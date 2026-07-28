@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.record.CellValueRecordInterface;
@@ -18,8 +19,11 @@ import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class StyleTrackingListener implements HSSFListener {
     private final HSSFListener delegate;
+    @Getter(AccessLevel.PACKAGE)
     private final Map<Integer, FormatRecord> customFormats = new HashMap<>();
+    @Getter(AccessLevel.PACKAGE)
     private final List<ExtendedFormatRecord> extendedFormats = new ArrayList<>();
+    @Getter(AccessLevel.PACKAGE)
     private final List<FontRecord> fonts = new ArrayList<>();
 
     @Override
@@ -69,17 +73,5 @@ public class StyleTrackingListener implements HSSFListener {
     public short getIndent(CellValueRecordInterface cell) {
         var xfr = extendedFormats.get(cell.getXFIndex());
         return xfr == null ? 0 : xfr.getIndent();
-    }
-
-    List<ExtendedFormatRecord> getExtendedFormats() {
-        return extendedFormats;
-    }
-
-    Map<Integer, FormatRecord> getCustomFormats() {
-        return customFormats;
-    }
-
-    List<FontRecord> getFonts() {
-        return fonts;
     }
 }

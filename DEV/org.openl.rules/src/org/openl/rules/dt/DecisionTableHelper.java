@@ -32,6 +32,7 @@ import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -2055,15 +2056,12 @@ public final class DecisionTableHelper {
     }
 
     private static class PredicateToken extends Token {
+        @Getter
         boolean isTrue;
 
         public PredicateToken(String value, int distance, int minMatchedTokens, boolean isTrue) {
             super(value, distance, minMatchedTokens);
             this.isTrue = isTrue;
-        }
-
-        public boolean isTrue() {
-            return isTrue;
         }
     }
 
@@ -3597,20 +3595,14 @@ public final class DecisionTableHelper {
     }
 
     private static class CellValue {
+        @Getter
         String value;
+        @Getter
         ICell cell;
 
         public CellValue(ICell cell) {
             this.value = cell.getStringValue();
             this.cell = cell;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public ICell getCell() {
-            return cell;
         }
 
         @Override
@@ -4246,6 +4238,7 @@ public final class DecisionTableHelper {
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class ParameterTokens {
+        @Getter
         final Token[] tokens;
         final Map<Token, Integer> tokensToParameterIndex;
         final Map<Token, IOpenField[]> tokenToFieldsChain;
@@ -4256,10 +4249,6 @@ public final class DecisionTableHelper {
 
         Integer getParameterIndex(Token value) {
             return tokensToParameterIndex.get(value);
-        }
-
-        public Token[] getTokens() {
-            return tokens;
         }
     }
 
@@ -4294,10 +4283,13 @@ public final class DecisionTableHelper {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class FuzzyContext {
+        @Getter(AccessLevel.PACKAGE)
         final ParameterTokens parameterTokens;
         Token[] returnTokens = null;
         Map<Token, IOpenField[][]> returnTypeFuzzyTokens = null;
+        @Getter(AccessLevel.PACKAGE)
         IOpenClass fuzzyReturnType;
+        @Getter
         int maxDistance;
 
         private FuzzyContext(ParameterTokens parameterTokens,
@@ -4311,10 +4303,6 @@ public final class DecisionTableHelper {
             this.maxDistance = Arrays.stream(parameterTokens.getTokens()).mapToInt(Token::getDistance).max().orElse(0);
         }
 
-        ParameterTokens getParameterTokens() {
-            return parameterTokens;
-        }
-
         Token[] getFuzzyReturnTokens() {
             return returnTokens;
         }
@@ -4325,14 +4313,6 @@ public final class DecisionTableHelper {
 
         boolean isFuzzySupportsForReturnType() {
             return returnTypeFuzzyTokens != null && returnTokens != null && fuzzyReturnType != null;
-        }
-
-        IOpenClass getFuzzyReturnType() {
-            return fuzzyReturnType;
-        }
-
-        public int getMaxDistance() {
-            return maxDistance;
         }
     }
 }

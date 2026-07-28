@@ -28,6 +28,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import jakarta.xml.bind.annotation.XmlTransient;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.OpenL;
@@ -92,22 +95,32 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     public static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
     public static final String TRANSIENT_FIELD_SUFFIX = "~";
 
+    @Getter
     private final TableSyntaxNode tableSyntaxNode;
+    @Getter
     private final DatatypeOpenClass dataType;
+    @Getter
     private final IdentifierNode parentClassIdentifier;
+    @Getter
     private final String parentClassName;
     private final ModuleOpenClass moduleOpenClass;
 
+    @Getter
+    @Setter
     private DatatypeTableBoundNode parentDatatypeTableBoundNode;
     private boolean generated;
     private boolean generatingInProcess;
     private boolean byteCodeReadyToLoad;
 
+    @Getter
     private ILogicalTable table;
     private final OpenL openl;
 
+    @Getter(AccessLevel.PRIVATE)
+    @Setter
     private Map<String, FieldDescription> fields;
 
+    @Getter
     private Map<String, Integer> columnTitlesOrder;
 
     public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode,
@@ -135,14 +148,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     public static GridCellSourceCodeModule getCellSource(ILogicalTable row, IBindingContext cxt, int columnIndex) {
         return new GridCellSourceCodeModule(row.getColumn(columnIndex).getSource(), cxt);
-    }
-
-    public String getParentClassName() {
-        return parentClassName;
-    }
-
-    public Map<String, Integer> getColumnTitlesOrder() {
-        return columnTitlesOrder;
     }
 
     /**
@@ -339,14 +344,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         beanBuilder.addFields(fields);
         return beanBuilder.byteCode();
-    }
-
-    private Map<String, FieldDescription> getFields() {
-        return fields;
-    }
-
-    public void setFields(Map<String, FieldDescription> fields) {
-        this.fields = fields;
     }
 
     private void validateDatatypeClass(Class<?> datatypeClass,
@@ -913,29 +910,5 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     @Override
     public void removeDebugInformation(IBindingContext cxt) {
         // nothing to remove
-    }
-
-    public TableSyntaxNode getTableSyntaxNode() {
-        return tableSyntaxNode;
-    }
-
-    public DatatypeOpenClass getDataType() {
-        return dataType;
-    }
-
-    public ILogicalTable getTable() {
-        return table;
-    }
-
-    public IdentifierNode getParentClassIdentifier() {
-        return parentClassIdentifier;
-    }
-
-    public DatatypeTableBoundNode getParentDatatypeTableBoundNode() {
-        return parentDatatypeTableBoundNode;
-    }
-
-    public void setParentDatatypeTableBoundNode(DatatypeTableBoundNode parentDatatypeTableBoundNode) {
-        this.parentDatatypeTableBoundNode = parentDatatypeTableBoundNode;
     }
 }

@@ -5,6 +5,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -27,8 +31,14 @@ public class Algorithm extends AlgorithmFunction {
      * Compile artifacts
      **************************************************************************/
 
+    @Getter(AccessLevel.PROTECTED)
+    @Setter
     private IOpenClass thisClass;
+    @Getter
+    @Setter
     private List<RuntimeOperation> algorithmSteps;
+    @Getter(AccessLevel.PROTECTED)
+    @Setter
     private Map<String, RuntimeOperation> labels;
 
     /**
@@ -62,33 +72,6 @@ public class Algorithm extends AlgorithmFunction {
             invoker = new AlgorithmInvoker(this);
         }
         return invoker.invoke(target, params, env);
-    }
-
-    @Override
-    public void setAlgorithmSteps(List<RuntimeOperation> algorithmSteps) {
-        this.algorithmSteps = algorithmSteps;
-    }
-
-    @Override
-    public void setLabels(Map<String, RuntimeOperation> labels) {
-        this.labels = labels;
-    }
-
-    public void setThisClass(IOpenClass thisClass) {
-        this.thisClass = thisClass;
-    }
-
-    @Override
-    public List<RuntimeOperation> getAlgorithmSteps() {
-        return algorithmSteps;
-    }
-
-    protected Map<String, RuntimeOperation> getLabels() {
-        return labels;
-    }
-
-    protected IOpenClass getThisClass() {
-        return thisClass;
     }
 
     @Override

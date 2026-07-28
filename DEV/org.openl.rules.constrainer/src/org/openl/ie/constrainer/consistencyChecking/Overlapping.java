@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.ie.constrainer.IntExpArray;
@@ -42,11 +43,8 @@ public class Overlapping {
         PARTIAL(0x02),
         OVERRIDE(0x04);
 
+        @Getter
         private final int bit;
-
-        public int getBit() {
-            return bit;
-        }
 
     }
 
@@ -55,11 +53,8 @@ public class Overlapping {
     protected String[] _solutionNames;
     protected int[] _solutionValues;
 
+    @Getter
     private OverlappingStatus status;
-
-    public OverlappingStatus getStatus() {
-        return status;
-    }
 
     Overlapping(IntExpArray solution) {
 

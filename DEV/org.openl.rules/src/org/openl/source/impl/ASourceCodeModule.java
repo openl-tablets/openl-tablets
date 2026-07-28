@@ -9,6 +9,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -20,6 +23,8 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
     protected String code;
     protected String uri;
 
+    @Getter
+    @Setter
     private Map<String, Object> params;
 
     @Override
@@ -55,14 +60,4 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
     }
 
     protected abstract String makeUri();
-
-    @Override
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    @Override
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
-    }
 }

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import lombok.Getter;
+
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
 /**
@@ -18,6 +20,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
  */
 public class CompositeGrid extends AGrid {
 
+    @Getter
     private final IGridTable[] gridTables;
 
     /**
@@ -34,13 +37,11 @@ public class CompositeGrid extends AGrid {
      */
     private final boolean vertical;
 
+    @Getter
     private int width;
 
+    @Getter
     private int height;
-
-    public IGridTable[] getGridTables() {
-        return gridTables;
-    }
 
     public IGridRegion getMappedRegion(int i) {
         return mappedRegions[i];
@@ -70,10 +71,6 @@ public class CompositeGrid extends AGrid {
     public int getColumnWidth(int col) {
         var t = transform(col, 0);
         return t == null ? 100 : t.grid().getColumnWidth(t.getCol());
-    }
-
-    public int getHeight() {
-        return height;
     }
 
     @Override
@@ -149,10 +146,6 @@ public class CompositeGrid extends AGrid {
     public String getUri() {
         var t = transform(0, 0);
         return t == null ? null : t.grid().getUri();
-    }
-
-    public int getWidth() {
-        return width;
     }
 
     private void init() {
@@ -331,13 +324,16 @@ public class CompositeGrid extends AGrid {
         /**
          * column index on grid
          */
+        @Getter
         private final int col;
 
         /**
          * row index on grid.
          */
+        @Getter
         private final int row;
 
+        @Getter
         private final IGridTable gridTable;
 
         public Transform(IGrid grid, IGridTable gridTable, int col, int row) {
@@ -349,18 +345,6 @@ public class CompositeGrid extends AGrid {
 
         public IGrid grid() {
             return grid;
-        }
-
-        public int getCol() {
-            return col;
-        }
-
-        public int getRow() {
-            return row;
-        }
-
-        public IGridTable getGridTable() {
-            return gridTable;
         }
     }
 }

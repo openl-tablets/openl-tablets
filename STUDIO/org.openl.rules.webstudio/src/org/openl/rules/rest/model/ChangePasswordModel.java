@@ -1,38 +1,30 @@
 package org.openl.rules.rest.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 public class ChangePasswordModel {
 
+    @Getter
     @Parameter(description = "New password")
     private String newPassword;
 
+    @Getter
     @Parameter(description = "Confirm password")
     private String confirmPassword;
 
+    @Getter
     @Parameter(description = "Current password")
     private String currentPassword;
-
-    public String getNewPassword() {
-        return newPassword;
-    }
 
     public ChangePasswordModel setNewPassword(String newPassword) {
         this.newPassword = newPassword;
         return this;
     }
 
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
     public ChangePasswordModel setConfirmPassword(String confirmPassword) {
         this.confirmPassword = confirmPassword;
         return this;
-    }
-
-    public String getCurrentPassword() {
-        return currentPassword;
     }
 
     public ChangePasswordModel setCurrentPassword(String currentPassword) {

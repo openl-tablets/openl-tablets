@@ -1,5 +1,8 @@
 package org.openl.rules.testmethod;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
@@ -8,7 +11,11 @@ import org.openl.types.java.JavaOpenClass;
 
 public class ParameterWithValueDeclaration extends ParameterDeclaration implements IParameterWithValueDeclaration {
     public static final ParameterWithValueDeclaration[] EMPTY_ARRAY = new ParameterWithValueDeclaration[0];
+    @Getter
+    @Setter
     private Object value;
+    @Getter
+    @Setter
     private String error;
 
     /**
@@ -17,6 +24,7 @@ public class ParameterWithValueDeclaration extends ParameterDeclaration implemen
      * key field (foreign key) will be firstName, not array index. So array of Driver can be displayed as array of first
      * names instead of array of big Driver objects. Can be refactored later if such cases will be handled correctly.
      */
+    @Getter
     private IOpenField keyField;
 
     public ParameterWithValueDeclaration(String paramName,
@@ -44,27 +52,5 @@ public class ParameterWithValueDeclaration extends ParameterDeclaration implemen
         } else {
             return JavaOpenClass.getOpenClass(value.getClass());
         }
-    }
-
-    @Override
-    public Object getValue() {
-        return value;
-    }
-
-    public void setValue(Object value) {
-        this.value = value;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-
-    public String getError() {
-        return error;
-    }
-
-    public IOpenField getKeyField() {
-        return keyField;
     }
 }

@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.message.OpenLMessage;
@@ -30,6 +32,7 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
 
     private static class ParameterNameKey implements ParameterKey {
         String name;
+        @Getter
         IOpenMethod method;
 
         public ParameterNameKey(String name, IOpenMethod method) {
@@ -50,11 +53,6 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
         @Override
         public int hashCode() {
             return Objects.hash(name);
-        }
-
-        @Override
-        public IOpenMethod getMethod() {
-            return method;
         }
     }
 

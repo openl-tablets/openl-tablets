@@ -2,6 +2,8 @@ package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.base.AbstractMatchingOpenMethodDispatcherWrapper;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
@@ -12,8 +14,11 @@ import org.openl.vm.IRuntimeEnv;
 
 public final class MatchingOpenMethodDispatcherWrapper extends AbstractMatchingOpenMethodDispatcherWrapper implements IRulesMethodWrapper {
 
+    @Getter
     private final XlsModuleOpenClass xlsModuleOpenClass;
+    @Getter
     private final ContextPropertiesInjector contextPropertiesInjector;
+    @Getter
     private IOpenClass type;
     private IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
@@ -50,28 +55,13 @@ public final class MatchingOpenMethodDispatcherWrapper extends AbstractMatchingO
     }
 
     @Override
-    public XlsModuleOpenClass getXlsModuleOpenClass() {
-        return xlsModuleOpenClass;
-    }
-
-    @Override
     public IMethodSignature getSignature() {
         return methodSignature;
     }
 
     @Override
-    public IOpenClass getType() {
-        return type;
-    }
-
-    @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
-    }
-
-    @Override
-    public ContextPropertiesInjector getContextPropertiesInjector() {
-        return contextPropertiesInjector;
     }
 
     @Override

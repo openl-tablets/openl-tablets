@@ -1,5 +1,6 @@
 package org.openl.rules.xls.merge.diff;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -10,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorkbookDiffResult {
 
+    @Getter
     private final SheetDiffResult sheetDiffResult;
+    @Getter
     private final HSSFPaletteDiffResult paletteDiffResult;
 
     public boolean hasConflicts() {
@@ -19,14 +22,6 @@ public class WorkbookDiffResult {
 
     public boolean hasChangesToMerge() {
         return sheetDiffResult.hasChangesToMerge() || paletteDiffResult.hasChangesToMerge();
-    }
-
-    public SheetDiffResult getSheetDiffResult() {
-        return sheetDiffResult;
-    }
-
-    public HSSFPaletteDiffResult getPaletteDiffResult() {
-        return paletteDiffResult;
     }
 
 }

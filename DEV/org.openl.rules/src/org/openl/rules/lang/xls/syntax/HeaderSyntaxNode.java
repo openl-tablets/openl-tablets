@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.syntax;
 
+import lombok.Getter;
+
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 
@@ -9,8 +11,11 @@ public class HeaderSyntaxNode extends CellSyntaxNode {
 
     public static final String HEADER_TYPE = "org.openl.celltype.header";
 
+    @Getter
     private final IdentifierNode headerToken;
+    @Getter
     private final boolean isCollect;
+    @Getter
     private final String[] collectParameters;
 
     public HeaderSyntaxNode(GridCellSourceCodeModule module, IdentifierNode headerToken) {
@@ -25,18 +30,6 @@ public class HeaderSyntaxNode extends CellSyntaxNode {
         this.headerToken = headerToken;
         this.isCollect = isCollect;
         this.collectParameters = collectParameters;
-    }
-
-    public IdentifierNode getHeaderToken() {
-        return headerToken;
-    }
-
-    public boolean isCollect() {
-        return isCollect;
-    }
-
-    public String[] getCollectParameters() {
-        return collectParameters;
     }
 
 }

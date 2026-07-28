@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.binding.impl.CastToWiderType;
@@ -23,7 +24,9 @@ import org.openl.util.OpenClassUtils;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 class FieldDescriptor {
+    @Getter
     private final IOpenField field;
+    @Getter
     private final List<FieldDescriptor> children;
 
     private static final BiPredicate<IOpenClass, Object> SKIP_EMPTY_PARAMETER_FILTER = (fieldType,
@@ -88,14 +91,6 @@ class FieldDescriptor {
         result.sort(Comparator.comparing(FieldDescriptor::isArray));
 
         return result;
-    }
-
-    public IOpenField getField() {
-        return field;
-    }
-
-    public List<FieldDescriptor> getChildren() {
-        return children;
     }
 
     public boolean isArray() {

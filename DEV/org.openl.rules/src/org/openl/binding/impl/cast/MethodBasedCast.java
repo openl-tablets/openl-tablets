@@ -1,12 +1,16 @@
 package org.openl.binding.impl.cast;
 
+import lombok.Getter;
+
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 
 final class MethodBasedCast implements IOpenCast {
 
     private final IMethodCaller caller;
+    @Getter
     private final boolean implicit;
+    @Getter
     private final int distance;
     private final Object nullObject;
     private final IOpenClass destType;
@@ -30,16 +34,6 @@ final class MethodBasedCast implements IOpenCast {
         }
         Object[] params = new Object[]{from, nullObject};
         return caller.invoke(null, params, null);
-    }
-
-    @Override
-    public int getDistance() {
-        return distance;
-    }
-
-    @Override
-    public boolean isImplicit() {
-        return implicit;
     }
 
 }

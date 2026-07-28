@@ -1,12 +1,19 @@
 package org.openl.rules.dt;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.types.IParameterDeclaration;
 
 class DeclaredDTHeader extends DTHeader {
+    @Getter(AccessLevel.PACKAGE)
     private final IParameterDeclaration[][] columnParameters;
+    @Getter
     private final DTColumnsDefinition dtColumnsDefinition;
+    @Getter(AccessLevel.PACKAGE)
     private final MatchedDefinition matchedDefinition;
+    @Getter
     private final boolean verticalConditionWithMergedTitle;
 
     DeclaredDTHeader(int[] methodParameterIndexes,
@@ -24,10 +31,6 @@ class DeclaredDTHeader extends DTHeader {
         this.dtColumnsDefinition = dtColumnsDefinition;
         this.matchedDefinition = matchedDefinition;
         this.verticalConditionWithMergedTitle = verticalConditionWithMergedTitle;
-    }
-
-    public boolean isVerticalConditionWithMergedTitle() {
-        return verticalConditionWithMergedTitle;
     }
 
     @Override
@@ -50,21 +53,9 @@ class DeclaredDTHeader extends DTHeader {
         return false;
     }
 
-    public DTColumnsDefinition getDtColumnsDefinition() {
-        return dtColumnsDefinition;
-    }
-
     @Override
     String getStatement() {
         return matchedDefinition.getStatementWithReplacedIdentifiers();
-    }
-
-    IParameterDeclaration[][] getColumnParameters() {
-        return columnParameters;
-    }
-
-    MatchedDefinition getMatchedDefinition() {
-        return matchedDefinition;
     }
 
 }

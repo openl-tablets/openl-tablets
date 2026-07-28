@@ -11,6 +11,8 @@ import jakarta.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.studio.settings.converter.SettingPropertyName;
@@ -25,13 +27,17 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
     public static final String ADMINISTRATORS = "security.administrators";
     public static final String DEFAULT_GROUP = "security.default-group";
 
+    @Getter
     @Parameter(description = "List of users with administrator privileges")
+    @Setter
     @SettingPropertyName(ADMINISTRATORS)
     @Valid
     @NotEmpty
     private Set<@NotBlank @Size(max = 50) String> administrators;
 
+    @Getter
     @Parameter(description = "Default group for any authenticated user")
+    @Setter
     @SettingPropertyName(DEFAULT_GROUP)
     @Size(max = 65)
     private String defaultGroup;
@@ -60,21 +66,5 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
     public void revert(PropertiesHolder properties) {
         properties.revertProperties(ADMINISTRATORS, DEFAULT_GROUP);
         super.revert(properties);
-    }
-
-    public Set<String> getAdministrators() {
-        return administrators;
-    }
-
-    public void setAdministrators(Set<String> administrators) {
-        this.administrators = administrators;
-    }
-
-    public String getDefaultGroup() {
-        return defaultGroup;
-    }
-
-    public void setDefaultGroup(String defaultGroup) {
-        this.defaultGroup = defaultGroup;
     }
 }

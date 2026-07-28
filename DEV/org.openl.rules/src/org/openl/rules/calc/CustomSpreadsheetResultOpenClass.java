@@ -22,6 +22,8 @@ import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -79,13 +81,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private String[] columnNames;
     private String[] rowNamesForResultModel;
     private String[] columnNamesForResultModel;
+    @Getter
     private Map<String, Point> fieldsCoordinates;
+    @Getter
     private final XlsModuleOpenClass module;
     private volatile Class<?> beanClass;
+    @Getter
     private boolean simpleRefByRow;
+    @Getter
     private boolean simpleRefByColumn;
+    @Getter
+    @Setter
     private boolean ignoreCompilation;
 
+    @Getter
     private ILogicalTable logicalTable;
 
     private volatile byte[] beanClassByteCode;
@@ -95,6 +104,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private volatile boolean initializing;
 
     private String[][] descriptions;
+    @Getter
     private final boolean spreadsheet;
 
     public CustomSpreadsheetResultOpenClass(String name,
@@ -139,18 +149,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.simpleRefByRow = true;
         this.simpleRefByColumn = true;
         this.logicalTable = logicalTable;
-    }
-
-    public boolean isSimpleRefByColumn() {
-        return simpleRefByColumn;
-    }
-
-    public boolean isSimpleRefByRow() {
-        return simpleRefByRow;
-    }
-
-    public boolean isSpreadsheet() {
-        return spreadsheet;
     }
 
     @Override
@@ -205,11 +203,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     protected IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousFieldException {
         return null;
-    }
-
-    @Override
-    public XlsModuleOpenClass getModule() {
-        return module;
     }
 
     private String chooseBestDescription(String description1, String description2) {
@@ -326,10 +319,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return columnNames.clone();
     }
 
-    public Map<String, Point> getFieldsCoordinates() {
-        return fieldsCoordinates;
-    }
-
     @Override
     public void updateWithType(IOpenClass openClass) {
         if (beanClassByteCode != null) {
@@ -427,10 +416,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             return type;
         }
         return this;
-    }
-
-    public ILogicalTable getLogicalTable() {
-        return logicalTable;
     }
 
     @Override
@@ -848,14 +833,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             openField.set(spreadsheetResult, cv, null);
         }
         return spreadsheetResult;
-    }
-
-    public boolean isIgnoreCompilation() {
-        return ignoreCompilation;
-    }
-
-    public void setIgnoreCompilation(boolean ignoreCompilation) {
-        this.ignoreCompilation = ignoreCompilation;
     }
 
     @Override

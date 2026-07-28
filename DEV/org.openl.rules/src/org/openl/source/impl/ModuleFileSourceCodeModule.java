@@ -2,6 +2,8 @@ package org.openl.source.impl;
 
 import java.net.URL;
 
+import lombok.Getter;
+
 import org.openl.types.IModuleInfo;
 
 /**
@@ -9,15 +11,11 @@ import org.openl.types.IModuleInfo;
  */
 @Deprecated
 public class ModuleFileSourceCodeModule extends URLSourceCodeModule implements IModuleInfo {
+    @Getter
     private final String moduleName;
 
     public ModuleFileSourceCodeModule(URL url, String moduleName) {
         super(url);
         this.moduleName = moduleName;
-    }
-
-    @Override
-    public String getModuleName() {
-        return moduleName;
     }
 }

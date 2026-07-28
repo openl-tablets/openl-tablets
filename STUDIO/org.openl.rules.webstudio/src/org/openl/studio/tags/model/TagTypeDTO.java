@@ -4,66 +4,38 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.studio.common.model.GenericView;
 
 public class TagTypeDTO {
 
+    @Getter
     @JsonView(GenericView.Full.class)
     @Parameter(description = "tags.tag-type.id.desc", required = true)
+    @Setter
     private Long id;
 
+    @Getter
     @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     @Parameter(description = "Tag type name", required = true)
+    @Setter
     private String name;
 
+    @Getter
     @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
+    @Setter
     private boolean extensible;
 
+    @Getter
     @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
+    @Setter
     private boolean nullable;
 
+    @Getter
     @JsonView(GenericView.Full.class)
     @Parameter(description = "Nested tags")
+    @Setter
     private List<TagDTO> tags;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isExtensible() {
-        return extensible;
-    }
-
-    public void setExtensible(boolean extensible) {
-        this.extensible = extensible;
-    }
-
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
-    }
-
-    public List<TagDTO> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<TagDTO> tags) {
-        this.tags = tags;
-    }
 }

@@ -1,5 +1,7 @@
 package org.openl.binding.impl.module;
 
+import lombok.Getter;
+
 import org.openl.binding.impl.ABoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
@@ -10,6 +12,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ModuleNode extends ABoundNode {
 
+    @Getter
     private final IOpenClass type;
 
     public ModuleNode(ISyntaxNode syntaxNode, IOpenClass type) {
@@ -20,10 +23,5 @@ public class ModuleNode extends ABoundNode {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 }

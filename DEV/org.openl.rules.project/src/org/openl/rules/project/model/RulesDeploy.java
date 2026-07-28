@@ -199,30 +199,18 @@ public class RulesDeploy {
         @XmlAccessorType(XmlAccessType.FIELD)
         static class MapType {
 
+            @Getter(AccessLevel.PACKAGE)
+            @Setter(AccessLevel.PACKAGE)
             @XmlElement(name = "entry")
             private List<MapStringEntryType> entry = new ArrayList<>();
-
-            List<MapStringEntryType> getEntry() {
-                return entry;
-            }
-
-            void setEntry(List<MapStringEntryType> entry) {
-                this.entry = entry;
-            }
         }
 
         @XmlAccessorType(XmlAccessType.FIELD)
         static class MapStringEntryType {
 
+            @Getter(AccessLevel.PACKAGE)
+            @Setter(AccessLevel.PACKAGE)
             private String[] string;
-
-            String[] getString() {
-                return string;
-            }
-
-            void setString(String[] string) {
-                this.string = string;
-            }
         }
     }
 

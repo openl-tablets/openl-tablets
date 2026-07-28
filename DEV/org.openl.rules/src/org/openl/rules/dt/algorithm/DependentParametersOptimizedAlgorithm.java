@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Objects;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -661,16 +662,10 @@ class DependentParametersOptimizedAlgorithm {
 
         final String func;
         final String opposite;
+        @Getter
         final boolean lessThan;
+        @Getter
         final Bound incBound;
-
-        public Bound getIncBound() {
-            return incBound;
-        }
-
-        public boolean isLessThan() {
-            return lessThan;
-        }
 
         public RelationType oposite() {
             switch (this) {
@@ -839,6 +834,7 @@ class DependentParametersOptimizedAlgorithm {
     abstract static class EvaluatorFactory {
 
         final IParameterDeclaration signatureParam;
+        @Getter
         final String expression;
 
         EvaluatorFactory(IParameterDeclaration signatureParam, String expression) {
@@ -852,10 +848,6 @@ class DependentParametersOptimizedAlgorithm {
         public abstract boolean hasMax();
 
         public abstract boolean needsIncrement(Bound bound);
-
-        public String getExpression() {
-            return expression;
-        }
 
         IOpenClass getExpressionType() {
             return DecisionTableAlgorithmBuilder.findExpressionType(signatureParam.getType(), expression);

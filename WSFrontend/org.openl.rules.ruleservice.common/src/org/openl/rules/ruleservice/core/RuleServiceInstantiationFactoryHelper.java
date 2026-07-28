@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -594,8 +596,11 @@ public final class RuleServiceInstantiationFactoryHelper {
     }
 
     private static class MethodSignatureChanges {
+        @Getter(AccessLevel.PRIVATE)
         boolean generateReturnConverters;
+        @Getter(AccessLevel.PRIVATE)
         Pair<Class<?>, Boolean>[] newParamTypes;
+        @Getter(AccessLevel.PRIVATE)
         Class<?> returnType;
 
         private MethodSignatureChanges(Pair<Class<?>, Boolean>[] newParamTypes,
@@ -604,18 +609,6 @@ public final class RuleServiceInstantiationFactoryHelper {
             this.newParamTypes = newParamTypes;
             this.generateReturnConverters = generateReturnConverters;
             this.returnType = returnType;
-        }
-
-        private Pair<Class<?>, Boolean>[] getNewParamTypes() {
-            return newParamTypes;
-        }
-
-        private boolean isGenerateReturnConverters() {
-            return generateReturnConverters;
-        }
-
-        private Class<?> getReturnType() {
-            return returnType;
         }
     }
 

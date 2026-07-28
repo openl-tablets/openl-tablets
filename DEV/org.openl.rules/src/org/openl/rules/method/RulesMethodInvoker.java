@@ -1,6 +1,7 @@
 package org.openl.rules.method;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.exception.OpenLRuntimeException;
@@ -15,6 +16,7 @@ import org.openl.vm.IRuntimeEnv;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implements Invokable {
 
+    @Getter
     private final T invokableMethod;
 
     @Override
@@ -26,10 +28,6 @@ public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implem
             // simple run invoke
             return invokeSimple(target, params, env);
         }
-    }
-
-    public T getInvokableMethod() {
-        return invokableMethod;
     }
 
     /**

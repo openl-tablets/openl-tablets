@@ -1,5 +1,8 @@
 package org.openl.rules.data;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.types.IDynamicObject;
@@ -9,10 +12,15 @@ import org.openl.vm.IRuntimeEnv;
 
 public class DataOpenField extends AOpenField {
 
+    @Getter
+    @Setter
     private ITable table;
+    @Getter
     private Object data;
     private ModuleOpenClass declaringClass;
+    @Getter
     private XlsNodeTypes nodeType;
+    @Getter
     private String uri;
 
     public DataOpenField() {
@@ -32,18 +40,6 @@ public class DataOpenField extends AOpenField {
     @Override
     public IOpenClass getDeclaringClass() {
         return declaringClass;
-    }
-
-    public ITable getTable() {
-        return table;
-    }
-
-    public Object getData() {
-        return data;
-    }
-
-    public void setTable(ITable table) {
-        this.table = table;
     }
 
     @Override
@@ -71,13 +67,5 @@ public class DataOpenField extends AOpenField {
         if (target != null) {
             ((IDynamicObject) target).setFieldValue(getName(), value);
         }
-    }
-
-    public XlsNodeTypes getNodeType() {
-        return nodeType;
-    }
-
-    public String getUri() {
-        return uri;
     }
 }

@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
@@ -20,8 +23,13 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.util.RuntimeExceptionWrapper;
 
 public class AProjectArtefact implements IProjectArtefact {
+    @Getter
     private final AProject project;
+    @Getter
+    @Setter
     private Repository repository;
+    @Getter
+    @Setter
     private FileData fileData;
 
     private final Date modifiedTime;
@@ -31,26 +39,6 @@ public class AProjectArtefact implements IProjectArtefact {
         this.repository = repository;
         this.fileData = fileData;
         this.modifiedTime = fileData == null ? null : fileData.getModifiedAt();
-    }
-
-    public AProject getProject() {
-        return project;
-    }
-
-    public FileData getFileData() {
-        return fileData;
-    }
-
-    public void setFileData(FileData fileData) {
-        this.fileData = fileData;
-    }
-
-    public Repository getRepository() {
-        return repository;
-    }
-
-    public void setRepository(Repository repository) {
-        this.repository = repository;
     }
 
     public void delete() throws ProjectException {

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import org.openl.security.acl.repository.AclRepositoryType;
 
@@ -14,22 +15,16 @@ public class AclRepositoryId {
 
     private static final String ID_SEPARATOR = ":";
 
+    @Getter
     @NotNull
     private final AclRepositoryType type;
 
+    @Getter
     private final String id;
 
     private AclRepositoryId(Builder builder) {
         this.type = builder.type;
         this.id = builder.id;
-    }
-
-    public AclRepositoryType getType() {
-        return type;
-    }
-
-    public String getId() {
-        return id;
     }
 
     @JsonValue

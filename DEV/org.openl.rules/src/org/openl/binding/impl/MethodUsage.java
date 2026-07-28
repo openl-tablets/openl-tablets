@@ -2,6 +2,8 @@ package org.openl.binding.impl;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.binding.MethodUtil;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenConstructor;
@@ -12,6 +14,7 @@ import org.openl.types.IOpenMethod;
 public class MethodUsage implements NodeUsage {
     private final int startPos;
     private final int endPos;
+    @Getter
     private final IOpenMethod method;
 
     /**
@@ -37,10 +40,6 @@ public class MethodUsage implements NodeUsage {
     @Override
     public int getEnd() {
         return endPos;
-    }
-
-    public IOpenMethod getMethod() {
-        return method;
     }
 
     private static String getTableUri(IOpenMethod method) {

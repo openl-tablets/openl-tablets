@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -18,14 +20,17 @@ import org.openl.types.IOpenClass;
  */
 public class CompiledOpenClass {
 
+    @Getter
     private final Collection<OpenLMessage> allMessages;
 
+    @Getter
     private final Collection<OpenLMessage> messages;
 
     private final IOpenClass openClass;
 
     private boolean hasErrors;
 
+    @Getter
     private final ClassLoader classLoader;
 
     public CompiledOpenClass(IOpenClass openClass, Collection<OpenLMessage> messages) {
@@ -67,20 +72,8 @@ public class CompiledOpenClass {
         }
     }
 
-    public Collection<OpenLMessage> getAllMessages() {
-        return allMessages;
-    }
-
-    public Collection<OpenLMessage> getMessages() {
-        return messages;
-    }
-
     public Collection<IOpenClass> getTypes() {
         return openClass != null ? openClass.getTypes() : null;
-    }
-
-    public ClassLoader getClassLoader() {
-        return classLoader;
     }
 
 }

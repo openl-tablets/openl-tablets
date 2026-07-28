@@ -2,6 +2,8 @@ package org.openl.binding.impl;
 
 import java.lang.reflect.Array;
 
+import lombok.Getter;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
@@ -25,7 +27,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class FieldBoundNode extends ATargetBoundNode {
 
+    @Getter
     private final IOpenField boundField;
+    @Getter
     private final int dims;
     private IOpenClass returnType;
 
@@ -60,10 +64,6 @@ public class FieldBoundNode extends ATargetBoundNode {
 
     public String getFieldName() {
         return boundField.getName();
-    }
-
-    public IOpenField getBoundField() {
-        return boundField;
     }
 
     @Override
@@ -122,10 +122,5 @@ public class FieldBoundNode extends ATargetBoundNode {
     @Override
     public void updateDependency(BindingDependencies dependencies) {
         dependencies.addFieldDependency(boundField, this);
-    }
-
-    @Override
-    public int getDims() {
-        return dims;
     }
 }

@@ -3,6 +3,9 @@ package org.openl.rules.project.abstraction;
 import java.io.IOException;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lock.LockInfo;
@@ -12,6 +15,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 
 public abstract class UserWorkspaceProject extends AProject {
+    @Getter(AccessLevel.PROTECTED)
     private final WorkspaceUser user;
 
     public UserWorkspaceProject(WorkspaceUser user, Repository repository, String folderPath, String version) {
@@ -22,10 +26,6 @@ public abstract class UserWorkspaceProject extends AProject {
     public UserWorkspaceProject(WorkspaceUser user, Repository repository, FileData fileData) {
         super(repository, fileData);
         this.user = user;
-    }
-
-    protected WorkspaceUser getUser() {
-        return user;
     }
 
     @Override

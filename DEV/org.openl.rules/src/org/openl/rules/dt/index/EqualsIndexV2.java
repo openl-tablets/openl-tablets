@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
+import lombok.Setter;
+
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.EqualsIndexDecisionTableRuleNode;
@@ -148,6 +150,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         private Map<Object, int[]> result = null;
         private boolean comparatorBasedMap = false;
 
+        @Setter
         private ConditionCasts conditionCasts;
 
         public void addRule(int ruleN) {
@@ -156,10 +159,6 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
 
         public void putEmptyRule(int ruleN) {
             emptyBuilder.addRule(ruleN);
-        }
-
-        public void setConditionCasts(ConditionCasts conditionCasts) {
-            this.conditionCasts = conditionCasts;
         }
 
         public void putValueToRule(Object value, int ruleN) {

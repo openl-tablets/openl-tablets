@@ -2,6 +2,8 @@ package org.openl.rules.calc;
 
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.types.IDynamicObject;
@@ -13,6 +15,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     public static final Object EMPTY_CELL = new Object();
     public static final Object DESCRIPTION_CELL = new Object();
 
+    @Getter
     private final Spreadsheet spreadsheet;
     /**
      * OpenL module
@@ -25,6 +28,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     /**
      * Copy of the call environment.
      */
+    @Getter
     protected final IRuntimeEnv env;
 
     private final Object[][] results;
@@ -80,10 +84,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
 
     public Object getRow(int row, IRuntimeEnv env) {
         return null;
-    }
-
-    public Spreadsheet getSpreadsheet() {
-        return spreadsheet;
     }
 
     @Override
@@ -160,9 +160,5 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
             }
         }
         return resultArray;
-    }
-
-    public IRuntimeEnv getEnv() {
-        return env;
     }
 }

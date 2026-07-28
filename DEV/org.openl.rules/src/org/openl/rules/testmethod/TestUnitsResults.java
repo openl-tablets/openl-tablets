@@ -3,7 +3,9 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -16,14 +18,13 @@ import org.openl.util.ClassUtils;
 @RequiredArgsConstructor
 public class TestUnitsResults implements INamedThing {
 
+    @Getter
     private final TestSuite testSuite;
     private final ArrayList<ITestUnit> testUnits = new ArrayList<>();
 
+    @Getter
+    @Setter
     private boolean testedRulesHaveErrors = false;
-
-    public TestSuite getTestSuite() {
-        return testSuite;
-    }
 
     @Override
     public String getName() {
@@ -194,13 +195,5 @@ public class TestUnitsResults implements INamedThing {
             res[i] = testMethodSignature.getParameterName(i);
         }
         return res;
-    }
-
-    public boolean isTestedRulesHaveErrors() {
-        return testedRulesHaveErrors;
-    }
-
-    public void setTestedRulesHaveErrors(boolean testedRulesHaveErrors) {
-        this.testedRulesHaveErrors = testedRulesHaveErrors;
     }
 }

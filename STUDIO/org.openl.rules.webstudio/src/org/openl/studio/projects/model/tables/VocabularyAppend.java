@@ -3,6 +3,8 @@ package org.openl.studio.projects.model.tables;
 import java.util.Collection;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Request model for append lines to {@code Vocabulary} table
@@ -11,16 +13,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public class VocabularyAppend implements AppendTableView {
 
+    @Getter
     @Schema(description = "Collection of vocabulary values to append")
+    @Setter
     private Collection<VocabularyValueView> values;
-
-    public Collection<VocabularyValueView> getValues() {
-        return values;
-    }
-
-    public void setValues(Collection<VocabularyValueView> values) {
-        this.values = values;
-    }
 
     @Override
     public String getTableType() {

@@ -2,6 +2,8 @@ package org.openl.rules.range;
 
 import java.text.ParseException;
 
+import lombok.Getter;
+
 import org.openl.util.StringUtils;
 
 /**
@@ -21,7 +23,9 @@ import org.openl.util.StringUtils;
  */
 public class RangeParser {
 
+    @Getter
     Range.Type type;
+    @Getter
     String left, right;
 
     private RangeParser(Range.Type type, String left, String right) {
@@ -65,18 +69,6 @@ public class RangeParser {
                 s.append(type).append(": ").append(left).append(" - ").append(right);
         }
         return s.toString();
-    }
-
-    public Range.Type getType() {
-        return type;
-    }
-
-    public String getLeft() {
-        return left;
-    }
-
-    public String getRight() {
-        return right;
     }
 
     public static RangeParser parse(String text) throws ParseException {

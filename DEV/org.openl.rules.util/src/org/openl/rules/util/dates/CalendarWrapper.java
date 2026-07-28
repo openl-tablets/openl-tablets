@@ -4,6 +4,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 /**
  * Wrapper for {@code Date} object to simplify calculation between two dates in days, months or years.
  *
@@ -20,6 +23,7 @@ final class CalendarWrapper {
     private final GregorianCalendar calendar;
     private final int year;
     private final int month;
+    @Getter(AccessLevel.PACKAGE)
     private final int day;
 
     CalendarWrapper(Date date) {
@@ -151,10 +155,6 @@ final class CalendarWrapper {
         }
         var startDate = new CalendarWrapper(calendarStartDate);
         return daysDiff(startDate);
-    }
-
-    int getDay() {
-        return day;
     }
 
     int getActualMonthLength() {

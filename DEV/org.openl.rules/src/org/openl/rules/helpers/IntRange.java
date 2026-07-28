@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import lombok.Getter;
+
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.rules.range.Range;
 
@@ -16,8 +18,11 @@ import org.openl.rules.range.Range;
 public class IntRange extends Range<Long> implements INumberRange {
     private static final int TO_INT_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
 
+    @Getter
     protected long min;
+    @Getter
     protected long max;
+    @Getter(onMethod_ = {@Transient})
     protected final Type type;
 
     /**
@@ -57,14 +62,6 @@ public class IntRange extends Range<Long> implements INumberRange {
         } catch (ArithmeticException e) {
             return false;
         }
-    }
-
-    public long getMax() {
-        return max;
-    }
-
-    public long getMin() {
-        return min;
     }
 
     @Override
@@ -116,12 +113,6 @@ public class IntRange extends Range<Long> implements INumberRange {
         }
         this.type = type;
         validate();
-    }
-
-    @Override
-    @Transient
-    public Type getType() {
-        return type;
     }
 
     @Override

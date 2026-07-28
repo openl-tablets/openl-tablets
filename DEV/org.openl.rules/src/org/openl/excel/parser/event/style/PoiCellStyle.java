@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
 import org.apache.poi.hssf.record.FormatRecord;
@@ -21,14 +22,10 @@ import org.apache.poi.ss.util.CellUtil;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class PoiCellStyle implements CellStyle {
+    @Getter
     private final short index;
     private final ExtendedFormatRecord format;
     private final Map<Integer, FormatRecord> formats;
-
-    @Override
-    public short getIndex() {
-        return index;
-    }
 
     @Override
     public void setDataFormat(short fmt) {

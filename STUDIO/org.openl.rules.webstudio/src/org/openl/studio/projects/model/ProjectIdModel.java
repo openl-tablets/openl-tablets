@@ -5,12 +5,15 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 
 public class ProjectIdModel {
 
     private static final String ID_SEPARATOR = ":";
 
+    @Getter
     private final String repository;
+    @Getter
     private final String projectName;
 
     public ProjectIdModel(Builder builder) {
@@ -50,14 +53,6 @@ public class ProjectIdModel {
                 .repository(repoId)
                 .projectName(projectName)
                 .build();
-    }
-
-    public String getRepository() {
-        return repository;
-    }
-
-    public String getProjectName() {
-        return projectName;
     }
 
     @Override

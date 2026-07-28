@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -27,6 +30,8 @@ import org.openl.types.IOpenField;
  */
 public class BindingContextDelegator implements IBindingContextDelegator {
 
+    @Getter
+    @Setter
     protected IBindingContext delegate;
 
     public BindingContextDelegator(IBindingContext delegate) {
@@ -98,10 +103,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return openClass;
     }
 
-    public IBindingContext getDelegate() {
-        return delegate;
-    }
-
     @Override
     public SyntaxNodeException[] getErrors() {
         return delegate.getErrors();
@@ -150,11 +151,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     @Override
     public void pushLocalVarContext() {
         delegate.pushLocalVarContext();
-    }
-
-    @Override
-    public void setDelegate(IBindingContext delegate) {
-        this.delegate = delegate;
     }
 
     @Override

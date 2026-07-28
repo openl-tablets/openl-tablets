@@ -1,5 +1,6 @@
 package org.openl.rules.cmatch.algorithm;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.types.IOpenClass;
@@ -12,7 +13,9 @@ public class Argument {
     /**
      * Type of argument
      */
+    @Getter
     private final IOpenClass type;
+    @Getter
     private IOpenField field;
 
     public Argument(int index, IOpenField field) {
@@ -27,13 +30,5 @@ public class Argument {
         } else {
             return field.get(params[index], env);
         }
-    }
-
-    public IOpenField getField() {
-        return field;
-    }
-
-    public IOpenClass getType() {
-        return type;
     }
 }

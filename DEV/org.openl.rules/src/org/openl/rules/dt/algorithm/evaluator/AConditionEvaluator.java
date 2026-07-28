@@ -2,6 +2,9 @@ package org.openl.rules.dt.algorithm.evaluator;
 
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.domain.IDomain;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.ConditionCasts;
@@ -9,6 +12,8 @@ import org.openl.types.impl.ParameterMethodCaller;
 
 public abstract class AConditionEvaluator implements IConditionEvaluator {
 
+    @Getter
+    @Setter
     private String optimizedSourceCode;
 
     protected final ConditionCasts conditionCasts;
@@ -34,15 +39,5 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
     // Added to support dependent parameters
 
     protected abstract IDomain<? extends Object> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined;
-
-    @Override
-    public String getOptimizedSourceCode() {
-        return optimizedSourceCode;
-    }
-
-    @Override
-    public void setOptimizedSourceCode(String optimizedSourceCode) {
-        this.optimizedSourceCode = optimizedSourceCode;
-    }
 
 }

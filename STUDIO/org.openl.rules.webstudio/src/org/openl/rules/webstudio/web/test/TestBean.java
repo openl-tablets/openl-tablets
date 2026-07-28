@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
@@ -50,14 +51,22 @@ public class TestBean {
     private final static int ALL = -1;
 
     private final static int DEFAULT_PAGE = 1;
+    @Getter
     private int page = DEFAULT_PAGE;
+    @Getter
     private int lastPage = DEFAULT_PAGE;
 
+    @Getter
     private int testsPerPage;
+    @Getter
     private boolean testsFailuresOnly;
+    @Getter
     private int testsFailuresPerTest;
+    @Getter
     private boolean showComplexResult;
+    @Getter
     private boolean currentOpenedModule;
+    @Getter
     private boolean waitForProjectCompilation;
 
     private boolean ranTestsSorted = false;
@@ -139,14 +148,6 @@ public class TestBean {
                 .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
 
         waitForProjectCompilation = !currentOpenedModule && studio.getModel().isCompilationInProgress();
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public int getLastPage() {
-        return lastPage;
     }
 
     private void testAll() {
@@ -359,14 +360,6 @@ public class TestBean {
                 uri) && (ranResults == null || ranResults.length == 0) && !isWaitForProjectCompilation() && !currentOpenedModule;
     }
 
-    public int getTestsPerPage() {
-        return testsPerPage;
-    }
-
-    public boolean isTestsFailuresOnly() {
-        return testsFailuresOnly;
-    }
-
     public List<ITestUnit> getTestsToRender(List<ITestUnit> tests, int columnCount) {
         if (tests == null) {
             return null;
@@ -386,21 +379,5 @@ public class TestBean {
         }
 
         return HTMLRenderer.getMaxNumRowsToDisplay(tests.size(), columnCount);
-    }
-
-    public int getTestsFailuresPerTest() {
-        return testsFailuresPerTest;
-    }
-
-    public boolean isShowComplexResult() {
-        return showComplexResult;
-    }
-
-    public boolean isCurrentOpenedModule() {
-        return currentOpenedModule;
-    }
-
-    public boolean isWaitForProjectCompilation() {
-        return waitForProjectCompilation;
     }
 }
