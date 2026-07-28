@@ -2,6 +2,7 @@ package org.openl.rules.repository.git;
 
 import java.io.IOException;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -10,9 +11,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MergeConflictException extends IOException {
 
+    @Getter
     private final MergeConflictDetails details;
-
-    public MergeConflictDetails getDetails() {
-        return details;
-    }
 }

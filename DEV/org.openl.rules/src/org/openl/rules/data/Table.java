@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
@@ -37,18 +39,23 @@ import org.openl.vm.IRuntimeEnv;
 public class Table implements ITable {
 
     private ILogicalTable logicalTable;
+    @Getter
     private ITableModel dataModel;
 
     private String tableName;
+    @Getter
     private TableSyntaxNode tableSyntaxNode;
 
+    @Getter
     private Object dataArray;
     private List<DatatypeArrayMultiRowElementContext> dataContextCache;
 
     private BiMap<Integer, Object> rowIndexMap;
     private BiMap<Integer, String> primaryIndexMap;
     private Map<Integer, Integer> dataIdxToTableRowNum;
+    @Getter
     private XlsNodeTypes xlsNodeType;
+    @Getter
     private String uri;
 
     public Table(ITableModel dataModel, ILogicalTable data) {
@@ -66,16 +73,6 @@ public class Table implements ITable {
     @Override
     public void clearOddDataForExecutionMode() {
         this.tableSyntaxNode = null;
-    }
-
-    @Override
-    public String getUri() {
-        return uri;
-    }
-
-    @Override
-    public XlsNodeTypes getXlsNodeType() {
-        return xlsNodeType;
     }
 
     @Override
@@ -132,16 +129,6 @@ public class Table implements ITable {
     }
 
     @Override
-    public Object getDataArray() {
-        return dataArray;
-    }
-
-    @Override
-    public ITableModel getDataModel() {
-        return dataModel;
-    }
-
-    @Override
     public IGridTable getHeaderTable() {
         return logicalTable.getRow(0).getSource();
     }
@@ -187,11 +174,6 @@ public class Table implements ITable {
     @Override
     public int getSize() {
         return Array.getLength(dataArray);
-    }
-
-    @Override
-    public TableSyntaxNode getTableSyntaxNode() {
-        return tableSyntaxNode;
     }
 
     @Override

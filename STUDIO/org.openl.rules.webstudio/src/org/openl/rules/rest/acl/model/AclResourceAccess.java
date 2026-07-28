@@ -11,17 +11,20 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 
 @Schema(description = "Access control entries for a specific resource")
 @JsonDeserialize(builder = AclResourceAccess.Builder.class)
 public class AclResourceAccess {
 
+    @Getter
     @Parameter(description = "Resource reference (e.g., repo or project)")
     @NotNull
     @Valid
     private final AclResourceRef resourceRef;
 
+    @Getter
     @Parameter(description = "List of access control entries for this resource")
     @NotNull
     @Size(min = 1)
@@ -33,14 +36,6 @@ public class AclResourceAccess {
         this.aces = Optional.ofNullable(builder.aces)
                 .map(List::copyOf)
                 .orElse(null);
-    }
-
-    public AclResourceRef getResourceRef() {
-        return resourceRef;
-    }
-
-    public List<AccessControlEntry> getAces() {
-        return aces;
     }
 
     @JsonCreator

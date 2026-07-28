@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.IMemberBoundNode;
@@ -32,18 +34,12 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     private final Map<CellKey, Boolean> constantsMap = new HashMap<>();
     private final Set<ConstantOpenField> constantOpenFields = new HashSet<>();
 
+    @Getter
+    @Setter
     private T boundNode;
 
     public BaseMetaInfoReader(T boundNode) {
         this.boundNode = boundNode;
-    }
-
-    public void setBoundNode(T boundNode) {
-        this.boundNode = boundNode;
-    }
-
-    public T getBoundNode() {
-        return boundNode;
     }
 
     public void addConstant(ICell cell, ConstantOpenField constantOpenField) {

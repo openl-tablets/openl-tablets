@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.storelogdata;
 import java.util.Collection;
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
@@ -13,6 +14,7 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
 
     private final Collection<StoreLogDataService> storeLogDataServices;
 
+    @Getter
     private final boolean enabled;
 
     public SimpleStoreLogDataManager(Collection<StoreLogDataService> storeLogDataServices) {
@@ -48,11 +50,6 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
             }
         }
         return false;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
     }
 
     private boolean ignoreByFault(StoreLogData storeLogData) {

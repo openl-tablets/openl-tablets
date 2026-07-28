@@ -3,6 +3,8 @@ package org.openl.rules.workspace;
 import java.util.Optional;
 import java.util.function.Function;
 
+import lombok.Getter;
+
 import org.openl.rules.repository.api.UserInfo;
 
 /**
@@ -10,7 +12,9 @@ import org.openl.rules.repository.api.UserInfo;
  */
 public class WorkspaceUserImpl implements WorkspaceUser {
 
+    @Getter
     private final String userId;
+    @Getter
     private final String userName;
     private final Function<String, UserInfo> userInfoCollector;
 
@@ -96,16 +100,6 @@ public class WorkspaceUserImpl implements WorkspaceUser {
             }
         }
         return sb.toString();
-    }
-
-    @Override
-    public String getUserId() {
-        return userId;
-    }
-
-    @Override
-    public String getUserName() {
-        return userName;
     }
 
     @Override

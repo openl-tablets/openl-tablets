@@ -2,6 +2,8 @@ package org.openl.rules.table.constraints;
 
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+
 /**
  * Constraint for string values. Checks that the string value matches specified regular expression pattern.
  *
@@ -9,15 +11,12 @@ import java.util.regex.Pattern;
  */
 public class RegexpValueConstraint extends AbstractConstraint {
     public static final String CONSTRAINT_MATCH = "^\\s*regexp\\s*:\\s*(\\S+)\\s*";
+    @Getter
     private final String regexp;
 
     public RegexpValueConstraint(String value) {
         super(value);
         regexp = getRegexPattern(value);
-    }
-
-    public String getRegexp() {
-        return regexp;
     }
 
     public static String getRegexPattern(String value) {

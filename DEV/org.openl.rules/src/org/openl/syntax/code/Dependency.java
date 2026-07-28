@@ -2,23 +2,22 @@ package org.openl.syntax.code;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.dependency.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
 
 public class Dependency implements IDependency {
 
+    @Getter
     private final DependencyType type;
 
+    @Getter
     private final IdentifierNode node;
 
     public Dependency(DependencyType dependencyType, IdentifierNode node) {
         this.node = Objects.requireNonNull(node, "node cannot be null");
         this.type = Objects.requireNonNull(dependencyType, "dependencyType cannot be null");
-    }
-
-    @Override
-    public IdentifierNode getNode() {
-        return node;
     }
 
     @Override
@@ -45,10 +44,5 @@ public class Dependency implements IDependency {
         var result = type.hashCode();
         result = 31 * result + node.getIdentifier().hashCode();
         return result;
-    }
-
-    @Override
-    public DependencyType getType() {
-        return type;
     }
 }

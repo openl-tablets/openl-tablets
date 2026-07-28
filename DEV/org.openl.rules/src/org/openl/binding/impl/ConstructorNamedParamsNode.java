@@ -2,6 +2,8 @@ package org.openl.binding.impl;
 
 import java.util.Arrays;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.MethodUtil;
@@ -22,6 +24,7 @@ import org.openl.vm.IRuntimeEnv;
 public class ConstructorNamedParamsNode extends ABoundNode implements ConstructorNode {
 
     private final ILocalVar tempVar;
+    @Getter
     private final MethodBoundNode constructor;
 
     public ConstructorNamedParamsNode(ILocalVar tempVar, MethodBoundNode constructor, IBoundNode... children) {
@@ -43,11 +46,6 @@ public class ConstructorNamedParamsNode extends ABoundNode implements Constructo
     @Override
     public IOpenClass getType() {
         return tempVar.getType();
-    }
-
-    @Override
-    public MethodBoundNode getConstructor() {
-        return constructor;
     }
 
     @Override

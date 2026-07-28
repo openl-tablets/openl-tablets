@@ -2,6 +2,9 @@ package org.openl.rules.property;
 
 import java.util.Map.Entry;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -19,7 +22,11 @@ import org.openl.vm.IRuntimeEnv;
 public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
 
     private PropertiesOpenField field;
+    @Getter
+    @Setter
     private TableProperties propertiesInstance;
+    @Getter
+    @Setter
     private String tableName;
 
     public PropertyTableBoundNode(TableSyntaxNode syntaxNode) {
@@ -59,22 +66,6 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     @Override
     public IOpenClass getType() {
         return JavaOpenClass.getOpenClass(propertiesInstance.getClass());
-    }
-
-    public void setPropertiesInstance(TableProperties propertiesInstance) {
-        this.propertiesInstance = propertiesInstance;
-    }
-
-    public TableProperties getPropertiesInstance() {
-        return propertiesInstance;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public String getTableName() {
-        return tableName;
     }
 
     private static TableProperties getTablePropertiesForExecutionMode(ITableProperties properties) {

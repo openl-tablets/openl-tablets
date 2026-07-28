@@ -1,5 +1,8 @@
 package org.openl.rules.calc;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeDescriptionHolder;
 import org.openl.exception.OpenLRuntimeException;
@@ -8,6 +11,8 @@ import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetResultField extends AOpenField implements NodeDescriptionHolder {
+    @Getter
+    @Setter
     private IOpenClass declaringClass;
 
     public SpreadsheetResultField(IOpenClass declaringClass, String name, IOpenClass type) {
@@ -48,15 +53,6 @@ public class SpreadsheetResultField extends AOpenField implements NodeDescriptio
             throw new OpenLRuntimeException("Field '%s' does not exist in SpreadsheetResult".formatted(name));
         }
         spreadsheetResult.setFieldValue(name, value);
-    }
-
-    @Override
-    public IOpenClass getDeclaringClass() {
-        return declaringClass;
-    }
-
-    public void setDeclaringClass(IOpenClass declaringClass) {
-        this.declaringClass = declaringClass;
     }
 
     @Override

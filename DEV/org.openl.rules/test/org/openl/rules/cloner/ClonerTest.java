@@ -48,6 +48,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.Test;
 
 class ClonerTest {
@@ -389,41 +391,17 @@ class ClonerTest {
     }
 
     public static class Beans {
+        @Getter
+        @Setter
         private String str;
+        @Getter
+        @Setter
         private Date date;
+        @Getter
+        @Setter
         private int age;
+        @Getter
+        @Setter
         private Beans bean;
-
-        public String getStr() {
-            return str;
-        }
-
-        public void setStr(String str) {
-            this.str = str;
-        }
-
-        public Date getDate() {
-            return date;
-        }
-
-        public void setDate(Date date) {
-            this.date = date;
-        }
-
-        public int getAge() {
-            return age;
-        }
-
-        public void setAge(int age) {
-            this.age = age;
-        }
-
-        public Beans getBean() {
-            return bean;
-        }
-
-        public void setBean(Beans bean) {
-            this.bean = bean;
-        }
     }
 }

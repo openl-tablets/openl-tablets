@@ -16,6 +16,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.PropertyResolver;
 
@@ -37,6 +39,8 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     private static final String REPOSITORY_FACTORY_SUFFIX = ".factory";
     public static final String REPOSITORY_DEFAULT_PREFIX = "repo-default.";
 
+    @Getter
+    @Setter
     @SettingPropertyName(suffix = REPOSITORY_NAME_SUFFIX)
     private String name;
     private String repoType;
@@ -44,6 +48,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     @JsonIgnore
     private String oldName = null;
 
+    @Getter
     @JsonIgnore
     private final String configName;
 
@@ -51,13 +56,16 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     private final String REPOSITORY_REF;
     private final String REPOSITORY_NAME;
 
+    @Getter
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", include = JsonTypeInfo.As.EXTERNAL_PROPERTY)
     @Valid
     private RepositorySettings settings;
 
+    @Getter
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String errorMessage;
 
+    @Getter
     @JsonIgnore
     private final PropertiesHolder properties;
 
@@ -110,10 +118,6 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
 
         repoType = ""; // To force "type is changed" event in the next step
         setType(type);
-    }
-
-    public PropertiesHolder getProperties() {
-        return properties;
     }
 
     private void load() {
@@ -208,18 +212,6 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         store(properties);
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @SettingPropertyName(suffix = REPOSITORY_FACTORY_SUFFIX)
     public String getType() {
         return repoType;
@@ -253,16 +245,8 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         return getConfigName();
     }
 
-    public String getConfigName() {
-        return configName;
-    }
-
     boolean isNameChangedIgnoreCase() {
         return name != null && !name.equalsIgnoreCase(oldName) || name == null && oldName != null;
-    }
-
-    public RepositorySettings getSettings() {
-        return settings;
     }
 
     protected static class NameWithNumbersComparator implements Comparator<RepositoryConfiguration> {

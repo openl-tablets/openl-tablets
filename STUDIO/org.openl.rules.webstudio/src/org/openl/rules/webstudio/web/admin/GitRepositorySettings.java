@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
@@ -34,51 +36,69 @@ public class GitRepositorySettings extends RepositorySettings {
     private final static String MAX_AUTHENTICATION_ATTEMPTS_SUFFIX = ".max-authentication-attempts";
     private final static String PROTECTED_BRANCHES_SUFFIX = ".protected-branches";
 
+    @Getter
     @Parameter(description = "URL")
     @SettingPropertyName(suffix = URI_SUFFIX)
     @JsonView(Views.Base.class)
     @NotBlank
     @PathConstraint(allowLeadingSlash = true, allowedSchemes = {"http", "https"})
+    @Setter
     private String uri;
 
+    @Getter
     @Parameter(description = "Login")
+    @Setter
     @SettingPropertyName(suffix = LOGIN_SUFFIX)
     @JsonView(Views.Base.class)
     private String login;
 
+    @Getter
     @Parameter(description = "Password")
+    @Setter
     @SettingPropertyName(suffix = PASSWORD_SUFFIX, secret = true)
     @JsonView(Views.Base.class)
     private String password;
 
+    @Getter
     @Parameter(description = "The main branch to commit changes")
+    @Setter
     @SettingPropertyName(suffix = BRANCH_SUFFIX)
     @JsonView(Views.Base.class)
     private String branch;
 
+    @Getter
     @Parameter(description = "This pattern is used for new branches")
+    @Setter
     @SettingPropertyName(suffix = NEW_BRANCH_TEMPLATE_SUFFIX)
     @JsonView(Views.Design.class)
     @NewBranchNamePatternConstraint
     private String newBranchTemplate;
 
+    @Getter
     @Parameter(description = "Additional regex for new branches")
     @SettingPropertyName(suffix = NEW_BRANCH_REGEX_SUFFIX)
     @JsonView(Views.Design.class)
     @RegexpConstraint
+    @Setter
     private String newBranchRegex;
 
+    @Getter
     @Parameter(description = "Error message for regex validation")
+    @Setter
     @SettingPropertyName(suffix = NEW_BRANCH_REGEX_ERROR_SUFFIX)
     @JsonView(Views.Design.class)
     private String newBranchRegexError;
 
+    @Getter
     @Parameter(description = "Prefix for the automatically generated tag added to every commit")
+    @Setter
     @SettingPropertyName(suffix = TAG_PREFIX_SUFFIX)
     @JsonView(Views.Base.class)
     private String tagPrefix;
 
+    @Getter
     @Parameter(description = "Changes check interval (sec)")
+    @Setter
     @SettingPropertyName(suffix = LISTENER_TIMER_PERIOD_SUFFIX)
     @JsonView(Views.Base.class)
     @Min(1)
@@ -99,12 +119,16 @@ public class GitRepositorySettings extends RepositorySettings {
     @NotNull
     private Integer failedAuthenticationSeconds;
 
+    @Getter
     @Parameter(description = "Maximum number of authentication attempts")
+    @Setter
     @SettingPropertyName(suffix = MAX_AUTHENTICATION_ATTEMPTS_SUFFIX)
     @JsonView(Views.Base.class)
     private Integer maxAuthenticationAttempts;
 
+    @Getter
     @Parameter(description = "Comma separated list of protected branches.")
+    @Setter
     @SettingPropertyName(suffix = PROTECTED_BRANCHES_SUFFIX)
     @JsonView(Views.Base.class)
     private String protectedBranches;
@@ -165,54 +189,6 @@ public class GitRepositorySettings extends RepositorySettings {
         protectedBranches = properties.getProperty(PROTECTED_BRANCHES);
     }
 
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getBranch() {
-        return branch;
-    }
-
-    public void setBranch(String branch) {
-        this.branch = branch;
-    }
-
-    public String getTagPrefix() {
-        return tagPrefix;
-    }
-
-    public void setTagPrefix(String tagPrefix) {
-        this.tagPrefix = tagPrefix;
-    }
-
-    public Integer getListenerTimerPeriod() {
-        return listenerTimerPeriod;
-    }
-
-    public void setListenerTimerPeriod(Integer listenerTimerPeriod) {
-        this.listenerTimerPeriod = listenerTimerPeriod;
-    }
-
     public int getConnectionTimeout() {
         return connectionTimeout;
     }
@@ -227,46 +203,6 @@ public class GitRepositorySettings extends RepositorySettings {
 
     public void setFailedAuthenticationSeconds(int failedAuthenticationSeconds) {
         this.failedAuthenticationSeconds = failedAuthenticationSeconds;
-    }
-
-    public Integer getMaxAuthenticationAttempts() {
-        return maxAuthenticationAttempts;
-    }
-
-    public void setMaxAuthenticationAttempts(Integer maxAuthenticationAttempts) {
-        this.maxAuthenticationAttempts = maxAuthenticationAttempts;
-    }
-
-    public String getNewBranchTemplate() {
-        return newBranchTemplate;
-    }
-
-    public void setNewBranchTemplate(String newBranchTemplate) {
-        this.newBranchTemplate = newBranchTemplate;
-    }
-
-    public String getNewBranchRegex() {
-        return newBranchRegex;
-    }
-
-    public void setNewBranchRegex(String newBranchRegex) {
-        this.newBranchRegex = newBranchRegex;
-    }
-
-    public String getNewBranchRegexError() {
-        return newBranchRegexError;
-    }
-
-    public void setNewBranchRegexError(String newBranchRegexError) {
-        this.newBranchRegexError = newBranchRegexError;
-    }
-
-    public String getProtectedBranches() {
-        return protectedBranches;
-    }
-
-    public void setProtectedBranches(String protectedBranches) {
-        this.protectedBranches = protectedBranches;
     }
 
     @Override

@@ -10,6 +10,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.calc.SpreadsheetResult;
@@ -95,7 +97,11 @@ class JsonUtilsTest {
 
     public static class Car {
 
+        @Getter
+        @Setter
         private String model;
+        @Getter
+        @Setter
         private String year;
 
         public Car(String model, String year) {
@@ -104,22 +110,6 @@ class JsonUtilsTest {
         }
 
         public Car() {
-        }
-
-        public String getModel() {
-            return model;
-        }
-
-        public void setModel(String model) {
-            this.model = model;
-        }
-
-        public String getYear() {
-            return year;
-        }
-
-        public void setYear(String year) {
-            this.year = year;
         }
 
         @Override

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.openl.ie.constrainer.consistencyChecking.Overlapping;
 import org.openl.ie.constrainer.consistencyChecking.Overlapping.OverlappingStatus;
 import org.openl.ie.constrainer.consistencyChecking.Uncovered;
@@ -19,8 +21,11 @@ import org.openl.util.ArrayOfNamedValues;
  */
 public class DecisionTableValidationResult implements IValidationResult {
 
+    @Getter
     private final IDecisionTable decisionTable;
+    @Getter
     private final DecisionTableOverlapping[] overlappings;
+    @Getter
     private final DecisionTableUncovered[] uncovered;
 
     public DecisionTableValidationResult(IDecisionTable decisionTable) {
@@ -86,18 +91,6 @@ public class DecisionTableValidationResult implements IValidationResult {
         }
 
         return tableUncovered;
-    }
-
-    public IDecisionTable getDecisionTable() {
-        return decisionTable;
-    }
-
-    public DecisionTableOverlapping[] getOverlappings() {
-        return overlappings;
-    }
-
-    public DecisionTableUncovered[] getUncovered() {
-        return uncovered;
     }
 
     public boolean hasProblems() {

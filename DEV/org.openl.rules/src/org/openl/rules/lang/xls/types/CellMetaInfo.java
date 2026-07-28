@@ -2,6 +2,9 @@ package org.openl.rules.lang.xls.types;
 
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.impl.NodeUsage;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
@@ -12,6 +15,8 @@ public class CellMetaInfo {
 
     private final IOpenClass domain;
     private int flags;
+    @Getter
+    @Setter
     private List<? extends NodeUsage> usedNodes;
 
     public CellMetaInfo(IOpenClass domain, boolean multiValue) {
@@ -46,14 +51,6 @@ public class CellMetaInfo {
 
     public boolean isMultiValue() {
         return (flags & MULTI) > 0;
-    }
-
-    public List<? extends NodeUsage> getUsedNodes() {
-        return usedNodes;
-    }
-
-    public void setUsedNodes(List<? extends NodeUsage> usedNodes) {
-        this.usedNodes = usedNodes;
     }
 
     public static boolean isCellContainsNodeUsages(CellMetaInfo metaInfo) {

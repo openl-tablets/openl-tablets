@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.PropertyResolver;
 
@@ -29,7 +30,9 @@ import org.openl.util.FileUtils;
 @Slf4j
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener {
 
+    @Setter
     private String workspaceHome;
+    @Setter
     private boolean enableLocks = true;
 
     // User name -> user workspace
@@ -140,14 +143,6 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
             return lockEngine;
         }
-    }
-
-    public void setWorkspaceHome(String workspaceHome) {
-        this.workspaceHome = workspaceHome;
-    }
-
-    public void setEnableLocks(boolean enableLocks) {
-        this.enableLocks = enableLocks;
     }
 
     @Override

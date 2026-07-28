@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
@@ -24,10 +26,12 @@ import org.openl.util.FileUtils;
 
 @Slf4j
 public class RulesProjectBuilder {
+    @Getter(AccessLevel.PROTECTED)
     private final RulesProject project;
     private final UserWorkspace workspace;
     private final String comment;
     private final Path tempLocalRepositoryPath;
+    @Getter
     private String createProjectName;
 
     public RulesProjectBuilder(UserWorkspace workspace,
@@ -69,10 +73,6 @@ public class RulesProjectBuilder {
                     designData,
                     workspace.getProjectsLockEngine());
         }
-    }
-
-    protected RulesProject getProject() {
-        return project;
     }
 
     public boolean addFile(String fileName, InputStream inputStream) throws ProjectException {
@@ -132,10 +132,6 @@ public class RulesProjectBuilder {
         createProjectName = designFolderPath.substring(designFolderPath.lastIndexOf('/') + 1);
         workspace.refresh();
         FileUtils.deleteQuietly(tempLocalRepositoryPath.toFile());
-    }
-
-    public String getCreateProjectName() {
-        return createProjectName;
     }
 
     private void checkName(String artefactName) throws ProjectException {

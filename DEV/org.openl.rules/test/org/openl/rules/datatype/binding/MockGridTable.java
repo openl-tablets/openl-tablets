@@ -1,5 +1,6 @@
 package org.openl.rules.datatype.binding;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.table.AGrid;
@@ -24,6 +25,7 @@ import org.openl.rules.table.IGridTable;
 public class MockGridTable extends AGridTable {
     private final Object[][] values;
 
+    @Getter
     private final IGrid grid;
 
     public MockGridTable(Object[][] cells) {
@@ -152,11 +154,6 @@ public class MockGridTable extends AGridTable {
 
         }
         return i;
-    }
-
-    @Override
-    public IGrid getGrid() {
-        return grid;
     }
 
     @Override

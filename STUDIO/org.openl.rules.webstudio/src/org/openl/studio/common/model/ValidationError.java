@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 import org.openl.studio.common.ApiExceptionControllerAdvice;
 
@@ -15,9 +16,11 @@ import org.openl.studio.common.ApiExceptionControllerAdvice;
  */
 public final class ValidationError extends BaseError {
 
+    @Getter
     @Parameter(description = "Field errors")
     private final List<FieldError> fields;
 
+    @Getter
     @Parameter(description = "Additional Global Errors")
     private final List<BaseError> errors;
 
@@ -25,14 +28,6 @@ public final class ValidationError extends BaseError {
         super(from);
         this.fields = new ArrayList<>(from.fields);
         this.errors = new ArrayList<>(from.errors);
-    }
-
-    public List<FieldError> getFields() {
-        return fields;
-    }
-
-    public List<BaseError> getErrors() {
-        return errors;
     }
 
     public static Builder builder() {

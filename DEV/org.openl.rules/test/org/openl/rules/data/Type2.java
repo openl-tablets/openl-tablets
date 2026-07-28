@@ -1,8 +1,15 @@
 package org.openl.rules.data;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class Type2 {
 
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
     private Type1[] types;
 
     public Type2() {
@@ -12,22 +19,6 @@ public class Type2 {
     public Type2(String name, Type1[] types) {
         super();
         this.name = name;
-        this.types = types;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Type1[] getTypes() {
-        return types;
-    }
-
-    public void setTypes(Type1[] types) {
         this.types = types;
     }
 

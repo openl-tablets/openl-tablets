@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ConfigConstants;
@@ -1310,15 +1312,12 @@ class GitRepositoryTest {
     }
 
     private static class ChangesCounter implements Listener {
+        @Getter(AccessLevel.PACKAGE)
         private int changes = 0;
 
         @Override
         public void onChange() {
             changes++;
-        }
-
-        int getChanges() {
-            return changes;
         }
     }
 

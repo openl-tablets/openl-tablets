@@ -1,6 +1,8 @@
 package org.openl.rules.table.xls.writers;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.poi.ss.usermodel.Cell;
 
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -18,26 +20,14 @@ public abstract class AXlsCellWriter {
     public static final String NUMBER_WRITER = "Number Writer";
     public static final String STRING_WRITER = "String Writer";
 
+    @Getter
     private final XlsSheetGridModel xlsSheetGridModel;
+    @Getter
+    @Setter
     private Cell cellToWrite;
+    @Getter
     private Object valueToWrite;
     private String strValue;
-
-    public XlsSheetGridModel getXlsSheetGridModel() {
-        return xlsSheetGridModel;
-    }
-
-    public Cell getCellToWrite() {
-        return cellToWrite;
-    }
-
-    public void setCellToWrite(Cell cellToWrite) {
-        this.cellToWrite = cellToWrite;
-    }
-
-    public Object getValueToWrite() {
-        return valueToWrite;
-    }
 
     public void setValueToWrite(Object valueToWrite) {
         this.valueToWrite = valueToWrite;

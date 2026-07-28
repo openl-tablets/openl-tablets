@@ -1,51 +1,24 @@
 package org.openl.rules.data;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class Customer {
 
+    @Getter
+    @Setter
     private String firstName;
+    @Getter
+    @Setter
     private String lastName;
+    @Getter
+    @Setter
     private int age;
+    @Getter
+    @Setter
     private String[] products;
+    @Getter
+    @Setter
     private String[] problems;
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public String[] getProducts() {
-        return products;
-    }
-
-    public void setProducts(String[] products) {
-        this.products = products;
-    }
-
-    public String[] getProblems() {
-        return problems;
-    }
-
-    public void setProblems(String[] problems) {
-        this.problems = problems;
-    }
 
 }

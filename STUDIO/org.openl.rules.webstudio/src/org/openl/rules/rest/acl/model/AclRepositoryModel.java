@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.AclRepositoryType;
@@ -13,22 +14,27 @@ import org.openl.security.acl.repository.AclRepositoryType;
 @Schema(description = "ACL Repository Model")
 public class AclRepositoryModel {
 
-    @JsonView({AclView.Repository.class,  AclView.Root.class})
+    @Getter
+    @JsonView({AclView.Repository.class, AclView.Root.class})
     @Parameter(description = "Repository ID")
     private final AclRepositoryId id;
 
+    @Getter
     @JsonView(AclView.Repository.class)
     @Parameter(description = "Repository Name")
     private final String name;
 
-    @JsonView({AclView.Repository.class,  AclView.Root.class})
+    @Getter
+    @JsonView({AclView.Repository.class, AclView.Root.class})
     @Parameter(description = "Repository Type")
     private final AclRepositoryType type;
 
+    @Getter
     @JsonView(AclView.Sid.class)
     @Parameter(description = "SID")
     private final AclSubject sid;
 
+    @Getter
     @NotNull
     @JsonView({AclView.Repository.class, AclView.Root.class, AclView.Sid.class})
     @Parameter(description = "Role")
@@ -56,26 +62,6 @@ public class AclRepositoryModel {
         this.role = builder.role;
         this.name = null;
         this.sid = builder.sid;
-    }
-
-    public AclRepositoryId getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public AclRepositoryType getType() {
-        return type;
-    }
-
-    public AclRole getRole() {
-        return role;
-    }
-
-    public AclSubject getSid() {
-        return sid;
     }
 
     public static RootRepositoryBuilder<?> rootRepositoryBuilder() {

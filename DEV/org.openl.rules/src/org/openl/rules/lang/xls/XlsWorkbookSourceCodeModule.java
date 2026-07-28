@@ -15,7 +15,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -35,12 +37,16 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
     protected final IOpenSourceCodeModule src;
 
+    @Getter
     private final WorkbookLoader workbookLoader;
 
     private final Set<Short> wbColors = new TreeSet<>();
 
+    @Getter
     private final Collection<XlsWorkbookListener> listeners = new ArrayList<>();
 
+    @Getter
+    @Setter
     private Map<String, Object> params;
 
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
@@ -75,10 +81,6 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
         listeners.add(listener);
     }
 
-    public Collection<XlsWorkbookListener> getListeners() {
-        return listeners;
-    }
-
     public String getDisplayName() {
         String uri = StringTool.decodeURL(src.getUri());
         return FileUtils.getName(uri);
@@ -96,10 +98,6 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
     public Workbook getWorkbook() {
         return workbookLoader.getWorkbook();
-    }
-
-    public WorkbookLoader getWorkbookLoader() {
-        return workbookLoader;
     }
 
     /**
@@ -168,16 +166,6 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
     @Override
     public int getStartPosition() {
         return src.getStartPosition();
-    }
-
-    @Override
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    @Override
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.openl.rules.validation.properties.dimentional;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.types.IMethodSignature;
@@ -27,6 +28,7 @@ public class DispatcherTableReturnColumn {
     /**
      * Signature of the member of overloaded tables group.
      */
+    @Getter(AccessLevel.PACKAGE)
     private final IMethodSignature originalSignature;
 
     public String getParameterDeclaration() {
@@ -68,10 +70,6 @@ public class DispatcherTableReturnColumn {
 
     public IOpenClass getReturnType() {
         return originalReturnType;
-    }
-
-    IMethodSignature getOriginalSignature() {
-        return originalSignature;
     }
 
     public String getRuleValue(int ruleIndex) {

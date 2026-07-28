@@ -2,6 +2,9 @@ package org.openl.rules.calc;
 
 import java.util.IdentityHashMap;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.CastToWiderType;
@@ -137,7 +140,9 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
     private final class CastsCollector implements SpreadsheetFieldCollector {
         private final IOpenClass rangeType;
+        @Getter(AccessLevel.PACKAGE)
         private final IOpenCast[][] casts;
+        @Getter(AccessLevel.PACKAGE)
         private boolean implicitCastNotSupported;
 
         private CastsCollector(IOpenClass rangeType, int columnsInRange, int rowsInRange) {
@@ -157,17 +162,10 @@ public class SpreadsheetContext extends ComponentBindingContext {
                 }
             }
         }
-
-        IOpenCast[][] getCasts() {
-            return casts;
-        }
-
-        boolean isImplicitCastNotSupported() {
-            return implicitCastNotSupported;
-        }
     }
 
     private final class RangeTypeCollector implements SpreadsheetFieldCollector {
+        @Getter(AccessLevel.PACKAGE)
         private IOpenClass rangeType;
 
         private RangeTypeCollector(IOpenClass initialRangeType) {
@@ -177,10 +175,6 @@ public class SpreadsheetContext extends ComponentBindingContext {
         @Override
         public void collect(int columnInRange, int rowInRange, SpreadsheetCellField field) {
             rangeType = CastToWiderType.create(SpreadsheetContext.this, rangeType, field.getType()).getWiderType();
-        }
-
-        IOpenClass getRangeType() {
-            return rangeType;
         }
     }
 

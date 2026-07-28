@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import javax.sql.DataSource;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 
@@ -15,6 +16,7 @@ import org.openl.util.PropertiesUtils;
 @Slf4j
 public class DBMigrationBean {
 
+    @Setter
     private DataSource dataSource;
 
     public void init() throws SQLException, IOException {
@@ -45,10 +47,6 @@ public class DBMigrationBean {
 
         flyway.setLocations(locations);
         flyway.migrate();
-    }
-
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
     }
 
     private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {

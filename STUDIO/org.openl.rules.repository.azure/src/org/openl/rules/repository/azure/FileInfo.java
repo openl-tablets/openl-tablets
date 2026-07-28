@@ -1,22 +1,13 @@
 package org.openl.rules.repository.azure;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class FileInfo {
+    @Getter
+    @Setter
     private String path;
+    @Getter
+    @Setter
     private String revision;
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getRevision() {
-        return revision;
-    }
-
-    public void setRevision(String revision) {
-        this.revision = revision;
-    }
 }

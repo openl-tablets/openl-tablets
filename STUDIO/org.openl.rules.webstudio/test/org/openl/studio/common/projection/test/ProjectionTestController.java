@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.Getter;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,16 +67,13 @@ public class ProjectionTestController {
 
     /** A page carrying a {@link NoFieldProjection} summary alongside its projectable content. */
     static class SummaryPage extends PageResponse<ProjectTestView> {
+        @Getter
         private final TestSummary summary;
 
         SummaryPage(java.util.Collection<ProjectTestView> content, int pageNumber, int pageSize, Long total,
                     TestSummary summary) {
             super(content, pageNumber, pageSize, total);
             this.summary = summary;
-        }
-
-        public TestSummary getSummary() {
-            return summary;
         }
     }
 

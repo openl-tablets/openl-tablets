@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundParameterDeclaration;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
@@ -8,6 +10,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ParameterDeclarationNode extends ABoundNode implements IBoundParameterDeclaration {
 
+    @Getter
     private final IParameterDeclaration parameterDeclaration;
 
     ParameterDeclarationNode(ISyntaxNode syntaxNode, IParameterDeclaration parameterDeclaration) {
@@ -18,11 +21,6 @@ public class ParameterDeclarationNode extends ABoundNode implements IBoundParame
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IParameterDeclaration getParameterDeclaration() {
-        return parameterDeclaration;
     }
 
     @Override

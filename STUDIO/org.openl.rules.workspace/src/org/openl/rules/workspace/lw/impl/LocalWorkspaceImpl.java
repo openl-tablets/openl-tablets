@@ -11,6 +11,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
@@ -26,12 +29,15 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
             .compareToIgnoreCase(o2.getName());
 
+    @Getter(AccessLevel.PROTECTED)
     private final String userId;
+    @Getter
     private final File location;
     private final Map<ProjectKey, AProject> localProjects;
     private final List<LocalWorkspaceListener> listeners = new ArrayList<>();
     private final LocalRepository localRepository;
     private final DesignTimeRepository designTimeRepository;
+    @Getter
     private final MetainfoRegistry metainfoRegistry;
 
     LocalWorkspaceImpl(String userId,
@@ -71,16 +77,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
         repository.initialize();
         return repository;
-    }
-
-    @Override
-    public File getLocation() {
-        return location;
-    }
-
-    @Override
-    public MetainfoRegistry getMetainfoRegistry() {
-        return metainfoRegistry;
     }
 
     @Override
@@ -127,10 +123,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                     .sorted(PROJECTS_COMPARATOR)
                     .collect(Collectors.toList());
         }
-    }
-
-    protected String getUserId() {
-        return userId;
     }
 
     @Override

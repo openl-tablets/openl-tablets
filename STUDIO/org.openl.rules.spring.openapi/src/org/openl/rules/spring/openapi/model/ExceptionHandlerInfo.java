@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.Getter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -21,12 +22,19 @@ import org.openl.rules.spring.openapi.OpenApiUtils;
  */
 public class ExceptionHandlerInfo {
 
+    @Getter
     private final Class<?> controllerAdviceBeanType;
+    @Getter
     private final Method method;
+    @Getter
     private final String statusCode;
+    @Getter
     private final String[] produces;
+    @Getter
     private final Type returnType;
+    @Getter
     private final Type wrapperReturnType;
+    @Getter
     private final Class<? extends Throwable>[] handledExceptions;
 
     private ExceptionHandlerInfo(Builder from) {
@@ -39,40 +47,13 @@ public class ExceptionHandlerInfo {
         this.statusCode = from.statusCode;
     }
 
-    public Method getMethod() {
-        return method;
-    }
-
-    public String[] getProduces() {
-        return produces;
-    }
-
-    public Type getReturnType() {
-        return returnType;
-    }
-
-    public Type getWrapperReturnType() {
-        return wrapperReturnType;
-    }
-
-    public Class<? extends Throwable>[] getHandledExceptions() {
-        return handledExceptions;
-    }
-
-    public String getStatusCode() {
-        return statusCode;
-    }
-
-    public Class<?> getControllerAdviceBeanType() {
-        return controllerAdviceBeanType;
-    }
-
     public static class Builder {
 
         private final Class<?> controllerAdviceBeanType;
         private final Method method;
         private final String statusCode;
         private final Class<? extends Throwable>[] handledExceptions;
+        @Getter
         private Type returnType;
         private Type wrapperReturnType;
         private String[] produces;
@@ -96,10 +77,6 @@ public class ExceptionHandlerInfo {
             this.handledExceptions = Objects
                     .requireNonNull(AnnotationUtils.findAnnotation(method, ExceptionHandler.class))
                     .value();
-        }
-
-        public Type getReturnType() {
-            return returnType;
         }
 
         public static Builder from(Class<?> controllerAdviceBeanType, Method method) {

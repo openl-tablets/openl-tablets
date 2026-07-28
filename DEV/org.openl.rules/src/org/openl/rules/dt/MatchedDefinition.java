@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
@@ -15,13 +16,16 @@ import org.openl.util.text.TextInfo;
 class MatchedDefinition {
     final List<ExpressionIdentifier> identifiers;
     final String statement;
+    @Getter
     final int[] usedMethodParameterIndexes;
     final MatchType matchType;
     Map<String, String> parametersToRename;
     Map<String, String> externalParametersToRename;
     final Map<String, String> methodParametersToRename;
+    @Getter
     final DTColumnsDefinition dtColumnsDefinition;
     boolean parametersRenamingIsUsed = false;
+    @Getter
     final boolean mayHaveCompilationErrors;
 
     public MatchedDefinition(DTColumnsDefinition dtColumnsDefinition,
@@ -70,20 +74,12 @@ class MatchedDefinition {
         return newName != null ? newName : name;
     }
 
-    public DTColumnsDefinition getDtColumnsDefinition() {
-        return dtColumnsDefinition;
-    }
-
     public String getStatementWithReplacedIdentifiers() {
         return replaceIdentifierNodeNamesInCode(statement,
                 identifiers,
                 Pair.of(methodParametersToRename, true),
                 Pair.of(externalParametersToRename, false),
                 Pair.of(parametersToRename, true));
-    }
-
-    public int[] getUsedMethodParameterIndexes() {
-        return usedMethodParameterIndexes;
     }
 
     public MatchType getMatchType() {
@@ -94,10 +90,6 @@ class MatchedDefinition {
             case METHOD_ARGS_RENAMED_CASTED -> parametersRenamingIsUsed ? MatchType.METHOD_ARGS_AND_PARAMS_RENAMED_CASTED : matchType;
             default -> matchType;
         };
-    }
-
-    public boolean isMayHaveCompilationErrors() {
-        return mayHaveCompilationErrors;
     }
 
     @SafeVarargs

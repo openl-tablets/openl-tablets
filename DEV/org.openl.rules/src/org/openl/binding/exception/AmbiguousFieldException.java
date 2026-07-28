@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.openl.base.INamedThing;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
@@ -21,6 +23,7 @@ import org.openl.types.IOpenField;
  */
 public class AmbiguousFieldException extends OpenlNotCheckedException {
 
+    @Getter
     private final Collection<IOpenField> matchingFields;
 
     private final String fieldName;
@@ -28,10 +31,6 @@ public class AmbiguousFieldException extends OpenlNotCheckedException {
     public AmbiguousFieldException(String fieldName, List<IOpenField> matchingFields) {
         this.fieldName = fieldName;
         this.matchingFields = Collections.unmodifiableList(matchingFields);
-    }
-
-    public Collection<IOpenField> getMatchingFields() {
-        return matchingFields;
     }
 
     @Override

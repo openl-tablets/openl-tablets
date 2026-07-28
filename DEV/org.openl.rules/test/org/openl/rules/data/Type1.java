@@ -1,8 +1,15 @@
 package org.openl.rules.data;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class Type1 {
 
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
     private String value;
 
     public Type1() {
@@ -12,22 +19,6 @@ public class Type1 {
     public Type1(String name, String value) {
         super();
         this.name = name;
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setValue(String value) {
         this.value = value;
     }
 

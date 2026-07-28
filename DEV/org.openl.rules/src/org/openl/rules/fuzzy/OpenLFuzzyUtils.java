@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -454,10 +455,15 @@ public final class OpenLFuzzyUtils {
 
     @RequiredArgsConstructor
     public static final class FuzzyResult implements Comparable<FuzzyResult> {
+        @Getter
         final Token token;
+        @Getter
         final int foundTokensCount;
+        @Getter
         final int missedTokensCount;
+        @Getter
         final int unmatchedTokensCount;
+        @Getter
         final double acceptableSimilarity;
 
         @Override
@@ -488,34 +494,18 @@ public final class OpenLFuzzyUtils {
             }
             return Double.compare(o.acceptableSimilarity, this.acceptableSimilarity);
         }
-
-        public Token getToken() {
-            return token;
-        }
-
-        public int getFoundTokensCount() {
-            return foundTokensCount;
-        }
-
-        public int getMissedTokensCount() {
-            return missedTokensCount;
-        }
-
-        public double getAcceptableSimilarity() {
-            return acceptableSimilarity;
-        }
-
-        public int getUnmatchedTokensCount() {
-            return unmatchedTokensCount;
-        }
     }
 
     private static class BuildBySimilarity {
         private final String[] sourceTokens;
         private final String[][] tokensList;
+        @Getter
         private List<Pair<String, String>> similarity;
+        @Getter
         private int maxMatchedTokens;
+        @Getter
         private int[] f;
+        @Getter
         private final double acceptableSimilarity;
         private final Token[] tokens;
         private final double[][][] distances;
@@ -530,22 +520,6 @@ public final class OpenLFuzzyUtils {
             this.tokensList = tokensList;
             this.acceptableSimilarity = acceptableSimilarity;
             this.distances = distances;
-        }
-
-        public List<Pair<String, String>> getSimilarity() {
-            return similarity;
-        }
-
-        public int getMaxMatchedTokens() {
-            return maxMatchedTokens;
-        }
-
-        public int[] getF() {
-            return f;
-        }
-
-        public double getAcceptableSimilarity() {
-            return acceptableSimilarity;
         }
 
         public BuildBySimilarity invoke() {

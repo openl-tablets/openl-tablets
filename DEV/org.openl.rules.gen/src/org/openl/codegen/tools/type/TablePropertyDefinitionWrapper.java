@@ -1,12 +1,16 @@
 package org.openl.codegen.tools.type;
 
+import lombok.Getter;
+
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 
 public class TablePropertyDefinitionWrapper {
 
     private final TablePropertyDefinition tablePropertyDefinition;
     private String operationName;
+    @Getter
     private String contextVar;
+    @Getter
     private String propertyVar;
 
     public TablePropertyDefinitionWrapper(TablePropertyDefinition tablePropertyDefinition) {
@@ -32,13 +36,5 @@ public class TablePropertyDefinitionWrapper {
 
     public String getOperation() {
         return operationName;
-    }
-
-    public String getContextVar() {
-        return contextVar;
-    }
-
-    public String getPropertyVar() {
-        return propertyVar;
     }
 }

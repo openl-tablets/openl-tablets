@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -23,12 +24,9 @@ import org.openl.types.impl.MethodKey;
 @RequiredArgsConstructor
 public final class DimensionPropertiesMethodKey {
 
+    @Getter
     private final IOpenMethod method;
     private int hashCode = 0;
-
-    public IOpenMethod getMethod() {
-        return method;
-    }
 
     @Override
     public boolean equals(Object obj) {

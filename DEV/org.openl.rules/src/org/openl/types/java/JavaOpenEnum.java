@@ -1,5 +1,7 @@
 package org.openl.types.java;
 
+import lombok.Getter;
+
 import org.openl.domain.IDomain;
 
 public class JavaOpenEnum extends JavaOpenClass {
@@ -9,11 +11,7 @@ public class JavaOpenEnum extends JavaOpenClass {
         domain = new JavaEnumDomain(this);
     }
 
+    @Getter
     private final IDomain<?> domain;
-
-    @Override
-    public IDomain<?> getDomain() {
-        return domain;
-    }
 
 }

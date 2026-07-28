@@ -1,5 +1,8 @@
 package org.openl.rules.tableeditor.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.range.RangeParser;
 import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
 
@@ -37,24 +40,12 @@ public class NumberRangeEditor implements ICellEditor {
 
     public static class NumberRangeParams {
 
+        @Getter
+        @Setter
         private String entryEditor;
+        @Getter
+        @Setter
         private String parsedValue;
-
-        public String getEntryEditor() {
-            return entryEditor;
-        }
-
-        public void setEntryEditor(String entryEditor) {
-            this.entryEditor = entryEditor;
-        }
-
-        public String getParsedValue() {
-            return parsedValue;
-        }
-
-        public void setParsedValue(String parsedValue) {
-            this.parsedValue = parsedValue;
-        }
     }
 
 }

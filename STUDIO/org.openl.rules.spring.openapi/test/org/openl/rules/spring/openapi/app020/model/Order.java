@@ -7,24 +7,36 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 public class Order {
+    @Getter
     @JsonProperty("complete")
+    @Setter
     private Boolean complete;
 
+    @Getter
     @JsonProperty("id")
+    @Setter
     private Long id;
 
+    @Getter
     @JsonProperty("petId")
+    @Setter
     private Long petId;
 
+    @Getter
     @JsonProperty("quantity")
+    @Setter
     private Integer quantity;
 
     @JsonProperty("shipDate")
+    @Setter
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Getter
     private OffsetDateTime shipDate;
 
     /**
@@ -38,12 +50,8 @@ public class Order {
 
         DELIVERED("delivered");
 
+        @Getter(onMethod_ = {@JsonValue})
         private final String value;
-
-        @JsonValue
-        public String getValue() {
-            return value;
-        }
 
         @Override
         public String toString() {
@@ -61,55 +69,9 @@ public class Order {
         }
     }
 
+    @Getter
     @JsonProperty("status")
     @Schema(description = "Order Status")
+    @Setter
     private StatusEnum status;
-
-    public Boolean getComplete() {
-        return complete;
-    }
-
-    public void setComplete(Boolean complete) {
-        this.complete = complete;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getPetId() {
-        return petId;
-    }
-
-    public void setPetId(Long petId) {
-        this.petId = petId;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public OffsetDateTime getShipDate() {
-        return shipDate;
-    }
-
-    public void setShipDate(OffsetDateTime shipDate) {
-        this.shipDate = shipDate;
-    }
-
-    public StatusEnum getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusEnum status) {
-        this.status = status;
-    }
 }

@@ -1,19 +1,17 @@
 package org.openl.rules.table.xls;
 
+import lombok.Getter;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import org.openl.rules.table.IGridRegion;
 
 /* internal */ class XlsGridRegion implements IGridRegion {
 
+    @Getter
     private final CellRangeAddress poiXlsRegion;
 
     /* internal */ XlsGridRegion(CellRangeAddress poiXlsRegion) {
         this.poiXlsRegion = poiXlsRegion;
-    }
-
-    public CellRangeAddress getPoiXlsRegion() {
-        return poiXlsRegion;
     }
 
     @Override

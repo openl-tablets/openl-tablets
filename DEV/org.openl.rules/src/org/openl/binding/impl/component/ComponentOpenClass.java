@@ -3,6 +3,7 @@ package org.openl.binding.impl.component;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.OpenL;
@@ -30,6 +31,7 @@ public class ComponentOpenClass extends ADynamicClass {
 
     private final DefaultInitializer init;
 
+    @Getter
     private final OpenL openl;
 
     public ComponentOpenClass(String name, OpenL openl) {
@@ -59,10 +61,6 @@ public class ComponentOpenClass extends ADynamicClass {
     @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
-    }
-
-    public OpenL getOpenl() {
-        return openl;
     }
 
     @Override

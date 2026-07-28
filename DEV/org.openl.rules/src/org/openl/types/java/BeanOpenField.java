@@ -6,6 +6,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.annotations.ContextProperty;
@@ -27,6 +28,7 @@ public final class BeanOpenField implements IOpenField {
     private final PropertyDescriptor descriptor;
     private final Method readMethod;
     private final Method writeMethod;
+    @Getter
     private final String contextProperty;
 
     public static void collectFields(Map<String, IOpenField> map, Class<?> c) {
@@ -178,11 +180,6 @@ public final class BeanOpenField implements IOpenField {
     @Override
     public boolean isContextProperty() {
         return contextProperty != null;
-    }
-
-    @Override
-    public String getContextProperty() {
-        return contextProperty;
     }
 
 }

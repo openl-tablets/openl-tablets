@@ -3,6 +3,8 @@ package org.openl.rules.dt;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.table.CoordinatesTransformer;
 import org.openl.rules.table.IGridTable;
@@ -39,6 +41,7 @@ public class DecisionTableLookupConvertor {
 
     private final List<IGridTable> hcHeaders = new ArrayList<>();
     private IGridTable retTable;
+    @Getter
     private DTScale scale;
 
     IGridTable convertTable(ILogicalTable table) throws OpenLCompilationException {
@@ -306,10 +309,6 @@ public class DecisionTableLookupConvertor {
             throw new OpenLCompilationException(message);
         }
 
-    }
-
-    public DTScale getScale() {
-        return scale;
     }
 
 }

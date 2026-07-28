@@ -2,6 +2,7 @@ package org.openl.types;
 
 import java.util.Collection;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.binding.exception.AmbiguousFieldException;
@@ -13,6 +14,7 @@ import org.openl.vm.IRuntimeEnv;
 
 @RequiredArgsConstructor
 public class OpenClassDelegator implements IOpenClass {
+    @Getter
     private final IOpenClass delegate;
 
     @Override
@@ -218,9 +220,5 @@ public class OpenClassDelegator implements IOpenClass {
     @Override
     public boolean isStatic() {
         return delegate.isStatic();
-    }
-
-    public IOpenClass getDelegate() {
-        return delegate;
     }
 }

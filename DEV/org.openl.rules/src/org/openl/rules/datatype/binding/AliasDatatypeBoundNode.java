@@ -1,5 +1,7 @@
 package org.openl.rules.datatype.binding;
 
+import lombok.Getter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -13,7 +15,9 @@ import org.openl.types.impl.InternalDatatypeClass;
  */
 public class AliasDatatypeBoundNode implements IMemberBoundNode {
 
+    @Getter
     private final TableSyntaxNode tableSyntaxNode;
+    @Getter
     private final DomainOpenClass domainOpenClass;
     private final ModuleOpenClass moduleOpenClass;
 
@@ -44,13 +48,5 @@ public class AliasDatatypeBoundNode implements IMemberBoundNode {
     @Override
     public void removeDebugInformation(IBindingContext cxt) {
         // nothing to remove
-    }
-
-    public TableSyntaxNode getTableSyntaxNode() {
-        return tableSyntaxNode;
-    }
-
-    public DomainOpenClass getDomainOpenClass() {
-        return domainOpenClass;
     }
 }

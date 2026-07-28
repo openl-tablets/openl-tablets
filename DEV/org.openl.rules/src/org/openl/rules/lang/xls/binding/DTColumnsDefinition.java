@@ -9,6 +9,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
@@ -16,15 +19,24 @@ import org.openl.types.impl.CompositeMethod;
 
 public class DTColumnsDefinition {
 
+    @Getter
     private final String tableName;
+    @Getter
     private final String expression;
     private final Map<String, List<IParameterDeclaration>> parameters;
+    @Getter
     private final IOpenMethodHeader header;
+    @Setter
     private CompositeMethod compositeMethod;
+    @Getter
     private final DTColumnsDefinitionType type;
+    @Getter
     private final String uri;
+    @Setter
     private Set<String> externalParameters;
+    @Setter
     private Runnable compositeMethodInitializer;
+    @Getter
     private final List<ExpressionIdentifier> identifiers;
 
     public DTColumnsDefinition(DTColumnsDefinitionType type,
@@ -44,18 +56,6 @@ public class DTColumnsDefinition {
         this.uri = tableSyntaxNode.getUri();
     }
 
-    public String getTableName() {
-        return tableName;
-    }
-
-    public String getExpression() {
-        return expression;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
     public CompositeMethod getCompositeMethod() {
         if (compositeMethod == null) {
             compositeMethodInitializer.run();
@@ -63,16 +63,8 @@ public class DTColumnsDefinition {
         return compositeMethod;
     }
 
-    public void setCompositeMethod(CompositeMethod compositeMethod) {
-        this.compositeMethod = compositeMethod;
-    }
-
     public Set<String> getExternalParameters() {
         return Objects.requireNonNullElse(externalParameters, Set.of());
-    }
-
-    public void setExternalParameters(Set<String> externalParameters) {
-        this.externalParameters = externalParameters;
     }
 
     public int getNumberOfTitles() {
@@ -99,14 +91,6 @@ public class DTColumnsDefinition {
         return Collections.unmodifiableSet(parameters.keySet());
     }
 
-    public IOpenMethodHeader getHeader() {
-        return header;
-    }
-
-    public DTColumnsDefinitionType getType() {
-        return type;
-    }
-
     public boolean isCondition() {
         return DTColumnsDefinitionType.CONDITION == type;
     }
@@ -117,13 +101,5 @@ public class DTColumnsDefinition {
 
     public boolean isReturn() {
         return DTColumnsDefinitionType.RETURN == type;
-    }
-
-    public void setCompositeMethodInitializer(Runnable compositeMethodInitializer) {
-        this.compositeMethodInitializer = compositeMethodInitializer;
-    }
-
-    public List<ExpressionIdentifier> getIdentifiers() {
-        return identifiers;
     }
 }

@@ -1,5 +1,7 @@
 package org.openl.rules.calc.element;
 
+import lombok.Getter;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeDescriptionHolder;
 import org.openl.rules.calc.ASpreadsheetField;
@@ -9,6 +11,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescriptionHolder {
 
+    @Getter
     protected final SpreadsheetCell cell;
     private final SpreadsheetStructureBuilderHolder structureBuilderContainer;
     private IOpenClass type;
@@ -32,10 +35,6 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
         }
 
         return spreadsheetResultCalculator.getValue(cell.getRowIndex(), cell.getColumnIndex());
-    }
-
-    public SpreadsheetCell getCell() {
-        return cell;
     }
 
     @Override

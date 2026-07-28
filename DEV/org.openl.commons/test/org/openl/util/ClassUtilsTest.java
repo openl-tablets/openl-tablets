@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -272,19 +274,14 @@ class ClassUtilsTest {
     }
 
     public static class Bean {
+        @Getter
+        @Setter
         private String a = "getter";
         protected String b = "protected";
         public String c = "public";
         public final String d = "final";
         private Number e = 10;
         public int i;
-
-        public void setA(String a) {
-            this.a = a;
-        }
-        public String getA() {
-            return a;
-        }
 
         public void setX(Number e) {
             this.e = e;

@@ -3,12 +3,15 @@ package org.openl.binding.impl.cast;
 import java.lang.reflect.Array;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.types.IOpenClass;
 
 final class ArrayOneElementCast implements IArrayOneElementCast, IOpenCast {
 
     private final IOpenClass to;
     private final IOpenCast openCast;
+    @Getter
     private final int distance;
 
     ArrayOneElementCast(IOpenClass to, IOpenCast openCast) {
@@ -37,11 +40,6 @@ final class ArrayOneElementCast implements IArrayOneElementCast, IOpenCast {
         }
         throw new ClassCastException(
                 "Cannot convert from '%s' to '%s'.".formatted(from.getClass().getTypeName(), to.getName()));
-    }
-
-    @Override
-    public int getDistance() {
-        return distance;
     }
 
     @Override

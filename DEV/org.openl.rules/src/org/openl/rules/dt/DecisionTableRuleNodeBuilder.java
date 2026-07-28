@@ -3,8 +3,11 @@ package org.openl.rules.dt;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+
 public class DecisionTableRuleNodeBuilder {
 
+    @Getter
     private final List<Integer> rules;
 
     public DecisionTableRuleNodeBuilder() {
@@ -21,10 +24,6 @@ public class DecisionTableRuleNodeBuilder {
 
     public DecisionTableRuleNode makeNode() {
         return new DecisionTableRuleNode(makeRulesAry());
-    }
-
-    public List<Integer> getRules() {
-        return rules;
     }
 
     public int[] makeRulesAry() {

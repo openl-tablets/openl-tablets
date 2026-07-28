@@ -4,6 +4,7 @@
 package org.openl.rules.table;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -13,14 +14,11 @@ import lombok.RequiredArgsConstructor;
 public final class CellKey {
 
     private final int col;
+    @Getter
     private final int row;
 
     public int getColumn() {
         return col;
-    }
-
-    public int getRow() {
-        return row;
     }
 
     @Override

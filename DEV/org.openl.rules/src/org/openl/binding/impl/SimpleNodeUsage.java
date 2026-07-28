@@ -2,6 +2,8 @@ package org.openl.binding.impl;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.text.TextInfo;
@@ -10,11 +12,17 @@ import org.openl.util.text.TextInfo;
  * @author nsamatov.
  */
 public class SimpleNodeUsage implements NodeUsage {
+    @Getter
     private final int start;
+    @Getter
     private final int end;
+    @Getter
     private final String description;
+    @Getter
     private final String uri;
+    @Getter
     private final NodeType nodeType;
+    @Getter
     private final IOpenClass type;
 
     public SimpleNodeUsage(int start, int end, String description, String uri, NodeType nodeType) {
@@ -60,35 +68,6 @@ public class SimpleNodeUsage implements NodeUsage {
             t = t.getComponentClass();
         }
         return t;
-    }
-
-    @Override
-    public int getStart() {
-        return start;
-    }
-
-    @Override
-    public int getEnd() {
-        return end;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public String getUri() {
-        return uri;
-    }
-
-    @Override
-    public NodeType getNodeType() {
-        return nodeType;
-    }
-
-    public IOpenClass getType() {
-        return type;
     }
 
     @Override

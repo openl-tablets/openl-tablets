@@ -2,6 +2,7 @@ package org.openl.types.impl;
 
 import java.lang.reflect.Array;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.types.IOpenClass;
@@ -10,12 +11,8 @@ import org.openl.types.java.JavaOpenClass;
 
 @RequiredArgsConstructor
 public class ArrayIndex implements IOpenIndex {
+    @Getter
     private final IOpenClass elementType;
-
-    @Override
-    public IOpenClass getElementType() {
-        return elementType;
-    }
 
     @Override
     public IOpenClass getIndexType() {

@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.env.PropertyResolver;
@@ -41,11 +42,15 @@ import org.openl.util.StringUtils;
 public class DeploymentManager implements InitializingBean {
     private static final String API_VERSION_SEPARATOR = "_V";
 
+    @Setter
     private String[] initialProductionRepositoryConfigNames;
+    @Setter
     private DesignTimeRepository designRepository;
+    @Setter
     private PropertyResolver propertyResolver;
 
     private final Set<String> deployers = new HashSet<>();
+    @Setter
     public RepositoryFactoryProxy repositoryFactoryProxy;
 
     public void addRepository(String repositoryConfigName) {
@@ -282,24 +287,8 @@ public class DeploymentManager implements InitializingBean {
         return null;
     }
 
-    public void setRepositoryFactoryProxy(RepositoryFactoryProxy repositoryFactoryProxy) {
-        this.repositoryFactoryProxy = repositoryFactoryProxy;
-    }
-
     public Repository getDeployRepository(String repositoryConfigName) {
         return repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-    }
-
-    public void setInitialProductionRepositoryConfigNames(String[] initialProductionRepositoryConfigNames) {
-        this.initialProductionRepositoryConfigNames = initialProductionRepositoryConfigNames;
-    }
-
-    public void setDesignRepository(DesignTimeRepository designRepository) {
-        this.designRepository = designRepository;
-    }
-
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
     }
 
     @Override

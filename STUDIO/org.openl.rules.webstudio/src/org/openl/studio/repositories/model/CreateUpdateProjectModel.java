@@ -2,24 +2,32 @@ package org.openl.studio.repositories.model;
 
 import jakarta.validation.constraints.NotBlank;
 
+import lombok.Getter;
+
 import org.openl.rules.rest.validation.PathConstraint;
 import org.openl.rules.rest.validation.ProjectNameConstraint;
 import org.openl.util.StringUtils;
 
 public class CreateUpdateProjectModel {
 
+    @Getter
     @NotBlank
     private final String repoName;
+    @Getter
     @NotBlank
     private final String author;
 
+    @Getter
     @NotBlank(message = "{openl.constraints.not-blank.project-name.message}")
     @ProjectNameConstraint
     private final String projectName;
 
+    @Getter
     @PathConstraint
     private final String path;
+    @Getter
     private final String comment;
+    @Getter
     private final boolean overwrite;
 
     public CreateUpdateProjectModel(String repoName,
@@ -43,35 +51,11 @@ public class CreateUpdateProjectModel {
         return path.replace('\\', '/');
     }
 
-    public String getRepoName() {
-        return repoName;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
     /**
      * Where the project lands inside a non-flat repository. An uploaded archive carries the full internal
      * path, so the project folder may be named differently from the project itself.
      */
     public String getFullPath() {
         return StringUtils.isEmpty(path) ? projectName : path;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public boolean isOverwrite() {
-        return overwrite;
     }
 }

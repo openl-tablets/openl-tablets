@@ -1,19 +1,19 @@
 package org.openl.codegen.tools.type;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 @RequiredArgsConstructor
 public class TablePriorityRuleWrapper {
+    @Getter
     private final String priorityRule;
 
-    public String getPriorityRule() {
-        return priorityRule;
-    }
-
     public static class SimplePriorityRuleWrapper extends TablePriorityRuleWrapper {
+        @Getter
         private final String operationName;
+        @Getter
         private final String propertyName;
         private final Class<?> propertyType;
 
@@ -24,29 +24,18 @@ public class TablePriorityRuleWrapper {
             propertyType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propertyName);
         }
 
-        public String getOperationName() {
-            return operationName;
-        }
-
-        public String getPropertyName() {
-            return propertyName;
-        }
-
         public String getPropertyType() {
             return propertyType.getName();
         }
     }
 
     public static class JavaClassPriorityRuleWrapper extends TablePriorityRuleWrapper {
+        @Getter
         private final String className;
 
         public JavaClassPriorityRuleWrapper(String priorityRule, String className) {
             super(priorityRule);
             this.className = className;
-        }
-
-        public String getClassName() {
-            return className;
         }
     }
 }

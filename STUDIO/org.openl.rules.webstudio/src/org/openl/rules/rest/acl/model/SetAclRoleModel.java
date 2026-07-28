@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 import org.openl.security.acl.permission.AclRole;
 
 public class SetAclRoleModel {
 
+    @Getter
     @NotNull
     @Parameter(description = "Role to set", required = true)
     private final AclRole role;
@@ -17,10 +19,6 @@ public class SetAclRoleModel {
     @JsonCreator
     public SetAclRoleModel(@JsonProperty("role") AclRole role) {
         this.role = role;
-    }
-
-    public AclRole getRole() {
-        return role;
     }
 
 }

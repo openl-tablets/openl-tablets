@@ -4,11 +4,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 
 public class JavaEnumDomain implements IDomain<Object> {
 
+    @Getter
     private final JavaOpenEnum enumClass;
 
     public JavaEnumDomain(JavaOpenEnum enumClass) {
@@ -37,10 +40,6 @@ public class JavaEnumDomain implements IDomain<Object> {
 
     public Object getValue(int index) {
         return enumClass.getInstanceClass().getEnumConstants()[index];
-    }
-
-    public JavaOpenEnum getEnumClass() {
-        return enumClass;
     }
 
     @Override

@@ -1,11 +1,14 @@
 package org.openl.rules.project.instantiation;
 
+import lombok.Getter;
+
 import org.openl.rules.project.model.Module;
 import org.openl.source.impl.PathSourceCodeModule;
 import org.openl.types.IModuleInfo;
 
 class ModulePathSourceCodeModule extends PathSourceCodeModule implements IModuleInfo {
 
+    @Getter
     private final String moduleName;
     private final String relativeUri;
 
@@ -13,11 +16,6 @@ class ModulePathSourceCodeModule extends PathSourceCodeModule implements IModule
         super(module.getRulesPath());
         this.moduleName = module.getName();
         this.relativeUri = module.getRelativeUri();
-    }
-
-    @Override
-    public String getModuleName() {
-        return moduleName;
     }
 
     @Override

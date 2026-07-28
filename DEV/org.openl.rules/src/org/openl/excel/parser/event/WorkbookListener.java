@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
@@ -41,10 +42,12 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class WorkbookListener implements HSSFListener {
 
+    @Getter
     private final List<EventSheetDescriptor> sheets = new ArrayList<>();
     private final ParserDateUtil parserDateUtil = new ParserDateUtil();
     private final Map<String, Object[][]> cellsMap = new HashMap<>();
 
+    @Getter
     private boolean use1904Windowing = false;
 
     private StyleTrackingListener formatListener;
@@ -302,13 +305,5 @@ public class WorkbookListener implements HSSFListener {
 
     public Object[][] getCells(SheetDescriptor sheet) {
         return cellsMap.get(sheet.getName());
-    }
-
-    public List<EventSheetDescriptor> getSheets() {
-        return sheets;
-    }
-
-    public boolean isUse1904Windowing() {
-        return use1904Windowing;
     }
 }

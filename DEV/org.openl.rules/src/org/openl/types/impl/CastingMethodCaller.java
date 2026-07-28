@@ -6,6 +6,8 @@
 
 package org.openl.types.impl;
 
+import lombok.Getter;
+
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -15,6 +17,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class CastingMethodCaller extends MethodCaller {
 
+    @Getter
     private final IOpenCast[] casts;
 
     public CastingMethodCaller(IOpenMethod method, IOpenCast[] cast) {
@@ -35,9 +38,5 @@ public class CastingMethodCaller extends MethodCaller {
         }
 
         return getMethod().invoke(target, newParams, env);
-    }
-
-    public IOpenCast[] getCasts() {
-        return casts;
     }
 }

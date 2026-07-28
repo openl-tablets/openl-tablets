@@ -2,6 +2,7 @@ package org.openl.security.acl.oid;
 
 import java.util.Objects;
 
+import lombok.Getter;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.ObjectIdentity;
 
@@ -12,16 +13,12 @@ import org.openl.security.acl.utils.AclPathUtils;
 public class AclObjectIdentityProviderImpl implements AclObjectIdentityProvider {
 
     private final Class<?> oidClass;
+    @Getter
     private final ObjectIdentity rootOid;
 
     public AclObjectIdentityProviderImpl(Class<?> oidClass, String rootId) {
         this.oidClass = oidClass;
         this.rootOid = new ObjectIdentityImpl(Root.class, rootId);
-    }
-
-    @Override
-    public ObjectIdentity getRootOid() {
-        return rootOid;
     }
 
     @Override

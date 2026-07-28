@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,10 +36,13 @@ import org.openl.util.StringUtils;
 public class ParsedGrid extends AGrid {
 
     private final String workbookPath;
+    @Getter(AccessLevel.PROTECTED)
     private final Object[][] cells;
+    @Getter
     private final String uri;
     private final XlsSheetSourceCodeModule sheetSource;
     private final SheetDescriptor sheetDescriptor;
+    @Getter(AccessLevel.PROTECTED)
     private final boolean use1904Windowing;
     private final List<IGridRegion> regions = new ArrayList<>();
     private final RegionsPool regionsPool = new RegionsPool();
@@ -108,11 +112,6 @@ public class ParsedGrid extends AGrid {
     @Override
     public int getNumberOfMergedRegions() {
         return regions.size();
-    }
-
-    @Override
-    public String getUri() {
-        return uri;
     }
 
     @Override
@@ -275,20 +274,12 @@ public class ParsedGrid extends AGrid {
         return regionsPool.getRegionContaining(col, row);
     }
 
-    protected Object[][] getCells() {
-        return cells;
-    }
-
     private int getFirstRowNum() {
         return sheetDescriptor.getFirstRowNum();
     }
 
     private int getFirstColNum() {
         return sheetDescriptor.getFirstColNum();
-    }
-
-    protected boolean isUse1904Windowing() {
-        return use1904Windowing;
     }
 
     protected IWritableGrid getWritableGrid() {

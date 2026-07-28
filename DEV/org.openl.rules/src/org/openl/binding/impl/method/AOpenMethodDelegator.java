@@ -2,6 +2,8 @@ package org.openl.binding.impl.method;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.binding.MethodUtil;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -10,14 +12,11 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class AOpenMethodDelegator implements IOpenMethod, IMethodSignature {
+    @Getter
     private final IOpenMethod delegate;
 
     public AOpenMethodDelegator(IOpenMethod delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
-    }
-
-    public IOpenMethod getDelegate() {
-        return delegate;
     }
 
     @Override

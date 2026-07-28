@@ -4,24 +4,17 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import lombok.Setter;
+
 import org.openl.util.StringUtils;
 
 public class JdbcDBRepository extends DBRepository {
+    @Setter
     private String uri;
+    @Setter
     private String login;
+    @Setter
     private String password;
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
 
     @Override
     protected Connection createConnection() throws SQLException {

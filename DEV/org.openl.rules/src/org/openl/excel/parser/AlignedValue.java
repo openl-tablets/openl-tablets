@@ -2,6 +2,7 @@ package org.openl.excel.parser;
 
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -9,17 +10,10 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public final class AlignedValue implements ExtendedValue {
+    @Getter
     private final Object value;
+    @Getter
     private final short indent;
-
-    @Override
-    public Object getValue() {
-        return value;
-    }
-
-    public short getIndent() {
-        return indent;
-    }
 
     @Override
     public boolean equals(Object o) {

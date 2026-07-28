@@ -3,6 +3,8 @@ package org.openl.rules.deploy;
 import java.util.Collections;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -13,6 +15,7 @@ import org.openl.util.FileUtils;
 
 public class LocalProjectFolder extends ALocalProjectArtefact implements IProjectFolder {
 
+    @Getter
     private final FileData data;
     private final Map<String, IProjectArtefact> artefacts;
 
@@ -35,10 +38,6 @@ public class LocalProjectFolder extends ALocalProjectArtefact implements IProjec
     @Override
     public ArtefactPath getArtefactPath() {
         return new ArtefactPathImpl(getFolderPath());
-    }
-
-    public FileData getData() {
-        return data;
     }
 
 }

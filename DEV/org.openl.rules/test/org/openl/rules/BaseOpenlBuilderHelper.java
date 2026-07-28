@@ -1,5 +1,7 @@
 package org.openl.rules;
 
+import lombok.Getter;
+
 import org.openl.CompiledOpenClass;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -18,15 +20,12 @@ import org.openl.types.IOpenMethod;
 public abstract class BaseOpenlBuilderHelper {
 
     protected Object instance;
+    @Getter
     private final CompiledOpenClass compiledOpenClass;
 
     public BaseOpenlBuilderHelper(String src) {
         var engineFactory = new RulesEngineFactory<Object>(src);
         compiledOpenClass = engineFactory.getCompiledOpenClass();
-    }
-
-    public CompiledOpenClass getCompiledOpenClass() {
-        return compiledOpenClass;
     }
 
     protected TableSyntaxNode findTable(String tableName) {

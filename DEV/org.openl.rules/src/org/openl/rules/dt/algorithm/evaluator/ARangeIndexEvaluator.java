@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.domain.IDomain;
@@ -170,8 +171,11 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public static class IndexNode implements Comparable<IndexNode> {
+        @Getter
         private final Comparable<Object> value;
+        @Getter
         private int[] rules;
+        @Getter(AccessLevel.PACKAGE)
         private int ruleN;
 
         IndexNode(Comparable<Object> value, int ruleN) {
@@ -182,18 +186,6 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         IndexNode(Comparable<Object> value, int[] rules) {
             this.value = value;
             this.rules = rules;
-        }
-
-        public Comparable<Object> getValue() {
-            return value;
-        }
-
-        int getRuleN() {
-            return ruleN;
-        }
-
-        public int[] getRules() {
-            return rules;
         }
 
         @Override

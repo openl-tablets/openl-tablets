@@ -5,10 +5,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
+
 public final class TestSuiteExecutor {
     private static final int QUEUE_SIZE = 2000;
 
     private final ThreadPoolExecutor executor;
+    @Getter
     private final int threadCount;
 
     public TestSuiteExecutor(int threadCount) {
@@ -23,10 +26,6 @@ public final class TestSuiteExecutor {
 
     public Executor getExecutor() {
         return executor;
-    }
-
-    public int getThreadCount() {
-        return threadCount;
     }
 
     public void destroy() {

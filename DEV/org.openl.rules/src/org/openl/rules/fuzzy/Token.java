@@ -1,28 +1,20 @@
 package org.openl.rules.fuzzy;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class Token {
 
+    @Getter
     private final String value;
+    @Getter
     private final int distance;
+    @Getter
     private final int minMatchedTokens;
 
     public Token(String value, int distance) {
         this(value, distance, 0);
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public int getDistance() {
-        return distance;
-    }
-
-    public int getMinMatchedTokens() {
-        return minMatchedTokens;
     }
 
     @Override

@@ -17,6 +17,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.InputSource;
 
@@ -47,11 +50,14 @@ import org.openl.util.StringUtils;
 public class MappedRepository implements BranchRepository, Closeable, FolderMapper {
     private static final String SEPARATOR = ":";
 
+    @Getter
+    @Setter
     private Repository delegate;
 
     private final AtomicReference<ProjectIndexCache> indexCache = new AtomicReference<>();
     private final ReadWriteLock indexLock = new ReentrantReadWriteLock();
 
+    @Setter(AccessLevel.PRIVATE)
     private String baseFolder;
 
     public static Repository create(Repository delegate,
@@ -74,19 +80,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     private MappedRepository() {
-    }
-
-    @Override
-    public Repository getDelegate() {
-        return delegate;
-    }
-
-    public void setDelegate(Repository delegate) {
-        this.delegate = delegate;
-    }
-
-    private void setBaseFolder(String baseFolder) {
-        this.baseFolder = baseFolder;
     }
 
     private void setProjectIndex(ProjectIndex projectIndex, long lastUpdateTime) {

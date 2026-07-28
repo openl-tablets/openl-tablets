@@ -6,6 +6,7 @@
 
 package org.openl.types.impl;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.types.IMethodCaller;
@@ -18,12 +19,8 @@ import org.openl.vm.IRuntimeEnv;
 @RequiredArgsConstructor
 public class MethodCaller implements IMethodCaller {
 
+    @Getter
     private final IOpenMethod method;
-
-    @Override
-    public IOpenMethod getMethod() {
-        return method;
-    }
 
     /*
      * (non-Javadoc)

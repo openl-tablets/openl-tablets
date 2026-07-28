@@ -6,30 +6,20 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import lombok.Setter;
+
 import org.openl.util.StringUtils;
 
 public class DatasourceDBRepository extends DBRepository {
 
+    @Setter
     private DataSource dataSource;
+    @Setter
     private String uri;
+    @Setter
     private String login;
+    @Setter
     private String password;
-
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     @Override
     protected Connection createConnection() throws SQLException {

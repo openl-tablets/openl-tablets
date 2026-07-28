@@ -6,6 +6,7 @@
 
 package org.openl.binding.impl;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -14,10 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ControlSignalReturn extends ControlSignal {
 
+    @Getter
     private final Object returnValue;
-
-    public Object getReturnValue() {
-        return returnValue;
-    }
 
 }

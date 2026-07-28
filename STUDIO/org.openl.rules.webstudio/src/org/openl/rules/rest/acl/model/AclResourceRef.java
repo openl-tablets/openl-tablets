@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import org.openl.security.acl.repository.AclRepositoryType;
 
@@ -24,13 +25,16 @@ public class AclResourceRef {
             .thenComparing(AclResourceRef::getRepositoryId, Comparator.nullsFirst(Comparator.naturalOrder()))
             .thenComparing(AclResourceRef::getProjectName, Comparator.nullsFirst(Comparator.naturalOrder()));
 
+    @Getter
     @Parameter(description = "Type of the repository (e.g., DESIGN, PROD)")
     @NotNull
     private final AclRepositoryType repositoryType;
 
+    @Getter
     @Parameter(description = "Repository ID")
     private final String repositoryId;
 
+    @Getter
     @Parameter(description = "Optional project name inside the repository")
     private final String projectName;
 
@@ -38,18 +42,6 @@ public class AclResourceRef {
         this.repositoryId = builder.repositoryId;
         this.projectName = builder.projectName;
         this.repositoryType = builder.repositoryType;
-    }
-
-    public AclRepositoryType getRepositoryType() {
-        return repositoryType;
-    }
-
-    public String getRepositoryId() {
-        return repositoryId;
-    }
-
-    public String getProjectName() {
-        return projectName;
     }
 
     @Transient

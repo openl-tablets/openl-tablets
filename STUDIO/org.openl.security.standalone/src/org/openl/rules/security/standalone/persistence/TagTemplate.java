@@ -7,30 +7,20 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name = "OpenL_Tag_Templates")
 public class TagTemplate implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+    @Getter(onMethod_ = {@Id})
+    @Setter
     private String template;
+    @Getter
+    @Setter
     private int priority;
-
-    @Id
-    public String getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(String template) {
-        this.template = template;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
 
     @Override
     public boolean equals(Object o) {

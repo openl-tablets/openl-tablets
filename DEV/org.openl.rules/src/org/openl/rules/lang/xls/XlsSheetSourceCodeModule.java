@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import org.openl.rules.lang.xls.load.SheetLoader;
@@ -12,10 +14,14 @@ import org.openl.util.StringTool;
 
 @Deprecated
 public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
+    @Getter
     private final XlsWorkbookSourceCodeModule workbookSource;
 
+    @Getter
     private final SheetLoader sheetLoader;
 
+    @Getter
+    @Setter
     private Map<String, Object> params;
 
     public XlsSheetSourceCodeModule(int sheetIndex, XlsWorkbookSourceCodeModule workbookSource) {
@@ -54,10 +60,6 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
         return sheetLoader.getSheetName();
     }
 
-    public SheetLoader getSheetLoader() {
-        return sheetLoader;
-    }
-
     @Override
     public int getStartPosition() {
         return 0;
@@ -76,19 +78,5 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
             workbookUri = "VIRTUAL_WORKBOOK@" + System.identityHashCode(this);
         }
         return workbookUri + "?sheet=" + StringTool.encodeURL(getSheetName());
-    }
-
-    public XlsWorkbookSourceCodeModule getWorkbookSource() {
-        return workbookSource;
-    }
-
-    @Override
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    @Override
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
     }
 }

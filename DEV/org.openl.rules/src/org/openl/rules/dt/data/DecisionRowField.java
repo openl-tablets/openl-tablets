@@ -1,5 +1,7 @@
 package org.openl.rules.dt.data;
 
+import lombok.Getter;
+
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.IDecisionRow;
@@ -11,6 +13,7 @@ import org.openl.vm.IRuntimeEnv;
 public class DecisionRowField implements IOpenField {
 
     private final int numberOfTableParameters;
+    @Getter
     private final IDecisionRow conditionOrAction;
     private final DecisionTableDataType decisionTableDataType;
     private final ConditionOrActionDataType dataType;
@@ -37,10 +40,6 @@ public class DecisionRowField implements IOpenField {
         }
         conditionOrAction.loadValues(res, 0, ruleNum, target, params, env);
         return res;
-    }
-
-    public IDecisionRow getConditionOrAction() {
-        return conditionOrAction;
     }
 
     @Override

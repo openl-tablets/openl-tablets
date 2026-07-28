@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,11 +46,14 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
+    @Getter
     private final IdentifierNode foreignKeyTable;
     private final IdentifierNode[] foreignKeyTableAccessorChainTokens;
+    @Getter
     private final IdentifierNode foreignKey;
     private String[] foreignKeyColumnChainTokens = {};
 
+    @Getter
     private final CellKey foreignKeyCellCoordinate;
 
     public ForeignKeyColumnDescriptor(IOpenField field,
@@ -601,18 +605,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return new ResultChainObject(resObj, resType);
     }
 
-    public IdentifierNode getForeignKeyTable() {
-        return foreignKeyTable;
-    }
-
-    public IdentifierNode getForeignKey() {
-        return foreignKey;
-    }
-
-    public CellKey getForeignKeyCellCoordinate() {
-        return foreignKeyCellCoordinate;
-    }
-
     public IOpenField getForeignKeyField(IOpenClass type, IDataBase db) {
         if (foreignKeyColumnChainTokens.length > 0) {
             var fieldName = foreignKeyColumnChainTokens[foreignKeyColumnChainTokens.length - 1];
@@ -629,15 +621,9 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     static class ResultChainObject {
+        @Getter
         private final Object value;
+        @Getter
         private final IOpenClass type;
-
-        public Object getValue() {
-            return value;
-        }
-
-        public IOpenClass getType() {
-            return type;
-        }
     }
 }

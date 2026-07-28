@@ -1,32 +1,29 @@
 package org.openl.rules.rest.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.ui.tree.view.RulesProfile;
 
 public class UserProfileModel extends UserProfileBaseModel {
 
+    @Getter
     @Parameter(description = "Username")
     private String username;
 
+    @Getter
     private UserExternalFlags externalFlags;
 
+    @Getter
     private RulesProfile[] profiles;
 
+    @Getter
     private boolean administrator;
-
-    public String getUsername() {
-        return username;
-    }
 
     public UserProfileModel setUsername(String username) {
         this.username = username;
         return this;
-    }
-
-    public UserExternalFlags getExternalFlags() {
-        return externalFlags;
     }
 
     public UserProfileModel setExternalFlags(UserExternalFlags externalFlags) {
@@ -97,14 +94,6 @@ public class UserProfileModel extends UserProfileBaseModel {
     public UserProfileModel setProfiles(RulesProfile[] profiles) {
         this.profiles = profiles;
         return this;
-    }
-
-    public RulesProfile[] getProfiles() {
-        return profiles;
-    }
-
-    public boolean isAdministrator() {
-        return administrator;
     }
 
     public UserProfileModel setAdministrator(boolean administrator) {

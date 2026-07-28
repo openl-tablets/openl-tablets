@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 
@@ -28,39 +30,53 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private static final String SSE_ALGORITHM_PATH_SUFFIX = ".sse-algorithm";
     private static final String LISTENER_TIMER_PERIOD_PATH_SUFFIX = ".listener-timer-period";
 
+    @Getter
     @Parameter(description = "This field should be left blank to use the standard AWS S3. To use a non-standard service endpoint, enter the URL here.")
+    @Setter
     @SettingPropertyName(suffix = SERVICE_ENDPOINT_PATH_SUFFIX)
     @JsonView(Views.Base.class)
     private String serviceEndpoint;
 
+    @Getter
     @Parameter(description = "A bucket is a logical unit of object storage in the AWS object storage service. Bucket names are globally unique, regardless of the AWS region where the bucket is created.")
+    @Setter
     @SettingPropertyName(suffix = BUCKET_NAME_PATH_SUFFIX)
     @NotBlank
     @JsonView(Views.Base.class)
     private String bucketName;
 
+    @Getter
     @Parameter(description = "Select a geographically closest AWS region to optimize latency, minimize costs, and address regulatory requirements.")
+    @Setter
     @SettingPropertyName(suffix = REGION_NAME_PATH_SUFFIX)
     @NotBlank
     @JsonView(Views.Base.class)
     private String regionName;
 
+    @Getter
     @Parameter(description = "Alphanumeric text string that identifies the account owner.")
+    @Setter
     @SettingPropertyName(suffix = ACCESS_KEY_PATH_SUFFIX, secret = true)
     @JsonView(Views.Base.class)
     private String accessKey;
 
+    @Getter
     @Parameter(description = "Plays the role of a password.")
+    @Setter
     @SettingPropertyName(suffix = SECRET_KEY_PATH_SUFFIX, secret = true)
     @JsonView(Views.Base.class)
     private String secretKey;
 
+    @Getter
     @Parameter(description = "You can select server side encryption algorithm to encrypt data in S3 bucket.")
+    @Setter
     @SettingPropertyName(suffix = SSE_ALGORITHM_PATH_SUFFIX)
     @JsonView(Views.Base.class)
     private ServerSideEncryption sseAlgorithm;
 
+    @Getter
     @Parameter(description = "Repository changes check interval. Must be greater than 0.")
+    @Setter
     @SettingPropertyName(suffix = LISTENER_TIMER_PERIOD_PATH_SUFFIX)
     @JsonView(Views.Base.class)
     @Min(1)
@@ -100,30 +116,6 @@ public class AWSS3RepositorySettings extends RepositorySettings {
                 .orElse(null);
     }
 
-    public String getServiceEndpoint() {
-        return serviceEndpoint;
-    }
-
-    public void setServiceEndpoint(String serviceEndpoint) {
-        this.serviceEndpoint = serviceEndpoint;
-    }
-
-    public String getBucketName() {
-        return bucketName;
-    }
-
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
-    public String getRegionName() {
-        return regionName;
-    }
-
-    public void setRegionName(String regionName) {
-        this.regionName = regionName;
-    }
-
     public List<AWSS3Region> getAllAllowedRegions() {
         return Region.regions().stream()
                 .map(AWSS3Region::from)
@@ -132,38 +124,6 @@ public class AWSS3RepositorySettings extends RepositorySettings {
 
     public Set<ServerSideEncryption> getAllSseAlgorithms() {
         return ServerSideEncryption.knownValues();
-    }
-
-    public String getAccessKey() {
-        return accessKey;
-    }
-
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
-    }
-
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-    }
-
-    public Integer getListenerTimerPeriod() {
-        return listenerTimerPeriod;
-    }
-
-    public void setListenerTimerPeriod(Integer listenerTimerPeriod) {
-        this.listenerTimerPeriod = listenerTimerPeriod;
-    }
-
-    public ServerSideEncryption getSseAlgorithm() {
-        return sseAlgorithm;
-    }
-
-    public void setSseAlgorithm(ServerSideEncryption sseAlgorithm) {
-        this.sseAlgorithm = sseAlgorithm;
     }
 
     @Override

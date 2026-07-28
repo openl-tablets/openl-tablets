@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
@@ -30,6 +32,7 @@ public class ProjectUploader {
     private final String algorithmsPath;
     private final String modelsModuleName;
     private final String algorithmsModuleName;
+    @Getter
     private String createdProjectName;
     private final Map<String, String> tags;
 
@@ -131,9 +134,5 @@ public class ProjectUploader {
                 projectCreator.destroy();
             }
         }
-    }
-
-    public String getCreatedProjectName() {
-        return createdProjectName;
     }
 }

@@ -27,6 +27,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -107,33 +111,16 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
         return parent;
     }
 
+    @Setter(AccessLevel.PACKAGE)
     private Path root;
     private Map<String, Path> storage = Map.of();
     private Map<Path, String> pathAliases = Map.of();
+    @Getter
+    @Setter
     private String id;
+    @Getter
+    @Setter
     private String name;
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    void setRoot(Path root) {
-        this.root = root;
-    }
 
     void setStorage(Map<String, Path> storage) {
         final var localStorage = new HashMap<String, Path>();

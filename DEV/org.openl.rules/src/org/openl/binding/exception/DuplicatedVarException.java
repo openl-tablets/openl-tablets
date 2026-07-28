@@ -8,6 +8,8 @@ package org.openl.binding.exception;
 
 import java.io.Serial;
 
+import lombok.Getter;
+
 import org.openl.exception.OpenlNotCheckedException;
 
 /**
@@ -18,15 +20,12 @@ public class DuplicatedVarException extends OpenlNotCheckedException {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @Getter
     private final String variableName;
 
     public DuplicatedVarException(String msg, String variableName) {
         super(msg);
         this.variableName = variableName;
-    }
-
-    public String getVariableName() {
-        return variableName;
     }
 
     @Override

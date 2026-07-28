@@ -2,13 +2,18 @@ package org.openl.rules.common.impl;
 
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+
 import org.openl.rules.common.CommonVersion;
 
 public class CommonVersionImpl implements CommonVersion {
     private static final Pattern ONLY_DIGITS = Pattern.compile("\\d+");
     private static final String VERSION_PATTERN = "\\d+\\.\\d+(\\.\\d+.*)?";
+    @Getter
     private int major = MAX_MM_INT;
+    @Getter
     private int minor = MAX_MM_INT;
+    @Getter
     private String revision = "0";
 
     private transient String versionName;
@@ -96,21 +101,6 @@ public class CommonVersionImpl implements CommonVersion {
         }
 
         return compareTo(commonVersion) == 0;
-    }
-
-    @Override
-    public int getMajor() {
-        return major;
-    }
-
-    @Override
-    public int getMinor() {
-        return minor;
-    }
-
-    @Override
-    public String getRevision() {
-        return revision;
     }
 
     @Override

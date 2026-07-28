@@ -10,7 +10,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -24,6 +26,8 @@ public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
 
     private final IGridTable table;
 
+    @Getter
+    @Setter
     private Map<String, Object> params;
 
     @Override
@@ -50,15 +54,5 @@ public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
     @Override
     public String getUri() {
         return table.getUri();
-    }
-
-    @Override
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    @Override
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
     }
 }

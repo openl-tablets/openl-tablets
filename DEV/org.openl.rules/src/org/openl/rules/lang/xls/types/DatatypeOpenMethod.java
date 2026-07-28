@@ -2,6 +2,8 @@ package org.openl.rules.lang.xls.types;
 
 import java.lang.reflect.Method;
 
+import lombok.Getter;
+
 import org.openl.binding.MethodUtil;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -12,8 +14,11 @@ import org.openl.vm.IRuntimeEnv;
 
 public class DatatypeOpenMethod extends JavaOpenMethod {
     final JavaOpenMethod method;
+    @Getter
     final IOpenClass[] parameterTypes;
+    @Getter
     final IOpenClass declaringClass;
+    @Getter
     final IOpenClass type;
 
     public DatatypeOpenMethod(JavaOpenMethod method,
@@ -25,11 +30,6 @@ public class DatatypeOpenMethod extends JavaOpenMethod {
         this.parameterTypes = parameterTypes;
         this.declaringClass = declaringClass;
         this.type = type;
-    }
-
-    @Override
-    public IOpenClass getDeclaringClass() {
-        return declaringClass;
     }
 
     @Override
@@ -68,18 +68,8 @@ public class DatatypeOpenMethod extends JavaOpenMethod {
     }
 
     @Override
-    public IOpenClass[] getParameterTypes() {
-        return parameterTypes;
-    }
-
-    @Override
     public IMethodSignature getSignature() {
         return this;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.openl.rules.project.abstraction;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -16,10 +17,7 @@ public enum ProjectStatus {
     EDITING("In Editing"),
     CLOSED("Closed");
 
+    @Getter
     private final String displayValue;
-
-    public String getDisplayValue() {
-        return displayValue;
-    }
 
 }

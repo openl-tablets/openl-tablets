@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+
 import org.openl.OpenL;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.component.ComponentOpenClass;
@@ -43,6 +45,7 @@ public class DecisionTableDataType extends ComponentOpenClass {
     private final Map<String, List<IOpenField>> nonConflictConditionParamNamesNonStrictMatch = new HashMap<>();
 
     // This is very simple way to find what fields was used during expression compilation
+    @Getter
     private Set<IOpenField> usedFields;
     private final boolean traceUsedFields;
 
@@ -117,10 +120,6 @@ public class DecisionTableDataType extends ComponentOpenClass {
         if (traceUsedFields) {
             usedFields = new HashSet<>();
         }
-    }
-
-    public Set<IOpenField> getUsedFields() {
-        return usedFields;
     }
 
     private void addParameterFields(DecisionTable decisionTable, IDecisionRow decisionRow) {

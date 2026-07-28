@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.admin.SettingsHolder;
@@ -18,30 +20,40 @@ public class NOPUserSettings implements SettingsHolder {
     public static final String SINGLE_LAST_NAME = "security.single.last-name";
     public static final String SINGLE_DISPLAY_NAME = "security.single.display-name";
 
+    @Getter
     @Parameter(description = "Username", example = "DEFAULT")
+    @Setter
     @SettingPropertyName(SINGLE_USERNAME)
     @NotBlank
     @Size(min = 1, max = 125)
     private String username;
 
     @Parameter(description = "Email", example = "default@example.com")
+    @Setter
     @SettingPropertyName(SINGLE_EMAIL)
     @Email
+    @Getter
     private String email;
 
+    @Getter
     @Parameter(description = "First name", example = "DE")
+    @Setter
     @SettingPropertyName(SINGLE_FIRST_NAME)
     @NotBlank
     @Size(min = 1, max = 125)
     private String firstName;
 
+    @Getter
     @Parameter(description = "Last name", example = "FAULT")
+    @Setter
     @SettingPropertyName(SINGLE_LAST_NAME)
     @NotBlank
     @Size(min = 1, max = 125)
     private String lastName;
 
+    @Getter
     @Parameter(description = "Display name", example = "DEFAULT")
+    @Setter
     @SettingPropertyName(SINGLE_DISPLAY_NAME)
     @NotBlank
     @Size(min = 1, max = 255)
@@ -73,45 +85,5 @@ public class NOPUserSettings implements SettingsHolder {
                 SINGLE_LAST_NAME,
                 SINGLE_DISPLAY_NAME);
         load(properties);
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
     }
 }

@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import lombok.Getter;
+
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -8,6 +10,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  */
 public class TypeBoundNode extends ABoundNode {
+    @Getter
     private final IOpenClass type;
 
     TypeBoundNode(ISyntaxNode syntaxNode, IOpenClass type) {
@@ -20,11 +23,6 @@ public class TypeBoundNode extends ABoundNode {
         // TODO probably create another class for static method access
         // throw new UnsupportedOperationException("TypeNode cannot be
         // evaluated");
-        return type;
-    }
-
-    @Override
-    public IOpenClass getType() {
         return type;
     }
 

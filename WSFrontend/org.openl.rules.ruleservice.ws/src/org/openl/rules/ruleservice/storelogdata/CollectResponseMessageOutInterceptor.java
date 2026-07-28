@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.interceptor.Fault;
@@ -28,11 +29,8 @@ import org.apache.cxf.phase.Phase;
 @Slf4j
 public class CollectResponseMessageOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    @Getter
     private final StoreLogDataManager storeLoggingManager;
-
-    public StoreLogDataManager getStoreLoggingManager() {
-        return storeLoggingManager;
-    }
 
     public CollectResponseMessageOutInterceptor(StoreLogDataManager storeLoggingManager) {
         super(Phase.PRE_STREAM);

@@ -1,38 +1,23 @@
 package org.openl.rules.webstudio.web;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class ModuleInfoDTO {
 
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
     private String path;
+    @Getter
+    @Setter
     private String type;
 
     public ModuleInfoDTO(String name, String path, String type) {
         this.name = name;
         this.path = path;
-        this.type = type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
         this.type = type;
     }
 }

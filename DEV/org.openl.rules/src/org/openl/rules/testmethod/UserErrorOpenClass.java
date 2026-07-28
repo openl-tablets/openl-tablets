@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.types.IOpenClass;
@@ -67,6 +68,7 @@ public class UserErrorOpenClass extends ADynamicClass {
 
     private static class DynamicField extends AOpenField {
 
+        @Getter
         private final IOpenClass declaringClass;
 
         public DynamicField(IOpenClass declaringClass, String name) {
@@ -103,11 +105,6 @@ public class UserErrorOpenClass extends ADynamicClass {
                 }
                 return null;
             }
-        }
-
-        @Override
-        public IOpenClass getDeclaringClass() {
-            return declaringClass;
         }
 
         @Override

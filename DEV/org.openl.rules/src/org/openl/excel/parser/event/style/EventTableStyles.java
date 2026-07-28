@@ -3,6 +3,7 @@ package org.openl.excel.parser.event.style;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
 import org.apache.poi.hssf.record.FontRecord;
 import org.apache.poi.hssf.record.FormatRecord;
@@ -18,6 +19,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsCellComment;
 
 public class EventTableStyles implements TableStyles {
+    @Getter
     private final IGridRegion region;
     private final int[][] cellIndexes;
     private final List<ExtendedFormatRecord> extendedFormats;
@@ -43,11 +45,6 @@ public class EventTableStyles implements TableStyles {
         this.fonts = fonts;
         this.comments = comments == null ? List.of() : comments;
         this.formulas = formulas;
-    }
-
-    @Override
-    public IGridRegion getRegion() {
-        return region;
     }
 
     @Override

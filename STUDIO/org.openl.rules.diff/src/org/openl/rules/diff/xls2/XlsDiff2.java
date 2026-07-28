@@ -11,6 +11,9 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import org.openl.OpenClassUtil;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.impl.DefaultCompileContext;
@@ -320,16 +323,10 @@ public class XlsDiff2 {
 
     private static class RowDiff {
 
+        @Getter(AccessLevel.PRIVATE)
         private int rowIndex;
+        @Getter(AccessLevel.PRIVATE)
         private List<ICell> diff = new ArrayList<>();
-
-        private int getRowIndex() {
-            return rowIndex;
-        }
-
-        private List<ICell> getDiff() {
-            return diff;
-        }
 
         private RowDiff setRowIndex(int rowIndex) {
             this.rowIndex = rowIndex;

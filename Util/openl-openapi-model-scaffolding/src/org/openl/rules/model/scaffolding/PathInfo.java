@@ -2,13 +2,30 @@ package org.openl.rules.model.scaffolding;
 
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class PathInfo {
+    @Getter
+    @Setter
     private String originalPath;
+    @Getter
+    @Setter
     private String formattedPath;
+    @Getter
+    @Setter
     private String consumes;
+    @Getter
+    @Setter
     private String produces;
+    @Getter
+    @Setter
     private Operation operation;
+    @Getter
+    @Setter
     private TypeInfo returnType;
+    @Getter
+    @Setter
     private InputParameter runtimeContextParameter;
 
     public PathInfo() {
@@ -33,62 +50,6 @@ public class PathInfo {
         this.returnType = returnType;
         this.consumes = consumes;
         this.produces = produces;
-    }
-
-    public String getOriginalPath() {
-        return originalPath;
-    }
-
-    public void setOriginalPath(String originalPath) {
-        this.originalPath = originalPath;
-    }
-
-    public String getFormattedPath() {
-        return formattedPath;
-    }
-
-    public void setFormattedPath(String formattedPath) {
-        this.formattedPath = formattedPath;
-    }
-
-    public Operation getOperation() {
-        return operation;
-    }
-
-    public void setOperation(Operation operation) {
-        this.operation = operation;
-    }
-
-    public TypeInfo getReturnType() {
-        return returnType;
-    }
-
-    public void setReturnType(TypeInfo returnType) {
-        this.returnType = returnType;
-    }
-
-    public String getConsumes() {
-        return consumes;
-    }
-
-    public void setConsumes(String consumes) {
-        this.consumes = consumes;
-    }
-
-    public String getProduces() {
-        return produces;
-    }
-
-    public void setProduces(String produces) {
-        this.produces = produces;
-    }
-
-    public InputParameter getRuntimeContextParameter() {
-        return runtimeContextParameter;
-    }
-
-    public void setRuntimeContextParameter(InputParameter runtimeContextParameter) {
-        this.runtimeContextParameter = runtimeContextParameter;
     }
 
     @Override

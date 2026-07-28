@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -50,7 +51,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private static final String DESIGN_REPOSITORIES = "design-repository-configs";
 
+    @Getter
     private volatile List<Repository> repositories;
+    @Getter
     private volatile String rulesLocation;
     private volatile boolean projectsRefreshNeeded = true;
 
@@ -65,6 +68,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final PropertyResolver propertyResolver;
     private final RepositorySettings repositorySettings;
 
+    @Getter
     private final List<String> exceptions = new ArrayList<>();
 
     public void init() throws RepositoryException {
@@ -409,21 +413,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 .filter(repository -> Objects.equals(id, repository.getId()))
                 .findFirst()
                 .orElse(null);
-    }
-
-    @Override
-    public List<Repository> getRepositories() {
-        return repositories;
-    }
-
-    @Override
-    public String getRulesLocation() {
-        return rulesLocation;
-    }
-
-    @Override
-    public List<String> getExceptions() {
-        return exceptions;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

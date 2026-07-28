@@ -3,6 +3,7 @@ package org.openl.rules.lang.xls;
 import java.util.Stack;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 class BracketMatcher {
@@ -40,16 +41,10 @@ class BracketMatcher {
 
     public static class BracketsStackObject {
 
-        public Object getId() {
-            return id;
-        }
-
-        ErrorType getErrorCode() {
-            return errorCode;
-        }
-
         final Brackets bracket;
+        @Getter
         final Object id;
+        @Getter(AccessLevel.PACKAGE)
         ErrorType errorCode;
 
         BracketsStackObject(Brackets bracket, Object id, ErrorType errorCode) {

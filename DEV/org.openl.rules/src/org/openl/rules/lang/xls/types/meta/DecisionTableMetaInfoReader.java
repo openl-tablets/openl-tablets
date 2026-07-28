@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -60,50 +61,32 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         /**
          * Map for condition cells in header to parameter index
          */
+        @Getter
         private final Map<CellKey, List<HeaderMetaInfo>> conditions = new HashMap<>();
 
         /**
          * Map for action cells in header to parameter index
          */
+        @Getter
         private final Map<CellKey, HeaderMetaInfo> actions = new HashMap<>();
 
         /**
          * Map for compound return column descriptions in SimpleRules header
          */
+        @Getter
         private final Map<CellKey, ReturnMetaInfo> returns = new HashMap<>();
 
         /**
          * List for inputParameter mapping details for smart dt
          */
+        @Getter
         private final List<Pair<String, String>> parametersToReturn = new ArrayList<>();
 
+        @Getter
         private final List<CellKey> unmatched = new ArrayList<>();
 
+        @Getter
         private final List<CellKey> rules = new ArrayList<>();
-
-        public Map<CellKey, List<HeaderMetaInfo>> getConditions() {
-            return conditions;
-        }
-
-        public Map<CellKey, HeaderMetaInfo> getActions() {
-            return actions;
-        }
-
-        public Map<CellKey, ReturnMetaInfo> getReturns() {
-            return returns;
-        }
-
-        public List<Pair<String, String>> getParametersToReturn() {
-            return parametersToReturn;
-        }
-
-        public List<CellKey> getUnmatched() {
-            return unmatched;
-        }
-
-        public List<CellKey> getRules() {
-            return rules;
-        }
 
         public void merge(MetaInfoHolder metaInfoHolder) {
             if (metaInfoHolder == null) {
@@ -628,7 +611,9 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private static class ReturnMetaInfo {
+        @Getter
         final String details;
+        @Getter
         final String uri;
 
         public ReturnMetaInfo(String details, String uri) {
@@ -637,23 +622,21 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             this.uri = uri;
         }
 
-        public String getDetails() {
-            return details;
-        }
-
-        public String getUri() {
-            return uri;
-        }
-
     }
 
     private static class HeaderMetaInfo {
+        @Getter
         String header;
+        @Getter
         String[] parameterNames;
         String statement;
+        @Getter
         IOpenClass[] columnTypes;
+        @Getter
         String additionalDetails;
+        @Getter
         String url;
+        @Getter
         boolean vertical;
 
         public HeaderMetaInfo(String headerName,
@@ -675,32 +658,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             this.vertical = vertical;
         }
 
-        public boolean isVertical() {
-            return vertical;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public String getAdditionalDetails() {
-            return additionalDetails;
-        }
-
-        public String getHeader() {
-            return header;
-        }
-
-        public String[] getParameterNames() {
-            return parameterNames;
-        }
-
         public String getConditionStatement() {
             return statement;
-        }
-
-        public IOpenClass[] getColumnTypes() {
-            return columnTypes;
         }
     }
 }

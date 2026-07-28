@@ -1,9 +1,15 @@
 package org.openl.rules.table.properties.expressions.match;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class MatchingExpression {
 
+    @Getter
     private String matchExpressionStr;
 
+    @Getter
+    @Setter
     private IMatchingExpression matchExpression;
 
     public MatchingExpression() {
@@ -14,21 +20,9 @@ public class MatchingExpression {
         this.matchExpression = MatchingExpressionsParser.parse(matchExpressionStr);
     }
 
-    public String getMatchExpressionStr() {
-        return matchExpressionStr;
-    }
-
     public void setMatchExpressionStr(String matchExpressionStr) {
         this.matchExpressionStr = matchExpressionStr;
         this.matchExpression = MatchingExpressionsParser.parse(matchExpressionStr);
-    }
-
-    public IMatchingExpression getMatchExpression() {
-        return matchExpression;
-    }
-
-    public void setMatchExpression(IMatchingExpression matchExpression) {
-        this.matchExpression = matchExpression;
     }
 
 }

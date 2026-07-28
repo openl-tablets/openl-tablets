@@ -2,12 +2,15 @@ package org.openl.dependency;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
 public class DependencyVar extends AOpenField {
 
+    @Getter
     private final DependencyType dependencyType;
 
     public DependencyVar(String name, IOpenClass type, DependencyType dependencyType) {
@@ -28,9 +31,5 @@ public class DependencyVar extends AOpenField {
     @Override
     public IOpenClass getDeclaringClass() {
         return super.getType();
-    }
-
-    public DependencyType getDependencyType() {
-        return dependencyType;
     }
 }

@@ -3,23 +3,40 @@
  */
 package org.openl.rules.table.ui;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @author snshor
  */
 public class CellFont implements ICellFont {
 
+    @Getter
+    @Setter
     private short[] fontColor;
 
+    @Getter
+    @Setter
     private int size;
 
+    @Getter
+    @Setter
     private String name;
 
+    @Getter
+    @Setter
     private boolean italic;
 
+    @Getter
+    @Setter
     private boolean bold;
 
+    @Getter
+    @Setter
     private boolean underlined;
 
+    @Getter
+    @Setter
     private boolean strikeout;
 
     public CellFont(ICellFont cf) {
@@ -39,69 +56,6 @@ public class CellFont implements ICellFont {
         bold = cf.isBold();
         underlined = cf.isUnderlined();
         strikeout = cf.isStrikeout();
-    }
-
-    @Override
-    public short[] getFontColor() {
-        return fontColor;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public int getSize() {
-        return size;
-    }
-
-    @Override
-    public boolean isBold() {
-        return bold;
-    }
-
-    @Override
-    public boolean isItalic() {
-        return italic;
-    }
-
-    @Override
-    public boolean isStrikeout() {
-        return strikeout;
-    }
-
-    @Override
-    public boolean isUnderlined() {
-        return underlined;
-    }
-
-    public void setBold(boolean bold) {
-        this.bold = bold;
-    }
-
-    public void setFontColor(short[] fontColor) {
-        this.fontColor = fontColor;
-    }
-
-    public void setItalic(boolean italic) {
-        this.italic = italic;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public void setStrikeout(boolean strikeout) {
-        this.strikeout = strikeout;
-    }
-
-    public void setUnderlined(boolean underlined) {
-        this.underlined = underlined;
     }
 
 }

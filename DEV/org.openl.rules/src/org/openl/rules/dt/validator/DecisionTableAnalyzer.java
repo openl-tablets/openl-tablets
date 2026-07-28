@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.openl.binding.ILocalVar;
 import org.openl.domain.IDomain;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -19,6 +21,7 @@ import org.openl.types.impl.ParameterDeclaration;
 
 public class DecisionTableAnalyzer {
 
+    @Getter
     private final IDecisionTable decisionTable;
 
     private final Map<IBaseDecisionRow, ConditionAnalyzer> conditionAnalyzers = new HashMap<>();
@@ -52,10 +55,6 @@ public class DecisionTableAnalyzer {
 
     public Iterator<DecisionTableParamDescription> tableParams() {
         return usedParamsFromSignature.values().iterator();
-    }
-
-    public IDecisionTable getDecisionTable() {
-        return decisionTable;
     }
 
     public IDomain<?> getParameterDomain(String parameterName, IBaseDecisionRow condition) {

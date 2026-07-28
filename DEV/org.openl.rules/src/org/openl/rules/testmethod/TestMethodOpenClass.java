@@ -1,5 +1,7 @@
 package org.openl.rules.testmethod;
 
+import lombok.Getter;
+
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.data.RowIdField;
 import org.openl.types.IOpenMethod;
@@ -23,6 +25,7 @@ public class TestMethodOpenClass extends ADynamicClass {
         return new DynamicObject(this);
     }
 
+    @Getter
     private IOpenMethod testedMethod;
 
     protected void init(IOpenMethod testedMethod) {
@@ -84,9 +87,5 @@ public class TestMethodOpenClass extends ADynamicClass {
     protected void addTestId() {
         var idField = new DynamicObjectField(this, RowIdField.ROW_ID, JavaOpenClass.STRING);
         addField(idField);
-    }
-
-    public IOpenMethod getTestedMethod() {
-        return testedMethod;
     }
 }

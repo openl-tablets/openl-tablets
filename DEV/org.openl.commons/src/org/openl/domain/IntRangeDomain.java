@@ -8,6 +8,7 @@ package org.openl.domain;
 import java.util.Iterator;
 import jakarta.xml.bind.annotation.XmlTransient;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -52,7 +53,9 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
         }
     }
 
+    @Getter
     protected final int min;
+    @Getter
     protected final int max;
 
     @Override
@@ -80,16 +83,6 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
     @XmlTransient
     public IType getElementType() {
         return null;
-    }
-
-    @Override
-    public int getMax() {
-        return max;
-    }
-
-    @Override
-    public int getMin() {
-        return min;
     }
 
     @Override

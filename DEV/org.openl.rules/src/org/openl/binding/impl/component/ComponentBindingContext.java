@@ -3,6 +3,8 @@ package org.openl.binding.impl.component;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.AmbiguousFieldException;
@@ -28,6 +30,7 @@ import org.openl.types.IOpenField;
  */
 public class ComponentBindingContext extends BindingContextDelegator {
 
+    @Getter
     private final ComponentOpenClass componentOpenClass;
 
     private Map<String, IOpenClass> internalTypes;
@@ -35,10 +38,6 @@ public class ComponentBindingContext extends BindingContextDelegator {
     public ComponentBindingContext(IBindingContext delegate, ComponentOpenClass componentOpenClass) {
         super(delegate);
         this.componentOpenClass = componentOpenClass;
-    }
-
-    public ComponentOpenClass getComponentOpenClass() {
-        return componentOpenClass;
     }
 
     @Override

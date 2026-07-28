@@ -12,6 +12,8 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -405,16 +407,25 @@ public final class MethodSearch {
     }
 
     private static class Match {
+        @Getter
         private final IOpenMethod method;
+        @Getter
         private final IOpenClass[] callParams;
         private final IOpenClass[] originalCallParams;
+        @Getter
         private final IOpenCast[] paramCasts;
+        @Getter
         private final boolean[] multiCallParams;
+        @Getter
         private final IOpenClass varargElementType;
+        @Getter
         private final IOpenCast returnCast;
+        @Getter
         private final IOpenClass returnType;
+        @Getter
         private final int[] sortedDistances;
         private int[] sortedDims;
+        @Getter
         private final boolean vararg;
 
         private IOpenClass[] mostSpecificParamsToCompare;
@@ -506,38 +517,6 @@ public final class MethodSearch {
             }
         }
 
-        public IOpenClass getVarargElementType() {
-            return varargElementType;
-        }
-
-        public boolean isVararg() {
-            return vararg;
-        }
-
-        public IOpenMethod getMethod() {
-            return method;
-        }
-
-        public int[] getSortedDistances() {
-            return sortedDistances;
-        }
-
-        public boolean[] getMultiCallParams() {
-            return multiCallParams;
-        }
-
-        public IOpenCast getReturnCast() {
-            return returnCast;
-        }
-
-        public IOpenClass getReturnType() {
-            return returnType;
-        }
-
-        public IOpenCast[] getParamCasts() {
-            return paramCasts;
-        }
-
         public int[] getSortedDims() {
             if (sortedDims == null) {
                 IOpenClass[] variableArityParameters = getVariableArityParameters();
@@ -565,10 +544,6 @@ public final class MethodSearch {
                 sortedDims = dims;
             }
             return sortedDims;
-        }
-
-        public IOpenClass[] getCallParams() {
-            return callParams;
         }
     }
 

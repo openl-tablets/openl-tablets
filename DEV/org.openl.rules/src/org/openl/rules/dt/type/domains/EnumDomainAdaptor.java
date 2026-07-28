@@ -6,6 +6,9 @@ package org.openl.rules.dt.type.domains;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.domain.EnumDomain;
 import org.openl.ie.constrainer.IntVar;
 
@@ -14,6 +17,8 @@ import org.openl.ie.constrainer.IntVar;
  */
 public class EnumDomainAdaptor implements IDomainAdaptor {
 
+    @Getter
+    @Setter
     private Object[] values;
 
     public EnumDomainAdaptor(EnumDomain<?> domain) {
@@ -50,14 +55,6 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
     @Override
     public Object getValue(int index) {
         return values[index];
-    }
-
-    public Object[] getValues() {
-        return values;
-    }
-
-    public void setValues(Object[] values) {
-        this.values = values;
     }
 
     public int size() {

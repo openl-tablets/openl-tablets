@@ -12,6 +12,7 @@ import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
+import lombok.Getter;
 
 import org.openl.info.OpenLVersion;
 import org.openl.rules.spring.openapi.OpenApiUtils;
@@ -21,6 +22,7 @@ import org.openl.rules.spring.openapi.OpenApiUtils;
  */
 final class OpenApiContext {
 
+    @Getter
     private final OpenAPI openAPI;
     private final Set<String> tagIds = new HashSet<>();
     private final Map<Class<?>, Map<String, Tag>> controllerTags = new HashMap<>();
@@ -31,10 +33,6 @@ final class OpenApiContext {
                 .addServersItem(new Server().url(OpenApiUtils.getRequestBasePath()))
                 .paths(new Paths())
                 .components(new Components());
-    }
-
-    public OpenAPI getOpenAPI() {
-        return openAPI;
     }
 
     public Paths getPaths() {

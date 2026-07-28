@@ -1,5 +1,7 @@
 package org.openl.rules.excel.builder.template;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.RichTextString;
 
@@ -8,10 +10,16 @@ import org.openl.rules.excel.builder.template.row.NameValueRowStyle;
 
 public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements SpreadsheetTableStyle {
 
+    @Getter
     private final NameValueRowStyle headerRowStyle;
+    @Getter
     private final String stepHeaderText;
+    @Getter
+    @Setter
     private String valueHeaderText;
+    @Getter
     private final NameValueRowStyle rowStyle;
+    @Getter
     private final NameValueRowStyle lastRowStyle;
     private final CellStyle dateFieldStyle;
     private final CellStyle dateTimeFieldStyle;
@@ -34,36 +42,6 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
         this.lastRowStyle = lastRowStyle;
         this.dateFieldStyle = dateFieldStyle;
         this.dateTimeFieldStyle = dateTimeFieldStyle;
-    }
-
-    @Override
-    public NameValueRowStyle getHeaderRowStyle() {
-        return headerRowStyle;
-    }
-
-    @Override
-    public String getStepHeaderText() {
-        return stepHeaderText;
-    }
-
-    @Override
-    public String getValueHeaderText() {
-        return valueHeaderText;
-    }
-
-    @Override
-    public void setValueHeaderText(String valueHeaderText) {
-        this.valueHeaderText = valueHeaderText;
-    }
-
-    @Override
-    public NameValueRowStyle getRowStyle() {
-        return rowStyle;
-    }
-
-    @Override
-    public NameValueRowStyle getLastRowStyle() {
-        return lastRowStyle;
     }
 
     @Override

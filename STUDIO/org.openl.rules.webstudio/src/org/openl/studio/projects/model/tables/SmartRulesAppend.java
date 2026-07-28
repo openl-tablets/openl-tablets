@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Request model for append lines to {@code SmartRules} table
@@ -12,16 +14,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public class SmartRulesAppend implements AppendTableView {
 
+    @Getter
     @Schema(description = "List of smart rule rows to append as key-value maps with hierarchical structure")
+    @Setter
     private List<LinkedHashMap<String, Object>> rules;
-
-    public List<LinkedHashMap<String, Object>> getRules() {
-        return rules;
-    }
-
-    public void setRules(List<LinkedHashMap<String, Object>> rules) {
-        this.rules = rules;
-    }
 
     @Override
     public String getTableType() {

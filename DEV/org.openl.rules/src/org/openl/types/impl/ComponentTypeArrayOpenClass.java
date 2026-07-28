@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.Getter;
+
 import org.openl.meta.IMetaInfo;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -17,9 +19,11 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ComponentTypeArrayOpenClass extends AOpenClass {
 
+    @Getter
     protected final IOpenClass componentClass;
     protected final HashMap<String, IOpenField> fieldMap;
     protected IOpenIndex index;
+    @Getter
     private final String javaName;
     private static final Collection<IOpenClass> OBJECT_CLASS = Set.of(JavaOpenClass.OBJECT);
     private Class<?> instanceClass;
@@ -64,11 +68,6 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     }
 
     @Override
-    public IOpenClass getComponentClass() {
-        return componentClass;
-    }
-
-    @Override
     public String getDisplayName(int mode) {
         return componentClass.getDisplayName(mode) + "[]";
     }
@@ -104,11 +103,6 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     @Override
     public String getName() {
         return componentClass.getName() + "[]";
-    }
-
-    @Override
-    public String getJavaName() {
-        return javaName;
     }
 
     private static String createJavaName(IOpenClass componentClass) {

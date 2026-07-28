@@ -3,6 +3,8 @@
  */
 package org.openl.rules.tbasic.runtime.operations;
 
+import lombok.Getter;
+
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.types.IMethodCaller;
 
@@ -12,6 +14,7 @@ import org.openl.types.IMethodCaller;
  * @author User
  */
 public abstract class OpenLEvaluationOperation extends RuntimeOperation {
+    @Getter
     private final IMethodCaller openLStatement;
 
     /**
@@ -38,10 +41,6 @@ public abstract class OpenLEvaluationOperation extends RuntimeOperation {
         }
 
         return resultValue;
-    }
-
-    public IMethodCaller getOpenLStatement() {
-        return openLStatement;
     }
 
 }

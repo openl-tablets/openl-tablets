@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ public class SimpleProjectEngineFactory<T> {
 
     protected final Logger log = LoggerFactory.getLogger(SimpleProjectEngineFactory.class);
     protected final Map<String, Object> externalParameters;
+    @Getter
     protected final boolean executionMode;
     protected final ClassLoader classLoader;
     protected final List<Path> projectDependencies;
@@ -247,10 +249,6 @@ public class SimpleProjectEngineFactory<T> {
             dependencyManager = buildDependencyManager();
         }
         return dependencyManager;
-    }
-
-    public boolean isExecutionMode() {
-        return executionMode;
     }
 
     public Class<?> getInterfaceClass() throws RulesInstantiationException, ProjectResolvingException {

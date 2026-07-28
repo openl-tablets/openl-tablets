@@ -1,23 +1,19 @@
 package org.openl.rules.dt.element;
 
+import lombok.Getter;
+
 import org.openl.binding.impl.cast.IOpenCast;
 
 public final class ConditionCasts {
+    @Getter
     private final IOpenCast castToInputType;
+    @Getter
     private final IOpenCast castToConditionType;
 
     ConditionCasts(IOpenCast castToInputType, IOpenCast castToConditionType) {
         super();
         this.castToInputType = castToInputType;
         this.castToConditionType = castToConditionType;
-    }
-
-    public IOpenCast getCastToConditionType() {
-        return castToConditionType;
-    }
-
-    public IOpenCast getCastToInputType() {
-        return castToInputType;
     }
 
     public boolean atLeastOneExists() {

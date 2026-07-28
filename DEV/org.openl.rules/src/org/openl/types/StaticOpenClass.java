@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import lombok.Getter;
+
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
@@ -16,6 +18,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class StaticOpenClass implements IOpenClass {
 
+    @Getter
     private final IOpenClass delegate;
 
     public StaticOpenClass(IOpenClass delegate) {
@@ -35,10 +38,6 @@ public class StaticOpenClass implements IOpenClass {
     @Override
     public IDomain<?> getDomain() {
         return delegate.getDomain();
-    }
-
-    public IOpenClass getDelegate() {
-        return delegate;
     }
 
     @Override

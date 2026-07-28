@@ -5,16 +5,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.Getter;
 import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.hssf.usermodel.HSSFShape;
 import org.apache.poi.hssf.usermodel.HSSFShapeContainer;
 
 public final class CommentsCollector implements HSSFShapeContainer {
+    @Getter
     private final List<HSSFComment> comments = new ArrayList<>();
-
-    public List<HSSFComment> getComments() {
-        return comments;
-    }
 
     @Override
     public List<HSSFShape> getChildren() {

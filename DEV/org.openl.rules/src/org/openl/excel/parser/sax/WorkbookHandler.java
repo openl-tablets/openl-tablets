@@ -3,12 +3,15 @@ package org.openl.excel.parser.sax;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class WorkbookHandler extends DefaultHandler {
+    @Getter
     private final List<SAXSheetDescriptor> sheetDescriptors = new ArrayList<>();
     // The default value for attribute date1904 is false.
+    @Getter
     private boolean use1904Windowing = false;
 
     @Override
@@ -43,13 +46,5 @@ public class WorkbookHandler extends DefaultHandler {
 
     private boolean isTrue(String boolVariable) {
         return "1".equals(boolVariable) || "true".equals(boolVariable);
-    }
-
-    public List<SAXSheetDescriptor> getSheetDescriptors() {
-        return sheetDescriptors;
-    }
-
-    public boolean isUse1904Windowing() {
-        return use1904Windowing;
     }
 }

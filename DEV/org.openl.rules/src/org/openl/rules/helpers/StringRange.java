@@ -3,6 +3,8 @@ package org.openl.rules.helpers;
 import java.beans.Transient;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import lombok.Getter;
+
 import org.openl.binding.impl.NumericComparableString;
 import org.openl.binding.impl.NumericStringComparator;
 import org.openl.binding.impl.cast.CastFactory;
@@ -13,8 +15,11 @@ public class StringRange extends Range<CharSequence> {
 
     private static final int TO_STRING_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
 
+    @Getter(onMethod_ = {@Transient})
     private final Type type;
+    @Getter
     private final NumericComparableString lowerBound;
+    @Getter
     private final NumericComparableString upperBound;
 
     public StringRange(String source) {
@@ -33,23 +38,9 @@ public class StringRange extends Range<CharSequence> {
         }
     }
 
-    public NumericComparableString getLowerBound() {
-        return lowerBound;
-    }
-
-    public NumericComparableString getUpperBound() {
-        return upperBound;
-    }
-
     @Override
     public boolean contains(CharSequence value) {
         return super.contains(value);
-    }
-
-    @Override
-    @Transient
-    public Range.Type getType() {
-        return type;
     }
 
     @Override

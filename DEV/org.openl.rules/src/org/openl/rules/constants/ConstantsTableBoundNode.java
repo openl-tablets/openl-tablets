@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -35,11 +37,15 @@ import org.openl.util.TableNameChecker;
 
 public class ConstantsTableBoundNode implements IMemberBoundNode {
 
+    @Getter
     private final TableSyntaxNode tableSyntaxNode;
+    @Getter
     private final ModuleOpenClass moduleOpenClass;
     private final ILogicalTable table;
+    @Getter
     private ILogicalTable normalizedData;
     private final OpenL openl;
+    @Getter
     private Collection<ConstantOpenField> constantOpenFields = new ArrayList<>();
 
     ConstantsTableBoundNode(TableSyntaxNode syntaxNode,
@@ -54,14 +60,6 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
     @Override
     public void addTo(ModuleOpenClass openClass) {
-    }
-
-    public TableSyntaxNode getTableSyntaxNode() {
-        return tableSyntaxNode;
-    }
-
-    public ModuleOpenClass getModuleOpenClass() {
-        return moduleOpenClass;
     }
 
     private void processRow(ILogicalTable row, IBindingContext cxt) {
@@ -198,13 +196,5 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
             }
             constantOpenFields = null;
         }
-    }
-
-    public ILogicalTable getNormalizedData() {
-        return normalizedData;
-    }
-
-    public Collection<ConstantOpenField> getConstantOpenFields() {
-        return constantOpenFields;
     }
 }

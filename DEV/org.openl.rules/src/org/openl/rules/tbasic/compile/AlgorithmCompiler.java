@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.binding.IBindingContext;
@@ -50,11 +51,13 @@ public class AlgorithmCompiler {
      **************************************************************************/
     private CompileContext mainCompileContext;
     private final List<AlgorithmFunctionCompiler> functions = new ArrayList<>();
+    @Getter
     private LabelManager labelManager;
 
     /***************************************************************************
      * Compiler output
      **************************************************************************/
+    @Getter
     private AlgorithmOpenClass thisTargetClass;
 
     private IBindingContext thisContext;
@@ -235,10 +238,6 @@ public class AlgorithmCompiler {
         return header.getName();
     }
 
-    public LabelManager getLabelManager() {
-        return labelManager;
-    }
-
     /***************************************************************************
      * Helper methods
      **************************************************************************/
@@ -252,10 +251,6 @@ public class AlgorithmCompiler {
             currentOperationIndex++;
         }
         return nodesToCompile.subList(0, currentOperationIndex);
-    }
-
-    public AlgorithmOpenClass getThisTargetClass() {
-        return thisTargetClass;
     }
 
     public IOpenClass getTypeOfField(StringValue fieldContent, IBindingContext bindingContext) {

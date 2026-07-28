@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
@@ -48,16 +50,26 @@ import org.openl.vm.IRuntimeEnv;
 public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleOpenClass, WrapModuleSpecificTypes {
 
 
+    @Getter
+    @Setter
     private IOpenClass superClass;
 
+    @Getter
     private final String javaName;
 
+    @Getter
     private final String packageName;
 
+    @Getter
+    @Setter
     private TableSyntaxNode tableSyntaxNode;
 
+    @Getter
+    @Setter
     private byte[] bytecode;
 
+    @Getter
+    @Setter
     private XlsModuleOpenClass module;
 
     /**
@@ -91,26 +103,9 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
         return "`" + module.getModuleName() + "`." + getName();
     }
 
-    public void setModule(XlsModuleOpenClass module) {
-        this.module = module;
-    }
-
-    @Override
-    public XlsModuleOpenClass getModule() {
-        return module;
-    }
-
     @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
-    }
-
-    public IOpenClass getSuperClass() {
-        return superClass;
-    }
-
-    public void setSuperClass(IOpenClass superClass) {
-        this.superClass = superClass;
     }
 
     @Override
@@ -120,16 +115,6 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
         } else {
             return List.of();
         }
-    }
-
-    @Override
-    public String getJavaName() {
-        return javaName;
-    }
-
-    @Override
-    public String getPackageName() {
-        return packageName;
     }
 
     @Override
@@ -294,14 +279,6 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
         return getName();
     }
 
-    public byte[] getBytecode() {
-        return bytecode;
-    }
-
-    public void setBytecode(byte[] bytecode) {
-        this.bytecode = bytecode;
-    }
-
     private static final Map<MethodKey, IOpenMethod> OBJECT_CLASS_METHODS;
 
     static {
@@ -310,14 +287,6 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
             objectClassMethods.put(new MethodKey(m), m);
         }
         OBJECT_CLASS_METHODS = Collections.unmodifiableMap(objectClassMethods);
-    }
-
-    public TableSyntaxNode getTableSyntaxNode() {
-        return tableSyntaxNode;
-    }
-
-    public void setTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
-        this.tableSyntaxNode = tableSyntaxNode;
     }
 
     @Override

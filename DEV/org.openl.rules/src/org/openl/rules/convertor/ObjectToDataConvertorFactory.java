@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -29,16 +30,10 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class ObjectToDataConvertorFactory {
     @RequiredArgsConstructor
     public static class ClassCastPair {
+        @Getter
         private final Class<?> from;
+        @Getter
         private final Class<?> to;
-
-        public Class<?> getFrom() {
-            return from;
-        }
-
-        public Class<?> getTo() {
-            return to;
-        }
 
         @Override
         public int hashCode() {

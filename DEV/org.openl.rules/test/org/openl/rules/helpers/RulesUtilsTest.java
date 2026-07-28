@@ -24,6 +24,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -4366,15 +4368,9 @@ class RulesUtilsTest {
     }
 
     public static class NotSerial {
+        @Getter
+        @Setter
         private String myString = UUID.randomUUID().toString();
-
-        public String getMyString() {
-            return myString;
-        }
-
-        public void setMyString(String myString) {
-            this.myString = myString;
-        }
 
         @Override
         public boolean equals(Object o) {
@@ -4397,33 +4393,15 @@ class RulesUtilsTest {
 
     public static class MyClass implements Serializable {
 
+        @Getter
+        @Setter
         private String myString;
+        @Getter
+        @Setter
         private Date myDate;
+        @Getter
+        @Setter
         private Point[] points;
-
-        public String getMyString() {
-            return myString;
-        }
-
-        public void setMyString(String myString) {
-            this.myString = myString;
-        }
-
-        public Date getMyDate() {
-            return myDate;
-        }
-
-        public void setMyDate(Date myDate) {
-            this.myDate = myDate;
-        }
-
-        public Point[] getPoints() {
-            return points;
-        }
-
-        public void setPoints(Point[] points) {
-            this.points = points;
-        }
 
         @Override
         public boolean equals(Object o) {
@@ -4447,24 +4425,12 @@ class RulesUtilsTest {
     }
 
     public static class Point implements Serializable {
+        @Getter
+        @Setter
         private int x;
+        @Getter
+        @Setter
         private int y;
-
-        public int getX() {
-            return x;
-        }
-
-        public void setX(int x) {
-            this.x = x;
-        }
-
-        public int getY() {
-            return y;
-        }
-
-        public void setY(int y) {
-            this.y = y;
-        }
 
         @Override
         public boolean equals(Object o) {

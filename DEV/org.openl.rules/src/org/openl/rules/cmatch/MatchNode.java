@@ -4,24 +4,37 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.cmatch.algorithm.Argument;
 import org.openl.rules.cmatch.matcher.IMatcher;
 
 public class MatchNode {
     private final List<MatchNode> children;
+    @Getter
     private final int rowIndex;
 
+    @Getter
     private MatchNode parent;
 
+    @Getter
+    @Setter
     private IMatcher matcher;
 
+    @Getter
+    @Setter
     private Argument argument;
 
+    @Getter
+    @Setter
     private int weight;
 
     /**
      * Actual values in a row
      */
+    @Getter
+    @Setter
     private Object[] checkValues;
 
     public MatchNode(int rowIndex) {
@@ -38,51 +51,11 @@ public class MatchNode {
         children.clear();
     }
 
-    public Argument getArgument() {
-        return argument;
-    }
-
-    public Object[] getCheckValues() {
-        return checkValues;
-    }
-
     public List<MatchNode> getChildren() {
         return Collections.unmodifiableList(children);
     }
 
-    public IMatcher getMatcher() {
-        return matcher;
-    }
-
-    public MatchNode getParent() {
-        return parent;
-    }
-
-    public int getRowIndex() {
-        return rowIndex;
-    }
-
-    public int getWeight() {
-        return weight;
-    }
-
     public boolean isLeaf() {
         return children.isEmpty();
-    }
-
-    public void setArgument(Argument argument) {
-        this.argument = argument;
-    }
-
-    public void setCheckValues(Object[] checkValues) {
-        this.checkValues = checkValues;
-    }
-
-    public void setMatcher(IMatcher matcher) {
-        this.matcher = matcher;
-    }
-
-    public void setWeight(int weight) {
-        this.weight = weight;
     }
 }

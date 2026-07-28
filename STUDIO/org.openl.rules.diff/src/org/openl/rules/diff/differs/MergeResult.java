@@ -3,9 +3,14 @@ package org.openl.rules.diff.differs;
 import java.util.Set;
 import java.util.TreeSet;
 
+import lombok.Getter;
+
 public class MergeResult {
+    @Getter
     String[] common;
+    @Getter
     String[] added;
+    @Getter
     String[] removed;
 
     public MergeResult(String[] common, String[] added, String[] removed) {
@@ -38,18 +43,6 @@ public class MergeResult {
         }
 
         return new MergeResult(common, othersOnly, originalOnly);
-    }
-
-    public String[] getCommon() {
-        return common;
-    }
-
-    public String[] getAdded() {
-        return added;
-    }
-
-    public String[] getRemoved() {
-        return removed;
     }
 
     static String[] toSA(Set<String> set) {

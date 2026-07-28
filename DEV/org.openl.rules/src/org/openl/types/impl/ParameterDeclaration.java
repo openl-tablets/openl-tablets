@@ -2,6 +2,8 @@ package org.openl.types.impl;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
@@ -12,9 +14,12 @@ import org.openl.util.ClassUtils;
  */
 public class ParameterDeclaration implements IParameterDeclaration {
 
+    @Getter
     private final IOpenClass type;
+    @Getter
     private final String name;
     private IOpenSourceCodeModule sourceCode;
+    @Getter
     private final String contextProperty;
 
     public ParameterDeclaration(IOpenClass type, String name) {
@@ -40,23 +45,8 @@ public class ParameterDeclaration implements IParameterDeclaration {
     }
 
     @Override
-    public String getContextProperty() {
-        return contextProperty;
-    }
-
-    @Override
     public String getDisplayName(int mode) {
         return name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     @Override

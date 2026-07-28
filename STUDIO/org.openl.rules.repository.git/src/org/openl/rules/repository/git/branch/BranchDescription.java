@@ -1,7 +1,14 @@
 package org.openl.rules.repository.git.branch;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class BranchDescription {
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
     private String commit;
 
     public BranchDescription() {
@@ -9,22 +16,6 @@ public class BranchDescription {
 
     public BranchDescription(String name, String commit) {
         this.name = name;
-        this.commit = commit;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCommit() {
-        return commit;
-    }
-
-    public void setCommit(String commit) {
         this.commit = commit;
     }
 }

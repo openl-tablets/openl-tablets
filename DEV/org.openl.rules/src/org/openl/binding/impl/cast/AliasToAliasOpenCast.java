@@ -2,9 +2,12 @@ package org.openl.binding.impl.cast;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 public class AliasToAliasOpenCast implements IOpenCast, INestedCastOpenCast {
 
     private final IOpenCast openCast;
+    @Getter
     private final boolean implicit;
 
     public AliasToAliasOpenCast(IOpenCast openCast) {
@@ -35,10 +38,5 @@ public class AliasToAliasOpenCast implements IOpenCast, INestedCastOpenCast {
     @Override
     public Object convert(Object from) {
         return openCast.convert(from);
-    }
-
-    @Override
-    public boolean isImplicit() {
-        return implicit;
     }
 }

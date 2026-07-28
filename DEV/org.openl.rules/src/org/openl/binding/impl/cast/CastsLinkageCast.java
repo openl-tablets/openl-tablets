@@ -3,9 +3,12 @@ package org.openl.binding.impl.cast;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import lombok.Getter;
+
 public final class CastsLinkageCast implements IOpenCast {
 
     private final IOpenCast[] casts;
+    @Getter
     private int distance;
 
     public CastsLinkageCast(IOpenCast... casts) {
@@ -42,11 +45,6 @@ public final class CastsLinkageCast implements IOpenCast {
         }
 
         return ret;
-    }
-
-    @Override
-    public int getDistance() {
-        return distance;
     }
 
     @Override

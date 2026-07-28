@@ -1,5 +1,7 @@
 package org.openl.rules.table;
 
+import lombok.Getter;
+
 /**
  * Part of the grid table. Allows to get different parts from the table.
  *
@@ -9,8 +11,11 @@ public class SubGridTable extends AGridTableDecorator {
 
     private final int fromColumn;
     private final int fromRow;
+    @Getter
     private final int width;
+    @Getter
     private final int height;
+    @Getter
     private final IGridRegion region;
 
     public SubGridTable(IGridTable table, int fromColumn, int fromRow, int width, int height) {
@@ -23,11 +28,6 @@ public class SubGridTable extends AGridTableDecorator {
     }
 
     @Override
-    public IGridRegion getRegion() {
-        return region;
-    }
-
-    @Override
     public int getGridColumn(int col, int row) {
         return table.getGridColumn(fromColumn + col, fromRow + row);
     }
@@ -35,16 +35,6 @@ public class SubGridTable extends AGridTableDecorator {
     @Override
     public int getGridRow(int col, int row) {
         return table.getGridRow(fromColumn + col, fromRow + row);
-    }
-
-    @Override
-    public int getHeight() {
-        return height;
-    }
-
-    @Override
-    public int getWidth() {
-        return width;
     }
 
     @Override

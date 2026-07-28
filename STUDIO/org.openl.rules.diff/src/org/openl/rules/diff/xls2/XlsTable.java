@@ -1,5 +1,7 @@
 package org.openl.rules.diff.xls2;
 
+import lombok.Getter;
+
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
@@ -8,6 +10,7 @@ import org.openl.rules.table.syntax.GridLocation;
 
 public class XlsTable {
     private final TableSyntaxNode node;
+    @Getter
     private final IOpenLTable table;
 
     public XlsTable(TableSyntaxNode node) {
@@ -27,9 +30,5 @@ public class XlsTable {
 
     public GridLocation getLocation() {
         return node.getGridLocation();
-    }
-
-    public IOpenLTable getTable() {
-        return table;
     }
 }

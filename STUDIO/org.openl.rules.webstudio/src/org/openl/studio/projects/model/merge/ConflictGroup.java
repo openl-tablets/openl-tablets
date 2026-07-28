@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import org.openl.util.FileTypeHelper;
 
@@ -15,9 +16,11 @@ import org.openl.util.FileTypeHelper;
  */
 @Schema(description = "Group of conflicted files within a single project")
 public class ConflictGroup {
+    @Getter
     @Schema(description = "Name of the project containing conflicted files")
     private final String projectName;
 
+    @Getter
     @Schema(description = "Path to the project in the repository")
     private final String projectPath;
 
@@ -48,14 +51,6 @@ public class ConflictGroup {
             // Compare other files
             return f1.compareToIgnoreCase(f2);
         });
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public String getProjectPath() {
-        return projectPath;
     }
 
     public List<String> getFiles() {

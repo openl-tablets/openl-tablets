@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -17,6 +19,7 @@ class SplitByIndexNode extends ABoundNode {
     private final IBoundNode splitBy;
     private final IBoundNode targetNode;
     private final IOpenCast openCast;
+    @Getter
     private final IOpenClass type;
     private final IOpenClass componentType;
 
@@ -104,10 +107,5 @@ class SplitByIndexNode extends ABoundNode {
         }
 
         return result;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 }

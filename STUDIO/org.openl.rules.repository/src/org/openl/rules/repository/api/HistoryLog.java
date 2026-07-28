@@ -2,6 +2,7 @@ package org.openl.rules.repository.api;
 
 import java.util.Date;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -12,24 +13,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class HistoryLog {
 
+    @Getter
     private final String id;
+    @Getter
     private final String fullCommit;
+    @Getter
     private final UserInfo author;
+    @Getter
     private final Date modifiedAt;
-
-    public String getId() {
-        return id;
-    }
-
-    public UserInfo getAuthor() {
-        return author;
-    }
-
-    public Date getModifiedAt() {
-        return modifiedAt;
-    }
-
-    public String getFullCommit() {
-        return fullCommit;
-    }
 }

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
@@ -22,12 +24,18 @@ import org.openl.vm.SimpleVM;
 
 public class BaseTestUnit implements ITestUnit {
 
+    @Getter
     private final TestDescription test;
+    @Getter(AccessLevel.PACKAGE)
     private final Throwable actualError;
+    @Getter
     private final TestStatus resultStatus;
+    @Getter
     private final long executionTime;
     // must be increased only through addComparisonResult method
+    @Getter
     private final List<ComparedResult> comparisonResults = new ArrayList<>();
+    @Getter
     private int numberOfFailedTests;
 
     BaseTestUnit(TestDescription test, Object res, Throwable error, long executionTime) {
@@ -46,10 +54,6 @@ public class BaseTestUnit implements ITestUnit {
         this.resultStatus = compareResult(expectedError, expectedResult, res);
     }
 
-    Throwable getActualError() {
-        return actualError;
-    }
-
     /**
      * Return the result of running current test case.
      *
@@ -58,11 +62,6 @@ public class BaseTestUnit implements ITestUnit {
     @Override
     public Object getActualResult() {
         return actualError;
-    }
-
-    @Override
-    public long getExecutionTime() {
-        return executionTime;
     }
 
     /**
@@ -75,21 +74,6 @@ public class BaseTestUnit implements ITestUnit {
     public String getDescription() {
         var descr = test.getDescription();
         return descr == null ? DEFAULT_DESCRIPTION : descr;
-    }
-
-    @Override
-    public TestStatus getResultStatus() {
-        return resultStatus;
-    }
-
-    @Override
-    public TestDescription getTest() {
-        return test;
-    }
-
-    @Override
-    public List<ComparedResult> getComparisonResults() {
-        return comparisonResults;
     }
 
     /**
@@ -247,11 +231,6 @@ public class BaseTestUnit implements ITestUnit {
     @Override
     public List<OpenLMessage> getErrors() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getNumberOfFailedTests() {
-        return numberOfFailedTests;
     }
 
     @Override

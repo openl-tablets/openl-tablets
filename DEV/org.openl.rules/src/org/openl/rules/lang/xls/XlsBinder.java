@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -805,6 +806,7 @@ public class XlsBinder implements IOpenBinder {
     }
 
     class XlsBinderExecutableMethodBind implements RecursiveOpenMethodPreBinder {
+        @Getter
         final TableSyntaxNode tableSyntaxNode;
         final RulesModuleBindingContext rulesModuleBindingContext;
         final OpenL openl;
@@ -814,7 +816,9 @@ public class XlsBinder implements IOpenBinder {
         final OpenMethodHeader openMethodHeader;
         boolean preBinding = false;
         final SyntaxNodeExceptionHolder syntaxNodeExceptionHolder;
+        @Getter
         boolean completed = false;
+        @Getter
         final CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
 
         XlsBinderExecutableMethodBind(XlsModuleOpenClass module,
@@ -838,18 +842,8 @@ public class XlsBinder implements IOpenBinder {
         }
 
         @Override
-        public TableSyntaxNode getTableSyntaxNode() {
-            return tableSyntaxNode;
-        }
-
-        @Override
         public boolean isSpreadsheetWithCustomSpreadsheetResult() {
             return customSpreadsheetResultOpenClass != null;
-        }
-
-        @Override
-        public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultOpenClass() {
-            return customSpreadsheetResultOpenClass;
         }
 
         @Override
@@ -964,11 +958,6 @@ public class XlsBinder implements IOpenBinder {
         @Override
         public boolean isPreBindStarted() {
             return preBinding;
-        }
-
-        @Override
-        public boolean isCompleted() {
-            return completed;
         }
     }
 

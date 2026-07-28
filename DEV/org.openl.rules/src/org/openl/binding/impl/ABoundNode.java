@@ -6,6 +6,9 @@
 
 package org.openl.binding.impl;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
@@ -19,8 +22,11 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class ABoundNode implements IBoundNode {
 
+    @Getter
+    @Setter
     protected ISyntaxNode syntaxNode;
 
+    @Getter
     protected final IBoundNode[] children;
 
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode... children) {
@@ -52,20 +58,6 @@ public abstract class ABoundNode implements IBoundNode {
     @Override
     public IOpenClass getType() {
         return NullOpenClass.the;
-    }
-
-    @Override
-    public IBoundNode[] getChildren() {
-        return children;
-    }
-
-    @Override
-    public ISyntaxNode getSyntaxNode() {
-        return syntaxNode;
-    }
-
-    public void setSyntaxNode(ISyntaxNode syntaxNode) {
-        this.syntaxNode = syntaxNode;
     }
 
     @Override

@@ -2,6 +2,8 @@ package org.openl.binding.impl;
 
 import java.util.ArrayList;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -17,6 +19,7 @@ class SelectAllIndexNode extends ABoundNode {
     private final IBoundNode targetNode;
     private final IOpenCast openCast;
     private final Class<?> componentClass;
+    @Getter
     private final IOpenClass type;
 
     SelectAllIndexNode(ISyntaxNode syntaxNode,
@@ -62,10 +65,5 @@ class SelectAllIndexNode extends ABoundNode {
             }
         }
         return CollectionUtils.toArray(firedElements, componentClass);
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 }

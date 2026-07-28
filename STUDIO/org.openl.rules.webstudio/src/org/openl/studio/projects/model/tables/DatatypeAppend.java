@@ -3,6 +3,8 @@ package org.openl.studio.projects.model.tables;
 import java.util.Collection;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Request model for append lines to datatype table
@@ -11,16 +13,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public class DatatypeAppend implements AppendTableView {
 
+    @Getter
     @Schema(description = "Collection of fields to append to the datatype")
+    @Setter
     private Collection<DatatypeFieldView> fields;
-
-    public Collection<DatatypeFieldView> getFields() {
-        return fields;
-    }
-
-    public void setFields(Collection<DatatypeFieldView> fields) {
-        this.fields = fields;
-    }
 
     @Override
     public String getTableType() {

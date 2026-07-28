@@ -7,10 +7,14 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
+
 import org.openl.rules.lock.LockManager;
 
 public class RepositorySettings implements Closeable {
+    @Getter
     private Repository repository;
+    @Getter
     private Date syncDate = new Date();
     private final LockManager lockManager;
     private final int lockTimeToLive;
@@ -22,14 +26,6 @@ public class RepositorySettings implements Closeable {
         this.lockTimeToLive = lockTimeToLive;
 
         repository.setListener(() -> syncDate = new Date());
-    }
-
-    public Repository getRepository() {
-        return repository;
-    }
-
-    public Date getSyncDate() {
-        return syncDate;
     }
 
     public void lock(String fileName) throws IOException {

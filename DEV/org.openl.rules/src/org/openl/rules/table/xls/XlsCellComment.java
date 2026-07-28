@@ -1,5 +1,6 @@
 package org.openl.rules.table.xls;
 
+import lombok.Getter;
 import org.apache.poi.ss.usermodel.Comment;
 
 import org.openl.rules.table.ICellComment;
@@ -9,6 +10,7 @@ import org.openl.rules.table.ICellComment;
  */
 public class XlsCellComment implements ICellComment {
 
+    @Getter
     private final Comment xlxComment;
 
     public XlsCellComment(Comment xlsComment) {
@@ -23,10 +25,6 @@ public class XlsCellComment implements ICellComment {
     @Override
     public String getText() {
         return xlxComment.getString().getString();
-    }
-
-    public Comment getXlxComment() {
-        return xlxComment;
     }
 
 }

@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.InputSource;
 
@@ -46,8 +47,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
             .thenComparing(o -> o.getRepository().getId())
             .thenComparing(AProject::getRealPath, String.CASE_INSENSITIVE_ORDER);
 
+    @Getter
     private final WorkspaceUser user;
     private final LocalWorkspace localWorkspace;
+    @Getter
     private final DesignTimeRepository designTimeRepository;
 
     private final HashMap<ProjectKey, RulesProject> userRulesProjects;
@@ -58,6 +61,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private volatile boolean cleanUpOnActivation = false;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<>();
+    @Getter
     private final LockEngine projectsLockEngine;
     private final DesignTimeRepositoryListener designRepoListener = this::refresh;
 
@@ -84,11 +88,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public void addWorkspaceListener(UserWorkspaceListener listener) {
         listeners.add(listener);
         designTimeRepository.addListener(designRepoListener);
-    }
-
-    @Override
-    public DesignTimeRepository getDesignTimeRepository() {
-        return designTimeRepository;
     }
 
     // --- protected
@@ -200,11 +199,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 .filter(p -> !p.isLocalOnly() && repositoryId.equals(p.getDesignRepository()
                         .getId()) && ((realPath.equals(p.getRealPath())) || realPath.startsWith(p.getRealPath() + "/")))
                 .findFirst();
-    }
-
-    @Override
-    public WorkspaceUser getUser() {
-        return user;
     }
 
     @Override
@@ -704,11 +698,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
             }
             throw e;
         }
-    }
-
-    @Override
-    public LockEngine getProjectsLockEngine() {
-        return projectsLockEngine;
     }
 
     @Override

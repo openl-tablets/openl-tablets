@@ -1,5 +1,7 @@
 package org.openl.rules.table;
 
+import lombok.Getter;
+
 /**
  * Fully implementation for {@link ILogicalTable} interface.<br>
  * Logical Table consists of logical columns and rows (created as a result of merged cells). Each merged region is taken
@@ -11,8 +13,10 @@ package org.openl.rules.table;
  */
 public class LogicalTable extends ALogicalTable {
 
+    @Getter
     private final int[] rowOffset;
 
+    @Getter
     private final int[] columnOffset;
 
     public LogicalTable(IGridTable table, int width, int height) {
@@ -97,14 +101,6 @@ public class LogicalTable extends ALogicalTable {
 
         return LogicalTableHelper
                 .logicalTable(getSource().getSubtable(startColumn, startRow, endColumn - startColumn, endRow - startRow));
-    }
-
-    public int[] getRowOffset() {
-        return rowOffset;
-    }
-
-    public int[] getColumnOffset() {
-        return columnOffset;
     }
 
     @Override

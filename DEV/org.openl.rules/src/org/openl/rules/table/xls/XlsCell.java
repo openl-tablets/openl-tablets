@@ -2,6 +2,7 @@ package org.openl.rules.table.xls;
 
 import java.util.Date;
 
+import lombok.Getter;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -22,12 +23,17 @@ import org.openl.util.StringUtils;
 
 public class XlsCell implements ICell {
 
+    @Getter
     private final int column;
+    @Getter
     private final int row;
+    @Getter
     private final IGridRegion region;
     private final CellLoader cellLoader;
 
+    @Getter
     private int width = 1;
+    @Getter
     private int height = 1;
 
     private final XlsSheetGridModel gridModel;
@@ -83,11 +89,6 @@ public class XlsCell implements ICell {
     }
 
     @Override
-    public int getColumn() {
-        return column;
-    }
-
-    @Override
     public ICellFont getFont() {
         var cell = getCell();
         if (cell == null) {
@@ -98,26 +99,6 @@ public class XlsCell implements ICell {
                 .getWorkbook()
                 .getFontAt(cell.getCellStyle().getFontIndexAsInt());
         return new XlsCellFont(font, gridModel.getSheetSource().getSheet().getWorkbook());
-    }
-
-    @Override
-    public int getRow() {
-        return row;
-    }
-
-    @Override
-    public IGridRegion getRegion() {
-        return region;
-    }
-
-    @Override
-    public int getHeight() {
-        return height;
-    }
-
-    @Override
-    public int getWidth() {
-        return width;
     }
 
     @Override

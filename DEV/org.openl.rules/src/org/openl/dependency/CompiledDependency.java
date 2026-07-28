@@ -2,6 +2,8 @@ package org.openl.dependency;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.CompiledOpenClass;
 
 /**
@@ -9,8 +11,11 @@ import org.openl.CompiledOpenClass;
  */
 public class CompiledDependency {
 
+    @Getter
     private final ResolvedDependency dependency;
+    @Getter
     private final CompiledOpenClass compiledOpenClass;
+    @Getter
     private final DependencyType dependencyType;
 
     public CompiledDependency(ResolvedDependency dependency,
@@ -21,19 +26,7 @@ public class CompiledDependency {
         this.dependencyType = Objects.requireNonNull(dependencyType, "dependencyType cannot be null");
     }
 
-    public ResolvedDependency getDependency() {
-        return dependency;
-    }
-
-    public CompiledOpenClass getCompiledOpenClass() {
-        return compiledOpenClass;
-    }
-
     public ClassLoader getClassLoader() {
         return getCompiledOpenClass().getClassLoader();
-    }
-
-    public DependencyType getDependencyType() {
-        return dependencyType;
     }
 }

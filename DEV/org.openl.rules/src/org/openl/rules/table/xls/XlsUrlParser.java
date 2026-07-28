@@ -11,17 +11,24 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
+import lombok.Getter;
+
 import org.openl.rules.table.IGridRegion;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
 public class XlsUrlParser {
 
+    @Getter
     private final String wbPath;
+    @Getter
     private final String wbName;
+    @Getter
     private final String wsName;
 
+    @Getter
     private final String range;
+    @Getter
     private final String cell;
 
     public XlsUrlParser(String url) {
@@ -103,26 +110,6 @@ public class XlsUrlParser {
 
         IGridRegion i1 = IGridRegion.Tool.makeRegion(range);
         return IGridRegion.Tool.intersects(i1, IGridRegion.Tool.makeRegion(p2.range));
-    }
-
-    public String getWbPath() {
-        return wbPath;
-    }
-
-    public String getWbName() {
-        return wbName;
-    }
-
-    public String getWsName() {
-        return wsName;
-    }
-
-    public String getRange() {
-        return range;
-    }
-
-    public String getCell() {
-        return cell;
     }
 
 }

@@ -5,21 +5,19 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Getter;
 
 import org.openl.rules.webstudio.web.admin.RepositoryType;
 
 @JsonDeserialize(builder = CreateRepositoryTemplateModel.Builder.class)
 public class CreateRepositoryTemplateModel {
 
+    @Getter
     @NotNull
     private final RepositoryType type;
 
     private CreateRepositoryTemplateModel(Builder builder) {
         this.type = builder.type;
-    }
-
-    public RepositoryType getType() {
-        return type;
     }
 
     @JsonCreator

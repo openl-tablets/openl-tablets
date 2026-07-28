@@ -1,25 +1,16 @@
 package org.openl.rules.binding;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class BeanA {
+    @Getter
+    @Setter
     private String name;
 
+    @Getter
+    @Setter
     private BeanB[] beansB;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public BeanB[] getBeansB() {
-        return beansB;
-    }
-
-    public void setBeansB(BeanB[] beansB) {
-        this.beansB = beansB;
-    }
 
     @Override
     public int hashCode() {

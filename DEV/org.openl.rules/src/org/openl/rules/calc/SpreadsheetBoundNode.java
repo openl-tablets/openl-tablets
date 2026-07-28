@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 
+import lombok.Getter;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,6 +37,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
 
     private SpreadsheetStructureBuilder structureBuilder;
     private SpreadsheetOpenClass spreadsheetOpenClass;
+    @Getter
     private SpreadsheetCell[][] cells;
 
     private IBindingContext bindingContext;
@@ -258,10 +260,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
 
             spreadsheet.setResultBuilder(structureBuilder.buildResultBuilder(spreadsheet, bindingContext));
         }
-    }
-
-    public SpreadsheetCell[][] getCells() {
-        return cells;
     }
 
     private void validateTableBody(TableSyntaxNode tableSyntaxNode,

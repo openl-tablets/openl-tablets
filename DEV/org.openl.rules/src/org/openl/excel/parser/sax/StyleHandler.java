@@ -1,9 +1,11 @@
 package org.openl.excel.parser.sax;
 
+import lombok.Getter;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class StyleHandler extends DefaultHandler {
+    @Getter
     private final MinimalStyleTable styleTable = new MinimalStyleTable();
 
     private boolean startCellXfs = false;
@@ -31,9 +33,5 @@ public class StyleHandler extends DefaultHandler {
         if ("cellXfs".equals(localName)) {
             startCellXfs = false;
         }
-    }
-
-    public MinimalStyleTable getStyleTable() {
-        return styleTable;
     }
 }

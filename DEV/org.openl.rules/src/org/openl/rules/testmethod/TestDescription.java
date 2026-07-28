@@ -3,6 +3,8 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.cloner.Cloner;
@@ -22,11 +24,18 @@ import org.openl.types.impl.ThisField;
 public class TestDescription {
 
 
+    @Getter
     private final ParameterWithValueDeclaration[] executionParams;
+    @Getter
     private final IOpenMethod testedMethod;
+    @Getter
     private final DynamicObject testObject;
+    @Getter
+    @Setter
     private int index;
+    @Getter
     private List<IOpenField> fields = new ArrayList<>();
+    @Getter
     private List<IOpenField> errorFields = new ArrayList<>();
 
     public TestDescription(IOpenMethod testedMethod,
@@ -62,18 +71,6 @@ public class TestDescription {
             testObj.setFieldValue(paramName, arguments[i]);
         }
         return testObj;
-    }
-
-    public IOpenMethod getTestedMethod() {
-        return testedMethod;
-    }
-
-    public DynamicObject getTestObject() {
-        return testObject;
-    }
-
-    public ParameterWithValueDeclaration[] getExecutionParams() {
-        return executionParams;
     }
 
     public String[] getParametersNames() {
@@ -188,22 +185,6 @@ public class TestDescription {
 
     public boolean hasId() {
         return testObject.containsField(RowIdField.ROW_ID);
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public List<IOpenField> getFields() {
-        return fields;
-    }
-
-    public List<IOpenField> getErrorFields() {
-        return errorFields;
     }
 
     protected static IOpenField getKeyField(String paramName,

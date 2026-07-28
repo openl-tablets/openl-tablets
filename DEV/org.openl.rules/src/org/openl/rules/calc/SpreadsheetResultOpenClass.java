@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
+import lombok.Getter;
+
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -26,6 +28,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             "IN_PROGRESS",
             JavaOpenClass.OBJECT);
 
+    @Getter
     private XlsModuleOpenClass module;
     private final Map<String, IOpenField> strictMatchCache = new HashMap<>();
     private final Map<String, IOpenField> noStrictMatchCache = new HashMap<>();
@@ -190,10 +193,6 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             }
         }
         return this.customSpreadsheetResultOpenClass;
-    }
-
-    public XlsModuleOpenClass getModule() {
-        return module;
     }
 
     @Override

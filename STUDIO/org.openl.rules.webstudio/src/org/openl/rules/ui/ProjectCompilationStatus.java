@@ -11,13 +11,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 
 public final class ProjectCompilationStatus {
 
+    @Getter
     private final int modulesCount;
 
+    @Getter
     private final int modulesCompiled;
 
     private final Map<Severity, List<OpenLMessage>> messages;
@@ -28,14 +32,6 @@ public final class ProjectCompilationStatus {
         var messagesMap = new HashMap<Severity, List<OpenLMessage>>();
         builder.messages.forEach((key, value) -> messagesMap.put(key, Collections.unmodifiableList(value)));
         this.messages = Collections.unmodifiableMap(messagesMap);
-    }
-
-    public int getModulesCount() {
-        return modulesCount;
-    }
-
-    public int getModulesCompiled() {
-        return modulesCompiled;
     }
 
     public int getWarningsCount() {

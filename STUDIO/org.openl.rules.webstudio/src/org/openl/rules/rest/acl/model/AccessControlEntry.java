@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import org.openl.security.acl.permission.AclRole;
 
@@ -16,10 +17,12 @@ import org.openl.security.acl.permission.AclRole;
 public class AccessControlEntry {
 
 
+    @Getter
     @Parameter(description = "Name of the role to assign")
     @NotNull
     private final AclRole role;
 
+    @Getter
     @Parameter(description = "The subject to whom the role is assigned")
     @NotNull
     @Valid
@@ -28,14 +31,6 @@ public class AccessControlEntry {
     private AccessControlEntry(Builder builder) {
         this.role = builder.role;
         this.sub = builder.sub;
-    }
-
-    public AclRole getRole() {
-        return role;
-    }
-
-    public AclSubject getSub() {
-        return sub;
     }
 
     @JsonCreator

@@ -2,6 +2,9 @@ package org.openl.rules.webstudio.web.repository.upload;
 
 import java.io.InputStream;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -13,6 +16,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  */
 public class ZipRulesProjectBuilder extends RulesProjectBuilder {
     private final PathFilter filter;
+    @Getter(AccessLevel.PACKAGE)
     private final RootFolderExtractor folderExtractor;
 
     ZipRulesProjectBuilder(UserWorkspace workspace,
@@ -51,9 +55,5 @@ public class ZipRulesProjectBuilder extends RulesProjectBuilder {
         }
         return false;
 
-    }
-
-    RootFolderExtractor getFolderExtractor() {
-        return folderExtractor;
     }
 }

@@ -2,6 +2,8 @@ package org.openl.exception;
 
 import java.io.Serial;
 
+import lombok.Getter;
+
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
@@ -14,8 +16,11 @@ public class OpenlNotCheckedException extends RuntimeException implements OpenLE
     @Serial
     private static final long serialVersionUID = -4044064134031015107L;
 
+    @Getter
     private ILocation location;
+    @Getter
     private String sourceCode;
+    @Getter
     private String sourceLocation;
 
     public OpenlNotCheckedException() {
@@ -43,20 +48,5 @@ public class OpenlNotCheckedException extends RuntimeException implements OpenLE
             this.sourceCode = sourceModule.getCode();
         }
         this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(location, sourceModule);
-    }
-
-    @Override
-    public ILocation getLocation() {
-        return location;
-    }
-
-    @Override
-    public String getSourceCode() {
-        return sourceCode;
-    }
-
-    @Override
-    public String getSourceLocation() {
-        return sourceLocation;
     }
 }

@@ -3,6 +3,9 @@ package org.openl.rules.tableeditor.model.ui;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.util.StringUtils;
 
@@ -10,16 +13,32 @@ public class CellModel implements ICellModel {
 
     public static final String CANNOT_SHOW_FORMULA_HINT = "double click to show formula";
 
+    @Getter
     private final int row;
+    @Getter
     private final int column;
 
+    @Getter
+    @Setter
     private int colspan = 1;
+    @Getter
+    @Setter
     private int rowspan = 1;
 
+    @Getter
+    @Setter
     private int indent;
+    @Getter
+    @Setter
     private String halign;
+    @Getter
+    @Setter
     private String valign;
+    @Getter
+    @Setter
     private short[] rgbBackground;
+    @Getter
+    @Setter
     private BorderStyle[] borderStyle;
 
     private static final Map<String, Object> DEFAULT_CELL_STYLES = new HashMap<>();
@@ -37,13 +56,20 @@ public class CellModel implements ICellModel {
     }
 
     private boolean hasFormula;
+    @Getter
     private String formula;
 
+    @Setter
     private String content = "&nbsp;";
 
+    @Getter
+    @Setter
     private String comment;
 
+    @Getter
+    @Setter
     private ICellFont font;
+    @Setter
     private int width;
 
     public CellModel(int row, int column) {
@@ -150,31 +176,12 @@ public class CellModel implements ICellModel {
     }
 
     @Override
-    public BorderStyle[] getBorderStyle() {
-        return borderStyle;
-    }
-
-    @Override
-    public int getColspan() {
-        return colspan;
-    }
-
-    @Override
     public String getContent(boolean showFormulas) {
         if (showFormulas && hasFormula) {
             return convertContent(formula);
         } else {
             return convertContent(content);
         }
-    }
-
-    @Override
-    public ICellFont getFont() {
-        return font;
-    }
-
-    public String getHalign() {
-        return halign;
     }
 
     /**
@@ -263,33 +270,6 @@ public class CellModel implements ICellModel {
         }
     }
 
-    public int getRow() {
-        return row;
-    }
-
-    public int getColumn() {
-        return column;
-    }
-
-    @Override
-    public int getIndent() {
-        return indent;
-    }
-
-    @Override
-    public short[] getRgbBackground() {
-        return rgbBackground;
-    }
-
-    @Override
-    public int getRowspan() {
-        return rowspan;
-    }
-
-    public String getValign() {
-        return valign;
-    }
-
     @Override
     public boolean isReal() {
         return true;
@@ -309,53 +289,6 @@ public class CellModel implements ICellModel {
     }
 
     @Override
-    public void setBorderStyle(BorderStyle[] borderStyle) {
-        this.borderStyle = borderStyle;
-    }
-
-    @Override
-    public void setColspan(int colspan) {
-        this.colspan = colspan;
-    }
-
-    @Override
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    @Override
-    public void setFont(ICellFont font) {
-        this.font = font;
-    }
-
-    public void setHalign(String halign) {
-        this.halign = halign;
-    }
-
-    @Override
-    public void setIndent(int indent) {
-        this.indent = indent;
-    }
-
-    @Override
-    public void setRgbBackground(short[] rgbBackground) {
-        this.rgbBackground = rgbBackground;
-    }
-
-    @Override
-    public void setRowspan(int rowspan) {
-        this.rowspan = rowspan;
-    }
-
-    public void setValign(String valign) {
-        this.valign = valign;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    @Override
     public boolean hasFormula() {
         return hasFormula;
     }
@@ -368,21 +301,6 @@ public class CellModel implements ICellModel {
             this.formula = CANNOT_SHOW_FORMULA_HINT;
         }
         hasFormula = true;
-    }
-
-    @Override
-    public String getFormula() {
-        return formula;
-    }
-
-    @Override
-    public String getComment() {
-        return comment;
-    }
-
-    @Override
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     private static String boxCSStoString(String[] values) {

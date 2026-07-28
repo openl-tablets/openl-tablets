@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import lombok.Getter;
+
 import org.openl.binding.MethodUtil;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -16,16 +18,12 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ConstructorParamsNode extends ABoundNode implements ConstructorNode {
 
+    @Getter
     private final MethodBoundNode constructor;
 
     public ConstructorParamsNode(MethodBoundNode constructor) {
         super(constructor.getSyntaxNode(), constructor.getChildren());
         this.constructor = constructor;
-    }
-
-    @Override
-    public MethodBoundNode getConstructor() {
-        return constructor;
     }
 
     @Override

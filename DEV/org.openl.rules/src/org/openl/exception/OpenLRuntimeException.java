@@ -6,6 +6,8 @@ import java.io.Serial;
 import java.io.StringWriter;
 import java.util.LinkedList;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundNode;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.syntax.ISyntaxNode;
@@ -23,8 +25,11 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     private static final long serialVersionUID = -8422089115244904493L;
 
     private final LinkedList<IBoundNode> openlCallStack = new LinkedList<>();
+    @Getter
     private ILocation location;
+    @Getter
     private String sourceLocation;
+    @Getter
     private String sourceCode;
 
     public OpenLRuntimeException() {
@@ -98,21 +103,6 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
             pw.print(super.getMessage());
         }
         return messageWriter.toString();
-    }
-
-    @Override
-    public ILocation getLocation() {
-        return location;
-    }
-
-    @Override
-    public String getSourceCode() {
-        return sourceCode;
-    }
-
-    @Override
-    public String getSourceLocation() {
-        return sourceLocation;
     }
 
     public void pushMethodNode(IBoundNode node) {

@@ -2,6 +2,7 @@ package org.openl.studio.common.exception;
 
 import java.util.Optional;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ public class RestRuntimeException extends RuntimeException {
     private static final String DEF_ERROR_PREFIX = "openl.error.";
 
     private final String code;
+    @Getter
     private final Object[] args;
 
     public RestRuntimeException(String code) {
@@ -29,10 +31,6 @@ public class RestRuntimeException extends RuntimeException {
     public String getErrorCode() {
         var httpStatus = getHttpStatus();
         return httpStatus != null ? DEF_ERROR_PREFIX + httpStatus.value() + "." + code : code;
-    }
-
-    public Object[] getArgs() {
-        return args;
     }
 
 }

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import org.openl.util.StringUtils;
 
@@ -23,6 +24,7 @@ public class BulkAclOverwriteRequest {
 
     private static final Predicate<AclSubject> SUB_USER_FILTER = sub -> Boolean.TRUE.equals(sub.getPrincipal());
 
+    @Getter
     @Parameter(description = "List of ACL configurations per resource")
     @NotEmpty
     @Valid
@@ -31,10 +33,6 @@ public class BulkAclOverwriteRequest {
     @JsonCreator
     public BulkAclOverwriteRequest(@JsonProperty("resources") List<AclResourceAccess> resources) {
         this.resources = resources;
-    }
-
-    public List<AclResourceAccess> getResources() {
-        return resources;
     }
 
     @Transient

@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +32,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private ProjectVersionH2CacheDB projectVersionCacheDB;
     private ProjectVersionCacheManager projectVersionCacheManager;
     private DesignTimeRepository designRepository;
+    @Setter
     private boolean enabled;
 
     private final Authentication relevantSystemWideGrantedAuthority;
@@ -174,9 +176,5 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             Thread.currentThread().interrupt();
         }
         scheduledPool = null;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

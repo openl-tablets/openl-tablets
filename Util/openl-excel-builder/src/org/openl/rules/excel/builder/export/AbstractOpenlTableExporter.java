@@ -2,6 +2,8 @@ package org.openl.rules.excel.builder.export;
 
 import java.util.Collection;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -19,6 +21,8 @@ public abstract class AbstractOpenlTableExporter<T extends Model> implements Ope
     public static final int DEFAULT_MARGIN = 3;
     public static final String DEFAULT_STRING_VALUE = "_DEFAULT_";
 
+    @Getter
+    @Setter
     private TableStyle tableStyle;
 
     @Override
@@ -68,13 +72,5 @@ public abstract class AbstractOpenlTableExporter<T extends Model> implements Ope
             return TOP_LEFT_POSITION;
         }
         return new Cursor(endPosition.getColumn(), endPosition.getRow() + DEFAULT_MARGIN);
-    }
-
-    public TableStyle getTableStyle() {
-        return tableStyle;
-    }
-
-    public void setTableStyle(TableStyle tableStyle) {
-        this.tableStyle = tableStyle;
     }
 }

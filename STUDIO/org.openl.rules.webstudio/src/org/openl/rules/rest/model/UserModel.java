@@ -4,35 +4,40 @@ import java.time.Instant;
 import java.util.Set;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 import org.openl.rules.security.UserExternalFlags;
 
 public class UserModel extends UserCreateModel {
 
+    @Getter
     @Parameter(description = "Current user marker")
     private boolean currentUser;
 
+    @Getter
     @Parameter(description = "Superuser marker")
     private boolean superUser;
 
+    @Getter
     @Parameter(description = "Unsafe password marker")
     private boolean unsafePassword;
+    @Getter
     private UserExternalFlags externalFlags;
 
+    @Getter
     @Parameter(description = "Number of external groups which is unknown by OpenL Studio")
     private Long notMatchedExternalGroupsCount;
 
+    @Getter
     @Parameter(description = "User online marker")
     private boolean online;
 
+    @Getter
     @Parameter(description = "Time of the last successful sign-in")
     private Instant lastLoginTime;
 
+    @Getter
     private Set<GroupModel> userGroups;
-
-    public Set<GroupModel> getUserGroups() {
-        return userGroups;
-    }
 
     public UserModel setUserGroups(Set<GroupModel> userGroups) {
         this.userGroups = userGroups;
@@ -54,17 +59,9 @@ public class UserModel extends UserCreateModel {
         return (UserModel) super.setPassword(password);
     }
 
-    public boolean isCurrentUser() {
-        return currentUser;
-    }
-
     public UserModel setCurrentUser(boolean currentUser) {
         this.currentUser = currentUser;
         return this;
-    }
-
-    public boolean isSuperUser() {
-        return superUser;
     }
 
     public UserModel setSuperUser(boolean superUser) {
@@ -72,17 +69,9 @@ public class UserModel extends UserCreateModel {
         return this;
     }
 
-    public boolean isUnsafePassword() {
-        return unsafePassword;
-    }
-
     public UserModel setUnsafePassword(boolean unsafePassword) {
         this.unsafePassword = unsafePassword;
         return this;
-    }
-
-    public UserExternalFlags getExternalFlags() {
-        return externalFlags;
     }
 
     public UserModel setExternalFlags(UserExternalFlags externalFlags) {
@@ -115,26 +104,14 @@ public class UserModel extends UserCreateModel {
         return (UserModel) super.setGroups(groups);
     }
 
-    public Long getNotMatchedExternalGroupsCount() {
-        return notMatchedExternalGroupsCount;
-    }
-
     public UserModel setNotMatchedExternalGroupsCount(Long notMatchedExternalGroupsCount) {
         this.notMatchedExternalGroupsCount = notMatchedExternalGroupsCount;
         return this;
     }
 
-    public boolean isOnline() {
-        return online;
-    }
-
     public UserModel setOnline(boolean online) {
         this.online = online;
         return this;
-    }
-
-    public Instant getLastLoginTime() {
-        return lastLoginTime;
     }
 
     public UserModel setLastLoginTime(Instant lastLoginTime) {

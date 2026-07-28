@@ -6,7 +6,10 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import lombok.Getter;
+
 public class Inject<R> {
+    @Getter
     private final Class<? extends Annotation> annotationClass;
     private final BiFunction<Method, Annotation, R> resourceFunction;
     private final Consumer<R> destroyFunction;
@@ -21,10 +24,6 @@ public class Inject<R> {
         this.annotationClass = Objects.requireNonNull(annotationClass);
         this.resourceFunction = Objects.requireNonNull(resourceFunction);
         this.destroyFunction = destroyFunction;
-    }
-
-    public Class<? extends Annotation> getAnnotationClass() {
-        return annotationClass;
     }
 
     public R getResource(Method interfaceMethod, Annotation annotation) {

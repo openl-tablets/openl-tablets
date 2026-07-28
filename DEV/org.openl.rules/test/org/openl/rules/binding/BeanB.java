@@ -1,15 +1,12 @@
 package org.openl.rules.binding;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class BeanB {
+    @Getter
+    @Setter
     private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     @Override
     public int hashCode() {

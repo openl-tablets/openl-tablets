@@ -2,6 +2,8 @@ package org.openl.rules.dt.data;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IBaseDecisionRow;
@@ -15,6 +17,7 @@ public class ConditionOrActionDirectParameterField implements IOpenField {
 
     private final int numberOfTableParameters;
     private final IDecisionRow decisionRow;
+    @Getter
     private final int paramNum;
     private final DecisionTableDataType decisionTableDataType;
 
@@ -68,10 +71,6 @@ public class ConditionOrActionDirectParameterField implements IOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         throw new UnsupportedOperationException();
-    }
-
-    public int getParamNum() {
-        return paramNum;
     }
 
     @Override

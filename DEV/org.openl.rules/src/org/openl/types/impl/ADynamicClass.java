@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -23,10 +25,12 @@ import org.openl.types.java.JavaOpenMethod;
  */
 public abstract class ADynamicClass extends AOpenClass {
 
+    @Getter
     private final String name;
 
     protected volatile Map<String, IOpenField> fieldMap;
 
+    @Getter
     protected Class<?> instanceClass;
 
     public ADynamicClass(String name, Class<?> instanceClass) {
@@ -140,11 +144,6 @@ public abstract class ADynamicClass extends AOpenClass {
         return name;
     }
 
-    @Override
-    public Class<?> getInstanceClass() {
-        return instanceClass;
-    }
-
     protected boolean isPublic(Class<?> declaringClass) {
         return Modifier.isPublic(declaringClass.getModifiers());
     }
@@ -156,11 +155,6 @@ public abstract class ADynamicClass extends AOpenClass {
     public void setInstanceClass(Class<?> instanceClass) {
         this.instanceClass = instanceClass;
         invalidateInternalData();
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override

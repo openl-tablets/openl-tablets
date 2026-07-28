@@ -1,27 +1,17 @@
 package org.openl.rules.spring.openapi.app020.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 public class Tag {
+    @Getter
     @JsonProperty("id")
+    @Setter
     private Long id;
 
+    @Getter
     @JsonProperty("name")
+    @Setter
     private String name;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

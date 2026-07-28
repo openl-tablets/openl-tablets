@@ -1,11 +1,15 @@
 package org.openl.rules.table;
 
+import lombok.Getter;
+
 /**
  * @author snshor
  */
 public class GridTable extends AGridTable {
 
+    @Getter
     private final IGridRegion region;
+    @Getter
     private final IGrid grid;
 
     public GridTable(IGridRegion reg, IGrid grid) {
@@ -28,11 +32,6 @@ public class GridTable extends AGridTable {
     }
 
     @Override
-    public IGrid getGrid() {
-        return grid;
-    }
-
-    @Override
     public void edit() {
         // Do nothing
     }
@@ -50,11 +49,6 @@ public class GridTable extends AGridTable {
     @Override
     public int getGridRow(int column, int row) {
         return region.getTop() + row;
-    }
-
-    @Override
-    public IGridRegion getRegion() {
-        return region;
     }
 
     @Override

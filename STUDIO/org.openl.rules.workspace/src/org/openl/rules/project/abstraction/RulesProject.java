@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ArtefactPath;
@@ -30,10 +31,14 @@ import org.openl.rules.workspace.dtr.impl.FileMappingData;
 @Slf4j
 public class RulesProject extends UserWorkspaceProject {
 
+    @Getter
     private final LocalRepository localRepository;
+    @Getter
     private String localFolderName;
 
+    @Getter
     private Repository designRepository;
+    @Getter
     private String designFolderName;
     private final LockEngine lockEngine;
     private final RulesProjectTags localTags;
@@ -519,10 +524,6 @@ public class RulesProject extends UserWorkspaceProject {
         }
     }
 
-    public String getDesignFolderName() {
-        return designFolderName;
-    }
-
     @Override
     protected void setDesignRepository(Repository repository) {
         this.designRepository = repository;
@@ -530,15 +531,6 @@ public class RulesProject extends UserWorkspaceProject {
         if (!isOpened()) {
             setRepository(repository);
         }
-    }
-
-    @Override
-    public Repository getDesignRepository() {
-        return designRepository;
-    }
-
-    public LocalRepository getLocalRepository() {
-        return localRepository;
     }
 
     @Override
@@ -577,10 +569,6 @@ public class RulesProject extends UserWorkspaceProject {
         } else {
             return folderPath;
         }
-    }
-
-    public String getLocalFolderName() {
-        return localFolderName;
     }
 
     public String getMainBusinessName() {

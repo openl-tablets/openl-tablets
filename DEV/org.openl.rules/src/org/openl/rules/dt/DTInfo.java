@@ -1,10 +1,16 @@
 package org.openl.rules.dt;
 
+import lombok.Getter;
+
 public class DTInfo {
 
+    @Getter
     private final int numberHConditions;
+    @Getter
     private final int numberVConditions;
+    @Getter
     private DTScale scale = DTScale.STANDARD;
+    @Getter
     private boolean transposed;
 
     DTInfo(int numberHConditions, int numberVConditions, DTScale scale, boolean transposed) {
@@ -20,21 +26,5 @@ public class DTInfo {
         this.numberHConditions = numberHConditions;
         this.numberVConditions = numberVConditions;
         this.transposed = transposed;
-    }
-
-    public DTScale getScale() {
-        return scale;
-    }
-
-    public int getNumberHConditions() {
-        return numberHConditions;
-    }
-
-    public int getNumberVConditions() {
-        return numberVConditions;
-    }
-
-    public boolean isTransposed() {
-        return transposed;
     }
 }

@@ -3,6 +3,8 @@ package org.openl.binding.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -23,11 +25,16 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class Binder implements IOpenBinder {
 
+    @Getter
     private final Map<MethodKey, Object> methodCache = new HashMap<>();
     private final OpenL openl;
+    @Getter
     private final ICastFactory castFactory;
+    @Getter
     private final INameSpacedVarFactory varFactory;
+    @Getter
     private final INameSpacedTypeFactory typeFactory;
+    @Getter
     private final INameSpacedMethodFactory methodFactory;
 
     public Binder(INameSpacedMethodFactory methodFactory,
@@ -41,26 +48,6 @@ public class Binder implements IOpenBinder {
         this.varFactory = varFactory;
         this.typeFactory = typeFactory;
         this.openl = openl;
-    }
-
-    @Override
-    public ICastFactory getCastFactory() {
-        return castFactory;
-    }
-
-    @Override
-    public INameSpacedMethodFactory getMethodFactory() {
-        return methodFactory;
-    }
-
-    @Override
-    public INameSpacedTypeFactory getTypeFactory() {
-        return typeFactory;
-    }
-
-    @Override
-    public INameSpacedVarFactory getVarFactory() {
-        return varFactory;
     }
 
     @Override
@@ -93,9 +80,5 @@ public class Binder implements IOpenBinder {
             bindingContext.popLocalVarContext();
         }
         return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getMessages());
-    }
-
-    public Map<MethodKey, Object> getMethodCache() {
-        return methodCache;
     }
 }
