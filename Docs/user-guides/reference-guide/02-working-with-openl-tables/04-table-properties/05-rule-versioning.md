@@ -109,7 +109,7 @@ The rule names and their structure are the same but with the factor values diffe
 
 To create the rule for the year 2012, proceed as follows:
 
-1.  To copy the rule table, use the **Copy as New Business Dimension** feature in OpenL Studio as described in [OpenL Studio Guide, Creating Tables by Copying section](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#creating-tables-by-copying).
+1.  To copy the rule table, use the **Copy as New Business Dimension** feature in OpenL Studio as described in [OpenL Studio Guide, Creating Tables by Copying section](../../../openl-studio/rules-editor.md#creating-tables-by-copying).
 2.  Change effective and expiration dates to 1/1/2012 and 12/31/2012 appropriately.
 3.  Replace the factors as appropriate for the year 2012.
 

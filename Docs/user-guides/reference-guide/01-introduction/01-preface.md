@@ -20,7 +20,7 @@ The following table lists sources of information related to contents of this gui
 
 | Title                                                                                                                                                       | Description                                                                                                               |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| [OpenL Studio Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide) | Document describing OpenL Studio, a web application for managing OpenL Tablets projects through a web browser. |
+| [OpenL Studio Guide](../../openl-studio/index.md) | Document describing OpenL Studio, a web application for managing OpenL Tablets projects through a web browser. |
 | <https://openl-tablets.org/>                                                                                                                                | OpenL Tablets open source project website.                                                                                |
 
 ### Typographic Conventions
