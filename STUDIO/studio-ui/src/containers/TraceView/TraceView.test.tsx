@@ -58,8 +58,17 @@ describe('TraceView terminal outcome', () => {
         vi.clearAllMocks()
     })
 
-    it('shows the Finished status tag but no banner on a clean finish', () => {
+    it('shows no status pill and no banner in the business view on a clean finish', () => {
         setStore('completed')
+        render(<TraceView />)
+
+        // The business view carries no status pills — the finished tree is the result, a "Finished" tag is noise.
+        expect(screen.queryByTestId('debug-status')).not.toBeInTheDocument()
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('shows the Finished status tag but no banner in the advanced view on a clean finish', () => {
+        setStore('completed', { advanced: true })
         render(<TraceView />)
 
         expect(screen.getByTestId('debug-status')).toHaveTextContent('debug.status.completed')
@@ -83,11 +92,12 @@ describe('TraceView terminal outcome', () => {
         expect(screen.getByRole('alert')).toBeInTheDocument()
     })
 
-    it('shows the failure summary in the banner when the run errors', () => {
+    it('surfaces a run failure through the banner in the business view, without a status pill', () => {
         setStore('error', { debugError: { summary: 'Division by zero' } })
         render(<TraceView />)
 
-        expect(screen.getByTestId('debug-status')).toHaveTextContent('debug.status.error')
+        // No status pill in the business view, but a real failure still surfaces — through the banner.
+        expect(screen.queryByTestId('debug-status')).not.toBeInTheDocument()
         expect(screen.getByRole('alert')).toHaveTextContent('Division by zero')
     })
 })

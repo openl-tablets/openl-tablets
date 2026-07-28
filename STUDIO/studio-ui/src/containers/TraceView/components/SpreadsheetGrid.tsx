@@ -22,6 +22,7 @@ interface SpreadsheetGridProps {
 const SpreadsheetGrid: React.FC<SpreadsheetGridProps> = ({ steps, columns, rows, frameUri }) => {
     const { t } = useTranslation('trace')
     const { styles, cx } = useStyles()
+    const advanced = useTraceStore(s => s.advanced)
     const breakpoints = useTraceStore(s => s.breakpoints)
     const toggleBreakpoint = useTraceStore(s => s.toggleBreakpoint)
 
@@ -36,7 +37,8 @@ const SpreadsheetGrid: React.FC<SpreadsheetGridProps> = ({ steps, columns, rows,
         const hasBreakpoint = breakpoints.includes(key)
         return (
             <div className={styles.cellInner}>
-                {step.status !== 'executed' && (
+                {/* Breakpoints are a debugger feature — the business view has none, so no gutter there. */}
+                {advanced && step.status !== 'executed' && (
                     <Tooltip title={hasBreakpoint ? t('debug.removeBreakpoint') : t('debug.addBreakpoint')}>
                         <span
                             aria-label={hasBreakpoint ? t('debug.removeBreakpoint') : t('debug.addBreakpoint')}

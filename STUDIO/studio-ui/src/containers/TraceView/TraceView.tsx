@@ -41,11 +41,6 @@ const STATUS_STYLE = {
 // hot-spots overview that appears as a third tab only while profiling.
 type ViewMode = 'tree' | 'advanced' | 'hotspots'
 
-// In the simple business view the states that matter are "it is calculating" and how it ended; the
-// debugger's Paused/Starting/Stopped states are stepping mechanics (clicking a rule quietly restarts
-// the session) and would only raise questions.
-const SIMPLE_VISIBLE_STATUSES: readonly DebugStatus[] = ['running', 'completed', 'error']
-
 const VIEW_COMPONENTS: Record<ViewMode, React.FC> = {
     tree: TraceTree,
     advanced: DebugCallStack,
@@ -208,7 +203,9 @@ const TraceView: React.FC = () => {
     const isError = isTraceExecutionError(status)
     const ActiveView = VIEW_COMPONENTS[viewMode]
     const bannerType = isError ? 'error' : 'warning'
-    const statusVisible = status && (advanced || SIMPLE_VISIBLE_STATUSES.includes(status))
+    // The business view shows no status pills — its states (Finished, Paused, …) are stepping mechanics that
+    // only add noise there; a real failure still surfaces through the error banner below. The debugger keeps them.
+    const statusVisible = status && advanced
 
     return (
         <div className={styles.debugView} id="trace-view">

@@ -233,11 +233,6 @@ const SimpleTraceTree: React.FC = () => {
                     {twisty(row.expandKey)}
                     {kindIcon(node.kind)}
                     <span className={styles.name}>{node.name}</span>
-                    {node.instance > 0 && (
-                        <Tooltip title={t('tree.passHint', { n: node.instance + 1 })}>
-                            <span className={styles.pass}>#{node.instance + 1}</span>
-                        </Tooltip>
-                    )}
                     <span className={styles.kind}>{node.kind}</span>
                     <DispatchBadge dispatch={node.dispatch} />
                 </div>
