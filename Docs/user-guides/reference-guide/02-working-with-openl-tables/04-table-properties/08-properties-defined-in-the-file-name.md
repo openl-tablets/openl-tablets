@@ -24,7 +24,7 @@ If a table property value is supposed to be a date, the **Date** format must be 
 
 **Example:** .\*-%state%-%effectiveDate %-%startRequestDate %
 
-In this example, the project name or any other text comes instead of .\*. Any part of this pattern can be replaced, removed, or its order can be changed. For more information on properties that can be included, see [Business Dimension Properties](../../04-table-properties/05-rule-versioning.md#business-dimension-properties).
+In this example, the project name or any other text comes instead of .\*. Any part of this pattern can be replaced, removed, or its order can be changed. For more information on properties that can be included, see [Business Dimension Properties](05-rule-versioning.md#business-dimension-properties).
 
 For more information on date formats description and examples, see <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/SimpleDateFormat.html>.
 
