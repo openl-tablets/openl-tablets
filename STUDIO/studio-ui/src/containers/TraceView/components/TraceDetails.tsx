@@ -3,7 +3,7 @@ import { Spin, Empty, Alert, Card } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import traceService from 'services/traceService'
-import type { TraceParameterValue } from 'types/trace'
+import type { StepInputsView } from 'types/trace'
 import TraceParameters, { SingleParameter } from './TraceParameters'
 import TraceTableView from './TraceTableView'
 import SpreadsheetGrid from './SpreadsheetGrid'
@@ -101,21 +101,29 @@ const TraceDetails: React.FC = () => {
         return -1
     }, [focus, frames])
 
-    // The step's inputs in the formula's own terms ($LimitIndex, MaxLimit, currentFinancialData…) come
-    // from a dedicated endpoint; re-fetched on every settle since a later stop records more values.
-    const [stepInputs, setStepInputs] = useState<TraceParameterValue[] | null>(null)
+    // A focused step is self-contained: its inputs in the formula's own terms ($LimitIndex, MaxLimit,
+    // currentFinancialData…), its own returned value, and its cell address all come from one endpoint —
+    // the heavy frame-variables payload is never fetched. Re-fetched on every settle since a later stop
+    // records more values.
+    const [stepInputs, setStepInputs] = useState<StepInputsView | null>(null)
+    const [stepInputsLoading, setStepInputsLoading] = useState(false)
     useEffect(() => {
         if (!focus || !projectId || ownerIndex < 0) {
             setStepInputs(null)
+            setStepInputsLoading(false)
             return undefined
         }
         let cancelled = false
+        setStepInputsLoading(true)
         traceService.getStepInputs(projectId, ownerIndex, focus.ref)
-            .then(inputs => {
-                if (!cancelled) setStepInputs(inputs)
+            .then(step => {
+                if (!cancelled) setStepInputs(step)
             })
             .catch(() => {
                 if (!cancelled) setStepInputs(null)
+            })
+            .finally(() => {
+                if (!cancelled) setStepInputsLoading(false)
             })
         return () => {
             cancelled = true
@@ -139,28 +147,26 @@ const TraceDetails: React.FC = () => {
 
     const stepView = focus && ownerIndex >= 0 ? focus : null
     // A focused step is presented like the classic trace presented a spreadsheet cell, sharpened to the
-    // step itself: the Parameters are the values its formula consumed (the fetched step inputs), and the
-    // result is the step's own frozen value, named `return` — the raw cell ref would read as jargon.
-    const stepValue = stepView ? variables?.steps.find(s => s.ref === stepView.ref)?.value : undefined
+    // step itself: the Parameters are the values its formula consumed and the Result is the step's own
+    // returned value (already named `return`) — both from the single step-inputs payload.
     const title = stepView ? stepView.label : frame?.name
     const tableIndex = stepView ? ownerIndex : selectedFrameIndex
-    // The cell address comes from the owner's step outline; a static cell is absent there, so fall
-    // back to the frozen steps, which list every cell of the table.
+    // The cell address comes from the owner's live step outline; a static cell is absent there, so fall
+    // back to the step-inputs payload, which addresses every cell including static ones.
     const highlightCell = stepView
-        ? frames[ownerIndex]?.steps?.find(s => s.ref === stepView.ref)?.cell
-            ?? variables?.steps.find(s => s.ref === stepView.ref)?.cell
+        ? frames[ownerIndex]?.steps?.find(s => s.ref === stepView.ref)?.cell ?? stepInputs?.cell ?? undefined
         : undefined
-    const shownParameters = stepView ? stepInputs ?? undefined : allParameters
-    const shownResult = stepView
-        ? (stepValue ? { ...stepValue, name: 'return' } : undefined)
-        : result
+    const shownParameters = stepView ? stepInputs?.inputs ?? undefined : allParameters
+    const shownResult = stepView ? stepInputs?.result ?? undefined : result
+    // A focused step is self-contained from step-inputs; only the frame view waits on the variables payload.
+    const loadingDetails = stepView ? stepInputsLoading : variablesLoading
 
     return (
         <div className={styles.details} data-testid="debug-details">
             {/* The business view already names the rule in the tree; a title here would just duplicate it. */}
             {advanced && title && <span className={styles.frameTitle}>{title}</span>}
             {/* Parameters and Result come first, so they stay reachable above a large traced table. */}
-            {variablesLoading ? (
+            {loadingDetails ? (
                 <div className={styles.detailsCentered}>
                     <Spin description={t('loadingDetails')} />
                 </div>
@@ -183,7 +189,7 @@ const TraceDetails: React.FC = () => {
             {/* Source table: the owning table of a focused step (its cell highlighted), else the frame's. */}
             {/* The business view mutes everything but the highlighted calculation, like the legacy trace. */}
             <TraceTableView dimOthers={!advanced} frameIndex={tableIndex} highlightCell={highlightCell} />
-            {!variablesLoading && (
+            {!loadingDetails && (
                 <>
                     {/* The frame-level panels belong to the frame view; a focused step keeps its own
                         identity and shows only its inputs, result, and owning table. */}

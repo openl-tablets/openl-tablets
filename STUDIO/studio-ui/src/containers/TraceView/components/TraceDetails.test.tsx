@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import traceService from 'services/traceService'
 import { useTraceStore } from 'store/traceStore'
 import type { DebugFrameVariables, DebugFrameView } from 'types/trace'
@@ -10,7 +10,7 @@ vi.mock('services/traceService', () => ({
     default: {
         getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
         getFrameHighlights: vi.fn().mockResolvedValue([]),
-        getStepInputs: vi.fn().mockResolvedValue([]),
+        getStepInputs: vi.fn().mockResolvedValue({ inputs: [], result: null, cell: null }),
     },
 }))
 
@@ -155,20 +155,23 @@ describe('TraceDetails', () => {
         // The suspension pauses in the owning table right after the step executed; the panel keeps the
         // step's identity, and the Parameters are the step's own inputs — what its formula consumed —
         // fetched in the formula's terms, not the owning table's parameter list.
+        // The step is self-contained: its inputs, its own value (named `return`) and its cell address all
+        // come from the one step-inputs payload — the frame's variables are present in the store but ignored.
         const getStepInputs = traceService.getStepInputs as ReturnType<typeof vi.fn>
-        getStepInputs.mockResolvedValue([
-            { name: '$LimitIndex', description: 'Double', lazy: false, value: 0.05 },
-            { name: 'MaxLimit', description: 'Integer', lazy: false, value: 5000 },
-        ])
+        getStepInputs.mockResolvedValue({
+            inputs: [
+                { name: '$LimitIndex', description: 'Double', lazy: false, value: 0.05 },
+                { name: 'MaxLimit', description: 'Integer', lazy: false, value: 5000 },
+            ],
+            result: { name: 'return', description: 'Double', lazy: false, value: 250000 },
+            cell: 'C7',
+        })
         useTraceStore.setState({
             status: 'suspended',
             frames: [frame({ uri: 'uOwner', name: 'BankRatingCalculation',
                 steps: [{ ref: 'S9', label: '$Value$Limit', cell: 'C7', status: 'executed' }]})],
             selectedFrameIndex: 0,
-            variables: variables({
-                steps: [{ ref: 'S9', label: '$Value$Limit', status: 'executed',
-                    value: { name: 'S9', description: 'Double', lazy: false, value: 250000 } }],
-            }),
+            variables: variables(),
             variablesLoading: false,
             simpleFocus: { ref: 'S9', label: '$Value$Limit', ownerUri: 'uOwner', ownerInstance: 0 },
         })
@@ -192,21 +195,46 @@ describe('TraceDetails', () => {
         expect(screen.queryByTestId('stub-spreadsheet')).toBeNull()
     })
 
+    it('highlights a focused cell from the step-inputs payload when the live outline omits it', async () => {
+        // A static/description cell is absent from the frame's live step outline; its A1 address comes from
+        // the step-inputs payload, so the click still points the traced table at the right cell — and the
+        // frame's heavy variables are never needed (null here, as the store skips them for a focused step).
+        const getStepInputs = traceService.getStepInputs as ReturnType<typeof vi.fn>
+        getStepInputs.mockResolvedValue({
+            inputs: [],
+            result: { name: 'return', description: 'String', lazy: false, value: 'Bank Rating Group' },
+            cell: 'A5',
+        })
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame({ uri: 'uOwner', steps: [{ ref: 'S7', label: '$Description', status: 'executed' }]})],
+            selectedFrameIndex: 0,
+            variables: null,
+            variablesLoading: false,
+            simpleFocus: { ref: 'S7', label: '$Description', ownerUri: 'uOwner', ownerInstance: 0 },
+        })
+        render(<TraceDetails />)
+
+        await waitFor(() => expect(screen.getByTestId('stub-table')).toHaveTextContent('table:0:A5'))
+    })
+
     it('shows no result for a focused step that has not produced a value', async () => {
+        // The step-inputs payload carries no result (a formula cell that has not run yet); the panel resolves
+        // to the empty-result state once it arrives.
+        const getStepInputs = traceService.getStepInputs as ReturnType<typeof vi.fn>
+        getStepInputs.mockResolvedValue({ inputs: [], result: null, cell: null })
         useTraceStore.setState({
             status: 'suspended',
             frames: [frame({ uri: 'uOwner',
                 steps: [{ ref: 'S9', label: '$Value$Limit', cell: 'C7', status: 'pending' }]})],
             selectedFrameIndex: 0,
-            variables: variables({ steps: []}),
+            variables: null,
             variablesLoading: false,
             simpleFocus: { ref: 'S9', label: '$Value$Limit', ownerUri: 'uOwner', ownerInstance: 0 },
         })
-        await act(async () => {
-            render(<TraceDetails />)
-        })
+        render(<TraceDetails />)
 
-        expect(screen.getByText('details.noResult')).toBeInTheDocument()
+        await waitFor(() => expect(screen.getByText('details.noResult')).toBeInTheDocument())
     })
 
     it('ignores the step focus in the advanced mode and shows the frame as-is', () => {

@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.trace;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -90,7 +91,7 @@ class TraceStepInputsTest {
     @Test
     void formulaOverSiblingStepAndConstantReadsBoth() {
         // Limit = $LimitIndex * MaxLimit: a sibling step and a Constants-table value.
-        List<ParameterValue> inputs = mapper().freezeStepInputs(frame, "R9C1", classLoader, false);
+        List<ParameterValue> inputs = mapper().freezeStepInputs(frame, "R9C1", classLoader, false).inputs();
 
         assertEquals(List.of("$LimitIndex", "MaxLimit"), names(inputs));
         assertNotNull(inputs.get(0).value(), "the executed sibling step carries its recorded value");
@@ -100,7 +101,7 @@ class TraceStepInputsTest {
     @Test
     void fieldOfAParameterOpenedIntoTheTableScopeIsResolvedFromTheParameterValue() {
         // CheckCurrentFinancialData = SetNonZeroValues(currentFinancialData), a field of the bank parameter.
-        List<ParameterValue> inputs = mapper().freezeStepInputs(frame, "R0C1", classLoader, false);
+        List<ParameterValue> inputs = mapper().freezeStepInputs(frame, "R0C1", classLoader, false).inputs();
 
         assertEquals(List.of("currentFinancialData"), names(inputs));
         assertEquals("FinancialData", inputs.get(0).description());
@@ -109,7 +110,7 @@ class TraceStepInputsTest {
     @Test
     void tableParameterUsedByNameIsListedWithItsValue() {
         // BankQualitativeIndexCalculation = BankQualitativeIndexCalculation(bank).
-        List<ParameterValue> inputs = mapper().freezeStepInputs(frame, "R4C1", classLoader, false);
+        List<ParameterValue> inputs = mapper().freezeStepInputs(frame, "R4C1", classLoader, false).inputs();
 
         assertEquals(List.of("bank"), names(inputs));
     }
@@ -119,7 +120,7 @@ class TraceStepInputsTest {
         // BankRating = round($BalanceQualityIndexCalculation.$Value$BalanceQualityIndex * ..., 2): the
         // formula reads ONE field of a sibling step's result — the input is that field with its value,
         // not the whole result object.
-        List<ParameterValue> inputs = mapper().freezeStepInputs(frame, "R6C1", classLoader, false);
+        List<ParameterValue> inputs = mapper().freezeStepInputs(frame, "R6C1", classLoader, false).inputs();
 
         List<String> names = names(inputs);
         assertEquals(List.of(
@@ -265,7 +266,30 @@ class TraceStepInputsTest {
 
     @Test
     void unknownStepAndNonSpreadsheetInputsAreEmpty() {
-        assertTrue(mapper().freezeStepInputs(frame, "R99C9", classLoader, false).isEmpty());
+        StepInputsView unknown = mapper().freezeStepInputs(frame, "R99C9", classLoader, false);
+        assertTrue(unknown.inputs().isEmpty());
+        assertNull(unknown.result(), "an unknown step returns nothing");
+        assertNull(unknown.cell(), "an unknown step addresses no cell");
+    }
+
+    @Test
+    void focusedStepCarriesItsReturnedValueAndCellAddress() {
+        // A focused step is self-contained: besides its inputs it returns its own value (named `return`) and
+        // the A1 address of its cell, so the business view renders it without the frame's full variables.
+        StepInputsView formula = mapper().freezeStepInputs(frame, "R9C1", classLoader, false);
+        assertNotNull(formula.result(), "an executed formula cell returns its computed value");
+        assertEquals("return", formula.result().name());
+        assertNotNull(formula.result().value(), "a simple returned value is frozen inline, not lazy");
+        assertNotNull(formula.cell(), "the step addresses its own cell");
+        assertTrue(formula.cell().matches("[A-Z]+\\d+"), "an A1 cell address: " + formula.cell());
+
+        // A plain description cell never executes, yet its static content is its returned value — and it
+        // still addresses its cell, so a click highlights it without the frozen-steps fallback.
+        StepInputsView staticCell = mapper().freezeStepInputs(frame, "R7C0", classLoader, false);
+        assertTrue(staticCell.inputs().isEmpty(), "a static cell has no formula inputs");
+        assertNotNull(staticCell.result(), "a static cell returns its own content");
+        assertEquals("return", staticCell.result().name());
+        assertNotNull(staticCell.cell(), "a static cell still addresses its cell");
     }
 
     @Test
@@ -286,7 +310,7 @@ class TraceStepInputsTest {
             assertEquals("BankQualitativeIndexCalculation", owner.getName());
 
             List<ParameterValue> inputs = mapper().freezeStepInputs(owner,
-                    stepRefByLabel(owner, "$Value$BankQualitativeIndex"), classLoader, false);
+                    stepRefByLabel(owner, "$Value$BankQualitativeIndex"), classLoader, false).inputs();
 
             List<String> names = names(inputs);
             assertEquals(6, names.size(), "every step the range spans is an input: " + names);

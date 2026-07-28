@@ -55,6 +55,7 @@ import org.openl.studio.projects.model.trace.DebugStatus;
 import org.openl.studio.projects.model.trace.DebugStatusView;
 import org.openl.studio.projects.model.trace.StackRenderOptions;
 import org.openl.studio.projects.model.trace.StackViewMode;
+import org.openl.studio.projects.model.trace.StepInputsView;
 import org.openl.studio.projects.model.trace.StepType;
 import org.openl.studio.projects.model.trace.TraceDebugMapper;
 import org.openl.studio.projects.model.trace.TreeChildrenView;
@@ -264,7 +265,7 @@ public class ProjectsTraceDebugController {
     @Operation(summary = "trace.step-inputs.summary", description = "trace.step-inputs.desc")
     @ApiResponse(responseCode = "200", description = "trace.step-inputs.200.desc")
     @GetMapping("/frames/{index}/step-inputs")
-    public List<ParameterValue> stepInputs(
+    public StepInputsView stepInputs(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index,
             @RequestParam("ref") @Parameter(description = "trace.param.step-ref.desc") String ref,

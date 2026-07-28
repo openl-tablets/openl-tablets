@@ -637,6 +637,43 @@ public class TraceDebugMapper {
     }
 
     /**
+     * A focused spreadsheet step, self-contained: the values its formula consumed, the step's own returned
+     * value, and the A1 address of its cell.
+     *
+     * <p>Everything the step panel shows, in one payload — a step click need not also fetch the frame's full
+     * variables that the panel never renders. Resolved from the frame's recorded values; nothing is
+     * re-evaluated.
+     */
+    public StepInputsView freezeStepInputs(DebugFrame frame, String stepRef,
+                                           @Nullable ClassLoader classLoader, boolean includeSchema) {
+        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        if (classLoader != null) {
+            Thread.currentThread().setContextClassLoader(classLoader);
+        }
+        try {
+            if (!(frame.getSource() instanceof Spreadsheet spreadsheet)) {
+                return new StepInputsView(List.of(), null, null);
+            }
+            SpreadsheetCell cell = displayCell(spreadsheet, stepRef);
+            if (cell == null) {
+                return new StepInputsView(List.of(), null, null);
+            }
+            Map<String, Object> executed = new HashMap<>();
+            for (DebugFrame.ExecutedStep step : frame.getExecutedSteps()) {
+                executed.put(step.ref(), step.value());
+            }
+            Map<Object, Object> clones = new IdentityHashMap<>();
+            List<ParameterValue> inputs = cell.getMethod() instanceof CompositeMethod composite
+                    ? formulaInputs(composite, frame, spreadsheet, executed, clones, includeSchema)
+                    : List.of();
+            ParameterValue result = stepResult(frame, cell, stepRef, executed, clones, includeSchema);
+            return new StepInputsView(inputs, result, cellAddress(cell));
+        } finally {
+            Thread.currentThread().setContextClassLoader(previous);
+        }
+    }
+
+    /**
      * The values a step's formula consumed, named as the formula writes them: sibling steps such as
      * {@code $LimitIndex}, the table's own parameters, fields of a parameter opened into the table's
      * scope such as {@code currentFinancialData}, and module constants such as {@code MaxLimit}.
@@ -645,62 +682,64 @@ public class TraceDebugMapper {
      * nothing is re-evaluated. A sibling step that has not executed yet is omitted, and so is anything
      * the recorded data cannot resolve (for example a field of another step's result).
      */
-    public List<ParameterValue> freezeStepInputs(DebugFrame frame, String stepRef,
-                                                 @Nullable ClassLoader classLoader, boolean includeSchema) {
-        ClassLoader previous = Thread.currentThread().getContextClassLoader();
-        if (classLoader != null) {
-            Thread.currentThread().setContextClassLoader(classLoader);
+    private List<ParameterValue> formulaInputs(CompositeMethod composite, DebugFrame frame, Spreadsheet spreadsheet,
+                                               Map<String, Object> executed, Map<Object, Object> clones,
+                                               boolean includeSchema) {
+        var dependencies = new RulesBindingDependencies();
+        composite.updateDependency(dependencies);
+        List<IOpenField> fields = new ArrayList<>(dependencies.getFieldsMap().values());
+        List<StepInput> inputs = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        // A field picked from another step's result ($Cell.$Field) is the precise input: list it as
+        // the dotted name with the field's value, and drop the bare result the formula only reached
+        // through.
+        Set<IOpenField> narrowed = new HashSet<>();
+        for (IOpenField field : fields) {
+            if (field instanceof CustomSpreadsheetResultField resultField) {
+                StepInput input = resultFieldInput(resultField, fields, executed, narrowed);
+                if (input != null && seen.add(input.name())) {
+                    inputs.add(input);
+                }
+            }
         }
-        try {
-            if (!(frame.getSource() instanceof Spreadsheet spreadsheet)) {
-                return List.of();
+        for (IOpenField field : fields) {
+            if (field instanceof CustomSpreadsheetResultField || narrowed.contains(field)) {
+                continue;
             }
-            SpreadsheetCell cell = stepCell(spreadsheet, stepRef);
-            if (cell == null || !(cell.getMethod() instanceof CompositeMethod composite)) {
-                return List.of();
-            }
-            var dependencies = new RulesBindingDependencies();
-            composite.updateDependency(dependencies);
-            Map<String, Object> executed = new HashMap<>();
-            for (DebugFrame.ExecutedStep step : frame.getExecutedSteps()) {
-                executed.put(step.ref(), step.value());
-            }
-            List<IOpenField> fields = new ArrayList<>(dependencies.getFieldsMap().values());
-            List<StepInput> inputs = new ArrayList<>();
-            Set<String> seen = new HashSet<>();
-            // A field picked from another step's result ($Cell.$Field) is the precise input: list it as
-            // the dotted name with the field's value, and drop the bare result the formula only reached
-            // through.
-            Set<IOpenField> narrowed = new HashSet<>();
-            for (IOpenField field : fields) {
-                if (field instanceof CustomSpreadsheetResultField resultField) {
-                    StepInput input = resultFieldInput(resultField, fields, executed, narrowed);
-                    if (input != null && seen.add(input.name())) {
-                        inputs.add(input);
-                    }
+            for (StepInput input : resolveStepInputs(field, frame, spreadsheet, executed)) {
+                if (seen.add(input.name())) {
+                    inputs.add(input);
                 }
             }
-            for (IOpenField field : fields) {
-                if (field instanceof CustomSpreadsheetResultField || narrowed.contains(field)) {
-                    continue;
-                }
-                for (StepInput input : resolveStepInputs(field, frame, spreadsheet, executed)) {
-                    if (seen.add(input.name())) {
-                        inputs.add(input);
-                    }
-                }
-            }
-            Map<Object, Object> clones = new IdentityHashMap<>();
-            return inputs.stream()
-                    .sorted(Comparator.comparingInt(StepInput::rank)
-                            .thenComparingInt(StepInput::order)
-                            .thenComparing(StepInput::name))
-                    .map(input -> buildParameterValue(new ParameterWithValueDeclaration(input.name(),
-                            safeClone(input.value(), clones, !frame.isCompleted()), input.type()), true, includeSchema))
-                    .toList();
-        } finally {
-            Thread.currentThread().setContextClassLoader(previous);
         }
+        return inputs.stream()
+                .sorted(Comparator.comparingInt(StepInput::rank)
+                        .thenComparingInt(StepInput::order)
+                        .thenComparing(StepInput::name))
+                .map(input -> buildParameterValue(new ParameterWithValueDeclaration(input.name(),
+                        safeClone(input.value(), clones, !frame.isCompleted()), input.type()), true, includeSchema))
+                .toList();
+    }
+
+    /**
+     * The step's own returned value, named {@code return}: the recorded value of an executed formula cell,
+     * or the static content of a plain value or constant cell. {@code null} for a formula cell that has not
+     * run yet — there is no value to show.
+     */
+    private @Nullable ParameterValue stepResult(DebugFrame frame, SpreadsheetCell cell, String stepRef,
+                                                Map<String, Object> executed, Map<Object, Object> clones,
+                                                boolean includeSchema) {
+        Object value;
+        if (executed.containsKey(stepRef)) {
+            value = executed.get(stepRef);
+        } else if (cell.isMethodCell()) {
+            return null;
+        } else {
+            value = cell.getValue();
+        }
+        var param = new ParameterWithValueDeclaration("return",
+                safeClone(value, clones, !frame.isCompleted()), cell.getType());
+        return buildParameterValue(param, true, includeSchema);
     }
 
     private List<StepInput> resolveStepInputs(IOpenField field, DebugFrame frame, Spreadsheet spreadsheet,
@@ -827,11 +866,15 @@ public class TraceDebugMapper {
         return null;
     }
 
-    /** The real step cell of a spreadsheet with the given {@code RnCm} reference, or {@code null}. */
-    private static @Nullable SpreadsheetCell stepCell(Spreadsheet spreadsheet, String ref) {
+    /**
+     * The displayable cell of a spreadsheet with the given {@code RnCm} reference, or {@code null}. Matches
+     * an executable step, a plain value, or a constant cell — so a focused static cell resolves too, not
+     * only formulas.
+     */
+    private static @Nullable SpreadsheetCell displayCell(Spreadsheet spreadsheet, String ref) {
         for (SpreadsheetCell[] row : spreadsheet.getCells()) {
             for (SpreadsheetCell cell : row) {
-                if (isStepCell(cell)
+                if (isDisplayCell(cell)
                         && CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex()).equals(ref)) {
                     return cell;
                 }
@@ -871,16 +914,25 @@ public class TraceDebugMapper {
     private static void forEachDisplayCell(Spreadsheet spreadsheet, Consumer<SpreadsheetCell> action) {
         for (SpreadsheetCell[] row : spreadsheet.getCells()) {
             for (SpreadsheetCell cell : row) {
-                if (cell == null) {
-                    continue;
-                }
-                SpreadsheetCellType type = cell.getSpreadsheetCellType();
-                if (type == SpreadsheetCellType.METHOD || type == SpreadsheetCellType.VALUE
-                        || type == SpreadsheetCellType.CONSTANT) {
+                if (isDisplayCell(cell)) {
                     action.accept(cell);
                 }
             }
         }
+    }
+
+    /**
+     * A displayable cell: an executable step, a plain value, or a constant. Section-title dividers and empty
+     * cells are neither shown nor addressable. Broader than {@link #isStepCell} — a value cell is displayed
+     * but never runs.
+     */
+    private static boolean isDisplayCell(@Nullable SpreadsheetCell cell) {
+        if (cell == null) {
+            return false;
+        }
+        SpreadsheetCellType type = cell.getSpreadsheetCellType();
+        return type == SpreadsheetCellType.METHOD || type == SpreadsheetCellType.VALUE
+                || type == SpreadsheetCellType.CONSTANT;
     }
 
     /**

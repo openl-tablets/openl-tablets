@@ -8,6 +8,7 @@ import type {
     DebugFrameVariables,
     DebugStackView,
     RawTableView,
+    StepInputsView,
     StepType,
     TraceParameterValue,
     TreeChildrenView,
@@ -240,11 +241,12 @@ export const traceService = {
     },
 
     /**
-     * Get the values a spreadsheet step's formula consumed, named as the formula writes them:
-     * sibling steps, the table's parameters, opened parameter fields, and module constants.
+     * Get a focused spreadsheet step, self-contained: the values its formula consumed (named as the
+     * formula writes them), the step's own returned value, and the A1 address of its cell. Everything the
+     * step panel shows, so a step click need not also fetch the frame's full variables.
      */
-    getStepInputs: async (projectId: string, frameIndex: number, ref: string): Promise<TraceParameterValue[]> =>
-        retryApiCall<TraceParameterValue[]>(
+    getStepInputs: async (projectId: string, frameIndex: number, ref: string): Promise<StepInputsView> =>
+        retryApiCall<StepInputsView>(
             `${base(projectId)}/frames/${frameIndex}/step-inputs?ref=${encodeURIComponent(ref)}`,
             undefined,
             TRACE_API_OPTIONS

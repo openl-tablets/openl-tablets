@@ -330,6 +330,33 @@ describe('traceStore actions', () => {
         expect(useTraceStore.getState().variables).toBeNull()
     })
 
+    it('does not fetch variables for a focused step in the business view — step-inputs is enough', async () => {
+        // A focused step shows only its own inputs, result and cell (from the step-inputs endpoint); the
+        // heavy frame-variables payload is never rendered there, so selectFrame must not fetch it.
+        useTraceStore.setState({
+            status: 'suspended',
+            advanced: false,
+            simpleFocus: { ref: 'S9', label: '$Value$Limit', ownerUri: 'uOwner', ownerInstance: 0 },
+        })
+
+        await useTraceStore.getState().selectFrame(0)
+
+        expect(getVariables).not.toHaveBeenCalled()
+        expect(useTraceStore.getState().variables).toBeNull()
+        expect(useTraceStore.getState().selectedFrameIndex).toBe(0)
+    })
+
+    it('still fetches variables for a table node in the business view (no step focus)', async () => {
+        // Clicking a table (frame) node, not a step, keeps the frame view: its parameters and result come
+        // from the variables payload as usual, so the skip must not swallow it.
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        useTraceStore.setState({ status: 'suspended', advanced: false, simpleFocus: null })
+
+        await useTraceStore.getState().selectFrame(0)
+
+        expect(getVariables).toHaveBeenCalledWith('p1', 0)
+    })
+
     it('applies the returned stack on a successful step', async () => {
         step.mockResolvedValue(suspended([{ index: 0 } as any]))
         getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)

@@ -323,6 +323,20 @@ export interface TraceParameterValue {
 }
 
 /**
+ * A focused spreadsheet step, self-contained for the business view: the values its formula consumed, the
+ * step's own returned value, and the A1 address of its cell. Lets a step click render everything the step
+ * panel shows without also fetching the frame's full variables.
+ */
+export interface StepInputsView {
+    /** The values the step's formula read, named as the formula writes them. */
+    inputs: TraceParameterValue[]
+    /** The step's own returned value, or null for a formula cell that has not run yet. */
+    result?: TraceParameterValue | null
+    /** A1 address of the step's source cell in the raw table, or null. */
+    cell?: string | null
+}
+
+/**
  * Error/warning message description.
  */
 export interface MessageDescription {
