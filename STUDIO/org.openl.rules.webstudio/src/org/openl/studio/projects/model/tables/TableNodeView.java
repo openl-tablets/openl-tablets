@@ -26,8 +26,9 @@ public class TableNodeView extends SummaryTableView {
     @Schema(description = "Identifiers of the tables that depend on this table")
     public final Set<String> dependents;
 
-    @Schema(description = "Dimension properties this version of the table is selected by — the versioning rules the "
-            + "dispatcher uses (e.g. state, lob, dates), resolved from the module name pattern or the table itself")
+    @Schema(description = """
+            Dimension properties this version of the table is selected by — the versioning rules the \
+            dispatcher uses (e.g. state, lob, dates), resolved from the module name pattern or the table itself""")
     public final Map<String, String> dimensionProperties;
 
     private TableNodeView(Builder builder) {

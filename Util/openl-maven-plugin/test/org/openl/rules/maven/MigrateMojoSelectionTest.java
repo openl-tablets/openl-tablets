@@ -123,12 +123,16 @@ class MigrateMojoSelectionTest {
 
     @Test
     void commitTemplateExpandsAllPlaceholders() {
-        var template = "@{prefix} @{message} for OpenL @{version}\n\n"
-                + "Co-authored-by: openl-maven-plugin:@{version} <openltablets@eisgroup.com>";
+        var template = """
+                @{prefix} @{message} for OpenL @{version}
+
+                Co-authored-by: openl-maven-plugin:@{version} <openltablets@eisgroup.com>""";
 
         assertEquals(
-                "migrate:  method-filter to exposed-methods for OpenL 6.1.0-SNAPSHOT\n\n"
-                        + "Co-authored-by: openl-maven-plugin:6.1.0-SNAPSHOT <openltablets@eisgroup.com>",
+                """
+                migrate:  method-filter to exposed-methods for OpenL 6.1.0-SNAPSHOT
+
+                Co-authored-by: openl-maven-plugin:6.1.0-SNAPSHOT <openltablets@eisgroup.com>""",
                 MigrateMojo.renderCommitTemplate(template, "migrate: ", "method-filter to exposed-methods", "6.1.0-SNAPSHOT"));
     }
 

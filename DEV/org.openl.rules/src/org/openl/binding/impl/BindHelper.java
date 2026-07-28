@@ -162,7 +162,9 @@ public final class BindHelper {
             }
         } else if (field instanceof ArrayLengthOpenField) {
             processWarn(
-                    "DEPRECATED 'length' field for arrays will be removed in the next version. " + "Use length() function instead.",
+                    """
+                    DEPRECATED 'length' field for arrays will be removed in the next version. \
+                    Use length() function instead.""",
                     node,
                     context);
         }

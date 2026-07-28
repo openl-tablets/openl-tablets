@@ -47,8 +47,9 @@ import lombok.Builder;
  */
 @Builder
 public record RawTableCell(
-        @Schema(description = "Read-only cell address in A1 notation (e.g. 'B3'); absent for covered cells. "
-                + "Matches the cell address reported by compilation messages.")
+        @Schema(description = """
+                Read-only cell address in A1 notation (e.g. 'B3'); absent for covered cells. \
+                Matches the cell address reported by compilation messages.""")
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         String cell,
 

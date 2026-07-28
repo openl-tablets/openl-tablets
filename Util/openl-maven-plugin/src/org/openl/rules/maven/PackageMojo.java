@@ -222,8 +222,9 @@ public final class PackageMojo extends BaseOpenLMojo {
         if (mainArtifactExists && StringUtils.isBlank(classifier) && Arrays.asList(types).contains(packaging)) {
             error("The main artifact have been attached already.");
             error(
-                    "You have to use classifier to attach supplemental artifacts " +
-                            "to the project instead of replacing them."
+                    """
+                    You have to use classifier to attach supplemental artifacts \
+                    to the project instead of replacing them."""
             );
             throw new MojoFailureException("It is not possible to replace the main artifact.");
         }
@@ -293,9 +294,10 @@ public final class PackageMojo extends BaseOpenLMojo {
         buildTestsArtifact(openLSourceDir, types);
 
         if (deploymentPackage != null) {
-            warn("Parameter 'deploymentPackage' is deprecated and has no effect. " +
-                    "Dependent OpenL projects always receive a stub 'rules-deploy.xml' with empty publishers " +
-                    "to suppress their publication.");
+            warn("""
+                    Parameter 'deploymentPackage' is deprecated and has no effect. \
+                    Dependent OpenL projects always receive a stub 'rules-deploy.xml' with empty publishers \
+                    to suppress their publication.""");
         }
 
         Set<Artifact> openLDependencies = getDependentOpenLProjects();

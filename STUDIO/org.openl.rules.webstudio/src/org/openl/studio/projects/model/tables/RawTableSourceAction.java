@@ -20,8 +20,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  *
  * @author Vladyslav Pikus
  */
-@Schema(description = "Single in-place edit of a table's raw source. `operation` selects the edit and the target's "
-        + "`type` the resource it acts on.", discriminatorProperty = "operation")
+@Schema(description = """
+        Single in-place edit of a table's raw source. `operation` selects the edit and the target's \
+        `type` the resource it acts on.""", discriminatorProperty = "operation")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "operation")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = RawTableSourceAction.Append.class, name = "append"),
