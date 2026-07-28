@@ -1,23 +1,23 @@
 #### Rule Versioning
 
-In OpenL Tablets, business rules can be versioned in different ways using properties as described in [Table Properties](../../04-table-properties/01-category-and-module-level-properties.md#table-properties). This section describes the most popular versioning properties:
+In OpenL Tablets, business rules can be versioned in different ways using properties as described in [Table Properties](01-category-and-module-level-properties.md#table-properties). This section describes the most popular versioning properties:
 
 | Property                                                        | Description                                                                                                                                                                     |
 |-----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Business Dimension Properties](../../04-table-properties/05-rule-versioning.md#business-dimension-properties) | Targets advanced rules usage when several rule sets are used simultaneously. <br/>This versioning mechanism is more extendable and flexible.                                         |
-| [Active Table](../../04-table-properties/05-rule-versioning.md#active-table)                                | Is more suitable for “what-if” analysis. <br/>It allows storing the previous versions of rule tables in an inactive status in a project to track changes or for any other reference. |
+| [Business Dimension Properties](05-rule-versioning.md#business-dimension-properties) | Targets advanced rules usage when several rule sets are used simultaneously. <br/>This versioning mechanism is more extendable and flexible.                                         |
+| [Active Table](05-rule-versioning.md#active-table)                                | Is more suitable for “what-if” analysis. <br/>It allows storing the previous versions of rule tables in an inactive status in a project to track changes or for any other reference. |
 
 ##### Business Dimension Properties
 
 This section introduces the **Business Dimension** group properties and includes the following topics:
 
--   [Introducing Business Dimension Properties](../../04-table-properties/05-rule-versioning.md#introducing-business-dimension-properties)
--   [Using Effective and Expiration Date](../../04-table-properties/05-rule-versioning.md#using-effective-and-expiration-date)
--   [Using a Request Date](../../04-table-properties/05-rule-versioning.md#using-a-request-date)
--   [Using an Origin Property](../../04-table-properties/05-rule-versioning.md#using-an-origin-property)
--   [Overlapping of Properties Values for Versioned Rule Tables](../../04-table-properties/05-rule-versioning.md#overlapping-of-properties-values-for-versioned-rule-tables)
--   [Rules Runtime Context](../../04-table-properties/05-rule-versioning.md#rules-runtime-context)
--   [Runtime Context Properties in Datatype Tables](../../04-table-properties/05-rule-versioning.md#runtime-context-properties-in-datatype-tables)
+-   [Introducing Business Dimension Properties](05-rule-versioning.md#introducing-business-dimension-properties)
+-   [Using Effective and Expiration Date](05-rule-versioning.md#using-effective-and-expiration-date)
+-   [Using a Request Date](05-rule-versioning.md#using-a-request-date)
+-   [Using an Origin Property](05-rule-versioning.md#using-an-origin-property)
+-   [Overlapping of Properties Values for Versioned Rule Tables](05-rule-versioning.md#overlapping-of-properties-values-for-versioned-rule-tables)
+-   [Rules Runtime Context](05-rule-versioning.md#rules-runtime-context)
+-   [Runtime Context Properties in Datatype Tables](05-rule-versioning.md#runtime-context-properties-in-datatype-tables)
 
 ###### Introducing Business Dimension Properties
 
@@ -74,9 +74,9 @@ The table properties can be obtained using the following syntax:
 **Example:** Use setTime(date,0,0,0,0) for testing endRequestDate or expirationDate as follows:
 =setTime($properties.endRequestDate, 0, 0,0,0)
 
-**Note for experienced users:** A particular rule can be called directly regardless of its dimension properties and current runtime context in OpenL Tablets. This feature is supported by setting the ID property as described in [Dev Properties](../../04-table-properties/07-dev-properties.md#dev-properties), in a specific rule, and using this ID as the name of the function to call. During runtime, direct rule is executed avoiding the mechanism of dispatching between overloaded rules.
+**Note for experienced users:** A particular rule can be called directly regardless of its dimension properties and current runtime context in OpenL Tablets. This feature is supported by setting the ID property as described in [Dev Properties](07-dev-properties.md#dev-properties), in a specific rule, and using this ID as the name of the function to call. During runtime, direct rule is executed avoiding the mechanism of dispatching between overloaded rules.
 
-For more information on using attributes for runtime context definition, see [Runtime Context Properties in Datatype Tables](../../04-table-properties/05-rule-versioning.md#runtime-context-properties-in-datatype-tables).
+For more information on using attributes for runtime context definition, see [Runtime Context Properties in Datatype Tables](05-rule-versioning.md#runtime-context-properties-in-datatype-tables).
 
 Illustrative and very simple examples of how to use Business Dimension properties are provided further in the guide on the example of **Effective/Expiration Date** and **Request Date**.
 
@@ -319,7 +319,7 @@ Use one of the following formats for runtime context properties:
 
     It is used when a model datatype field name is not equal to the corresponding context variable name.
 
-For more information on the context variable name, see [Introducing Business Dimension Properties](../../04-table-properties/05-rule-versioning.md#introducing-business-dimension-properties), the **Name to be used in context** column in the **Business Dimension properties list** table.
+For more information on the context variable name, see [Introducing Business Dimension Properties](05-rule-versioning.md#introducing-business-dimension-properties), the **Name to be used in context** column in the **Business Dimension properties list** table.
 
 Consider the following example.
 
