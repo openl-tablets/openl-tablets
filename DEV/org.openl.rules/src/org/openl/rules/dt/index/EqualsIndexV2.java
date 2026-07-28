@@ -51,7 +51,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
 
     private int[] findRules(Object value, DecisionTableRuleNode prevResult) {
         if (!(prevResult instanceof IDecisionTableRuleNodeV2)) {
-            int[] rules = findIndex(value);
+            var rules = findIndex(value);
             rules = combineSortedArrays(rules, emptyRules);
             return rules;
         }
@@ -59,11 +59,11 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
     }
 
     private int[] getResultAndIntersect(Object value, IDecisionTableRuleNodeV2 prevResult) {
-        int[] prevRes = prevResult.getRules();
+        var prevRes = prevResult.getRules();
         if (prevRes.length == 0) {
             return EMPTY_ARRAY;
         }
-        int[] rules = findIndex(value);
+        var rules = findIndex(value);
         rules = combineSortedArrays(rules, emptyRules);
         return intersectionSortedArrays(rules, prevRes);
     }
@@ -71,7 +71,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
     @Override
     public int[] collectRules() {
         int[] result = new int[rulesTotalSize];
-        int k = 0;
+        var k = 0;
         for (int[] arr : index.values()) {
             for (int ruleN : arr) {
                 result[k++] = ruleN;
@@ -182,7 +182,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
                 }
             }
 
-            DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value, e -> new DecisionTableRuleNodeBuilder());
+            var builder = map.computeIfAbsent(value, e -> new DecisionTableRuleNodeBuilder());
 
             builder.addRule(ruleN);
         }

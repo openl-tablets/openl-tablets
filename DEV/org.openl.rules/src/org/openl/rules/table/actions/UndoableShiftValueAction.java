@@ -2,7 +2,6 @@ package org.openl.rules.table.actions;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -31,10 +30,10 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
     // cell
     @Override
     public void doAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
-        IGridRegion rrFrom = grid.getRegionStartingAt(colFrom, rowFrom);
+        var grid = (IWritableGrid) table.getGrid();
+        var rrFrom = grid.getRegionStartingAt(colFrom, rowFrom);
 
-        ICell cell = grid.getCell(colFrom, rowFrom);
+        var cell = grid.getCell(colFrom, rowFrom);
 
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());
@@ -48,7 +47,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         if (rrFrom != null) {
             toRestore = rrFrom;
             grid.removeMergedRegion(rrFrom);
-            GridRegion copyFrom = new GridRegion(rrFrom.getTop() + getRow() - rowFrom,
+            var copyFrom = new GridRegion(rrFrom.getTop() + getRow() - rowFrom,
                     rrFrom.getLeft() + getCol() - colFrom,
                     rrFrom.getBottom() + getRow() - rowFrom,
                     rrFrom.getRight() + getCol() - colFrom);
@@ -62,7 +61,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         grid.setCellComment(getCol(), getRow(), getPrevComment(), getPrevCommentAuthor());
         metaInfoWriter.setMetaInfo(getRow(), getCol(), getPrevMetaInfo());
 
-        ICell newCell = grid.getCell(getCol(), getRow());
+        var newCell = grid.getCell(getCol(), getRow());
         if (cell.getType() == IGrid.CELL_TYPE_STRING && newCell.getType() == IGrid.CELL_TYPE_FORMULA) {
             grid.setCellStringValue(getCol(), getRow(), cell.getObjectValue().toString());
         }
@@ -72,9 +71,9 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
     // initial cell
     @Override
     public void undoAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
 
-        ICell cell = grid.getCell(getCol(), getRow());
+        var cell = grid.getCell(getCol(), getRow());
 
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());

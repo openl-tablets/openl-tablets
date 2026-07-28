@@ -5,11 +5,8 @@ import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.SpreadsheetTableStyleImpl;
 import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
@@ -33,29 +30,29 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     @Override
     protected void exportTables(Collection<SpreadsheetModel> models, Sheet sheet) {
         Cursor endPosition = null;
-        TableStyle style = getTableStyle();
+        var style = getTableStyle();
         for (SpreadsheetModel model : models) {
-            Cursor startPosition = nextFreePosition(endPosition);
+            var startPosition = nextFreePosition(endPosition);
             endPosition = exportTable(model, startPosition, style, sheet);
         }
     }
 
     @Override
     protected Cursor exportTable(SpreadsheetModel model, Cursor startPosition, TableStyle defaultStyle, Sheet sheet) {
-        SpreadsheetTableStyleImpl style = (SpreadsheetTableStyleImpl) defaultStyle;
-        CellStyle headerStyle = style.getHeaderStyle();
-        RichTextString tableHeaderText = style.getHeaderTemplate();
-        CellRangeSettings headerSettings = style.getHeaderSizeSettings();
+        var style = (SpreadsheetTableStyleImpl) defaultStyle;
+        var headerStyle = style.getHeaderStyle();
+        var tableHeaderText = style.getHeaderTemplate();
+        var headerSettings = style.getHeaderSizeSettings();
 
-        CellStyle stepHeaderStyle = style.getHeaderRowStyle().getNameStyle();
-        String stepHeaderText = style.getStepHeaderText();
+        var stepHeaderStyle = style.getHeaderRowStyle().getNameStyle();
+        var stepHeaderText = style.getStepHeaderText();
 
-        CellStyle valueHeaderStyle = style.getHeaderRowStyle().getValueStyle();
-        String valueHeaderText = style.getValueHeaderText();
+        var valueHeaderStyle = style.getHeaderRowStyle().getValueStyle();
+        var valueHeaderText = style.getValueHeaderText();
 
-        String sprHeaderText = tableHeaderText.getString().replaceAll(SPREADSHEET_RESULT_RETURN_TYPE, model.getType());
+        var sprHeaderText = tableHeaderText.getString().replaceAll(SPREADSHEET_RESULT_RETURN_TYPE, model.getType());
         sprHeaderText = sprHeaderText.replaceAll(SPREADSHEET_RESULT_NAME_TEMPLATE, model.getName());
-        String parameters = model.getParameters()
+        var parameters = model.getParameters()
                 .stream()
                 .map(x -> x.getType().getSimpleName() + " " + x.getFormattedName())
                 .collect(Collectors.joining(", "));
@@ -80,16 +77,16 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
 
         startPosition = startPosition.moveLeft(1);
 
-        Cursor endPosition = startPosition;
+        var endPosition = startPosition;
 
         Iterator<StepModel> iterator = model.getSteps().iterator();
         while (iterator.hasNext()) {
-            StepModel step = iterator.next();
-            boolean lastRow = false;
+            var step = iterator.next();
+            var lastRow = false;
             if (!iterator.hasNext()) {
                 lastRow = true;
             }
-            Cursor next = endPosition.moveDown(1);
+            var next = endPosition.moveDown(1);
 
             Cell stepNameCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             stepNameCell.setCellValue(step.getName());

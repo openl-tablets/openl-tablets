@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -40,19 +39,19 @@ class AbstractParameterExportTest {
     protected void assertRowEquals(Row row, String... values) {
         assertNotNull(row, "Row is absent. Expected values: " + Arrays.toString(values));
 
-        int colNum = BaseExport.FIRST_COLUMN;
+        var colNum = BaseExport.FIRST_COLUMN;
         for (String value : values) {
-            Cell cell = row.getCell(colNum);
+            var cell = row.getCell(colNum);
             assertNotNull(cell, "Column " + colNum + " is absent");
             assertEquals(value, cell.getStringCellValue(), "Incorrect column " + colNum);
             colNum++;
         }
 
         short lastCellNum = row.getLastCellNum();
-        int total = lastCellNum - BaseExport.FIRST_COLUMN;
+        var total = lastCellNum - BaseExport.FIRST_COLUMN;
         if (values.length < total) {
-            StringBuilder sb = new StringBuilder("Missed values: ");
-            int count = 0;
+            var sb = new StringBuilder("Missed values: ");
+            var count = 0;
             while (colNum < lastCellNum) {
                 if (count > 0) {
                     sb.append(',');
@@ -79,7 +78,7 @@ class AbstractParameterExportTest {
 
     protected ParameterWithValueDeclaration[] params(String[] pkValues, Class[] types, Object... values) {
         ParameterWithValueDeclaration[] params = new ParameterWithValueDeclaration[values.length];
-        for (int i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
 
             IOpenClass type;
             if (types == null) {
@@ -88,7 +87,7 @@ class AbstractParameterExportTest {
                 type = JavaOpenClass.getOpenClass(types[i]);
             }
 
-            PrimaryKeyField field = mockKeyField(pkValues, i);
+            var field = mockKeyField(pkValues, i);
             params[i] = new ParameterWithValueDeclaration("p" + (i + 1), values[i], type, field);
         }
         return params;
@@ -105,7 +104,7 @@ class AbstractParameterExportTest {
     }
 
     protected XSSFSheet saveAndReadSheet() throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        var stream = new ByteArrayOutputStream();
         workbook.write(stream);
         workbook.close();
         return new XSSFWorkbook(new ByteArrayInputStream(stream.toByteArray())).getSheetAt(0);
@@ -119,8 +118,8 @@ class AbstractParameterExportTest {
         IOpenMethod testedMethod = mock(IOpenMethod.class);
         when(testedMethod.getName()).thenReturn(testMethodName);
 
-        List<TestDescription> results = new ArrayList<>();
-        for (int i = 0; i < paramsForEachCase.length; i++) {
+        var results = new ArrayList<TestDescription>();
+        for (var i = 0; i < paramsForEachCase.length; i++) {
             TestDescription testDescription = mock(TestDescription.class);
             when(testDescription.getId()).thenReturn("#" + (i + 1));
             when(testDescription.getExecutionParams()).thenReturn(paramsForEachCase[i]);
@@ -128,7 +127,7 @@ class AbstractParameterExportTest {
             results.add(testDescription);
         }
 
-        TestSuite testSuite = new TestSuite(results.toArray(new TestDescription[0]));
+        var testSuite = new TestSuite(results.toArray(new TestDescription[0]));
         return new TestUnitsResults(testSuite);
     }
 

@@ -2,9 +2,6 @@ package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
 import java.util.Locale;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +11,9 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
     @Override
     @Transactional
     public Tag getById(final Long id) {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
-        Root<Tag> u = criteria.from(Tag.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(Tag.class);
+        var u = criteria.from(Tag.class);
         criteria.select(u).where(builder.equal(u.get("id"), id)).distinct(true);
         List<Tag> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.getFirst();
@@ -25,9 +22,9 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
     @Override
     @Transactional
     public Tag getByName(Long tagTypeId, String name) {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
-        Root<Tag> u = criteria.from(Tag.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(Tag.class);
+        var u = criteria.from(Tag.class);
         // Case insensitive
         criteria.select(u)
                 .where(builder.and(builder.equal(u.get("type").get("id"), tagTypeId),
@@ -40,9 +37,9 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
     @Override
     @Transactional
     public List<Tag> getAll() {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
-        Root<Tag> root = criteria.from(Tag.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(Tag.class);
+        var root = criteria.from(Tag.class);
         criteria.select(root)
                 .orderBy(builder.asc(builder.upper(root.get("type").get("name"))),
                         builder.asc(builder.upper(root.get("name"))));
@@ -52,9 +49,9 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
     @Override
     @Transactional
     public Tag getByTagTypeAndName(String tagType, String tagName) {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
-        Root<Tag> root = criteria.from(Tag.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(Tag.class);
+        var root = criteria.from(Tag.class);
         criteria.select(root)
                 .where(builder.and(builder.equal(builder.lower(root.get("type").get("name")), tagType.toLowerCase(Locale.ROOT)),
                         builder.equal(builder.lower(root.get("name")), tagName.toLowerCase(Locale.ROOT))));

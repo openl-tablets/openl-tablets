@@ -3,7 +3,6 @@ package org.openl.rules.validation;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.domain.IDomain;
@@ -37,9 +36,9 @@ public class GapOverlapValidator extends TablesValidator {
 
     @Override
     public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
-        List<IOpenMethod> allModuleMethods = OpenMethodDispatcherHelper.extractMethods(openClass);
+        var allModuleMethods = OpenMethodDispatcherHelper.extractMethods(openClass);
 
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        var messages = new LinkedHashSet<OpenLMessage>();
 
         for (IOpenMethod method : allModuleMethods) {
             if (method instanceof ExecutableRulesMethod executableMethod) {
@@ -47,8 +46,8 @@ public class GapOverlapValidator extends TablesValidator {
                     // can cast to DecisionTable, as validateDT property belongs
                     // only to DT.
                     //
-                    IDecisionTable decisionTable = (IDecisionTable) executableMethod;
-                    DecisionTableValidationResult dtValidResult = validate(messages, openClass, decisionTable);
+                    var decisionTable = (IDecisionTable) executableMethod;
+                    var dtValidResult = validate(messages, openClass, decisionTable);
                     if (dtValidResult != null && dtValidResult.hasProblems()) {
                         decisionTable.getSyntaxNode().setValidationResult(dtValidResult);
                         if (dtValidResult.hasErrors()) {
@@ -74,10 +73,10 @@ public class GapOverlapValidator extends TablesValidator {
                                                    IDecisionTable decisionTable) {
         DecisionTableValidationResult dtValidResult = null;
         try {
-            Map<String, IDomainAdaptor> domains = gatherDomains(decisionTable);
+            var domains = gatherDomains(decisionTable);
             dtValidResult = DecisionTableValidator.validateTable(decisionTable, domains, openClass);
         } catch (Exception t) {
-            String errorMessage = "%s%s.Reason : %s".formatted(
+            var errorMessage = "%s%s.Reason : %s".formatted(
                     VALIDATION_FAILED,
                     decisionTable.getSyntaxNode().getDisplayName(),
                     t.getMessage());
@@ -87,11 +86,11 @@ public class GapOverlapValidator extends TablesValidator {
     }
 
     private Map<String, IDomainAdaptor> gatherDomains(IDecisionTable dt) throws Exception {
-        Map<String, IDomainAdaptor> domainsMap = new HashMap<>();
-        DecisionTableAnalyzer analyzer = new DecisionTableAnalyzer(dt);
+        var domainsMap = new HashMap<String, IDomainAdaptor>();
+        var analyzer = new DecisionTableAnalyzer(dt);
 
         for (IBaseCondition condition : dt.getConditionRows()) {
-            IParameterDeclaration[] pd = analyzer.referencedSignatureParams(condition);
+            var pd = analyzer.referencedSignatureParams(condition);
             for (IParameterDeclaration iParameterDeclaration : pd) {
                 IDomain<?> domain = iParameterDeclaration.getType().getDomain();
                 if (domain == null) {
@@ -101,9 +100,9 @@ public class GapOverlapValidator extends TablesValidator {
                 }
             }
 
-            IParameterDeclaration[] cparams = condition.getParams();
+            var cparams = condition.getParams();
 
-            for (int i = 0; i < cparams.length; i++) {
+            for (var i = 0; i < cparams.length; i++) {
                 IDomain<?> domain = cparams[i].getType().getDomain();
                 if (domain == null) {
                     domain = condition.getConditionEvaluator().getConditionParameterDomain(i, condition);

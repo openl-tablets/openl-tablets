@@ -119,7 +119,7 @@ public class TypeBindingContext extends BindingContextDelegator {
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            Object newTarget = localvar.get(target, env);
+            var newTarget = localvar.get(target, env);
             return method.invoke(newTarget, params, env);
         }
 

@@ -11,7 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenValidator;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
@@ -40,7 +39,7 @@ public class OAuth2JwtAccessTokenConfiguration {
                                  ClientRegistrationRepository clientRegistrationRepository) {
         NimbusJwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuerUri);
 
-        OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(),
+        var validator = new DelegatingOAuth2TokenValidator<Jwt>(new JwtTimestampValidator(),
                 new OidcIdTokenValidator(clientRegistrationRepository.findByRegistrationId("webstudio")));
 
         jwtDecoder.setJwtValidator(validator);

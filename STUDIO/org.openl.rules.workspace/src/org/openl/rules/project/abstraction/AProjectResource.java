@@ -34,7 +34,7 @@ public class AProjectResource extends AProjectArtefact implements IProjectResour
         try {
             getProject().tryLockOrThrow();
 
-            FileData fd = getFileData();
+            var fd = getFileData();
             fd.setModifiedAt(new Date());
 
             setFileData(getRepository().save(fd, inputStream));
@@ -53,7 +53,7 @@ public class AProjectResource extends AProjectArtefact implements IProjectResour
     @Override
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         super.update(artefact, user);
-        AProjectResource resource = (AProjectResource) artefact;
+        var resource = (AProjectResource) artefact;
         setContent(resourceTransformer != null ? resourceTransformer.transform(resource) : resource.getContent());
     }
 

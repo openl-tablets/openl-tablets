@@ -25,7 +25,7 @@ public final class ProjectCompilationStatus {
     private ProjectCompilationStatus(Builder builder) {
         this.modulesCount = builder.modulesCount;
         this.modulesCompiled = builder.modulesCompiled;
-        HashMap<Severity, List<OpenLMessage>> messagesMap = new HashMap<>();
+        var messagesMap = new HashMap<Severity, List<OpenLMessage>>();
         builder.messages.forEach((key, value) -> messagesMap.put(key, Collections.unmodifiableList(value)));
         this.messages = Collections.unmodifiableMap(messagesMap);
     }

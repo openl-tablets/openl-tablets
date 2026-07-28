@@ -11,7 +11,7 @@ class ConfigProjectCwProcessorMigratorTest {
 
     @Test
     void dropsCwPropertyFileNameProcessor() {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setPropertiesFileNameProcessor(
                 "org.openl.rules.project.resolving.CWPropertyFileNameProcessor");
 
@@ -22,7 +22,7 @@ class ConfigProjectCwProcessorMigratorTest {
 
     @Test
     void keepsCustomPropertyFileNameProcessor() {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setPropertiesFileNameProcessor("com.example.MyProcessor");
 
         ConfigProjectCwProcessorMigrator.transform(descriptor);
@@ -32,7 +32,7 @@ class ConfigProjectCwProcessorMigratorTest {
 
     @Test
     void leavesNullProcessorUntouched() {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
 
         ConfigProjectCwProcessorMigrator.transform(descriptor);
 

@@ -7,17 +7,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import org.openl.rules.testmethod.TestUnitsResults;
 
 class ParameterExportTest extends AbstractParameterExportTest {
 
@@ -39,12 +34,12 @@ class ParameterExportTest extends AbstractParameterExportTest {
     void simpleType() throws IOException {
         export.write(sheet, mockResults(params(0.5)), true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
+        var sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW, sheetToCheck.getFirstRowNum());
         assertEquals(5, sheetToCheck.getLastRowNum());
 
-        int rowNum = BaseExport.FIRST_ROW;
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var rowNum = BaseExport.FIRST_ROW;
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "Parameters of TestRule");
 
         rowNum += 2;
@@ -66,11 +61,11 @@ class ParameterExportTest extends AbstractParameterExportTest {
     void halfFilled() throws IOException {
         export.write(sheet, mockResults(params(new A("name1")), params(new A("name2"))), true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
+        var sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW, sheetToCheck.getFirstRowNum());
         assertEquals(BaseExport.FIRST_ROW + 4, sheetToCheck.getLastRowNum());
-        int rowNum = BaseExport.FIRST_ROW;
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var rowNum = BaseExport.FIRST_ROW;
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "Parameters of TestRule");
 
         rowNum += 2;
@@ -90,14 +85,14 @@ class ParameterExportTest extends AbstractParameterExportTest {
     @Test
     void listOfObjects() throws IOException {
         List<Object> paramList = Arrays.asList(12, 23.0);
-        Map<String, Integer> mapValues = new HashMap<>();
+        var mapValues = new HashMap<String, Integer>();
         mapValues.put("key1", 123);
         mapValues.put("key2", 333);
-        List<TestUnitsResults> result = mockResults(params(paramList, mapValues));
+        var result = mockResults(params(paramList, mapValues));
         export.write(sheet, result, true);
-        XSSFSheet sheetToCheck = saveAndReadSheet();
-        int rowNum = BaseExport.FIRST_ROW + 2;
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "ID", "p1", "p2[\"key1\"]:Integer", "p2[\"key2\"]:Integer");
         row = sheetToCheck.getRow(++rowNum);
         assertRowEquals(row, "#1", "12,23.0", "123", "333");
@@ -106,15 +101,15 @@ class ParameterExportTest extends AbstractParameterExportTest {
     @Test
     void complexObjectWithListAndMap() throws IOException {
         List<Object> paramList = Arrays.asList(12, 23.0);
-        Map<String, Integer> mapValues = new HashMap<>();
+        var mapValues = new HashMap<String, Integer>();
         mapValues.put("key1", 123);
         mapValues.put("key2", 333);
-        ComplexObj obj = new ComplexObj(paramList, mapValues);
-        List<TestUnitsResults> result = mockResults(params(obj));
+        var obj = new ComplexObj(paramList, mapValues);
+        var result = mockResults(params(obj));
         export.write(sheet, result, true);
-        XSSFSheet sheetToCheck = saveAndReadSheet();
-        int rowNum = BaseExport.FIRST_ROW + 2;
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "ID", "p1.paramList", "p1.mapValues[\"key1\"]:Integer", "p1.mapValues[\"key2\"]:Integer");
         row = sheetToCheck.getRow(++rowNum);
         assertRowEquals(row, "#1", "12,23.0", "123", "333");
@@ -122,15 +117,15 @@ class ParameterExportTest extends AbstractParameterExportTest {
 
     @Test
     void arrayOfObjects() throws IOException {
-        List<TestUnitsResults> result = mockResults(params((Object) new A[]{new A("name1"), new A("name2")}),
+        var result = mockResults(params((Object) new A[]{new A("name1"), new A("name2")}),
                 params((Object) null),
                 params((Object) new A[]{new A("name3")}),
                 params());
         export.write(sheet, result, true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
-        int rowNum = BaseExport.FIRST_ROW + 2;
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
+        var row = sheetToCheck.getRow(rowNum);
 
         assertRowEquals(row, "ID", "p1.name");
 
@@ -156,21 +151,21 @@ class ParameterExportTest extends AbstractParameterExportTest {
 
     @Test
     void complexObjects() throws IOException {
-        A A1 = new A("name1", 1);
-        A A2 = new A("name2", 2);
+        var A1 = new A("name1", 1);
+        var A2 = new A("name2", 2);
 
-        B B11 = new B("id11", new A("n1", 111, 2, 3), new A("n2", 112));
-        B B12 = new B("id12", new A("n3", 121), new A("n4", 122), new A("n5", 123));
+        var B11 = new B("id11", new A("n1", 111, 2, 3), new A("n2", 112));
+        var B12 = new B("id12", new A("n3", 121), new A("n4", 122), new A("n5", 123));
 
-        B B1 = new B("id1", A1, A2);
+        var B1 = new B("id1", A1, A2);
         B1.setChildBValues(B11, B12);
 
         export.write(sheet, mockResults(params(B1)), true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
-        int rowNum = BaseExport.FIRST_ROW + 2;
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
 
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row,
                 "ID",
                 "p1.id",
@@ -212,10 +207,10 @@ class ParameterExportTest extends AbstractParameterExportTest {
                         params(new A("name2", 5, 6), "str2")),
                 true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
-        int rowNum = BaseExport.FIRST_ROW + 2;
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
 
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "ID", "p1.name", "p1.values", "p2");
 
         row = sheetToCheck.getRow(++rowNum);
@@ -234,10 +229,10 @@ class ParameterExportTest extends AbstractParameterExportTest {
                         params(new A[]{new A("name4.1"), new A("name4.2", 7)}, "str4")),
                 true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
-        int rowNum = BaseExport.FIRST_ROW + 2;
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
 
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "ID", "p1.name", "p1.values", "p2");
 
         row = sheetToCheck.getRow(++rowNum);
@@ -267,10 +262,10 @@ class ParameterExportTest extends AbstractParameterExportTest {
                         mockResult("SecondTest", params(1, "str1", 3.5), params(2, "str2", 4.5))),
                 true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
+        var sheetToCheck = saveAndReadSheet();
         // First test
-        int rowNum = BaseExport.FIRST_ROW;
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var rowNum = BaseExport.FIRST_ROW;
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "Parameters of FirstTest");
 
         rowNum += 2;
@@ -306,10 +301,10 @@ class ParameterExportTest extends AbstractParameterExportTest {
                         params(new String[]{"n2", null}, new A("name2", 5, 6), "str2")),
                 true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
-        int rowNum = BaseExport.FIRST_ROW + 2;
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
 
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "ID", "p1._PK_", "p1.name", "p1.values", "p2");
 
         row = sheetToCheck.getRow(++rowNum);

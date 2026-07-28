@@ -12,7 +12,7 @@ public class JavaUnboxingNullCast implements IOpenCast {
     private static final Map<Class<?>, JavaUnboxingNullCast> FACTORY;
 
     static {
-        Map<Class<?>, JavaUnboxingNullCast> factory = new HashMap<>();
+        var factory = new HashMap<Class<?>, JavaUnboxingNullCast>();
         factory.put(void.class, new JavaUnboxingNullCast(JavaOpenClass.getOpenClass(void.class)));
         factory.put(boolean.class, new JavaUnboxingNullCast(JavaOpenClass.getOpenClass(boolean.class)));
         factory.put(byte.class, new JavaUnboxingNullCast(JavaOpenClass.getOpenClass(byte.class)));

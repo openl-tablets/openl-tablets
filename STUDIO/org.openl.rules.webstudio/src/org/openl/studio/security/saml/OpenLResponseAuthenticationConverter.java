@@ -56,17 +56,17 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
      */
     @Override
     public Saml2Authentication convert(OpenSaml5AuthenticationProvider.ResponseToken responseToken) {
-        Assertion assertion = responseToken.getResponse().getAssertions().getFirst();
-        SimpleUserSamlBuilder simpleUserBuilder = new SimpleUserSamlBuilder(propertyResolver);
+        var assertion = responseToken.getResponse().getAssertions().getFirst();
+        var simpleUserBuilder = new SimpleUserSamlBuilder(propertyResolver);
         simpleUserBuilder.setAssertionAttributes(assertion);
         simpleUserBuilder.setNameID(assertion.getSubject().getNameID().getValue());
-        SimpleUser simpleUser = simpleUserBuilder.build();
+        var simpleUser = simpleUserBuilder.build();
 
         syncUserData.accept(simpleUser);
 
-        Collection<GrantedAuthority> privileges = privilegeMapper.apply(simpleUser.getUsername(), simpleUser.getAuthorities());
+        var privileges = privilegeMapper.apply(simpleUser.getUsername(), simpleUser.getAuthorities());
 
-        DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(simpleUser.getUsername(), Collections.emptyMap());
+        var principal = new DefaultSaml2AuthenticatedPrincipal(simpleUser.getUsername(), Collections.emptyMap());
         principal.setRelyingPartyRegistrationId(responseToken.getToken().getRelyingPartyRegistration().getRegistrationId());
         return new Saml2Authentication(principal, responseToken.getToken().getSaml2Response(), privileges);
     }
@@ -108,9 +108,9 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
             for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
                 for (Attribute attribute : attributeStatement.getAttributes()) {
                     if (fields.containsKey(attribute.getName())) {
-                        List<String> attributeValues = new ArrayList<>();
+                        var attributeValues = new ArrayList<String>();
                         for (XMLObject xmlObject : attribute.getAttributeValues()) {
-                            String attributeValue = getAttributeValue(xmlObject);
+                            var attributeValue = getAttributeValue(xmlObject);
                             if (attributeValue != null) {
                                 attributeValues.add(attributeValue);
                             }
@@ -126,7 +126,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
         }
 
         public SimpleUser build() {
-            final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+            final var grantedAuthorities = new ArrayList<GrantedAuthority>();
             if (StringUtils.isNotBlank(groupsAttribute)) {
                 for (String name : getAttributeValues(groupsAttribute)) {
                     grantedAuthorities.add(new SimpleGrantedAuthority(name));
@@ -154,7 +154,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
 
         // The resulting fields are used to create a SimpleUser, only strings are expected.
         private String getAttributeValue(XMLObject xmlObject) {
-            String textContent = switch (xmlObject) {
+            var textContent = switch (xmlObject) {
                 case XSString string -> string.getValue();
                 case XSAny any -> any.getTextContent();
                 case null, default -> Optional.ofNullable(xmlObject.getDOM()).map(Node::getTextContent).orElse(null);

@@ -21,7 +21,7 @@ public class IndexNode extends ATargetBoundNode {
 
     @Override
     public void assign(Object value, IRuntimeEnv env) {
-        Object target = getTarget(env);
+        var target = getTarget(env);
 
         index.setValue(target, children[0].evaluate(env), value);
     }

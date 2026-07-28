@@ -28,7 +28,7 @@ public class ConstructorUsage extends MethodUsage {
 
     @Override
     public String getDescription() {
-        StringBuilder buf = new StringBuilder();
+        var buf = new StringBuilder();
         if (isDatatype()) {
             var metaInfo = getMethod().getDeclaringClass().getMetaInfo();
             buf.append(metaInfo.getDisplayName(IMetaInfo.REGULAR)).append('\n');

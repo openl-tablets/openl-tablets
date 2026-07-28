@@ -62,7 +62,7 @@ public class AlgorithmTreeNode {
     @Override
     public String toString() {
         if (specification != null) {
-            StringBuilder buf = new StringBuilder();
+            var buf = new StringBuilder();
             buf.append("Specification Keyword : ");
             buf.append(specification.getKeyword());
             if (algorithmRow != null) {

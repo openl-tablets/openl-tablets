@@ -73,7 +73,7 @@ public final class SpreadsheetWrapper extends AbstractSpreadsheetWrapper impleme
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        SpreadsheetWrapper that = (SpreadsheetWrapper) o;
+        var that = (SpreadsheetWrapper) o;
         return delegate.equals(that.delegate);
     }
 

@@ -6,15 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.rules.repository.git.CommitMessageParser.CommitMessage;
-
 class CommitMessageParserTest {
 
     @Test
     void testMessageParser() {
-        CommitMessageParser decompiler = new CommitMessageParser(
+        var decompiler = new CommitMessageParser(
                 "{user-message} Author: {username}. Commit type: {commit-type}.");
-        CommitMessage commitMessage = decompiler
+        var commitMessage = decompiler
                 .parse("Project My Rules is saved. Author: John Smith. Commit type: SAVE.");
 
         assertNotNull(commitMessage, "Commit message must be parsed!");

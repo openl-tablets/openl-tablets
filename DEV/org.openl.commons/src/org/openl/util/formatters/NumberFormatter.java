@@ -62,7 +62,7 @@ public class NumberFormatter implements IFormatter {
     }
 
     private static DecimalFormatSymbols createDecimalFormatSymbols(Locale locale) {
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols(locale);
+        var symbols = new DecimalFormatSymbols(locale);
         symbols.setNaN("NaN");
         return symbols;
     }

@@ -10,10 +10,8 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.tbasic.runtime.operations.OpenLEvaluationOperation;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
@@ -31,9 +29,9 @@ public class AlgorithmBoundNode extends AMethodBasedNode {
     @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
         super.finalizeBind(cxt);
-        AlgorithmBuilder builder = new AlgorithmBuilder(cxt, getAlgorithm(), getTableSyntaxNode());
+        var builder = new AlgorithmBuilder(cxt, getAlgorithm(), getTableSyntaxNode());
 
-        ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
+        var tableBody = getTableSyntaxNode().getTableBody();
         builder.build(cxt, tableBody);
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
@@ -45,13 +43,13 @@ public class AlgorithmBoundNode extends AMethodBasedNode {
 
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        Algorithm algorithm = getAlgorithm();
+        var algorithm = getAlgorithm();
         if (algorithm != null) {
             List<RuntimeOperation> operations = algorithm.getAlgorithmSteps();
             if (operations != null) {
                 for (RuntimeOperation step : operations) {
                     if (step instanceof OpenLEvaluationOperation operation) {
-                        IMethodCaller methodCaller = operation.getOpenLStatement();
+                        var methodCaller = operation.getOpenLStatement();
                         if (methodCaller instanceof CompositeMethod method) {
                             method.updateDependency(dependencies);
                         }

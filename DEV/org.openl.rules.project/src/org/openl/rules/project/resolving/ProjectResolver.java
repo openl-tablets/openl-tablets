@@ -23,7 +23,7 @@ public class ProjectResolver {
      * @return <code>null</code> if it is not OpenL project and {@link ResolvingStrategy} for this project otherwise.
      */
     public ResolvingStrategy isRulesProject(Path folder) {
-        ServiceLoader<ResolvingStrategy> strategies = ServiceLoader.load(ResolvingStrategy.class);
+        var strategies = ServiceLoader.load(ResolvingStrategy.class);
 
         for (ResolvingStrategy strategy : strategies) {
             if (strategy.isRulesProject(folder)) {
@@ -34,7 +34,7 @@ public class ProjectResolver {
     }
 
     public ProjectDescriptor resolve(Path file) throws ProjectResolvingException {
-        ResolvingStrategy strategy = isRulesProject(file);
+        var strategy = isRulesProject(file);
         if (strategy != null) {
             return strategy.resolveProject(file);
         }

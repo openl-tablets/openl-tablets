@@ -26,7 +26,7 @@ public class AmbiguousTypeException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         sb.append("Type '").append(typeName);
         sb.append("' is ambiguous:\n").append("Matching types:\n");

@@ -53,13 +53,13 @@ public class RuleInfo {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        RuleInfo ruleInfo = (RuleInfo) o;
+        var ruleInfo = (RuleInfo) o;
         return Objects.equals(name, ruleInfo.name) && Arrays.equals(paramTypes, ruleInfo.paramTypes);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(name);
+        var result = Objects.hash(name);
         result = 31 * result + Arrays.hashCode(paramTypes);
         return result;
     }

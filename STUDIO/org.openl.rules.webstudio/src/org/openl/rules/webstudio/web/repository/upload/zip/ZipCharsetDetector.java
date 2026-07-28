@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -68,7 +67,7 @@ public class ZipCharsetDetector {
      */
     public Charset detectCharset(ZipSource source, Collection<String> existingFiles) {
         // Check if zip stream can be opened with UTF-8 without error
-        try (ZipInputStream zipInputStream = new ZipInputStream(source.createStream())) {
+        try (var zipInputStream = new ZipInputStream(source.createStream())) {
             // Just iterate all entries to check that there is no any error
             while (true) {
                 if (zipInputStream.getNextEntry() == null) {
@@ -83,14 +82,14 @@ public class ZipCharsetDetector {
 
         // Check other charsets
         if (charsets.length > 0) {
-            Charset defaultCharset = charsets[0];
-            final List<String> defaultEntryNames = getEntryNames(source, defaultCharset);
+            var defaultCharset = charsets[0];
+            final var defaultEntryNames = getEntryNames(source, defaultCharset);
 
-            Collection<String> projectDescriptorFiles = getRulesXmlFiles(source,
+            var projectDescriptorFiles = getRulesXmlFiles(source,
                     defaultCharset,
                     new RootFolderExtractor(new HashSet<>(defaultEntryNames), zipFilter));
 
-            Collection<String> filesToCompare = new HashSet<>();
+            var filesToCompare = new HashSet<String>();
             if (projectDescriptorFiles != null) {
                 filesToCompare.addAll(projectDescriptorFiles);
             }
@@ -99,10 +98,10 @@ public class ZipCharsetDetector {
             }
 
             Charset bestCharset = null;
-            double bestRatio = 0;
+            var bestRatio = 0D;
             for (Charset charset : charsets) {
                 try {
-                    Collection<String> fileNames = convertEntryNames(defaultEntryNames, defaultCharset, charset);
+                    var fileNames = convertEntryNames(defaultEntryNames, defaultCharset, charset);
                     if (!checkNames(fileNames)) {
                         continue;
                     }
@@ -116,7 +115,7 @@ public class ZipCharsetDetector {
                         break;
                     }
 
-                    double ratio = calcRatio(fileNames, filesToCompare);
+                    var ratio = calcRatio(fileNames, filesToCompare);
 
                     if (ratio > bestRatio) {
                         bestCharset = charset;
@@ -141,11 +140,11 @@ public class ZipCharsetDetector {
     }
 
     private Collection<String> getRulesXmlFiles(ZipSource source, Charset charset, RootFolderExtractor extractor) {
-        ProjectDescriptor projectDescriptor = getProjectDescriptor(source, charset, extractor);
+        var projectDescriptor = getProjectDescriptor(source, charset, extractor);
         if (projectDescriptor != null) {
-            Set<String> files = new HashSet<>();
+            var files = new HashSet<String>();
             for (Module module : projectDescriptor.getModules()) {
-                String path = module.getRulesRootPath();
+                var path = module.getRulesRootPath();
                 if (!path.contains("*") && !path.contains("?")) {
                     // Modules with wildcard aren't supported for now
                     files.add(path);
@@ -159,14 +158,14 @@ public class ZipCharsetDetector {
     }
 
     private ProjectDescriptor getProjectDescriptor(ZipSource source, Charset charset, RootFolderExtractor extractor) {
-        try (ZipInputStream zipInputStream = new ZipInputStream(source.createStream(), charset)) {
+        try (var zipInputStream = new ZipInputStream(source.createStream(), charset)) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                String entryName = entry.getName();
-                String fileName = extractor.extractFromRootFolder(entryName);
+                var entryName = entry.getName();
+                var fileName = extractor.extractFromRootFolder(entryName);
                 if (ProjectDescriptor.FILE_NAME.equals(fileName)) {
                     return ProjectDescriptor.read(zipInputStream);
                 }
@@ -196,9 +195,9 @@ public class ZipCharsetDetector {
             files2 = temp;
         }
 
-        int total = files1.size();
+        var total = files1.size();
 
-        int found = 0;
+        var found = 0;
         for (String file : files1) {
             if (files2.contains(file)) {
                 found++;
@@ -218,17 +217,17 @@ public class ZipCharsetDetector {
      * @return folder names as they must be located in the project from the root
      */
     private Collection<String> convertEntryNames(List<String> entryNames, Charset from, Charset to) {
-        Set<String> converted = new HashSet<>(entryNames.size());
+        var converted = new HashSet<String>(entryNames.size());
         for (String entryName : entryNames) {
             // Convert entry name to another charset
             converted.add(from == to ? entryName : new String(entryName.getBytes(from), to));
         }
 
-        RootFolderExtractor folderExtractor = new RootFolderExtractor(converted, zipFilter);
+        var folderExtractor = new RootFolderExtractor(converted, zipFilter);
 
-        Set<String> result = new HashSet<>();
+        var result = new HashSet<String>();
         for (String name : converted) {
-            String extracted = folderExtractor.extractFromRootFolder(name);
+            var extracted = folderExtractor.extractFromRootFolder(name);
             // Can be null if it was filtered out
             if (extracted != null) {
                 result.add(extracted);
@@ -239,8 +238,8 @@ public class ZipCharsetDetector {
     }
 
     private List<String> getEntryNames(ZipSource source, Charset charset) {
-        List<String> entryNames = new ArrayList<>();
-        try (ZipInputStream zipInputStream = new ZipInputStream(source.createStream(), charset)) {
+        var entryNames = new ArrayList<String>();
+        try (var zipInputStream = new ZipInputStream(source.createStream(), charset)) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 if (!entry.isDirectory()) {
@@ -255,7 +254,7 @@ public class ZipCharsetDetector {
     }
 
     private Charset[] getAvailableCharsets(String[] charsetNames) {
-        LinkedHashSet<Charset> available = new LinkedHashSet<>();
+        var available = new LinkedHashSet<Charset>();
 
         if (charsetNames != null) {
             for (String charsetName : charsetNames) {

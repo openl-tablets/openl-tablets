@@ -10,8 +10,8 @@ public class ProjectionDifferImpl implements ProjectionDiffer {
     // @Override
     @Override
     public boolean compare(Projection original, Projection other) {
-        Map<String, ProjectionProperty> map1 = buildMap(original);
-        Map<String, ProjectionProperty> map2 = buildMap(other);
+        var map1 = buildMap(original);
+        var map2 = buildMap(other);
 
         MergeResult merged = MergeResult.mergeNames(map1.keySet(), map2.keySet());
 
@@ -21,8 +21,8 @@ public class ProjectionDifferImpl implements ProjectionDiffer {
         }
 
         for (String propertyName : merged.getCommon()) {
-            ProjectionProperty p1 = map1.get(propertyName);
-            ProjectionProperty p2 = map2.get(propertyName);
+            var p1 = map1.get(propertyName);
+            var p2 = map2.get(propertyName);
 
             if (!isEquals(p1, p2)) {
                 return false;
@@ -33,8 +33,8 @@ public class ProjectionDifferImpl implements ProjectionDiffer {
     }
 
     protected boolean isEquals(ProjectionProperty p1, ProjectionProperty p2) {
-        Object v1 = p1.getRawValue();
-        Object v2 = p2.getRawValue();
+        var v1 = p1.getRawValue();
+        var v2 = p2.getRawValue();
 
         if (v1 == null) {
             return v2 == null;
@@ -44,7 +44,7 @@ public class ProjectionDifferImpl implements ProjectionDiffer {
     }
 
     protected static Map<String, ProjectionProperty> buildMap(Projection projection) {
-        Map<String, ProjectionProperty> map = new HashMap<>();
+        var map = new HashMap<String, ProjectionProperty>();
 
         for (ProjectionProperty property : projection.getProperties()) {
             map.put(property.getName(), property);

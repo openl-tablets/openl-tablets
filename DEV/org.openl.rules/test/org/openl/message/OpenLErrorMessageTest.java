@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.text.LocationUtils;
 
@@ -15,17 +14,17 @@ class OpenLErrorMessageTest {
 
     @Test
     void differentErrorTypesEquality() {
-        IOpenSourceCodeModule module1 = new StringSourceCodeModule("Module1", "uri1");
-        IOpenSourceCodeModule module2 = new StringSourceCodeModule("Module2", "uri2");
+        var module1 = new StringSourceCodeModule("Module1", "uri1");
+        var module2 = new StringSourceCodeModule("Module2", "uri2");
 
-        OpenLErrorMessage e1 = new OpenLErrorMessage(
+        var e1 = new OpenLErrorMessage(
                 new OpenLCompilationException("test", null, LocationUtils.createTextInterval(0, 3), module1));
-        OpenLErrorMessage e2 = new OpenLErrorMessage(
+        var e2 = new OpenLErrorMessage(
                 new OpenLCompilationException("test", null, LocationUtils.createTextInterval(0, 3), module1));
-        OpenLErrorMessage e3 = new OpenLErrorMessage(
+        var e3 = new OpenLErrorMessage(
                 new OpenLCompilationException("test", null, LocationUtils.createTextInterval(1, 4), module2));
-        OpenLErrorMessage e4 = new OpenLErrorMessage(new OpenLRuntimeException("test"));
-        OpenLErrorMessage e5 = new OpenLErrorMessage(new OpenlNotCheckedException("test"));
+        var e4 = new OpenLErrorMessage(new OpenLRuntimeException("test"));
+        var e5 = new OpenLErrorMessage(new OpenlNotCheckedException("test"));
 
         // If error message contains location, it should be considered in equality comparison.
         // Otherwise only message should be considered.

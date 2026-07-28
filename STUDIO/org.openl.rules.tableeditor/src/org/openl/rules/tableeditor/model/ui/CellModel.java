@@ -60,7 +60,7 @@ public class CellModel implements ICellModel {
             buf.append(" rowspan=\"").append(rowspan).append("\"");
         }
 
-        String style = getHtmlStyle(selectErrorCell);
+        var style = getHtmlStyle(selectErrorCell);
 
         buf.append(" style=\"").append(style).append("\"");
     }
@@ -75,7 +75,7 @@ public class CellModel implements ICellModel {
         }
 
         String[] bwidth = new String[4];
-        for (int i = 0; i < borderStyle.length; i++) {
+        for (var i = 0; i < borderStyle.length; i++) {
             int borderStyleWidth = borderStyle[i] == null ? 0 : borderStyle[i].getWidth();
             bwidth[i] = borderStyleWidth + (borderStyleWidth != 0 ? "px" : "");
         }
@@ -85,7 +85,7 @@ public class CellModel implements ICellModel {
         }
 
         String[] styles = new String[4];
-        for (int i = 0; i < borderStyle.length; i++) {
+        for (var i = 0; i < borderStyle.length; i++) {
             String style;
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
                 style = borderStyle[1] == null ? "none" : borderStyle[1].getStyle();
@@ -104,7 +104,7 @@ public class CellModel implements ICellModel {
         }
 
         String[] colors = new String[4];
-        for (int i = 0; i < borderStyle.length; i++) {
+        for (var i = 0; i < borderStyle.length; i++) {
             String color;
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
                 color = borderStyle[1] == null ? "#000" : toHexColor(borderStyle[1].getRgb());
@@ -124,12 +124,12 @@ public class CellModel implements ICellModel {
     }
 
     String convertContent(String content) {
-        StringBuilder buf = new StringBuilder(content.length() + 100);
+        var buf = new StringBuilder(content.length() + 100);
 
-        boolean startLine = true;
+        var startLine = true;
 
-        for (int i = 0; i < content.length(); i++) {
-            char ch = content.charAt(i);
+        for (var i = 0; i < content.length(); i++) {
+            var ch = content.charAt(i);
 
             if (ch == ' ' && startLine) {
                 buf.append("&nbsp;");
@@ -183,7 +183,7 @@ public class CellModel implements ICellModel {
      * @return style string for cell
      */
     public String getHtmlStyle(boolean selectErrorCell) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         if (halign != null) {
             sb.append("text-align:").append(halign).append(";");
         }
@@ -239,11 +239,11 @@ public class CellModel implements ICellModel {
             buf.append(";");
         }
 
-        String fontName = font.getName();
+        var fontName = font.getName();
         if (!fontName.equals(DEFAULT_CELL_STYLES.get("font-family"))) {
             buf.append("font-family:").append(fontName).append(";");
         }
-        int fontSize = font.getSize() + 2;
+        var fontSize = font.getSize() + 2;
         if (fontSize != (Integer) DEFAULT_CELL_STYLES.get("font-size")) {
             buf.append("font-size:").append(fontSize).append(";");
         }
@@ -254,7 +254,7 @@ public class CellModel implements ICellModel {
             buf.append("font-weight:bold").append(";");
         }
 
-        short[] color = font.getFontColor();
+        var color = font.getFontColor();
         if (color != null) {
             String colorStr = toHexColor(color);
             if (!colorStr.equals(DEFAULT_CELL_STYLES.get("color"))) {
@@ -388,9 +388,9 @@ public class CellModel implements ICellModel {
     private static String boxCSStoString(String[] values) {
         String result;
 
-        boolean evenSame = values[1].equals(values[3]);
-        boolean pairSame = evenSame && values[0].equals(values[2]);
-        boolean allSame = pairSame && values[0].equals(values[1]);
+        var evenSame = values[1].equals(values[3]);
+        var pairSame = evenSame && values[0].equals(values[2]);
+        var allSame = pairSame && values[0].equals(values[1]);
 
         if (allSame) {
             result = values[0];
@@ -423,7 +423,7 @@ public class CellModel implements ICellModel {
         String hex2 = toHex(x[1]);
         String hex3 = toHex(x[2]);
 
-        boolean dig3hex = hex1.charAt(0) == hex1.charAt(1) && hex2.charAt(0) == hex2.charAt(1) && hex3.charAt(0) == hex3
+        var dig3hex = hex1.charAt(0) == hex1.charAt(1) && hex2.charAt(0) == hex2.charAt(1) && hex3.charAt(0) == hex3
                 .charAt(1);
 
         return "#" + (dig3hex ? hex1.charAt(0) : hex1) + (dig3hex ? hex2.charAt(0) : hex2) + (dig3hex ? hex3.charAt(0)

@@ -49,7 +49,7 @@ public class DateRangeDomainAdaptor implements IDomainAdaptor {
 
     @Override
     public IDomainAdaptor merge(IDomainAdaptor adaptor) {
-        DateRangeDomainAdaptor a = (DateRangeDomainAdaptor) adaptor;
+        var a = (DateRangeDomainAdaptor) adaptor;
 
         Date min = domain.getMin().before(a.domain.getMin()) ? domain.getMin() : a.domain.getMin();
         Date max = domain.getMax().after(a.domain.getMax()) ? domain.getMax() : a.domain.getMax();

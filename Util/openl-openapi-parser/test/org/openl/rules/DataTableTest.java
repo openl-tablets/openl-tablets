@@ -15,8 +15,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
-import org.openl.rules.model.scaffolding.PathInfo;
-import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
@@ -36,21 +34,21 @@ class DataTableTest {
 
     @Test
     void testDataTableGenerationEmptyRequest() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/data_tables/EPBDS-10250_data_tables.json");
         List<DataModel> dataModels = projectModel.getDataModels();
         assertFalse(dataModels.isEmpty());
-        DataModel petsB = findDataModel(dataModels, "PetsB");
+        var petsB = findDataModel(dataModels, "PetsB");
         assertEquals("PetsB", petsB.getName());
         assertEquals("Pet", petsB.getType());
-        PathInfo info = petsB.getPathInfo();
+        var info = petsB.getPathInfo();
         assertEquals("/getpetsB", info.getOriginalPath());
         assertEquals("getPetsB", info.getFormattedPath());
         assertEquals("application/json", info.getProduces());
         assertNull(info.getConsumes());
         assertEquals("Pet[]", info.getReturnType().getSimpleName());
 
-        DatatypeModel datatypeModel = petsB.getDatatypeModel();
+        var datatypeModel = petsB.getDatatypeModel();
         assertEquals("Pet", datatypeModel.getName());
         List<FieldModel> fields = datatypeModel.getFields();
         assertFalse(fields.isEmpty());
@@ -62,7 +60,7 @@ class DataTableTest {
 
     @Test
     void testSpreadsheetResultFiltering() throws IOException {
-        ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/openapi.json");
+        var pm = converter.extractProjectModel("test.converter/data_tables/openapi.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
         List<DataModel> dataModels = pm.getDataModels();
         Set<DatatypeModel> datatypeModels = pm.getDatatypeModels();
@@ -73,43 +71,43 @@ class DataTableTest {
 
     @Test
     void testRuleWithRuntimeContext() throws IOException {
-        ProjectModel pm = converter
+        var pm = converter
                 .extractProjectModel("test.converter/data_tables/openapiRule_with_runtimeContext.json");
         assertTrue(CollectionUtils.isEmpty(pm.getDataModels()));
     }
 
     @Test
     void testRuleWithoutRuntimeContext() throws IOException {
-        ProjectModel pm = converter
+        var pm = converter
                 .extractProjectModel("test.converter/data_tables/openapiRule_without_runtimeContext.json");
         assertTrue(CollectionUtils.isEmpty(pm.getDataModels()));
     }
 
     @Test
     void testNesting() throws IOException {
-        ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/nesting.json");
+        var pm = converter.extractProjectModel("test.converter/data_tables/nesting.json");
         List<DataModel> dataModels = pm.getDataModels();
         assertEquals(4, dataModels.size());
 
-        DataModel newDataTypeData = findDataModel(dataModels, "NewDatatypeData");
+        var newDataTypeData = findDataModel(dataModels, "NewDatatypeData");
         List<FieldModel> fields = newDataTypeData.getDatatypeModel().getFields();
         assertEquals(2, fields.size());
         assertTrue(fields.stream().anyMatch(x -> x.getName().equals("dtpField")));
         assertTrue(fields.stream().anyMatch(x -> x.getName().equals("newStrField")));
 
-        DataModel myStrModel = findDataModel(dataModels, "MystrData");
+        var myStrModel = findDataModel(dataModels, "MystrData");
         List<FieldModel> strFields = myStrModel.getDatatypeModel().getFields();
         assertEquals(1, strFields.size());
-        FieldModel strModel = strFields.getFirst();
+        var strModel = strFields.getFirst();
         assertEquals("this", strModel.getName());
 
-        DataModel superDataModel = findDataModel(dataModels, "SuperDatatypeData");
+        var superDataModel = findDataModel(dataModels, "SuperDatatypeData");
         List<FieldModel> superFields = superDataModel.getDatatypeModel().getFields();
         assertEquals(2, superFields.size());
         assertTrue(superFields.stream().anyMatch(x -> x.getName().equals("dtpField")));
         assertTrue(superFields.stream().anyMatch(x -> x.getName().equals("newStrField")));
 
-        DataModel dataModel = findDataModel(dataModels, "MyDatatypeData");
+        var dataModel = findDataModel(dataModels, "MyDatatypeData");
         List<FieldModel> myDatatypeFields = dataModel.getDatatypeModel().getFields();
         assertEquals(3, myDatatypeFields.size());
         assertTrue(myDatatypeFields.stream().anyMatch(x -> x.getName().equals("dtpField")));
@@ -119,10 +117,10 @@ class DataTableTest {
 
     @Test
     void testMultipleNesting() throws IOException {
-        ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/multiple_nesting.json");
+        var pm = converter.extractProjectModel("test.converter/data_tables/multiple_nesting.json");
         List<DataModel> dataModels = pm.getDataModels();
         assertEquals(2, dataModels.size());
-        DataModel dataLevelFore = findDataModel(dataModels, "DalaLevelForeData");
+        var dataLevelFore = findDataModel(dataModels, "DalaLevelForeData");
         List<FieldModel> fields = dataLevelFore.getDatatypeModel().getFields();
         assertEquals(4, fields.size());
         assertTrue(fields.stream().anyMatch(x -> x.getName().equals("newField")));
@@ -130,7 +128,7 @@ class DataTableTest {
         assertTrue(fields.stream().anyMatch(x -> x.getName().equals("filed2")));
         assertTrue(fields.stream().anyMatch(x -> x.getName().equals("filed4")));
 
-        DataModel dataLevelThree = findDataModel(dataModels, "Arlekino");
+        var dataLevelThree = findDataModel(dataModels, "Arlekino");
         List<FieldModel> dltFields = dataLevelThree.getDatatypeModel().getFields();
         assertEquals(3, dltFields.size());
         assertTrue(dltFields.stream().anyMatch(x -> x.getName().equals("newField")));
@@ -141,57 +139,57 @@ class DataTableTest {
 
     @Test
     void testGetPathNaming() throws IOException {
-        ProjectModel pm = converter
+        var pm = converter
                 .extractProjectModel("test.converter/data_tables/EPBDS-10839_get_capital_letter.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
         List<DataModel> dataModels = pm.getDataModels();
         Set<DatatypeModel> datatypeModels = pm.getDatatypeModels();
         assertTrue(dataModels.isEmpty());
         assertEquals(1, datatypeModels.size());
-        DatatypeModel dm = datatypeModels.iterator().next();
+        var dm = datatypeModels.iterator().next();
         assertEquals("JAXRSErrorResponse", dm.getName());
 
         assertEquals(1, spreadsheetResultModels.size());
-        SpreadsheetModel sprModel = spreadsheetResultModels.getFirst();
+        var sprModel = spreadsheetResultModels.getFirst();
         assertEquals("GetMyAlias", sprModel.getName());
         assertEquals("String[]", sprModel.getType());
         List<StepModel> steps = sprModel.getSteps();
         assertEquals(1, steps.size());
 
-        StepModel step = steps.getFirst();
+        var step = steps.getFirst();
         assertEquals("Result", step.getName());
         assertEquals("= new String[]{}", step.getValue());
     }
 
     @Test
     void test_dataTables() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/data_tables_types.json");
+        var projectModel = converter.extractProjectModel("test.converter/problems/data_tables_types.json");
         List<DataModel> dataModels = projectModel.getDataModels();
         assertEquals(4, dataModels.size());
 
-        DataModel newDatatypeData = findDataModel(dataModels, "NewDatatypeData");
-        PathInfo newDatatypeDataPathInfo = newDatatypeData.getPathInfo();
+        var newDatatypeData = findDataModel(dataModels, "NewDatatypeData");
+        var newDatatypeDataPathInfo = newDatatypeData.getPathInfo();
         assertEquals("[Ljava.util.Date;", newDatatypeDataPathInfo.getReturnType().getJavaName());
         assertEquals(TypeInfo.Type.OBJECT, newDatatypeDataPathInfo.getReturnType().getType());
         assertEquals("getNewDatatypeData", newDatatypeDataPathInfo.getFormattedPath());
         assertEquals("/getNewData/typeData", newDatatypeDataPathInfo.getOriginalPath());
 
-        DataModel mystrData = findDataModel(dataModels, "MystrData");
-        PathInfo strDataPathInfo = mystrData.getPathInfo();
+        var mystrData = findDataModel(dataModels, "MystrData");
+        var strDataPathInfo = mystrData.getPathInfo();
         assertEquals("[Ljava.lang.String;", strDataPathInfo.getReturnType().getJavaName());
         assertEquals(TypeInfo.Type.OBJECT, strDataPathInfo.getReturnType().getType());
         assertEquals("getMystrData", strDataPathInfo.getFormattedPath());
         assertEquals("/getMys/trData", strDataPathInfo.getOriginalPath());
 
-        DataModel myDatatypeData = findDataModel(dataModels, "MyDatatypeData");
-        PathInfo myDatatypeDataPathInfo = myDatatypeData.getPathInfo();
+        var myDatatypeData = findDataModel(dataModels, "MyDatatypeData");
+        var myDatatypeDataPathInfo = myDatatypeData.getPathInfo();
         assertEquals("MyDatatype[]", myDatatypeDataPathInfo.getReturnType().getJavaName());
         assertEquals(TypeInfo.Type.DATATYPE, myDatatypeDataPathInfo.getReturnType().getType());
         assertEquals("getMyDatatypeData", myDatatypeDataPathInfo.getFormattedPath());
         assertEquals("/getMyData/typeData", myDatatypeDataPathInfo.getOriginalPath());
 
-        DataModel superDatatypeData = findDataModel(dataModels, "SuperDatatypeData");
-        PathInfo superDatatypeDataPathInfo = superDatatypeData.getPathInfo();
+        var superDatatypeData = findDataModel(dataModels, "SuperDatatypeData");
+        var superDatatypeDataPathInfo = superDatatypeData.getPathInfo();
         assertEquals("SuperDatatype[]", superDatatypeDataPathInfo.getReturnType().getJavaName());
         assertEquals(TypeInfo.Type.DATATYPE, superDatatypeDataPathInfo.getReturnType().getType());
         assertEquals("getSuperDatatypeData", superDatatypeDataPathInfo.getFormattedPath());

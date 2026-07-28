@@ -31,7 +31,7 @@ public class BitSetIterator extends AIntIterator {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
-        int result = currentIndex;
+        var result = currentIndex;
         currentIndex = bitSet.nextSetBit(currentIndex + 1);
         return result;
     }

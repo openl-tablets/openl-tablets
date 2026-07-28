@@ -62,7 +62,7 @@ class ProjectDescriptorCleanerTest {
 
         cleaner.unregisterModules(project, excelFile("rules/Main.xlsx"));
 
-        ProjectDescriptor updated = writtenDescriptor();
+        var updated = writtenDescriptor();
         assertEquals(1, updated.getModules().size());
         assertEquals("Other", updated.getModules().get(0).getName());
     }
@@ -117,7 +117,7 @@ class ProjectDescriptorCleanerTest {
 
         cleaner.unregisterModules(project, excelFile("rules/Main.xlsx"));
 
-        OpenAPI updated = writtenDescriptor().getOpenapi();
+        var updated = writtenDescriptor().getOpenapi();
         assertNull(updated.getAlgorithmModuleName());
         assertEquals("Other", updated.getModelModuleName());
     }
@@ -129,7 +129,7 @@ class ProjectDescriptorCleanerTest {
         givenDescriptor(descriptor);
 
         AProjectResource openApiFile = file("api/spec.json");
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName("design/" + PROJECT_NAME + "/api/spec.json");
         when(openApiFile.getFileData()).thenReturn(fileData);
 
@@ -156,20 +156,20 @@ class ProjectDescriptorCleanerTest {
     }
 
     private ProjectDescriptor writtenDescriptor() throws ProjectException {
-        ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass(InputStream.class);
+        var captor = ArgumentCaptor.forClass(InputStream.class);
         verify(descriptorResource).setContent(captor.capture());
         return ProjectDescriptor.read(captor.getValue());
     }
 
     private static ProjectDescriptor descriptor(Module... modules) {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setName(PROJECT_NAME);
         descriptor.setModules(new ArrayList<>(List.of(modules)));
         return descriptor;
     }
 
     private static Module module(String name, String rulesRootPath) {
-        Module module = new Module();
+        var module = new Module();
         module.setName(name);
         module.setRulesRootPath(rulesRootPath);
         return module;

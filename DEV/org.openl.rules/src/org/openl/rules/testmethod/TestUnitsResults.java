@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.types.IMethodSignature;
 import org.openl.util.ClassUtils;
 
 /**
@@ -43,7 +42,7 @@ public class TestUnitsResults implements INamedThing {
 
     public List<ITestUnit> getFilteredTestUnits(boolean failuresOnly, int size) {
         if (failuresOnly) {
-            List<ITestUnit> failedUnits = new ArrayList<>();
+            var failedUnits = new ArrayList<ITestUnit>();
             for (ITestUnit testUnit : testUnits) {
                 if (testUnit.getResultStatus() != TestStatus.TR_OK // Failed unit
                         && (failedUnits.size() < size || size == -1)) {
@@ -57,7 +56,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public long getExecutionTime() {
-        long executionTime = 0;
+        var executionTime = 0L;
         for (ITestUnit testUnit : testUnits) {
             executionTime += testUnit.getExecutionTime();
         }
@@ -73,8 +72,8 @@ public class TestUnitsResults implements INamedThing {
         if (testedRulesHaveErrors) {
             return getTestSuite().getTests().length;
         }
-        int cnt = 0;
-        for (int i = 0; i < getNumberOfTestUnits(); i++) {
+        var cnt = 0;
+        for (var i = 0; i < getNumberOfTestUnits(); i++) {
             if (testUnits.get(i).getResultStatus() != TestStatus.TR_OK) {
                 ++cnt;
             }
@@ -83,8 +82,8 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public int getNumberOfErrors() {
-        int cnt = 0;
-        for (int i = 0; i < getNumberOfTestUnits(); i++) {
+        var cnt = 0;
+        for (var i = 0; i < getNumberOfTestUnits(); i++) {
             if (testUnits.get(i).getResultStatus() == TestStatus.TR_EXCEPTION) {
                 ++cnt;
             }
@@ -93,8 +92,8 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public int getNumberOfAssertionFailures() {
-        int cnt = 0;
-        for (int i = 0; i < getNumberOfTestUnits(); i++) {
+        var cnt = 0;
+        for (var i = 0; i < getNumberOfTestUnits(); i++) {
             if (testUnits.get(i).getResultStatus() == TestStatus.TR_NEQ) {
                 ++cnt;
             }
@@ -126,7 +125,7 @@ public class TestUnitsResults implements INamedThing {
 
     public boolean hasExpected() {
         for (ITestUnit testUnit : testUnits) {
-            TestDescription test = testUnit.getTest();
+            var test = testUnit.getTest();
             if (test.isExpectedResultDefined() || test.isExpectedErrorDefined()) {
                 return true;
             }
@@ -144,10 +143,10 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public String[] getTestDataColumnDisplayNames() {
-        String[] columnTechnicalNames = getTestDataColumnHeaders();
+        var columnTechnicalNames = getTestDataColumnHeaders();
         String[] columnDisplayNames = new String[columnTechnicalNames.length];
-        for (int i = 0; i < columnDisplayNames.length; i++) {
-            TestSuiteMethod testSuiteMethod = testSuite.getTestSuiteMethod();
+        for (var i = 0; i < columnDisplayNames.length; i++) {
+            var testSuiteMethod = testSuite.getTestSuiteMethod();
             String displayName = testSuiteMethod == null ? null
                     : testSuiteMethod
                     .getColumnDisplayName(columnTechnicalNames[i]);
@@ -161,11 +160,11 @@ public class TestUnitsResults implements INamedThing {
     }
 
     private String[] getColumnDisplayNames(String type) {
-        List<String> displayNames = new ArrayList<>();
-        TestSuiteMethod test = testSuite.getTestSuiteMethod();
+        var displayNames = new ArrayList<String>();
+        var test = testSuite.getTestSuiteMethod();
         if (test != null) {
-            for (int i = 0; i < test.getColumnsCount(); i++) {
-                String columnName = test.getColumnName(i);
+            for (var i = 0; i < test.getColumnsCount(); i++) {
+                var columnName = test.getColumnName(i);
                 if (columnName != null && columnName.startsWith(type)) {
                     displayNames.add(test.getColumnDisplayName(columnName));
                 }
@@ -187,12 +186,12 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public String[] getTestDataColumnHeaders() {
-        IMethodSignature testMethodSignature = testSuite.getTestedMethod().getSignature();
+        var testMethodSignature = testSuite.getTestedMethod().getSignature();
 
-        int len = testMethodSignature.getParameterTypes().length;
+        var len = testMethodSignature.getParameterTypes().length;
 
         String[] res = new String[len];
-        for (int i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             res[i] = testMethodSignature.getParameterName(i);
         }
         return res;

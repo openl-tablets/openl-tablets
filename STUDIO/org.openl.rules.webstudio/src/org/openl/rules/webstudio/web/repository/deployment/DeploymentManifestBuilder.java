@@ -88,8 +88,8 @@ public class DeploymentManifestBuilder {
     }
 
     public Manifest build() {
-        Manifest manifest = new Manifest();
-        Attributes attributes = manifest.getMainAttributes();
+        var manifest = new Manifest();
+        var attributes = manifest.getMainAttributes();
         attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         attributes.putValue("Created-By", "OpenL Studio v." + OpenLVersion.getVersion());

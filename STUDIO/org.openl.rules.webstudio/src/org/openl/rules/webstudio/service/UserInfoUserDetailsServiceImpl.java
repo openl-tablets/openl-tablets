@@ -38,14 +38,14 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
 
         adminUsersInitializer.initIfSuperuser(name);
 
-        org.openl.rules.security.standalone.persistence.User user = userDao.getUserByName(name);
+        var user = userDao.getUserByName(name);
         if (user == null) {
             throw new UsernameNotFoundException("Unknown user: '%s'".formatted(name));
         }
 
-        Collection<GrantedAuthority> privileges = mapPrivileges(user, Collections.emptyList());
+        var privileges = mapPrivileges(user, Collections.emptyList());
 
-        SimpleUser simpleUser = SimpleUser.builder()
+        var simpleUser = SimpleUser.builder()
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getSurname())
                 .setUsername(user.getLoginName())

@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.openl.base.INamedThing;
 import org.openl.exception.OpenlNotCheckedException;
@@ -37,13 +36,13 @@ public class AmbiguousFieldException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         sb.append("Field '").append(fieldName).append("' is ambiguous");
         if (matchingFields != null) {
             sb.append(":\nMatching fields:\n");
-            boolean first = true;
-            Set<IOpenClass> openClasses = new HashSet<>();
+            var first = true;
+            var openClasses = new HashSet<IOpenClass>();
             for (IOpenField f : matchingFields) {
                 openClasses.add(f.getDeclaringClass());
             }

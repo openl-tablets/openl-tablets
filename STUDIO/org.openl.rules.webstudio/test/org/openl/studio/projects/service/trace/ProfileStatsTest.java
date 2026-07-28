@@ -10,14 +10,10 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import org.openl.CompiledOpenClass;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.studio.projects.model.trace.FrameKind;
 import org.openl.studio.projects.model.trace.TableProfile;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * Verifies that the profiling hotspots are aggregated on the fly, per table, independent of the retained
@@ -32,7 +28,7 @@ class ProfileStatsTest {
     @DisplayName("Counts every table invocation even when the tree is truncated for display")
     void countsEveryInvocationWhenTheTreeTruncates() {
         // Cap the tree so only the first SubCalc survives, then confirm the stats still counted all three.
-        TraceDebugger debugger = trace(2);
+        var debugger = trace(2);
 
         assertTrue(debugger.isTreeTruncated(), "the low node cap truncates the tree");
         assertTrue(subCalcNodesInTree(debugger.completedTree()) < 3,
@@ -46,7 +42,7 @@ class ProfileStatsTest {
     @Test
     @DisplayName("Aggregates self and total time per table")
     void aggregatesSelfAndTotalPerTable() {
-        TraceDebugger debugger = trace(1000);
+        var debugger = trace(1000);
 
         TableProfile subCalc = stat(debugger.profileStats(), "SubCalc");
         assertEquals(3, subCalc.count());
@@ -62,9 +58,9 @@ class ProfileStatsTest {
     @Test
     @DisplayName("Shares one step-ref instance across a table's repeated invocations")
     void sharesRepeatedStepStringsAcrossInvocations() {
-        TraceDebugger debugger = trace(1000);
+        var debugger = trace(1000);
 
-        List<CallNode> subCalls = new ArrayList<>();
+        var subCalls = new ArrayList<CallNode>();
         walk(debugger.completedTree(), node -> {
             if (node.kind() != FrameKind.STEP_REF && "SubCalc".equals(node.name())) {
                 subCalls.add(node);
@@ -74,24 +70,24 @@ class ProfileStatsTest {
         assertEquals(3, subCalls.size(), "SubCalc runs three times");
         // The step refs are rebuilt on every execution, so three invocations would keep three copies of each.
         // Interning collapses them to one shared instance — the memory win, since a table can run thousands of times.
-        String ref0 = subCalls.get(0).steps().get(0).ref();
+        var ref0 = subCalls.get(0).steps().get(0).ref();
         assertSame(ref0, subCalls.get(1).steps().get(0).ref(), "repeated invocations share one step-ref instance");
         assertSame(ref0, subCalls.get(2).steps().get(0).ref());
     }
 
     private TraceDebugger trace(int cap) {
-        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
         assertTrue(compiled.getAllMessages().isEmpty(), () -> "module must compile: " + compiled.getAllMessages());
-        IOpenClass module = compiled.getOpenClass();
-        IOpenMethod root = module.getMethods().stream()
+        var module = compiled.getOpenClass();
+        var root = module.getMethods().stream()
                 .filter(method -> "Root".equals(method.getName()))
                 .findFirst()
                 .orElseThrow();
 
-        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        var debugger = new TraceDebugger(DebugListener.NOOP);
         debugger.setMaxTreeNodes(cap);
         debugger.start("profile-stats", compiled.getClassLoader(), false, true, () -> {
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
             root.invoke(module.newInstance(env), new Object[0], env);
         });

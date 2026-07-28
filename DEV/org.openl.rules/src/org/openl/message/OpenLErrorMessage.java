@@ -26,14 +26,14 @@ public class OpenLErrorMessage extends OpenLMessage {
 
     @Override
     public String toString() {
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
+        var stringWriter = new StringWriter();
+        var printWriter = new PrintWriter(stringWriter);
 
         printWriter.print(super.toString());
         printWriter.print("\r\n");
 
         if (getError() != null) {
-            String url = getError().getSourceLocation();
+            var url = getError().getSourceLocation();
 
             if (StringUtils.isNotEmpty(url)) {
                 printWriter.print("    at " + url + "\r\n");
@@ -60,9 +60,9 @@ public class OpenLErrorMessage extends OpenLMessage {
             return null;
         }
 
-        Throwable t = (Throwable) ex;
+        var t = (Throwable) ex;
 
-        OpenLException cause = ex;
+        var cause = ex;
         while (t != null) {
             if (t instanceof OpenLException exception) {
                 cause = exception;

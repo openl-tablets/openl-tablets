@@ -15,13 +15,13 @@ class HorizontalTablePartsCompositeGrid extends CompositeGrid {
 
     @Override
     public ICell getCell(int column, int row) {
-        Transform t = transform(0, 0);
+        var t = transform(0, 0);
         if (t == null) {
             return null;
         }
-        ICell firstRowCell = t.grid().getCell(t.getCol(), t.getRow());
+        var firstRowCell = t.grid().getCell(t.getCol(), t.getRow());
         if (row < firstRowCell.getHeight()) {
-            IGridRegion reg = getRegionContaining(0, 0);
+            var reg = getRegionContaining(0, 0);
             IGridRegion region;
             if (reg != null) {
                 region = new GridRegion(reg.getTop(), reg.getLeft(), reg.getBottom(), reg.getLeft() + getWidth() - 1);
@@ -30,19 +30,19 @@ class HorizontalTablePartsCompositeGrid extends CompositeGrid {
             }
             return new CompositeCell(column, row, region, firstRowCell, t.getGridTable());
         } else {
-            Transform t1 = transform(0, firstRowCell.getHeight());// Properties parsing and merge
+            var t1 = transform(0, firstRowCell.getHeight());// Properties parsing and merge
             if (t1 != null) {
-                ICell propertiesCell = t1.grid().getCell(t1.getCol(), t1.getRow());
+                var propertiesCell = t1.grid().getCell(t1.getCol(), t1.getRow());
                 if (row < firstRowCell.getHeight() + propertiesCell.getHeight() && PropertiesHelper.PROPERTIES_HEADER
                         .equals(propertiesCell.getStringValue())) {
-                    Transform t2 = transform(propertiesCell.getWidth(), row);
+                    var t2 = transform(propertiesCell.getWidth(), row);
                     if (t2 != null) {
-                        ICell propertiesNameCell = t2.grid().getCell(t2.getCol(), t2.getRow());
-                        Transform t3 = transform(propertiesCell.getWidth() + propertiesNameCell.getWidth(), row);
+                        var propertiesNameCell = t2.grid().getCell(t2.getCol(), t2.getRow());
+                        var t3 = transform(propertiesCell.getWidth() + propertiesNameCell.getWidth(), row);
                         if (t3 != null) {
-                            ICell propertiesValueCell = t3.grid().getCell(t3.getCol(), t3.getRow());
+                            var propertiesValueCell = t3.grid().getCell(t3.getCol(), t3.getRow());
                             if (column >= propertiesCell.getWidth() + propertiesNameCell.getWidth()) {
-                                IGridRegion reg = getRegionContaining(
+                                var reg = getRegionContaining(
                                         propertiesCell.getWidth() + propertiesNameCell.getWidth(),
                                         row);
                                 IGridRegion region;

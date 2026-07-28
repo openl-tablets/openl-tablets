@@ -117,7 +117,7 @@ public abstract class AbstractMatchingOpenMethodDispatcherWrapper extends Matchi
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractMatchingOpenMethodDispatcherWrapper that = (AbstractMatchingOpenMethodDispatcherWrapper) o;
+        var that = (AbstractMatchingOpenMethodDispatcherWrapper) o;
         return delegate.equals(that.delegate);
     }
 

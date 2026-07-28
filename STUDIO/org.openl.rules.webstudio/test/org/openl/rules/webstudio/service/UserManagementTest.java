@@ -23,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import org.openl.rules.security.User;
 import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.security.UserExternalFlags.Feature;
 import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
@@ -68,7 +67,7 @@ class UserManagementTest {
     @Test
     void testSaveUser() {
         userService.addUser("jdoe", "John", "Doe", "qwerty", "jdoe@test", "John Doe");
-        User user = userService.getUser("jdoe");
+        var user = userService.getUser("jdoe");
         assertNotNull(user);
         assertEquals("jdoe", user.getUsername());
         assertEquals("John", user.getFirstName());
@@ -82,7 +81,7 @@ class UserManagementTest {
         assertFalse(user.getExternalFlags().isFirstNameExternal());
         assertFalse(user.getExternalFlags().isLastNameExternal());
         assertFalse(user.getExternalFlags().isEmailVerified());
-        final int expectedFeatures = UserExternalFlags.builder().getRawFeatures();
+        final var expectedFeatures = UserExternalFlags.builder().getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getSelect());
@@ -95,10 +94,10 @@ class UserManagementTest {
         userService.addUser("jdoe", "John", "Doe", "qwerty", "jdoe@test", "John Doe");
         assertNull(userService.getUser("jdoe").getLastLoginTime());
 
-        Instant before = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        var before = Instant.now().truncatedTo(ChronoUnit.SECONDS);
         userService.recordLastLoginTime("jdoe");
 
-        Instant lastLoginTime = userService.getUser("jdoe").getLastLoginTime();
+        var lastLoginTime = userService.getUser("jdoe").getLastLoginTime();
         assertNotNull(lastLoginTime);
         assertFalse(lastLoginTime.isBefore(before));
     }
@@ -112,7 +111,7 @@ class UserManagementTest {
     @Test
     void testSyncNewUser() {
         userService.syncUserData("jdoe", "John", "Doe", "jdoe@test", "John Doe");
-        User user = userService.getUser("jdoe");
+        var user = userService.getUser("jdoe");
         assertNotNull(user);
         assertEquals("jdoe", user.getUsername());
         assertEquals("John", user.getFirstName());
@@ -126,7 +125,7 @@ class UserManagementTest {
         assertTrue(user.getExternalFlags().isFirstNameExternal());
         assertTrue(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
-        final int expectedFeatures = UserExternalFlags.builder()
+        final var expectedFeatures = UserExternalFlags.builder()
                 .withFeature(Feature.EXTERNAL_DISPLAY_NAME)
                 .withFeature(Feature.EXTERNAL_LAST_NAME)
                 .withFeature(Feature.EXTERNAL_FIRST_NAME)
@@ -144,7 +143,7 @@ class UserManagementTest {
     void testSyncUser() {
         userService.addUser("jdoe", "John", "Doe", "qwerty", "jdoe@test", "John Doe");
         userService.syncUserData("jdoe", "John2", "Doe3", "jdoe@test4", "John Doe5");
-        User user = userService.getUser("jdoe");
+        var user = userService.getUser("jdoe");
         assertNotNull(user);
         assertEquals("jdoe", user.getUsername());
         assertEquals("John2", user.getFirstName());
@@ -158,7 +157,7 @@ class UserManagementTest {
         assertTrue(user.getExternalFlags().isFirstNameExternal());
         assertTrue(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
-        final int expectedFeatures = UserExternalFlags.builder()
+        final var expectedFeatures = UserExternalFlags.builder()
                 .withFeature(Feature.EXTERNAL_DISPLAY_NAME)
                 .withFeature(Feature.EXTERNAL_LAST_NAME)
                 .withFeature(Feature.EXTERNAL_FIRST_NAME)
@@ -177,7 +176,7 @@ class UserManagementTest {
     void testReSyncUser() {
         userService.syncUserData("jdoe", "John", "Doe", "jdoe@test", "Doe John");
         userService.syncUserData("jdoe", "John2", "Doe3", null, null);
-        User user = userService.getUser("jdoe");
+        var user = userService.getUser("jdoe");
         assertNotNull(user);
         assertEquals("jdoe", user.getUsername());
         assertEquals("John2", user.getFirstName());
@@ -191,7 +190,7 @@ class UserManagementTest {
         assertTrue(user.getExternalFlags().isFirstNameExternal());
         assertTrue(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
-        final int expectedFeatures = UserExternalFlags.builder()
+        final var expectedFeatures = UserExternalFlags.builder()
                 .withoutFeature(Feature.EXTERNAL_DISPLAY_NAME)
                 .withFeature(Feature.EXTERNAL_LAST_NAME)
                 .withFeature(Feature.EXTERNAL_FIRST_NAME)
@@ -210,7 +209,7 @@ class UserManagementTest {
     void testReSyncNullUser() {
         userService.syncUserData("jdoe", "John", "Doe", "jdoe@test", "Jon Doe");
         userService.syncUserData("jdoe", null, null, null, null);
-        User user = userService.getUser("jdoe");
+        var user = userService.getUser("jdoe");
         assertNotNull(user);
         assertEquals("jdoe", user.getUsername());
         assertEquals("John", user.getFirstName());
@@ -223,7 +222,7 @@ class UserManagementTest {
         assertFalse(user.getExternalFlags().isFirstNameExternal());
         assertFalse(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
-        final int expectedFeatures = UserExternalFlags.builder()
+        final var expectedFeatures = UserExternalFlags.builder()
                 .withoutFeature(Feature.EXTERNAL_DISPLAY_NAME)
                 .withoutFeature(Feature.EXTERNAL_LAST_NAME)
                 .withoutFeature(Feature.EXTERNAL_FIRST_NAME)

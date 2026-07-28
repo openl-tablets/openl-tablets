@@ -29,14 +29,14 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         if (dim > 0) {
             componentTypeArrayOpenClass = new ComponentTypeArrayOpenClass(componentClass);
         }
-        for (int i = 0; i < dim - 1; i++) {
+        for (var i = 0; i < dim - 1; i++) {
             componentTypeArrayOpenClass = new ComponentTypeArrayOpenClass(componentTypeArrayOpenClass);
         }
         return componentTypeArrayOpenClass;
     }
 
     public ComponentTypeArrayOpenClass(IOpenClass componentClass) {
-        IOpenField lengthOpenField = new ComponentTypeArrayLengthOpenField();
+        var lengthOpenField = new ComponentTypeArrayLengthOpenField();
         this.componentClass = componentClass;
         this.fieldMap = new HashMap<>(1);
         this.fieldMap.put(lengthOpenField.getName(), lengthOpenField);
@@ -112,7 +112,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     }
 
     private static String createJavaName(IOpenClass componentClass) {
-        String componentName = componentClass.getJavaName();
+        var componentName = componentClass.getJavaName();
         if (componentName.charAt(0) == '[') {
             return '[' + componentName;
         } else {
@@ -155,7 +155,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
             return false;
         }
 
-        ComponentTypeArrayOpenClass that = (ComponentTypeArrayOpenClass) o;
+        var that = (ComponentTypeArrayOpenClass) o;
         return Objects.equals(componentClass, that.componentClass);
     }
 

@@ -2,7 +2,6 @@ package org.openl.ie.constrainer.impl;
 
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.ConstrainerObjectImpl;
-import org.openl.ie.constrainer.Undo;
 import org.openl.ie.constrainer.Undoable;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,7 +44,7 @@ public abstract class UndoableOnceImpl extends ConstrainerObjectImpl implements 
     public void addUndo() {
         if (!_undone) {
             _undone = true;
-            Undo undo_object = createUndo();
+            var undo_object = createUndo();
             undo_object.undoable(this);
             // Debug.on();Debug.print("add " + undo_object);Debug.off();
             // constrainer().addUndo(undo_object);

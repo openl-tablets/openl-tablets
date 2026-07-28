@@ -75,7 +75,7 @@ public final class AlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSub
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AlgorithmSubroutineMethodWrapper that = (AlgorithmSubroutineMethodWrapper) o;
+        var that = (AlgorithmSubroutineMethodWrapper) o;
         return delegate.equals(that.delegate);
     }
 

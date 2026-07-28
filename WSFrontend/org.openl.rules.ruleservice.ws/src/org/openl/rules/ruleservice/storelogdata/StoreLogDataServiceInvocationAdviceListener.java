@@ -36,11 +36,11 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                         Instantiator postProcessAdvice,
                         Predicate<PrepareStoreLogData> predicate) {
 
-        PrepareStoreLogData[] annotations = interfaceMethod.getAnnotationsByType(PrepareStoreLogData.class);
-        Collection<Runnable> destroyFunctions = new ArrayList<>();
+        var annotations = interfaceMethod.getAnnotationsByType(PrepareStoreLogData.class);
+        var destroyFunctions = new ArrayList<Runnable>();
         try {
             StoreLogData storeLogData = StoreLogDataHolder.get();
-            IdentityHashMap<Inject<?>, Object> cache = new IdentityHashMap<>();
+            var cache = new IdentityHashMap<Inject<?>, Object>();
             for (PrepareStoreLogData storeLogging : annotations) {
                 if (predicate.test(storeLogging)) {
                     StoreLogDataAdvice storeLogDataAdvice = null;
@@ -50,7 +50,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                         injectObjectSerializer(storeLogData.getObjectSerializer(), storeLogDataAdvice);
                         processAwareInterfaces(interfaceMethod, storeLogDataAdvice, cache, destroyFunctions);
                     } catch (Exception e) {
-                        String msg = "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.".formatted(
+                        var msg = "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.".formatted(
                                 MethodUtil.printQualifiedMethodName(interfaceMethod),
                                 clazz.getTypeName());
                         log.error(msg, e);
@@ -108,10 +108,10 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
         if (annotationClass != null) {
             Class<?> cls = target.getClass();
             Object resource = null;
-            boolean initialized = false;
+            var initialized = false;
             while (cls != Object.class) {
                 for (Field field : cls.getDeclaredFields()) {
-                    Annotation annotation = field.getAnnotation(annotationClass);
+                    var annotation = field.getAnnotation(annotationClass);
                     if (annotation != null) {
                         if (!initialized) {
                             resource = supplier.apply(annotation);
@@ -127,7 +127,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             }
             for (Method method : target.getClass().getMethods()) {
                 if (method.getParameterCount() == 1) {
-                    Annotation annotation = method.getAnnotation(annotationClass);
+                    var annotation = method.getAnnotation(annotationClass);
                     if (annotation != null) {
                         if (!initialized) {
                             resource = supplier.apply(annotation);

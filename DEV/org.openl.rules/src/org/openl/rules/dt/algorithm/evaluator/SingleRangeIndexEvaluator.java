@@ -1,7 +1,6 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
@@ -24,21 +23,21 @@ public class SingleRangeIndexEvaluator extends ARangeIndexEvaluator {
         if (it.size() < 1) {
             return null;
         }
-        List<IndexNode> nodes = new ArrayList<>(it.size());
-        DecisionTableRuleNodeBuilder emptyRulesBuilder = new DecisionTableRuleNodeBuilder();
-        DecisionTableRuleNodeBuilder nextNodeBuilder = new DecisionTableRuleNodeBuilder();
-        boolean isNaturalOrder = true;
+        var nodes = new ArrayList<IndexNode>(it.size());
+        var emptyRulesBuilder = new DecisionTableRuleNodeBuilder();
+        var nextNodeBuilder = new DecisionTableRuleNodeBuilder();
+        var isNaturalOrder = true;
         while (it.hasNext()) {
-            int ruleN = it.nextInt();
+            var ruleN = it.nextInt();
             nextNodeBuilder.addRule(ruleN);
             if (condition.isEmpty(ruleN)) {
                 emptyRulesBuilder.addRule(ruleN);
                 continue;
             }
 
-            Object origVal = condition.getParamValue(0, ruleN);
-            Comparable<Object> vFrom = rangeAdaptor.getMin(origVal);
-            Comparable<Object> vTo = rangeAdaptor.getMax(origVal);
+            var origVal = condition.getParamValue(0, ruleN);
+            var vFrom = rangeAdaptor.<Object>getMin(origVal);
+            var vTo = rangeAdaptor.<Object>getMax(origVal);
             if (vFrom != null) {
                 nodes.add(new IndexNode(vFrom, ruleN));
                 isNaturalOrder = true;
@@ -48,9 +47,9 @@ public class SingleRangeIndexEvaluator extends ARangeIndexEvaluator {
             }
         }
 
-        List<IndexNode> result = mergeRulesByValue(nodes);
-        RangeIndexNodeAdaptor indexNodeAdaptor = new RangeIndexNodeAdaptor(rangeAdaptor);
-        int[] emptyRules = emptyRulesBuilder.makeNode().getRules();
+        var result = mergeRulesByValue(nodes);
+        var indexNodeAdaptor = new RangeIndexNodeAdaptor(rangeAdaptor);
+        var emptyRules = emptyRulesBuilder.makeNode().getRules();
         if (isNaturalOrder) {
             return new RangeAscIndex(nextNodeBuilder.makeNode(), result, indexNodeAdaptor, emptyRules);
         } else {

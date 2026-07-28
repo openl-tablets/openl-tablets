@@ -88,8 +88,8 @@ public final class Covar {
         if (inputStats == null) {
             return null;
         }
-        Double avgX = inputStats.getAvgX();
-        Double avgY = inputStats.getAvgY();
+        var avgX = inputStats.getAvgX();
+        var avgY = inputStats.getAvgY();
         return biProcess(inputStats.y, inputStats.x, new Result<>() {
             @Override
             public void processNonNull(Double y, Double x) {
@@ -108,8 +108,8 @@ public final class Covar {
         if (inputStats == null) {
             return null;
         }
-        Float avgX = inputStats.getAvgX();
-        Float avgY = inputStats.getAvgY();
+        var avgX = inputStats.getAvgX();
+        var avgY = inputStats.getAvgY();
         return biProcess(inputStats.y, inputStats.x, new Result<>() {
             @Override
             public void processNonNull(Float y, Float x) {
@@ -128,8 +128,8 @@ public final class Covar {
         if (inputStats == null) {
             return null;
         }
-        BigDecimal avgX = inputStats.getAvgX();
-        BigDecimal avgY = inputStats.getAvgY();
+        var avgX = inputStats.getAvgX();
+        var avgY = inputStats.getAvgY();
         return biProcess(inputStats.y, inputStats.x, new Result<>() {
             @Override
             public void processNonNull(BigDecimal y, BigDecimal x) {
@@ -173,8 +173,8 @@ public final class Covar {
         if (inputStats == null) {
             return null;
         }
-        Double avgX = inputStats.getAvgX();
-        Double avgY = inputStats.getAvgY();
+        var avgX = inputStats.getAvgX();
+        var avgY = inputStats.getAvgY();
         return biProcess(inputStats.y, inputStats.x, new Result<Number, Double>() {
             @Override
             public void processNonNull(Number y, Number x) {
@@ -234,8 +234,8 @@ public final class Covar {
         if (inputStats == null) {
             return null;
         }
-        BigDecimal avgX = inputStats.getAvgX();
-        BigDecimal avgY = inputStats.getAvgY();
+        var avgX = inputStats.getAvgX();
+        var avgY = inputStats.getAvgY();
         return biProcess(inputStats.y, inputStats.x, new Result<>() {
             @Override
             public void processNonNull(BigDecimal y, BigDecimal x) {
@@ -253,8 +253,8 @@ public final class Covar {
         if (inputStats == null) {
             return null;
         }
-        Float avgX = inputStats.getAvgX();
-        Float avgY = inputStats.getAvgY();
+        var avgX = inputStats.getAvgX();
+        var avgY = inputStats.getAvgY();
         return biProcess(inputStats.y, inputStats.x, new Result<>() {
             @Override
             public void processNonNull(Float y, Float x) {

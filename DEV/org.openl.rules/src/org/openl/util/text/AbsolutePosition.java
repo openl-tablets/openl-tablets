@@ -33,8 +33,8 @@ public class AbsolutePosition implements IPosition {
      */
     @Override
     public int getColumn(TextInfo info) {
-        int line = info.getLineIdx(pos);
-        int start = info.getPosition(line);
+        var line = info.getLineIdx(pos);
+        var start = info.getPosition(line);
 
         return pos - start + 1;
     }

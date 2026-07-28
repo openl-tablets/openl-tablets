@@ -17,7 +17,7 @@ public class SpreadsheetResultRootDictionaryContext extends RootDictionaryContex
         List<IOpenField> ff = strictMatch ? fields.get(name) : lowerCaseFields.get(name);
 
         if (ff == null) {
-            IOpenField field = getRootField().getType().getField(fieldName, strictMatch);
+            var field = getRootField().getType().getField(fieldName, strictMatch);
             if (field != null) {
                 initializeField(getRootField(), field, 1);
                 ff = strictMatch ? fields.get(name) : lowerCaseFields.get(name);

@@ -1,7 +1,6 @@
 package org.openl.rules.table.xls.writers;
 
 import org.apache.poi.ss.usermodel.BuiltinFormats;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DateUtil;
 
@@ -17,13 +16,13 @@ public class XlsCellNumberWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
-        Number numberValue = (Number) getValueToWrite();
-        Cell cellToWrite = getCellToWrite();
+        var numberValue = (Number) getValueToWrite();
+        var cellToWrite = getCellToWrite();
         cellToWrite.setCellValue(numberValue.doubleValue());
 
         if (DateUtil.isCellDateFormatted(cellToWrite)) {
             // Previously the cell was formatted as a date. Change format to number.
-            CellStyle previousStyle = cellToWrite.getCellStyle();
+            var previousStyle = cellToWrite.getCellStyle();
             CellStyle newStyle = PoiExcelHelper
                     .createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook());
             cellToWrite.setCellStyle(newStyle);

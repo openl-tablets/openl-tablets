@@ -63,7 +63,7 @@ public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable 
             @Override
             public FileItem next() {
                 try {
-                    final Path path = it.next();
+                    final var path = it.next();
                     InputStream is = Files.newInputStream(path);
                     Optional<FileAdaptor> fileAdaptor = fileAdaptors.stream()
                             .filter(adaptor -> adaptor.accept(path))

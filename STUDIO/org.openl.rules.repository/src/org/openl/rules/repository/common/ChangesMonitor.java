@@ -62,7 +62,7 @@ public class ChangesMonitor implements Runnable {
     @Override
     public void run() {
         try {
-            Object currentChange = getRevision();
+            var currentChange = getRevision();
             if (currentChange == null) {
                 // Ignore unknown changes
                 return;
@@ -83,7 +83,7 @@ public class ChangesMonitor implements Runnable {
      * Call onChange() method in the listener;
      */
     public void fireOnChange() {
-        Listener listener = callback; // Copy for multi-thread
+        var listener = callback; // Copy for multi-thread
         try {
             if (listener != null) {
                 listener.onChange();

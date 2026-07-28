@@ -2,7 +2,6 @@ package org.openl.rules.lang.xls;
 
 import org.openl.IOpenParser;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -21,7 +20,7 @@ public class Parser implements IOpenParser {
     @Override
     public IParsedCode parseAsMethodBody(IOpenSourceCodeModule source) {
 
-        IGrammar grammar = createGrammar();
+        var grammar = createGrammar();
         grammar.setModule(source);
         grammar.parseAsMethod(source.getCharacterStream());
 
@@ -34,7 +33,7 @@ public class Parser implements IOpenParser {
     @Override
     public IParsedCode parseAsMethodHeader(IOpenSourceCodeModule source) {
 
-        IGrammar grammar = createGrammar();
+        var grammar = createGrammar();
         grammar.setModule(source);
         grammar.parseAsMethodHeader(source.getCharacterStream());
 
@@ -47,7 +46,7 @@ public class Parser implements IOpenParser {
     @Override
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
 
-        IGrammar grammar = createGrammar();
+        var grammar = createGrammar();
         grammar.setModule(source);
         grammar.parseAsModule(source.getCharacterStream());
 
@@ -60,7 +59,7 @@ public class Parser implements IOpenParser {
     @Override
     public IParsedCode parseAsType(IOpenSourceCodeModule source) {
 
-        IGrammar grammar = createGrammar();
+        var grammar = createGrammar();
         grammar.setModule(source);
         grammar.parseAsType(source.getCharacterStream());
 
@@ -76,9 +75,9 @@ public class Parser implements IOpenParser {
      */
     private ParsedCode makeParsedCode(IGrammar grammar, IOpenSourceCodeModule source) {
 
-        ISyntaxNode node = grammar.getTopNode();
+        var node = grammar.getTopNode();
 
-        SyntaxNodeException error = grammar.getError();
+        var error = grammar.getError();
         SyntaxNodeException[] nonNullError = error == null ? SyntaxNodeException.EMPTY_ARRAY
                 : new SyntaxNodeException[]{error};
         return new ParsedCode(node, source, nonNullError, null);
@@ -86,7 +85,7 @@ public class Parser implements IOpenParser {
 
     @Override
     public IParsedCode parseAsParameterDeclaration(IOpenSourceCodeModule source) {
-        IGrammar grammar = createGrammar();
+        var grammar = createGrammar();
         grammar.setModule(source);
         grammar.parseAsParamDeclaration(source.getCharacterStream());
 

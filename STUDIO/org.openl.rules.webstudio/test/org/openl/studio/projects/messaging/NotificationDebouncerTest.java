@@ -37,7 +37,7 @@ class NotificationDebouncerTest {
         var delivered = new AtomicInteger();
         var latch = new CountDownLatch(1);
 
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
             debouncer.debounce("user", () -> {
                 delivered.incrementAndGet();
                 latch.countDown();

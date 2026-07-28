@@ -1,6 +1,5 @@
 package org.openl.studio.rest.resolver;
 
-import java.lang.reflect.Method;
 import java.util.Optional;
 
 import org.springframework.core.MethodParameter;
@@ -22,27 +21,27 @@ public class PageValueArgumentResolver extends AbstractPaginationValueArgumentRe
 
     @Override
     protected Pageable handleValue(MethodParameter parameter, NativeWebRequest webRequest) {
-        Optional<Page> def = Optional.ofNullable(getDefaultFromAnnotation(parameter));
-        Optional<Integer> page = Optional.ofNullable(parseParameter(webRequest, PAGE_QUERY_PARAM, 0));
-        Optional<Integer> size = Optional.ofNullable(parseParameter(webRequest, PAGE_SIZE_QUERY_PARAM, 1));
+        var def = Optional.ofNullable(getDefaultFromAnnotation(parameter));
+        var page = Optional.ofNullable(parseParameter(webRequest, PAGE_QUERY_PARAM, 0));
+        var size = Optional.ofNullable(parseParameter(webRequest, PAGE_SIZE_QUERY_PARAM, 1));
         if (def.isEmpty() && size.isEmpty() && page.isEmpty()) {
             return Page.unpaged();
         }
 
-        int pageNumber = page.orElseGet(() -> def.map(Page::getPageNumber).orElse(0));
-        int pageSize = size.orElseGet(() -> def.map(Page::getPageSize).orElse(DEFAULT_PAGE_SIZE));
+        var pageNumber = page.orElseGet(() -> def.map(Page::getPageNumber).orElse(0));
+        var pageSize = size.orElseGet(() -> def.map(Page::getPageSize).orElse(DEFAULT_PAGE_SIZE));
 
         return Page.of(pageNumber, pageSize);
     }
 
     private Page getDefaultFromAnnotation(MethodParameter parameter) {
-        PaginationDefault defaultAnno = parameter.getParameterAnnotation(PaginationDefault.class);
+        var defaultAnno = parameter.getParameterAnnotation(PaginationDefault.class);
         if (defaultAnno == null) {
             return null;
         }
-        int page = defaultAnno.page();
+        var page = defaultAnno.page();
         if (page < 0) {
-            Method annotatedMethod = parameter.getMethod();
+            var annotatedMethod = parameter.getMethod();
             throw new IllegalStateException(
                     "Invalid default page number configured for method '%s'. Must not be less than zero.".formatted(
                             annotatedMethod));

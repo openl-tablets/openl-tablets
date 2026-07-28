@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,11 +49,11 @@ class Base62GeneratorTest {
     void generate_uniquenessProbabilistic() {
         // This is a probabilistic test. With length=16 base62 (~95 bits), collisions in 10k samples
         // are astronomically unlikely. If this ever flakes, something is seriously wrong (or RNG is broken).
-        int samples = 10_000;
-        int length = 16;
+        var samples = 10_000;
+        var length = 16;
 
-        Set<String> seen = new HashSet<>(samples * 2);
-        for (int i = 0; i < samples; i++) {
+        var seen = new HashSet<String>(samples * 2);
+        for (var i = 0; i < samples; i++) {
             String s = Base62Generator.generate(length);
             assertTrue(seen.add(s), "Collision detected at sample " + i + ": " + s);
         }
@@ -64,19 +62,19 @@ class Base62GeneratorTest {
     @Test
     @DisplayName("generate(length) is safe under concurrency (no exceptions, correct format)")
     void generate_concurrentUsage() throws Exception {
-        int threads = Math.max(4, Runtime.getRuntime().availableProcessors());
-        int tasks = 20_000;
-        int length = 24;
+        var threads = Math.max(4, Runtime.getRuntime().availableProcessors());
+        var tasks = 20_000;
+        var length = 24;
 
         ExecutorService pool = Executors.newFixedThreadPool(threads);
         try {
-            CompletionService<String> cs = new ExecutorCompletionService<>(pool);
-            for (int i = 0; i < tasks; i++) {
+            var cs = new ExecutorCompletionService<String>(pool);
+            for (var i = 0; i < tasks; i++) {
                 cs.submit(() -> Base62Generator.generate(length));
             }
 
-            for (int i = 0; i < tasks; i++) {
-                String s = cs.take().get(10, TimeUnit.SECONDS);
+            for (var i = 0; i < tasks; i++) {
+                var s = cs.take().get(10, TimeUnit.SECONDS);
                 assertNotNull(s);
                 assertEquals(length, s.length());
                 assertTrue(s.matches(BASE62_REGEX), "Generated string contains non-base62 characters: " + s);

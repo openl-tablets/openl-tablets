@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import lombok.extern.slf4j.Slf4j;
@@ -110,8 +109,8 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     }
 
     private void addLocations() {
-        String[] lc = resolvePlaceholders("${openl.config.location}");
-        String[] nm = resolvePlaceholders("${openl.config.name}");
+        var lc = resolvePlaceholders("${openl.config.location}");
+        var nm = resolvePlaceholders("${openl.config.name}");
         for (String location : lc) {
             if (location.endsWith("/") || location.endsWith("\\") || location.endsWith(":")) {
                 // Folder, schema root, Windows disk.
@@ -126,7 +125,7 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     }
 
     private String[] resolvePlaceholders(String value) {
-        String resolved = resolver.resolvePlaceholders(value);
+        var resolved = resolver.resolvePlaceholders(value);
         if (StringUtils.isBlank(resolved)) {
             ConfigLog.LOG.debug("!       Empty: '{}'", value);
             return StringUtils.EMPTY_STRING_ARRAY;
@@ -177,7 +176,7 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
         for (Resource resource : resources) {
             try {
                 if (resource.exists()) {
-                    Map<String, String> props = new HashMap<>();
+                    var props = new HashMap<String, String>();
                     try (var in = resource.getInputStream()) {
                         PropertiesUtils.load(in, props::put);
                     }
@@ -200,9 +199,9 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     @Override
     public Object getProperty(String name) {
 
-        Object propertyInternal = getPropertyInternal(name);
+        var propertyInternal = getPropertyInternal(name);
         if (propertyInternal != null) {
-            String value = propertyInternal.toString();
+            var value = propertyInternal.toString();
             value = StringUtils.trimToEmpty(value);
             return DynamicPropertySource.decode(value);
         }
@@ -210,7 +209,7 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     }
 
     private Object getPropertyInternal(String name) {
-        Object candidate = profiledSource.get(name);
+        var candidate = profiledSource.get(name);
         if (candidate != null) {
             return candidate;
         }
@@ -224,7 +223,7 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
 
     @Override
     public String[] getPropertyNames() {
-        Set<String> names = new TreeSet<>();
+        var names = new TreeSet<String>();
         names.addAll(profiledSource.keySet());
         names.addAll(source.keySet());
         return names.toArray(StringUtils.EMPTY_STRING_ARRAY);

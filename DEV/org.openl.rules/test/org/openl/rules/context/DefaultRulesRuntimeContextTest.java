@@ -14,15 +14,15 @@ class DefaultRulesRuntimeContextTest {
 
     @Test
     void testClone() throws CloneNotSupportedException {
-        final Date requestDate = new Date();
-        final Date currentDate = new Date();
-        final String lob = "UL";
+        final var requestDate = new Date();
+        final var currentDate = new Date();
+        final var lob = "UL";
 
-        final DefaultRulesRuntimeContext original = new DefaultRulesRuntimeContext();
+        final var original = new DefaultRulesRuntimeContext();
         original.setCurrentDate(currentDate);
         original.setRequestDate(requestDate);
 
-        final DefaultRulesRuntimeContext cloned = (DefaultRulesRuntimeContext) original.clone();
+        final var cloned = (DefaultRulesRuntimeContext) original.clone();
         assertNotSame(original, cloned);
         assertSame(currentDate, original.getCurrentDate());
         assertSame(currentDate, original.getValue("currentDate"));

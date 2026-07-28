@@ -29,7 +29,7 @@ final class FilePaths {
         if (path == null) {
             return "";
         }
-        int slash = path.lastIndexOf('/');
+        var slash = path.lastIndexOf('/');
         return slash < 0 ? "" : path.substring(0, slash);
     }
 
@@ -40,7 +40,7 @@ final class FilePaths {
         if (value == null) {
             return null;
         }
-        int start = 0;
+        var start = 0;
         while (start < value.length() && value.charAt(start) == '/') {
             start++;
         }
@@ -54,8 +54,8 @@ final class FilePaths {
         if (value == null) {
             return "";
         }
-        int start = 0;
-        int end = value.length();
+        var start = 0;
+        var end = value.length();
         while (start < end && value.charAt(start) == '/') {
             start++;
         }

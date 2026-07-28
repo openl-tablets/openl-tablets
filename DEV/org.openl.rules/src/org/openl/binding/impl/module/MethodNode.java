@@ -53,9 +53,9 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      */
     @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
-        MethodBindingContext mbc = new MethodBindingContext(deferredMethod, cxt);
+        var mbc = new MethodBindingContext(deferredMethod, cxt);
 
-        ISyntaxNode bodyNode = deferredMethod.getMethodBodyNode();
+        var bodyNode = deferredMethod.getMethodBodyNode();
 
         IBoundNode boundBodyNode = ANodeBinder.bindChildNode(bodyNode, mbc);
         deferredMethod.setMethodBodyBoundNode((IBoundMethodNode) boundBodyNode);

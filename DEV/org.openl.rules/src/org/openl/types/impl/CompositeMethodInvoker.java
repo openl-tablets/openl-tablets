@@ -3,7 +3,6 @@ package org.openl.types.impl;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.openl.IOpenRunner;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ABoundNode;
@@ -33,7 +32,7 @@ public class CompositeMethodInvoker implements Invokable {
     private void optimizeMethodCall(IBoundMethodNode methodBodyBoundNode, CompositeMethod method) {
 
         if (methodBodyBoundNode instanceof BlockNode mbb) {
-            IBoundNode[] children = mbb.getChildren();
+            var children = mbb.getChildren();
             if (children != null && children.length == 1 && mbb.getLocalFrameSize() == method.getSignature()
                     .getNumberOfParameters()) {
                 expressionNode = children[0];
@@ -58,7 +57,7 @@ public class CompositeMethodInvoker implements Invokable {
         if (boundNode instanceof ABoundNode node) {
             node.setSyntaxNode(null);
         }
-        IBoundNode[] children = boundNode.getChildren();
+        var children = boundNode.getChildren();
         if (children != null) {
             for (IBoundNode child : children) {
                 if (child != null) {
@@ -72,7 +71,7 @@ public class CompositeMethodInvoker implements Invokable {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
             env.pushThis(target);
-            IOpenRunner runner = env.getRunner();
+            var runner = env.getRunner();
 
             return expressionNode == null ? runner.run(methodBodyBoundNode, params, env)
                     : runner.runExpression(expressionNode, params, env);

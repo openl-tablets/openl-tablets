@@ -138,8 +138,8 @@ class FloorDivTest {
     @Test
     void floorDivBigIntegerLarge() {
         // floor(-N/97) where N is > long range. For N positive, divisor positive: floor == trunc.
-        BigInteger dividend = new BigInteger("203000745502000030060144252100");
-        BigInteger expected = new BigInteger("2092791190742268351135507753");
+        var dividend = new BigInteger("203000745502000030060144252100");
+        var expected = new BigInteger("2092791190742268351135507753");
         assertEquals(expected, FloorDiv.floorDiv(dividend, BigInteger.valueOf(97)));
         // Opposite-sign case: remainder is 59 (non-zero), so floor == trunc - 1.
         assertEquals(expected.negate().subtract(BigInteger.ONE), FloorDiv.floorDiv(dividend, BigInteger.valueOf(-97)));

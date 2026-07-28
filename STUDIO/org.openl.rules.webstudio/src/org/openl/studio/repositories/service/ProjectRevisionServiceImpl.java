@@ -78,7 +78,7 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
             throw new NotFoundException("repository.branch.message");
         }
         branch = branch.replace(' ', '/');
-        BranchRepository branchRepo = ((BranchRepository) repository);
+        var branchRepo = ((BranchRepository) repository);
         if (!branchRepo.branchExists(branch)) {
             throw new NotFoundException("repository.branch.message");
         }

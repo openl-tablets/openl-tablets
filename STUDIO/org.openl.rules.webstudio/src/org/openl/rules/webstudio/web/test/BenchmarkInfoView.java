@@ -39,11 +39,11 @@ public class BenchmarkInfoView {
 
     private static String printDouble(double d) {
         if (d >= 1000) {
-            DecimalFormat fmt = new DecimalFormat("#,##0");
+            var fmt = new DecimalFormat("#,##0");
             return fmt.format(d);
         }
         if (d >= 1) {
-            DecimalFormat fmt = new DecimalFormat("#,##0.00");
+            var fmt = new DecimalFormat("#,##0.00");
             return fmt.format(d);
         }
 
@@ -68,7 +68,7 @@ public class BenchmarkInfoView {
     }
 
     private static String printLargeDouble(double d) {
-        DecimalFormat fmt = new DecimalFormat("#,##0");
+        var fmt = new DecimalFormat("#,##0");
         return fmt.format(d);
     }
 

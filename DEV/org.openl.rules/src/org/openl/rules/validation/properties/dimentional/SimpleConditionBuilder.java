@@ -42,7 +42,7 @@ public class SimpleConditionBuilder extends AConditionBuilder {
 
     @Override
     protected void writeRuleValue(IWritableGrid sheet, int numberOfRules, int columnStartIndex, int rowStartIndex) {
-        for (int i = 0; i < numberOfRules; i++) {
+        for (var i = 0; i < numberOfRules; i++) {
             sheet.setCellValue(columnStartIndex,
                     rowStartIndex + DecisionTableBuilder.DECISION_TABLE_HEADER_ROWS_NUMBER + i,
                     getCondition().getRuleValue(i));

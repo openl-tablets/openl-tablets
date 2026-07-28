@@ -23,18 +23,18 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
 
     @Override
     protected Set<IDependencyLoader> initDependencyLoaders() {
-        Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
+        var dependencyLoaders = new HashSet<IDependencyLoader>();
         for (ProjectDescriptor project : projects) {
             try {
                 for (final Module m : project.getModules()) {
-                    final SimpleDependencyLoader moduleDependencyLoader = new SimpleDependencyLoader(project,
+                    final var moduleDependencyLoader = new SimpleDependencyLoader(project,
                             m,
                             executionMode,
                             this);
                     dependencyLoaders.add(moduleDependencyLoader);
                 }
 
-                final SimpleDependencyLoader projectDependencyLoader = new SimpleDependencyLoader(project,
+                final var projectDependencyLoader = new SimpleDependencyLoader(project,
                         null,
                         executionMode,
                         this);

@@ -12,8 +12,8 @@ import org.openl.vm.SimpleRuntimeEnv;
 class ServiceMTTest {
 
     private static int runOnce(ServiceMT serviceMT) {
-        AtomicInteger counter = new AtomicInteger();
-        SimpleRuntimeEnv env = new SimpleRuntimeEnv();
+        var counter = new AtomicInteger();
+        var env = new SimpleRuntimeEnv();
         serviceMT.execute(env, e -> counter.incrementAndGet());
         serviceMT.join(env);
         return counter.get();

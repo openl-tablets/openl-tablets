@@ -44,9 +44,9 @@ public class TestsExecutionSummaryResponseMapper {
     }
 
     public void calculateSummaryStats(List<TestUnitsResults> testUnitsResults, TestsExecutionSummary.Builder builder) {
-        double executionTimeMs = 0;
-        int numberOfTests = 0;
-        int numberOfFailures = 0;
+        var executionTimeMs = 0D;
+        var numberOfTests = 0;
+        var numberOfFailures = 0;
         for (TestUnitsResults testCase : testUnitsResults) {
             executionTimeMs += testCase.getExecutionTime() / NANOS_IN_MILLISECOND;
             numberOfTests += testCase.getNumberOfTestUnits();

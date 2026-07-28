@@ -48,9 +48,9 @@ public abstract class AOpenClass implements IOpenClass {
     private void addFieldToLowerCaseMaps(IOpenField f,
                                          Map<String, IOpenField> uniqueLCaseFieldMap,
                                          Map<String, List<IOpenField>> nonUniqueLCaseFieldMap) {
-        String lname = f.getName().toLowerCase().replace(" ", "");
+        var lname = f.getName().toLowerCase().replace(" ", "");
         if (uniqueLCaseFieldMap.containsKey(lname)) {
-            List<IOpenField> ff = new ArrayList<>(2);
+            var ff = new ArrayList<IOpenField>(2);
             ff.add(uniqueLCaseFieldMap.get(lname));
             ff.add(f);
             nonUniqueLCaseFieldMap.put(lname, ff);
@@ -73,7 +73,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     @Override
     public Collection<IOpenField> getFields() {
-        Collection<IOpenField> fields = new ArrayList<>();
+        var fields = new ArrayList<IOpenField>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
             fields.addAll(superClass.getFields());
@@ -91,8 +91,8 @@ public abstract class AOpenClass implements IOpenClass {
         if (dim > 0) {
             IOpenClass arrayType = ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(openClass, dim);
             if (openClass.getDomain() != null) {
-                StringBuilder domainOpenClassName = new StringBuilder(openClass.getName());
-                for (int j = 0; j < dim; j++) {
+                var domainOpenClassName = new StringBuilder(openClass.getName());
+                for (var j = 0; j < dim; j++) {
                     domainOpenClassName.append("[]");
                 }
                 return new DomainOpenClass(domainOpenClassName.toString(),
@@ -144,7 +144,7 @@ public abstract class AOpenClass implements IOpenClass {
             }
         }
 
-        String lfname = fname.toLowerCase();
+        var lfname = fname.toLowerCase();
 
         f = getUniqueLowerCaseFieldMap().get(lfname);
         if (f != null) {
@@ -180,7 +180,7 @@ public abstract class AOpenClass implements IOpenClass {
     @Override
     public IOpenMethod getConstructor(IOpenClass[] params) {
         Map<MethodKey, IOpenMethod> m = constructorMap();
-        MethodKey methodKey = new MethodKey(params);
+        var methodKey = new MethodKey(params);
         return m.get(methodKey);
     }
 
@@ -192,7 +192,7 @@ public abstract class AOpenClass implements IOpenClass {
     @Override
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
 
-        IOpenMethod method = getDeclaredMethod(name, classes);
+        var method = getDeclaredMethod(name, classes);
 
         // If method is not found try to find it in parent classes.
         //
@@ -262,8 +262,8 @@ public abstract class AOpenClass implements IOpenClass {
 
     private synchronized void makeLowerCaseMaps() {
         if (uniqueLowerCaseFieldMap == null || nonUniqueLowerCaseFieldMap == null) {
-            Map<String, IOpenField> uniqueLCaseFieldMap = new HashMap<>();
-            Map<String, List<IOpenField>> nonUniqueLCaseFieldMap = new HashMap<>();
+            var uniqueLCaseFieldMap = new HashMap<String, IOpenField>();
+            var nonUniqueLCaseFieldMap = new HashMap<String, List<IOpenField>>();
             for (IOpenField field : getFields()) {
                 addFieldToLowerCaseMaps(field, uniqueLCaseFieldMap, nonUniqueLCaseFieldMap);
             }
@@ -316,20 +316,20 @@ public abstract class AOpenClass implements IOpenClass {
                 }
             }
         }
-        MethodKey key = new MethodKey(method);
+        var key = new MethodKey(method);
         return methodMap.put(key, method);
     }
 
     protected void removeMethod(IOpenMethod method) {
         if (methodMap != null) {
-            MethodKey key = new MethodKey(method);
+            var key = new MethodKey(method);
             methodMap.remove(key);
             invalidateInternalData();
         }
     }
 
     public void addMethod(IOpenMethod method) throws DuplicatedMethodException {
-        final IOpenMethod existMethod = putMethod(method);
+        final var existMethod = putMethod(method);
         if (existMethod != null) {
             throw new DuplicatedMethodException("Method '%s' is already defined in class '%s'"
                     .formatted(method, getName()), existMethod, method);
@@ -361,7 +361,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     private Collection<IOpenMethod> buildAllMethods() {
-        Map<MethodKey, IOpenMethod> methods = new HashMap<>();
+        var methods = new HashMap<MethodKey, IOpenMethod>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
             for (IOpenMethod method : superClass.getMethods()) {
@@ -380,7 +380,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     public IOpenMethod getDeclaredMethod(String name, IOpenClass[] classes) {
         Map<MethodKey, IOpenMethod> m = methodMap();
-        MethodKey methodKey = new MethodKey(name, classes);
+        var methodKey = new MethodKey(name, classes);
         return m.get(methodKey);
     }
 
@@ -438,7 +438,7 @@ public abstract class AOpenClass implements IOpenClass {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        AOpenClass that = (AOpenClass) o;
+        var that = (AOpenClass) o;
         if (getInstanceClass() != null || that.getInstanceClass() != null) {
             return Objects.equals(getInstanceClass(), that.getInstanceClass());
         }
@@ -488,11 +488,11 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     public static Map<String, List<IOpenMethod>> buildMethodNameMap(Iterable<IOpenMethod> methods) {
-        Map<String, List<IOpenMethod>> res = new HashMap<>();
+        var res = new HashMap<String, List<IOpenMethod>>();
 
         for (IOpenMethod m : methods) {
-            String name = m.getName();
-            List<IOpenMethod> list = res.computeIfAbsent(name, e -> new LinkedList<>());
+            var name = m.getName();
+            var list = res.computeIfAbsent(name, e -> new LinkedList<>());
             list.add(m);
         }
 

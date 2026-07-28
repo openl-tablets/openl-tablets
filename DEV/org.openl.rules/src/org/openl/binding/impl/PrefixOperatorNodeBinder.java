@@ -30,9 +30,9 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
             return makeErrorNode("Prefix node must have 1 subnode", node, bindingContext);
         }
 
-        int index = node.getType().lastIndexOf('.');
+        var index = node.getType().lastIndexOf('.');
 
-        String methodName = node.getType().substring(index + 1);
+        var methodName = node.getType().substring(index + 1);
         IBoundNode[] children = bindChildren(node, bindingContext);
 
         if (!children[0].isLvalue()) {
@@ -48,7 +48,7 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
             return makeErrorNode(message, node, bindingContext);
         }
 
-        IOpenClass methodType = methodCaller.getMethod().getType();
+        var methodType = methodCaller.getMethod().getType();
 
         if (ClassUtils.primitiveToWrapper(methodType.getInstanceClass()) != ClassUtils
                 .primitiveToWrapper(types[0].getInstanceClass())) {

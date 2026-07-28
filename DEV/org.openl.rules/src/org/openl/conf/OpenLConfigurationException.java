@@ -24,7 +24,7 @@ public class OpenLConfigurationException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        String myMsg = super.getMessage();
+        var myMsg = super.getMessage();
 
         if (myMsg == null) {
             myMsg = "";

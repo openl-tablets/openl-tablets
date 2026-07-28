@@ -9,7 +9,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
-import java.util.Collection;
 
 import org.junit.jupiter.api.Test;
 
@@ -23,8 +22,8 @@ class ZipCharsetDetectorTest {
         assumeCharsetSupported("IBM866");
 
         String[] charsetNames = {"windows-1252", "windows-1251", "IBM866"};
-        ZipCharsetDetector detector = new ZipCharsetDetector(charsetNames, null);
-        Charset charset = detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML)));
+        var detector = new ZipCharsetDetector(charsetNames, null);
+        var charset = detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML)));
 
         assertEquals(Charset.forName("IBM866"), charset);
     }
@@ -37,10 +36,10 @@ class ZipCharsetDetectorTest {
         // In testing zip the file main.xls is absent but added core.xls. Still can detect charset despite that
         // all file names aren't equal.
         String[] charsetNames = {"IBM437", "windows-1251", "IBM866"};
-        ZipCharsetDetector detector = new ZipCharsetDetector(charsetNames, null);
+        var detector = new ZipCharsetDetector(charsetNames, null);
 
-        Collection<String> filesInWorkspace = Arrays.asList("datatypes.xls", "main.xls", "Основное.xls");
-        Charset charset = detector.detectCharset(new ZipFromFile(new File(TEST_WORKSPACE)), filesInWorkspace);
+        var filesInWorkspace = Arrays.asList("datatypes.xls", "main.xls", "Основное.xls");
+        var charset = detector.detectCharset(new ZipFromFile(new File(TEST_WORKSPACE)), filesInWorkspace);
 
         assertEquals(Charset.forName("IBM866"), charset);
     }
@@ -49,15 +48,15 @@ class ZipCharsetDetectorTest {
     void noNeedToDetectCharset() throws Exception {
         // This file can be unzipped using UTF-8
         String[] charsetNames = {"windows-1252", "IBM866"};
-        ZipCharsetDetector detector = new ZipCharsetDetector(charsetNames, null);
-        Charset charset = detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML_UTF_8)));
+        var detector = new ZipCharsetDetector(charsetNames, null);
+        var charset = detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML_UTF_8)));
         assertEquals(StandardCharsets.UTF_8, charset);
     }
 
     @Test
     void emptyCharsetList() throws Exception {
         // Forget to set charset list.
-        ZipCharsetDetector detector = new ZipCharsetDetector(null, null);
+        var detector = new ZipCharsetDetector(null, null);
 
         // Still can detect files with UTF-8 encoding
         assertEquals(StandardCharsets.UTF_8, detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML_UTF_8))));
@@ -71,8 +70,8 @@ class ZipCharsetDetectorTest {
 
         // If some charset does not exist in JVM, don't fail, just skip it.
         String[] charsetNames = {"not-exist-in-current-jvm", "IBM437"};
-        ZipCharsetDetector detector = new ZipCharsetDetector(charsetNames, null);
-        Charset charset = detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML)));
+        var detector = new ZipCharsetDetector(charsetNames, null);
+        var charset = detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML)));
 
         assertEquals(Charset.forName("IBM437"), charset);
     }

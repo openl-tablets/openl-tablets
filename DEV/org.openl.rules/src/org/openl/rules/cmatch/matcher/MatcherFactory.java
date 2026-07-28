@@ -47,7 +47,7 @@ public class MatcherFactory {
     }
 
     private static void registerBuilder(IMatcherBuilder builder) {
-        String operationName = builder.getName();
+        var operationName = builder.getName();
         List<IMatcherBuilder> builders = matcherBuilders.get(operationName);
 
         if (builders == null) {

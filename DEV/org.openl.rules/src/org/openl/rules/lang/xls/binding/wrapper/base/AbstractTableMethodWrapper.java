@@ -162,7 +162,7 @@ public abstract class AbstractTableMethodWrapper extends TableMethod {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractTableMethodWrapper that = (AbstractTableMethodWrapper) o;
+        var that = (AbstractTableMethodWrapper) o;
         return delegate.equals(that.delegate);
     }
 

@@ -40,7 +40,7 @@ public class ConditionalGotoOperation extends GotoOperation {
         assert param != null;
         assert param instanceof Boolean;
 
-        boolean condition = (Boolean) param;
+        var condition = (Boolean) param;
         Result result;
 
         if (condition == expectedCondition) {

@@ -7,11 +7,9 @@ import java.util.Objects;
 
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AclCache;
-import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +35,7 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     @Override
     @Transactional
     public void move(AProjectArtefact projectArtefact, String newPath) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        var oi = oidProvider.getArtifactOid(projectArtefact);
         moveInternal(projectArtefact.getRepository().getName(), oi, newPath);
     }
 
@@ -60,9 +58,9 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         if (LocalWorkspace.LOCAL_ID.equals(projectArtefact.getRepository().getId())) {
             return true;
         }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var sids = sidRetrievalStrategy.getSids(authentication);
+        var oi = oidProvider.getArtifactOid(projectArtefact);
         if (useParentStrategy) {
             oi = oidProvider.getParentOid(oi);
         }
@@ -72,26 +70,26 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     @Override
     @Transactional
     public void deleteAcl(AProjectArtefact projectArtefact) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        var oi = oidProvider.getArtifactOid(projectArtefact);
         aclService.deleteAcl(oi, true);
     }
 
     @Override
     @Transactional
     public boolean createAcl(AProjectArtefact projectArtefact, List<Permission> permissions, boolean force) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        var oi = oidProvider.getArtifactOid(projectArtefact);
         return createAcl(oi, permissions, force);
     }
 
     @Override
     @Transactional
     public boolean hasAcl(AProjectArtefact projectArtefact) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        var oi = oidProvider.getArtifactOid(projectArtefact);
         return hasAcl(oi);
     }
 
     protected String cutRepositoryId(String identifier) {
-        int d = identifier.indexOf(":");
+        var d = identifier.indexOf(":");
         if (d >= 0) {
             return identifier.substring(d + 1);
         }
@@ -100,7 +98,7 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
 
     @Override
     public String getPath(AProjectArtefact projectArtefact) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        var oi = oidProvider.getArtifactOid(projectArtefact);
         return cutRepositoryId((String) oi.getIdentifier());
     }
 
@@ -110,7 +108,7 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         if (sid == null) {
             return Collections.emptyList();
         }
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        var oi = oidProvider.getArtifactOid(projectArtefact);
         var permissions = listPermissions(oi, List.of(sid));
         return permissions.getOrDefault(sid, Collections.emptyList());
     }
@@ -118,7 +116,7 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     @Override
     @Transactional
     public Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        var oi = oidProvider.getArtifactOid(projectArtefact);
         return listPermissions(oi, null);
     }
 

@@ -1,6 +1,5 @@
 package org.openl.rules.testmethod.export;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -9,7 +8,6 @@ import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestStatus;
-import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 
@@ -17,10 +15,10 @@ public class TestResultExport extends ResultExport {
 
     @Override
     protected int writeInfo(Sheet sheet, TestUnitsResults result, int rowNum) {
-        TestSuite testSuite = result.getTestSuite();
-        int failures = result.getNumberOfFailures();
+        var testSuite = result.getTestSuite();
+        var failures = result.getNumberOfFailures();
 
-        Row row = sheet.createRow(rowNum++);
+        var row = sheet.createRow(rowNum++);
         String testName = TableSyntaxNodeUtils.getTestName(testSuite.getTestSuiteMethod());
         createCell(row, FIRST_COLUMN, testName, failures > 0 ? styles.testNameFailure : styles.testNameSuccess);
 
@@ -45,16 +43,16 @@ public class TestResultExport extends ResultExport {
     @Override
     protected void writeResult(Row row, int colNum, ITestUnit testUnit) {
         for (ComparedResult parameter : testUnit.getResultParams()) {
-            boolean okField = parameter.getStatus() == TestStatus.TR_OK;
+            var okField = parameter.getStatus() == TestStatus.TR_OK;
 
-            Cell cell = createCell(row,
+            var cell = createCell(row,
                     colNum++,
                     parameter.getActualValue(),
                     okField ? styles.resultSuccess : styles.resultFailure);
 
             if (!okField) {
-                StringBuilder expected = new StringBuilder("Expected: ");
-                Object expectedValue = getSimpleValue(parameter.getExpectedValue());
+                var expected = new StringBuilder("Expected: ");
+                var expectedValue = getSimpleValue(parameter.getExpectedValue());
                 if (expectedValue != null) {
                     expected.append(FormattersManager.format(expectedValue));
                 }

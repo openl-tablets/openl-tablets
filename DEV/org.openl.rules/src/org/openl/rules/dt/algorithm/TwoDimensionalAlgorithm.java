@@ -26,8 +26,8 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
 
     @Override
     public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {
-        IIntIterator iv = va.checkedRules(target, params, env);
-        IIntIterator ih = ha.checkedRules(target, params, env);
+        var iv = va.checkedRules(target, params, env);
+        var ih = ha.checkedRules(target, params, env);
 
         return ih.isResetable() ? new TwoDScaleIterator(iv, ih) : new TwoDScaleIteratorNotResetable(iv, ih);
     }
@@ -108,7 +108,7 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
             if (itH != null) {
                 return itH.next();
             }
-            int i = ih.nextInt();
+            var i = ih.nextInt();
             storeIh.add(i);
             return i;
         }

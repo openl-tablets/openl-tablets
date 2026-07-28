@@ -37,7 +37,7 @@ final class InputStatistics {
         var len = knownY.length;
         var inputStats = inputStatsFunction.apply(len);
         var j = 0;
-        for (int i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             if (knownX[i] != null && knownY[i] != null) {
                 inputStats.x[j] = numberFunction.apply(knownX[i]);
                 inputStats.y[j++] = numberFunction.apply(knownY[i]);

@@ -31,7 +31,7 @@ class DoubleRangeRulesParsingTest {
      */
     @Test
     void testLongRange() {
-        Object result = invoke("testLongRange", true, 210);
+        var result = invoke("testLongRange", true, 210);
         assertEquals("rule1", result);
     }
 
@@ -40,7 +40,7 @@ class DoubleRangeRulesParsingTest {
      */
     @Test
     void testIntRange() {
-        Object result = invoke("testIntegerRange", true, 105);
+        var result = invoke("testIntegerRange", true, 105);
         assertEquals("rule2", result);
     }
 
@@ -49,7 +49,7 @@ class DoubleRangeRulesParsingTest {
      */
     @Test
     void testIntRange1() {
-        Object result = invoke("testIntegerRange1", true, 105);
+        var result = invoke("testIntegerRange1", true, 105);
         assertEquals("rule2", result);
     }
 
@@ -58,7 +58,7 @@ class DoubleRangeRulesParsingTest {
      */
     @Test
     void testByteRange() {
-        Object result = invoke("testByteRange", true, 99);
+        var result = invoke("testByteRange", true, 99);
         assertEquals("rule2", result);
     }
 
@@ -67,7 +67,7 @@ class DoubleRangeRulesParsingTest {
      */
     @Test
     void testShortRange() {
-        Object result = invoke("testShortRange", false, -50);
+        var result = invoke("testShortRange", false, -50);
         assertEquals("rule3", result);
     }
 
@@ -76,7 +76,7 @@ class DoubleRangeRulesParsingTest {
      */
     @Test
     void testFloatRange() {
-        Object result = invoke("testFloatRange", true, 20.56);
+        var result = invoke("testFloatRange", true, 20.56);
         assertEquals("rule1", result);
     }
 

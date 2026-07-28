@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.tags.model.TagFillPreview;
@@ -75,8 +74,8 @@ public class TagFillService {
      */
     public Map<String, Integer> fill(@Nullable Collection<String> projectNames) {
         var workspace = getUserWorkspace();
-        int updated = 0;
-        int skipped = 0;
+        var updated = 0;
+        var skipped = 0;
         for (RulesProject project : workspace.getProjects()) {
             try {
                 var tags = requestedTags(project, projectNames);
@@ -85,7 +84,7 @@ public class TagFillService {
                     continue;
                 }
                 // Template tags take priority over what the project carries.
-                Map<String, String> currentTags = new HashMap<>(project.getLocalTags());
+                var currentTags = new HashMap<String, String>(project.getLocalTags());
                 currentTags.putAll(tags);
                 project.saveTags(currentTags);
                 updated++;
@@ -143,7 +142,7 @@ public class TagFillService {
 
     /** The tag values the project name templates derive for the project, by tag type name. */
     private Map<String, String> derivedTags(RulesProject project) {
-        List<Tag> derived = tagTemplateService.getTags(project.getBusinessName());
+        var derived = tagTemplateService.getTags(project.getBusinessName());
         var tags = new LinkedHashMap<String, String>();
         derived.forEach(tag -> tags.putIfAbsent(tag.getType().getName(), tag.getName()));
         return tags;

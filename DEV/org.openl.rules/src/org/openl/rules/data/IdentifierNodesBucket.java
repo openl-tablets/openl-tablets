@@ -19,7 +19,7 @@ public class IdentifierNodesBucket {
                 this.length--;
             }
             ids = new String[length];
-            for (int i = 0; i < length; i++) {
+            for (var i = 0; i < length; i++) {
                 ids[i] = node[i].getIdentifier();
             }
         }
@@ -45,7 +45,7 @@ public class IdentifierNodesBucket {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        IdentifierNodesBucket that = (IdentifierNodesBucket) o;
+        var that = (IdentifierNodesBucket) o;
         if (this.length != that.getLength()) {
             return false;
         }

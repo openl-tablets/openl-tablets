@@ -4,14 +4,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.types.IOpenClass;
-import org.openl.types.IParameterDeclaration;
 
 public class XlsDefinitions {
 
@@ -32,13 +29,13 @@ public class XlsDefinitions {
         if (!Objects.equals(dtColumnDefinition1.getExpression(), dtColumnDefinition2.getExpression())) {
             return false;
         }
-        Map<String, IOpenClass> map = new HashMap<>();
-        for (int i = 0; i < dtColumnDefinition1.getHeader().getSignature().getNumberOfParameters(); i++) {
+        var map = new HashMap<String, IOpenClass>();
+        for (var i = 0; i < dtColumnDefinition1.getHeader().getSignature().getNumberOfParameters(); i++) {
             map.put(dtColumnDefinition1.getHeader().getSignature().getParameterName(i),
                     dtColumnDefinition1.getHeader().getSignature().getParameterType(i));
         }
-        for (int i = 0; i < dtColumnDefinition2.getHeader().getSignature().getNumberOfParameters(); i++) {
-            IOpenClass type = map.get(dtColumnDefinition2.getHeader().getSignature().getParameterName(i));
+        for (var i = 0; i < dtColumnDefinition2.getHeader().getSignature().getNumberOfParameters(); i++) {
+            var type = map.get(dtColumnDefinition2.getHeader().getSignature().getParameterName(i));
             if (type == null || !type.equals(dtColumnDefinition2.getHeader().getSignature().getParameterType(i))) {
                 return false;
             }
@@ -50,14 +47,14 @@ public class XlsDefinitions {
             if (!titles2.contains(title)) {
                 return false;
             }
-            List<IParameterDeclaration> parameterDeclarations1 = dtColumnDefinition1.getParameters(title);
-            List<IParameterDeclaration> parameterDeclarations2 = dtColumnDefinition2.getParameters(title);
+            var parameterDeclarations1 = dtColumnDefinition1.getParameters(title);
+            var parameterDeclarations2 = dtColumnDefinition2.getParameters(title);
             if (parameterDeclarations1.size() != parameterDeclarations2.size()) {
                 return false;
             }
-            for (int i = 0; i < parameterDeclarations1.size(); i++) {
-                IParameterDeclaration parameterDeclaration1 = parameterDeclarations1.getFirst();
-                IParameterDeclaration parameterDeclaration2 = parameterDeclarations2.getFirst();
+            for (var i = 0; i < parameterDeclarations1.size(); i++) {
+                var parameterDeclaration1 = parameterDeclarations1.getFirst();
+                var parameterDeclaration2 = parameterDeclarations2.getFirst();
                 if (parameterDeclaration1 == null || parameterDeclaration2 == null) {
                     if (parameterDeclaration1 == null && parameterDeclaration2 == null) {
                         continue;

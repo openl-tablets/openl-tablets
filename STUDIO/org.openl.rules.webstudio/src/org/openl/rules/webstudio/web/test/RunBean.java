@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
@@ -43,7 +42,7 @@ public class RunBean {
     public void init() {
         testSuite = runTestHelper.getTestSuite();
         id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
-        boolean currentOpenedModule = Boolean
+        var currentOpenedModule = Boolean
                 .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
         if (testSuite != null) {
             results = WebStudioUtils.getProjectModel().runTest(testSuite, currentOpenedModule);
@@ -51,7 +50,7 @@ public class RunBean {
     }
 
     public String getTableName() {
-        IOpenLTable table = WebStudioUtils.getProjectModel().getTableById(id);
+        var table = WebStudioUtils.getProjectModel().getTableById(id);
         if (table == null) {
             return null;
         }
@@ -67,7 +66,7 @@ public class RunBean {
     }
 
     public String getFormattedSpreadsheetResult(ITestUnit unit) {
-        Object result = unit.getActualResult();
+        var result = unit.getActualResult();
         if (result instanceof SpreadsheetResult spreadsheetResult) {
             return ObjectViewer.displaySpreadsheetResult(spreadsheetResult);
         }

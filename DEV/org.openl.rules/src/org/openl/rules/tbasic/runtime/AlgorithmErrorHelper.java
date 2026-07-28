@@ -4,8 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -25,7 +23,7 @@ final class AlgorithmErrorHelper {
      */
     public static OpenLAlgorithmExecutionException createExecutionException(String message,
                                                                             RuntimeOperation operation) {
-        String sourceOperationUrl = operation.getSourceCode().getSourceUri();
+        var sourceOperationUrl = operation.getSourceCode().getSourceUri();
         String errorMessage = String.format(
                 "Unexpected error appeared while executing TBasic component logic. " +
                         "It's unusal situation and the most propably something is wrong in component's internal logic, " +
@@ -45,16 +43,16 @@ final class AlgorithmErrorHelper {
      * @return Result of the execution "ON ERROR" method(if specified).
      */
     public static Object processError(Throwable error, TBasicContextHolderEnv environment) {
-        IOpenClass algorithmType = environment.getTbasicTarget().getType();
-        IOpenMethod errorMethod = algorithmType.getMethod("ON ERROR", IOpenClass.EMPTY);
+        var algorithmType = environment.getTbasicTarget().getType();
+        var errorMethod = algorithmType.getMethod("ON ERROR", IOpenClass.EMPTY);
 
         if (errorMethod != null) {
-            IOpenField errorField = algorithmType.getField("ERROR");
+            var errorField = algorithmType.getField("ERROR");
             if (errorField != null) {
                 // extracting ERROR exception
-                Throwable err = ((InvocationTargetException) error.getCause().getCause()).getTargetException();
+                var err = ((InvocationTargetException) error.getCause().getCause()).getTargetException();
                 errorField.set(environment.getTbasicTarget(), err, environment);
-                IOpenField errorMessageField = algorithmType.getField("Error Message");
+                var errorMessageField = algorithmType.getField("Error Message");
                 errorMessageField.set(environment.getTbasicTarget(), err.getMessage(), environment);
             }
             return errorMethod.invoke(environment.getTbasicTarget(), null, environment);

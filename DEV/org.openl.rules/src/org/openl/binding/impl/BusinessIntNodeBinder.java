@@ -13,7 +13,7 @@ public class BusinessIntNodeBinder extends BusinessNumberNodeBinder {
 
     private static int getIntValue(Long number, ISyntaxNode node) throws SyntaxNodeException {
         if (number > Integer.MAX_VALUE || number < Integer.MIN_VALUE) {
-            String message = "Number %d is outside the valid range %d - %d"
+            var message = "Number %d is outside the valid range %d - %d"
                     .formatted(number, Integer.MIN_VALUE, Integer.MAX_VALUE);
             throw SyntaxNodeExceptionUtils.createError(message, node);
         }
@@ -23,17 +23,17 @@ public class BusinessIntNodeBinder extends BusinessNumberNodeBinder {
 
     @Override
     protected IBoundNode makeNumber(String literal, int multiplier, ISyntaxNode node) throws SyntaxNodeException {
-        final char FRACTION_DELIMITER = '.';
+        final var FRACTION_DELIMITER = '.';
 
         long parsedNumber;
         if (literal.indexOf(FRACTION_DELIMITER) >= 0) {
-            double x = Double.parseDouble(literal) * multiplier;
+            var x = Double.parseDouble(literal) * multiplier;
             parsedNumber = Math.round(x);
         } else {
             parsedNumber = Long.parseLong(literal) * multiplier;
         }
 
-        int number = getIntValue(parsedNumber, node);
+        var number = getIntValue(parsedNumber, node);
 
         return new LiteralBoundNode(node, number, JavaOpenClass.INT);
     }

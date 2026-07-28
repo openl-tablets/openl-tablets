@@ -21,9 +21,9 @@ class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
 
     @Test
     void testGetTemplates() throws Exception {
-        PredefinedTemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
+        var templatesResolver = new PredefinedTemplatesResolver();
 
-        Collection<String> templates = templatesResolver.getTemplates("templates");
+        var templates = templatesResolver.getTemplates("templates");
         assertEquals(2, templates.size());
         assertTrue(templates.containsAll(Arrays.asList("Empty Project", "Sample Project")));
         assertEquals(3, templatesResolver.getTemplates("examples").size());
@@ -32,8 +32,8 @@ class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
 
     @Test
     void testGetProjectFiles() throws Exception {
-        PredefinedTemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
-        ProjectFile[] projectFiles = templatesResolver.getProjectFiles("examples",
+        var templatesResolver = new PredefinedTemplatesResolver();
+        var projectFiles = templatesResolver.getProjectFiles("examples",
                 "Example 3 - Auto Policy Calculation");
         assertEquals(5, projectFiles.length);
         assertTrue(contains(projectFiles, "AutoPolicyCalculation.xlsx"));

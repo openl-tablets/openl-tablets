@@ -11,7 +11,7 @@ class ConfigDeployTemplateClassMigratorTest {
 
     @Test
     void movesInterceptingToEmptyAnnotation() {
-        RulesDeploy deploy = new RulesDeploy();
+        var deploy = new RulesDeploy();
         deploy.setInterceptingTemplateClassName("com.example.Tpl");
         deploy.setAnnotationTemplateClassName("");
 
@@ -23,7 +23,7 @@ class ConfigDeployTemplateClassMigratorTest {
 
     @Test
     void movesInterceptingToNullAnnotation() {
-        RulesDeploy deploy = new RulesDeploy();
+        var deploy = new RulesDeploy();
         deploy.setInterceptingTemplateClassName("com.example.Tpl");
 
         ConfigDeployTemplateClassMigrator.transform(deploy);
@@ -34,7 +34,7 @@ class ConfigDeployTemplateClassMigratorTest {
 
     @Test
     void dropsInterceptingWhenAnnotationPresent() {
-        RulesDeploy deploy = new RulesDeploy();
+        var deploy = new RulesDeploy();
         deploy.setInterceptingTemplateClassName("com.example.Old");
         deploy.setAnnotationTemplateClassName("com.example.New");
 
@@ -46,7 +46,7 @@ class ConfigDeployTemplateClassMigratorTest {
 
     @Test
     void doesNotMoveBlankInterceptingIntoAnnotation() {
-        RulesDeploy deploy = new RulesDeploy();
+        var deploy = new RulesDeploy();
         deploy.setInterceptingTemplateClassName(" ");
         deploy.setAnnotationTemplateClassName("");
 
@@ -59,7 +59,7 @@ class ConfigDeployTemplateClassMigratorTest {
 
     @Test
     void leavesBothNullUntouched() {
-        RulesDeploy deploy = new RulesDeploy();
+        var deploy = new RulesDeploy();
 
         ConfigDeployTemplateClassMigrator.transform(deploy);
 

@@ -35,11 +35,11 @@ public class BinaryOpNodeAnd extends ABoundNode {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
 
-        Object res1 = left.evaluate(env);
+        var res1 = left.evaluate(env);
         if (Boolean.FALSE.equals(res1)) {
             return Boolean.FALSE;
         }
-        Object res2 = right.evaluate(env);
+        var res2 = right.evaluate(env);
         if (Boolean.FALSE.equals(res2)) {
             return Boolean.FALSE;
         }

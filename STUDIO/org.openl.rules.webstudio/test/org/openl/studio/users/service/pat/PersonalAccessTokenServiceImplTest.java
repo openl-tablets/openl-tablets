@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 import net.ttddyy.dsproxy.QueryCount;
 import net.ttddyy.dsproxy.QueryCountHolder;
@@ -26,7 +25,6 @@ import org.openl.rules.webstudio.service.AclServiceTestConfiguration;
 import org.openl.rules.webstudio.service.DBTestConfiguration;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
-import org.openl.studio.users.model.pat.PersonalAccessTokenResponse;
 
 /**
  * Unit tests for {@link PersonalAccessTokenServiceImpl}.
@@ -73,14 +71,14 @@ class PersonalAccessTokenServiceImplTest {
     void testSaveAndGetTokensByUser() {
         initUser("jdoe");
 
-        PersonalAccessToken token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "Token 1");
-        PersonalAccessToken token2 = createToken(TEST_PUBLIC_ID_2, "jdoe", "Token 2");
+        var token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "Token 1");
+        var token2 = createToken(TEST_PUBLIC_ID_2, "jdoe", "Token 2");
 
         tokenService.save(token1);
         tokenService.save(token2);
 
         QueryCountHolder.clear();
-        List<PersonalAccessTokenResponse> tokens = tokenService.getTokensByUser("jdoe");
+        var tokens = tokenService.getTokensByUser("jdoe");
 
         assertEquals(2, tokens.size());
         assertTrue(tokens.stream().anyMatch(t -> "Token 1".equals(t.name())));
@@ -95,11 +93,11 @@ class PersonalAccessTokenServiceImplTest {
     void testGetTokenForUser() {
         initUser("jdoe");
 
-        PersonalAccessToken token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
+        var token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
         tokenService.save(token);
 
         QueryCountHolder.clear();
-        PersonalAccessTokenResponse response = tokenService.getTokenForUser(TEST_PUBLIC_ID_4, "jdoe");
+        var response = tokenService.getTokenForUser(TEST_PUBLIC_ID_4, "jdoe");
 
         assertNotNull(response);
         assertEquals(TEST_PUBLIC_ID_4, response.publicId());
@@ -116,11 +114,11 @@ class PersonalAccessTokenServiceImplTest {
         initUser("jdoe");
         initUser("jsmith");
 
-        PersonalAccessToken token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
+        var token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
         tokenService.save(token);
 
         QueryCountHolder.clear();
-        PersonalAccessTokenResponse response = tokenService.getTokenForUser(TEST_PUBLIC_ID_4, "jsmith");
+        var response = tokenService.getTokenForUser(TEST_PUBLIC_ID_4, "jsmith");
 
         assertNull(response, "Token should not be returned for different user");
 
@@ -149,7 +147,7 @@ class PersonalAccessTokenServiceImplTest {
     void testExistsByLoginNameAndName() {
         initUser("jdoe");
 
-        PersonalAccessToken token = createToken(TEST_PUBLIC_ID_1, "jdoe", "My Token");
+        var token = createToken(TEST_PUBLIC_ID_1, "jdoe", "My Token");
         tokenService.save(token);
 
         QueryCountHolder.clear();
@@ -166,7 +164,7 @@ class PersonalAccessTokenServiceImplTest {
     void testExistsByPublicId() {
         initUser("jdoe");
 
-        PersonalAccessToken token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
+        var token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
         tokenService.save(token);
 
         QueryCountHolder.clear();
@@ -182,7 +180,7 @@ class PersonalAccessTokenServiceImplTest {
     void testDeleteByPublicId() {
         initUser("jdoe");
 
-        PersonalAccessToken token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
+        var token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
         tokenService.save(token);
 
         assertTrue(tokenService.existsByPublicId(TEST_PUBLIC_ID_4));
@@ -203,9 +201,9 @@ class PersonalAccessTokenServiceImplTest {
         initUser("jdoe");
         initUser("jsmith");
 
-        PersonalAccessToken token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "Token 1");
-        PersonalAccessToken token2 = createToken(TEST_PUBLIC_ID_2, "jdoe", "Token 2");
-        PersonalAccessToken token3 = createToken(TEST_PUBLIC_ID_3, "jsmith", "Token 3");
+        var token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "Token 1");
+        var token2 = createToken(TEST_PUBLIC_ID_2, "jdoe", "Token 2");
+        var token3 = createToken(TEST_PUBLIC_ID_3, "jsmith", "Token 3");
 
         tokenService.save(token1);
         tokenService.save(token2);
@@ -230,8 +228,8 @@ class PersonalAccessTokenServiceImplTest {
     void testCascadeDeleteOnUserDeletion() {
         initUser("jdoe");
 
-        PersonalAccessToken token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "Token 1");
-        PersonalAccessToken token2 = createToken(TEST_PUBLIC_ID_2, "jdoe", "Token 2");
+        var token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "Token 1");
+        var token2 = createToken(TEST_PUBLIC_ID_2, "jdoe", "Token 2");
 
         tokenService.save(token1);
         tokenService.save(token2);
@@ -254,7 +252,7 @@ class PersonalAccessTokenServiceImplTest {
         initUser("jdoe");
 
         QueryCountHolder.clear();
-        List<PersonalAccessTokenResponse> tokens = tokenService.getTokensByUser("jdoe");
+        var tokens = tokenService.getTokensByUser("jdoe");
 
         assertTrue(tokens.isEmpty());
 
@@ -268,10 +266,10 @@ class PersonalAccessTokenServiceImplTest {
         initUser("jdoe");
 
         // Truncate to milliseconds to match database precision (H2 doesn't preserve nanoseconds)
-        Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
-        Instant expires = now.plusSeconds(86400); // 1 day
+        var now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+        var expires = now.plusSeconds(86400); // 1 day
 
-        PersonalAccessToken token = new PersonalAccessToken();
+        var token = new PersonalAccessToken();
         token.setPublicId(TEST_PUBLIC_ID_4);
         token.setSecretHash(passwordEncoder.encode("secret"));
         token.setLoginName("jdoe");
@@ -282,7 +280,7 @@ class PersonalAccessTokenServiceImplTest {
         tokenService.save(token);
 
         QueryCountHolder.clear();
-        PersonalAccessTokenResponse response = tokenService.getTokenForUser(TEST_PUBLIC_ID_4, "jdoe");
+        var response = tokenService.getTokenForUser(TEST_PUBLIC_ID_4, "jdoe");
 
         assertNotNull(response);
         assertEquals(TEST_PUBLIC_ID_4, response.publicId());
@@ -296,7 +294,7 @@ class PersonalAccessTokenServiceImplTest {
     void testTokenWithoutExpiration() {
         initUser("jdoe");
 
-        PersonalAccessToken token = new PersonalAccessToken();
+        var token = new PersonalAccessToken();
         token.setPublicId(TEST_PUBLIC_ID_4);
         token.setSecretHash(passwordEncoder.encode("secret"));
         token.setLoginName("jdoe");
@@ -307,7 +305,7 @@ class PersonalAccessTokenServiceImplTest {
         tokenService.save(token);
 
         QueryCountHolder.clear();
-        PersonalAccessTokenResponse response = tokenService.getTokenForUser(TEST_PUBLIC_ID_4, "jdoe");
+        var response = tokenService.getTokenForUser(TEST_PUBLIC_ID_4, "jdoe");
 
         assertNotNull(response);
         assertNull(response.expiresAt(), "Token should have no expiration");
@@ -319,8 +317,8 @@ class PersonalAccessTokenServiceImplTest {
         initUser("jsmith");
 
         // Both users can have tokens with the same name (different users)
-        PersonalAccessToken token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "My Token");
-        PersonalAccessToken token2 = createToken(TEST_PUBLIC_ID_2, "jsmith", "My Token");
+        var token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "My Token");
+        var token2 = createToken(TEST_PUBLIC_ID_2, "jsmith", "My Token");
 
         tokenService.save(token1);
         tokenService.save(token2);
@@ -329,8 +327,8 @@ class PersonalAccessTokenServiceImplTest {
         assertTrue(tokenService.existsByLoginNameAndName("jdoe", "My Token"));
         assertTrue(tokenService.existsByLoginNameAndName("jsmith", "My Token"));
 
-        List<PersonalAccessTokenResponse> jdoeTokens = tokenService.getTokensByUser("jdoe");
-        List<PersonalAccessTokenResponse> jsmithTokens = tokenService.getTokensByUser("jsmith");
+        var jdoeTokens = tokenService.getTokensByUser("jdoe");
+        var jsmithTokens = tokenService.getTokensByUser("jsmith");
 
         assertEquals(1, jdoeTokens.size());
         assertEquals(1, jsmithTokens.size());
@@ -339,7 +337,7 @@ class PersonalAccessTokenServiceImplTest {
     }
 
     private PersonalAccessToken createToken(String publicId, String loginName, String name) {
-        PersonalAccessToken token = new PersonalAccessToken();
+        var token = new PersonalAccessToken();
         token.setPublicId(publicId);
         token.setSecretHash(passwordEncoder.encode("secret"));
         token.setLoginName(loginName);

@@ -19,7 +19,7 @@ class TableHeaderSelector implements Predicate<TableSyntaxNode> {
             return true;
         }
 
-        String header = node.getHeaderLineValue().getValue();
+        var header = node.getHeaderLineValue().getValue();
 
         return StringUtils.containsIgnoreCase(header, value);
     }

@@ -52,7 +52,7 @@ public class ColumnMatch extends ExecutableRulesMethod {
 
     @Override
     public BindingDependencies getDependencies() {
-        BindingDependencies dependencies = new RulesBindingDependencies();
+        var dependencies = new RulesBindingDependencies();
         getBoundNode().updateDependency(dependencies);
         return dependencies;
     }
@@ -76,7 +76,7 @@ public class ColumnMatch extends ExecutableRulesMethod {
 
     @Override
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
-        Object result = algorithmExecutor.invoke(this, params, env);
+        var result = algorithmExecutor.invoke(this, params, env);
         if (result == null) {
             Class<?> type = getHeader().getType().getInstanceClass();
             if (type.isPrimitive()) {

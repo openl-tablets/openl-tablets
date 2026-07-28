@@ -34,9 +34,9 @@ class TestIntDomainHistory {
 
     @Test
     void testNumberOfRemoves() {
-        IntVar intvar = C.addIntVar(0, 100, IntVar.DOMAIN_BIT_SMALL);
-        IntDomainHistory history = new IntDomainHistory(intvar);
-        for (int i = intvar.min() + 1; i < intvar.max(); i++) {
+        var intvar = C.addIntVar(0, 100, IntVar.DOMAIN_BIT_SMALL);
+        var history = new IntDomainHistory(intvar);
+        for (var i = intvar.min() + 1; i < intvar.max(); i++) {
             history.remove(i);
         }
         assertEquals(intvar.size() - 2, history.numberOfRemoves());
@@ -44,10 +44,10 @@ class TestIntDomainHistory {
 
     @Test
     void testOldMinAndOldMax() {
-        IntVar intvar = C.addIntVar(0, 100, IntVar.DOMAIN_BIT_SMALL);
-        IntDomainHistory history = new IntDomainHistory(intvar);
-        int oldmin = intvar.min();
-        int oldmax = intvar.max();
+        var intvar = C.addIntVar(0, 100, IntVar.DOMAIN_BIT_SMALL);
+        var history = new IntDomainHistory(intvar);
+        var oldmin = intvar.min();
+        var oldmax = intvar.max();
         try {
             intvar.setMax(90);
             intvar.setMin(10);
@@ -60,8 +60,8 @@ class TestIntDomainHistory {
 
     @Test
     void testRemoveInterval() {
-        IntVarImpl intvar = (IntVarImpl) C.addIntVar(-10, 10, "intvar1", IntVar.DOMAIN_BIT_FAST);
-        IntDomainHistory history = intvar.history();
+        var intvar = (IntVarImpl) C.addIntVar(-10, 10, "intvar1", IntVar.DOMAIN_BIT_FAST);
+        var history = intvar.history();
         new IntDomainHistory(intvar);
 
         int[] minvals = new int[3];
@@ -102,18 +102,18 @@ class TestIntDomainHistory {
             history.save();
             indicies[2] = history.currentIndex();
 
-            for (int j = 2; j >= 0; j--) {
+            for (var j = 2; j >= 0; j--) {
                 history.restore(indicies[j]);
                 assertEquals(minvals[j], intvar.min());
                 assertEquals(maxvals[j], intvar.max());
                 assertEquals(sizes[j], intvar.size());
-                for (int i = minvals[j]; i < removeStart[j]; i++) {
+                for (var i = minvals[j]; i < removeStart[j]; i++) {
                     assertTrue(intvar.contains(i), "code1:" + i + ": " + j);
                 }
-                for (int i = maxvals[j]; i > removeEnd[j]; i--) {
+                for (var i = maxvals[j]; i > removeEnd[j]; i--) {
                     assertTrue(intvar.contains(i), "code2:" + i + ": " + j);
                 }
-                for (int i = removeStart[j]; i <= removeEnd[j]; i++) {
+                for (var i = removeStart[j]; i <= removeEnd[j]; i++) {
                     assertFalse(intvar.contains(i), "code3:" + i + ": " + j);
                 }
             }
@@ -124,8 +124,8 @@ class TestIntDomainHistory {
 
     @Test
     void testSaveRestore() {
-        IntVarImpl intvar = (IntVarImpl) C.addIntVar(0, 100, "IntVar1", IntVar.DOMAIN_BIT_FAST);
-        IntDomainHistory history = intvar.history();
+        var intvar = (IntVarImpl) C.addIntVar(0, 100, "IntVar1", IntVar.DOMAIN_BIT_FAST);
+        var history = intvar.history();
         new IntDomainHistory(intvar);
 
         int[] maxVals = {intvar.max(), 95, 90, 85, 80, 75, 70, 65, 60};
@@ -136,7 +136,7 @@ class TestIntDomainHistory {
         indices[0] = history.currentIndex();
 
         try {
-            for (int i = 1; i < maxVals.length; i++) {
+            for (var i = 1; i < maxVals.length; i++) {
 
                 intvar.setMax(maxVals[i]);
                 intvar.setMin(minVals[i]);
@@ -151,13 +151,13 @@ class TestIntDomainHistory {
                 intvar.removeValue(maxVals[i]);
                 intvar.removeValue(minVals[i]);
             }
-            for (int i = 0; i < maxVals.length - 1; i++) {
+            for (var i = 0; i < maxVals.length - 1; i++) {
                 history.restore(indices[i]);
                 assertEquals(intvar.size(), sizes[i], "wrong domain size after restoration");
                 assertEquals(intvar.max(), maxVals[i], "wrong maximum after restoration");
                 assertEquals(intvar.min(), minVals[i], "wrong minimum after restoration");
                 assertTrue(intvar.contains(maxVals[i]) && intvar.contains(minVals[i]));
-                for (int j = maxVals.length - 1; j > i; j--) {
+                for (var j = maxVals.length - 1; j > i; j--) {
                     // ensure that all removed values are available after
                     // restoration
                     assertTrue(intvar.contains(maxVals[j]) && intvar.contains(minVals[i]));

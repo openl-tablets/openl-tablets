@@ -53,7 +53,7 @@ public class ObjectToDataConvertorFactory {
             if (!(obj instanceof ClassCastPair)) {
                 return false;
             }
-            ClassCastPair pair = (ClassCastPair) obj;
+            var pair = (ClassCastPair) obj;
             return from == pair.from && to == pair.to;
         }
     }
@@ -162,9 +162,9 @@ public class ObjectToDataConvertorFactory {
         if (toClass == fromClass) {
             return CopyConvertor.the;
         }
-        ClassCastPair pair = new ClassCastPair(fromClass, toClass);
+        var pair = new ClassCastPair(fromClass, toClass);
 
-        IObjectToDataConvertor convertor = converters.get(pair);
+        var convertor = converters.get(pair);
         if (convertor != null) {
             return convertor;
         }
@@ -175,7 +175,7 @@ public class ObjectToDataConvertorFactory {
         } else {
             // try to find appropriate constructor.
             //
-            Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, fromClass);
+            var ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, fromClass);
 
             if (ctr != null) {
                 convertor = new MatchedConstructorConvertor(ctr);
@@ -198,7 +198,7 @@ public class ObjectToDataConvertorFactory {
     public static IObjectToDataConvertor registerConvertor(Class<?> toClass,
                                                            Class<?> fromClass,
                                                            IObjectToDataConvertor convertor) {
-        ClassCastPair pair = new ClassCastPair(fromClass, toClass);
+        var pair = new ClassCastPair(fromClass, toClass);
         return converters.put(pair, convertor);
     }
 

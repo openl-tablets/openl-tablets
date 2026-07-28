@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -39,9 +38,9 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private final static int PERIOD = 10;
 
     public ProjectVersionCacheMonitor(GrantedAuthority relevantSystemWideGrantedAuthority) {
-        SimpleGroup group = new SimpleGroup();
+        var group = new SimpleGroup();
         group.setName(relevantSystemWideGrantedAuthority.getAuthority());
-        SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group)).build();
+        var principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group)).build();
         this.relevantSystemWideGrantedAuthority = new UsernamePasswordAuthenticationToken(principal,
                 "",
                 principal.getAuthorities());
@@ -52,7 +51,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         if (!enabled) {
             return;
         }
-        Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        var oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
         try {
             SecurityContextHolder.getContext().setAuthentication(relevantSystemWideGrantedAuthority);
             try {
@@ -80,7 +79,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     }
 
     private void cacheDesignProject(AProject project) throws IOException, InterruptedException {
-        Repository repository = designRepository.getRepository(project.getRepository().getId());
+        var repository = designRepository.getRepository(project.getRepository().getId());
         List<ProjectVersion> versions = project.getVersions();
         if (repository.supports().branches()) {
             for (String branch : ((BranchRepository) repository).getBranches(project.getFolderPath())) {
@@ -99,14 +98,14 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
                 continue;
             }
 
-            String hash = projectVersionCacheDB.getHash(project.getBusinessName(),
+            var hash = projectVersionCacheDB.getHash(project.getBusinessName(),
                     projectVersion.getVersionName(),
                     projectVersion.getVersionInfo().getCreatedAt(),
                     ProjectVersionH2CacheDB.RepoType.DESIGN);
             if (StringUtils.isEmpty(hash)) {
-                Repository repo = project.getRepository();
+                var repo = project.getRepository();
                 String branch = repo.supports().branches() ? ((BranchRepository) repo).getBranch() : null;
-                AProject designProject = designRepository.getProjectByPath(project.getRepository().getId(),
+                var designProject = designRepository.getProjectByPath(project.getRepository().getId(),
                         branch,
                         project.getRealPath(),
                         projectVersion.getVersionName());
@@ -119,7 +118,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     }
 
     void cacheProjectVersion(AProject project, ProjectVersionH2CacheDB.RepoType repoType) throws IOException {
-        String md5 = projectVersionCacheManager.computeMD5(project);
+        var md5 = projectVersionCacheManager.computeMD5(project);
         projectVersionCacheDB.insertProject(project.getBusinessName(), project.getVersion(), md5, repoType);
     }
 
@@ -142,7 +141,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     public void afterPropertiesSet() {
         if (projectVersionCacheDB != null && projectVersionCacheManager != null && designRepository != null) {
             scheduledPool = Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = Executors.defaultThreadFactory().newThread(r);
+                var t = Executors.defaultThreadFactory().newThread(r);
                 t.setDaemon(true);
                 return t;
             });

@@ -36,10 +36,10 @@ class JAXRSMethodHandlerTest {
     @Test
     void checkInvokeOnUnknownMethod() throws Throwable {
         assertThrows(IllegalStateException.class, () -> {
-            Object target = new Object();
-            HashMap<Method, Method> methods = new HashMap<>();
-            JAXRSMethodHandler handler = new JAXRSMethodHandler(target, methods);
-            Method unknownMethod = Object.class.getDeclaredMethod("hashCode");
+            var target = new Object();
+            var methods = new HashMap<Method, Method>();
+            var handler = new JAXRSMethodHandler(target, methods);
+            var unknownMethod = Object.class.getDeclaredMethod("hashCode");
             handler.invoke(unknownMethod, null);
         });
     }
@@ -48,12 +48,12 @@ class JAXRSMethodHandlerTest {
     void checkNullArguments() throws Throwable {
         InvokedClass target = mock(InvokedClass.class);
         when(target.doWork()).thenReturn("Done");
-        HashMap<Method, Method> methods = new HashMap<>();
-        Method method = target.getClass().getDeclaredMethod("doWork");
+        var methods = new HashMap<Method, Method>();
+        var method = target.getClass().getDeclaredMethod("doWork");
         methods.put(method, method);
 
-        JAXRSMethodHandler handler = new JAXRSMethodHandler(target, methods);
-        Object result = handler.invoke(method, null);
+        var handler = new JAXRSMethodHandler(target, methods);
+        var result = handler.invoke(method, null);
 
         assertTrue(result instanceof Response);
         assertEquals("Done", ((Response) result).getEntity());

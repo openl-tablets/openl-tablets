@@ -21,8 +21,8 @@ import org.springframework.mock.env.MockEnvironment;
 class CustomOpenApiProcessorTest {
 
     private CustomOpenApiProcessor newProcessor(Path rootDir, MockEnvironment env) throws Exception {
-        URL url = rootDir.toUri().toURL();
-        ClassLoader cl = new URLClassLoader(new URL[]{url}, getClass().getClassLoader());
+        var url = rootDir.toUri().toURL();
+        var cl = new URLClassLoader(new URL[]{url}, getClass().getClassLoader());
         return new CustomOpenApiProcessor(Json.mapper().copy().setDefaultMergeable(true), cl, env);
     }
 
@@ -41,7 +41,7 @@ class CustomOpenApiProcessorTest {
         var processor = newProcessor(tmp, new MockEnvironment());
         OpenAPI input = emptyOpenAPI();
 
-        OpenAPI result = processor.apply(input);
+        var result = processor.apply(input);
 
         assertEquals("base-title", result.getInfo().getTitle());
         assertEquals("base-version", result.getInfo().getVersion());
@@ -53,7 +53,7 @@ class CustomOpenApiProcessorTest {
                 { "openAPI": { "info": { "title": "from-base", "version": "9.9.9" } } }
                 """);
 
-        OpenAPI result = newProcessor(tmp, new MockEnvironment()).apply(emptyOpenAPI());
+        var result = newProcessor(tmp, new MockEnvironment()).apply(emptyOpenAPI());
 
         assertEquals("from-base", result.getInfo().getTitle());
         assertEquals("9.9.9", result.getInfo().getVersion());
@@ -74,7 +74,7 @@ class CustomOpenApiProcessorTest {
                 { "openAPI": { "info": { "version": "from-alpha" } } }
                 """);
 
-        OpenAPI result = newProcessor(tmp, new MockEnvironment()).apply(emptyOpenAPI());
+        var result = newProcessor(tmp, new MockEnvironment()).apply(emptyOpenAPI());
 
         // base is applied first (sets title), then alpha, then zeta — last write wins for version
         assertEquals("from-base", result.getInfo().getTitle());
@@ -97,7 +97,7 @@ class CustomOpenApiProcessorTest {
         env.setProperty("api.title", "resolved-title");
         // api.version intentionally absent — should fall back to default
 
-        OpenAPI result = newProcessor(tmp, env).apply(emptyOpenAPI());
+        var result = newProcessor(tmp, env).apply(emptyOpenAPI());
 
         assertEquals("resolved-title", result.getInfo().getTitle());
         assertEquals("9.9.9", result.getInfo().getVersion());
@@ -117,7 +117,7 @@ class CustomOpenApiProcessorTest {
                 }
                 """);
 
-        OpenAPI result = newProcessor(tmp, new MockEnvironment()).apply(emptyOpenAPI());
+        var result = newProcessor(tmp, new MockEnvironment()).apply(emptyOpenAPI());
 
         // existing info must be preserved — only components added
         assertEquals("base-title", result.getInfo().getTitle());

@@ -33,7 +33,7 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
         var parsedTableType = readIdentifier(headerSource, 0);
         builder.tableType(parsedTableType.identifier());
 
-        int pos = rollWhitespaces(headerSource, parsedTableType.pos());
+        var pos = rollWhitespaces(headerSource, parsedTableType.pos());
         if (header.isCollect()) {
             // skip "Collect" keyword
             pos = rollIdentifier(headerSource, pos);
@@ -53,7 +53,7 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
     }
 
     private static List<ArgumentView> parseArguments(String headerSource, int pos) {
-        List<ArgumentView> args = new ArrayList<>();
+        var args = new ArrayList<ArgumentView>();
         pos++;
         while (pos < headerSource.length() && headerSource.charAt(pos) != ')') {
             var parsedType = readIdentifier(headerSource, pos);
@@ -78,8 +78,8 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
     }
 
     private static ParsedIdentifier readIdentifier(String source, int from) {
-        int pos = rollWhitespaces(source, from);
-        int start = pos;
+        var pos = rollWhitespaces(source, from);
+        var start = pos;
         pos = rollIdentifier(source, pos);
         return start < pos
                 ? new ParsedIdentifier(pos, source.substring(start, pos))

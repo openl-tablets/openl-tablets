@@ -3,7 +3,6 @@ package org.openl.binding.impl;
 import java.util.Objects;
 
 import org.openl.binding.MethodUtil;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenConstructor;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -56,7 +55,7 @@ public class MethodUsage implements NodeUsage {
                 }
             } else if (method instanceof DatatypeOpenConstructor && method
                     .getDeclaringClass() instanceof DatatypeOpenClass) {
-                IMetaInfo metaInfo = method.getDeclaringClass().getMetaInfo();
+                var metaInfo = method.getDeclaringClass().getMetaInfo();
                 return metaInfo == null ? null : metaInfo.getSourceUrl();
             } else if (method.getInfo() != null) {
                 return method.getInfo().getSourceUrl();
@@ -87,7 +86,7 @@ public class MethodUsage implements NodeUsage {
      */
     @Override
     public String getDescription() {
-        StringBuilder buff = new StringBuilder();
+        var buff = new StringBuilder();
         MethodUtil.printMethod(method, buff);
         return buff.toString();
     }
@@ -100,7 +99,7 @@ public class MethodUsage implements NodeUsage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MethodUsage that = (MethodUsage) o;
+        var that = (MethodUsage) o;
         return startPos == that.startPos && endPos == that.endPos && Objects.equals(method, that.method);
     }
 

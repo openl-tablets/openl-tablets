@@ -16,7 +16,7 @@ public class MathUtils {
             return null;
         }
         double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
             if (values[i] != null) {
                 doubleArray[i] = values[i].doubleValue();
             }
@@ -29,7 +29,7 @@ public class MathUtils {
             return null;
         }
         double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
             doubleArray[i] = values[i];
         }
         return doubleArray;
@@ -40,7 +40,7 @@ public class MathUtils {
             return null;
         }
         double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
             doubleArray[i] = values[i];
         }
         return doubleArray;
@@ -51,7 +51,7 @@ public class MathUtils {
             return null;
         }
         double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
             doubleArray[i] = values[i];
         }
         return doubleArray;
@@ -62,7 +62,7 @@ public class MathUtils {
             return null;
         }
         double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
             doubleArray[i] = values[i];
         }
         return doubleArray;
@@ -73,7 +73,7 @@ public class MathUtils {
             return null;
         }
         double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
             doubleArray[i] = values[i];
         }
         return doubleArray;
@@ -84,10 +84,10 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         values = ArrayTool.removeNulls(values);
         validateIndex(index < 0 || values.length <= index, position);
-        T[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
@@ -96,9 +96,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        byte[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
@@ -107,9 +107,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        short[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
@@ -118,9 +118,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        int[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
@@ -129,9 +129,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        long[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
@@ -140,9 +140,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        float[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
@@ -151,9 +151,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        double[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
@@ -163,10 +163,10 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         values = ArrayTool.removeNulls(values);
         validateIndex(index < 0 || values.length <= index, position);
-        T[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
@@ -175,9 +175,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        byte[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
@@ -186,9 +186,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        short[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
@@ -197,9 +197,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        int[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
@@ -208,9 +208,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        long[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
@@ -219,9 +219,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        float[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
@@ -230,9 +230,9 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int index = position - 1;
+        var index = position - 1;
         validateIndex(index < 0 || values.length <= index, position);
-        double[] v = values.clone();
+        var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
@@ -271,7 +271,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int sum = 0;
+        var sum = 0;
         for (int a : values) {
             sum = sum + a;
         }
@@ -282,7 +282,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        long sum = 0;
+        var sum = 0L;
         for (long a : values) {
             sum = sum + a;
         }
@@ -293,7 +293,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        float sum = 0;
+        var sum = 0F;
         for (float a : values) {
             sum = sum + a;
         }
@@ -304,7 +304,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        double sum = 0;
+        var sum = 0D;
         for (double a : values) {
             sum = sum + a;
         }
@@ -334,23 +334,23 @@ public class MathUtils {
             return null;
         }
         values = ArrayTool.removeNulls(values);
-        int length = values.length;
+        var length = values.length;
         if (length == 0) {
             return null;
         } else if (length == 1) {
             return new BigDecimal(values[0]);
         } else if (length == 2) {
-            BigDecimal v = new BigDecimal(values[0].add(values[1]));
+            var v = new BigDecimal(values[0].add(values[1]));
             return v.divide(BigDecimal.valueOf(2));
         }
         BigInteger[] copy = Arrays.copyOf(values, length);
         Arrays.sort(copy);
         length--;
-        int index = length >> 1;
+        var index = length >> 1;
         if (length % 2 == 0) {
             return new BigDecimal(copy[index]);
         } else {
-            BigDecimal v = new BigDecimal(copy[index].add(copy[index + 1]));
+            var v = new BigDecimal(copy[index].add(copy[index + 1]));
             return v.divide(BigDecimal.valueOf(2));
         }
     }
@@ -360,23 +360,23 @@ public class MathUtils {
             return null;
         }
         values = ArrayTool.removeNulls(values);
-        int length = values.length;
+        var length = values.length;
         if (length == 0) {
             return null;
         } else if (length == 1) {
             return values[0];
         } else if (length == 2) {
-            BigDecimal v = values[0].add(values[1]);
+            var v = values[0].add(values[1]);
             return new BigDecimal("0.5").multiply(v);
         }
         BigDecimal[] copy = Arrays.copyOf(values, length);
         Arrays.sort(copy);
         length--;
-        int index = length >> 1;
+        var index = length >> 1;
         if (length % 2 == 0) {
             return copy[index];
         } else {
-            BigDecimal v = copy[index].add(copy[index + 1]);
+            var v = copy[index].add(copy[index + 1]);
             return new BigDecimal("0.5").multiply(v);
         }
     }
@@ -385,7 +385,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        int length = values.length;
+        var length = values.length;
         if (length == 0) {
             return null;
         } else if (length == 1) {
@@ -396,7 +396,7 @@ public class MathUtils {
         double[] copy = Arrays.copyOf(values, length);
         Arrays.sort(copy);
         length--;
-        int index = length >> 1;
+        var index = length >> 1;
         if (length % 2 == 0) {
             return copy[index];
         } else {

@@ -14,7 +14,7 @@ public class ConditionAnalyzer {
 
     public IDomain<?> getParameterDomain(String parameterName) {
 
-        IParameterDeclaration[] parametersDeclaration = condition.getParams();
+        var parametersDeclaration = condition.getParams();
 
         for (IParameterDeclaration paramDeclaration : parametersDeclaration) {
             if (paramDeclaration.getName().equals(parameterName)) {

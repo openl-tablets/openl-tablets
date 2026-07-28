@@ -76,7 +76,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     @Override
     public final CompiledDependency getCompiledDependency() throws OpenLCompilationException {
-        CompiledDependency cachedDependency = compiledDependency;
+        var cachedDependency = compiledDependency;
         if (cachedDependency != null) {
             log.debug("Compiled dependency '{}' is used from cache.", dependency);
             return cachedDependency;
@@ -124,11 +124,11 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         }
         source.setParams(parameters);
 
-        boolean oldValidationState = ValidationManager.isValidationEnabled();
+        var oldValidationState = ValidationManager.isValidationEnabled();
         try {
             ValidationManager.turnOffValidation();
-            CompiledOpenClass compiledOpenClass = compile(source, classLoader);
-            CompiledDependency compiledDependency = new CompiledDependency(dependency,
+            var compiledOpenClass = compile(source, classLoader);
+            var compiledDependency = new CompiledDependency(dependency,
                     compiledOpenClass,
                     isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
             if (isActualDependency()) {
@@ -151,7 +151,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         var engineFactory = new RulesEngineFactory<>(source);
         engineFactory.setExecutionMode(executionMode);
         engineFactory.setDependencyManager(dependencyManager);
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        var oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
             return engineFactory.getCompiledOpenClass();
@@ -175,7 +175,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     @Override
     public void reset() {
-        CompiledDependency compiledDependency1 = compiledDependency;
+        var compiledDependency1 = compiledDependency;
         if (compiledDependency1 != null) {
             onResetComplete(this, compiledDependency1);
         }

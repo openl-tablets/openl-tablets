@@ -14,9 +14,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.IOpenLValidator;
@@ -45,7 +43,7 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
                 return true;
             if (o == null || getClass() != o.getClass())
                 return false;
-            ParameterNameKey that = (ParameterNameKey) o;
+            var that = (ParameterNameKey) o;
             return name.equals(that.name);
         }
 
@@ -75,7 +73,7 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
                 return true;
             if (o == null || getClass() != o.getClass())
                 return false;
-            MethodPairKey that = (MethodPairKey) o;
+            var that = (MethodPairKey) o;
             return Objects.equals(methodA, that.methodA) && Objects.equals(methodB, that.methodB);
         }
 
@@ -87,18 +85,18 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
 
     @Override
     public ValidationResult validate(IOpenClass openClass) {
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        var messages = new LinkedHashSet<OpenLMessage>();
         for (IOpenMethod method : openClass.getMethods()) {
             if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
                 List<IOpenMethod> candidates = openMethodDispatcher.getCandidates();
-                int parameterCount = candidates.getFirst().getSignature().getNumberOfParameters();
+                var parameterCount = candidates.getFirst().getSignature().getNumberOfParameters();
                 Set<ParameterNameKey>[] parameterKeysByName = new HashSet[parameterCount];
-                for (int i = 0; i < parameterCount; i++) {
+                for (var i = 0; i < parameterCount; i++) {
                     parameterKeysByName[i] = new HashSet<>();
                 }
                 for (IOpenMethod candidate : candidates) {
-                    IMethodSignature signature = candidate.getSignature();
-                    for (int j = 0; j < parameterCount; j++) {
+                    var signature = candidate.getSignature();
+                    for (var j = 0; j < parameterCount; j++) {
                         if (signature.getParameterName(j) != null) {
                             parameterKeysByName[j].add(new ParameterNameKey(signature.getParameterName(j), candidate));
                         }
@@ -113,14 +111,14 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
     }
 
     private Set<MethodPairKey> buildMethodPairs(Set<? extends ParameterKey>[] parameterKeys, int parameterCount) {
-        Set<MethodPairKey> methodPairs = new HashSet<>();
-        for (int i = 0; i < parameterCount; i++) {
+        var methodPairs = new HashSet<MethodPairKey>();
+        for (var i = 0; i < parameterCount; i++) {
             if (parameterKeys[i].size() > 1) {
-                List<IOpenMethod> conflictMethods = parameterKeys[i].stream()
+                var conflictMethods = parameterKeys[i].stream()
                         .map(ParameterKey::getMethod)
                         .collect(Collectors.toList());
-                for (int j = 0; j < conflictMethods.size() - 1; j++) {
-                    for (int k = j + 1; k < conflictMethods.size(); k++) {
+                for (var j = 0; j < conflictMethods.size() - 1; j++) {
+                    for (var k = j + 1; k < conflictMethods.size(); k++) {
                         methodPairs.add(new MethodPairKey(conflictMethods.get(j), conflictMethods.get(k)));
                     }
                 }
@@ -133,12 +131,12 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
                                    IOpenMethod methodB,
                                    Collection<OpenLMessage> messages,
                                    String message) {
-        ISyntaxNode syntaxNodeA = ((IMemberMetaInfo) methodA).getSyntaxNode();
-        ISyntaxNode syntaxNodeB = ((IMemberMetaInfo) methodB).getSyntaxNode();
+        var syntaxNodeA = ((IMemberMetaInfo) methodA).getSyntaxNode();
+        var syntaxNodeB = ((IMemberMetaInfo) methodB).getSyntaxNode();
         String signA = MethodUtil.printSignature(methodA, INamedThing.REGULAR);
         String signB = MethodUtil.printSignature(methodB, INamedThing.REGULAR);
-        String messageA = message.formatted(signA, signB);
-        String messageB = message.formatted(signB, signA);
+        var messageA = message.formatted(signA, signB);
+        var messageB = message.formatted(signB, signA);
         if (syntaxNodeA instanceof TableSyntaxNode) {
             messages.add(OpenLMessagesUtils.newWarnMessage(messageA, syntaxNodeA));
         }

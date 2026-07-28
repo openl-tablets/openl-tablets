@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.Repository;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 
 /**
@@ -35,7 +34,7 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
     private boolean isCurrentBranchProtectionEnforced(UserWorkspaceProject project) {
         if (project != null && !project.isLocalOnly()) {
-            Repository repo = project.getDesignRepository();
+            var repo = project.getDesignRepository();
             if (repo != null && repo.supports().branches()) {
                 return bypassService.isProtectionEnforced(
                         (BranchRepository) repo, project.getBranch(), project);

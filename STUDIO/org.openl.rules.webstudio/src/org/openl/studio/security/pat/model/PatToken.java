@@ -42,13 +42,13 @@ public record PatToken(
             throw new IllegalArgumentException("Invalid PAT token format");
         }
 
-        int dotIndex = token.indexOf(SEPARATOR, PREFIX.length());
+        var dotIndex = token.indexOf(SEPARATOR, PREFIX.length());
         if (dotIndex < 0) {
             throw new IllegalArgumentException("Invalid PAT token format");
         }
 
-        String publicId = token.substring(PREFIX.length(), dotIndex);
-        String secret = token.substring(dotIndex + 1);
+        var publicId = token.substring(PREFIX.length(), dotIndex);
+        var secret = token.substring(dotIndex + 1);
 
         if (!isValidPublicId(publicId)) {
             throw new IllegalArgumentException("Invalid PAT token format");

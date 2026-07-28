@@ -26,13 +26,13 @@ public class NumericStringComparator implements Comparator<CharSequence> {
 
     @Override
     public int compare(CharSequence str1, CharSequence str2) {
-        final int length1 = str1.length();
-        final int length2 = str2.length();
-        int i1 = 0;
-        int i2 = 0;
+        final var length1 = str1.length();
+        final var length2 = str2.length();
+        var i1 = 0;
+        var i2 = 0;
         while (i1 < length1 && i2 < length2) {
-            char ch1 = str1.charAt(i1);
-            char ch2 = str2.charAt(i2);
+            var ch1 = str1.charAt(i1);
+            var ch2 = str2.charAt(i2);
             if (!Character.isDigit(ch1) || !Character.isDigit(ch2)) {
                 // Usual String.compareTo() logic.
                 if (ch1 != ch2) {
@@ -57,7 +57,7 @@ public class NumericStringComparator implements Comparator<CharSequence> {
             }
 
             // Searching end of the number to compare
-            int exp1 = 0;
+            var exp1 = 0;
             while (Character.isDigit(ch1)) {
                 exp1++;
                 i1++;
@@ -67,7 +67,7 @@ public class NumericStringComparator implements Comparator<CharSequence> {
                 ch1 = str1.charAt(i1);
             }
 
-            int exp2 = 0;
+            var exp2 = 0;
             while (Character.isDigit(ch2)) {
                 exp2++;
                 i2++;
@@ -84,8 +84,8 @@ public class NumericStringComparator implements Comparator<CharSequence> {
 
             for (; exp1 > 0; exp1--) {
                 // compare numbers starting from the most significant digits of a number
-                int dig1 = Character.digit(str1.charAt(i1 - exp1), 10);
-                int dig2 = Character.digit(str2.charAt(i2 - exp1), 10);
+                var dig1 = Character.digit(str1.charAt(i1 - exp1), 10);
+                var dig2 = Character.digit(str2.charAt(i2 - exp1), 10);
                 if (dig1 != dig2) {
                     return dig1 - dig2;
                 }
@@ -106,12 +106,12 @@ public class NumericStringComparator implements Comparator<CharSequence> {
      * returns zero then both string have the same hash.
      */
     public static int hashCode(CharSequence value) {
-        final int prime = 31;
-        int result = 1;
-        int length = value.length();
-        boolean leading = true;
-        for (int i = 0; i < length; i++) {
-            char c = value.charAt(i);
+        final var prime = 31;
+        var result = 1;
+        var length = value.length();
+        var leading = true;
+        for (var i = 0; i < length; i++) {
+            var c = value.charAt(i);
             if (leading && isZero(c)) {
                 // don't calculate hash for insignificant zero.
                 continue;

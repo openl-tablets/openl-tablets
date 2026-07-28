@@ -14,7 +14,7 @@ class UserExternalFlagsTest {
 
     @Test
     void testBuilderDefaults() {
-        UserExternalFlags flags = UserExternalFlags.builder().build();
+        var flags = UserExternalFlags.builder().build();
         assertFalse(flags.isFirstNameExternal());
         assertFalse(flags.isLastNameExternal());
         assertFalse(flags.isDisplayNameExternal());
@@ -28,7 +28,7 @@ class UserExternalFlagsTest {
 
     @Test
     void testBuilder() {
-        UserExternalFlags flags = UserExternalFlags.builder().applyFeature(Feature.EXTERNAL_FIRST_NAME, true).build();
+        var flags = UserExternalFlags.builder().applyFeature(Feature.EXTERNAL_FIRST_NAME, true).build();
         assertTrue(flags.isFirstNameExternal());
         assertFalse(flags.isLastNameExternal());
         assertFalse(flags.isDisplayNameExternal());
@@ -66,7 +66,7 @@ class UserExternalFlagsTest {
 
     @Test
     void testAllTrue() {
-        UserExternalFlags flags = UserExternalFlags.builder()
+        var flags = UserExternalFlags.builder()
                 .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, true)
                 .applyFeature(Feature.EXTERNAL_LAST_NAME, true)
                 .applyFeature(Feature.EXTERNAL_FIRST_NAME, true)
@@ -90,7 +90,7 @@ class UserExternalFlagsTest {
     @Test
     void testGeneric() {
         for (Feature f : Feature.values()) {
-            UserExternalFlags flags = UserExternalFlags.builder().withFeature(f).build();
+            var flags = UserExternalFlags.builder().withFeature(f).build();
             for (Feature f2 : Feature.values()) {
                 if (f2 == f) {
                     assertTrue(flags.checkFeature(f2));

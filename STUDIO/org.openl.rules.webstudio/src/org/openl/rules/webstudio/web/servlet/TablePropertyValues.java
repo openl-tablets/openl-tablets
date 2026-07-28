@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serial;
 import java.util.Date;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,10 +26,10 @@ public class TablePropertyValues extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {
-        String propName = request.getParameter("propName");
+        var propName = request.getParameter("propName");
 
         TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(propName);
-        ServletOutputStream outputStream = response.getOutputStream();
+        var outputStream = response.getOutputStream();
 
         try {
             if (propDefinition.getType() != null && propDefinition.getType().isArray()) {
@@ -38,10 +37,10 @@ public class TablePropertyValues extends HttpServlet {
                 String[] displayValues = EnumUtils
                         .getValues(propDefinition.getType().getInstanceClass().getComponentType());
 
-                String choisesString = "\"" + String.join("\", \"", values) + "\"";
-                String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
+                var choisesString = "\"" + String.join("\", \"", values) + "\"";
+                var displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
 
-                String params = "{\"type\" : \"MULTI\", \"choices\" : [%s], \"displayValues\" : [%s], \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}".formatted(
+                var params = "{\"type\" : \"MULTI\", \"choices\" : [%s], \"displayValues\" : [%s], \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}".formatted(
                         choisesString,
                         displayValuesString);
 
@@ -50,10 +49,10 @@ public class TablePropertyValues extends HttpServlet {
                 String[] values = EnumUtils.getNames(propDefinition.getType().getInstanceClass());
                 String[] displayValues = EnumUtils.getValues(propDefinition.getType().getInstanceClass());
 
-                String choisesString = "\"" + String.join("\", \"", values) + "\"";
-                String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
+                var choisesString = "\"" + String.join("\", \"", values) + "\"";
+                var displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
 
-                String params = "{\"type\" : \"SINGLE\", \"param\" : {\"choices\" : [%s], \"displayValues\" : [%s]}, \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}".formatted(
+                var params = "{\"type\" : \"SINGLE\", \"param\" : {\"choices\" : [%s], \"displayValues\" : [%s]}, \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}".formatted(
                         choisesString,
                         displayValuesString);
 

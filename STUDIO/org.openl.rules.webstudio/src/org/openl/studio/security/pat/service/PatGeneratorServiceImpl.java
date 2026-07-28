@@ -75,9 +75,9 @@ public class PatGeneratorServiceImpl implements PatGeneratorService {
 
         // secret (high entropy)
         String secret = Base62Generator.generate(PatToken.SECRET_LENGTH);
-        String secretHash = passwordEncoder.encode(secret);
+        var secretHash = passwordEncoder.encode(secret);
 
-        PersonalAccessToken token = new PersonalAccessToken();
+        var token = new PersonalAccessToken();
         token.setPublicId(publicId);
         token.setSecretHash(secretHash);
         token.setLoginName(loginName);

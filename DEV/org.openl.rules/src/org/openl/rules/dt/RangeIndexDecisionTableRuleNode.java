@@ -25,9 +25,9 @@ public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode imple
     @Override
     public int[] getRules() {
         int[] result = new int[ruleSet.cardinality()];
-        int i = 0;
+        var i = 0;
 
-        for (int rule = ruleSet.nextSetBit(0); rule >= 0; rule = ruleSet.nextSetBit(rule + 1)) {
+        for (var rule = ruleSet.nextSetBit(0); rule >= 0; rule = ruleSet.nextSetBit(rule + 1)) {
             result[i++] = rule;
             if (rule == Integer.MAX_VALUE) {
                 break; // or (i+1) would overflow

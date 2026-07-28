@@ -41,14 +41,14 @@ public class ArrayHolder {
 
     public Object invoke(Object target, Object[] dtParams, IRuntimeEnv env) {
         if (values2 != null) {
-            Object res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, values2.length);
-            for (int i = 0; i < values2.length; i++) {
+            var res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, values2.length);
+            for (var i = 0; i < values2.length; i++) {
                 if (values2[i] != null) {
-                    Object array = componentType.getAggregateInfo()
+                    var array = componentType.getAggregateInfo()
                             .makeIndexedAggregate(componentType.getComponentClass(), values2[i].length);
-                    for (int j = 0; j < values2[i].length; j++) {
+                    for (var j = 0; j < values2[i].length; j++) {
                         if (values2[i][j] instanceof CompositeMethod compositeMethod) {
-                            Object result = compositeMethod.invoke(target, dtParams, env);
+                            var result = compositeMethod.invoke(target, dtParams, env);
                             Array.set(array, j, result);
                         } else {
                             Array.set(array,
@@ -61,10 +61,10 @@ public class ArrayHolder {
             }
             return res;
         } else {
-            Object res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, values1.length);
-            for (int i = 0; i < values1.length; i++) {
+            var res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, values1.length);
+            for (var i = 0; i < values1.length; i++) {
                 if (values1[i] instanceof CompositeMethod compositeMethod) {
-                    Object result = compositeMethod.invoke(target, dtParams, env);
+                    var result = compositeMethod.invoke(target, dtParams, env);
                     Array.set(res, i, result);
                 } else {
                     Array.set(res, i, values1[i] == null ? componentType.nullObject() : values1[i]);

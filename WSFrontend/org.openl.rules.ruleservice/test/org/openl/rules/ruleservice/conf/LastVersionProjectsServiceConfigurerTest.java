@@ -3,9 +3,7 @@ package org.openl.rules.ruleservice.conf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +25,10 @@ class LastVersionProjectsServiceConfigurerTest {
 
     @Test
     void testConfigurer() {
-        LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
-        Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
+        var configurer = new LastVersionProjectsServiceConfigurer();
+        var servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
         assertEquals(2, servicesToBeDeployed.size());
-        Set<String> serviceNames = new HashSet<>();
+        var serviceNames = new HashSet<String>();
         for (ServiceDescription description : servicesToBeDeployed) {
             serviceNames.add(description.getName());
         }
@@ -39,11 +37,11 @@ class LastVersionProjectsServiceConfigurerTest {
 
     @Test
     void shouldConfigureDeployments_whenDeploymentMatcherIsSet() {
-        LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
+        var configurer = new LastVersionProjectsServiceConfigurer();
         configurer.setDatasourceDeploymentPatterns("*Projects*");
-        Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
+        var servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
         assertEquals(2, servicesToBeDeployed.size());
-        Set<String> serviceNames = new HashSet<>();
+        var serviceNames = new HashSet<String>();
         for (ServiceDescription description : servicesToBeDeployed) {
             serviceNames.add(description.getName());
         }
@@ -52,9 +50,9 @@ class LastVersionProjectsServiceConfigurerTest {
 
     @Test
     void shouldNotMatchAnyDeployments_whenDeploymentMatcherIsSet() {
-        LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
+        var configurer = new LastVersionProjectsServiceConfigurer();
         configurer.setDatasourceDeploymentPatterns("Test*");
-        Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
+        var servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
         assertEquals(0, servicesToBeDeployed.size());
     }
 

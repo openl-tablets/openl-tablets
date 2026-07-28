@@ -33,13 +33,13 @@ public class RefPropertySource extends PropertySource<Object> {
         if (name.endsWith(REF) || depth > MAX_REF_DEPTH) {
             return null;
         }
-        String subName = name;
-        StringBuilder sufix = new StringBuilder();
-        int dot = name.length();
+        var subName = name;
+        var sufix = new StringBuilder();
+        var dot = name.length();
         do {
             sufix.insert(0, subName.substring(dot));
             subName = subName.substring(0, dot);
-            String ref = subName + REF;
+            var ref = subName + REF;
             String refProp = StringUtils.trimToNull(getPropValue(ref, depth, visitedRefs));
             if (refProp != null) {
                 if (!visitedRefs.add(refProp)) {

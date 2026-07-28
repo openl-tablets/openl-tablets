@@ -225,10 +225,10 @@ public class FieldProjectionSupport {
         parents.push(root);
         var nameBuffer = new StringBuilder();
         var nodeCount = new AtomicInteger();
-        int depth = 0;
+        var depth = 0;
 
         for (int i = 0, len = raw.length(); i < len; i++) {
-            char c = raw.charAt(i);
+            var c = raw.charAt(i);
             switch (c) {
                 case '(' -> {
                     if (++depth > MAX_DEPTH) {

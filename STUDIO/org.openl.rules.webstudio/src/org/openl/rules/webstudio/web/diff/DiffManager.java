@@ -34,7 +34,7 @@ public class DiffManager implements AutoCloseable {
 
     ShowDiffController get(String id) {
         synchronized (diffControllers) {
-            Comparison comparison = diffControllers.get(id);
+            var comparison = diffControllers.get(id);
             if (comparison == null) {
                 return null;
             }
@@ -76,10 +76,10 @@ public class DiffManager implements AutoCloseable {
 
     private void cleanUpInactive() {
         synchronized (diffControllers) {
-            long currentTime = System.currentTimeMillis();
+            var currentTime = System.currentTimeMillis();
             Iterator<Comparison> iterator = diffControllers.values().iterator();
             while (iterator.hasNext()) {
-                Comparison comparison = iterator.next();
+                var comparison = iterator.next();
                 if ((currentTime - comparison.getAccessTime()) / 1000 >= cleanUpPeriod) {
                     iterator.remove();
                     comparison.getController().close();

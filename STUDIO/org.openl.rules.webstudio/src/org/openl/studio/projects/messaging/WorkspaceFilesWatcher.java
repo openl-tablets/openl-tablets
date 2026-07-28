@@ -11,7 +11,6 @@ import java.nio.file.WatchService;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
@@ -206,7 +205,7 @@ public class WorkspaceFilesWatcher {
     }
 
     private void registerTree(Path directory) throws IOException {
-        try (Stream<Path> tree = Files.walk(directory)) {
+        try (var tree = Files.walk(directory)) {
             for (var current : tree.filter(Files::isDirectory).toList()) {
                 var relative = root.relativize(current);
                 if (isServicePath(relative) && !isLockPath(relative)) {

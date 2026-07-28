@@ -67,7 +67,7 @@ class ZipProjectSaveStrategyTest {
         this.designTimeRepositoryMock = mock(DesignTimeRepository.class);
         this.userManagementService = mock(UserManagementService.class);
         when(designTimeRepositoryMock.getRulesLocation()).thenReturn(BASE_RULES_LOCATION);
-        SimpleUser user = new SimpleUser();
+        var user = new SimpleUser();
         user.setDisplayName("John Smith");
         user.setEmail("jsmith@email");
         when(userManagementService.getUser(anyString())).thenReturn(user);
@@ -87,27 +87,27 @@ class ZipProjectSaveStrategyTest {
     @Test
     void testSaveMappedRepo() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
-        CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
+        var model = new CreateUpdateProjectModel("design1",
                 "jsmith",
                 "Project 1",
                 "foo/Project 1",
                 "Bar",
                 false);
-        Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
-        Map<String, FileItem> actualFileItems = captureFileItems(repo);
+        var repo = designTimeRepositoryMock.getRepository(model.getRepoName());
+        var actualFileItems = captureFileItems(repo);
 
         Path expected = Path.of("test-resources/upload/zip/project.zip");
         saveStrategy.save(model, expected);
         verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
         assertSame(expected, BASE_RULES_LOCATION + "Project 1/", actualFileItems);
 
-        FileData actualData = fileDataCaptor.getValue();
+        var actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("Bar", actualData.getComment());
         assertEquals("jsmith@email", actualData.getAuthor().getEmail());
         assertEquals("John Smith", actualData.getAuthor().getName());
         assertEquals(1, actualData.getAdditionalData().size());
-        FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
+        var actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualAddData.getExternalPath());
         assertEquals("foo/Project 1", actualAddData.getInternalPath());
     }
@@ -115,27 +115,27 @@ class ZipProjectSaveStrategyTest {
     @Test
     void testSaveMappedRepo2() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
-        CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
+        var model = new CreateUpdateProjectModel("design1",
                 "jsmith",
                 "Project 1",
                 null,
                 "Bar",
                 false);
-        Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
-        Map<String, FileItem> actualFileItems = captureFileItems(repo);
+        var repo = designTimeRepositoryMock.getRepository(model.getRepoName());
+        var actualFileItems = captureFileItems(repo);
 
         Path expected = Path.of("test-resources/upload/zip/project.zip");
         saveStrategy.save(model, expected);
         verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
         assertSame(expected, BASE_RULES_LOCATION + "Project 1/", actualFileItems);
 
-        FileData actualData = fileDataCaptor.getValue();
+        var actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("Bar", actualData.getComment());
         assertEquals("jsmith@email", actualData.getAuthor().getEmail());
         assertEquals("John Smith", actualData.getAuthor().getName());
         assertEquals(1, actualData.getAdditionalData().size());
-        FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
+        var actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualAddData.getExternalPath());
         assertEquals("Project 1", actualAddData.getInternalPath());
     }
@@ -143,21 +143,21 @@ class ZipProjectSaveStrategyTest {
     @Test
     void testSaveNotFolderRepo() throws Exception {
         mockDesignRepository(Repository.class, "design2", builder -> builder.setVersions(true));
-        CreateUpdateProjectModel model = new CreateUpdateProjectModel("design2",
+        var model = new CreateUpdateProjectModel("design2",
                 "jsmith",
                 "Project 1",
                 null,
                 null,
                 false);
-        Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
-        AtomicReference<InputStream> actualStream = captureStream(repo);
+        var repo = designTimeRepositoryMock.getRepository(model.getRepoName());
+        var actualStream = captureStream(repo);
 
         Path expected = Path.of("test-resources/upload/zip/project.zip");
         saveStrategy.save(model, expected);
         verify(repo, times(1)).save(fileDataCaptor.capture(), any());
         assertSame(expected, actualStream.get());
 
-        FileData actualData = fileDataCaptor.getValue();
+        var actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("", actualData.getComment());
         assertEquals("jsmith@email", actualData.getAuthor().getEmail());
@@ -168,32 +168,32 @@ class ZipProjectSaveStrategyTest {
     @Test
     void testSaveMappedRepoCustomPath() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
-        CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
+        var model = new CreateUpdateProjectModel("design1",
                 "jsmith",
                 "Project 1",
                 "custom-name",
                 "Bar",
                 false);
-        Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
-        Map<String, FileItem> actualFileItems = captureFileItems(repo);
+        var repo = designTimeRepositoryMock.getRepository(model.getRepoName());
+        var actualFileItems = captureFileItems(repo);
 
         Path expected = Path.of("test-resources/upload/zip/project.zip");
         saveStrategy.save(model, expected);
         verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
-        final String expectedRootFolder = BASE_RULES_LOCATION + "Project 1/";
+        final var expectedRootFolder = BASE_RULES_LOCATION + "Project 1/";
         assertSame(expected, expectedRootFolder, actualFileItems);
 
-        FileData actualData = fileDataCaptor.getValue();
+        var actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("Bar", actualData.getComment());
         assertEquals("jsmith@email", actualData.getAuthor().getEmail());
         assertEquals("John Smith", actualData.getAuthor().getName());
         assertEquals(1, actualData.getAdditionalData().size());
-        FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
+        var actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualAddData.getExternalPath());
         assertEquals("custom-name", actualAddData.getInternalPath());
 
-        FileItem descriptor = actualFileItems
+        var descriptor = actualFileItems
                 .get(expectedRootFolder + ProjectDescriptor.FILE_NAME);
         ((ByteArrayInputStream) descriptor.getStream()).reset();
         assertProjectDescriptor(expectedRootFolder, "Project 1", descriptor);
@@ -202,33 +202,33 @@ class ZipProjectSaveStrategyTest {
     @Test
     void testSaveMappedRepoCustomPathExtraProjectDescriptor() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
-        CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
+        var model = new CreateUpdateProjectModel("design1",
                 "jsmith",
                 "Project 2",
                 "custom-name",
                 "Bar",
                 false);
-        Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
-        Map<String, FileItem> actualFileItems = captureFileItems(repo);
+        var repo = designTimeRepositoryMock.getRepository(model.getRepoName());
+        var actualFileItems = captureFileItems(repo);
 
         Path expected = Path.of("test-resources/upload/zip/excel-only-project.zip");
         saveStrategy.save(model, expected);
         verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
 
-        final String expectedRootFolder = BASE_RULES_LOCATION + "Project 2/";
-        FileItem descriptor = actualFileItems
+        final var expectedRootFolder = BASE_RULES_LOCATION + "Project 2/";
+        var descriptor = actualFileItems
                 .remove(expectedRootFolder + ProjectDescriptor.FILE_NAME);
         assertProjectDescriptor(expectedRootFolder, "Project 2", descriptor);
 
         assertSame(expected, expectedRootFolder, actualFileItems);
 
-        FileData actualData = fileDataCaptor.getValue();
+        var actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 2", actualData.getName());
         assertEquals("Bar", actualData.getComment());
         assertEquals("jsmith@email", actualData.getAuthor().getEmail());
         assertEquals("John Smith", actualData.getAuthor().getName());
         assertEquals(1, actualData.getAdditionalData().size());
-        FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
+        var actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 2", actualAddData.getExternalPath());
         assertEquals("custom-name", actualAddData.getInternalPath());
     }
@@ -243,12 +243,12 @@ class ZipProjectSaveStrategyTest {
     private static void assertSame(Path expectedArchive, InputStream actualStream) throws IOException {
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(expectedArchive),
                 Collections.singletonMap("encoding", StandardCharsets.UTF_8.displayName()))) {
-            Path root = fs.getPath("/");
-            try (ZipInputStream actualZipStream = new ZipInputStream(actualStream)) {
+            var root = fs.getPath("/");
+            try (var actualZipStream = new ZipInputStream(actualStream)) {
                 ZipEntry ze;
                 while ((ze = actualZipStream.getNextEntry()) != null) {
                     if (!ze.isDirectory()) {
-                        Path expected = root.resolve(ze.getName());
+                        var expected = root.resolve(ze.getName());
                         try (InputStream expectedStream = Files.newInputStream(expected)) {
                             if (!ze.getName().equals("rules.xml")) {
                                 assertTrue(
@@ -270,14 +270,14 @@ class ZipProjectSaveStrategyTest {
                                    Map<String, FileItem> actualFileItems) throws IOException {
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(expectedArchive),
                 Collections.singletonMap("encoding", StandardCharsets.UTF_8.displayName()))) {
-            Path root = fs.getPath("/");
+            var root = fs.getPath("/");
             actualFileItems.forEach((actualName, actualItem) -> {
                 assertTrue(actualName.startsWith(expectedPrefix));
-                String actualFileName = actualName.substring(expectedPrefix.length());
-                Path expected = root.resolve(actualFileName);
+                var actualFileName = actualName.substring(expectedPrefix.length());
+                var expected = root.resolve(actualFileName);
                 assertTrue(Files.exists(expected));
                 try (InputStream expectedStream = Files.newInputStream(expected);
-                     InputStream actualStream = actualItem.getStream()) {
+                     var actualStream = actualItem.getStream()) {
                     if (!actualFileName.equals("rules.xml")) {
                         assertTrue(org.apache.commons.io.IOUtils.contentEquals(expectedStream, actualStream));
                     } else {
@@ -292,14 +292,14 @@ class ZipProjectSaveStrategyTest {
     }
 
     private Map<String, FileItem> captureFileItems(Repository repo) throws IOException {
-        Map<String, FileItem> actualFileItems = new HashMap<>();
+        var actualFileItems = new HashMap<String, FileItem>();
         when(repo.save(any(FileData.class), any(), eq(ChangesetType.FULL))).thenAnswer(a -> {
             // noinspection unchecked
             for (FileItem fileItem : (Iterable<FileItem>) a.getArguments()[1]) {
                 if (actualFileItems.containsKey(fileItem.getData().getName())) {
                     throw new RuntimeException("Unexpected entry!");
                 }
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                var os = new ByteArrayOutputStream();
                 IOUtils.copyAndClose(fileItem.getStream(), os);
                 actualFileItems.put(fileItem.getData().getName(),
                         new FileItem(fileItem.getData(), new ByteArrayInputStream(os.toByteArray())));
@@ -310,9 +310,9 @@ class ZipProjectSaveStrategyTest {
     }
 
     private AtomicReference<InputStream> captureStream(Repository repo) throws IOException {
-        AtomicReference<InputStream> holder = new AtomicReference<>();
+        var holder = new AtomicReference<InputStream>();
         when(repo.save(any(FileData.class), any())).thenAnswer(a -> {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            var os = new ByteArrayOutputStream();
             IOUtils.copyAndClose((InputStream) a.getArguments()[1], os);
             holder.set(new ByteArrayInputStream(os.toByteArray()));
             return null;
@@ -328,7 +328,7 @@ class ZipProjectSaveStrategyTest {
 
         when(mockedRepo.check(anyString())).thenReturn(null);
 
-        FeaturesBuilder featuresBuilder = new FeaturesBuilder(mockedRepo);
+        var featuresBuilder = new FeaturesBuilder(mockedRepo);
         if (MappedRepository.class.isAssignableFrom(tClass)) {
             when(((MappedRepository) mockedRepo).getDelegate()).thenReturn(mockedRepo);
             featuresBuilder.setMappedFolders(true);

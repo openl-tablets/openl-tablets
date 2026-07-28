@@ -108,7 +108,7 @@ public abstract class Point {
                 return false;
             }
 
-            BigPoint bigPoint = (BigPoint) o;
+            var bigPoint = (BigPoint) o;
 
             return column == bigPoint.column && row == bigPoint.row;
         }

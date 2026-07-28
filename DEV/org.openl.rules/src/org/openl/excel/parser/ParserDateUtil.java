@@ -19,8 +19,8 @@ public final class ParserDateUtil {
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
+            final var prime = 31;
+            var result = 1;
             result = prime * result + formatIndex;
             result = prime * result + (formatString == null ? 0 : formatString.hashCode());
             return result;
@@ -37,7 +37,7 @@ public final class ParserDateUtil {
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            CacheKey other = (CacheKey) obj;
+            var other = (CacheKey) obj;
             if (formatIndex != other.formatIndex) {
                 return false;
             }
@@ -55,7 +55,7 @@ public final class ParserDateUtil {
     private final Map<CacheKey, Boolean> cache = new HashMap<>();
 
     public boolean isADateFormat(int formatIndex, String formatString) {
-        CacheKey key = new CacheKey(formatIndex, formatString);
+        var key = new CacheKey(formatIndex, formatString);
         return cache.computeIfAbsent(key, e -> DateUtil.isADateFormat(formatIndex, formatString));
     }
 

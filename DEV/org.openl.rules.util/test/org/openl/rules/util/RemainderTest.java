@@ -146,7 +146,7 @@ class RemainderTest {
 
     @Test
     void remainderBigIntegerLarge() {
-        BigInteger dividend = new BigInteger("203000745502000030060144252100");
+        var dividend = new BigInteger("203000745502000030060144252100");
         assertEquals(BigInteger.valueOf(59), Remainder.remainder(dividend, BigInteger.valueOf(97)));
         assertEquals(BigInteger.valueOf(59), Remainder.remainder(dividend, BigInteger.valueOf(-97)));
         assertEquals(BigInteger.valueOf(-59), Remainder.remainder(dividend.negate(), BigInteger.valueOf(97)));
@@ -169,7 +169,7 @@ class RemainderTest {
 
     @Test
     void remainderBigDecimalLarge() {
-        BigDecimal dividend = new BigDecimal("203000745502000030060144252100");
+        var dividend = new BigDecimal("203000745502000030060144252100");
         assertEquals(BigDecimal.valueOf(59), Remainder.remainder(dividend, BigDecimal.valueOf(97)));
     }
 

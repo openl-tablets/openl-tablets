@@ -5,7 +5,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
@@ -19,7 +18,7 @@ abstract class OpenLLogger {
     private final Logger logger;
 
     {
-        String name = getName();
+        var name = getName();
         logger = LoggerFactory.getLogger("OpenL." + name);
     }
 
@@ -67,7 +66,7 @@ abstract class OpenLLogger {
         if (o == null) {
             return "<null>";
         } else if (o.getClass().isArray()) {
-            int length = Array.getLength(o);
+            var length = Array.getLength(o);
             return "<" + o.getClass().getComponentType().getSimpleName() + "[" + length + "]>";
         } else if (o.getClass().isEnum()) {
             return "<" + o.getClass().getName() + "." + ((Enum<?>) o).name() + "]>";
@@ -87,7 +86,7 @@ abstract class OpenLLogger {
     @SuppressWarnings("rawtypes")
     private void logComplexObject(Object value) {
         if (value instanceof Map<?, ?> map) {
-            int i = 0;
+            var i = 0;
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 logSimpleObject("    '{}' = {}", entry.getKey(), entry.getValue());
                 if (i++ >= 50) {
@@ -96,7 +95,7 @@ abstract class OpenLLogger {
                 }
             }
         } else if (value instanceof Collection collection) {
-            int i = 0;
+            var i = 0;
             for (Object item : collection) {
                 logSimpleObject("    [{}] = {}", i++, item);
                 if (i >= 10) {
@@ -111,16 +110,16 @@ abstract class OpenLLogger {
             } catch (Exception e) {
                 return;
             }
-            PropertyDescriptor[] pds = bi.getPropertyDescriptors();
+            var pds = bi.getPropertyDescriptors();
             for (PropertyDescriptor pd : pds) {
-                String propName = pd.getName();
+                var propName = pd.getName();
                 if ("class".equals(propName)) {
                     continue;
                 }
                 try {
-                    Method readMethod = pd.getReadMethod();
+                    var readMethod = pd.getReadMethod();
                     if (readMethod != null) {
-                        Object propValue = readMethod.invoke(value);
+                        var propValue = readMethod.invoke(value);
                         logSimpleObject("    {} = {}", propName, propValue);
                     } else {
                         log("    {} = <no access>", propName);

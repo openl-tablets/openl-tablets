@@ -34,18 +34,18 @@ public class UserInfoClaimsConverter implements Converter<Map<String, Object>, S
 
     @Override
     public SimpleUser convert(Map<String, Object> claims) {
-        final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        Object claimGroups = claims.get(propertyResolver.getProperty("security.oauth2.attribute.groups"));
+        final var grantedAuthorities = new ArrayList<GrantedAuthority>();
+        var claimGroups = claims.get(propertyResolver.getProperty("security.oauth2.attribute.groups"));
         if (claimGroups != null) {
             if (List.class.isAssignableFrom(claimGroups.getClass())) {
-                List<?> groups = (List<?>) claims.get(propertyResolver.getProperty("security.oauth2.attribute.groups"));
+                var groups = (List<?>) claims.get(propertyResolver.getProperty("security.oauth2.attribute.groups"));
                 for (Object name : groups) {
                     grantedAuthorities.add(new SimpleGrantedAuthority(name.toString()));
                 }
             }
         }
 
-        String username = getAttributeAsString(claims, "security.oauth2.attribute.username");
+        var username = getAttributeAsString(claims, "security.oauth2.attribute.username");
         var userBuilder = SimpleUser.builder()
                 .setFirstName(getAttributeAsString(claims, "security.oauth2.attribute.first-name"))
                 .setLastName(getAttributeAsString(claims, "security.oauth2.attribute.last-name"))
@@ -55,19 +55,19 @@ public class UserInfoClaimsConverter implements Converter<Map<String, Object>, S
                 .setDisplayName(getAttributeAsString(claims, "security.oauth2.attribute.display-name"));
 
         syncUserData.accept(userBuilder.build());
-        Collection<GrantedAuthority> privileges = privilegeMapper.apply(username, grantedAuthorities);
+        var privileges = privilegeMapper.apply(username, grantedAuthorities);
 
         return userBuilder.setPrivileges(privileges).build();
     }
 
     private String getAttributeAsString(Map<String, Object> claims, String key) {
         String attribute = null;
-        String property = propertyResolver.getProperty(key);
+        var property = propertyResolver.getProperty(key);
         if (StringUtils.isNotBlank(property)) {
-            Object claim = claims.get(property);
+            var claim = claims.get(property);
             if (claim != null) {
                 if (List.class.isAssignableFrom(claims.getClass())) {
-                    List<?> stringClaims = (List<?>) claim;
+                    var stringClaims = (List<?>) claim;
                     if (!stringClaims.isEmpty()) {
                         attribute = stringClaims.getFirst().toString();
                     }

@@ -1,16 +1,12 @@
 package org.openl.rules.ui;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.model.ui.TableModel;
@@ -54,7 +50,7 @@ public final class ObjectViewer {
                                   Map<Point, ComparedResult> spreadsheetCellsForTest,
                                   boolean filter,
                                   boolean smartNumbers) {
-        List<IGridFilter> filters = new ArrayList<>();
+        var filters = new ArrayList<IGridFilter>();
         filters.add(new TableValueFilter(res, smartNumbers));
         filters.add(CollectionCellFilter.INSTANCE);
 
@@ -67,11 +63,11 @@ public final class ObjectViewer {
             }
         }
 
-        ILogicalTable table = res.getLogicalTable();
-        IGridTable gridtable = table.getSource();
+        var table = res.getLogicalTable();
+        var gridtable = table.getSource();
 
-        ProjectModel model = WebStudioUtils.getWebStudio().getModel();
-        MetaInfoReader metaInfoReader = Optional.ofNullable(model.getNode(gridtable.getUri()))
+        var model = WebStudioUtils.getWebStudio().getModel();
+        var metaInfoReader = Optional.ofNullable(model.getNode(gridtable.getUri()))
                 .map(TableSyntaxNode::getMetaInfoReader)
                 .orElseGet(EmptyMetaInfoReader::getInstance);
 

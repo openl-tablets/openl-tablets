@@ -47,10 +47,10 @@ public class WorkspaceUserImpl implements WorkspaceUser {
      * Generates system safe user id.
      */
     protected String generateUserId(String s) {
-        StringBuilder sb = new StringBuilder(32);
+        var sb = new StringBuilder(32);
 
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
+        for (var i = 0; i < s.length(); i++) {
+            var c = s.charAt(i);
 
             if (Character.isLetterOrDigit(c) || c == '_' || c == '-') {
                 sb.append(c);
@@ -75,12 +75,12 @@ public class WorkspaceUserImpl implements WorkspaceUser {
      * an encoded user id.
      */
     public static String decodeUserId(String userId) {
-        StringBuilder sb = new StringBuilder(userId.length());
-        int i = 0;
+        var sb = new StringBuilder(userId.length());
+        var i = 0;
         while (i < userId.length()) {
-            char c = userId.charAt(i);
+            var c = userId.charAt(i);
             if (c == '(') {
-                int end = userId.indexOf(')', i);
+                var end = userId.indexOf(')', i);
                 if (end <= i + 1) {
                     return userId;
                 }

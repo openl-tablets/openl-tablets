@@ -6,7 +6,6 @@ package org.openl.rules.tableeditor.model;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 
@@ -15,7 +14,6 @@ import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
@@ -23,14 +21,12 @@ import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
-import org.openl.rules.table.actions.IUndoableAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.UndoableActions;
 import org.openl.rules.table.actions.UndoableCompositeAction;
@@ -142,7 +138,7 @@ public class TableEditorModel {
     }
 
     public synchronized void insertColumns(int nCols, int beforeCol, int row) {
-        IUndoableGridTableAction insertColumnsAction = new UndoableInsertColumnsAction(nCols,
+        var insertColumnsAction = new UndoableInsertColumnsAction(nCols,
                 beforeCol,
                 row,
                 getMetaInfoWriter());
@@ -151,7 +147,7 @@ public class TableEditorModel {
     }
 
     public synchronized void insertRows(int nRows, int beforeRow, int col) {
-        IUndoableGridTableAction insertRowsAction = new UndoableInsertRowsAction(nRows,
+        var insertRowsAction = new UndoableInsertRowsAction(nRows,
                 beforeRow,
                 col,
                 getMetaInfoWriter());
@@ -160,13 +156,13 @@ public class TableEditorModel {
     }
 
     public synchronized void redo() {
-        IUndoableAction ua = actions.getRedoAction();
+        var ua = actions.getRedoAction();
 
         ((IUndoableGridTableAction) ua).doAction(gridTable);
     }
 
     public synchronized void removeRows(int nRows, int startRow, int col) {
-        IUndoableGridTableAction removeRowsAction = new UndoableRemoveMergedRowsAction(nRows,
+        var removeRowsAction = new UndoableRemoveMergedRowsAction(nRows,
                 startRow,
                 col,
                 getMetaInfoWriter());
@@ -175,7 +171,7 @@ public class TableEditorModel {
     }
 
     public synchronized void removeColumns(int nCols, int startCol, int row) {
-        IUndoableGridTableAction removeColumnsAction = new UndoableRemoveMergedColumnsAction(nCols,
+        var removeColumnsAction = new UndoableRemoveMergedColumnsAction(nCols,
                 startCol,
                 row,
                 getMetaInfoWriter());
@@ -188,10 +184,10 @@ public class TableEditorModel {
      * adding new rows and columns on editing. We need to know new destination of the table.
      */
     public synchronized String save() throws IOException {
-        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
+        var xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         xlsgrid.getSheetSource().getWorkbookSource().save();
         actions = new UndoableActions();
-        String uri = getOriginalGridTable().getUri();
+        var uri = getOriginalGridTable().getUri();
         return TableUtils.makeTableId(uri);
     }
 
@@ -199,21 +195,21 @@ public class TableEditorModel {
      * @return Sheet source of editable table
      */
     public XlsSheetSourceCodeModule getSheetSource() {
-        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
+        var xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         return xlsgrid.getSheetSource();
     }
 
     public synchronized void setCellValue(int row, int col, String value, IFormatter formatter) {
-        IGridRegion originalRegion = getOriginalTableRegion();
-        int gcol = originalRegion.getLeft() + col;
-        int grow = originalRegion.getTop() + row;
+        var originalRegion = getOriginalTableRegion();
+        var gcol = originalRegion.getLeft() + col;
+        var grow = originalRegion.getTop() + row;
 
         IFormatter dataFormatter;
         if (formatter != null) {
             dataFormatter = formatter;
         } else {
-            ICell cell = gridTable.getGrid().getCell(gcol, grow);
-            CellMetaInfo metaInfo = getMetaInfoReader().getMetaInfo(grow, gcol);
+            var cell = gridTable.getGrid().getCell(gcol, grow);
+            var metaInfo = getMetaInfoReader().getMetaInfo(grow, gcol);
             dataFormatter = XlsDataFormatterFactory.getFormatter(cell, metaInfo, false);
 
             // Don't reformat value if value is belong to domain
@@ -241,7 +237,7 @@ public class TableEditorModel {
             result = value;
         }
 
-        IUndoableGridTableAction action = new UndoableSetValueAction(gcol, grow, result, getMetaInfoWriter());
+        var action = new UndoableSetValueAction(gcol, grow, result, getMetaInfoWriter());
 
         action.doAction(gridTable);
         actions.addNewAction(action);
@@ -258,15 +254,15 @@ public class TableEditorModel {
     }
 
     public synchronized void setProperty(String name, Object value) {
-        List<IUndoableGridTableAction> createdActions = new ArrayList<>();
+        var createdActions = new ArrayList<IUndoableGridTableAction>();
 
-        IGridTable fullTable = getOriginalGridTable();
-        IGridRegion fullTableRegion = fullTable.getRegion();
+        var fullTable = getOriginalGridTable();
+        var fullTableRegion = fullTable.getRegion();
 
-        CellKey propertyCoordinates = getPropertyCoordinates(fullTableRegion, gridTable.getGrid(), name);
+        var propertyCoordinates = getPropertyCoordinates(fullTableRegion, gridTable.getGrid(), name);
 
-        boolean propExists = propertyCoordinates != null;
-        boolean propIsBlank = value == null;
+        var propExists = propertyCoordinates != null;
+        var propIsBlank = value == null;
 
         if (propIsBlank) {
             if (propExists) {
@@ -276,11 +272,11 @@ public class TableEditorModel {
         }
 
         // Initialize meta info writer before any modifications
-        MetaInfoWriter metaInfoWriter = getMetaInfoWriter();
+        var metaInfoWriter = getMetaInfoWriter();
 
         if (!propExists) {
-            int tableWidth = fullTable.getWidth();
-            int nColsToInsert = 0;
+            var tableWidth = fullTable.getWidth();
+            var nColsToInsert = 0;
             if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
                 nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
             }
@@ -288,7 +284,7 @@ public class TableEditorModel {
                     .canInsertColumns(gridTable, nColsToInsert)) {
                 createdActions.add(UndoableEditTableAction.moveTable(fullTable, metaInfoWriter));
             }
-            GridRegionAction allTable = new GridRegionAction(fullTableRegion,
+            var allTable = new GridRegionAction(fullTableRegion,
                     UndoableEditTableAction.ROWS,
                     UndoableEditTableAction.INSERT,
                     ActionType.EXPAND,
@@ -296,7 +292,7 @@ public class TableEditorModel {
             allTable.doAction(gridTable);
             createdActions.add(allTable);
             if (isBusinessView()) {
-                GridRegionAction displayedTable = new GridRegionAction(gridTable
+                var displayedTable = new GridRegionAction(gridTable
                         .getRegion(), UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, 1);
                 displayedTable.doAction(gridTable);
                 createdActions.add(displayedTable);
@@ -318,20 +314,20 @@ public class TableEditorModel {
      * Checks if the table specified by its region contains property.
      */
     private CellKey getPropertyCoordinates(IGridRegion region, IGrid grid, String propName) {
-        int left = region.getLeft();
-        int top = region.getTop();
+        var left = region.getLeft();
+        var top = region.getTop();
 
-        ICell propsHeaderCell = grid.getCell(left, top + 1);
-        String propsHeader = propsHeaderCell.getStringValue();
+        var propsHeaderCell = grid.getCell(left, top + 1);
+        var propsHeader = propsHeaderCell.getStringValue();
         if (propsHeader == null || !propsHeader.equals(PropertiesHelper.PROPERTIES_HEADER)) {
             // There is no properties
             return null;
         }
-        int propsCount = propsHeaderCell.getHeight();
+        var propsCount = propsHeaderCell.getHeight();
 
-        for (int i = 0; i < propsCount; i++) {
-            ICell propNameCell = grid.getCell(left + propsHeaderCell.getWidth(), top + 1 + i);
-            String pName = propNameCell.getStringValue();
+        for (var i = 0; i < propsCount; i++) {
+            var propNameCell = grid.getCell(left + propsHeaderCell.getWidth(), top + 1 + i);
+            var pName = propNameCell.getStringValue();
 
             if (pName != null && pName.equals(propName)) {
                 return CellKey.CellKeyFactory.getCellKey(1, 1 + i);
@@ -361,8 +357,8 @@ public class TableEditorModel {
     }
 
     public synchronized void setAlignment(int row, int col, HorizontalAlignment alignment) {
-        IGridRegion region = getOriginalTableRegion();
-        IUndoableGridTableAction ua = new SetAlignmentAction(region.getLeft() + col,
+        var region = getOriginalTableRegion();
+        var ua = new SetAlignmentAction(region.getLeft() + col,
                 region.getTop() + row,
                 alignment,
                 getMetaInfoWriter());
@@ -371,8 +367,8 @@ public class TableEditorModel {
     }
 
     public synchronized void setIndent(int row, int col, int indent) {
-        IGridRegion region = getOriginalTableRegion();
-        IUndoableGridTableAction ua = new SetIndentAction(region.getLeft() + col,
+        var region = getOriginalTableRegion();
+        var ua = new SetIndentAction(region.getLeft() + col,
                 region.getTop() + row,
                 indent,
                 getMetaInfoWriter());
@@ -381,8 +377,8 @@ public class TableEditorModel {
     }
 
     public synchronized void setFillColor(int row, int col, short[] color) {
-        IGridRegion region = getOriginalTableRegion();
-        IUndoableGridTableAction ua = new SetFillColorAction(region.getLeft() + col,
+        var region = getOriginalTableRegion();
+        var ua = new SetFillColorAction(region.getLeft() + col,
                 region.getTop() + row,
                 color,
                 getMetaInfoWriter());
@@ -391,8 +387,8 @@ public class TableEditorModel {
     }
 
     public synchronized void setFontBold(int row, int col, boolean bold) {
-        IGridRegion region = getOriginalTableRegion();
-        IUndoableGridTableAction ua = new SetBoldAction(region.getLeft() + col,
+        var region = getOriginalTableRegion();
+        var ua = new SetBoldAction(region.getLeft() + col,
                 region.getTop() + row,
                 bold,
                 getMetaInfoWriter());
@@ -401,8 +397,8 @@ public class TableEditorModel {
     }
 
     public synchronized void setFontItalic(int row, int col, boolean italic) {
-        IGridRegion region = getOriginalTableRegion();
-        IUndoableGridTableAction ua = new SetItalicAction(region.getLeft() + col,
+        var region = getOriginalTableRegion();
+        var ua = new SetItalicAction(region.getLeft() + col,
                 region.getTop() + row,
                 italic,
                 getMetaInfoWriter());
@@ -411,8 +407,8 @@ public class TableEditorModel {
     }
 
     public synchronized void setFontUnderline(int row, int col, boolean underlined) {
-        IGridRegion region = getOriginalTableRegion();
-        IUndoableGridTableAction ua = new SetUnderlineAction(region.getLeft() + col,
+        var region = getOriginalTableRegion();
+        var ua = new SetUnderlineAction(region.getLeft() + col,
                 region.getTop() + row,
                 underlined,
                 getMetaInfoWriter());
@@ -421,8 +417,8 @@ public class TableEditorModel {
     }
 
     public synchronized void setFontColor(int row, int col, short[] color) {
-        IGridRegion region = getOriginalTableRegion();
-        IUndoableGridTableAction ua = new SetColorAction(region.getLeft() + col,
+        var region = getOriginalTableRegion();
+        var ua = new SetColorAction(region.getLeft() + col,
                 region.getTop() + row,
                 color,
                 getMetaInfoWriter());
@@ -453,7 +449,7 @@ public class TableEditorModel {
     }
 
     public synchronized void undo() {
-        IUndoableAction ua = actions.getUndoAction();
+        var ua = actions.getUndoAction();
 
         ((IUndoableGridTableAction) ua).undoAction(gridTable);
     }

@@ -55,7 +55,7 @@ public class SimpleNodeUsage implements NodeUsage {
     }
 
     private static IOpenClass extractRootType(IOpenClass type) {
-        IOpenClass t = type;
+        var t = type;
         while (t != null && t.isArray()) {
             t = t.getComponentClass();
         }
@@ -99,7 +99,7 @@ public class SimpleNodeUsage implements NodeUsage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SimpleNodeUsage that = (SimpleNodeUsage) o;
+        var that = (SimpleNodeUsage) o;
         return start == that.start && end == that.end && Objects.equals(description, that.description) && Objects
                 .equals(uri, that.uri) && nodeType == that.nodeType;
     }

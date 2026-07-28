@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.annotations.ExternalParam;
 import org.openl.rules.ruleservice.core.annotations.Name;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -29,14 +27,14 @@ public final class MethodUtils {
     }
 
     private static void validateAndUpdateParameterNames(String[] parameterNames) {
-        Set<String> allNames = new HashSet<>(Arrays.asList(parameterNames));
-        Set<String> usedNames = new HashSet<>();
-        for (int i = 0; i < parameterNames.length; i++) {
+        var allNames = new HashSet<String>(Arrays.asList(parameterNames));
+        var usedNames = new HashSet<String>();
+        for (var i = 0; i < parameterNames.length; i++) {
             if (allNames.contains(parameterNames[i])) {
                 allNames.remove(parameterNames[i]);
                 usedNames.add(parameterNames[i]);
             } else {
-                int j = 0;
+                var j = 0;
                 while (allNames.contains("arg" + j) || usedNames.contains("arg" + j)) {
                     j++;
                 }
@@ -50,9 +48,9 @@ public final class MethodUtils {
                                                  boolean provideRuntimeContext) {
         IOpenClass[] parameterTypes = new IOpenClass[method.getParameterCount()];
         if (openMember instanceof IOpenMethod openMethod) {
-            int i = 0;
-            int j = 0;
-            IMethodSignature methodSignature = openMethod.getSignature();
+            var i = 0;
+            var j = 0;
+            var methodSignature = openMethod.getSignature();
             for (Parameter parameter : method.getParameters()) {
                 if (i == 0 && provideRuntimeContext && method
                         .getParameterTypes().length > 0 && IRulesRuntimeContext.class
@@ -79,9 +77,9 @@ public final class MethodUtils {
                                              boolean provideRuntimeContext) {
         String[] parameterNames = new String[method.getParameterCount()];
         if (openMember instanceof IOpenMethod openMethod) {
-            int i = 0;
-            int j = 0;
-            IMethodSignature methodSignature = openMethod.getSignature();
+            var i = 0;
+            var j = 0;
+            var methodSignature = openMethod.getSignature();
             for (Parameter parameter : method.getParameters()) {
                 if (i == 0 && provideRuntimeContext && method
                         .getParameterTypes().length > 0 && IRulesRuntimeContext.class
@@ -100,17 +98,17 @@ public final class MethodUtils {
                 }
             }
         }
-        int j = 0;
-        for (int i = 0; i < parameterNames.length; i++) {
+        var j = 0;
+        for (var i = 0; i < parameterNames.length; i++) {
             if (parameterNames[i] == null) {
                 parameterNames[i] = "arg" + j;
                 j++;
             }
         }
         fixJavaKeyWords(parameterNames);
-        int i = 0;
+        var i = 0;
         for (Parameter parameter : method.getParameters()) {
-            Name name = parameter.getAnnotation(Name.class);
+            var name = parameter.getAnnotation(Name.class);
             if (name != null) {
                 if (!name.value().isEmpty() && !JavaKeywordUtils.isJavaKeyword(name.value())) {
                     parameterNames[i] = name.value();
@@ -131,15 +129,15 @@ public final class MethodUtils {
     }
 
     private static void fixJavaKeyWords(String[] parameterNames) {
-        for (int i = 0; i < parameterNames.length; i++) {
+        for (var i = 0; i < parameterNames.length; i++) {
             if (JavaKeywordUtils.isJavaKeyword(parameterNames[i])) {
-                int k = 0;
-                boolean f = false;
+                var k = 0;
+                var f = false;
                 while (!f) {
                     k++;
-                    String s = parameterNames[i] + k;
-                    boolean g = true;
-                    for (int j = 0; j < parameterNames.length; j++) {
+                    var s = parameterNames[i] + k;
+                    var g = true;
+                    for (var j = 0; j < parameterNames.length; j++) {
                         if (j != i && s.equals(parameterNames[j])) {
                             g = false;
                             break;

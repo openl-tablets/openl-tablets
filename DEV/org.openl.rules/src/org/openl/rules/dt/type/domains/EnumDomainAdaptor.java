@@ -23,7 +23,7 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
     @Override
     public int getIndex(Object value) {
 
-        for (int i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
             if (values[i].equals(value)) {
                 return i;
             }
@@ -66,18 +66,18 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
 
     @Override
     public IDomainAdaptor merge(IDomainAdaptor adaptor) {
-        EnumDomainAdaptor a = (EnumDomainAdaptor) adaptor;
+        var a = (EnumDomainAdaptor) adaptor;
 
-        Object[] v1 = getValues();
-        Object[] v2 = a.getValues();
+        var v1 = getValues();
+        var v2 = a.getValues();
 
-        HashSet<Object> set = new HashSet<>(v1.length + v2.length);
+        var set = new HashSet<Object>(v1.length + v2.length);
 
         set.addAll(Arrays.asList(v1));
 
         set.addAll(Arrays.asList(v2));
 
-        Object[] newValues = set.toArray();
+        var newValues = set.toArray();
 
         return new EnumDomainAdaptor(new EnumDomain<>(newValues));
 

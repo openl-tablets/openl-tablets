@@ -71,8 +71,8 @@ public class NumericComparableString implements Comparable<NumericComparableStri
             return "\u0000";
         }
         String result;
-        int i = value.length() - 1;
-        char lastChar = value.charAt(i);
+        var i = value.length() - 1;
+        var lastChar = value.charAt(i);
         while (i > 0 && Character.digit(lastChar, 10) == 9) {
             // searching the position where a trailing number can be increased
             i--;

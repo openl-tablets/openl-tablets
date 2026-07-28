@@ -38,8 +38,8 @@ public class ActionInvoker implements Invokable {
     }
 
     private static Object addReturnValues(Collection<Object> returnValue, Object returnValues, boolean[] f) {
-        int returnValuesLength = Array.getLength(returnValues);
-        for (int i = 0; i < returnValuesLength; i++) {
+        var returnValuesLength = Array.getLength(returnValues);
+        for (var i = 0; i < returnValuesLength; i++) {
             if (f[i] && Array.get(returnValues, i) != null) {
                 returnValue.add(Array.get(returnValues, i));
             }
@@ -51,8 +51,8 @@ public class ActionInvoker implements Invokable {
                                    Object returnValues,
                                    Object keyValues,
                                    boolean[] f) {
-        int returnValuesLength = Array.getLength(returnValues);
-        for (int i = 0; i < returnValuesLength; i++) {
+        var returnValuesLength = Array.getLength(returnValues);
+        for (var i = 0; i < returnValuesLength; i++) {
             if (f[i] && isValidResult(Array.get(keyValues, i)) && isValidResult(Array.get(returnValues, i))) {
                 returnValue.put(Array.get(keyValues, i), Array.get(returnValues, i));
             }
@@ -63,17 +63,17 @@ public class ActionInvoker implements Invokable {
     @SuppressWarnings("unchecked")
     private Object processReturnValue(Object returnValues, Object keyValues, boolean[] f, IOpenClass type) {
         if (type.isArray()) {
-            int c = 0;
+            var c = 0;
             for (boolean b : f) {
                 if (b) {
                     c++;
                 }
             }
-            int returnValuesLength = Array.getLength(returnValues);
+            var returnValuesLength = Array.getLength(returnValues);
             Object ret;
             if (c == 0) {
-                int retLength = 0;
-                for (int i = 0; i < returnValuesLength; i++) {
+                var retLength = 0;
+                for (var i = 0; i < returnValuesLength; i++) {
                     if (isValidResult(Array.get(returnValues, i))) {
                         retLength++;
                     }
@@ -82,8 +82,8 @@ public class ActionInvoker implements Invokable {
             } else {
                 ret = Array.newInstance(type.getComponentClass().getInstanceClass(), c);
             }
-            int j = 0;
-            for (int i = 0; i < returnValuesLength; i++) {
+            var j = 0;
+            for (var i = 0; i < returnValuesLength; i++) {
                 if ((f[i] || c == 0) && (isValidResult(Array.get(returnValues, i)))) {
                     Array.set(ret, j, Array.get(returnValues, i));
                     j++;
@@ -137,12 +137,12 @@ public class ActionInvoker implements Invokable {
         Object keyValues = null;
         Object returnValues = null;
         boolean[] f = null;
-        boolean isCollectReturn = false;
+        var isCollectReturn = false;
         IOpenClass type = null;
 
         for (IBaseAction action : actions) {
             if (action.isCollectReturnAction()) {
-                int[] rules = getRules();
+                var rules = getRules();
                 if (returnValues == null) {
                     type = action.getType();
                     if (type.isArray()) {
@@ -159,7 +159,7 @@ public class ActionInvoker implements Invokable {
                 retVal = returnValues;
                 isCollectReturn = true;
             } else if (action.isCollectReturnKeyAction()) {
-                int[] rules = getRules();
+                var rules = getRules();
                 if (keyValues == null) {
                     keyValues = new Object[rules.length];
                     if (f == null) {
@@ -170,11 +170,11 @@ public class ActionInvoker implements Invokable {
                 executeActionAndWriteValues(target, params, env, keyValues, f, action, rules);
             } else {
                 Object actionResult = null;
-                SmartIterator itr = new SmartIterator(firedRules.iterator(), rulesIntIterator);
-                List<Integer> newFiredRules = new ArrayList<>();
+                var itr = new SmartIterator(firedRules.iterator(), rulesIntIterator);
+                var newFiredRules = new ArrayList<Integer>();
                 while (itr.hasNext()) {
-                    boolean g = itr.itr1.hasNext();
-                    int rule = itr.next();
+                    var g = itr.itr1.hasNext();
+                    var rule = itr.next();
                     if (!g) {
                         newFiredRules.add(rule);
                     }
@@ -206,8 +206,8 @@ public class ActionInvoker implements Invokable {
                                              boolean[] f,
                                              IBaseAction action,
                                              int[] rules) {
-        for (int i = 0; i < rules.length; i++) {
-            Object actionResult = action.executeAction(rules[i], target, params, env);
+        for (var i = 0; i < rules.length; i++) {
+            var actionResult = action.executeAction(rules[i], target, params, env);
             if (isValidResult(actionResult) && (Array.get(values, i) == null || !f[i])) {
                 Array.set(values, i, actionResult);
                 f[i] = true;

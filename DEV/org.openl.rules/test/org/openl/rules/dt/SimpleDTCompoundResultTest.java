@@ -54,7 +54,7 @@ class SimpleDTCompoundResultTest {
         Object oldDriver = TestUtils.invoke(vehicle, "getOldDriver");
         assertNotNull(oldDriver);
 
-        int id = TestUtils.invoke(oldDriver, "getDriverID");
+        var id = TestUtils.invoke(oldDriver, "getDriverID");
         assertEquals(1, id);
 
     }

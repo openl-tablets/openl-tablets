@@ -2,7 +2,6 @@ package org.openl.rules.table.actions;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -29,7 +28,7 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
     }
 
     protected void savePrevCell(IWritableGrid grid) {
-        ICell cell = grid.getCell(col, row);
+        var cell = grid.getCell(col, row);
 
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());

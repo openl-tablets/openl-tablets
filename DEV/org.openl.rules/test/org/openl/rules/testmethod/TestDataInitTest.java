@@ -16,7 +16,7 @@ class TestDataInitTest {
     @Test
     void returnAddressArryTest() {
         ITestDataInit instance = TestUtils.create(FILE_NAME, ITestDataInit.class);
-        TestUnitsResults result = instance.returnAddressArryTest();
+        var result = instance.returnAddressArryTest();
         assertEquals(3, result.getNumberOfFailures());
     }
 

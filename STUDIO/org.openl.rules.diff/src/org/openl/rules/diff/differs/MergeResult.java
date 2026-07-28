@@ -19,9 +19,9 @@ public class MergeResult {
     }
 
     public static MergeResult mergeNames(Set<String> original, Set<String> others) {
-        Set<String> common = new TreeSet<>();
-        Set<String> originalOnly = new TreeSet<>();
-        Set<String> othersOnly = new TreeSet<>();
+        var common = new TreeSet<String>();
+        var originalOnly = new TreeSet<String>();
+        var othersOnly = new TreeSet<String>();
 
         for (String s : original) {
             if (others.contains(s)) {

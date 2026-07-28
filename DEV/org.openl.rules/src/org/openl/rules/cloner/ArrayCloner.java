@@ -22,7 +22,7 @@ class ArrayCloner implements ICloner<Object> {
     @Override
     public void clone(Object o, Function<Object, Object> cloner, Object target) {
         var length = Array.getLength(target);
-        for (int i = 0; i < length; i++) {
+        for (var i = 0; i < length; i++) {
             var element = Array.get(o, i);
             Array.set(target, i, cloner.apply(element));
         }

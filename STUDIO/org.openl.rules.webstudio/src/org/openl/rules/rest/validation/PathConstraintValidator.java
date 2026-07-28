@@ -40,7 +40,7 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
         }
         if (! allowedSchemes.isEmpty()) {
             try {
-                URI uri = new URI(value);
+                var uri = new URI(value);
                 //If scheme is null, we validate it as a local path
                 if (uri.getScheme() != null) {
                     if (allowedSchemes.contains(uri.getScheme().toLowerCase(Locale.ROOT))) {
@@ -62,7 +62,7 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
             }
         }
         //Checking path
-        boolean basicCheck = true;
+        var basicCheck = true;
         if (!allowLeadingSlash && value.startsWith("/")) {
             context.buildConstraintViolationWithTemplate("{openl.constraints.path.1.message}").addConstraintViolation();
             basicCheck = false;

@@ -61,11 +61,11 @@ public abstract class OpenLTableUtils {
         if (isDatatypeTable(table)) {
             var header = table.getSyntaxNode().getHeader().getSourceString();
             var len = header.length();
-            int pos1 = StringUtils.first(header, 0, len, x -> x == VocabularyTableWriter.TYPE_OPEN);
+            var pos1 = StringUtils.first(header, 0, len, x -> x == VocabularyTableWriter.TYPE_OPEN);
             if (pos1 < 0) {
                 return false;
             }
-            int pos2 = StringUtils.first(header, pos1, len, x -> x == VocabularyTableWriter.TYPE_CLOSE);
+            var pos2 = StringUtils.first(header, pos1, len, x -> x == VocabularyTableWriter.TYPE_CLOSE);
             return pos1 < pos2;
         }
         return false;
@@ -154,8 +154,8 @@ public abstract class OpenLTableUtils {
     public static boolean isSimpleSpreadsheet(IOpenLTable table) {
         if (isSpreadsheetTable(table)) {
             var tableBody = table.getSyntaxNode().getTableBody();
-            int height = getHeightWithoutEmptyRows(tableBody);
-            int width = getWidthWithoutEmptyColumns(tableBody);
+            var height = getHeightWithoutEmptyRows(tableBody);
+            var width = getWidthWithoutEmptyColumns(tableBody);
             return width == 2 || height == 2;
         }
         return false;
@@ -196,7 +196,7 @@ public abstract class OpenLTableUtils {
     }
 
     private static boolean isRowEmpty(ITable<?> table, int row) {
-        for (int col = 0; col < table.getWidth(); col++) {
+        for (var col = 0; col < table.getWidth(); col++) {
             if (table.getCell(col, row).getObjectValue() != null) {
                 return false;
             }
@@ -219,7 +219,7 @@ public abstract class OpenLTableUtils {
     }
 
     private static boolean isColumnEmpty(ITable<?> table, int col) {
-        for (int row = 0; row < table.getHeight(); row++) {
+        for (var row = 0; row < table.getHeight(); row++) {
             if (table.getCell(col, row).getObjectValue() != null) {
                 return false;
             }

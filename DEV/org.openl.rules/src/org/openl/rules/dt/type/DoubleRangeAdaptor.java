@@ -19,7 +19,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
             return null;
         }
 
-        double max = range.getUpperBound();
+        var max = range.getUpperBound();
         if (max != Double.POSITIVE_INFINITY && range.getType().right == Range.Bound.CLOSED) {
             // the max should be moved to the right,
             // to ensure that range.getUpperBound() will get to the interval
@@ -35,7 +35,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
             return null;
         }
 
-        double min = range.getLowerBound();
+        var min = range.getLowerBound();
         if (range.getType().left == Range.Bound.OPEN) {
             min += Math.ulp(min);
         }

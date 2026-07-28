@@ -4,16 +4,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
 import org.openl.studio.security.pat.model.PatAuthResolution;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
 import org.openl.studio.security.pat.model.PatToken;
-import org.openl.studio.security.pat.model.PatValidationResult;
 
 /**
  * Default implementation of {@link PatAuthService}.
@@ -57,13 +54,13 @@ public class PatAuthServiceImpl implements PatAuthService {
     @Transactional(readOnly = true)
     @Override
     public PatAuthResolution resolveAuthentication(@Valid @NotNull PatToken pat) {
-        PatValidationResult result = validator.validate(pat);
+        var result = validator.validate(pat);
         if (!result.valid()) {
             return PatAuthResolution.invalid();
         }
 
-        PersonalAccessToken token = result.token();
-        UserDetails user = userDetailsService.loadUserByUsername(token.getLoginName());
+        var token = result.token();
+        var user = userDetailsService.loadUserByUsername(token.getLoginName());
 
         // Security check: verify user account is enabled and not locked
         // Return INVALID for all failures to prevent information disclosure

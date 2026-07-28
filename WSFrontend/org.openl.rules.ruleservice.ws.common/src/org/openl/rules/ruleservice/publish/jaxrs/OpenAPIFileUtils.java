@@ -23,7 +23,7 @@ public final class OpenAPIFileUtils {
 
     private static ProjectResource loadProjectResource(ProjectResourceLoader projectResourceLoader,
                                                        String name) {
-        ProjectResource[] projectResources = projectResourceLoader.loadResource(name, false);
+        var projectResources = projectResourceLoader.loadResource(name, false);
         return Arrays.stream(projectResources)
                 .findFirst()
                 .orElse(null);
@@ -31,7 +31,7 @@ public final class OpenAPIFileUtils {
 
     public static OpenAPI loadOpenAPI(
             ProjectDescriptor projectDescriptor, CompiledOpenClass compiledOpenClass) {
-        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(projectDescriptor, compiledOpenClass);
+        var projectResourceLoader = new ProjectResourceLoader(projectDescriptor, compiledOpenClass);
         ProjectResource projectResource;
         if (projectDescriptor.getOpenapi() != null && StringUtils
                 .isNotBlank(projectDescriptor.getOpenapi().getPath())) {
@@ -50,8 +50,8 @@ public final class OpenAPIFileUtils {
             }
         }
         if (projectResource != null) {
-            OpenAPIParser openApiParser = new OpenAPIParser();
-            ParseOptions options = new ParseOptions();
+            var openApiParser = new OpenAPIParser();
+            var options = new ParseOptions();
             options.setResolve(true);
             return openApiParser.readLocation(projectResource.getUrl().toString(), null, options)
                     .getOpenAPI();

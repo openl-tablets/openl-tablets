@@ -11,7 +11,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
-import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.CollectionUtils;
 
@@ -38,7 +37,7 @@ public class AclProjectsHelperImpl implements AclProjectsHelper {
                 return false;
             }
             // if user is project owner, then check permissions on current resource
-            boolean useParentStrategy = !aclService.isOwner(project);
+            var useParentStrategy = !aclService.isOwner(project);
             return aclService.isGranted(project, useParentStrategy, BasePermission.DELETE);
         }
         return aclService.isGranted(project, List.of(permission));
@@ -67,7 +66,7 @@ public class AclProjectsHelperImpl implements AclProjectsHelper {
         if (!allowProjectCreateDelete) {
             return false;
         }
-        RepositoryAclService aclService = aclServiceProvider.getDesignRepoAclService();
+        var aclService = aclServiceProvider.getDesignRepoAclService();
         return aclService.isGranted(repoId, null, List.of(BasePermission.CREATE));
     }
 
@@ -80,7 +79,7 @@ public class AclProjectsHelperImpl implements AclProjectsHelper {
     @Override
     public boolean hasPermission(DeploymentRequest deploymentRequest, Permission permission) {
         var productionAclService = aclServiceProvider.getProdRepoAclService();
-        boolean granted = productionAclService.isGranted(deploymentRequest.productionRepositoryId(), deploymentRequest.name(), List.of(permission));
+        var granted = productionAclService.isGranted(deploymentRequest.productionRepositoryId(), deploymentRequest.name(), List.of(permission));
         return granted && hasPermission(deploymentRequest.projectDescriptors(), BasePermission.READ);
     }
 }

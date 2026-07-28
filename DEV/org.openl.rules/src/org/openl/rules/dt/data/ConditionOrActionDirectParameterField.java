@@ -35,15 +35,15 @@ public class ConditionOrActionDirectParameterField implements IOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        RuleExecutionObject reo = (RuleExecutionObject) target;
-        int ruleNum = reo.getRuleNum();
+        var reo = (RuleExecutionObject) target;
+        var ruleNum = reo.getRuleNum();
 
-        Object[] params = env.getLocalFrame();
+        var params = env.getLocalFrame();
         if (numberOfTableParameters != env.getLocalFrame().length) {
             params = new Object[numberOfTableParameters];
             System.arraycopy(env.getLocalFrame(), 0, params, 0, numberOfTableParameters);
         }
-        Object ret = decisionRow.loadValue(paramNum, ruleNum, target, params, env);
+        var ret = decisionRow.loadValue(paramNum, ruleNum, target, params, env);
         if (ret == null) {
             return getType().nullObject();
         }

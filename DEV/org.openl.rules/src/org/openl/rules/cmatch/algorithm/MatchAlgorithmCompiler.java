@@ -19,11 +19,6 @@ import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
@@ -58,15 +53,15 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * @return root of tree
      */
     protected MatchNode buildTree(List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
-        MatchNode rootNode = new MatchNode(-1);
+        var rootNode = new MatchNode(-1);
 
         MatchNode[] lastForIndent = new MatchNode[nodes.length];
-        int prevIndent = 0;
-        for (int i = getSpecialRowCount(); i < rows.size(); i++) {
-            MatchNode node = nodes[i];
-            TableRow row = rows.get(i);
-            SubValue nameSV = row.get(NAMES)[0];
-            int indent = nameSV.getIndent();
+        var prevIndent = 0;
+        for (var i = getSpecialRowCount(); i < rows.size(); i++) {
+            var node = nodes[i];
+            var row = rows.get(i);
+            var nameSV = row.get(NAMES)[0];
+            var indent = nameSV.getIndent();
 
             if (indent == 0) {
                 rootNode.add(node);
@@ -92,7 +87,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     }
 
     private void checkColumnValue(TableRow row, ColumnDefinition colDef) {
-        SubValue[] values = row.get(colDef.getName());
+        var values = row.get(colDef.getName());
         if (!colDef.isMultipleValueAllowed()) {
             // only 1
             if (values.length != 1) {
@@ -107,7 +102,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      */
     private void checkReqColumns(List<TableColumn> columns) {
         for (ColumnDefinition colDef : getColumnDefinition()) {
-            boolean exists = false;
+            var exists = false;
             for (TableColumn column : columns) {
                 if (colDef.getName().equals(column.getId())) {
                     exists = true;
@@ -122,9 +117,9 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     }
 
     protected void checkRowName(TableRow row, String expectedName) throws SyntaxNodeException {
-        SubValue sv = row.get(NAMES)[0];
+        var sv = row.get(NAMES)[0];
         if (!expectedName.equalsIgnoreCase(sv.getString())) {
-            String msg = "Expects " + expectedName + " here.";
+            var msg = "Expects " + expectedName + " here.";
             throw SyntaxNodeExceptionUtils.createError(msg, sv.getStringValue().asSourceCodeModule());
         }
     }
@@ -143,8 +138,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     }
 
     private void checkTreeChildren(MatchNode parent, List<TableRow> rows) throws SyntaxNodeException {
-        int childCount = 0;
-        int childLeafs = 0;
+        var childCount = 0;
+        var childLeafs = 0;
         for (MatchNode child : parent.getChildren()) {
             if (child.isLeaf()) {
                 childLeafs++;
@@ -162,7 +157,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                 checkTreeChildren(child, rows);
             }
         } else {
-            String msg = "All sub nodes must be leaves. Sub nodes are allowed for single child only.";
+            var msg = "All sub nodes must be leaves. Sub nodes are allowed for single child only.";
             throw SyntaxNodeExceptionUtils.createError(msg,
                     rows.get(parent.getRowIndex()).get(NAMES)[0].getStringValue().asSourceCodeModule());
         }
@@ -170,9 +165,9 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
     @Override
     public void compile(IBindingContext bindingContext, ColumnMatch columnMatch) throws SyntaxNodeException {
-        int minRows = getSpecialRowCount() + 1;
+        var minRows = getSpecialRowCount() + 1;
         if (columnMatch.getRows().size() < minRows) {
-            String msg = "Expects at least " + minRows + " rows.";
+            var msg = "Expects at least " + minRows + " rows.";
             throw new IllegalArgumentException(msg);
         }
 
@@ -180,17 +175,17 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         checkRows(columnMatch.getRows());
         checkSpecialRows(columnMatch);
 
-        ArgumentsHelper argumentsHelper = new ArgumentsHelper(columnMatch.getHeader().getSignature());
+        var argumentsHelper = new ArgumentsHelper(columnMatch.getHeader().getSignature());
 
         parseSpecialRows(bindingContext, columnMatch);
         // [0..X] special rows are ignored
         List<TableRow> rows = columnMatch.getRows();
-        MatchNode[] nodes = prepareNodes(bindingContext,
+        var nodes = prepareNodes(bindingContext,
                 columnMatch,
                 argumentsHelper,
                 columnMatch.getReturnValues().length);
 
-        MatchNode rootNode = buildTree(rows, nodes);
+        var rootNode = buildTree(rows, nodes);
         validateTree(rootNode, rows, nodes);
         columnMatch.setCheckTree(rootNode);
 
@@ -209,8 +204,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         rootNode.clearChildren();
 
         MatchNode last0 = null;
-        for (int i = getSpecialRowCount(); i < nodes.length; i++) {
-            MatchNode node = nodes[i];
+        for (var i = getSpecialRowCount(); i < nodes.length; i++) {
+            var node = nodes[i];
             if (node.getParent() == rootNode) {
                 last0 = new MatchNode(-2);
                 last0.setWeight(node.getWeight());
@@ -230,12 +225,12 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                                     TableRow row,
                                     MatchNode node,
                                     int retValuesCount) {
-        SubValue[] inValues = row.get(VALUES);
+        var inValues = row.get(VALUES);
         Object[] checkValues = new Object[retValuesCount];
 
-        IMatcher matcher = node.getMatcher();
-        for (int index = 0; index < inValues.length; index++) {
-            String s = inValues[index].getString().trim();
+        var matcher = node.getMatcher();
+        for (var index = 0; index < inValues.length; index++) {
+            var s = inValues[index].getString().trim();
 
             if (s.length() > 0) {
                 // ignore empty cells
@@ -265,10 +260,10 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      */
     protected void parseSpecialRows(IBindingContext bindingContext,
                                     ColumnMatch columnMatch) throws SyntaxNodeException {
-        IOpenClass returnType = columnMatch.getHeader().getType();
+        var returnType = columnMatch.getHeader().getType();
 
-        TableRow row0 = columnMatch.getRows().getFirst();
-        Object[] retValues = parseValues(bindingContext, columnMatch, row0, returnType);
+        var row0 = columnMatch.getRows().getFirst();
+        var retValues = parseValues(bindingContext, columnMatch, row0, returnType);
         columnMatch.setReturnValues(retValues);
     }
 
@@ -276,12 +271,12 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                                    ColumnMatch columnMatch,
                                    TableRow row,
                                    IOpenClass openClass) throws SyntaxNodeException {
-        SubValue[] subValues = row.get(VALUES);
+        var subValues = row.get(VALUES);
 
         Object[] result = new Object[subValues.length];
-        for (int i = 0; i < subValues.length; i++) {
-            SubValue sv = subValues[i];
-            String s = sv.getString();
+        for (var i = 0; i < subValues.length; i++) {
+            var sv = subValues[i];
+            var s = sv.getString();
             try {
                 ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, s);
                 if (constantOpenField != null && constantOpenField.getValue() != null) {
@@ -306,11 +301,11 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                                           SubValue sv,
                                           ConstantOpenField constantOpenField) {
         if (!bindingContext.isExecutionMode()) {
-            IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
-            IGrid grid = tableBodyGrid.getGrid();
-            IGridRegion gridRegion = sv.getGridRegion();
-            ICell cell = grid.getCell(gridRegion.getLeft(), gridRegion.getTop());
-            MetaInfoReader metaInfoReader = columnMatch.getSyntaxNode().getMetaInfoReader();
+            var tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
+            var grid = tableBodyGrid.getGrid();
+            var gridRegion = sv.getGridRegion();
+            var cell = grid.getCell(gridRegion.getLeft(), gridRegion.getTop());
+            var metaInfoReader = columnMatch.getSyntaxNode().getMetaInfoReader();
             if (metaInfoReader instanceof BaseMetaInfoReader reader) {
                 reader.addConstant(cell, constantOpenField);
             }
@@ -331,19 +326,19 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         List<TableRow> rows = columnMatch.getRows();
         MatchNode[] nodes = new MatchNode[rows.size()];
 
-        for (int i = getSpecialRowCount(); i < rows.size(); i++) {
-            TableRow row = rows.get(i);
-            SubValue nameSV = row.get(NAMES)[0];
-            String varName = nameSV.getString();
+        for (var i = getSpecialRowCount(); i < rows.size(); i++) {
+            var row = rows.get(i);
+            var nameSV = row.get(NAMES)[0];
+            var varName = nameSV.getString();
 
             if (varName.length() == 0) {
-                String msg = "Name cannot be empty.";
+                var msg = "Name cannot be empty.";
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
 
-            Argument arg = argumentsHelper.getTypeByName(varName);
+            var arg = argumentsHelper.getTypeByName(varName);
             if (arg == null) {
-                String msg = "Failed to bind name '" + varName + "'.";
+                var msg = "Failed to bind name '" + varName + "'.";
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             } else if (arg.getField() != null && !Objects.equals(arg.getField().getName(), varName)) {
                 bindingContext.addMessage(
@@ -351,16 +346,16 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                                 columnMatch.getSyntaxNode()));
             }
 
-            SubValue operationSV = row.get(OPERATION)[0];
-            String operationName = operationSV.getString();
+            var operationSV = row.get(OPERATION)[0];
+            var operationName = operationSV.getString();
 
             IMatcher matcher = MatcherFactory.getMatcher(operationName, arg.getType());
             if (matcher == null) {
-                String msg = "No matcher is found for operation " + operationName + " and type " + arg.getType();
+                var msg = "No matcher is found for operation " + operationName + " and type " + arg.getType();
                 throw SyntaxNodeExceptionUtils.createError(msg, operationSV.getStringValue().asSourceCodeModule());
             }
 
-            MatchNode node = new MatchNode(i);
+            var node = new MatchNode(i);
             node.setMatcher(matcher);
             node.setArgument(arg);
 

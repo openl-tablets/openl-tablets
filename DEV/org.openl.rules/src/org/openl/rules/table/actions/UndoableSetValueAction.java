@@ -6,7 +6,6 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.types.IOpenClass;
@@ -28,16 +27,16 @@ public class UndoableSetValueAction extends AUndoableCellAction {
 
     @Override
     public void doAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
 
-        ICell cell = grid.getCell(getCol(), getRow());
+        var cell = grid.getCell(getCol(), getRow());
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());
         setPrevMetaInfo(metaInfoWriter.getMetaInfo(getRow(), getCol()));
 
-        Object convertedValue = convertToCellType(newValue);
+        var convertedValue = convertToCellType(newValue);
         grid.setCellValue(getCol(), getRow(), convertedValue);
-        CellMetaInfo newMetaInfo = getNewMetaInfo(convertedValue);
+        var newMetaInfo = getNewMetaInfo(convertedValue);
         if (newMetaInfo != null) {
             metaInfoWriter.setMetaInfo(getRow(), getCol(), newMetaInfo);
         }
@@ -61,7 +60,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
 
     @Override
     public void undoAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
         if (StringUtils.isNotBlank(getPrevFormula())) {
             grid.setCellFormula(getCol(), getRow(), getPrevFormula());
         } else {
@@ -74,7 +73,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         if (value == null) {
             return null;
         }
-        CellMetaInfo prevMetaInfo = getPrevMetaInfo();
+        var prevMetaInfo = getPrevMetaInfo();
         IOpenClass newType = JavaOpenClass.getOpenClass(value.getClass());
         if (prevMetaInfo != null && prevMetaInfo.getDataType() != null && prevMetaInfo.getDataType().equals(newType)) {
             return removeNodeUsage(prevMetaInfo);
@@ -83,7 +82,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         IOpenClass dataType = prevMetaInfo == null ? null : prevMetaInfo.getDataType();
         if (dataType != null) {
             IDomain<?> domain = dataType.getDomain();
-            boolean keepOldMetaInfo = domain instanceof EnumDomain<?> || ClassUtils
+            var keepOldMetaInfo = domain instanceof EnumDomain<?> || ClassUtils
                     .isAssignable(dataType.getInstanceClass(), INumberRange.class);
             if (keepOldMetaInfo) {
                 // Don't change meta info
@@ -91,7 +90,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
             }
         }
 
-        boolean multiValue = false;
+        var multiValue = false;
         if (newType.getAggregateInfo().isAggregate(newType)) {
             newType = newType.getAggregateInfo().getComponentType(newType);
             multiValue = true;

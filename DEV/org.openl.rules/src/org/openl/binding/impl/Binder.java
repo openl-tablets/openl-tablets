@@ -12,7 +12,6 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.INameSpacedMethodFactory;
 import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
@@ -85,7 +84,7 @@ public class Binder implements IOpenBinder {
             bindingContext = makeBindingContext();
         }
 
-        ISyntaxNode syntaxNode = parsedCode.getTopNode();
+        var syntaxNode = parsedCode.getTopNode();
         IBoundNode boundNode;
         try {
             bindingContext.pushLocalVarContext();

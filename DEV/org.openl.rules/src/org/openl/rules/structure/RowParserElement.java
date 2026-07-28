@@ -6,7 +6,7 @@ public class RowParserElement extends ATableParserElement {
 
     @Override
     protected ILogicalTable parseInternal(ILogicalTable unparsedTable, ITableObject tobj) {
-        ILogicalTable row = unparsedTable.getRow(0);
+        var row = unparsedTable.getRow(0);
 
         tobj.addParsedTable(name, row);
         return unparsedTable.getRows(1);

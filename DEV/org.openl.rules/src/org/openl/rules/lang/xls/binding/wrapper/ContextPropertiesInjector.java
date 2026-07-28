@@ -1,13 +1,11 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.EnumToStringCast;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.StringToEnumCast;
 import org.openl.binding.impl.module.ContextPropertyBinderUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -26,11 +24,11 @@ class ContextPropertiesInjector {
     private final IContextPropertyInjection[] contextPropertyInjections;
 
     public ContextPropertiesInjector(IMethodSignature methodSignature, ICastFactory castFactory) {
-        IOpenClass[] paramTypes = methodSignature.getParameterTypes();
-        int i = 0;
-        Map<String, IContextPropertyInjection> contextInjections = new LinkedHashMap<>();
+        var paramTypes = methodSignature.getParameterTypes();
+        var i = 0;
+        var contextInjections = new LinkedHashMap<String, IContextPropertyInjection>();
         for (IOpenClass paramType : paramTypes) {
-            int paramIndex = i;
+            var paramIndex = i;
             try {
                 paramType.getFields()
                         .stream()
@@ -41,7 +39,7 @@ class ContextPropertiesInjector {
                 log.debug("Ignored error: ", e);
             }
             if (methodSignature instanceof MethodSignature signature) {
-                String contextParameter = signature.getParameterDeclaration(i)
+                var contextParameter = signature.getParameterDeclaration(i)
                         .getContextProperty();
                 if (contextParameter != null) {
                     contextInjections.put(contextParameter,
@@ -68,7 +66,7 @@ class ContextPropertiesInjector {
             throw new IllegalStateException("Context property '%s' is not found.".formatted(contextProperty));
         }
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
-        IOpenCast openCast = castFactory.getCast(type, contextTypeOpenClass);
+        var openCast = castFactory.getCast(type, contextTypeOpenClass);
         if (openCast == null || !openCast
                 .isImplicit() && !(openCast instanceof EnumToStringCast) && !(openCast instanceof StringToEnumCast)) {
             throw new IllegalStateException(
@@ -90,7 +88,7 @@ class ContextPropertiesInjector {
                     "Context property '%s' is not found.".formatted(field.getContextProperty()));
         }
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
-        IOpenCast openCast = castFactory.getCast(field.getType(), contextTypeOpenClass);
+        var openCast = castFactory.getCast(field.getType(), contextTypeOpenClass);
         if (ContextPropertyBinderUtils.isNonValidCastForContextProperty(openCast)) {
             throw new IllegalStateException(String.format(
                     "Type mismatch for context property '%s' for field '%s' in class '%s'. " + "Cannot convert from '%s' to '%s'.",

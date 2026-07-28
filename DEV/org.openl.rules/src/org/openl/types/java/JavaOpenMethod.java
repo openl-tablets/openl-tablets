@@ -143,20 +143,20 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
         try {
             return method.invoke(target, params);
         } catch (InvocationTargetException t) {
-            Throwable targetException = t.getTargetException();
+            var targetException = t.getTargetException();
             if (targetException instanceof OpenLRuntimeException exception) {
                 throw exception;
             }
-            String msg = getMessage(targetException);
+            var msg = getMessage(targetException);
             throw new OpenLRuntimeException(msg, targetException);
         } catch (Exception t) {
-            String msg = getMessage(t);
+            var msg = getMessage(t);
             throw new OpenLRuntimeException(msg, t);
         }
     }
 
     private String getMessage(Throwable exception) {
-        String message = exception.getMessage();
+        var message = exception.getMessage();
         if (message == null) {
             message = exception.toString();
         }

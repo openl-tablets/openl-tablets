@@ -53,13 +53,13 @@ public class EventTableStyles implements TableStyles {
 
     @Override
     public ICellStyle getStyle(int row, int column) {
-        int index = cellIndexes[row - region.getTop()][column - region.getLeft()];
+        var index = cellIndexes[row - region.getTop()][column - region.getLeft()];
         return new OpenLCellStyle(index, extendedFormats.get(index), palette, customFormats);
     }
 
     @Override
     public ICellFont getFont(int row, int column) {
-        int index = cellIndexes[row - region.getTop()][column - region.getLeft()];
+        var index = cellIndexes[row - region.getTop()][column - region.getLeft()];
         return new OpenLCellFont(getFont(extendedFormats.get(index).getFontIndex()), palette);
     }
 

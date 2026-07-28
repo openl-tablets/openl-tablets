@@ -15,8 +15,8 @@ public class ProjectIndex {
     }
 
     public ProjectIndex copy() {
-        ProjectIndex index = new ProjectIndex();
-        List<ProjectInfo> projectsCopy = new ArrayList<>(projects.size());
+        var index = new ProjectIndex();
+        var projectsCopy = new ArrayList<ProjectInfo>(projects.size());
         for (ProjectInfo project : projects) {
             projectsCopy.add(project.copy());
         }

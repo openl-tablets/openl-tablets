@@ -7,7 +7,6 @@ import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
-import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
@@ -32,7 +31,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
         IGridRegion gridRegion = null;
         // TODO: rewrite to return more precise grid region
         if (!algorithmSteps.isEmpty()) {
-            RuntimeOperation firstOperation = algorithmSteps.getFirst();
+            var firstOperation = algorithmSteps.getFirst();
             gridRegion = firstOperation.getSourceCode().getGridRegion();
             // TODO: expand till the last operation
             // RuntimeOperation lastOperation = algorithmSteps.get(0);
@@ -51,7 +50,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
 
         // TODO: rewrite to return more precise source code url
         if (!algorithmSteps.isEmpty()) {
-            RuntimeOperation firstOperation = algorithmSteps.getFirst();
+            var firstOperation = algorithmSteps.getFirst();
             sourceUrl = firstOperation.getSourceCode().getSourceUri();
         }
 
@@ -67,8 +66,8 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         assert env instanceof TBasicContextHolderEnv;
 
-        TBasicContextHolderEnv environment = (TBasicContextHolderEnv) env;
-        TBasicVM vm = environment.getTbasicVm();
+        var environment = (TBasicContextHolderEnv) env;
+        var vm = environment.getTbasicVm();
 
         return vm.run(algorithmSteps, labels, environment);
     }

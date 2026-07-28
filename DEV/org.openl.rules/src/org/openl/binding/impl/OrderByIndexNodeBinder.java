@@ -5,7 +5,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 
 /**
@@ -23,9 +22,9 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
                                          ILocalVar localVar,
                                          IOpenCast openCast,
                                          IBindingContext bindingContext) {
-        IOpenClass type = expressionNode.getType();
+        var type = expressionNode.getType();
         if (expressionNode.getType() == NullOpenClass.the) {
-            String message = "Expected a parameter for 'Order By' expression.";
+            var message = "Expected a parameter for 'Order By' expression.";
             return makeErrorNode(message, expressionNode.getSyntaxNode(), bindingContext);
         }
         Class<?> instanceClass = type.getInstanceClass();
@@ -35,7 +34,7 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
                     expressionNode.getSyntaxNode(),
                     bindingContext);
         }
-        boolean isDecreasing = node.getType().contains("decreasing");
+        var isDecreasing = node.getType().contains("decreasing");
         return new OrderByIndexNode(node, targetNode, expressionNode, localVar, openCast, isDecreasing);
     }
 

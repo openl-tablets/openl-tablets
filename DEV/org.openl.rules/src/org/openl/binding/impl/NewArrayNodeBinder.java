@@ -25,7 +25,7 @@ public class NewArrayNodeBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         assertCountOfChild("New array node must have 1 subnode", node, 1);
-        ISyntaxNode child = node.getChild(0);
+        var child = node.getChild(0);
 
         if (child.getType().equals("new.array.initialized")) {
             // Bind new int[] {1,2,3}
@@ -40,7 +40,7 @@ public class NewArrayNodeBinder extends ANodeBinder {
                 child = child.getChild(0);
             }
 
-            LinkedList<IBoundNode> dimensionsExpressions = new LinkedList<>();
+            var dimensionsExpressions = new LinkedList<IBoundNode>();
             while (child.getType().equals("array.index.expression")) {
                 // count [5][3] - dimensions are stored in revers order
                 // TODO push array dimension and initialization expressions in BExGrammar directly.

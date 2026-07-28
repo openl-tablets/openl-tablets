@@ -22,7 +22,7 @@ public class ConditionOrActionParameterField implements IOpenField {
         if (target == null) {
             return getType().nullObject();
         }
-        Object[] params = (Object[]) target;
+        var params = (Object[]) target;
 
         return params[paramNum];
     }

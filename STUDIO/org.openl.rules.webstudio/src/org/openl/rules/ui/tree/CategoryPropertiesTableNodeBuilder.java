@@ -3,7 +3,6 @@ package org.openl.rules.ui.tree;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.webstudio.WebStudioFormats;
@@ -20,7 +19,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
 
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
-        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
+        var tableSyntaxNode = (TableSyntaxNode) nodeObject;
         return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i, WebStudioFormats.getInstance());
     }
 
@@ -31,7 +30,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
 
     @Override
     public String getUrl(Object nodeObject) {
-        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
+        var tableSyntaxNode = (TableSyntaxNode) nodeObject;
         return tableSyntaxNode.getUri();
     }
 
@@ -47,10 +46,10 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
     }
 
     private static boolean isCategoryPropertyTable(TableSyntaxNode tableSyntaxNode) {
-        boolean result = false;
-        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
+        var result = false;
+        var tableProperties = tableSyntaxNode.getTableProperties();
         if (tableProperties != null) {
-            String propValue = tableProperties.getScope();
+            var propValue = tableProperties.getScope();
             if (StringUtils.isNotEmpty(propValue) && InheritanceLevel.CATEGORY.getDisplayName().equals(propValue)) {
                 result = true;
             }

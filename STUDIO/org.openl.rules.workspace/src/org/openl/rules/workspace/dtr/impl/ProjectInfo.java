@@ -46,7 +46,7 @@ public class ProjectInfo {
     }
 
     public ProjectInfo copy() {
-        ProjectInfo info = new ProjectInfo(getName(), getPath());
+        var info = new ProjectInfo(getName(), getPath());
         info.setModifiedAt(getModifiedAt());
         return info;
     }

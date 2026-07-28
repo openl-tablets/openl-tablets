@@ -13,7 +13,7 @@ public class TestSuiteExecutorsConfiguration {
     @Bean(name = "testSuiteExecutor")
     public Executor testSuiteExecutor() {
         var availableProcessors =  Runtime.getRuntime().availableProcessors();
-        ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
+        var exec = new ThreadPoolTaskExecutor();
         exec.setThreadNamePrefix("async-test-suite-executor-");
         exec.setCorePoolSize(2);
         exec.setMaxPoolSize(Math.max(availableProcessors, 2));

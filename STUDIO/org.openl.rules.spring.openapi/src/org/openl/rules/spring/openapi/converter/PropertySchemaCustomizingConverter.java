@@ -155,14 +155,14 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
             discriminator = new Discriminator().propertyName(typeInfo.property());
             definedSchema.setDiscriminator(discriminator);
         }
-        boolean needsMapping = discriminator.getMapping() == null || discriminator.getMapping().isEmpty();
-        boolean needsOneOf = definedSchema.getOneOf() == null || definedSchema.getOneOf().isEmpty();
+        var needsMapping = discriminator.getMapping() == null || discriminator.getMapping().isEmpty();
+        var needsOneOf = definedSchema.getOneOf() == null || definedSchema.getOneOf().isEmpty();
         if (!needsMapping && !needsOneOf) {
             return;
         }
         var mapping = needsMapping ? new LinkedHashMap<String, String>() : null;
         for (var subType : subTypes.value()) {
-            String ref = resolveSubTypeRef(subType, context);
+            var ref = resolveSubTypeRef(subType, context);
             if (ref == null) {
                 continue;
             }

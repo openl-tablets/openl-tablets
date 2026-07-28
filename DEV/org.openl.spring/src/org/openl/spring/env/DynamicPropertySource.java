@@ -54,8 +54,8 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     }
 
     public boolean reloadIfModified() {
-        long l = getFile().lastModified();
-        boolean modified = l != timestamp;
+        var l = getFile().lastModified();
+        var modified = l != timestamp;
         if (modified) {
             loadProperties();
         }
@@ -63,9 +63,9 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     }
 
     private synchronized void loadProperties() {
-        File file = getFile();
+        var file = getFile();
         var properties = new LinkedHashMap<String, String>();
-        long lastModified = file.lastModified();
+        var lastModified = file.lastModified();
         if (file.exists()) {
             try {
                 PropertiesUtils.load(file.toPath(), properties::put);
@@ -83,7 +83,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     }
 
     private File getFile() {
-        String property = resolver.getProperty(OPENL_HOME_SHARED);
+        var property = resolver.getProperty(OPENL_HOME_SHARED);
         return new File(property, appName + ".properties");
     }
 
@@ -93,7 +93,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             // prevent cycled call
             return null;
         }
-        String property = settings.get(name);
+        var property = settings.get(name);
         if (property == null) {
             return null;
         }
@@ -117,15 +117,15 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     public synchronized void save(Map<String, String> config) throws IOException {
         final var properties = new TreeMap<>(settings);
         for (Map.Entry<String, String> pair : config.entrySet()) {
-            String propertyName = pair.getKey();
-            String value = pair.getValue();
+            var propertyName = pair.getKey();
+            var value = pair.getValue();
             if (value == null) {
                 properties.remove(propertyName);
             } else {
                 if (propertyName.endsWith("password")) {
                     try {
-                        String secretKey = getSecretKey();
-                        String cipher = getCipher();
+                        var secretKey = getSecretKey();
+                        var cipher = getCipher();
                         if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(secretKey) && StringUtils
                                 .isNotBlank(cipher)) {
                             value = "ENC(" + PassCoder.encode(value, secretKey, cipher) + ")";
@@ -150,14 +150,14 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         // Remove version for correct determining of properties to save
         properties.remove(PROP_VERSION);
 
-        boolean noPropsToSave = properties.isEmpty();
+        var noPropsToSave = properties.isEmpty();
 
         version = OpenLVersion.getVersion();
         settings = properties;
 
         if (noPropsToSave) {
             // Nothing to save. Delete old settings.
-            File settingsFile = getFile();
+            var settingsFile = getFile();
             FileUtils.deleteQuietly(settingsFile);
             return;
         }

@@ -11,22 +11,22 @@ class String2BigIntegerConvertorTest {
 
     @Test
     void testConvertPositive() {
-        String2BigIntegerConvertor converter = new String2BigIntegerConvertor();
-        Number result = converter.parse("123456789012345678901234567890", null);
+        var converter = new String2BigIntegerConvertor();
+        var result = converter.parse("123456789012345678901234567890", null);
         assertEquals(new BigInteger("123456789012345678901234567890"), result);
     }
 
     @Test
     void testConvertNegative() {
-        String2BigIntegerConvertor converter = new String2BigIntegerConvertor();
-        Number result = converter.parse("-12", null);
+        var converter = new String2BigIntegerConvertor();
+        var result = converter.parse("-12", null);
         assertEquals(BigInteger.valueOf(-12L), result);
     }
 
     @Test
     void testConvertNonInteger() {
         assertThrows(NumberFormatException.class, () -> {
-            String2BigIntegerConvertor converter = new String2BigIntegerConvertor();
+            var converter = new String2BigIntegerConvertor();
             converter.parse("1.3", null);
         });
     }

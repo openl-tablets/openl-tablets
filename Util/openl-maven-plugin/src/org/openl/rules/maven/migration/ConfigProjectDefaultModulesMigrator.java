@@ -84,7 +84,7 @@ public final class ConfigProjectDefaultModulesMigrator implements Migrator {
         var pending = new LinkedHashSet<String>();
         for (var m : modules) {
             var path = m.getRulesRootPath();
-            int slash = path.indexOf('/');
+            var slash = path.indexOf('/');
             var seg = slash <= 0 ? null : path.substring(0, slash);
             if (m.getName() == null && seg != null && path.endsWith(XLSX_EXT)) {
                 if (!m.isModuleWithWildcard()) {
@@ -114,7 +114,7 @@ public final class ConfigProjectDefaultModulesMigrator implements Migrator {
         if (CollectionUtils.isEmpty(modules)) {
             return;
         }
-        boolean allDefaults = modules.stream().allMatch(m -> m.getName() == null
+        var allDefaults = modules.stream().allMatch(m -> m.getName() == null
                 && m.getRulesRootPath() != null
                 && DEFAULT_WILDCARDS.contains(m.getRulesRootPath())
                 && hasNoExtraConfig(m));

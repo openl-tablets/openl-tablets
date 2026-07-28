@@ -32,7 +32,7 @@ public class DTColumnsDefinitionField implements IOpenField {
 
     @Override
     public String getDisplayName(int mode) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("'").append(name).append("'");
         if (!StringUtils.isEmpty(title)) {
             sb.append(" with column title '%s'".formatted(title));

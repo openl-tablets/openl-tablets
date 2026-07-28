@@ -38,18 +38,18 @@ class CommitMessageParser {
     }
 
     private static String buildPattern(String template) {
-        StringBuilder builder = new StringBuilder();
-        final int len = template.length();
+        var builder = new StringBuilder();
+        final var len = template.length();
         final int[] tokenCounter = new int[TOKENS.length];
-        int start = 0;
-        int pos = 0;
+        var start = 0;
+        var pos = 0;
         while (pos < len) {
-            int end = pos;
-            for (int tokenIdx = 0; tokenIdx < TOKENS.length; tokenIdx++) {
-                final String token = TOKENS[tokenIdx];
-                final int tokenLen = token.length();
-                int tokenPos = 0;
-                boolean matched = true;
+            var end = pos;
+            for (var tokenIdx = 0; tokenIdx < TOKENS.length; tokenIdx++) {
+                final var token = TOKENS[tokenIdx];
+                final var tokenLen = token.length();
+                var tokenPos = 0;
+                var matched = true;
                 // start token matching
                 while (tokenPos < tokenLen && pos < len) {
                     if (token.charAt(tokenPos++) != template.charAt(pos++)) {
@@ -63,7 +63,7 @@ class CommitMessageParser {
                         builder.append("\\Q").append(template, start, end).append("\\E");
                     }
                     start = pos;
-                    final boolean firstTokenOccurrence = tokenCounter[tokenIdx] == 0;
+                    final var firstTokenOccurrence = tokenCounter[tokenIdx] == 0;
                     tokenCounter[tokenIdx]++;
                     // open group
                     builder.append("(?");
@@ -117,7 +117,7 @@ class CommitMessageParser {
         if (pattern == null || message == null) {
             return null;
         }
-        Matcher matcher = pattern.matcher(message);
+        var matcher = pattern.matcher(message);
         if (!matcher.matches()) {
             return null;
         }
@@ -133,7 +133,7 @@ class CommitMessageParser {
         }
 
         CommitType getCommitType() {
-            String value = getValue("commitType");
+            var value = getValue("commitType");
             return value == null ? null : CommitType.valueOf(value);
         }
 

@@ -2,9 +2,7 @@ package org.openl.rules.webstudio.web.repository.cache;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -18,7 +16,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 
@@ -32,7 +29,7 @@ public class ProjectVersionCacheManager implements InitializingBean {
 
     public String getDeployedProjectVersion(AProject project) throws IOException {
         ensureCacheIsNotEmpty();
-        String md5 = getProjectMD5(project, ProjectVersionH2CacheDB.RepoType.DEPLOY);
+        var md5 = getProjectMD5(project, ProjectVersionH2CacheDB.RepoType.DEPLOY);
         return md5 != null ? projectVersionCacheDB
                 .getVersion(project.getBusinessName(), md5, ProjectVersionH2CacheDB.RepoType.DESIGN) : null;
     }
@@ -47,20 +44,20 @@ public class ProjectVersionCacheManager implements InitializingBean {
     }
 
     public String computeMD5(AProject wsProject) {
-        List<String> md5Strings = new ArrayList<>();
+        var md5Strings = new ArrayList<String>();
         try {
             if (wsProject.getRepository().supports().folders()) {
-                final String manName = wsProject.getProject().getFolderPath() + "/" + JarFile.MANIFEST_NAME;
+                final var manName = wsProject.getProject().getFolderPath() + "/" + JarFile.MANIFEST_NAME;
                 for (AProjectArtefact artefact : wsProject.getArtefacts()) {
                     if (manName.equals(artefact.getFileData().getName())) {
                         //skip manifest from hash calculation
                         continue;
                     }
                     if (artefact instanceof AProjectResource resource) {
-                        try (InputStream content = resource.getContent()) {
+                        try (var content = resource.getContent()) {
                             md5Strings.add(DigestUtils.md5Hex(content));
-                            String fileName = artefact.getFileData().getName();
-                            String folderPath = wsProject.getFolderPath();
+                            var fileName = artefact.getFileData().getName();
+                            var folderPath = wsProject.getFolderPath();
                             if (!StringUtils.isEmpty(folderPath)) {
                                 fileName = fileName.substring(wsProject.getFolderPath().length() + 1);
                             }
@@ -69,16 +66,16 @@ public class ProjectVersionCacheManager implements InitializingBean {
                     }
                 }
             } else {
-                FileItem zip = wsProject.getRepository().read(wsProject.getFolderPath());
-                try (ZipInputStream zin = new ZipInputStream(zip.getStream())) {
+                var zip = wsProject.getRepository().read(wsProject.getFolderPath());
+                try (var zin = new ZipInputStream(zip.getStream())) {
                     ZipEntry entry;
                     while ((entry = zin.getNextEntry()) != null) {
                         if (JarFile.MANIFEST_NAME.equals(entry.getName())) {
                             //skip manifest from hash calculation
                             continue;
                         }
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        int b = zin.read();
+                        var baos = new ByteArrayOutputStream();
+                        var b = zin.read();
                         while (b >= 0) {
                             baos.write(b);
                             b = zin.read();
@@ -97,7 +94,7 @@ public class ProjectVersionCacheManager implements InitializingBean {
     }
 
     private String getProjectMD5(AProject wsProject, ProjectVersionH2CacheDB.RepoType repoType) throws IOException {
-        String hash = projectVersionCacheDB.getHash(wsProject.getBusinessName(),
+        var hash = projectVersionCacheDB.getHash(wsProject.getBusinessName(),
                 wsProject.getVersion().getVersionName(),
                 wsProject.getVersion().getVersionInfo().getCreatedAt(),
                 repoType);

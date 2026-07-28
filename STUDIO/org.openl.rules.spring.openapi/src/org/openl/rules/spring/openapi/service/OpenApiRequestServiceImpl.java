@@ -110,7 +110,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                                              MethodInfo methodInfo,
                                              Components components) {
         var objectSchema = new ObjectSchema();
-        Map<String, Encoding> encodingMap = new LinkedHashMap<>();
+        var encodingMap = new LinkedHashMap<String, Encoding>();
 
         for (var paramInfo : formParamInfos) {
             // Check if this is a ModelAttribute - if so, expand its fields
@@ -238,7 +238,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 parameterType = ((ParameterizedType) parameterType).getActualTypeArguments()[0];
             }
         }
-        String[] consumes = resolveConsumes(methodInfo,
+        var consumes = resolveConsumes(methodInfo,
                 (Class<?>) (parameterType instanceof ParameterizedType pt ? pt.getRawType()
                         : parameterType));
         var parameter = ParameterProcessor.applyAnnotations(null,
@@ -263,9 +263,9 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     }
 
     private String[] resolveConsumes(MethodInfo methodInfo, Class<?> cl) {
-        String[] consumes = methodInfo.getConsumes();
+        var consumes = methodInfo.getConsumes();
         if (consumes == MethodInfo.ALL_MEDIA_TYPES) {
-            String[] possibleConsumes = apiParameterService.getMediaTypesForType(cl);
+            var possibleConsumes = apiParameterService.getMediaTypesForType(cl);
             if (possibleConsumes.length > 0) {
                 consumes = possibleConsumes;
             }
@@ -279,8 +279,8 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
         if (apiRequestBody == null) {
             return null;
         }
-        RequestBody requestBody = new RequestBody();
-        boolean empty = true;
+        var requestBody = new RequestBody();
+        var empty = true;
 
         if (StringUtils.isNotBlank(apiRequestBody.ref())) {
             requestBody.set$ref(apiRequestBody.ref());
@@ -376,7 +376,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     private void expandModelAttributeFields(ParameterInfo paramInfo,
                                             ObjectSchema objectSchema,
                                             Components components) {
-        Type paramType = paramInfo.getType();
+        var paramType = paramInfo.getType();
         Class<?> modelClass = paramType instanceof Class<?> c ? c :
                 paramType instanceof ParameterizedType pt ?
                         (Class<?>) pt.getRawType() : null;
@@ -392,8 +392,8 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 continue;
             }
 
-            String fieldName = field.getName();
-            Type fieldType = field.getGenericType();
+            var fieldName = field.getName();
+            var fieldType = field.getGenericType();
 
             // Check for @Schema annotation on field
             var schemaAnnotation = field.getAnnotation(Schema.class);

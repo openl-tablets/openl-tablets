@@ -69,7 +69,7 @@ public final class DefaultFormat {
         if (obj instanceof INamedThing thing) {
             return buf.append(thing.getDisplayName(INamedThing.REGULAR));
         }
-        NicePrinter printer = new NicePrinter();
+        var printer = new NicePrinter();
         printer.print(obj, new BeanNicePrinterAdaptor());
         return buf.append(printer.getBuffer());
     }
@@ -95,13 +95,13 @@ public final class DefaultFormat {
     private static StringBuilder formatIterator(Iterator<?> it, StringBuilder buf, int actualLength, String brackets) {
         buf.append(brackets.charAt(0));
 
-        int len = actualLength;
+        var len = actualLength;
 
         if (actualLength > 4) {
             len = 3;
         }
 
-        for (int i = 0; i < len; ++i) {
+        for (var i = 0; i < len; ++i) {
             if (i > 0) {
                 buf.append(", ");
             }
@@ -129,8 +129,8 @@ public final class DefaultFormat {
         }
 
         if (element != null) {
-            Object key = element.getKey();
-            Object value = element.getValue();
+            var key = element.getKey();
+            var value = element.getValue();
             if (key != null && value != null) {
                 buf.append('<')
                         .append(ClassUtils.getShortClassName(key.getClass()))

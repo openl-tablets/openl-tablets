@@ -26,7 +26,7 @@ public class CustomSpreadsheetResultOpenClassesKey {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        CustomSpreadsheetResultOpenClassesKey that = (CustomSpreadsheetResultOpenClassesKey) o;
+        var that = (CustomSpreadsheetResultOpenClassesKey) o;
 
         return Objects.equals(customSpreadsheetResultOpenClasses, that.customSpreadsheetResultOpenClasses);
     }

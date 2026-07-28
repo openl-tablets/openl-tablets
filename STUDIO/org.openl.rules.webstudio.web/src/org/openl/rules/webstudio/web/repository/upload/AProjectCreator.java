@@ -57,7 +57,7 @@ public abstract class AProjectCreator {
             createdProjectName = projectBuilder.getCreateProjectName();
             return projectBuilder.getProject();
         } catch (Exception e) {
-            Throwable cause = e.getCause();
+            var cause = e.getCause();
             if (projectBuilder != null && cause instanceof MergeConflictException) {
                 log.debug("Failed to save the project because of merge conflict.", cause);
                 // Try to save second time. It should resolve the issue if conflict in openl-projects.properties file.
@@ -86,13 +86,13 @@ public abstract class AProjectCreator {
         if (ProjectDescriptor.FILE_NAME.equals(fileName)) {
             // Read the stream to memory and try to parse it and then change project name. If it cannot be parsed return
             // original rules.xml.
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            var outputStream = new ByteArrayOutputStream();
             try {
                 IOUtils.copyAndClose(inputStream, outputStream);
             } catch (IOException e) {
                 throw new ProjectException(e.getMessage(), e);
             }
-            ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
+            var copy = new ByteArrayInputStream(outputStream.toByteArray());
 
             try {
                 ProjectDescriptor projectDescriptor = ProjectDescriptor.read(copy);

@@ -5,10 +5,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -37,7 +35,7 @@ public final class JavaOpenClassCache {
     }
 
     private static Map<Class<?>, JavaOpenClass> initializeJavaClassCache() {
-        Map<Class<?>, JavaOpenClass> javaClassCache = new HashMap<>();
+        var javaClassCache = new HashMap<Class<?>, JavaOpenClass>();
         javaClassCache.put(int.class, JavaOpenClass.INT);
         javaClassCache.put(Integer.class, new JavaOpenClass(Integer.class, true));
         javaClassCache.put(long.class, JavaOpenClass.LONG);
@@ -78,11 +76,11 @@ public final class JavaOpenClassCache {
     }
 
     JavaOpenClass get(Class<?> c) {
-        JavaOpenClass openClass = getJavaClassCache().get(c);
+        var openClass = getJavaClassCache().get(c);
         if (openClass != null) {
             return openClass;
         }
-        Lock lock = readWriteLock.readLock();
+        var lock = readWriteLock.readLock();
         try {
             lock.lock();
             return cache.get(c);
@@ -92,14 +90,14 @@ public final class JavaOpenClassCache {
     }
 
     public void resetClassloader(ClassLoader cl) {
-        final Lock lock = readWriteLock.writeLock();
+        final var lock = readWriteLock.writeLock();
 
         try {
             lock.lock();
 
-            List<Class<?>> toRemove = new ArrayList<>();
+            var toRemove = new ArrayList<Class<?>>();
             for (Class<?> c : cache.keySet()) {
-                ClassLoader classLoader = c.getClassLoader();
+                var classLoader = c.getClassLoader();
                 if (classLoader == cl) {
                     toRemove.add(c);
                 }
@@ -122,14 +120,14 @@ public final class JavaOpenClassCache {
     }
 
     JavaOpenClass put(Class<?> c, JavaOpenClass openClass) {
-        JavaOpenClass javaOpenClass = getJavaClassCache().get(c);
+        var javaOpenClass = getJavaClassCache().get(c);
         if (javaOpenClass != null) {
             return javaOpenClass;
         }
-        Lock lock = readWriteLock.writeLock();
+        var lock = readWriteLock.writeLock();
         try {
             lock.lock();
-            JavaOpenClass existed = cache.get(c);
+            var existed = cache.get(c);
             if (existed != null) {
                 return existed;
             }

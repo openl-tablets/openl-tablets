@@ -10,8 +10,8 @@ class CollectionParameterTreeNodeTest {
     @Test
     void nullValuesInPrimitiveArrays() {
         JavaOpenClass type = JavaOpenClass.getOpenClass(int[].class);
-        ParameterRenderConfig config = new ParameterRenderConfig.Builder(type, null).build();
-        CollectionParameterTreeNode node = new CollectionParameterTreeNode(config);
+        var config = new ParameterRenderConfig.Builder(type, null).build();
+        var node = new CollectionParameterTreeNode(config);
 
         // Check that addChild can handle null arguments
         node.addChild(0, null);

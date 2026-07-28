@@ -34,7 +34,7 @@ public class LazyCellLoader implements CellLoader {
         if (cellCache == null) {
             return null;
         }
-        Cell cell = cellCache.get();
+        var cell = cellCache.get();
         if (cell == null) {
             cell = PoiExcelHelper.getCell(column, row, sheetLoader.getSheet());
             cellCache = cell == null ? null : new WeakReference<>(cell);

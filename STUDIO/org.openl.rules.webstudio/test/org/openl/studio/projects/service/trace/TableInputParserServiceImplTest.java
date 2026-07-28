@@ -26,7 +26,7 @@ class TableInputParserServiceImplTest {
     private static IOpenMethod method(String[] names, Class<?>[] types) {
         var signature = mock(IMethodSignature.class);
         when(signature.getNumberOfParameters()).thenReturn(names.length);
-        for (int i = 0; i < names.length; i++) {
+        for (var i = 0; i < names.length; i++) {
             when(signature.getParameterName(i)).thenReturn(names[i]);
             when(signature.getParameterType(i)).thenReturn(JavaOpenClass.getOpenClass(types[i]));
         }

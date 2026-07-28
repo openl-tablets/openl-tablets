@@ -48,7 +48,7 @@ public class ThisCollectionElementField extends AOpenField {
 
     private Object getForList(Object target) {
         @SuppressWarnings("rawtypes")
-        List targetList = (List) target;
+        var targetList = (List) target;
         if (targetList == null || targetList.size() < elementIndex + 1) {
             return getType().nullObject();
         } else {
@@ -66,7 +66,7 @@ public class ThisCollectionElementField extends AOpenField {
 
     @SuppressWarnings("unchecked")
     private Object getForMap(Object v) {
-        Map<Object, Object> map = (Map<Object, Object>) v;
+        var map = (Map<Object, Object>) v;
         return map.get(mapKey);
     }
 
@@ -90,7 +90,7 @@ public class ThisCollectionElementField extends AOpenField {
     @SuppressWarnings("unchecked")
     private void setForList(Object target, Object value) {
         @SuppressWarnings("rawtypes")
-        List targetList = (List) target;
+        var targetList = (List) target;
         while (targetList.size() <= elementIndex) {
             targetList.add(getType().nullObject());
         }
@@ -101,8 +101,8 @@ public class ThisCollectionElementField extends AOpenField {
         if (Array.getLength(arr) < elementIndex + 1) {
             Object newArray = Array.newInstance(this.getType().getInstanceClass(), elementIndex + 1);
 
-            int oldArryLeng = Array.getLength(arr);
-            for (int i = 0; i < oldArryLeng; i++) {
+            var oldArryLeng = Array.getLength(arr);
+            for (var i = 0; i < oldArryLeng; i++) {
                 Array.set(newArray, i, Array.get(arr, i));
             }
 
@@ -117,7 +117,7 @@ public class ThisCollectionElementField extends AOpenField {
 
     @SuppressWarnings("unchecked")
     private void setForMap(Object target, Object value) {
-        Map<Object, Object> map = (Map<Object, Object>) target;
+        var map = (Map<Object, Object>) target;
         map.put(mapKey, value);
     }
 

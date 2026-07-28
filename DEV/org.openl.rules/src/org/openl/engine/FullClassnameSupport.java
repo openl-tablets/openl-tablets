@@ -21,11 +21,11 @@ class FullClassnameSupport {
 
     private static List<ISyntaxNode> getIdentifierChain(ISyntaxNode syntaxNode) throws IdentifierChainException {
         if (syntaxNode instanceof IdentifierNode) {
-            List<ISyntaxNode> ret = new ArrayList<>();
+            var ret = new ArrayList<ISyntaxNode>();
             ret.add(syntaxNode);
             return ret;
         } else if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
-            List<ISyntaxNode> s = getIdentifierChain(syntaxNode.getChild(0));
+            var s = getIdentifierChain(syntaxNode.getChild(0));
             s.addAll(getIdentifierChain(syntaxNode.getChild(1)));
             return s;
         }
@@ -52,13 +52,13 @@ class FullClassnameSupport {
             }
         } else if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
             try {
-                List<ISyntaxNode> identifierChain = getIdentifierChain(syntaxNode);
-                String variableName = identifierChain.getFirst().getText();
-                String variableType = localVariables.get(variableName);
-                int varTypeLength = 0;
+                var identifierChain = getIdentifierChain(syntaxNode);
+                var variableName = identifierChain.getFirst().getText();
+                var variableType = localVariables.get(variableName);
+                var varTypeLength = 0;
                 if (variableType != null) {
                     try {
-                        IOpenClass type = bindingContext.findType(variableType);
+                        var type = bindingContext.findType(variableType);
                         varTypeLength = calcLength(identifierChain, type);
                         if (varTypeLength == identifierChain.size()) {
                             return;
@@ -69,7 +69,7 @@ class FullClassnameSupport {
                 }
                 int varNameLength;
                 try {
-                    IOpenField var = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, variableName, true);
+                    var var = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, variableName, true);
                     varNameLength = calcLength(identifierChain, var != null ? var.getType() : null);
                     if (varNameLength == identifierChain.size()) {
                         return;
@@ -77,23 +77,23 @@ class FullClassnameSupport {
                 } catch (AmbiguousFieldException e) {
                     varNameLength = 0;
                 }
-                StringBuilder fullClassName = new StringBuilder();
+                var fullClassName = new StringBuilder();
                 String[] fullClassNames = new String[identifierChain.size()];
-                for (int j = 0; j < identifierChain.size(); j++) {
-                    ISyntaxNode syntaxNode1 = identifierChain.get(j);
+                for (var j = 0; j < identifierChain.size(); j++) {
+                    var syntaxNode1 = identifierChain.get(j);
                     if (fullClassName.length() > 0) {
                         fullClassName.append(".");
                     }
                     fullClassName.append(syntaxNode1.getText());
                     fullClassNames[j] = fullClassName.toString();
                 }
-                int j = identifierChain.size() - 1;
+                var j = identifierChain.size() - 1;
                 while (j >= 0 && j + 1 > varTypeLength && j + 1 > varNameLength) {
-                    IOpenClass type = bindingContext.findType(fullClassNames[j]);
+                    var type = bindingContext.findType(fullClassNames[j]);
                     if (type != null) {
-                        StringBuilder originalFullClassName = new StringBuilder();
-                        for (int k = 0; k < j + 1; k++) {
-                            ISyntaxNode syntaxNode1 = identifierChain.get(k);
+                        var originalFullClassName = new StringBuilder();
+                        for (var k = 0; k < j + 1; k++) {
+                            var syntaxNode1 = identifierChain.get(k);
                             if (originalFullClassName.length() > 0) {
                                 originalFullClassName.append(".");
                             }
@@ -107,25 +107,25 @@ class FullClassnameSupport {
                     j--;
                 }
             } catch (IdentifierChainException e) {
-                int n = syntaxNode.getNumberOfChildren();
-                for (int i = 0; i < n; i++) {
+                var n = syntaxNode.getNumberOfChildren();
+                for (var i = 0; i < n; i++) {
                     rec(syntaxNode.getChild(i), bindingContext, localVariables);
                 }
             }
         } else {
-            int n = syntaxNode.getNumberOfChildren();
-            for (int i = 0; i < n; i++) {
+            var n = syntaxNode.getNumberOfChildren();
+            for (var i = 0; i < n; i++) {
                 rec(syntaxNode.getChild(i), bindingContext, localVariables);
             }
         }
     }
 
     private static Integer calcLength(List<ISyntaxNode> identifierChain, IOpenClass type) {
-        int ret = 0;
+        var ret = 0;
         if (type != null) {
             ret++;
-            for (int j = 1; j < identifierChain.size(); j++) {
-                String part = identifierChain.get(j).getText();
+            for (var j = 1; j < identifierChain.size(); j++) {
+                var part = identifierChain.get(j).getText();
                 IOpenField f;
                 try {
                     f = type.getField(part);
@@ -157,7 +157,7 @@ class FullClassnameSupport {
         } else {
             nodeToChange = syntaxNode.getParent();
         }
-        IdentifierNode newIdentifierNode = new IdentifierNode("identifier",
+        var newIdentifierNode = new IdentifierNode("identifier",
                 nodeToChange.getChild(0).getSourceLocation(),
                 fullClassName,
                 nodeToChange.getChild(0).getModule());
@@ -170,7 +170,7 @@ class FullClassnameSupport {
 
     static void transformIdentifierBindersWithBindingContextInfo(IBindingContext bindingContext,
                                                                  IParsedCode parsedCode) {
-        ISyntaxNode topNode = parsedCode.getTopNode();
+        var topNode = parsedCode.getTopNode();
         if (bindingContext != null) {
             rec(topNode, bindingContext, new HashMap<>());
         }

@@ -10,7 +10,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -25,9 +24,9 @@ class AbstractDependencyManagerTest {
     void resetAllDeletesExtractedClasspathTempJars() throws Exception {
         try (FileSystem fs = FileSystems.newFileSystem(DESCRIPTOR_ZIP,
                 Thread.currentThread().getContextClassLoader())) {
-            ProjectDescriptor project = ProjectDescriptor.read(fs.getPath("/rules-clspth.xml")).expand();
+            var project = ProjectDescriptor.read(fs.getPath("/rules-clspth.xml")).expand();
 
-            AbstractDependencyManager dependencyManager = new AbstractDependencyManager(
+            var dependencyManager = new AbstractDependencyManager(
                     Thread.currentThread().getContextClassLoader(), true, null) {
                 @Override
                 protected Set<IDependencyLoader> initDependencyLoaders() {
@@ -38,7 +37,7 @@ class AbstractDependencyManagerTest {
             // Building the external-jars class loader extracts the nested lib jars to temp files.
             dependencyManager.getExternalJarsClassLoader(project);
 
-            List<Path> tempJars = new ArrayList<>();
+            var tempJars = new ArrayList<Path>();
             for (URL url : project.getClassPathUrls()) {
                 Path path = toFilePath(url);
                 if (path != null && path.getFileName().toString().startsWith("tmp-")) {

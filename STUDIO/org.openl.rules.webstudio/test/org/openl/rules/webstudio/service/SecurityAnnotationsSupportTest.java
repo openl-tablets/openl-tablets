@@ -13,8 +13,6 @@ import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.acls.model.Sid;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -53,9 +51,9 @@ class SecurityAnnotationsSupportTest {
     @Transactional
     void hasPermissionAnnotationsTest() {
         assertNotNull(securedService);
-        Foo foo = new Foo(45L);
+        var foo = new Foo(45L);
         // Prepare the information we'd like in our access control entry (ACE)
-        ObjectIdentity oi = new ObjectIdentityImpl(foo);
+        var oi = new ObjectIdentityImpl(foo);
 
         // Create or update the relevant ACL
         MutableAcl acl;
@@ -66,7 +64,7 @@ class SecurityAnnotationsSupportTest {
         }
 
         // Now grant some permissions via an access control entry (ACE)
-        Sid sid = new PrincipalSid("oleg");
+        var sid = new PrincipalSid("oleg");
         acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, false);
         aclService.updateAcl(acl);
         try {

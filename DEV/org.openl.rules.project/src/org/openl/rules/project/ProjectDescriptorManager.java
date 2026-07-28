@@ -16,10 +16,10 @@ public class ProjectDescriptorManager {
      * under {@code rules/} or {@code tests/} is therefore reported as covered even when rules.xml has no modules.
      */
     public boolean isCoveredByWildcardModule(ProjectDescriptor descriptor, Module otherModule) {
-        final String otherModuleRootPath = otherModule.getRulesRootPath();
+        final var otherModuleRootPath = otherModule.getRulesRootPath();
         for (Module module : effectiveModules(descriptor)) {
             if (module.isModuleWithWildcard() && otherModuleRootPath != null) {
-                String relativePath = otherModuleRootPath.replace("\\", "/");
+                var relativePath = otherModuleRootPath.replace("\\", "/");
                 if (FileUtils.pathMatches(module.getRulesRootPath(), relativePath)) {
                     return true;
                 }

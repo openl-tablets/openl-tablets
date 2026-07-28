@@ -37,8 +37,8 @@ public class JavaListAggregateInfo extends AAggregateInfo {
         @Override
         @SuppressWarnings("unchecked")
         public Object getValue(Object container, Object index) {
-            Integer idx = (Integer) index;
-            List<Object> list = (List<Object>) container;
+            var idx = (Integer) index;
+            var list = (List<Object>) container;
             if (list == null || idx == null || idx >= list.size()) {
                 return null;
             }
@@ -90,8 +90,8 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
     @Override
     public Object makeIndexedAggregate(IOpenClass componentClass, int size) {
-        ArrayList<Object> list = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
+        var list = new ArrayList<Object>(size);
+        for (var i = 0; i < size; i++) {
             list.add(null);
         }
         return list;

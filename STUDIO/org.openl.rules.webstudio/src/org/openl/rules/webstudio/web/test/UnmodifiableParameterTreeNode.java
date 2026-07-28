@@ -20,7 +20,7 @@ public class UnmodifiableParameterTreeNode extends ParameterDeclarationTreeNode 
 
     @Override
     public String getDisplayedValue() {
-        Object value = getValue();
+        var value = getValue();
         return FormattersManager.format(value);
     }
 

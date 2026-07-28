@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.source.impl.URLSourceCodeModule;
 
@@ -19,10 +18,10 @@ class XlsSheetGridModelTest {
 
     @BeforeEach
     void before() {
-        URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/XlsSheetGridModelTest.xls");
-        XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
+        var source = new URLSourceCodeModule("./test/rules/XlsSheetGridModelTest.xls");
+        var wbSrc = new XlsWorkbookSourceCodeModule(source);
 
-        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);
+        var sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);
 
         xsGrid = new XlsSheetGridModel(sheetSrc);
     }
@@ -43,38 +42,38 @@ class XlsSheetGridModelTest {
 
     @Test
     void testCellsFromMergedRegions() {
-        ICell cell = xsGrid.getCell(2, 2);
+        var cell = xsGrid.getCell(2, 2);
         assertEquals("Rules void hello1(int hour)", cell.getStringValue());
 
-        ICell cell1 = xsGrid.getCell(4, 2);
+        var cell1 = xsGrid.getCell(4, 2);
         assertEquals("Rules void hello1(int hour)", cell1.getStringValue());
 
-        ICell cell2 = xsGrid.getCell(2, 8);
+        var cell2 = xsGrid.getCell(2, 8);
         assertEquals("R20", cell2.getStringValue());
 
-        ICell cell3 = xsGrid.getCell(2, 9);
+        var cell3 = xsGrid.getCell(2, 9);
         assertEquals("R20", cell3.getStringValue());
     }
 
     @Test
     void testMergedRegionsNumber() {
-        int mergedRegions = xsGrid.getNumberOfMergedRegions();
+        var mergedRegions = xsGrid.getNumberOfMergedRegions();
         assertEquals(13, mergedRegions);
     }
 
     @Test
     void testColumnIndexes() {
-        int maxColumnIndex = xsGrid.getMaxColumnIndex(2);
+        var maxColumnIndex = xsGrid.getMaxColumnIndex(2);
         assertEquals(8, maxColumnIndex);
 
-        int minColumnIndex = xsGrid.getMinColumnIndex(2);
+        var minColumnIndex = xsGrid.getMinColumnIndex(2);
         assertEquals(1, minColumnIndex);
     }
 
     @Test
     void testGetRegion() {
         assertTrue(xsGrid.isPartOfTheMergedRegion(3, 2));
-        IGridRegion gridRegion = xsGrid.getRegionContaining(3, 2);
+        var gridRegion = xsGrid.getRegionContaining(3, 2);
 
         assertEquals(2, gridRegion.getTop());
         assertEquals(2, gridRegion.getBottom());

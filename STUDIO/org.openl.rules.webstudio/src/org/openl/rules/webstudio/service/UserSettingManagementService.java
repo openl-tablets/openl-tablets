@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.security.standalone.dao.UserSettingDao;
-import org.openl.rules.security.standalone.persistence.UserSetting;
 import org.openl.util.StringUtils;
 
 public class UserSettingManagementService {
@@ -23,7 +22,7 @@ public class UserSettingManagementService {
     }
 
     public String getStringProperty(String login, String key) {
-        UserSetting setting = userSettingDao.getProperty(login, key);
+        var setting = userSettingDao.getProperty(login, key);
         if (setting == null) {
             // A value for specified user not found. Return default value.
             return propertyResolver.getProperty(key);
@@ -33,7 +32,7 @@ public class UserSettingManagementService {
     }
 
     public boolean getBooleanProperty(String login, String key) {
-        String value = getStringProperty(login, key);
+        var value = getStringProperty(login, key);
         if (value == null) {
             throw new IllegalArgumentException(
                     "Cannot cast null to Boolean. The default value for the \" + key + \" property might be missing.");
@@ -43,7 +42,7 @@ public class UserSettingManagementService {
     }
 
     public int getIntegerProperty(String login, String key) {
-        String value = getStringProperty(login, key);
+        var value = getStringProperty(login, key);
         if (value == null) {
             throw new IllegalArgumentException(
                     "Cannot cast null to int. Probably default value for property " + key + " is absent.");
@@ -53,7 +52,7 @@ public class UserSettingManagementService {
     }
 
     public void setProperty(String login, String key, String value) {
-        String defVal = propertyResolver.getProperty(key);
+        var defVal = propertyResolver.getProperty(key);
         if (StringUtils.isBlank(defVal) && StringUtils.isBlank(value) || Objects.equals(defVal, value)) {
             userSettingDao.removeProperty(login, key);
         } else {

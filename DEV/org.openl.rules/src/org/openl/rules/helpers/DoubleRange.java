@@ -71,8 +71,8 @@ public class DoubleRange extends Range<Double> implements INumberRange {
                             .replaceAll("(\\S+)\\s+and\\s+more", ">=$1");
                     var parser = parse(range);
                     type = parser.getType();
-                    String left = parser.getLeft();
-                    String right = parser.getRight();
+                    var left = parser.getLeft();
+                    var right = parser.getRight();
                     lowerBound = left == null ? Double.NEGATIVE_INFINITY : convertToDouble(left);
                     upperBound = right == null ? Double.POSITIVE_INFINITY : convertToDouble(right);
                 } else {
@@ -211,8 +211,8 @@ public class DoubleRange extends Range<Double> implements INumberRange {
     }
 
     private static double convertToDouble(String text) {
-        double multiplier = 1.0;
-        int start = 0;
+        var multiplier = 1.0;
+        var start = 0;
         if (text.startsWith("$")) {
             start++;
         }
@@ -220,7 +220,7 @@ public class DoubleRange extends Range<Double> implements INumberRange {
             // special case, when comma as a group separator is in the beginning.
             throw new NumberFormatException("For input string: \"" + text + "\"");
         }
-        int end = text.length();
+        var end = text.length();
         switch (text.charAt(end - 1)) {
             case 'B':
                 multiplier *= 1000;
@@ -237,7 +237,7 @@ public class DoubleRange extends Range<Double> implements INumberRange {
             throw new NumberFormatException("For input string: \"" + text + "\"");
         }
         text = text.substring(start, end).replace(",", "");
-        double value = Double.parseDouble(text);
+        var value = Double.parseDouble(text);
         return value * multiplier;
     }
 

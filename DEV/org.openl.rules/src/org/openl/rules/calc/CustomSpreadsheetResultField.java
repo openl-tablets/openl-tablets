@@ -32,7 +32,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField implements I
         if (target == null) {
             return getType().nullObject();
         }
-        Object res = ((SpreadsheetResult) target).getFieldValue(getName());
+        var res = ((SpreadsheetResult) target).getFieldValue(getName());
         return processResult(res);
     }
 

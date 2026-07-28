@@ -32,7 +32,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     }
 
     protected void addTo(XlsModuleOpenClass openClass) {
-        TableSyntaxNode tsn = getTableSyntaxNode();
+        var tsn = getTableSyntaxNode();
         if (tableName != null) {
             field = new PropertiesOpenField(tableName, propertiesInstance, openClass);
             openClass.addField(field);
@@ -79,7 +79,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
 
     private static TableProperties getTablePropertiesForExecutionMode(ITableProperties properties) {
         if (properties != null) {
-            TableProperties clonedProperties = new TableProperties();
+            var clonedProperties = new TableProperties();
             for (Entry<String, Object> pair : properties.getAllProperties().entrySet()) {
                 clonedProperties.setFieldValue(pair.getKey(), pair.getValue());
             }

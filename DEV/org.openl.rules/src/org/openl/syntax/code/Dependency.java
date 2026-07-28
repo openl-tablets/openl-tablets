@@ -33,7 +33,7 @@ public class Dependency implements IDependency {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        Dependency that = (Dependency) o;
+        var that = (Dependency) o;
 
         if (type != that.type)
             return false;
@@ -42,7 +42,7 @@ public class Dependency implements IDependency {
 
     @Override
     public int hashCode() {
-        int result = type.hashCode();
+        var result = type.hashCode();
         result = 31 * result + node.getIdentifier().hashCode();
         return result;
     }

@@ -45,7 +45,7 @@ public final class UndoableIntImpl extends UndoableImpl implements UndoableInt {
 
         @Override
         public void undo() {
-            UndoableIntImpl var = (UndoableIntImpl) undoable();
+            var var = (UndoableIntImpl) undoable();
             var._value = _value;
             super.undo();
         }
@@ -53,7 +53,7 @@ public final class UndoableIntImpl extends UndoableImpl implements UndoableInt {
         @Override
         public void undoable(Undoable u) {
             super.undoable(u);
-            UndoableInt var = (UndoableInt) u;
+            var var = (UndoableInt) u;
             _value = var.value();
         }
 

@@ -27,7 +27,7 @@ public class RootFolderExtractor {
     private void initRootFolderPath() {
         if (needToExtract()) {
             for (String folderName : folderNames) {
-                int ind = folderName.indexOf('/');
+                var ind = folderName.indexOf('/');
                 if (ind > 0) {
                     rootName = folderName.substring(0, ind + 1);
                     return;
@@ -69,7 +69,7 @@ public class RootFolderExtractor {
                 return false;
             }
             if (isValidFolderName(name)) {
-                String secondFolderName = getFolderName(name);
+                var secondFolderName = getFolderName(name);
                 firstFolderName = StringUtils.isNotEmpty(firstFolderName) ? firstFolderName : secondFolderName;
 
                 if (!secondFolderName.equals(firstFolderName)) {
@@ -86,7 +86,7 @@ public class RootFolderExtractor {
     }
 
     private String getFolderName(String path) {
-        int ind = path.indexOf('/');
+        var ind = path.indexOf('/');
         if (ind > -1) {
             return path.substring(0, ind);
         }

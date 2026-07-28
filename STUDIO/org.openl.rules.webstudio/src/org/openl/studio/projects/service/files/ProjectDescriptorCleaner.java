@@ -2,7 +2,6 @@ package org.openl.studio.projects.service.files;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -19,9 +18,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.repository.api.FileData;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.util.FileTypeHelper;
@@ -68,7 +65,7 @@ public class ProjectDescriptorCleaner {
             return;
         }
 
-        InputStream content = descriptorResource.getContent();
+        var content = descriptorResource.getContent();
         ProjectDescriptor descriptor;
         try {
             descriptor = ProjectDescriptor.read(content);
@@ -80,19 +77,19 @@ public class ProjectDescriptorCleaner {
             return;
         }
 
-        Collection<String> modulePaths = new HashSet<>();
+        var modulePaths = new HashSet<String>();
         findModulePaths(artefact, modulePaths);
-        List<String> removedModuleNames = new ArrayList<>();
+        var removedModuleNames = new ArrayList<String>();
         for (String modulePath : modulePaths) {
             descriptor.getModules().removeIf(module -> {
-                boolean matches = modulePath.equals(module.getRulesRootPath());
+                var matches = modulePath.equals(module.getRulesRootPath());
                 if (matches) {
                     removedModuleNames.add(module.getName());
                 }
                 return matches;
             });
         }
-        boolean descriptorChanged = !removedModuleNames.isEmpty();
+        var descriptorChanged = !removedModuleNames.isEmpty();
         descriptorChanged |= cleanOpenApi(project, descriptor, artefact, removedModuleNames);
 
         if (descriptorChanged) {
@@ -111,7 +108,7 @@ public class ProjectDescriptorCleaner {
                                         ProjectDescriptor descriptor,
                                         AProjectArtefact artefact,
                                         List<String> removedModuleNames) {
-        OpenAPI openApi = descriptor.getOpenapi();
+        var openApi = descriptor.getOpenapi();
         if (openApi == null) {
             return false;
         }
@@ -121,12 +118,12 @@ public class ProjectDescriptorCleaner {
         if (removedModuleNames.contains(openApi.getModelModuleName())) {
             openApi.setModelModuleName(null);
         }
-        FileData fileData = artefact.getFileData();
+        var fileData = artefact.getFileData();
         if (fileData != null && openApi.getPath() != null) {
-            String name = fileData.getName();
+            var name = fileData.getName();
             // rules.xml may omit the name (it then defaults to the folder name) - use the physical name
             String rootName = Objects.requireNonNullElseGet(descriptor.getName(), project::getName);
-            String filePath = name.substring(name.lastIndexOf(rootName) + rootName.length() + 1);
+            var filePath = name.substring(name.lastIndexOf(rootName) + rootName.length() + 1);
             if (filePath.equals(openApi.getPath())) {
                 descriptor.setOpenapi(null);
                 return true;

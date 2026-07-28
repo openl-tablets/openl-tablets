@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -41,7 +40,7 @@ class TablePropertiesTest extends BaseOpenlBuilderHelper {
     private static final String PROPERTY_FAIL_ON_MISS = "failOnMiss";
 
     private TableProperties initTableProperties() {
-        TableProperties tableProperties = new TableProperties();
+        var tableProperties = new TableProperties();
         tableProperties.setCurrentTableType(XlsNodeTypes.XLS_METHOD.toString());
         tableProperties.setFieldValue(PROPERTY_NAME, "newName");
         tableProperties.setFieldValue(PROPERTY_DESCRIPTION, "newDescription");
@@ -52,17 +51,17 @@ class TablePropertiesTest extends BaseOpenlBuilderHelper {
     private Map<String, Object> initDefaultProperties() {
         List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
                 .getPropertiesToBeSetByDefault();
-        Map<String, Object> defaultProperties = new HashMap<>();
+        var defaultProperties = new HashMap<String, Object>();
 
         for (TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues) {
-            String propertyName = propertyWithDefaultValue.getName();
+            var propertyName = propertyWithDefaultValue.getName();
             defaultProperties.put(propertyName, propertyName + "Value");
         }
         return defaultProperties;
     }
 
     private Map<String, Object> initModuleProperties() {
-        Map<String, Object> moduleProperties = new HashMap<>();
+        var moduleProperties = new HashMap<String, Object>();
         moduleProperties.put(PROPERTY_BUILD_PHASE, "moduleLevelBuildPhase");
         moduleProperties.put(PROPERTY_CREATED_BY, "moduleLevelCreatedBy");
         moduleProperties.put(PROPERTY_EXPIRATION_DATE, new Date());
@@ -70,7 +69,7 @@ class TablePropertiesTest extends BaseOpenlBuilderHelper {
     }
 
     private Map<String, Object> initCategoryProperties() {
-        Map<String, Object> categoryProperties = new HashMap<>();
+        var categoryProperties = new HashMap<String, Object>();
         categoryProperties.put(PROPERTY_LOB, "newLob");
         categoryProperties.put(PROPERTY_USREGION, "alaska");
         categoryProperties.put(PROPERTY_REGION, "North America");
@@ -79,7 +78,7 @@ class TablePropertiesTest extends BaseOpenlBuilderHelper {
     }
 
     private TableProperties initProperties() {
-        TableProperties tableProperties = initTableProperties();
+        var tableProperties = initTableProperties();
 
         Map<String, Object> categoryProperties = initCategoryProperties();
         tableProperties.setCategoryProperties(categoryProperties);
@@ -95,7 +94,7 @@ class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
     private String getPropertyValueAsString(String propertyName, Object propertyValue) {
         String result;
-        TableProperties tablProp = new TableProperties();
+        var tablProp = new TableProperties();
         tablProp.setFieldValue(propertyName, propertyValue);
         result = tablProp.getPropertyValueAsString(propertyName);
         return result;
@@ -103,10 +102,10 @@ class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testPropertyDef() {
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();
+        var tsns = getTableSyntaxNodes();
         assertEquals(61, tsns.length);
         assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getName());
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+        var sdf = new SimpleDateFormat("MM/dd/yyyy");
         assertEquals("02/04/2237",
                 sdf.format((Date) tsns[4].getTableProperties().getPropertyValue(PROPERTY_EFFECTIVE_DATE)));
     }
@@ -114,13 +113,13 @@ class TablePropertiesTest extends BaseOpenlBuilderHelper {
     @Test
     void testGetValueAsString() {
         String result;
-        String propertyNameValue = "MyName";
+        var propertyNameValue = "MyName";
         result = getPropertyValueAsString(PROPERTY_NAME, propertyNameValue);
         assertEquals(propertyNameValue, result);
 
-        Date dateValue = new Date(4098);
+        var dateValue = new Date(4098);
         result = getPropertyValueAsString(PROPERTY_EFFECTIVE_DATE, dateValue);
-        SimpleDateFormat sDF = new SimpleDateFormat(
+        var sDF = new SimpleDateFormat(
                 TablePropertyDefinitionUtils.getPropertyByName(PROPERTY_EFFECTIVE_DATE).getFormat());
         assertEquals(sDF.format(dateValue), result);
 
@@ -130,7 +129,7 @@ class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testInheritanceProperties() {
-        TableProperties tableProperties = initProperties();
+        var tableProperties = initProperties();
 
         Map<String, Object> allProperties = tableProperties.getAllProperties();
 
@@ -155,7 +154,7 @@ class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testPropertiesLevelDefinedOn() {
-        TableProperties tableProperties = initProperties();
+        var tableProperties = initProperties();
 
         // checks that property PROPERTY_NAME is defined on TABLE level.
         assertEquals(InheritanceLevel.TABLE, tableProperties.getPropertyLevelDefinedOn(PROPERTY_NAME));

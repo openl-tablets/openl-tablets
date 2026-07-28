@@ -27,7 +27,7 @@ public class GroupManagementService {
 
     public List<org.openl.rules.security.Group> getGroups() {
         List<Group> groups = groupDao.getAllGroups();
-        List<org.openl.rules.security.Group> resultGroups = new ArrayList<>();
+        var resultGroups = new ArrayList<org.openl.rules.security.Group>();
 
         for (Group group : groups) {
             resultGroups.add(PrivilegesEvaluator.wrap(group));
@@ -42,7 +42,7 @@ public class GroupManagementService {
     }
 
     public org.openl.rules.security.Group getGroupByName(String name) {
-        Group group = groupDao.getGroupByName(name);
+        var group = groupDao.getGroupByName(name);
         if (group != null) {
             return PrivilegesEvaluator.wrap(group);
         }
@@ -50,7 +50,7 @@ public class GroupManagementService {
     }
 
     public void addGroup(String name, String description) {
-        Group persistGroup = new Group();
+        var persistGroup = new Group();
         persistGroup.setName(name);
         persistGroup.setDescription(description);
         groupDao.save(persistGroup);
@@ -58,7 +58,7 @@ public class GroupManagementService {
 
     @Transactional
     public void updateGroup(String name, String newName, String description) {
-        Group persistGroup = groupDao.getGroupByName(name);
+        var persistGroup = groupDao.getGroupByName(name);
         persistGroup.setName(newName);
         persistGroup.setDescription(description);
         groupDao.update(persistGroup);
@@ -66,7 +66,7 @@ public class GroupManagementService {
     }
 
     public void updateGroup(String name, Set<String> privileges) {
-        Group persistGroup = groupDao.getGroupByName(name);
+        var persistGroup = groupDao.getGroupByName(name);
         persistGroup.setPrivileges(new HashSet<>(privileges));
         groupDao.update(persistGroup);
     }

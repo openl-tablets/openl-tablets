@@ -93,15 +93,15 @@ class UserWorkspaceRefreshTest {
 
     @Test
     void unavailableRepositoryKeepsTheLink() throws IOException {
-        Repository designRepository = mockEmptyDesign();
+        var designRepository = mockEmptyDesign();
         // The repository cannot answer: an outage or an invalid URL is not a deletion.
         when(designRepository.check(anyString())).thenThrow(new IOException("The repository is unreachable."));
         seedOpenedCopy("design", null, false);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertEquals(1, projects.size());
-        RulesProject project = projects.getFirst();
+        var project = projects.getFirst();
         assertFalse(project.isLocalOnly(), "The copy must stay linked to the unavailable repository.");
         assertTrue(project.isOpened());
         assertEquals("design", registry.get(PROJECT).repositoryId(), "The record must not be rewritten.");
@@ -114,7 +114,7 @@ class UserWorkspaceRefreshTest {
         mockEmptyDesign();
         seedOpenedCopy("design", null, false);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertTrue(projects.isEmpty(), "The unchanged copy of the deleted project must be closed.");
         assertFalse(Files.exists(userDir.resolve(PROJECT)), "The unchanged copy must be deleted.");
@@ -127,7 +127,7 @@ class UserWorkspaceRefreshTest {
         mockEmptyDesign();
         seedOpenedCopy("design", null, true);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertTrue(projects.isEmpty(), "The modified copy of the deleted project must be closed.");
         assertFalse(Files.exists(userDir.resolve(PROJECT)), "The copied data must not outlive the project.");
@@ -136,14 +136,14 @@ class UserWorkspaceRefreshTest {
 
     @Test
     void modifiedCopyOfUnavailableRepositoryStaysOpened() throws IOException {
-        Repository designRepository = mockEmptyDesign();
+        var designRepository = mockEmptyDesign();
         when(designRepository.check(anyString())).thenThrow(new IOException("The repository is unreachable."));
         seedOpenedCopy("design", null, true);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertEquals(1, projects.size());
-        RulesProject project = projects.getFirst();
+        var project = projects.getFirst();
         assertTrue(project.isOpened(), "The copy must stay opened: an outage is not a deletion.");
         assertTrue(project.isModified());
         assertTrue(Files.exists(userDir.resolve(PROJECT)), "The local changes must not be deleted.");
@@ -151,16 +151,16 @@ class UserWorkspaceRefreshTest {
 
     @Test
     void unchangedCopyOfArchivedProjectIsClosed() throws IOException {
-        Repository designRepository = mockEmptyDesign();
+        var designRepository = mockEmptyDesign();
         // The repository keeps the archived project as a deletion marker instead of a missing path.
-        FileData archived = new FileData();
+        var archived = new FileData();
         archived.setName(DESIGN_PATH);
         archived.setVersion("rev-2");
         archived.setDeleted(true);
         when(designRepository.check(DESIGN_PATH)).thenReturn(archived);
         seedOpenedCopy("design", null, false);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertTrue(projects.isEmpty(), "The unchanged copy of the archived project must be closed.");
         assertFalse(Files.exists(userDir.resolve(PROJECT)), "The unchanged copy must be deleted.");
@@ -171,7 +171,7 @@ class UserWorkspaceRefreshTest {
         mockDesignWithProjectInBranch("feature");
         seedOpenedCopy("design", "feature", false);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertTrue(projects.isEmpty(), "A secondary branch does not keep a project absent from the main branch.");
         assertFalse(Files.exists(userDir.resolve(PROJECT)), "The unchanged copy must be deleted.");
@@ -186,11 +186,11 @@ class UserWorkspaceRefreshTest {
         when(lockInfo.isLocked()).thenReturn(true);
         when(lockInfo.getLockedBy()).thenReturn("jdoe");
         when(projectsLockEngine.getLockInfo("design", "feature", DESIGN_PATH)).thenReturn(lockInfo);
-        Path history = userDir.resolve(".history").resolve(PROJECT).resolve("module");
+        var history = userDir.resolve(".history").resolve(PROJECT).resolve("module");
         Files.createDirectories(history);
         Files.writeString(history.resolve("edit"), "unsaved");
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertTrue(projects.isEmpty(), "Local changes do not keep a project absent from the main branch.");
         assertFalse(Files.exists(userDir.resolve(PROJECT)), "The modified copy must be deleted.");
@@ -207,7 +207,7 @@ class UserWorkspaceRefreshTest {
         when(projectsLockEngine.getLockInfo("design", null, DESIGN_PATH))
                 .thenThrow(new IllegalStateException("The lock storage is unavailable."));
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertTrue(projects.isEmpty());
         assertFalse(Files.exists(userDir.resolve(PROJECT)), "The lock failure must not prevent cleanup.");
@@ -218,10 +218,10 @@ class UserWorkspaceRefreshTest {
      * The main-branch listing misses the project, but a secondary branch still holds it.
      */
     private void mockDesignWithProjectInBranch(String branch) throws IOException {
-        BranchRepository branched = mockBranchedEmptyDesign();
+        var branched = mockBranchedEmptyDesign();
         when(branched.branchExists(branch)).thenReturn(true);
         BranchRepository forBranch = mock(BranchRepository.class);
-        FileData existing = new FileData();
+        var existing = new FileData();
         existing.setName(DESIGN_PATH);
         existing.setVersion("rev-1");
         when(forBranch.check(DESIGN_PATH)).thenReturn(existing);
@@ -230,11 +230,11 @@ class UserWorkspaceRefreshTest {
 
     @Test
     void unchangedCopyOfRemovedBranchMissingUpstreamIsClosed() throws IOException {
-        BranchRepository branched = mockBranchedEmptyDesign();
+        var branched = mockBranchedEmptyDesign();
         when(branched.branchExists("dead")).thenReturn(false);
         seedOpenedCopy("design", "dead", false);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertTrue(projects.isEmpty(), "The unchanged copy of the removed branch must be closed.");
         assertFalse(Files.exists(userDir.resolve(PROJECT)), "The unchanged copy must be deleted.");
@@ -247,7 +247,7 @@ class UserWorkspaceRefreshTest {
         mockEmptyDesign();
         seedOpenedCopy("design", null, false, null);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertTrue(projects.isEmpty());
         assertNull(registry.get(PROJECT), "The versionless record must be removed.");
@@ -285,11 +285,11 @@ class UserWorkspaceRefreshTest {
         when(lockInfo.isLocked()).thenReturn(true);
         when(lockInfo.getLockedBy()).thenReturn("jdoe");
         when(projectsLockEngine.getLockInfo("design", null, DESIGN_PATH)).thenReturn(lockInfo);
-        Path history = userDir.resolve(".history").resolve(PROJECT).resolve("module");
+        var history = userDir.resolve(".history").resolve(PROJECT).resolve("module");
         Files.createDirectories(history);
         Files.writeString(history.resolve("edit"), "unsaved");
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertTrue(projects.isEmpty(), "A removed repository must not leave linked copies in the workspace.");
         assertFalse(Files.exists(userDir.resolve(PROJECT)), "The modified copy must be deleted.");
@@ -307,7 +307,7 @@ class UserWorkspaceRefreshTest {
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
         seedOpenedCopy("design", null, false, null);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertTrue(projects.isEmpty(), "A removed repository must evict versionless linked copies too.");
         assertFalse(Files.exists(userDir.resolve(PROJECT)), "The versionless copy must be deleted.");
@@ -319,7 +319,7 @@ class UserWorkspaceRefreshTest {
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
         seedOpenedCopy("local", null, false);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertEquals(1, projects.size());
         assertTrue(projects.getFirst().isLocalOnly());
@@ -366,7 +366,7 @@ class UserWorkspaceRefreshTest {
         lenient().when(designRepository.supports())
                 .thenReturn(new FeaturesBuilder(designRepository).setMappedFolders(true).build());
         // The project still exists upstream: it was renamed, not deleted.
-        FileData existing = new FileData();
+        var existing = new FileData();
         existing.setName(DESIGN_PATH);
         existing.setVersion("rev-1");
         lenient().when(designRepository.check(anyString())).thenReturn(existing);
@@ -380,7 +380,7 @@ class UserWorkspaceRefreshTest {
         mockBranchedDesign(true);
         seedOpenedCopy("design", "dead", true);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertEquals(1, projects.size());
         assertFalse(projects.getFirst().isOpened(), "The modified copy must be closed.");
@@ -393,7 +393,7 @@ class UserWorkspaceRefreshTest {
         mockBranchedDesign(true);
         seedOpenedCopy("design", "dead", false);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertEquals(1, projects.size());
         assertFalse(projects.getFirst().isOpened(), "The unchanged copy must be closed.");
@@ -405,7 +405,7 @@ class UserWorkspaceRefreshTest {
         mockBranchedDesign(false);
         seedOpenedCopy("design", "dead", true);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertEquals(1, projects.size());
         assertFalse(projects.getFirst().isOpened(), "The modified copy must be closed.");
@@ -418,7 +418,7 @@ class UserWorkspaceRefreshTest {
         mockBranchedDesign(false);
         seedOpenedCopy("design", "dead", false);
 
-        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
         assertEquals(1, projects.size());
         assertFalse(projects.getFirst().isOpened(), "The unchanged copy must be closed.");
@@ -444,7 +444,7 @@ class UserWorkspaceRefreshTest {
         }
 
         when(designTimeRepository.getRepository("design")).thenReturn(branched);
-        FileData designFileData = new FileData();
+        var designFileData = new FileData();
         designFileData.setName(DESIGN_PATH);
         designFileData.setVersion("rev-2");
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(new AProject(branched, designFileData)));
@@ -464,9 +464,9 @@ class UserWorkspaceRefreshTest {
                                 boolean modified,
                                 String version) {
         try {
-            Path projectDir = userDir.resolve(projectName);
+            var projectDir = userDir.resolve(projectName);
             Files.createDirectories(projectDir);
-            Path mainFile = projectDir.resolve("Main.xlsx");
+            var mainFile = projectDir.resolve("Main.xlsx");
             Files.writeString(mainFile, "content");
             // The baseline matches the written file, so an unchanged fixture is genuinely unchanged
             // and survives the dirty-state reconstruction of a restarted workspace.
@@ -487,14 +487,14 @@ class UserWorkspaceRefreshTest {
     }
 
     private List<AProject> workspaceProjects() {
-        List<AProject> projects = new ArrayList<>();
+        var projects = new ArrayList<AProject>();
         for (String name : registry.projects()) {
-            LocalRepository projectRepository = new LocalRepository(userDir, registry);
+            var projectRepository = new LocalRepository(userDir, registry);
             ProjectMetainfo metainfo = Objects.requireNonNull(registry.get(name));
             projectRepository.setId(metainfo.repositoryId());
             projectRepository.initialize();
             var projectState = projectRepository.getProjectState(name);
-            FileData fileData = projectState.getFileData();
+            var fileData = projectState.getFileData();
             // Mirrors LocalWorkspaceImpl.loadProjects: a record without revision details serves
             // the project from the folder on disk.
             projects.add(fileData == null

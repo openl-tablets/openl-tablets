@@ -61,8 +61,8 @@ public class TableProperties implements ITableProperties {
     private Map<String, Object> mergeLevelProperties(Map<String, Object> downLevelProperties,
                                                      Map<String, Object> upLevelProperties) {
         for (Entry<String, Object> upLevelProperty : upLevelProperties.entrySet()) {
-            String upLevelPropertyName = upLevelProperty.getKey();
-            Object upLevelPropertyValue = upLevelProperty.getValue();
+            var upLevelPropertyName = upLevelProperty.getKey();
+            var upLevelPropertyValue = upLevelProperty.getValue();
 
             if (PropertiesChecker.isPropertySuitableForTableType(upLevelPropertyName, currentTableType)) {
                 if (!downLevelProperties.containsKey(upLevelPropertyName)) {
@@ -542,19 +542,19 @@ public class TableProperties implements ITableProperties {
     @Override
     public String getPropertyValueAsString(String key) {
         String result = null;
-        Object propValue = getPropertyValue(key);
+        var propValue = getPropertyValue(key);
         if (propValue != null) {
             if (propValue instanceof Date date) {
-                String format = TablePropertyDefinitionUtils.getPropertyByName(key).getFormat();
+                var format = TablePropertyDefinitionUtils.getPropertyByName(key).getFormat();
                 if (format != null) {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+                    var dateFormat = new SimpleDateFormat(format);
                     result = dateFormat.format(date);
                 }
             } else if (EnumUtils.isEnum(propValue)) {
                 result = ((Enum<?>) propValue).name();
             } else if (EnumUtils.isEnumArray(propValue)) {
 
-                Object[] enums = (Object[]) propValue;
+                var enums = (Object[]) propValue;
 
                 if (!ArrayTool.isEmpty(enums)) {
 
@@ -564,7 +564,7 @@ public class TableProperties implements ITableProperties {
                     result = "";
                 }
             } else if (propValue.getClass().isArray()) {
-                Object[] array = (Object[]) propValue;
+                var array = (Object[]) propValue;
                 if (!ArrayTool.isEmpty(array)) {
                     result = StringUtils.join(array, ",");
                 } else {
@@ -600,7 +600,7 @@ public class TableProperties implements ITableProperties {
      */
     @Override
     public boolean isPropertyAppliedByDefault(String propertyName) {
-        boolean result = false;
+        var result = false;
         if (getPropertyLevelDefinedOn(propertyName) == null && defaultProperties.containsKey(propertyName)) {
             result = true;
         }
@@ -672,15 +672,15 @@ public class TableProperties implements ITableProperties {
         if (allProperties != null) {
             return allProperties;
         }
-        Map<String, Object> tableAndCategoryProp = mergeLevelProperties(new HashMap<>(fieldValues), categoryProperties);
-        Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp,
+        var tableAndCategoryProp = mergeLevelProperties(new HashMap<String, Object>(fieldValues), categoryProperties);
+        var tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp,
                 moduleProperties);
-        Map<String, Object> tableAndCategoryAndModuleAndGlobalProp = mergeLevelProperties(tableAndCategoryAndModuleProp,
+        var tableAndCategoryAndModuleAndGlobalProp = mergeLevelProperties(tableAndCategoryAndModuleProp,
                 globalProperties);
-        Map<String, Object> tableAndCategoryAndModuleAndGlobalAndExternalProp = mergeLevelProperties(
+        var tableAndCategoryAndModuleAndGlobalAndExternalProp = mergeLevelProperties(
                 tableAndCategoryAndModuleAndGlobalProp,
                 externalModuleProperties);
-        Map<String, Object> allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndGlobalAndExternalProp,
+        var allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndGlobalAndExternalProp,
                 defaultProperties);
         allProperties = Collections.unmodifiableMap(allTableProperties);
         return allProperties;
@@ -704,10 +704,10 @@ public class TableProperties implements ITableProperties {
     @Override
     public Map<String, Object> getAllDimensionalProperties() {
         if (allDimensionalProperties == null) {
-            Map<String, Object> tmp = new HashMap<>();
+            var tmp = new HashMap<String, Object>();
             Map<String, Object> props = getAllProperties();
             for (Map.Entry<String, Object> property : props.entrySet()) {
-                String propName = property.getKey();
+                var propName = property.getKey();
                 TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propName);
                 if (propertyDefinition.isDimensional()) {
                     tmp.put(propName, property.getValue());
@@ -827,7 +827,7 @@ public class TableProperties implements ITableProperties {
         }
         if (value.getClass().isArray()) {
             try {
-                Object[] array = ((Object[]) value).clone();
+                var array = ((Object[]) value).clone();
                 Arrays.sort(array, (Comparator) Comparator.nullsLast(Comparator.naturalOrder()));
                 return array;
             } catch (Exception e) {
@@ -848,7 +848,7 @@ public class TableProperties implements ITableProperties {
     }
 
     private Map<String, Object> extractPropertiesMap(Map<String, Object> externalProperties) {
-        Map<String, Object> tmp = new HashMap<>();
+        var tmp = new HashMap<String, Object>();
         for (Entry<String, Object> entry : externalProperties.entrySet()) {
             tmp.put(entry.getKey(), preprocess(entry.getKey(), entry.getValue()));
         }
@@ -871,7 +871,7 @@ public class TableProperties implements ITableProperties {
 
     @Override
     public String toString() {
-        NicePrinter printer = new NicePrinter();
+        var printer = new NicePrinter();
         printer.print(fieldValues, new NicePrinterAdaptor());
         return printer.getBuffer().toString();
     }

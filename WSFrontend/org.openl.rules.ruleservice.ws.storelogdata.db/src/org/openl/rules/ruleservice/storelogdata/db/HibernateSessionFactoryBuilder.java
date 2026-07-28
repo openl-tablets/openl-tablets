@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.springframework.context.ApplicationContext;
@@ -35,12 +34,12 @@ public class HibernateSessionFactoryBuilder implements ApplicationContextAware {
     }
 
     public SessionFactory buildSessionFactory(Class<?>[] entityClasses) {
-        Configuration configuration = new Configuration();
+        var configuration = new Configuration();
         Arrays.stream(entityClasses).forEach(configuration::addAnnotatedClass);
         configuration.setProperties(getApplicationContextProperties());
-        StandardServiceRegistryBuilder serviceRegistryBuilder = new StandardServiceRegistryBuilder();
+        var serviceRegistryBuilder = new StandardServiceRegistryBuilder();
         serviceRegistryBuilder.applySettings(configuration.getProperties());
-        StandardServiceRegistry serviceRegistry = serviceRegistryBuilder.build();
+        var serviceRegistry = serviceRegistryBuilder.build();
         return configuration.buildSessionFactory(serviceRegistry);
     }
 }

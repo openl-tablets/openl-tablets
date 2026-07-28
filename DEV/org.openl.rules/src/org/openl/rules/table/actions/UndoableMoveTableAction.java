@@ -33,7 +33,7 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
     public void doAction(IGridTable table) {
         IGridTable fullTable = getOriginalTable(table);
         prevRegion = fullTable.getRegion();
-        TableServiceImpl tableService = new TableServiceImpl(metaInfoWriter);
+        var tableService = new TableServiceImpl(metaInfoWriter);
         try {
             if (newRegion == null) {
                 newRegion = tableService.moveTable(fullTable);

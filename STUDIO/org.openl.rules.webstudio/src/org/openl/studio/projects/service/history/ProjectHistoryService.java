@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.Props;
@@ -41,35 +40,35 @@ public class ProjectHistoryService {
     private static final String REVISION_VERSION = "Revision Version";
 
     public List<ProjectHistoryItem> getProjectHistory(WebStudio webStudio) {
-        ProjectModel model = webStudio.getModel();
-        String projectHistoryPath = Path
+        var model = webStudio.getModel();
+        var projectHistoryPath = Path
                 .of(webStudio.getWorkspacePath(),
                         FolderHelper.resolveHistoryFolder(model.getProject(), model.getModuleInfo()))
                 .toString();
-        File dir = new File(projectHistoryPath);
-        String[] historyListFiles = dir.list();
+        var dir = new File(projectHistoryPath);
+        var historyListFiles = dir.list();
         if (historyListFiles == null || historyListFiles.length == 1) {
             return Collections.emptyList();
         }
         Arrays.sort(historyListFiles, Comparator.reverseOrder());
-        List<ProjectHistoryItem> collect = Arrays.stream(historyListFiles)
+        var collect = Arrays.stream(historyListFiles)
                 .map(this::createItem)
                 .collect(Collectors.toList());
-        ProjectHistoryItem revisionVersion = collect.removeFirst();
+        var revisionVersion = collect.removeFirst();
         collect.add(revisionVersion);
         return collect;
     }
 
     public void restore(WebStudio webStudio, String versionToRestore) throws Exception {
-        ProjectModel model = webStudio.getModel();
+        var model = webStudio.getModel();
         if (model == null) {
             return;
         }
-        String historyStoragePath = model.getHistoryStoragePath();
+        var historyStoragePath = model.getHistoryStoragePath();
         File fileToRestore = get(historyStoragePath, versionToRestore);
         File currentVersion = getCurrentVersion(historyStoragePath);
         if (fileToRestore != null) {
-            File currentSourceFile = model.getCurrentModuleWorkbook().getSourceFile();
+            var currentSourceFile = model.getCurrentModuleWorkbook().getSourceFile();
             try {
                 FileUtils.copy(fileToRestore, currentSourceFile);
             } catch (FileNotFoundException e) {
@@ -86,7 +85,7 @@ public class ProjectHistoryService {
 
     public void deleteAllHistory() throws IOException {
         String projectHistoryHome = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
-        File userWorkspace = new File(projectHistoryHome);
+        var userWorkspace = new File(projectHistoryHome);
         if (userWorkspace.exists() && userWorkspace.isDirectory()) {
             // The history of every project lives in the .history folder of each user workspace directory.
             Files.walkFileTree(userWorkspace.toPath(), new HashSet<>(), 2, new DeleteHistoryVisitor());
@@ -94,12 +93,12 @@ public class ProjectHistoryService {
     }
 
     public static File get(String storagePath, String version) {
-        File file = new File(storagePath, version);
+        var file = new File(storagePath, version);
         return file.exists() ? file : null;
     }
 
     public static void init(String storagePath, File source) {
-        File destFile = new File(storagePath);
+        var destFile = new File(storagePath);
         if (destFile.exists() && destFile.listFiles().length > 0) {
             return;
         }
@@ -111,12 +110,12 @@ public class ProjectHistoryService {
     }
 
     public static void deleteHistory(String projectName) throws IOException {
-        File userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
+        var userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
                 .getLocalWorkspace()
                 .getLocation();
-        String projectHistoryPath = Path.of(userWorkspace.getPath(), FolderHelper.HISTORY_FOLDER, projectName)
+        var projectHistoryPath = Path.of(userWorkspace.getPath(), FolderHelper.HISTORY_FOLDER, projectName)
                 .toString();
-        File dir = new File(projectHistoryPath);
+        var dir = new File(projectHistoryPath);
         // Project can contain no history
         if (dir.exists()) {
             FileUtils.delete(dir.toPath());
@@ -131,7 +130,7 @@ public class ProjectHistoryService {
                 byte[] currentVersionBytes = Files.readAllBytes(currentVersion.toPath());
                 byte[] sourceBytes = Files.readAllBytes(source.toPath());
                 if (!Arrays.equals(currentVersionBytes, sourceBytes)) {
-                    File destFile = new File(storagePath, System.currentTimeMillis() + CURRENT_VERSION);
+                    var destFile = new File(storagePath, System.currentTimeMillis() + CURRENT_VERSION);
                     FileUtils.copy(source, destFile);
                     removeCurrentVersion(currentVersion);
                     deleteHistoryOverLimit(storagePath);
@@ -145,8 +144,8 @@ public class ProjectHistoryService {
     static class DeleteHistoryVisitor extends SimpleFileVisitor<Path> {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            FileVisitResult fileVisitResult = super.visitFile(file, attrs);
-            File f = file.toFile();
+            var fileVisitResult = super.visitFile(file, attrs);
+            var f = file.toFile();
             if (f.isDirectory() && f.getName().equals(FolderHelper.HISTORY_FOLDER)) {
                 FileUtils.delete(f.toPath());
             }
@@ -160,19 +159,19 @@ public class ProjectHistoryService {
             // Infinity history
             return;
         }
-        File dir = new File(storagePath);
-        File[] files = dir.listFiles();
+        var dir = new File(storagePath);
+        var files = dir.listFiles();
         if (files == null) {
             return;
         }
         try {
             Arrays.sort(files);
-            for (int i = 0; i < files.length - count - 1; i++) {
-                File file = files[i];
+            for (var i = 0; i < files.length - count - 1; i++) {
+                var file = files[i];
                 FileUtils.delete(file.toPath());
             }
             if (count == 0) {
-                File revisionVersion = new File(storagePath, REVISION_VERSION);
+                var revisionVersion = new File(storagePath, REVISION_VERSION);
                 if (revisionVersion.exists()) {
                     revisionVersion.renameTo(new File(revisionVersion.getPath() + CURRENT_VERSION));
                 }
@@ -183,8 +182,8 @@ public class ProjectHistoryService {
     }
 
     private static File getCurrentVersion(String storagePath) {
-        File dir = new File(storagePath);
-        String[] historyListFiles = dir.list();
+        var dir = new File(storagePath);
+        var historyListFiles = dir.list();
         if (historyListFiles == null) {
             return null;
         }
@@ -204,11 +203,11 @@ public class ProjectHistoryService {
     }
 
     private ProjectHistoryItem createItem(String name) {
-        String version = name.split("_")[0];
-        SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
+        var version = name.split("_")[0];
+        var formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
         String modifiedOn;
         try {
-            long time = Long.parseLong(version);
+            var time = Long.parseLong(version);
             modifiedOn = formatter.format(new Date(time));
         } catch (NumberFormatException e) {
             modifiedOn = version;

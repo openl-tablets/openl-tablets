@@ -25,7 +25,7 @@ public class ArrayIndex implements IOpenIndex {
 
     @Override
     public Object getValue(Object container, Object index) {
-        Integer ind = (Integer) index;
+        var ind = (Integer) index;
         if (container == null || ind == null || ind < 0 || ind >= Array.getLength(container)) {
             return getElementType().nullObject();
         }

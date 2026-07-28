@@ -70,7 +70,7 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
 
     @Override
     public String getUri() {
-        String workbookUri = workbookSource.getUri();
+        var workbookUri = workbookSource.getUri();
         if (workbookUri == null) {
             // assume that URI is null for virtual grid module, let's try to make it unique
             workbookUri = "VIRTUAL_WORKBOOK@" + System.identityHashCode(this);

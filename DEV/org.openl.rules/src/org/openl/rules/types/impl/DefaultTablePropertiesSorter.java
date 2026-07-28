@@ -36,7 +36,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
         methodsComparator = (o1, o2) -> {
             ITableProperties tableProperties1 = PropertiesHelper.getTableProperties(o1);
             ITableProperties tableProperties2 = PropertiesHelper.getTableProperties(o2);
-            int comparisonResult = 0;
+            var comparisonResult = 0;
             for (Comparator<ITableProperties> tablesPriorityRule : tablesPriorityRules) {
                 comparisonResult = tablesPriorityRule.compare(tableProperties1, tableProperties2);
                 if (comparisonResult != 0) {
@@ -49,7 +49,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
 
     @Override
     public List<IOpenMethod> sort(Collection<IOpenMethod> candidates) {
-        List<IOpenMethod> result = new ArrayList<>(candidates);
+        var result = new ArrayList<IOpenMethod>(candidates);
         result.sort(methodsComparator);
         return result;
     }

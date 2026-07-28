@@ -10,14 +10,14 @@ public class MockRunner implements IOpenRunner {
 
     @Override
     public Object run(IBoundMethodNode node, Object[] params) throws OpenLRuntimeException {
-        int frameSize = node.getLocalFrameSize();
+        var frameSize = node.getLocalFrameSize();
 
         return node.evaluate(new MockRuntimeEnv(this, frameSize, params));
     }
 
     @Override
     public Object run(IBoundMethodNode node, Object[] params, IRuntimeEnv env) throws OpenLRuntimeException {
-        int frameSize = node.getLocalFrameSize();
+        var frameSize = node.getLocalFrameSize();
 
         Object[] frame = new Object[frameSize];
 

@@ -174,7 +174,7 @@ public abstract class AbstractAlgorithmSubroutineMethodWrapper extends Algorithm
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractAlgorithmSubroutineMethodWrapper that = (AbstractAlgorithmSubroutineMethodWrapper) o;
+        var that = (AbstractAlgorithmSubroutineMethodWrapper) o;
         return delegate.equals(that.delegate);
     }
 

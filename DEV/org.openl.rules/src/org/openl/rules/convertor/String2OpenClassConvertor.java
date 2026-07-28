@@ -26,7 +26,7 @@ class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass>, IS
             typeName = data;
         }
 
-        IOpenClass openClass = cxt.findType(typeName);
+        var openClass = cxt.findType(typeName);
 
         if (openClass == null) {
             throw new IllegalArgumentException(MessageUtils.getTypeNotFoundMessage(data));

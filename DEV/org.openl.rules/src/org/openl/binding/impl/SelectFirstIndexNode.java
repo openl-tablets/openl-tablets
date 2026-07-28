@@ -1,12 +1,9 @@
 package org.openl.binding.impl;
 
-import java.util.Iterator;
-
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.util.BooleanUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -31,14 +28,14 @@ class SelectFirstIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object target = targetNode.evaluate(env);
+        var target = targetNode.evaluate(env);
         if (target == null) {
             return null;
         }
-        IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
-        Iterator<Object> elementsIterator = aggregateInfo.getIterator(target);
+        var aggregateInfo = targetNode.getType().getAggregateInfo();
+        var elementsIterator = aggregateInfo.getIterator(target);
         while (elementsIterator.hasNext()) {
-            Object element = elementsIterator.next();
+            var element = elementsIterator.next();
             if (element == null) {
                 continue;
             }
@@ -53,7 +50,7 @@ class SelectFirstIndexNode extends ABoundNode {
 
     @Override
     public IOpenClass getType() {
-        IOpenClass type = targetNode.getType();
+        var type = targetNode.getType();
         return type.getAggregateInfo().getComponentType(type);
     }
 }

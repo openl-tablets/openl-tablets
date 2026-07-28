@@ -59,9 +59,9 @@ public class SmartRulesTableReader extends ExecutableTableReader<SmartRulesView,
         var list = new ArrayList<LinkedHashMap<String, Object>>();
         var sourceTable = rulesBody.getSource();
         var height = OpenLTableUtils.getHeightWithoutEmptyRows(sourceTable);
-        for (int rowId = 0; rowId < height; rowId++) {
+        for (var rowId = 0; rowId < height; rowId++) {
             var rule = new LinkedHashMap<String, Object>();
-            int colId = 0;
+            var colId = 0;
             for (var header : headers) {
                 Object value;
                 if (header.width == 1) {
@@ -84,9 +84,9 @@ public class SmartRulesTableReader extends ExecutableTableReader<SmartRulesView,
     }
 
     public static List<SmartRulesHeaderView> getConditionHeaders(ILogicalTable headerBody) {
-        List<SmartRulesHeaderView> headers = new ArrayList<>();
+        var headers = new ArrayList<SmartRulesHeaderView>();
         var width = OpenLTableUtils.getWidthWithoutEmptyColumns(headerBody);
-        for (int col = 0; col < width; col++) {
+        for (var col = 0; col < width; col++) {
             var cell = headerBody.getCell(col, 0);
             headers.add(SmartRulesHeaderView.builder().title(cell.getStringValue()).width(cell.getWidth()).build());
         }

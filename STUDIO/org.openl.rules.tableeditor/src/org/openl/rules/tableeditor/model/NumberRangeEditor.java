@@ -15,11 +15,11 @@ public class NumberRangeEditor implements ICellEditor {
 
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
-        NumberRangeParams params = new NumberRangeParams();
+        var params = new NumberRangeParams();
         params.setEntryEditor(entryEditor);
         params.setParsedValue(parsedValue);
 
-        EditorTypeResponse typeResponse = new EditorTypeResponse(CE_RANGE);
+        var typeResponse = new EditorTypeResponse(CE_RANGE);
         typeResponse.setParams(params);
         return typeResponse;
     }

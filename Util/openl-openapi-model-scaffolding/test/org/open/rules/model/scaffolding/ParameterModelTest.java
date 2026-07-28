@@ -12,9 +12,9 @@ class ParameterModelTest {
 
     @Test
     void testParameterModelCreation() {
-        ParameterModel nameParam = new ParameterModel(new TypeInfo(String.class), "name");
-        ParameterModel oneMoreNameParam = new ParameterModel(new TypeInfo(String.class), "name");
-        ParameterModel surnameParam = new ParameterModel(new TypeInfo(String.class), "surname");
+        var nameParam = new ParameterModel(new TypeInfo(String.class), "name");
+        var oneMoreNameParam = new ParameterModel(new TypeInfo(String.class), "name");
+        var surnameParam = new ParameterModel(new TypeInfo(String.class), "surname");
 
 
         assertEquals(nameParam, nameParam);
@@ -25,7 +25,7 @@ class ParameterModelTest {
         assertNotEquals(nameParam, surnameParam);
         assertNotEquals(nameParam.hashCode(), surnameParam.hashCode());
 
-        ParameterModel integerParam = new ParameterModel(new TypeInfo(Integer.class), "name");
+        var integerParam = new ParameterModel(new TypeInfo(Integer.class), "name");
         assertEquals("name", integerParam.getFormattedName());
         assertEquals("Integer", integerParam.getType().getSimpleName());
         assertNotEquals(nameParam, integerParam);

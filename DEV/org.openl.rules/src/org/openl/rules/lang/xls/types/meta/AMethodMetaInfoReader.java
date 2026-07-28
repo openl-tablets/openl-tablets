@@ -1,7 +1,6 @@
 package org.openl.rules.lang.xls.types.meta;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -9,16 +8,12 @@ import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.ICell;
-import org.openl.types.IOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
-import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
 public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends BaseMetaInfoReader<T> {
@@ -38,26 +33,26 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
 
     @Override
     protected CellMetaInfo getHeaderMetaInfo() {
-        TableSyntaxNode syntaxNode = getTableSyntaxNode();
-        OpenMethodHeader tableHeader = (OpenMethodHeader) getBoundNode().getHeader();
+        var syntaxNode = getTableSyntaxNode();
+        var tableHeader = (OpenMethodHeader) getBoundNode().getHeader();
 
-        List<NodeUsage> nodeUsages = new ArrayList<>();
-        ICell cell = syntaxNode.getGridTable().getCell(0, 0);
-        TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
+        var nodeUsages = new ArrayList<NodeUsage>();
+        var cell = syntaxNode.getGridTable().getCell(0, 0);
+        var tableHeaderText = new TextInfo(cell.getStringValue());
 
-        int startPosition = getBoundNode().getSignatureStartIndex();
+        var startPosition = getBoundNode().getSignatureStartIndex();
         // Link to return type
-        IOpenClass type = tableHeader.getType();
-        IMetaInfo metaInfo = type.getMetaInfo();
+        var type = tableHeader.getType();
+        var metaInfo = type.getMetaInfo();
         while (metaInfo == null && type.isArray()) {
             type = type.getComponentClass();
             metaInfo = type.getMetaInfo();
         }
 
-        ILocation typeLocation = tableHeader.getTypeLocation();
+        var typeLocation = tableHeader.getTypeLocation();
         if (metaInfo != null && typeLocation != null) {
-            int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
-            int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because typeLocation returns 'end' inclusively
+            var start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
+            var end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because typeLocation returns 'end' inclusively
             nodeUsages.add(
                     new SimpleNodeUsage(
                             start,
@@ -73,10 +68,10 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
         }
 
         // Link to input parameters
-        ILocation[] paramTypeLocations = tableHeader.getParamTypeLocations();
+        var paramTypeLocations = tableHeader.getParamTypeLocations();
         if (paramTypeLocations != null) {
-            for (int i = 0; i < tableHeader.getSignature().getNumberOfParameters(); i++) {
-                IOpenClass parameterType = tableHeader.getSignature().getParameterType(i);
+            for (var i = 0; i < tableHeader.getSignature().getNumberOfParameters(); i++) {
+                var parameterType = tableHeader.getSignature().getParameterType(i);
                 metaInfo = parameterType.getMetaInfo();
                 while (metaInfo == null && parameterType.isArray()) {
                     parameterType = parameterType.getComponentClass();
@@ -84,9 +79,9 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
                 }
 
                 if (metaInfo != null) {
-                    ILocation sourceLocation = paramTypeLocations[i];
-                    int start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
-                    int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because location returns 'end' inclusively
+                    var sourceLocation = paramTypeLocations[i];
+                    var start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
+                    var end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because location returns 'end' inclusively
                     nodeUsages.add(new SimpleNodeUsage(start,
                             end,
                             metaInfo.getDisplayName(INamedThing.SHORT),

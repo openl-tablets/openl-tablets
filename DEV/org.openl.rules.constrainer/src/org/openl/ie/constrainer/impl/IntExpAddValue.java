@@ -34,7 +34,7 @@ public final class IntExpAddValue extends IntExpImpl {
 
         @Override
         public void update(Subject exp, EventOfInterest event) throws Failure {
-            IntEvent e = (IntEvent) event;
+            var e = (IntEvent) event;
 
             IntEventAddValue ev = IntEventAddValue.getEvent(e, _value);
             ev.exp(_exp_this);
@@ -60,7 +60,7 @@ public final class IntExpAddValue extends IntExpImpl {
         IntEvent _event;
 
         static IntEventAddValue getEvent(IntEvent event, int value) {
-            IntEventAddValue ev = (IntEventAddValue) _factory.getElement();
+            var ev = (IntEventAddValue) _factory.getElement();
             ev.init(event, value);
             return ev;
         }

@@ -1,9 +1,6 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +12,9 @@ public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> imple
     @Override
     @Transactional
     public UserSetting getProperty(String login, String key) {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<UserSetting> criteria = builder.createQuery(UserSetting.class);
-        Root<UserSetting> u = criteria.from(UserSetting.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(UserSetting.class);
+        var u = criteria.from(UserSetting.class);
         criteria.select(u)
                 .where(builder.and(builder.equal(u.get("id").get("loginName"), login),
                         builder.equal(u.get("id").get("settingKey"), key)))
@@ -29,7 +26,7 @@ public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> imple
     @Override
     @Transactional
     public void setProperty(String login, String key, String value) {
-        UserSetting property = getProperty(login, key);
+        var property = getProperty(login, key);
         if (property == null) {
             property = new UserSetting();
             property.setId(new UserSettingId(login, key));

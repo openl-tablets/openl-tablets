@@ -11,45 +11,45 @@ class MatchExpressionTest {
 
     @Test
     void testMatchExpressionLE() {
-        String operationTest = "<=";
+        var operationTest = "<=";
 
-        String operationNameTest = LEMatchingExpression.OPERATION_NAME;
+        var operationNameTest = LEMatchingExpression.OPERATION_NAME;
 
         testMatchExpression(operationNameTest, operationTest);
     }
 
     @Test
     void testMatchExpressionGT() {
-        String operationTest = ">=";
+        var operationTest = ">=";
 
-        String operationNameTest = GTMatchingExpression.OPERATION_NAME;
+        var operationNameTest = GTMatchingExpression.OPERATION_NAME;
 
         testMatchExpression(operationNameTest, operationTest);
     }
 
     @Test
     void testMatchExpressionEQ() {
-        String operationTest = "==";
+        var operationTest = "==";
 
-        String operationNameTest = EQMatchingExpression.OPERATION_NAME;
+        var operationNameTest = EQMatchingExpression.OPERATION_NAME;
 
         testMatchExpression(operationNameTest, operationTest);
     }
 
     @Test
     void testMatchExpressionContains() {
-        String operationTest = "==";
+        var operationTest = "==";
 
-        String operationNameTest = ContainsMatchingExpression.OPERATION_NAME;
+        var operationNameTest = ContainsMatchingExpression.OPERATION_NAME;
 
         testMatchExpression(operationNameTest, operationTest);
     }
 
     @Test
     void testUnknownMatchExpression() {
-        String operationTest = "unknown";
+        var operationTest = "unknown";
 
-        String operationNameTest = "unknownOperation";
+        var operationNameTest = "unknownOperation";
 
         try {
             testMatchExpression(operationNameTest, operationTest);
@@ -60,16 +60,16 @@ class MatchExpressionTest {
     }
 
     private void testMatchExpression(String operationNameTest, String operationTest) {
-        String contextAttributeTest = "contextAttributeTest";
-        String matchExpressionStr = "%s(%s)".formatted(operationNameTest, contextAttributeTest);
-        MatchingExpression matchExpression = new MatchingExpression(matchExpressionStr);
+        var contextAttributeTest = "contextAttributeTest";
+        var matchExpressionStr = "%s(%s)".formatted(operationNameTest, contextAttributeTest);
+        var matchExpression = new MatchingExpression(matchExpressionStr);
 
-        String param = "paramTest";
+        var param = "paramTest";
 
         assertEquals(operationNameTest, matchExpression.getMatchExpression().getOperationName());
         assertEquals(contextAttributeTest, matchExpression.getMatchExpression().getContextAttribute());
 
-        String codeExpressionTest = "%s %s %s".formatted(param, operationTest, contextAttributeTest);
+        var codeExpressionTest = "%s %s %s".formatted(param, operationTest, contextAttributeTest);
 
         assertEquals(codeExpressionTest, matchExpression.getMatchExpression().getCodeExpression(param));
     }

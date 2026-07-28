@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.table.CoordinatesTransformer;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.TransformedGridTable;
@@ -43,21 +42,21 @@ public class DecisionTableLookupConvertor {
     private DTScale scale;
 
     IGridTable convertTable(ILogicalTable table) throws OpenLCompilationException {
-        ILogicalTable headerRow = table.getRow(HEADER_ROW);
+        var headerRow = table.getRow(HEADER_ROW);
 
-        int firstLookupColumn = findFirstLookupColumn(headerRow);
+        var firstLookupColumn = findFirstLookupColumn(headerRow);
         loadHorizConditionsAndReturnColumns(headerRow, firstLookupColumn);
         validateLookupSection();
 
         processHorizConditionsHeaders(table, firstLookupColumn);
 
-        IGridTable lookupValuesTable = getLookupValuesTable(table, firstLookupColumn).getSource();
+        var lookupValuesTable = getLookupValuesTable(table, firstLookupColumn).getSource();
 
-        Integer lookupValuesTableHeight = getLookupValuesTableHeight(table);
+        var lookupValuesTableHeight = getLookupValuesTableHeight(table);
 
         isMultiplier(lookupValuesTable);
 
-        CoordinatesTransformer transformer = getTransformer(table,
+        var transformer = getTransformer(table,
                 headerRow,
                 lookupValuesTable,
                 lookupValuesTableHeight);
@@ -70,7 +69,7 @@ public class DecisionTableLookupConvertor {
                                                   IGridTable lookupValuesTable,
                                                   Integer lookupValuesTableHeight) throws OpenLCompilationException {
         validateRetColumn(headerRow);
-        int retTableWidth = retTable.getCell(0, 0).getWidth();
+        var retTableWidth = retTable.getCell(0, 0).getWidth();
 
         if (lookupValuesTableHeight == null) {
             lookupValuesTableHeight = lookupValuesTable.getHeight();
@@ -86,8 +85,8 @@ public class DecisionTableLookupConvertor {
     }
 
     private int firstVerticalColumn(ILogicalTable headerRow) {
-        for (int columnIndex = 0; columnIndex < headerRow.getSource().getWidth(); columnIndex++) {
-            String headerStr = headerRow.getSource().getCell(columnIndex, 0).getStringValue();
+        for (var columnIndex = 0; columnIndex < headerRow.getSource().getWidth(); columnIndex++) {
+            var headerStr = headerRow.getSource().getCell(columnIndex, 0).getStringValue();
             if (headerStr != null) {
                 headerStr = headerStr.toUpperCase();
                 if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper
@@ -100,12 +99,12 @@ public class DecisionTableLookupConvertor {
     }
 
     private int[] buildHorizontalHeaderOffsets(ILogicalTable headerRow) {
-        List<Integer> hcOffsets = new ArrayList<>();
-        List<Integer> retOffsets = new ArrayList<>();
-        int columnIndex = 0;
+        var hcOffsets = new ArrayList<Integer>();
+        var retOffsets = new ArrayList<Integer>();
+        var columnIndex = 0;
         while (columnIndex < headerRow.getSource().getWidth()) {
-            ICell cell = headerRow.getSource().getCell(columnIndex, 0);
-            String headerStr = cell.getStringValue();
+            var cell = headerRow.getSource().getCell(columnIndex, 0);
+            var headerStr = cell.getStringValue();
             if (headerStr != null) {
                 headerStr = headerStr.toUpperCase();
                 if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
@@ -122,9 +121,9 @@ public class DecisionTableLookupConvertor {
     }
 
     private void validateRetColumn(ILogicalTable headerRow) throws OpenLCompilationException {
-        int ncol = headerRow.getSource().getWidth();
-        for (int columnIndex = 0; columnIndex < ncol; columnIndex++) {
-            String headerStr = headerRow.getSource().getCell(columnIndex, 0).getStringValue();
+        var ncol = headerRow.getSource().getWidth();
+        for (var columnIndex = 0; columnIndex < ncol; columnIndex++) {
+            var headerStr = headerRow.getSource().getCell(columnIndex, 0).getStringValue();
             if (headerStr != null) {
                 headerStr = headerStr.toUpperCase();
                 if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper
@@ -138,25 +137,25 @@ public class DecisionTableLookupConvertor {
 
     private void processHorizConditionsHeaders(ILogicalTable originalTable,
                                                int firstLookupColumn) throws OpenLCompilationException {
-        ILogicalTable hcRowTable = originalTable.getRows(DISPLAY_ROW).getRow(0);
-        int w = 0;
-        int c = 0;
+        var hcRowTable = originalTable.getRows(DISPLAY_ROW).getRow(0);
+        var w = 0;
+        var c = 0;
         while (w < firstLookupColumn) {
             w = w + hcRowTable.getColumn(c).getSource().getWidth();
             c++;
         }
-        ILogicalTable hcHeaderTable = hcRowTable.getSubtable(c, 0, hcRowTable.getWidth() - c, hcRowTable.getHeight());
+        var hcHeaderTable = hcRowTable.getSubtable(c, 0, hcRowTable.getWidth() - c, hcRowTable.getHeight());
         validateHCHeaders(hcHeaderTable);
     }
 
     private ILogicalTable getLookupValuesTable(ILogicalTable originalTable, int firstLookupColumn) {
-        int w = 0;
-        int c = 0;
+        var w = 0;
+        var c = 0;
         while (w < firstLookupColumn) {
             w = w + originalTable.getColumn(c).getSource().getWidth();
             c++;
         }
-        ILogicalTable hcRowTable = originalTable.getRows(DISPLAY_ROW).getRow(0);
+        var hcRowTable = originalTable.getRows(DISPLAY_ROW).getRow(0);
         return originalTable.getSubtable(c,
                 DISPLAY_ROW + hcRowTable.getHeight(),
                 originalTable.getWidth() - c,
@@ -164,12 +163,12 @@ public class DecisionTableLookupConvertor {
     }
 
     private Integer getLookupValuesTableHeight(ILogicalTable originalTable) {
-        String stringValue = originalTable.getCell(0, 0).getStringValue();
+        var stringValue = originalTable.getCell(0, 0).getStringValue();
         if (stringValue == null) {
             stringValue = "";
         }
         stringValue = stringValue.toUpperCase();
-        ILogicalTable valueTable = originalTable.getRows(DISPLAY_ROW + 1);
+        var valueTable = originalTable.getRows(DISPLAY_ROW + 1);
         if (DecisionTableHelper.isValidRuleHeader(stringValue) || DecisionTableHelper
                 .isValidMergedConditionHeader(stringValue)) {
             return valueTable.getHeight();
@@ -179,9 +178,9 @@ public class DecisionTableLookupConvertor {
     }
 
     private int getWidthWithIgnoredEmptyCells(IGridTable table) {
-        int width = table.getWidth();
+        var width = table.getWidth();
         while (width > 0) {
-            for (int i = 0; i < table.getHeight(); i++) {
+            for (var i = 0; i < table.getHeight(); i++) {
                 if (table.getCell(width - 1, 0).getStringValue() != null) {
                     return width;
                 }
@@ -193,17 +192,17 @@ public class DecisionTableLookupConvertor {
     }
 
     private void isMultiplier(IGridTable lookupValuesTable) throws OpenLCompilationException {
-        int retTableWidth = retTable.getWidth();
-        int lookupTableWidth = lookupValuesTable.getWidth();
+        var retTableWidth = retTable.getWidth();
+        var lookupTableWidth = lookupValuesTable.getWidth();
 
-        boolean isMultiplier = lookupTableWidth % retTableWidth == 0;
+        var isMultiplier = lookupTableWidth % retTableWidth == 0;
         // lookupTableWidth/retTableWidth*retTableWidth == lookupTableWidth;
 
         if (!isMultiplier) {
-            int w = getWidthWithIgnoredEmptyCells(lookupValuesTable);
+            var w = getWidthWithIgnoredEmptyCells(lookupValuesTable);
             isMultiplier = w % retTableWidth == 0;
             if (!isMultiplier) {
-                String message = "The width of the Lookup table(%d) is not a multiple of the RET width(%d).".formatted(
+                var message = "The width of the Lookup table(%d) is not a multiple of the RET width(%d).".formatted(
                         lookupTableWidth,
                         retTableWidth);
                 throw new OpenLCompilationException(message);
@@ -234,10 +233,10 @@ public class DecisionTableLookupConvertor {
      * @throws OpenLCompilationException when there is no lookup headers.
      */
     private int findFirstLookupColumn(ILogicalTable headerRow) throws OpenLCompilationException {
-        int ncol = headerRow.getSource().getWidth();
+        var ncol = headerRow.getSource().getWidth();
 
-        for (int columnIndex = 0; columnIndex < ncol; columnIndex++) {
-            String headerStr = headerRow.getSource().getColumn(columnIndex).getCell(0, 0).getStringValue();
+        for (var columnIndex = 0; columnIndex < ncol; columnIndex++) {
+            var headerStr = headerRow.getSource().getColumn(columnIndex).getCell(0, 0).getStringValue();
 
             if (headerStr != null) {
                 headerStr = headerStr.toUpperCase();
@@ -264,12 +263,12 @@ public class DecisionTableLookupConvertor {
     private void loadHorizConditionsAndReturnColumns(ILogicalTable rowHeader,
                                                      int firstLookupColumn) throws OpenLCompilationException {
 
-        int nCol = rowHeader.getSource().getWidth();
-        int d = 0;
+        var nCol = rowHeader.getSource().getWidth();
+        var d = 0;
         while (d < nCol) {
-            IGridTable hTable = rowHeader.getSource().getColumn(d);
+            var hTable = rowHeader.getSource().getColumn(d);
             if (d >= firstLookupColumn) {
-                String headerStr = hTable.getCell(0, 0).getStringValue();
+                var headerStr = hTable.getCell(0, 0).getStringValue();
                 if (headerStr != null) {
                     headerStr = headerStr.toUpperCase();
 
@@ -296,13 +295,13 @@ public class DecisionTableLookupConvertor {
 
     private void validateLookupSection() throws OpenLCompilationException {
         if (hcHeaders.isEmpty()) {
-            String message = "Horizontal Condition (%s1) is mandatory for Lookup table.".formatted(
+            var message = "Horizontal Condition (%s1) is mandatory for Lookup table.".formatted(
                     DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
             throw new OpenLCompilationException(message);
         }
 
         if (retTable == null) {
-            String message = "Lookup Table must have %s column".formatted(
+            var message = "Lookup Table must have %s column".formatted(
                     DecisionTableColumnHeaders.RETURN.getHeaderKey());
             throw new OpenLCompilationException(message);
         }

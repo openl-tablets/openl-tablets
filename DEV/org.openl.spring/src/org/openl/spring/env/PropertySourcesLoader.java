@@ -1,12 +1,10 @@
 package org.openl.spring.env;
 
 import java.util.HashMap;
-import java.util.Map;
 import jakarta.servlet.ServletContext;
 
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.jndi.JndiLocatorDelegate;
 import org.springframework.jndi.JndiPropertySource;
@@ -42,8 +40,8 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
     public void initialize(ConfigurableApplicationContext appContext) {
         ConfigLog.LOG
                 .info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
-        ConfigurableEnvironment oldEnv = appContext.getEnvironment();
-        FirewallEnvironment env = new FirewallEnvironment(oldEnv.getPropertySources());
+        var oldEnv = appContext.getEnvironment();
+        var env = new FirewallEnvironment(oldEnv.getPropertySources());
         appContext.setEnvironment(env);
         String appName = normalizeAppName(appContext.getApplicationName());
         loadEnvironment(appContext, env, appName, null);
@@ -51,7 +49,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
 
     public void initialize(ConfigurableApplicationContext appContext, ServletContext servletContext) {
         ConfigLog.LOG.info("The initialization of properties");
-        FirewallEnvironment env = new FirewallEnvironment(new MutablePropertySources());
+        var env = new FirewallEnvironment(new MutablePropertySources());
         appContext.setEnvironment(env);
         String appName = normalizeAppName(servletContext.getContextPath());
         loadEnvironment(appContext, env, appName, servletContext);
@@ -61,8 +59,8 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
                                  FirewallEnvironment env,
                                  String appName,
                                  ServletContext servletContext) {
-        FirewallPropertyResolver props = env.getRawPropertyResolver();
-        MutablePropertySources propertySources = env.getPropertySources();
+        var props = env.getRawPropertyResolver();
+        var propertySources = env.getPropertySources();
 
         ConfigLog.LOG.info("Loading OpenL System Info properties...");
         propertySources.addFirst(new SysInfoPropertySource());
@@ -82,16 +80,16 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         propertySources.addLast(new RandomValuePropertySource());
 
         ConfigLog.LOG.info("Loading default properties...");
-        DefaultPropertySource defaultPropertySource = new DefaultPropertySource();
+        var defaultPropertySource = new DefaultPropertySource();
         propertySources.addLast(defaultPropertySource);
 
         ConfigLog.LOG.info("Loading application properties...");
-        String[] profiles = env.getActiveProfiles();
+        var profiles = env.getActiveProfiles();
         propertySources.addBefore(DefaultPropertySource.PROPS_NAME,
                 new ApplicationPropertySource(props, appName, profiles));
 
         ConfigLog.LOG.info("Loading reconfigurable properties...");
-        DynamicPropertySource propertySource = new DynamicPropertySource(appName, props);
+        var propertySource = new DynamicPropertySource(appName, props);
         DynamicPropertySource.THE = propertySource;
         propertySources.addBefore(ApplicationPropertySource.PROPS_NAME, propertySource);
 
@@ -109,7 +107,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
     private void registerPropertyBean(ConfigurableApplicationContext appContext,
                                       DefaultPropertySource defaultPropertySource,
                                       FirewallPropertyResolver props) {
-        Map<String, String> propertyMap = new HashMap<>();
+        var propertyMap = new HashMap<String, String>();
         for (String key : defaultPropertySource.getPropertyNames()) {
             propertyMap.put(key, props.getRawProperty(key));
         }

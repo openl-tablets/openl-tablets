@@ -49,7 +49,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
 
         @Override
         public void undo() {
-            IntVarImpl intvar = (IntVarImpl) undoable();
+            var intvar = (IntVarImpl) undoable();
             // System.out.println("++ Undo: " + intvar);
             intvar.history().restore(_history_index);
             super.undo();
@@ -59,7 +59,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         @Override
         public void undoable(Undoable u) {
             super.undoable(u);
-            IntVarImpl intvar = (IntVarImpl) u;
+            var intvar = (IntVarImpl) u;
             _history_index = intvar.history().currentIndex();
             // System.out.println("++ SAVE: " + intvar + "index:" +
             // _history_index);
@@ -75,7 +75,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
     public IntVarImpl(Constrainer constrainer, int min, int max, String name, int domain_type) {
         super(constrainer, name);
 
-        int size = max - min + 1;
+        var size = max - min + 1;
 
         switch (domain_type) {
             case DOMAIN_PLAIN -> _domain = new DomainImpl(this, min, max);

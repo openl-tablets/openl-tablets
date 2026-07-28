@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -49,8 +47,8 @@ class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
     }
 
     private void createMainModule() throws IOException {
-        Workbook book = new HSSFWorkbook();
-        Sheet sheet = book.createSheet(SHEET_NAME);
+        var book = new HSSFWorkbook();
+        var sheet = book.createSheet(SHEET_NAME);
 
         // Correct tables
         String[][] expenseDatatypeTable = {{"Datatype Expense"}, {"String", "area"}};

@@ -45,18 +45,18 @@ class ProjectVersionCacheMonitorTest {
 
     @Test
     void testCacheProjects() throws IOException {
-        String path = "project/test";
-        FileData data = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "1"));
-        FileData data2 = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "2"));
-        FileData data3 = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "3"));
-        AProject project = new AProject(repo, "project", data.getVersion());
-        AProject project2 = new AProject(repo, "project", data2.getVersion());
-        AProject project3 = new AProject(repo, "project", data3.getVersion());
+        var path = "project/test";
+        var data = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "1"));
+        var data2 = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "2"));
+        var data3 = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "3"));
+        var project = new AProject(repo, "project", data.getVersion());
+        var project2 = new AProject(repo, "project", data2.getVersion());
+        var project3 = new AProject(repo, "project", data3.getVersion());
         projectVersionCacheMonitor.cacheProjectVersion(project, ProjectVersionH2CacheDB.RepoType.DESIGN);
         projectVersionCacheMonitor.cacheProjectVersion(project2, ProjectVersionH2CacheDB.RepoType.DESIGN);
         projectVersionCacheMonitor.cacheProjectVersion(project2, ProjectVersionH2CacheDB.RepoType.DEPLOY);
         projectVersionCacheMonitor.cacheProjectVersion(project3, ProjectVersionH2CacheDB.RepoType.DESIGN);
-        String deployedProjectVersion = projectVersionCacheManager.getDeployedProjectVersion(project2);
+        var deployedProjectVersion = projectVersionCacheManager.getDeployedProjectVersion(project2);
         assertEquals(data2.getVersion(), deployedProjectVersion);
         projectVersionCacheDB.closeDb();
     }
@@ -78,7 +78,7 @@ class ProjectVersionCacheMonitorTest {
     }
 
     private FileData createFileData(String path, String text) {
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName(path);
         fileData.setSize(text.length());
         fileData.setComment(text + "-comment");

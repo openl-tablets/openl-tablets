@@ -11,7 +11,7 @@ public class CurrentUserValue implements ISystemValue {
 
     @Override
     public Object getValue() {
-        CurrentUserInfo usInfo = new CurrentUserInfo();
+        var usInfo = new CurrentUserInfo();
         return usInfo.getUserName();
     }
 

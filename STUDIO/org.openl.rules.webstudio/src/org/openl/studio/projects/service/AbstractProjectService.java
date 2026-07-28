@@ -175,7 +175,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     }
 
     private Map<AProject, Date> resolveModifiedAt(List<? extends AProject> projects) {
-        Map<AProject, Date> modifiedAt = new IdentityHashMap<>();
+        var modifiedAt = new IdentityHashMap<AProject, Date>();
         projects.forEach(project -> modifiedAt.put(project, modifiedAtOf(project)));
         return modifiedAt;
     }
@@ -306,7 +306,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     }
 
     private List<TagFacetSummary> tagCounts(List<? extends AProject> scope) {
-        Map<String, Map<String, Long>> counts = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        var counts = new TreeMap<String, Map<String, Long>>(String.CASE_INSENSITIVE_ORDER);
         scope.stream()
                 .filter(RulesProject.class::isInstance)
                 .map(RulesProject.class::cast)

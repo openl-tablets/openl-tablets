@@ -169,7 +169,7 @@ class IntRangeParsingTest {
 
     @Test
     void testRangeSuffixies() {
-        IntRange range = new IntRange("6-8");
+        var range = new IntRange("6-8");
         assertEquals(8, range.getMax());
         assertEquals(6, range.getMin());
     }

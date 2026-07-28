@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.method.ITablePropertiesMethod;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.studio.projects.model.trace.DispatchInfo;
 import org.openl.types.IOpenMethod;
@@ -29,7 +28,7 @@ final class DispatchInfoFactory {
     /** Label a version by its dimension properties (what makes it distinct), falling back to the rule name. */
     private static String label(IOpenMethod method) {
         if (method instanceof ITablePropertiesMethod propertiesMethod) {
-            ITableProperties properties = propertiesMethod.getMethodProperties();
+            var properties = propertiesMethod.getMethodProperties();
             if (properties != null) {
                 Map<String, Object> dimensions = properties.getAllDimensionalProperties();
                 if (dimensions != null && !dimensions.isEmpty()) {

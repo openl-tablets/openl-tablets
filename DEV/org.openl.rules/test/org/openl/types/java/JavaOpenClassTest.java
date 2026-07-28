@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 
 class JavaOpenClassTest {
@@ -60,11 +59,11 @@ class JavaOpenClassTest {
     void testGetMethod() {
         IOpenClass myType = JavaOpenClass.getOpenClass(MyType.class);
         assertNotNull(myType);
-        IOpenMethod myTypeMethod1 = myType.getMethod("method1",
+        var myTypeMethod1 = myType.getMethod("method1",
                 new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.DOUBLE});
-        IOpenMethod myTypeMethod2 = myType.getMethod("method1",
+        var myTypeMethod2 = myType.getMethod("method1",
                 new IOpenClass[]{JavaOpenClass.getOpenClass(Byte.class), JavaOpenClass.getOpenClass(Double.class)});
-        IOpenMethod myTypeMethod3 = myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.BYTE});
+        var myTypeMethod3 = myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.BYTE});
 
         assertNotNull(myTypeMethod1);
         assertNotNull(myTypeMethod2);
@@ -83,11 +82,11 @@ class JavaOpenClassTest {
 
         IOpenClass extended = JavaOpenClass.getOpenClass(Extended.class);
         assertNotNull(extended);
-        IOpenMethod extended1 = extended.getMethod("method1",
+        var extended1 = extended.getMethod("method1",
                 new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.DOUBLE});
-        IOpenMethod extended2 = extended.getMethod("method1",
+        var extended2 = extended.getMethod("method1",
                 new IOpenClass[]{JavaOpenClass.getOpenClass(Byte.class), JavaOpenClass.getOpenClass(Double.class)});
-        IOpenMethod extended3 = extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.BYTE});
+        var extended3 = extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.BYTE});
 
         assertNotNull(extended1);
         assertNotNull(extended2);
@@ -134,15 +133,15 @@ class JavaOpenClassTest {
     @Test
     void interfaceOpenClassMethodsTest() {
         IOpenClass openClass = JavaOpenClass.getOpenClass(MyInterface.class);
-        IOpenMethod method1 = openClass.getMethod("method1",
+        var method1 = openClass.getMethod("method1",
                 new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.DOUBLE});
         assertNotNull(method1);
         for (Method method : Object.class.getMethods()) {
             IOpenClass[] params = new IOpenClass[method.getParameterTypes().length];
-            for (int i = 0; i < method.getParameterTypes().length; i++) {
+            for (var i = 0; i < method.getParameterTypes().length; i++) {
                 params[i] = JavaOpenClass.getOpenClass(method.getParameterTypes()[i]);
             }
-            IOpenMethod m = openClass.getMethod(method.getName(), params);
+            var m = openClass.getMethod(method.getName(), params);
             assertNotNull(m);
         }
     }
@@ -151,7 +150,7 @@ class JavaOpenClassTest {
     void superClassBeanFieldsTest() {
         // when
         JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanX.class);
-        IOpenField openField = beanAOpenClass.getField("B");
+        var openField = beanAOpenClass.getField("B");
         assertNotNull(openField);
         // then
         Collection<IOpenField> fields = beanAOpenClass.getFields();
@@ -180,7 +179,7 @@ class JavaOpenClassTest {
     @Test
     void interfaceBeanFieldsTest() {
         JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanXInterface.class);
-        IOpenField openField = beanAOpenClass.getField("ba");
+        var openField = beanAOpenClass.getField("ba");
         assertNotNull(openField);
         Collection<IOpenField> fields = beanAOpenClass.getFields();
         assertNotNull(fields);

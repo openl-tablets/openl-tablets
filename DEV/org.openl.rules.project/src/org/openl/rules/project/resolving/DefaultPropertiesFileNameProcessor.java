@@ -8,10 +8,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -40,7 +38,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         this.dateFormats = new HashMap<>();
         this.pattern = pattern;
         try {
-            String regex = buildRegexpPattern(pattern);
+            var regex = buildRegexpPattern(pattern);
             this.fileNameRegexpPattern = Pattern.compile(regex);
         } catch (PatternSyntaxException e) {
             throw new InvalidFileNamePatternException(
@@ -49,14 +47,14 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
 
         // Validate date formats
         for (Map.Entry<String, SimpleDateFormat> entry : dateFormats.entrySet()) {
-            SimpleDateFormat format = entry.getValue();
+            var format = entry.getValue();
             format.setLenient(false);
             try {
-                String dateForCheck = "2014-06-20";
+                var dateForCheck = "2014-06-20";
                 SimpleDateFormat correctFormat = createDateFormat("yyyy-MM-dd");
-                Date date = correctFormat.parse(dateForCheck);
+                var date = correctFormat.parse(dateForCheck);
 
-                Date parsedDate = format.parse(format.format(date));
+                var parsedDate = format.parse(format.format(date));
 
                 if (!correctFormat.format(parsedDate).equals(dateForCheck)) {
                     throw new InvalidFileNamePatternException(
@@ -72,16 +70,16 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     @Override
     public ITableProperties process(String modulePath) throws NoMatchFileNameException {
 
-        Matcher fileNameMatcher = fileNameRegexpPattern.matcher(modulePath);
+        var fileNameMatcher = fileNameRegexpPattern.matcher(modulePath);
         if (!fileNameMatcher.matches()) {
             throw new NoMatchFileNameException(
                     "File '%s' does not match file name pattern '%s'.".formatted(modulePath, pattern));
         }
-        TableProperties props = new TableProperties();
+        var props = new TableProperties();
         for (String propertyName : propertyNames) {
-            String group = fileNameMatcher.group(propertyName);
+            var group = fileNameMatcher.group(propertyName);
             try {
-                Object value = convert(propertyName, group);
+                var value = convert(propertyName, group);
                 props.setFieldValue(propertyName, value);
             } catch (Exception e) {
                 throw new NoMatchFileNameException("File '%s' does not match file name pattern '%s'.\r\n Invalid property: %s.\r\n Message: %s.".formatted(
@@ -96,9 +94,9 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     private String buildRegexpPattern(String fileNamePattern) throws InvalidFileNamePatternException {
-        Matcher matcher = PATTERN.matcher(fileNamePattern);
-        int start = 0;
-        String fileNameRegexpPattern = fileNamePattern.replace('*', '\uffff')
+        var matcher = PATTERN.matcher(fileNamePattern);
+        var start = 0;
+        var fileNameRegexpPattern = fileNamePattern.replace('*', '\uffff')
                 .replace('.', '\ufffe')
                 .replace('?', '\ufffd')
                 .replace('+', '\ufffc')
@@ -110,15 +108,15 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
 
         while (start < fileNamePattern.length()) {
             if (matcher.find(start)) {
-                String propertyMatch = matcher.group();
-                String multyPropertyNames = propertyMatch.substring(1, propertyMatch.length() - 1);
+                var propertyMatch = matcher.group();
+                var multyPropertyNames = propertyMatch.substring(1, propertyMatch.length() - 1);
                 String format = null;
                 if (multyPropertyNames.contains(":")) {
-                    int t = multyPropertyNames.indexOf(':');
+                    var t = multyPropertyNames.indexOf(':');
                     format = multyPropertyNames.substring(t + 1);
                     multyPropertyNames = multyPropertyNames.substring(0, t);
                 }
-                final String[] propertyGroup = multyPropertyNames.split(",");
+                final var propertyGroup = multyPropertyNames.split(",");
                 Class<?> returnType = null;
                 String pattern;
                 StringBuilder finalPattern = null;
@@ -133,7 +131,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                                         propertyName,
                                         fileNamePattern));
                     }
-                    Class<?> currentReturnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
+                    var currentReturnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
                     if (returnType != null && (currentReturnType != returnType)) {
                         throw new InvalidFileNamePatternException(
                                 "Incompatible properties in the group: %s.".formatted(Arrays.toString(propertyGroup)));
@@ -180,7 +178,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     private String getPattern(String propertyName, String format, Class<?> returnType) {
-        String pattern = DEFAULT_PATTERN; // Default pattern for non-restricted values.
+        var pattern = DEFAULT_PATTERN; // Default pattern for non-restricted values.
         if (Boolean.class == returnType) {
             pattern = "[a-zA-Z]+";
         } else if (Date.class == returnType) {
@@ -205,7 +203,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     private String dateFormatToPattern(String format) {
-        String pattern = format.replaceAll("[ydDwWHkmsSuF]", "\\\\d");
+        var pattern = format.replaceAll("[ydDwWHkmsSuF]", "\\\\d");
         pattern = pattern.replaceAll("MMM+", "\\\\p{Alpha}+");
         pattern = pattern.replaceAll("MM", "\\\\d{2}");
         pattern = pattern.replaceAll("M", "\\\\d{1,2}");
@@ -216,7 +214,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         if (STATE_PROPERTY_NAME.equals(propertyName) && CW_STATE_VALUE.equals(value)) {
             return UsStatesEnum.values();
         }
-        Class<?> returnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
+        var returnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
         return getObject(propertyName, value, returnType);
     }
 
@@ -248,17 +246,17 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     private Object[] toArray(String propertyName, String sourceValue, Class<?> componentClass) {
-        String[] values = sourceValue.split(ARRAY_SEPARATOR, -1);
-        List<Object> arrObject = new ArrayList<>(values.length);
+        var values = sourceValue.split(ARRAY_SEPARATOR, -1);
+        var arrObject = new ArrayList<Object>(values.length);
         for (String str : values) {
-            Object arrayValue = getObject(propertyName, str, componentClass);
+            var arrayValue = getObject(propertyName, str, componentClass);
             arrObject.add(arrayValue);
         }
         return arrObject.toArray((Object[]) Array.newInstance(componentClass, 0));
     }
 
     private static SimpleDateFormat createDateFormat(String pattern) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+        var dateFormat = new SimpleDateFormat(pattern);
         dateFormat.setLenient(false); // strict match
         return dateFormat;
     }

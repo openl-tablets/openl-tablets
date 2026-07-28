@@ -44,13 +44,13 @@ public class StyleIndexHandler extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
         if ("c".equals(localName)) {
-            String cellRef = attributes.getValue("r");
+            var cellRef = attributes.getValue("r");
             current = new CellAddress(cellRef);
             if (IGridRegion.Tool.contains(tableRegion, current.getColumn(), current.getRow())) {
-                String cellStyleStr = attributes.getValue("s");
+                var cellStyleStr = attributes.getValue("s");
                 int styleIndex = cellStyleStr != null ? Integer.parseInt(cellStyleStr) : 0;
-                int internalRow = current.getRow() - tableRegion.getTop();
-                int internalCol = current.getColumn() - tableRegion.getLeft();
+                var internalRow = current.getRow() - tableRegion.getTop();
+                var internalCol = current.getColumn() - tableRegion.getLeft();
                 cellIndexes[internalRow][internalCol] = styleIndex;
             }
         } else if ("f".equals(localName)) {
@@ -81,7 +81,7 @@ public class StyleIndexHandler extends DefaultHandler {
             }
             if (IGridRegion.Tool.contains(tableRegion, current.getColumn(), current.getRow())) {
                 try {
-                    String value = formula.toString();
+                    var value = formula.toString();
                     if (sharedFormulaIndex != null && sharedFormulaRef == null) {
                         value = convertSharedFormula(sharedFormulas.get(sharedFormulaIndex));
                     }
@@ -105,10 +105,10 @@ public class StyleIndexHandler extends DefaultHandler {
     private String convertSharedFormula(SharedFormulaDefinition formulaDefinition) {
         CellRangeAddress ref = CellRangeAddress.valueOf(formulaDefinition.getRef());
 
-        SharedFormula sf = new SharedFormula(SpreadsheetVersion.EXCEL2007);
+        var sf = new SharedFormula(SpreadsheetVersion.EXCEL2007);
         Ptg[] parsedTokens = FormulaParser.parse(formulaDefinition
                 .getValue(), formulaParsingWorkbook, FormulaType.CELL, sheetIndex, current.getRow());
-        Ptg[] convertedTokens = sf.convertSharedFormulas(parsedTokens,
+        var convertedTokens = sf.convertSharedFormulas(parsedTokens,
                 current.getRow() - ref.getFirstRow(),
                 current.getColumn() - ref.getFirstColumn());
         // Formulas with links to other workbooks are not supported

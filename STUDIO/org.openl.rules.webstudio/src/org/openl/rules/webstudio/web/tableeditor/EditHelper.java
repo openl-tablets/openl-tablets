@@ -20,7 +20,7 @@ public final class EditHelper {
     public static boolean updateSystemProperties(IOpenLTable table,
                                                  TableEditorModel tableEditorModel,
                                                  String userMode) {
-        boolean result = true;
+        var result = true;
         if (table.isCanContainProperties()) {
             List<TablePropertyDefinition> systemPropertiesDefinitions = TablePropertyDefinitionUtils
                     .getSystemProperties();
@@ -34,15 +34,15 @@ public final class EditHelper {
     private static boolean updateSystemValue(TableEditorModel editorModel,
                                              TablePropertyDefinition systemProperty,
                                              String userMode) {
-        boolean result = false;
-        String systemValueDescriptor = systemProperty.getSystemValueDescriptor();
+        var result = false;
+        var systemValueDescriptor = systemProperty.getSystemValueDescriptor();
 
         if ("single".equals(userMode) && systemValueDescriptor.equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
             return true;
         }
 
         if (systemProperty.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
-            Object systemValue = SystemValuesManager.getInstance().getSystemValue(systemValueDescriptor);
+            var systemValue = SystemValuesManager.getInstance().getSystemValue(systemValueDescriptor);
             if (systemValue != null) {
                 try {
                     if (editorModel != null) {
@@ -50,7 +50,7 @@ public final class EditHelper {
                         result = true;
                     }
                 } catch (Exception e) {
-                    String message = "Cannot update system property '%s' with value '%s'".formatted(
+                    var message = "Cannot update system property '%s' with value '%s'".formatted(
                             systemProperty.getName(),
                             systemValue);
                     log.error(message, e);

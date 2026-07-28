@@ -250,7 +250,7 @@ public final class Var {
     }
 
     private static BigDecimal variance(BigDecimal value, BigDecimal avg, BigDecimal result) {
-        BigDecimal tmp = value.subtract(avg).pow(2, DECIMAL128);
+        var tmp = value.subtract(avg).pow(2, DECIMAL128);
         return result == null ? tmp : result.add(tmp);
     }
 }

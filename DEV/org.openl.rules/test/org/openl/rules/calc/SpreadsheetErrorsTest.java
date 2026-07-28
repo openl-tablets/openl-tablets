@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 class SpreadsheetErrorsTest extends BaseOpenlBuilderHelper {
 
@@ -19,9 +18,9 @@ class SpreadsheetErrorsTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testProcessingSpreadsheetCellsAfterError() {
-        TableSyntaxNode table = findTable("Spreadsheet SpreadsheetResult testSPRErrors ()");
+        var table = findTable("Spreadsheet SpreadsheetResult testSPRErrors ()");
         if (table != null) {
-            Spreadsheet spr = (Spreadsheet) table.getMember();
+            var spr = (Spreadsheet) table.getMember();
             assertEquals(3, spr.getCells().length);
             assertEquals(2, spr.getCells()[0].length);
             assertEquals(2, spr.getCells()[1].length);

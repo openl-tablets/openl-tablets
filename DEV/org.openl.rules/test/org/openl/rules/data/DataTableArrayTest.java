@@ -17,14 +17,14 @@ class DataTableArrayTest {
     @Test
     void vehicleArryTest() {
         ITestDataTableArray instance = TestUtils.create(FILE_NAME, ITestDataTableArray.class);
-        TestUnitsResults result = instance.returnVehicleArryTest();
+        var result = instance.returnVehicleArryTest();
         assertEquals(2, result.getNumberOfFailures());
     }
 
     @Test
     void addressArryTest() {
         ITestDataTableArray instance = TestUtils.create(FILE_NAME, ITestDataTableArray.class);
-        TestUnitsResults result = instance.returnAddressArryTest();
+        var result = instance.returnAddressArryTest();
         assertEquals(3, result.getNumberOfFailures());
     }
 

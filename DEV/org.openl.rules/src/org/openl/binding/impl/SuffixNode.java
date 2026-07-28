@@ -20,8 +20,8 @@ public class SuffixNode extends MethodBoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object oldValue = children[0].evaluate(env);
-        Object newValue = boundMethod.invoke(null, new Object[]{oldValue}, env);
+        var oldValue = children[0].evaluate(env);
+        var newValue = boundMethod.invoke(null, new Object[]{oldValue}, env);
 
         children[0].assign(newValue, env);
 

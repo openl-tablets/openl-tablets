@@ -55,7 +55,7 @@ public record CurrentLocation(LocationKind kind, int row, int column, @Nullable 
      * @param ruleNames the names of the rules that fired (one for a single match, several for a collect)
      */
     public static CurrentLocation dtRule(List<String> ruleNames) {
-        List<String> refs = new ArrayList<>(ruleNames.size() + 1);
+        var refs = new ArrayList<String>(ruleNames.size() + 1);
         refs.add(RULE_FIRED_REF);
         refs.addAll(ruleNames);
         return new CurrentLocation(LocationKind.DT_RULE, -1, -1, dtRuleRef(ruleNames), ruleLabel(ruleNames), refs);

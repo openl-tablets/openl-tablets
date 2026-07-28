@@ -83,7 +83,7 @@ public class ExtendedStdDateFormat extends StdDateFormat {
      */
     @Override
     public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
-        SimpleDateFormat df = cloneDateFormat();
+        var df = cloneDateFormat();
         return df.format(date, toAppendTo, fieldPosition);
     }
 
@@ -151,7 +151,7 @@ public class ExtendedStdDateFormat extends StdDateFormat {
     }
 
     private String getAllAllowedFormats() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (String f : ALL_FORMATS) {
             if (!sb.isEmpty()) {
                 sb.append("\", \"");
@@ -172,7 +172,7 @@ public class ExtendedStdDateFormat extends StdDateFormat {
      * @return new instance of {@link SimpleDateFormat}
      */
     private SimpleDateFormat cloneDateFormat() {
-        SimpleDateFormat df = (SimpleDateFormat) dateFormat.clone();
+        var df = (SimpleDateFormat) dateFormat.clone();
         if (_timezone != null) {
             df.setTimeZone(_timezone);
         }

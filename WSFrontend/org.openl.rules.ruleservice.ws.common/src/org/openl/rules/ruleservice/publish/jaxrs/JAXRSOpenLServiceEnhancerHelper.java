@@ -157,7 +157,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             super.visit(version, access, name, signature, superName, interfaces);
 
             if (!originalClass.isAnnotationPresent(Path.class)) {
-                AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(Path.class), true);
+                var annotationVisitor = this.visitAnnotation(Type.getDescriptor(Path.class), true);
                 annotationVisitor.visit("value", "/");
                 annotationVisitor.visitEnd();
             }
@@ -202,7 +202,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             while (type.isArray()) {
                 type = type.getComponentType();
             }
-            String componentName = getOpenApiComponentName(type);
+            var componentName = getOpenApiComponentName(type);
             if (isConflictPossible(componentName)) {
                 usedOpenApiComponentNamesWithRequestParameterSuffix.add(componentName);
             }
@@ -220,8 +220,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                         Method originalMethod,
                                                         int suffix,
                                                         io.swagger.v3.oas.models.Operation operation) throws Exception {
-            Class<?> parameterWrapperClass = generateWrapperClass(openMember, originalMethod, suffix, operation);
-            List<Type> types = new ArrayList<>();
+            var parameterWrapperClass = generateWrapperClass(openMember, originalMethod, suffix, operation);
+            var types = new ArrayList<Type>();
             types.add(Type.getType(parameterWrapperClass));
             for (Parameter parameter : originalMethod.getParameters()) {
                 if (!isParameterInWrapperClass(parameter)) {
@@ -232,15 +232,15 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private Class<?> generateWrapperClass(IOpenMember openMember, Method originalMethod, int suffix, io.swagger.v3.oas.models.Operation operation) throws Exception {
-            String[] parameterNames = resolveParameterNames(openMember, originalMethod);
-            IOpenClass[] parameterTypes = resolveParameterTypes(openMember, originalMethod);
+            var parameterNames = resolveParameterNames(openMember, originalMethod);
+            var parameterTypes = resolveParameterTypes(openMember, originalMethod);
 
-            String requestParameterName = StringUtils.capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX;
+            var requestParameterName = StringUtils.capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX;
             if (suffix > 0) {
                 requestParameterName = requestParameterName + suffix;
             }
-            String nonConflictedRequestParameterName = requestParameterName;
-            StringBuilder s = new StringBuilder("0");
+            var nonConflictedRequestParameterName = requestParameterName;
+            var s = new StringBuilder("0");
             while (getUsedOpenApiComponentNamesWithRequestParameterSuffix()
                     .contains(nonConflictedRequestParameterName)) {
                 nonConflictedRequestParameterName = StringUtils
@@ -248,21 +248,21 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 s.insert(0, "0");
             }
             usedOpenApiComponentNamesWithRequestParameterSuffix.add(nonConflictedRequestParameterName);
-            String beanName = "org.openl.jaxrs." + nonConflictedRequestParameterName;
+            var beanName = "org.openl.jaxrs." + nonConflictedRequestParameterName;
 
-            Map<String, io.swagger.v3.oas.models.media.Schema> openApiRequestBodyProperties = new HashMap<>();
+            var openApiRequestBodyProperties = new HashMap<String, io.swagger.v3.oas.models.media.Schema>();
             if (operation != null) {
-                RequestBody requestBody = this.openAPIRefResolver.resolve(operation.getRequestBody(), RequestBody::get$ref);
+                var requestBody = this.openAPIRefResolver.resolve(operation.getRequestBody(), RequestBody::get$ref);
                 if (requestBody != null && requestBody.getContent() != null && requestBody.getContent().containsKey(MediaType.APPLICATION_JSON)) {
-                    io.swagger.v3.oas.models.media.MediaType mediaType = requestBody.getContent().get(MediaType.APPLICATION_JSON);
+                    var mediaType = requestBody.getContent().get(MediaType.APPLICATION_JSON);
                     io.swagger.v3.oas.models.media.Schema<?> schema = this.openAPIRefResolver.resolve(mediaType.getSchema(), io.swagger.v3.oas.models.media.Schema::get$ref);
                     openApiRequestBodyProperties.putAll(this.openAPIRefResolver.resolveAllProperties(schema, new IdentityHashMap<>()));
                 }
             }
 
-            int i = 0;
-            WrapperBeanClassBuilder beanClassBuilder = new WrapperBeanClassBuilder(beanName, originalMethod.getName());
-            LinkedHashMap<String, FieldDescription> originalMethodTypeFields = new LinkedHashMap<>();
+            var i = 0;
+            var beanClassBuilder = new WrapperBeanClassBuilder(beanName, originalMethod.getName());
+            var originalMethodTypeFields = new LinkedHashMap<String, FieldDescription>();
             for (Parameter parameter : originalMethod.getParameters()) {
                 if (isParameterInWrapperClass(parameter)) {
                     String description = null;
@@ -273,7 +273,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
 
                     // Generate enum description for vocabulary types in OpenAPI schema
-                    List<String> allowableValues = new ArrayList<>();
+                    var allowableValues = new ArrayList<String>();
                     if (parameterTypes[i] != null && parameterTypes[i].getDomain() != null) {
                         Iterator<?> itr = parameterTypes[i].getDomain().iterator();
                         while (itr.hasNext()) {
@@ -281,7 +281,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         }
                     }
 
-                    FieldDescription fieldDescription = new FieldDescription(parameter.getType().getName(),
+                    var fieldDescription = new FieldDescription(parameter.getType().getName(),
                             null,
                             null,
                             null,
@@ -299,7 +299,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 i++;
             }
             beanClassBuilder.setOriginalMethodTypeFields(originalMethodTypeFields);
-            byte[] byteCode = beanClassBuilder.byteCode();
+            var byteCode = beanClassBuilder.byteCode();
 
             return ClassLoaderUtils.defineClass(beanName, byteCode, classLoader);
         }
@@ -308,9 +308,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (usedPaths == null) {
                 usedPaths = new HashSet<>();
                 for (Method m : originalClass.getMethods()) {
-                    Path pathAnnotation = m.getAnnotation(Path.class);
+                    var pathAnnotation = m.getAnnotation(Path.class);
                     if (pathAnnotation != null) {
-                        String value = pathAnnotation.value();
+                        var value = pathAnnotation.value();
                         usedPaths.add(normalizePath(value));
                     }
                 }
@@ -319,7 +319,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private String normalizePath(String path) {
-            String s = path;
+            var s = path;
             if (s == null) {
                 s = "/";
             }
@@ -365,15 +365,15 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
 
             MethodVisitor mv;
-            Class<?> returnType = extractOriginalType(originalMethod.getReturnType());
-            boolean hasResponse = returnType == Response.class;
+            var returnType = extractOriginalType(originalMethod.getReturnType());
+            var hasResponse = returnType == Response.class;
             descriptor = hasResponse ? descriptor
                     : Type.getMethodDescriptor(Type.getType(Response.class),
                     Type.getArgumentTypes(descriptor));
 
-            boolean allParametersIsPrimitive = true;
-            Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
-            int numOfParameters = originalParameterTypes.length;
+            var allParametersIsPrimitive = true;
+            var originalParameterTypes = originalMethod.getParameterTypes();
+            var numOfParameters = originalParameterTypes.length;
             for (Parameter parameter : originalMethod.getParameters()) {
                 if (!isParameterInWrapperClass(parameter)) {
                     numOfParameters--;
@@ -397,9 +397,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
             io.swagger.v3.oas.models.Operation operation = null;
 
             if ((numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !isHttpMethodTypeAnnotationPresented(originalMethod)) || originalMethod.isAnnotationPresent(GET.class)) {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
                 mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-                String[] parameterNames = resolveParameterNames(openMember, originalMethod);
+                var parameterNames = resolveParameterNames(openMember, originalMethod);
                 processAnnotationsOnMethodParameters(originalMethod, mv);
                 addGetAnnotation(mv, originalMethod);
 
@@ -407,13 +407,13 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     usedParamNames = getUsedValuesInParamAnnotations(originalMethod,
                             PathParam.class,
                             PathParam::value);
-                    int i = 0;
+                    var i = 0;
                     for (String paramName : parameterNames) {
-                        Parameter parameter = originalMethod.getParameters()[i];
-                        PathParam pathParam = parameter.getAnnotation(PathParam.class);
+                        var parameter = originalMethod.getParameters()[i];
+                        var pathParam = parameter.getAnnotation(PathParam.class);
                         if (pathParam == null) {
-                            String p = paramName;
-                            int j = 1;
+                            var p = paramName;
+                            var j = 1;
                             while (usedParamNames.contains(p)) {
                                 p = paramName + j;
                             }
@@ -426,8 +426,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         i++;
                     }
                     if (!originalMethod.isAnnotationPresent(Path.class)) {
-                        String path = "/" + originalMethod.getName() + sb;
-                        int c = 1;
+                        var path = "/" + originalMethod.getName() + sb;
+                        var c = 1;
                         while (getUsedPaths().contains(normalizePath(path))) {
                             path = "/" + originalMethod.getName() + c++ + sb;
                         }
@@ -439,12 +439,12 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     usedParamNames = getUsedValuesInParamAnnotations(originalMethod,
                             QueryParam.class,
                             QueryParam::value);
-                    int i = 0;
+                    var i = 0;
                     for (String paramName : parameterNames) {
-                        boolean jaxrsAnnotationPresented = isJAXRSParamAnnotation(originalMethod.getParameters()[i]);
+                        var jaxrsAnnotationPresented = isJAXRSParamAnnotation(originalMethod.getParameters()[i]);
                         if (!jaxrsAnnotationPresented) {
-                            String p = paramName;
-                            int j = 1;
+                            var p = paramName;
+                            var j = 1;
                             while (usedParamNames.contains(p)) {
                                 p = paramName + j;
                             }
@@ -461,7 +461,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             } else {
                 try {
                     String path = null;
-                    int c = 0;
+                    var c = 0;
                     if (!originalMethod.isAnnotationPresent(Path.class)) {
                         path = "/" + originalMethod.getName();
                         while (getUsedPaths().contains(normalizePath(path))) {
@@ -523,8 +523,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 }
             }
             addConsumerProducesMethodAnnotations(mv, returnType, originalParameterTypes, originalMethod);
-            String nickname = originalMethod.getName();
-            int c = 1;
+            var nickname = originalMethod.getName();
+            var c = 1;
             while (nicknames.contains(nickname)) {
                 nickname = originalMethod.getName() + "_" + c++;
             }
@@ -543,9 +543,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private <T extends Annotation> Set<String> getUsedValuesInParamAnnotations(Method originalMethod,
                                                                                    Class<T> annotationClass,
                                                                                    Function<T, String> func) {
-            Set<String> usedPathParamValues = new HashSet<>();
+            var usedPathParamValues = new HashSet<String>();
             for (Parameter parameter : originalMethod.getParameters()) {
-                T annotation = parameter.getAnnotation(annotationClass);
+                var annotation = parameter.getAnnotation(annotationClass);
                 if (annotation != null) {
                     usedPathParamValues.add(func.apply(annotation));
                     break;
@@ -583,16 +583,16 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                           Method originalMethod) {
             if (returnType != null && isTextMediaType(returnType) && !originalMethod
                     .isAnnotationPresent(Produces.class)) {
-                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Produces.class), true);
-                AnnotationVisitor av2 = av.visitArray("value");
+                var av = mv.visitAnnotation(Type.getDescriptor(Produces.class), true);
+                var av2 = av.visitArray("value");
                 av2.visit(null, "text/plain;charset=UTF-8"); // All I/O of Strings are serialized as UTF-8
                 av2.visitEnd();
                 av.visitEnd();
             }
             if (originalParameterTypes.length == 1 && isTextMediaType(originalParameterTypes[0]) && !originalMethod
                     .isAnnotationPresent(Consumes.class)) {
-                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
-                AnnotationVisitor av2 = av.visitArray("value");
+                var av = mv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
+                var av2 = av.visitArray("value");
                 av2.visit(null, MediaType.TEXT_PLAIN);
                 av2.visitEnd();
                 av.visitEnd();
@@ -600,11 +600,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private void processAnnotationsOnMethodExternalParameters(Method originalMethod, MethodVisitor mv) {
-            int index = 1; // Skip first wrapper class parameter
+            var index = 1; // Skip first wrapper class parameter
             for (Parameter parameter : originalMethod.getParameters()) {
                 if (!isParameterInWrapperClass(parameter)) {
                     for (Annotation annotation : parameter.getAnnotations()) {
-                        AnnotationVisitor av = mv
+                        var av = mv
                                 .visitParameterAnnotation(index, Type.getDescriptor(annotation.annotationType()), true);
                         InterfaceTransformer.processAnnotation(annotation, av);
                     }
@@ -614,10 +614,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private void processAnnotationsOnMethodParameters(Method originalMethod, MethodVisitor mv) {
-            int index = 0;
+            var index = 0;
             for (Annotation[] annotations : originalMethod.getParameterAnnotations()) {
                 for (Annotation annotation : annotations) {
-                    AnnotationVisitor av = mv
+                    var av = mv
                             .visitParameterAnnotation(index, Type.getDescriptor(annotation.annotationType()), true);
                     InterfaceTransformer.processAnnotation(annotation, av);
                 }
@@ -629,28 +629,28 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (Object.class == returnType || Void.class == returnType) {
                 return;
             }
-            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ElementClass.class), true);
+            var av = mv.visitAnnotation(Type.getDescriptor(ElementClass.class), true);
             av.visit("response", Type.getType(returnType));
             av.visitEnd();
         }
 
         private void addPostAnnotation(MethodVisitor mv, Method originalMethod) {
             if (!originalMethod.isAnnotationPresent(POST.class)) {
-                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(POST.class), true);
+                var av = mv.visitAnnotation(Type.getDescriptor(POST.class), true);
                 av.visitEnd();
             }
         }
 
         private void addGetAnnotation(MethodVisitor mv, Method originalMethod) {
             if (!originalMethod.isAnnotationPresent(GET.class)) {
-                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(GET.class), true);
+                var av = mv.visitAnnotation(Type.getDescriptor(GET.class), true);
                 av.visitEnd();
             }
         }
 
         private String addPathAnnotation(MethodVisitor mv, Method originalMethod, String path) {
             if (!originalMethod.isAnnotationPresent(Path.class)) {
-                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Path.class), true);
+                var av = mv.visitAnnotation(Type.getDescriptor(Path.class), true);
                 av.visit("value", path);
                 av.visitEnd();
                 return path;
@@ -662,7 +662,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private void addSwaggerMethodAnnotation(MethodVisitor mv, IOpenMember openMember, Method originalMethod, String nickname, PathItem
                 pathItem, io.swagger.v3.oas.models.Operation operation, Set<String> usedParamNames) {
             if (!originalMethod.isAnnotationPresent(Operation.class)) {
-                String summary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
+                var summary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
                         .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), true);
                 IOpenMethod openMethod = openMember instanceof IOpenMethod iom ? iom : null;
                 String detailedSummary = openMethod != null ? openMethod.getType()
@@ -672,23 +672,23 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         originalMethod.getName(),
                         originalMethod.getParameterTypes(),
                         false);
-                String truncatedSummary = summary.substring(0, Math.min(summary.length(), 120));
-                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
+                var truncatedSummary = summary.substring(0, Math.min(summary.length(), 120));
+                var av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
                 av.visit("operationId", nickname);
                 av.visit("summary", truncatedSummary);
-                MethodDescription methodDescription = extractDescription(openMethod, pathItem, operation);
-                String description = methodDescription.description();
+                var methodDescription = extractDescription(openMethod, pathItem, operation);
+                var description = methodDescription.description();
                 if (StringUtils.isBlank(description)) {
                     description = (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary;
                 }
                 av.visit("description", description);
                 Map<String, String> parameterDescriptions = methodDescription.parameterDescriptions();
-                Set<Map.Entry<String, String>> paramList = parameterDescriptions.entrySet().stream()
+                var paramList = parameterDescriptions.entrySet().stream()
                         .filter(entry -> usedParamNames != null && usedParamNames.contains(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())).collect(Collectors.toSet());
                 if (!paramList.isEmpty()) {
-                    AnnotationVisitor av1 = av.visitArray("parameters");
+                    var av1 = av.visitArray("parameters");
                     paramList.forEach(entry -> {
-                        AnnotationVisitor av2 = av1.visitAnnotation(null, Type.getDescriptor(io.swagger.v3.oas.annotations.Parameter.class));
+                        var av2 = av1.visitAnnotation(null, Type.getDescriptor(io.swagger.v3.oas.annotations.Parameter.class));
                         av2.visit("name", entry.getKey());
                         av2.visit("description", entry.getValue());
                         av2.visitEnd();
@@ -703,7 +703,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (this.openApi != null && this.openApi.getPaths() != null) {
                 path = path.replaceAll("\\{[^}]*}", "{}");
                 for (Map.Entry<String, PathItem> entry : this.openApi.getPaths().entrySet()) {
-                    String k = entry.getKey();
+                    var k = entry.getKey();
                     k = k.replaceAll("\\{[^}]*}", "{}");
                     if (Objects.equals(path, k)) {
                         return entry.getValue();
@@ -716,7 +716,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private String extractDescription(IOpenMethod openMethod) {
             if (openMethod instanceof OpenMethodDispatcher dispatcher) {
                 for (IOpenMethod method : dispatcher.getCandidates()) {
-                    String description = extractDescription(method);
+                    var description = extractDescription(method);
                     // Return first non-empty description from candidates
                     if (StringUtils.isNotBlank(description)) {
                         return description;
@@ -732,7 +732,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private MethodDescription extractDescription(IOpenMethod openMethod, PathItem
                 pathItem, io.swagger.v3.oas.models.Operation operation) {
             String description = null;
-            Map<String, String> parameterDescriptions = new HashMap<>();
+            var parameterDescriptions = new HashMap<String, String>();
             if (pathItem != null) {
                 if (operation != null) {
                     if (StringUtils.isNotBlank(operation.getDescription())) {
@@ -740,8 +740,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
                     if (operation.getParameters() != null) {
                         for (io.swagger.v3.oas.models.parameters.Parameter parameter : operation.getParameters()) {
-                            String parameterName = parameter.getName();
-                            String parameterDescription = parameter.getDescription();
+                            var parameterName = parameter.getName();
+                            var parameterDescription = parameter.getDescription();
                             if (StringUtils.isNotBlank(parameterDescription)) {
                                 parameterDescriptions.put(parameterName, parameterDescription);
                             }
@@ -761,31 +761,31 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private void addOpenApiResponsesMethodAnnotation(MethodVisitor mv, Method originalMethod) {
             if (!isApiResponsesSpecified(originalMethod)) {
-                Class<?> type = extractOriginalType(originalMethod.getReturnType());
-                final boolean isVoidType = void.class == type || Void.class == type;
-                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiResponses.class), true);
+                var type = extractOriginalType(originalMethod.getReturnType());
+                final var isVoidType = void.class == type || Void.class == type;
+                var av = mv.visitAnnotation(Type.getDescriptor(ApiResponses.class), true);
                 Class<?> t = originalMethod.getReturnType();
-                int dim = 0;
+                var dim = 0;
                 while (t.isArray()) {
                     t = t.getComponentType();
                     dim++;
                 }
-                AnnotationVisitor av1 = av.visitArray("value");
+                var av1 = av.visitArray("value");
                 if (isVoidType || !type.isPrimitive()) {
                     // empty response body can be only for void or non-primitive types
-                    AnnotationVisitor noContentAv = av1.visitAnnotation(null,
+                    var noContentAv = av1.visitAnnotation(null,
                             Type.getDescriptor(ApiResponse.class));
                     noContentAv.visit("responseCode", String.valueOf(Response.Status.NO_CONTENT.getStatusCode()));
                     noContentAv.visit("description", "Successful operation");
                     noContentAv.visitEnd();
                 }
                 if (!isVoidType) {
-                    AnnotationVisitor av2 = av1.visitAnnotation("responses",
+                    var av2 = av1.visitAnnotation("responses",
                             Type.getDescriptor(ApiResponse.class));
                     av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
                     av2.visit("description", "Successful operation");
-                    AnnotationVisitor av3 = av2.visitArray("content");
-                    AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
+                    var av3 = av2.visitArray("content");
+                    var av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
                     if (dim < 2) {
                         addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
                     } else {
@@ -821,23 +821,23 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 return true;
             }
             if (originalMethod.isAnnotationPresent(Operation.class)) {
-                Operation operationAnnotation = originalMethod.getAnnotation(Operation.class);
+                var operationAnnotation = originalMethod.getAnnotation(Operation.class);
                 return operationAnnotation.responses().length != 0;
             }
             return false;
         }
 
         private void addSchemaOpenApiAnnotation(AnnotationVisitor av, Class<?> type) {
-            boolean isArrayOrCollection = type.isArray() || Collection.class.isAssignableFrom(type);
+            var isArrayOrCollection = type.isArray() || Collection.class.isAssignableFrom(type);
             if (isArrayOrCollection) {
                 av = av.visitAnnotation("array", Type.getDescriptor(ArraySchema.class));
                 type = Collection.class.isAssignableFrom(type) ? Object.class : type.getComponentType();
             }
-            final Class<?> extractedType = extractOriginalType(type);
+            final var extractedType = extractOriginalType(type);
             if (extractedType != null) {
                 type = extractedType;
             }
-            AnnotationVisitor av1 = av.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+            var av1 = av.visitAnnotation("schema", Type.getDescriptor(Schema.class));
             if (type == Integer.class || type == int.class || type == Short.class || type == short.class || type == Byte.class || type == byte.class) {
                 av1.visit("type", "integer");
                 av1.visit("format", "int32");
@@ -867,43 +867,43 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private void addPathParamAnnotation(MethodVisitor mv, int index, String paramName) {
-            AnnotationVisitor av = mv.visitParameterAnnotation(index, Type.getDescriptor(PathParam.class), true);
+            var av = mv.visitParameterAnnotation(index, Type.getDescriptor(PathParam.class), true);
             av.visit("value", paramName);
             av.visitEnd();
         }
 
         private void addQueryParamAnnotation(MethodVisitor mv, int index, String paramName) {
-            AnnotationVisitor av = mv.visitParameterAnnotation(index, Type.getDescriptor(QueryParam.class), true);
+            var av = mv.visitParameterAnnotation(index, Type.getDescriptor(QueryParam.class), true);
             av.visit("value", paramName);
             av.visitEnd();
         }
 
         private void addProducesAnnotation(ClassVisitor cv) {
-            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(Produces.class), true);
-            AnnotationVisitor av1 = av.visitArray("value");
+            var av = cv.visitAnnotation(Type.getDescriptor(Produces.class), true);
+            var av1 = av.visitArray("value");
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visitEnd();
             av.visitEnd();
         }
 
         private void addConsumesAnnotation(ClassVisitor cv) {
-            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
-            AnnotationVisitor av1 = av.visitArray("value");
+            var av = cv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
+            var av1 = av.visitArray("value");
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visitEnd();
             av.visitEnd();
         }
 
         private void addOpenApiResponsesAnnotation(ClassVisitor cv) {
-            AnnotationVisitor av = cv
+            var av = cv
                     .visitAnnotation(Type.getDescriptor(ApiResponses.class), true);
-            AnnotationVisitor arrayAv = av.visitArray("value");
+            var arrayAv = av.visitArray("value");
 
-            List<Class<?>> allUserApiResponses = new ArrayList<>();
+            var allUserApiResponses = new ArrayList<Class<?>>();
             allUserApiResponses.add(JAXRSUserErrorResponse.class);
             allUserApiResponses.addAll(Arrays.asList(DEFAULT_API_ERROR_TYPES));
             if (originalClass.isAnnotationPresent(ApiErrors.class)) {
-                ApiErrors apiErrors = originalClass.getDeclaredAnnotation(ApiErrors.class);
+                var apiErrors = originalClass.getDeclaredAnnotation(ApiErrors.class);
                 if (apiErrors.value() != null) {
                     allUserApiResponses.addAll(Arrays.asList(apiErrors.value()));
                 }
@@ -935,20 +935,20 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                   String message,
                                                   Class<?>[] responseTypes,
                                                   String... jsonExamples) {
-            AnnotationVisitor apiResponseAv = av.visitAnnotation(null,
+            var apiResponseAv = av.visitAnnotation(null,
                     Type.getDescriptor(ApiResponse.class));
             apiResponseAv.visit("responseCode", String.valueOf(code));
             apiResponseAv.visit("description", message);
 
-            AnnotationVisitor contentArrayAv = apiResponseAv.visitArray("content");
-            AnnotationVisitor contentAv = contentArrayAv.visitAnnotation(null, Type.getDescriptor(Content.class));
+            var contentArrayAv = apiResponseAv.visitArray("content");
+            var contentAv = contentArrayAv.visitAnnotation(null, Type.getDescriptor(Content.class));
             contentAv.visit("mediaType", MediaType.APPLICATION_JSON);
 
-            AnnotationVisitor schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+            var schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
             if (responseTypes.length == 1) {
                 schemaAv.visit("implementation", Type.getType(responseTypes[0]));
             } else {
-                AnnotationVisitor oneOf = schemaAv.visitArray("oneOf");
+                var oneOf = schemaAv.visitArray("oneOf");
                 for (Class<?> respType : responseTypes) {
                     oneOf.visit(null, Type.getType(respType));
                 }
@@ -956,10 +956,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
             schemaAv.visitEnd();
 
-            AnnotationVisitor examplesArrAv = contentAv.visitArray("examples");
-            int exampleCnt = 1;
+            var examplesArrAv = contentAv.visitArray("examples");
+            var exampleCnt = 1;
             for (String jsonExample : jsonExamples) {
-                AnnotationVisitor exampleObjectAv = examplesArrAv.visitAnnotation(null,
+                var exampleObjectAv = examplesArrAv.visitAnnotation(null,
                         Type.getDescriptor(ExampleObject.class));
                 exampleObjectAv.visit("value", jsonExample);
                 if (jsonExamples.length > 1) {
@@ -976,7 +976,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private Class<?> extractOriginalType(Class<?> type) {
-            Class<?> extractedType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(type);
+            var extractedType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(type);
             return extractedType == null ? type : extractedType;
         }
 
@@ -984,19 +984,19 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
     public static Map<Method, Method> buildMethodMap(Class<?> serviceClass,
                                                      Class<?> enhancedServiceClass) throws Exception {
-        Map<Method, Method> methodMap = new HashMap<>();
+        var methodMap = new HashMap<Method, Method>();
         for (Method method : enhancedServiceClass.getMethods()) {
-            String methodName = method.getName();
-            Class<?>[] parameterTypes = method.getParameterTypes();
+            var methodName = method.getName();
+            var parameterTypes = method.getParameterTypes();
             try {
-                Method targetMethod = serviceClass.getMethod(methodName, parameterTypes);
+                var targetMethod = serviceClass.getMethod(methodName, parameterTypes);
                 methodMap.put(method, targetMethod);
             } catch (NoSuchMethodException ex) {
                 if (parameterTypes.length > 0) {
                     Class<?> methodArgument = parameterTypes[0];
                     parameterTypes = (Class<?>[]) methodArgument.getMethod("_types").invoke(null);
                 }
-                Method targetMethod = serviceClass.getMethod(methodName, parameterTypes);
+                var targetMethod = serviceClass.getMethod(methodName, parameterTypes);
                 methodMap.put(method, targetMethod);
             }
         }
@@ -1015,13 +1015,13 @@ public class JAXRSOpenLServiceEnhancerHelper {
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Only interfaces are supported");
         }
-        final String enhancedClassName = originalClass.getName() + DECORATED_CLASS_NAME_SUFFIX;
+        final var enhancedClassName = originalClass.getName() + DECORATED_CLASS_NAME_SUFFIX;
         Class<?> enhancedClass;
         try {
             enhancedClass = classLoader.loadClass(enhancedClassName);
         } catch (ClassNotFoundException e) {
-            ClassWriter cw = new ClassWriter(0);
-            JAXRSInterfaceAnnotationEnhancerClassVisitor enhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(
+            var cw = new ClassWriter(0);
+            var enhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(
                     cw,
                     originalClass,
                     targetService,
@@ -1029,7 +1029,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     openApi,
                     provideRuntimeContext
             );
-            InterfaceTransformer transformer = new InterfaceTransformer(originalClass,
+            var transformer = new InterfaceTransformer(originalClass,
                     enhancedClassName,
                     InterfaceTransformer.IGNORE_PARAMETER_ANNOTATIONS);
             transformer.accept(enhancerClassVisitor);

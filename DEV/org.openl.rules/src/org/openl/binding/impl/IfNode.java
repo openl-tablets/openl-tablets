@@ -40,7 +40,7 @@ public class IfNode extends ABoundNode {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
 
-        Object res = conditionNode.evaluate(env);
+        var res = conditionNode.evaluate(env);
 
         // if (condition) { TrueBranch } else { NullOrFalseBranch }
         return Boolean.TRUE.equals(res) ? thenNode.evaluate(env) : elseNode != null ? elseNode.evaluate(env) : null;

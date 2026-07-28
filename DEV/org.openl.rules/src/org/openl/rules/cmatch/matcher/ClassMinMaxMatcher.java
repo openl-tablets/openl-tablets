@@ -3,7 +3,6 @@ package org.openl.rules.cmatch.matcher;
 import java.util.Comparator;
 import java.util.Objects;
 
-import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 
 public class ClassMinMaxMatcher<T extends Comparable<? super T>> implements IMatcher {
@@ -17,14 +16,14 @@ public class ClassMinMaxMatcher<T extends Comparable<? super T>> implements IMat
 
     @Override
     public Object fromString(String checkValue) {
-        IString2DataConvertor<T> converter = String2DataConvertorFactory.getConvertor(clazz);
+        var converter = String2DataConvertorFactory.<T>getConvertor(clazz);
         return converter.parse(checkValue, null);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean match(Object var, Object checkValue) {
-        int result = Comparator.nullsFirst(Comparator.<T>naturalOrder()).compare((T) var, (T) checkValue);
+        var result = Comparator.nullsFirst(Comparator.<T>naturalOrder()).compare((T) var, (T) checkValue);
         return isMaxMode ? (result <= 0) : (result >= 0);
     }
 }

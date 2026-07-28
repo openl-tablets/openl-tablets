@@ -29,8 +29,8 @@ public class ConflictGroup {
         this.projectPath = projectPath;
 
         files = new TreeSet<>((f1, f2) -> {
-            boolean isExcel1 = FileTypeHelper.isExcelFile(f1);
-            boolean isExcel2 = FileTypeHelper.isExcelFile(f2);
+            var isExcel1 = FileTypeHelper.isExcelFile(f1);
+            var isExcel2 = FileTypeHelper.isExcelFile(f2);
             if (isExcel1 && isExcel2) {
                 // Compare xls files
                 return f1.compareToIgnoreCase(f2);

@@ -16,8 +16,8 @@ class ParametersDeclarationTest {
 
     @BeforeEach
     void init() {
-        String name1 = "paramDeclaration1";
-        String name2 = "paramDeclaration3";
+        var name1 = "paramDeclaration1";
+        var name2 = "paramDeclaration3";
         paramDecl1 = new ParameterDeclaration(JavaOpenClass.BOOLEAN, name1);
         paramDecl2 = new ParameterDeclaration(JavaOpenClass.BOOLEAN, name1);
         paramDecl3 = new ParameterDeclaration(JavaOpenClass.BOOLEAN, name2);

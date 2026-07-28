@@ -27,26 +27,26 @@ class LookupTableTest {
 
     @BeforeEach
     void initEngine() {
-        RulesEngineFactory<ILookupTableTest> engineFactory = new RulesEngineFactory<>(SRC, ILookupTableTest.class);
+        var engineFactory = new RulesEngineFactory<ILookupTableTest>(SRC, ILookupTableTest.class);
 
         instance = engineFactory.newEngineInstance();
     }
 
     @Test
     void testNotMergerdLookupTable() {
-        Double result = instance.getCarPrice("Belarus,UK", "Minsk", "Porche", "911 Carrera 4S");
+        var result = instance.getCarPrice("Belarus,UK", "Minsk", "Porche", "911 Carrera 4S");
         assertEquals(93200, result.intValue());
     }
 
     @Test
     void testMergedHorizontalCond() {
-        Double result = instance.getCarPriceMergedHorizontalCond("Belarus", "Minsk", "Porche", "911 Targa 4");
+        var result = instance.getCarPriceMergedHorizontalCond("Belarus", "Minsk", "Porche", "911 Targa 4");
         assertEquals(90400, result.intValue());
     }
 
     @Test
     void testMergedVerticalCondWithRuleCol() {
-        Double result = instance
+        var result = instance
                 .getCarPriceMergedVerticalCondWithRuleCol("Belarus", "Minsk", "Porche", "911 Targa 4");
         assertEquals(90401, result.intValue());
         result = instance.getCarPriceMergedVerticalCondWithRuleCol("Belarus", "Vitebsk", "Porche", "911 Targa 4");
@@ -62,7 +62,7 @@ class LookupTableTest {
 
     @Test
     void testMergedVerticalCond() {
-        Double result = instance.getCarPriceMergedVerticalCond("Belarus", "Minsk", "Porche", "911 Targa 4");
+        var result = instance.getCarPriceMergedVerticalCond("Belarus", "Minsk", "Porche", "911 Targa 4");
         assertEquals(90401, result.intValue());
         result = instance.getCarPriceMergedVerticalCond("Belarus", "Vitebsk", "Porche", "911 Targa 4");
         assertEquals(90402, result.intValue());

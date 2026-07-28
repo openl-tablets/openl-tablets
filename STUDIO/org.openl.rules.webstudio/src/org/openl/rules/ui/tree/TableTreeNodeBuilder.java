@@ -80,7 +80,7 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
 
-        NodeKey nodeKey = getNodeKey(nodeObject);
+        var nodeKey = getNodeKey(nodeObject);
 
         return nodeKey.getValue();
     }
@@ -111,7 +111,7 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public int getWeight(Object nodeObject) {
 
-        NodeKey nodeKey = getNodeKey(nodeObject);
+        var nodeKey = getNodeKey(nodeObject);
 
         return nodeKey.getWeight();
     }
@@ -124,15 +124,15 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     private NodeKey getNodeKey(Object nodeObject) {
 
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        String type = tsn.getType();
+        var tsn = (TableSyntaxNode) nodeObject;
+        var type = tsn.getType();
 
         // Separate alias datatypes from ordinary datatypes.
         if (tsn.getMember() instanceof InternalDatatypeClass && tsn.getMember().getType() instanceof DomainOpenClass) {
             type += ALIAS_SUFFIX;
         }
 
-        NodeKey nodeKey = nodeKeysMap.get(type);
+        var nodeKey = nodeKeysMap.get(type);
 
         if (nodeKey == null) {
             nodeKey = nodeKeysMap.get(OTHER_NODE_KEY);

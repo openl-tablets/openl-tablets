@@ -14,7 +14,7 @@ public class CommentMessageTemplateConstraintValidator implements ConstraintVali
         }
         ctx.disableDefaultConstraintViolation();
 
-        boolean isValid = true;
+        var isValid = true;
         if (!value.contains("{commit-type}")) {
             ctx.buildConstraintViolationWithTemplate("Comment message template must contain '{commit-type}'").addConstraintViolation();
             isValid = false;

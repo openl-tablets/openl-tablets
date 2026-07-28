@@ -31,14 +31,14 @@ public class Version implements Comparable<Version> {
         }
 
         private int getInt() {
-            int len = s.length();
+            var len = s.length();
             if (pos >= len || !Character.isDigit(s.charAt(pos))) {
                 return -1;
             }
 
-            int n = 0;
+            var n = 0;
             for (; pos < len; pos++) {
-                char c = s.charAt(pos);
+                var c = s.charAt(pos);
                 if (Character.isDigit(c)) {
                     n = n * 10 + c - '0';
                 } else {
@@ -64,7 +64,7 @@ public class Version implements Comparable<Version> {
         public int findVersionStart(String s, int previousStart) {
             if (previousStart == -1) // just first search is a real one
             {
-                int idx = s.lastIndexOf('_');
+                var idx = s.lastIndexOf('_');
                 if (idx >= 0) {
                     return idx + 1;
                 }
@@ -81,12 +81,12 @@ public class Version implements Comparable<Version> {
     private String pattern = JAVA_VERSION_PATTERN;
 
     public static int calcNumbersSeparatedByDots(String s, int from, String pattern) {
-        int nnum = 0;
-        int len = s.length();
-        boolean inNumber = false;
+        var nnum = 0;
+        var len = s.length();
+        var inNumber = false;
 
-        for (int i = from; i < len && nnum <= pattern.length(); ++i) {
-            char c = s.charAt(i);
+        for (var i = from; i < len && nnum <= pattern.length(); ++i) {
+            var c = s.charAt(i);
             if (inNumber) {
                 if (Character.isDigit(c)) {
                     continue;
@@ -108,7 +108,7 @@ public class Version implements Comparable<Version> {
     }
 
     static public Version extractVersion(String s, IVersionStartPatternFinder finder, String pattern) throws Exception {
-        int idx = findVersionStart(s, finder, pattern);
+        var idx = findVersionStart(s, finder, pattern);
         if (idx == -1) {
             throw new Exception("Could not find version pattern in " + s);
         }
@@ -120,8 +120,8 @@ public class Version implements Comparable<Version> {
     }
 
     public static int findVersionStart(String s, IVersionStartPatternFinder finder, String pattern) {
-        int idx = -1;
-        int loopProtector = 0;
+        var idx = -1;
+        var loopProtector = 0;
 
         while (true) {
             idx = finder.findVersionStart(s, idx);
@@ -153,7 +153,7 @@ public class Version implements Comparable<Version> {
             throw new RuntimeException("This is not a valid version: " + s.substring(from) + " in " + s);
         }
 
-        Version v = new Version();
+        var v = new Version();
         v.setPattern(pattern);
         v.parseIn(s, from);
         return v;
@@ -175,7 +175,7 @@ public class Version implements Comparable<Version> {
     @Override
     public int compareTo(Version v) {
 
-        for (int i = 0; i < version.length; i++) {
+        for (var i = 0; i < version.length; i++) {
             if (version[i] != v.version[i]) {
                 return version[i] - v.version[i];
             }
@@ -188,7 +188,7 @@ public class Version implements Comparable<Version> {
         if (!(obj instanceof Version v)) {
             return false;
         }
-        for (int i = 0; i < version.length; i++) {
+        for (var i = 0; i < version.length; i++) {
             if (version[i] != v.version[i]) {
                 return false;
             }
@@ -248,8 +248,8 @@ public class Version implements Comparable<Version> {
 
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < version.length; i++) {
+        var buf = new StringBuilder();
+        for (var i = 0; i < version.length; i++) {
             if (version[i] >= 0) {
                 buf.append(version[i]);
             } else {

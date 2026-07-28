@@ -13,7 +13,7 @@ class TypeCastTest {
     void testOptimazedAlgorithmExecution() {
         ITest instance = TestUtils.create("test/rules/dt/TypeCastTest.xls", ITest.class);
 
-        TestUnitsResults result = instance.ReplaceSumInsuredTest();
+        var result = instance.ReplaceSumInsuredTest();
         assertEquals(3, result.getNumberOfTestUnits());
         assertEquals(0, result.getNumberOfFailures());
     }

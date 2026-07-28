@@ -5,13 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Constraint;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.Goal;
 import org.openl.ie.constrainer.GoalAnd;
 import org.openl.ie.constrainer.GoalGenerate;
 import org.openl.ie.constrainer.GoalImpl;
-import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpArray;
 
@@ -51,12 +49,12 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
         @Override
         public Goal execute() throws Failure {
-            Overlapping over = new Overlapping(_dt.getVars());
-            for (int i = 0; i < _dt.getRules().length; i++) {
+            var over = new Overlapping(_dt.getVars());
+            for (var i = 0; i < _dt.getRules().length; i++) {
                 if (removed[i]) {
                     continue;
                 }
-                IntBoolExp rule = _dt.getRule(i);
+                var rule = _dt.getRule(i);
                 if (rule.bound() && rule.max() == 1) {
                     over.addRule(i);
                 }
@@ -81,21 +79,21 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
             return;
         }
 
-        List<Overlapping> overlappingRules = new ArrayList<>();
-        IntBoolExp[] rules = _dt.getRules();
-        Constrainer C = rules[0].constrainer();
-        int stackSize = C.getStackSize();
+        var overlappingRules = new ArrayList<Overlapping>();
+        var rules = _dt.getRules();
+        var C = rules[0].constrainer();
+        var stackSize = C.getStackSize();
 
-        IntExpArray ruleArray = new IntExpArray(C, rules.length - nRemoved);
+        var ruleArray = new IntExpArray(C, rules.length - nRemoved);
         for (int i = 0, r = 0; i < rules.length; i++) {
             if (!removed[i]) {
                 ruleArray.set(rules[i], r++);
             }
         }
-        Constraint overlapping = ruleArray.sum().gt(1).asConstraint();
-        Goal save = new GoalSaveSolutions(C, overlappingRules);
-        Goal generate = new GoalGenerate(_dt.getVars());
-        Goal target = new GoalAnd(new GoalAnd(overlapping, generate), save);
+        var overlapping = ruleArray.sum().gt(1).asConstraint();
+        var save = new GoalSaveSolutions(C, overlappingRules);
+        var generate = new GoalGenerate(_dt.getVars());
+        var target = new GoalAnd(new GoalAnd(overlapping, generate), save);
         C.execute(target, true);
         C.backtrackStack(stackSize);
 
@@ -105,12 +103,12 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     private void testPairOverlappings(List<Overlapping> overlappingRules) {
 
         for (Overlapping ovl : overlappingRules) {
-            int[] rules = ovl.getOverlapped();
+            var rules = ovl.getOverlapped();
 
-            for (int i = 0; i < rules.length; i++) {
-                for (int j = i + 1; j < rules.length; j++) {
+            for (var i = 0; i < rules.length; i++) {
+                for (var j = i + 1; j < rules.length; j++) {
 
-                    IntPair pair = new IntPair(rules[i], rules[j]);
+                    var pair = new IntPair(rules[i], rules[j]);
                     if (checkedPairs.contains(pair)) {
                         continue;
                     }
@@ -153,13 +151,13 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     }
 
     private boolean completelyOverlaps(IntExp exp1, IntExp exp2) {
-        Constrainer C = exp1.constrainer();
-        int stackSize = C.getStackSize();
-        Constraint overlaps = exp1.lt(exp2).asConstraint();
+        var C = exp1.constrainer();
+        var stackSize = C.getStackSize();
+        var overlaps = exp1.lt(exp2).asConstraint();
         // GoalCompare compare = new GoalCompare(C, exp1, exp2);
-        Goal generate = new GoalGenerate(_dt.getVars());
-        Goal target = new GoalAnd(overlaps, generate);
-        boolean flag = C.execute(target, true);
+        var generate = new GoalGenerate(_dt.getVars());
+        var target = new GoalAnd(overlaps, generate);
+        var flag = C.execute(target, true);
         C.backtrackStack(stackSize);
         // boolean res = compare.result;
         return !flag;

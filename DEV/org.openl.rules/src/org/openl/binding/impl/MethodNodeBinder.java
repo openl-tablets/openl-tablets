@@ -45,7 +45,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        IBoundNode errorNode = validateNode(node, bindingContext);
+        var errorNode = validateNode(node, bindingContext);
         if (errorNode != null) {
             return errorNode;
         }
@@ -58,7 +58,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
         bindingContext.pushErrors();
         bindingContext.pushMessages();
-        boolean errorsAndMessagesPopped = false;
+        var errorsAndMessagesPopped = false;
         try {
             var children = bindChildren(node, bindingContext, 0, childrenCount - 1);
             var syntaxNodeExceptions = bindingContext.popErrors();
@@ -86,13 +86,13 @@ public class MethodNodeBinder extends ANodeBinder {
                 //
                 if (childrenCount > 1) {
                     // Get the root component type and dimension of the array.
-                    IOpenClass argumentType = argumentTypes[0];
-                    int dims = 0;
+                    var argumentType = argumentTypes[0];
+                    var dims = 0;
                     while (argumentType.isArray()) {
                         dims++;
                         argumentType = argumentType.getComponentClass();
                     }
-                    IBoundNode field = bindAsFieldBoundNode(node,
+                    var field = bindAsFieldBoundNode(node,
                             methodName,
                             argumentTypes,
                             children,
@@ -109,7 +109,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
             var type = bindingContext.findType(methodName);
             var childNodes = new ISyntaxNode[node.getNumberOfChildren() - 1];
-            for (int i = 0; i < childNodes.length; i++) {
+            for (var i = 0; i < childNodes.length; i++) {
                 childNodes[i] = node.getChild(i);
             }
             var iBoundNode = Optional.ofNullable(type)
@@ -134,15 +134,15 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     private boolean isParallel(IOpenMethod openMethod) {
-        boolean parallel = false;
+        var parallel = false;
         if (openMethod instanceof ITablePropertiesMethod) {
-            ITablePropertiesMethod tablePropertiesMethod = (ITablePropertiesMethod) openMethod.getMethod();
+            var tablePropertiesMethod = (ITablePropertiesMethod) openMethod.getMethod();
             if (Boolean.TRUE.equals(tablePropertiesMethod.getMethodProperties().getParallel())) {
                 parallel = true;
             }
         }
         if (openMethod instanceof OpenMethodDispatcher openMethodDispatcher) {
-            boolean f = true;
+            var f = true;
             for (IOpenMethod method : openMethodDispatcher.getCandidates()) {
                 if (method instanceof ITablePropertiesMethod tablePropertiesMethod) {
                     if (!Boolean.TRUE.equals(tablePropertiesMethod.getMethodProperties().getParallel())) {
@@ -265,7 +265,7 @@ public class MethodNodeBinder extends ANodeBinder {
                                       IBindingContext bindingContext,
                                       IBoundNode target,
                                       IMethodCaller methodCaller) {
-        boolean methodIsStatic = methodCaller.getMethod().isStatic();
+        var methodIsStatic = methodCaller.getMethod().isStatic();
         if (target.isStaticTarget() != methodIsStatic) {
             if (methodIsStatic) {
                 BindHelper

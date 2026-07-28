@@ -17,7 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
@@ -44,20 +43,20 @@ class GitMultiUserWorkTest {
     @Test
     void simulateMultiUserWork() throws InterruptedException, IOException {
         createCommitAndCheck(repo, "README.md", "Initialize repository");
-        AtomicBoolean passedStatus = new AtomicBoolean(true);
-        CountDownLatch countDown = new CountDownLatch(MAX_THREADS);
-        for (int i = 0; i < MAX_THREADS; i++) {
-            final int idx = i;
+        var passedStatus = new AtomicBoolean(true);
+        var countDown = new CountDownLatch(MAX_THREADS);
+        for (var i = 0; i < MAX_THREADS; i++) {
+            final var idx = i;
             new Thread(() -> {
                 GitRepository branchRepo = null;
                 try {
-                    String branchName = "branch" + idx;
-                    String projectPath = FOLDER_IN_REPOSITORY + "_" + idx;
+                    var branchName = "branch" + idx;
+                    var projectPath = FOLDER_IN_REPOSITORY + "_" + idx;
                     repo.createBranch(projectPath, branchName);
                     branchRepo = repo.forBranch(branchName);
-                    for (int commitNo = 0; commitNo < 30; commitNo++) {
-                        String path = projectPath + "/folder/file" + idx;
-                        String text = "File located in '%s'. Commit id: %s".formatted(path, commitNo);
+                    for (var commitNo = 0; commitNo < 30; commitNo++) {
+                        var path = projectPath + "/folder/file" + idx;
+                        var text = "File located in '%s'. Commit id: %s".formatted(path, commitNo);
                         createCommitAndCheck(branchRepo, path, text);
                         if ((commitNo + 1) % 10 == 0) {
                             repo.merge(branchName, new UserInfo("admin", "admin@email", "Admin"), null);
@@ -80,7 +79,7 @@ class GitMultiUserWorkTest {
     }
 
     private static void createCommitAndCheck(GitRepository repo, String path, String text) throws IOException {
-        FileData result = repo.save(createFileData(path, text), IOUtils.toInputStream(text));
+        var result = repo.save(createFileData(path, text), IOUtils.toInputStream(text));
 
         assertNotNull(result);
         assertEquals(path, result.getName());
@@ -94,15 +93,15 @@ class GitMultiUserWorkTest {
     }
 
     private GitRepository createRepository(Path local) throws IOException {
-        GitRepository newRepo = new GitRepository();
+        var newRepo = new GitRepository();
         newRepo.setId(REPO_ID);
-        String uri = local.toAbsolutePath().toString();
+        var uri = local.toAbsolutePath().toString();
         newRepo.setUri(uri);
-        String localRepositoriesFolderString = this.localRepositoriesFolder.toFile().getAbsolutePath();
+        var localRepositoriesFolderString = this.localRepositoriesFolder.toFile().getAbsolutePath();
         newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
-        FileSystemRepository settingsRepository = new FileSystemRepository();
+        var settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(local.getParent() + "/git-settings");
-        String locksRoot = root.resolve("locks").toAbsolutePath().toString();
+        var locksRoot = root.resolve("locks").toAbsolutePath().toString();
         newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         newRepo.setGcAutoDetach(false);

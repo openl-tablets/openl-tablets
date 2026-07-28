@@ -8,18 +8,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import org.openl.domain.EnumDomain;
-import org.openl.domain.IDomain;
 import org.openl.types.DomainOpenClassAggregateInfo;
-import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 class DomainOpenClassTest {
 
     @Test
     void testNotArray() {
-        IOpenClass baseClass = JavaOpenClass.STRING;
-        IDomain<String> domain = new EnumDomain<>(new String[]{"Value1", "Value2"});
-        DomainOpenClass domainClass = new DomainOpenClass("TestClass", baseClass, domain, null, null);
+        var baseClass = JavaOpenClass.STRING;
+        var domain = new EnumDomain<String>(new String[]{"Value1", "Value2"});
+        var domainClass = new DomainOpenClass("TestClass", baseClass, domain, null, null);
         assertEquals(DomainOpenClassAggregateInfo.DOMAIN_AGGREGATE, domainClass.getAggregateInfo());
 
         assertEquals(baseClass, domainClass.getBaseClass());
@@ -37,9 +35,9 @@ class DomainOpenClassTest {
 
     @Test
     void testArray() {
-        IOpenClass baseClass = JavaOpenClass.STRING.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.STRING);
-        IDomain<String> domain = new EnumDomain<>(new String[]{"Value1", "Value2"});
-        DomainOpenClass domainClass = new DomainOpenClass("TestClass[]", baseClass, domain, null, null);
+        var baseClass = JavaOpenClass.STRING.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.STRING);
+        var domain = new EnumDomain<String>(new String[]{"Value1", "Value2"});
+        var domainClass = new DomainOpenClass("TestClass[]", baseClass, domain, null, null);
         assertEquals(DomainOpenClassAggregateInfo.DOMAIN_AGGREGATE, domainClass.getAggregateInfo());
 
         assertTrue(domainClass.isArray());
@@ -48,7 +46,7 @@ class DomainOpenClassTest {
 
         assertEquals(new DomainOpenClass("TestClass", baseClass, domain, null, null), domainClass.getComponentClass());
 
-        IOpenClass aggregateDomain = domainClass.getAggregateInfo().getIndexedAggregateType(domainClass);
+        var aggregateDomain = domainClass.getAggregateInfo().getIndexedAggregateType(domainClass);
 
         assertEquals("TestClass[][]", aggregateDomain.getName());
 

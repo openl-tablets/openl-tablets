@@ -193,8 +193,8 @@ public final class OpenLService {
      */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
+        final var prime = 31;
+        var result = 1;
         result = prime * result + (deployPath == null ? 0 : deployPath.hashCode());
         return result;
     }
@@ -213,7 +213,7 @@ public final class OpenLService {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        OpenLService other = (OpenLService) obj;
+        var other = (OpenLService) obj;
         if (deployPath == null) {
             if (other.deployPath != null) {
                 return false;

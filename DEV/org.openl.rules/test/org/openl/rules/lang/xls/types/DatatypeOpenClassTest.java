@@ -24,9 +24,9 @@ class DatatypeOpenClassTest {
 
     private static DatatypeOpenClass buildDatatypeOpenClass(String name,
                                                             String packageName) throws ClassNotFoundException {
-        DatatypeOpenClass datatypeOpenClass = new DatatypeOpenClass(name, packageName);
-        OpenLClassLoader classLoader = new OpenLClassLoader(Thread.currentThread().getContextClassLoader());
-        JavaBeanClassBuilder javaBeanClassBuilder = new JavaBeanClassBuilder(datatypeOpenClass.getJavaName());
+        var datatypeOpenClass = new DatatypeOpenClass(name, packageName);
+        var classLoader = new OpenLClassLoader(Thread.currentThread().getContextClassLoader());
+        var javaBeanClassBuilder = new JavaBeanClassBuilder(datatypeOpenClass.getJavaName());
         classLoader.addGeneratedClass(datatypeOpenClass.getJavaName(), javaBeanClassBuilder.byteCode());
         datatypeOpenClass.setInstanceClass(classLoader.loadClass(datatypeOpenClass.getJavaName()));
         return datatypeOpenClass;
@@ -84,14 +84,14 @@ class DatatypeOpenClassTest {
 
     @Test
     void testEquals_ComponentTypeArrayOpenClass_componentClassWithDiffPackages() throws ClassNotFoundException {
-        IOpenClass to = new ComponentTypeArrayOpenClass(buildDatatypeOpenClass("MyType", "org.openl.generated.Y"));
+        var to = new ComponentTypeArrayOpenClass(buildDatatypeOpenClass("MyType", "org.openl.generated.Y"));
         assertNotEquals(from, to);
     }
 
     @Test
     void testEquals_ComponentTypeArrayOpenClass_componentClassWithSamePackages() throws ClassNotFoundException {
         DatatypeOpenClass datatypeOpenClass = buildDatatypeOpenClass("MyType", "org.openl.generated.X");
-        IOpenClass to = new ComponentTypeArrayOpenClass(datatypeOpenClass);
+        var to = new ComponentTypeArrayOpenClass(datatypeOpenClass);
         assertNotEquals(from, to);
         datatypeOpenClass = buildDatatypeOpenClass("MyType", "org.openl.generated.X");
         datatypeOpenClass.setInstanceClass(from.getComponentClass().getInstanceClass());

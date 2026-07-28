@@ -2,9 +2,6 @@ package org.openl.rules.table;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.net.URL;
-
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -17,22 +14,22 @@ class LookupTest {
     @Test
     void testMergeBounds() throws Exception {
 
-        URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestLookup.xls");
+        var url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestLookup.xls");
 
-        URLSourceCodeModule source = new URLSourceCodeModule(url);
-        XlsWorkbookSourceCodeModule wbsrc = new XlsWorkbookSourceCodeModule(source);
-        Workbook wb = wbsrc.getWorkbook();
+        var source = new URLSourceCodeModule(url);
+        var wbsrc = new XlsWorkbookSourceCodeModule(source);
+        var wb = wbsrc.getWorkbook();
 
-        int nsheets = wb.getNumberOfSheets();
+        var nsheets = wb.getNumberOfSheets();
 
-        for (int i = 0; i < nsheets; i++) {
+        for (var i = 0; i < nsheets; i++) {
 
-            String name = wb.getSheetName(i);
+            var name = wb.getSheetName(i);
 
-            XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(i, wbsrc);
-            XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
+            var sheetSrc = new XlsSheetSourceCodeModule(i, wbsrc);
+            var xsGrid = new XlsSheetGridModel(sheetSrc);
 
-            IGridTable[] tables = xsGrid.getTables();
+            var tables = xsGrid.getTables();
 
             if (name.equals("Sheet1")) {
                 testSheet1(tables);
@@ -45,10 +42,10 @@ class LookupTest {
         assertEquals(2, tables.length);
 
         ILogicalTable lookupTable = LogicalTableHelper.logicalTable(tables[0]);
-        ILogicalTable t1 = lookupTable.getRows(1);
-        ILogicalTable lookupRow1 = t1.getRow(0);
-        ILogicalTable t2 = t1.getRows(1);
-        ILogicalTable lookupColumn1 = t2.getColumn(0);
+        var t1 = lookupTable.getRows(1);
+        var lookupRow1 = t1.getRow(0);
+        var t2 = t1.getRows(1);
+        var lookupColumn1 = t2.getColumn(0);
         ILogicalTable body = LogicalTableHelper.mergeBounds(lookupColumn1, lookupRow1);
 
         assertEquals(5, body.getHeight());

@@ -15,7 +15,7 @@ class String2BigDecimalConvertor extends String2NumberConverter<BigDecimal> {
 
     @Override
     DecimalFormat getFormatter(String format) {
-        DecimalFormat formatter = super.getFormatter(format);
+        var formatter = super.getFormatter(format);
         // Always show .0 at the end for integer numbers
         formatter.setMinimumFractionDigits(1);
         formatter.setParseBigDecimal(true);

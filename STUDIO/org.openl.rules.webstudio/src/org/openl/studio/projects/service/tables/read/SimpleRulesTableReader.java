@@ -47,9 +47,9 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
         var height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
         var width = OpenLTableUtils.getWidthWithoutEmptyColumns(tableBody);
         // start from 1 because 0 is header
-        for (int row = 1; row < height; row++) {
+        for (var row = 1; row < height; row++) {
             var rule = new LinkedHashMap<String, Object>();
-            for (int col = 0; col < width; col++) {
+            for (var col = 0; col < width; col++) {
                 String ruleName = null;
                 if (col < headers.size()) {
                     ruleName = headers.get(col).title;
@@ -65,9 +65,9 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
     }
 
     public static List<SimpleRuleHeaderView> getConditionHeaders(ILogicalTable headerBody) {
-        List<SimpleRuleHeaderView> headers = new ArrayList<>();
+        var headers = new ArrayList<SimpleRuleHeaderView>();
         var width = OpenLTableUtils.getWidthWithoutEmptyColumns(headerBody);
-        for (int col = 0; col < width; col++) {
+        for (var col = 0; col < width; col++) {
             headers.add(SimpleRuleHeaderView.builder().title(headerBody.getCell(col, 0).getStringValue()).build());
         }
         return headers;

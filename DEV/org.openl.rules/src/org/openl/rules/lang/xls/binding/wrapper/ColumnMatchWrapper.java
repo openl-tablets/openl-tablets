@@ -75,7 +75,7 @@ public final class ColumnMatchWrapper extends AbstractColumnMatchWrapper impleme
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ColumnMatchWrapper that = (ColumnMatchWrapper) o;
+        var that = (ColumnMatchWrapper) o;
         return delegate.equals(that.delegate);
     }
 

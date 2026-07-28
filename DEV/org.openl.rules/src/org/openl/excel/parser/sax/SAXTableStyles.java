@@ -5,8 +5,6 @@ import java.util.Map;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.StylesTable;
-import org.apache.poi.xssf.usermodel.XSSFComment;
-import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.ICellComment;
@@ -43,10 +41,10 @@ public class SAXTableStyles implements TableStyles {
 
     @Override
     public ICellStyle getStyle(int row, int column) {
-        int rowIndex = row - region.getTop();
-        int colIndex = column - region.getLeft();
+        var rowIndex = row - region.getTop();
+        var colIndex = column - region.getLeft();
         if (rowIndex < cellIndexes.length && colIndex < cellIndexes[rowIndex].length) {
-            int index = cellIndexes[rowIndex][colIndex];
+            var index = cellIndexes[rowIndex][colIndex];
             // For XSSF workbook is not needed
             return new XlsCellStyle(stylesTable.getStyleAt(index), null);
         }
@@ -55,7 +53,7 @@ public class SAXTableStyles implements TableStyles {
 
     @Override
     public ICellFont getFont(int row, int column) {
-        int index = cellIndexes[row - region.getTop()][column - region.getLeft()];
+        var index = cellIndexes[row - region.getTop()][column - region.getLeft()];
         // For XSSF workbook is not needed
         return new XlsCellFont(stylesTable.getStyleAt(index).getFont(), null);
     }
@@ -66,12 +64,12 @@ public class SAXTableStyles implements TableStyles {
             return null;
         }
 
-        XSSFComment comment = sheetComments.findCellComment(new CellAddress(row, column));
+        var comment = sheetComments.findCellComment(new CellAddress(row, column));
         if (comment == null) {
             return null;
         }
 
-        XSSFRichTextString rst = comment.getString();
+        var rst = comment.getString();
         String text = rst == null ? null : rst.getString();
         return new SAXCellComment(text, comment.getAuthor());
     }

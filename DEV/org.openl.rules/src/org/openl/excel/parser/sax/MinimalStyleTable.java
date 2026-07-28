@@ -30,8 +30,8 @@ public class MinimalStyleTable {
             styleIndex = 0;
         }
 
-        Integer numberFormatId = numberFormatIdList.get(styleIndex);
-        String formatString = formatStrings.get(numberFormatId);
+        var numberFormatId = numberFormatIdList.get(styleIndex);
+        var formatString = formatStrings.get(numberFormatId);
         if (formatString == null) {
             formatString = BuiltinFormats.getBuiltinFormat(numberFormatId);
         }
@@ -52,7 +52,7 @@ public class MinimalStyleTable {
     }
 
     void addIndent(short indent) {
-        int lastStyleIndex = numberFormatIdList.size() - 1;
+        var lastStyleIndex = numberFormatIdList.size() - 1;
         indentMap.put(lastStyleIndex, indent);
     }
 }

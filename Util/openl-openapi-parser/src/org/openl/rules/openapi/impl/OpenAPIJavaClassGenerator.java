@@ -70,8 +70,8 @@ public class OpenAPIJavaClassGenerator {
                 return true;
             }
         }
-        final PathInfo pathInfo = method.getPathInfo();
-        StringBuilder sb = new StringBuilder("/" + pathInfo.getFormattedPath());
+        final var pathInfo = method.getPathInfo();
+        var sb = new StringBuilder("/" + pathInfo.getFormattedPath());
         final List<InputParameter> parameters = method.getParameters();
         parameters.stream()
                 .filter(p -> p.getIn() == InputParameter.In.PATH)
@@ -82,7 +82,7 @@ public class OpenAPIJavaClassGenerator {
             return true;
         }
         if (StringUtils.isNotBlank(pathInfo.getProduces())) {
-            final TypeInfo typeInfo = pathInfo.getReturnType();
+            final var typeInfo = pathInfo.getReturnType();
             if (typeInfo.isReference() || typeInfo.getDimension() > 0) {
                 if (!DEFAULT_JSON_TYPE.equals(pathInfo.getProduces())) {
                     // if return type is not simple, application/json by default
@@ -93,8 +93,8 @@ public class OpenAPIJavaClassGenerator {
                 return true;
             }
         }
-        final boolean requestBodyIsPresented = parameters.stream().map(InputParameter::getIn).anyMatch(Objects::isNull);
-        final boolean otherParamsArePresented = parameters.stream()
+        final var requestBodyIsPresented = parameters.stream().map(InputParameter::getIn).anyMatch(Objects::isNull);
+        final var otherParamsArePresented = parameters.stream()
                 .map(InputParameter::getIn)
                 .anyMatch(Objects::nonNull);
 
@@ -184,7 +184,7 @@ public class OpenAPIJavaClassGenerator {
     }
 
     public OpenAPIGeneratedClasses generate() {
-        String interfaceName = DEFAULT_OPEN_API_PATH + ".Service";
+        var interfaceName = DEFAULT_OPEN_API_PATH + ".Service";
         InterfaceByteCodeBuilder interfaceBuilder = InterfaceByteCodeBuilder.create(interfaceName);
 
         Stream.concat(projectModel.getSpreadsheetResultModels().stream(), projectModel.getDataModels().stream())
@@ -194,12 +194,12 @@ public class OpenAPIJavaClassGenerator {
 
         OpenAPIGeneratedClasses.Builder builder = OpenAPIGeneratedClasses.Builder.initialize();
         for (MethodModel extraMethod : projectModel.getNotOpenLModels()) {
-            InterfaceImplBuilder extraMethodBuilder = new InterfaceImplBuilder(ServiceExtraMethodHandler.class,
+            var extraMethodBuilder = new InterfaceImplBuilder(ServiceExtraMethodHandler.class,
                     DEFAULT_OPEN_API_PATH);
-            GroovyScriptFile groovyScriptFile = new GroovyScriptFile(extraMethodBuilder.getScriptName(),
+            var groovyScriptFile = new GroovyScriptFile(extraMethodBuilder.getScriptName(),
                     extraMethodBuilder.scriptText());
             builder.addGroovyCommonScript(groovyScriptFile);
-            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(extraMethod, true);
+            var methodDesc = visitInterfaceMethod(extraMethod, true);
             methodDesc.addAnnotation(AnnotationDescriptionBuilder.create(ServiceExtraMethod.class)
                     .withProperty(VALUE, new TypeDescription(groovyScriptFile.getNameWithPackage()))
                     .build());
@@ -214,15 +214,15 @@ public class OpenAPIJavaClassGenerator {
     }
 
     private MethodDescriptionBuilder visitInterfaceMethod(MethodModel sprModel, boolean extraMethod) {
-        final PathInfo pathInfo = sprModel.getPathInfo();
-        final TypeInfo returnTypeInfo = pathInfo.getReturnType();
+        final var pathInfo = sprModel.getPathInfo();
+        final var returnTypeInfo = pathInfo.getReturnType();
         MethodDescriptionBuilder methodBuilder = MethodDescriptionBuilder.create(pathInfo.getFormattedPath(),
                 resolveType(returnTypeInfo));
 
-        InputParameter runtimeCtxParam = sprModel.getPathInfo().getRuntimeContextParameter();
+        var runtimeCtxParam = sprModel.getPathInfo().getRuntimeContextParameter();
         if (runtimeCtxParam != null) {
             MethodParameterBuilder ctxBuilder = MethodParameterBuilder.create(runtimeCtxParam.getType().getJavaName());
-            final String paramName = runtimeCtxParam.getFormattedName();
+            final var paramName = runtimeCtxParam.getFormattedName();
             if (sprModel.getParameters().size() > 0 && !DEFAULT_RUNTIME_CTX_PARAM_NAME.equals(paramName)) {
                 ctxBuilder.addAnnotation(
                         AnnotationDescriptionBuilder.create(Name.class).withProperty(VALUE, paramName).build());
@@ -246,7 +246,7 @@ public class OpenAPIJavaClassGenerator {
     }
 
     private TypeDescription visitMethodParameter(InputParameter parameter, boolean extraMethod) {
-        final TypeInfo paramType = parameter.getType();
+        final var paramType = parameter.getType();
         MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(resolveType(paramType));
         if (paramType.getType() == TypeInfo.Type.DATATYPE) {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
@@ -256,8 +256,8 @@ public class OpenAPIJavaClassGenerator {
                 .getType() == TypeInfo.Type.SPREADSHEET_ARRAY) {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(NoTypeConversion.class).build());
         }
-        final String originalParameterName = parameter.getOriginalName();
-        final String formattedParameterName = parameter.getFormattedName();
+        final var originalParameterName = parameter.getOriginalName();
+        final var formattedParameterName = parameter.getFormattedName();
         final String parameterName = originalParameterName
                 .equalsIgnoreCase(formattedParameterName) ? formattedParameterName : originalParameterName;
         if (extraMethod) {

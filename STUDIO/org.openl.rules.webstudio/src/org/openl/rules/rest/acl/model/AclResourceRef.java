@@ -73,7 +73,7 @@ public class AclResourceRef {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AclResourceRef that = (AclResourceRef) o;
+        var that = (AclResourceRef) o;
         return repositoryType == that.repositoryType
                 && Objects.equals(repositoryId, that.repositoryId)
                 && Objects.equals(projectName, that.projectName);

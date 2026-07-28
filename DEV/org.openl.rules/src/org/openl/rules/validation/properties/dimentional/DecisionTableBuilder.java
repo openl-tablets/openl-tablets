@@ -9,7 +9,6 @@ import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 
@@ -39,8 +38,8 @@ public class DecisionTableBuilder {
 
     private static String buildMethodHeader(String tableName, DispatcherTableReturnColumn returnColumn) {
 
-        final IMethodSignature originalSignature = returnColumn.getOriginalSignature();
-        final StringBuilder builder = new StringBuilder(64);
+        final var originalSignature = returnColumn.getOriginalSignature();
+        final var builder = new StringBuilder(64);
         builder.append(IXlsTableNames.DECISION_TABLE2)
                 .append(' ')
                 .append(returnColumn.getReturnType().getDisplayName(0))
@@ -48,11 +47,11 @@ public class DecisionTableBuilder {
                 .append(tableName)
                 .append('(');
 
-        boolean prependComma = false;
+        var prependComma = false;
         // add original parameters of the method
         //
-        for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
-            final IOpenClass parameterType = originalSignature.getParameterType(j);
+        for (var j = 0; j < originalSignature.getNumberOfParameters(); j++) {
+            final var parameterType = originalSignature.getParameterType(j);
             if (!(parameterType instanceof NullOpenClass) && parameterType.getInstanceClass() != null) {
                 /*
                  * on compare in repository tutorial10, all original parameter types are instances of NullOpenClass. it
@@ -62,7 +61,7 @@ public class DecisionTableBuilder {
                 if (prependComma) {
                     builder.append(',');
                 }
-                final String type = parameterType.getInstanceClass().getSimpleName();
+                final var type = parameterType.getInstanceClass().getSimpleName();
                 builder.append(type).append(" arg_").append(originalSignature.getParameterName(j));
                 prependComma = true;
             }
@@ -74,8 +73,8 @@ public class DecisionTableBuilder {
             if (prependComma) {
                 builder.append(',');
             }
-            final String type = param.getValue().getInstanceClass().getSimpleName();
-            final String name = param.getKey();
+            final var type = param.getValue().getInstanceClass().getSimpleName();
+            final var name = param.getKey();
             builder.append(type).append(' ').append(name);
             prependComma = true;
         }
@@ -109,8 +108,8 @@ public class DecisionTableBuilder {
         XlsSheetGridModel sheetWithTable = DecisionTableHelper.createVirtualGrid();
 
         // column index that is free for further writing
-        int conditionsNumber = 0;
-        List<IDecisionTableColumnBuilder> conditionBuilders = new ArrayList<>();
+        var conditionsNumber = 0;
+        var conditionBuilders = new ArrayList<IDecisionTableColumnBuilder>();
         for (IDecisionTableColumn condition : conditions) {
             if (condition.getNumberOfLocalParameters() > 0) {
                 // process only conditions that have local parameters, other ones skip
@@ -125,9 +124,9 @@ public class DecisionTableBuilder {
 
         }
 
-        int column = 0;
+        var column = 0;
         for (IDecisionTableColumnBuilder conditionBuilder : conditionBuilders) {
-            int columnUsedForCondition = conditionBuilder.build(sheetWithTable, rulesNumber, column, 0);
+            var columnUsedForCondition = conditionBuilder.build(sheetWithTable, rulesNumber, column, 0);
             column += columnUsedForCondition;
         }
 
@@ -136,7 +135,7 @@ public class DecisionTableBuilder {
         sheetWithTable.setCellValue(column, PARAMETER_DECLARATION_ROW_INDEX, returnColumn.getParameterDeclaration());
         sheetWithTable.setCellValue(column, CONDITION_TITLE_ROW_INDEX, returnColumn.getTitle());
 
-        for (int i = 0; i < rulesNumber; i++) {
+        for (var i = 0; i < rulesNumber; i++) {
             sheetWithTable.setCellValue(column, i + DECISION_TABLE_HEADER_ROWS_NUMBER, returnColumn.getRuleValue(i));
         }
 

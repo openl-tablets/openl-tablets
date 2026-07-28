@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.ListIterator;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -32,11 +31,11 @@ public final class RepositoryValidators {
     public static void validate(RepositoryConfiguration repoConfig,
                                 List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
         if (StringUtils.isEmpty(repoConfig.getName())) {
-            String msg = "Repository name is empty. Please, enter repository name.";
+            var msg = "Repository name is empty. Please, enter repository name.";
             throw new RepositoryValidationException(msg);
         }
         if (!NameChecker.checkName(repoConfig.getName())) {
-            String msg = "Repository name '%s' contains illegal characters. Please, correct repository name.".formatted(
+            var msg = "Repository name '%s' contains illegal characters. Please, correct repository name.".formatted(
                     repoConfig.getName());
             throw new RepositoryValidationException(msg);
         }
@@ -45,7 +44,7 @@ public final class RepositoryValidators {
         for (RepositoryConfiguration other : repositoryConfigurations) {
             if (other != repoConfig) {
                 if (repoConfig.getName().equals(other.getName())) {
-                    String msg = "Repository name '%s' already exists. Please, insert a new one.".formatted(
+                    var msg = "Repository name '%s' already exists. Please, insert a new one.".formatted(
                             repoConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
@@ -57,7 +56,7 @@ public final class RepositoryValidators {
             validateGitUri(repoConfig, repositoryConfigurations);
         }
 
-        RepositorySettings settings = repoConfig.getSettings();
+        var settings = repoConfig.getSettings();
 
         if (settings instanceof CommonRepositorySettings) {
             validateCommonRepository(repoConfig, repositoryConfigurations);
@@ -66,12 +65,12 @@ public final class RepositoryValidators {
     }
 
     private static void validateGitUri(RepositoryConfiguration repoConfig, List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
-        String uri = ((GitRepositorySettings) repoConfig.getSettings()).getUri();
+        var uri = ((GitRepositorySettings) repoConfig.getSettings()).getUri();
         URIish urIish;
         try {
             urIish = new URIish(uri);
         } catch (URISyntaxException e) {
-            String msg = "Repository URI '%s' is incorrect."
+            var msg = "Repository URI '%s' is incorrect."
                     .formatted(uri);
             throw new RepositoryValidationException(msg);
         }
@@ -83,7 +82,7 @@ public final class RepositoryValidators {
             for (RepositoryConfiguration other : repositoryConfigurations) {
                 if (other != repoConfig
                         && hasTheSameGitLocalPath(other, path)) {
-                        String msg = "Repository local path '%s' already exists. Please, insert a new one."
+                        var msg = "Repository local path '%s' already exists. Please, insert a new one."
                                 .formatted(uri);
                         throw new RepositoryValidationException(msg);
                     }
@@ -96,7 +95,7 @@ public final class RepositoryValidators {
         if (! RepositoryType.GIT.equals(configuration.getRepositoryType())) {
             return false;
         }
-        String otherUri = ((GitRepositorySettings) configuration.getSettings()).getUri();
+        var otherUri = ((GitRepositorySettings) configuration.getSettings()).getUri();
         URIish otherUriish;
         try {
             otherUriish = new URIish(otherUri);
@@ -127,10 +126,10 @@ public final class RepositoryValidators {
                     .replaceFirst("^\\\\+([A-Za-z]:\\\\)", "$1");
         }
 
-        Path p = Path.of(pathStr).toAbsolutePath().normalize();
+        var p = Path.of(pathStr).toAbsolutePath().normalize();
 
         // Trim trailing separators (except root)
-        String s = p.toString().replaceAll("[/\\\\]+$", "");
+        var s = p.toString().replaceAll("[/\\\\]+$", "");
         if (s.isEmpty()) {
             s = p.toString();
         }
@@ -140,10 +139,10 @@ public final class RepositoryValidators {
 
     private static void validateCommonRepository(RepositoryConfiguration repoConfig,
                                                  List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
-        CommonRepositorySettings settings = (CommonRepositorySettings) repoConfig.getSettings();
-        String path = settings.getUri();
+        var settings = (CommonRepositorySettings) repoConfig.getSettings();
+        var path = settings.getUri();
         if (StringUtils.isEmpty(path)) {
-            String msg = "Repository path is empty. Please, enter repository path.";
+            var msg = "Repository path is empty. Please, enter repository path.";
             throw new RepositoryValidationException(msg);
         }
 
@@ -151,18 +150,18 @@ public final class RepositoryValidators {
         for (RepositoryConfiguration other : repositoryConfigurations) {
             if (other != repoConfig) {
                 if (repoConfig.getName().equals(other.getName())) {
-                    String msg = "Repository name '%s' already exists. Please, insert a new one.".formatted(
+                    var msg = "Repository name '%s' already exists. Please, insert a new one.".formatted(
                             repoConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
 
                 if (other.getSettings() instanceof CommonRepositorySettings) {
-                    CommonRepositorySettings otherSettings = (CommonRepositorySettings) other.getSettings();
+                    var otherSettings = (CommonRepositorySettings) other.getSettings();
                     if (path.equals(otherSettings.getUri()) && settings.isSecure() == otherSettings.isSecure()) {
                         // Different users can access different schemas
-                        String login = settings.getLogin();
+                        var login = settings.getLogin();
                         if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
-                            String msg = "Repository path '%s' already exists. Please, insert a new one.".formatted(
+                            var msg = "Repository path '%s' already exists. Please, insert a new one.".formatted(
                                     path);
                             throw new RepositoryValidationException(msg);
                         }
@@ -200,15 +199,15 @@ public final class RepositoryValidators {
         } else if (cause instanceof ConnectException) {
             return "Connection refused. Check the repository URL and try again.";
         } else if (cause instanceof UnknownHostException) {
-            final String message = cause.getMessage();
+            final var message = cause.getMessage();
             return message != null ? "Unknown host (%s).".formatted(message) : "Unknown host.";
         }
 
         // Obviously root cause gives more specific message. If we get empty message, we should consider wrapper
         // exception.
-        ListIterator<Throwable> listIterator = list.listIterator(list.size());
+        var listIterator = list.listIterator(list.size());
         while (listIterator.hasPrevious()) {
-            String message = listIterator.previous().getMessage();
+            var message = listIterator.previous().getMessage();
             if (StringUtils.isNotBlank(message)) {
                 return message;
             }

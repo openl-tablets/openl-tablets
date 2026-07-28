@@ -7,11 +7,9 @@
 package org.openl.syntax.impl;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,8 +43,8 @@ public final class Tokenizer {
         if (StringUtils.isEmpty(x)) {
             return Collections.emptySet();
         }
-        Set<Integer> ret = new HashSet<>();
-        for (int i = 0; i < x.length(); i++) {
+        var ret = new HashSet<Integer>();
+        for (var i = 0; i < x.length(); i++) {
             ret.add((int) x.charAt(i));
         }
         return ret;
@@ -79,15 +77,15 @@ public final class Tokenizer {
      */
     private IdentifierNode firstToken(IOpenSourceCodeModule source) throws OpenLCompilationException {
         try {
-            Reader reader = source.getCharacterStream();
+            var reader = source.getCharacterStream();
 
-            int startToken = 0;
-            int position = -1;
+            var startToken = 0;
+            var position = -1;
             int character;
             StringBuilder buffer = null;
-            boolean escaped = false;
+            var escaped = false;
             do {
-                boolean f = true;
+                var f = true;
                 character = reader.read();
                 position++;
                 if (!escaped && isEscapeBegin(character)) {
@@ -96,7 +94,7 @@ public final class Tokenizer {
                     escaped = false;
                 } else if ((character == EOF || !escaped && isDelimiter(character)) && buffer != null) {
                     f = false;
-                    String value = buffer.toString().trim();
+                    var value = buffer.toString().trim();
                     if (value.isEmpty()) {
                         buffer = null;
                     } else {
@@ -123,19 +121,19 @@ public final class Tokenizer {
 
     public IdentifierNode[] parse(IOpenSourceCodeModule source,
                                   ILocation textLocation) throws OpenLCompilationException {
-        List<IdentifierNode> nodes = new ArrayList<>();
+        var nodes = new ArrayList<IdentifierNode>();
 
         try {
-            Reader reader = source.getCharacterStream();
+            var reader = source.getCharacterStream();
 
-            int startToken = 0;
-            int position = -1;
+            var startToken = 0;
+            var position = -1;
 
             if (textLocation != null) {
                 startToken = textLocation.getStart().getAbsolutePosition(null);
                 position = textLocation.getStart().getAbsolutePosition(null) - 1;
 
-                for (int i = 0; i < startToken; i++) {
+                for (var i = 0; i < startToken; i++) {
                     reader.read();
                 }
             }
@@ -143,9 +141,9 @@ public final class Tokenizer {
             int character;
             StringBuilder buffer = null;
             boolean continueLooping;
-            boolean escaped = false;
+            var escaped = false;
             do {
-                boolean f = true;
+                var f = true;
                 character = reader.read();
                 position++;
                 if (!escaped && isEscapeBegin(character)) {
@@ -155,10 +153,10 @@ public final class Tokenizer {
                 } else if (character == EOF || !escaped && isDelimiter(character)) {
                     f = false;
                     if (buffer != null) {
-                        String value = buffer.toString().trim();
+                        var value = buffer.toString().trim();
                         if (!value.isEmpty()) {
                             TextInterval location = LocationUtils.createTextInterval(startToken, position);
-                            IdentifierNode node = new IdentifierNode(TOKEN_TYPE, location, value, source);
+                            var node = new IdentifierNode(TOKEN_TYPE, location, value, source);
                             nodes.add(node);
                         }
                         buffer = null;
@@ -179,10 +177,10 @@ public final class Tokenizer {
                     } else {
                         /* if end of token then save last token */
                         if (buffer != null) {
-                            String value = buffer.toString().trim();
+                            var value = buffer.toString().trim();
                             if (!value.isEmpty()) {
                                 TextInterval location = LocationUtils.createTextInterval(startToken, position);
-                                IdentifierNode node = new IdentifierNode(TOKEN_TYPE, location, value, source);
+                                var node = new IdentifierNode(TOKEN_TYPE, location, value, source);
                                 nodes.add(node);
                             }
                             buffer = null;
@@ -214,7 +212,7 @@ public final class Tokenizer {
 
     private static Tokenizer getTokenizer(String delimiter) {
 
-        Tokenizer tokenizer = tokenizers.get(delimiter);
+        var tokenizer = tokenizers.get(delimiter);
 
         if (tokenizer == null) {
             tokenizer = new Tokenizer(delimiter);

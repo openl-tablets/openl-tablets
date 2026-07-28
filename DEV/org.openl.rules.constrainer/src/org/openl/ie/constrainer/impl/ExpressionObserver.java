@@ -55,8 +55,8 @@ public abstract class ExpressionObserver extends Observer {
 
         @Override
         public int publishToSubscribe(int publish_mask) {
-            int result_mask = 0;
-            for (int i = 0; i < _masks.length; i += 2) {
+            var result_mask = 0;
+            for (var i = 0; i < _masks.length; i += 2) {
                 if ((_masks[i + 1] & publish_mask) != 0) {
                     result_mask |= _masks[i];
                 }

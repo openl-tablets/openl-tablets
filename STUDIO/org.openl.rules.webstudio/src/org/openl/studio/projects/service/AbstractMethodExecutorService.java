@@ -10,7 +10,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -38,7 +37,7 @@ public abstract class AbstractMethodExecutorService {
                                                IOpenLTable table,
                                                boolean currentOpenedModule,
                                                IRulesRuntimeContext runtimeContext) {
-        String uri = table.getUri();
+        var uri = table.getUri();
         IOpenMethod method = currentOpenedModule
                 ? projectModel.getOpenedModuleMethod(uri)
                 : projectModel.getMethod(uri);
@@ -76,7 +75,7 @@ public abstract class AbstractMethodExecutorService {
         CompiledOpenClass compiledOpenClass = currentOpenedModule
                 ? projectModel.getOpenedModuleCompiledOpenClass()
                 : projectModel.getCompiledOpenClass();
-        IOpenClass moduleClass = compiledOpenClass.getOpenClassWithErrors();
+        var moduleClass = compiledOpenClass.getOpenClassWithErrors();
         if (moduleClass instanceof XlsModuleOpenClass xlsModuleOpenClass) {
             return xlsModuleOpenClass.getDataBase();
         }
@@ -98,7 +97,7 @@ public abstract class AbstractMethodExecutorService {
                                                             Callable<T> task) {
         listener.onStatusChanged(ExecutionStatus.STARTED);
         try {
-            T result = task.call();
+            var result = task.call();
 
             if (Thread.currentThread().isInterrupted()) {
                 listener.onStatusChanged(ExecutionStatus.INTERRUPTED);
@@ -121,7 +120,7 @@ public abstract class AbstractMethodExecutorService {
      * Checks if the exception is caused by thread interruption.
      */
     protected static boolean isInterruptedException(Throwable e) {
-        Throwable cause = e;
+        var cause = e;
         while (cause != null) {
             if (cause instanceof InterruptedException) {
                 return true;

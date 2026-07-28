@@ -1,7 +1,6 @@
 package org.openl.rules.validation;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,15 +36,15 @@ public class ActivePropertyValidator extends TablesValidator {
         // represented in current module. The only information about dependency
         // methods contains in openClass.
         //
-        Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = groupExecutableMethods(
+        var groupedMethods = groupExecutableMethods(
                 tableSyntaxNodes);
 
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        var messages = new LinkedHashSet<OpenLMessage>();
 
         for (DimensionPropertiesMethodKey key : groupedMethods.keySet()) {
             List<TableSyntaxNode> methodsGroup = groupedMethods.get(key);
-            List<TableSyntaxNode> activeExecutableMethodTable = new ArrayList<>();
-            int activeTableFoundCount = 0;
+            var activeExecutableMethodTable = new ArrayList<TableSyntaxNode>();
+            var activeTableFoundCount = 0;
 
             for (TableSyntaxNode executableMethodTable : methodsGroup) {
                 if (executableMethodTable.getMember() instanceof TestSuiteMethod) {
@@ -82,12 +81,12 @@ public class ActivePropertyValidator extends TablesValidator {
 
     private static Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupExecutableMethods(
             TableSyntaxNode[] tableSyntaxNodes) {
-        Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = new HashMap<>();
+        var groupedMethods = new HashMap<DimensionPropertiesMethodKey, List<TableSyntaxNode>>();
 
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             if (tsn.getMember() instanceof ExecutableRulesMethod) {
-                ExecutableRulesMethod executableMethod = (ExecutableRulesMethod) tsn.getMember();
-                DimensionPropertiesMethodKey key = new DimensionPropertiesMethodKey(executableMethod);
+                var executableMethod = (ExecutableRulesMethod) tsn.getMember();
+                var key = new DimensionPropertiesMethodKey(executableMethod);
                 if (!groupedMethods.containsKey(key)) {
                     groupedMethods.put(key, new ArrayList<>());
                 }

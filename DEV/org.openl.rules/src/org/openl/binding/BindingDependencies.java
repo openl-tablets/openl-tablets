@@ -78,7 +78,7 @@ public class BindingDependencies {
         }
         node.updateDependency(this);
         visit(node.getTargetNode());
-        IBoundNode[] ch = node.getChildren();
+        var ch = node.getChildren();
         if (ch != null) {
             for (IBoundNode child : ch) {
                 visit(child);

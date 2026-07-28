@@ -18,7 +18,6 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
-import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
@@ -58,7 +57,7 @@ public class RulesProject extends UserWorkspaceProject {
 
         FileData fullLocalFileData;
         if (localFileData != null && designFileData != null) {
-            String localVersion = localFileData.getVersion();
+            var localVersion = localFileData.getVersion();
             if (localVersion == null || localVersion.equals(designFileData.getVersion())) {
                 // Set the path for local repository, other properties are equal to design repository properties
                 fullLocalFileData = new FileData();
@@ -105,12 +104,12 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     private void save(CommonUser user, AdditionalData additionalData) throws ProjectException {
-        String oldVersion = getHistoryVersion();
-        FileData designData = new FileData();
+        var oldVersion = getHistoryVersion();
+        var designData = new FileData();
         designData.setName(designFolderName);
         designData.setVersion(oldVersion);
 
-        FileData fileData = getFileData();
+        var fileData = getFileData();
         for (AdditionalData value : fileData.getAdditionalData().values()) {
             designData.addAdditionalData(value);
         }
@@ -118,22 +117,22 @@ public class RulesProject extends UserWorkspaceProject {
         designData.addAdditionalData(additionalData);
         designData.setComment(fileData.getComment());
 
-        AProject designProject = new AProject(designRepository, designData);
-        AProject localProject = new AProject(localRepository, localFolderName);
-        String realPath = designProject.getRealPath();
+        var designProject = new AProject(designRepository, designData);
+        var localProject = new AProject(localRepository, localFolderName);
+        var realPath = designProject.getRealPath();
         designProject.update(localProject, user);
 
         // Process saved data
         if (designRepository.supports().mappedFolders()) {
             // Project can be renamed.
-            String mappedName = ((FolderMapper) designRepository).findMappedName(realPath);
+            var mappedName = ((FolderMapper) designRepository).findMappedName(realPath);
             if (mappedName == null) {
                 designFolderName = designProject.getFileData().getName();
             } else {
                 designFolderName = mappedName;
             }
         }
-        String version = designProject.getFileData().getVersion();
+        var version = designProject.getFileData().getVersion();
         setLastHistoryVersion(version);
         setHistoryVersion(version);
 
@@ -145,7 +144,7 @@ public class RulesProject extends UserWorkspaceProject {
             // If there are additional commits (merge commits) we cannot assume that their hash codes are same as for
             // local files.
             List<FileData> fileDatas = getHistoryFileDatas();
-            boolean extraCommits = (fileDatas.size() > 1 && !fileDatas.get(fileDatas.size() - 2)
+            var extraCommits = (fileDatas.size() > 1 && !fileDatas.get(fileDatas.size() - 2)
                     .getVersion()
                     .equals(oldVersion)) || additionalData instanceof ConflictResolveData;
             if (extraCommits) {
@@ -204,7 +203,7 @@ public class RulesProject extends UserWorkspaceProject {
                 if (!deleted) {
                     try {
                         if (localRepository.check(fileData.getName()) != null) {
-                            String message = "Cannot close project because resource '%s' is used".formatted(
+                            var message = "Cannot close project because resource '%s' is used".formatted(
                                     fileData.getName());
                             if (deleteCause == null) {
                                 throw new ProjectException(message);
@@ -219,7 +218,7 @@ public class RulesProject extends UserWorkspaceProject {
             }
 
             // Delete empty folders. They won't be deleted in the code above.
-            FileData folderData = new FileData();
+            var folderData = new FileData();
             folderData.setName(localFolderName);
             localRepository.delete(folderData);
         } catch (IOException e) {
@@ -269,13 +268,13 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public String getLockedUserName() {
-        LockInfo lockInfo = getLockInfo();
+        var lockInfo = getLockInfo();
         return lockInfo.isLocked() ? lockInfo.getLockedBy() : "";
     }
 
     @Override
     public ProjectVersion getVersion() {
-        String historyVersion = getHistoryVersion();
+        var historyVersion = getHistoryVersion();
         if (historyVersion == null) {
             if (designFolderName != null) {
                 try {
@@ -309,14 +308,14 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public boolean hasArtefactVersions(ArtefactPath artefactPath) {
-        String subPath = artefactPath.getStringValue();
+        var subPath = artefactPath.getStringValue();
         if (subPath.isEmpty() || subPath.equals("/")) {
             return getLastHistoryVersion() != null;
         }
         if (!subPath.startsWith("/")) {
             subPath = "/" + subPath;
         }
-        String fullPath = getFolderPath() + subPath;
+        var fullPath = getFolderPath() + subPath;
         try {
             return getRepository().check(fullPath) != null;
         } catch (IOException ex) {
@@ -341,7 +340,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void openVersion(String version) throws ProjectException {
-        AProject designProject = new AProject(designRepository, designFolderName, version);
+        var designProject = new AProject(designRepository, designFolderName, version);
 
         if (localFolderName == null) {
             localFolderName = designProject.getBusinessName();
@@ -350,12 +349,12 @@ public class RulesProject extends UserWorkspaceProject {
         // The file copy and the record write are one atomic step for the registry, so a concurrent
         // registry refresh cannot treat the half-open project as garbage.
         localRepository.getMetainfoRegistry().runLocked(localFolderName, () -> {
-            AProject localProject = new AProject(localRepository, localFolderName);
+            var localProject = new AProject(localRepository, localFolderName);
             localProject.update(designProject, getUser());
             setRepository(localRepository);
             setFolderPath(localFolderName);
 
-            String designVersion = Optional.ofNullable(designProject.getFileData())
+            var designVersion = Optional.ofNullable(designProject.getFileData())
                     .map(FileData::getVersion)
                     .orElseThrow(() -> new ProjectException("Cannot open. Revision not found."));
             setHistoryVersion(designVersion);
@@ -372,24 +371,24 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     protected FileData getFileDataForUnversionableRepo(Repository repository) {
-        Repository designRepository = getDesignRepository();
+        var designRepository = getDesignRepository();
         // Unwrap delegate repository to get real repository, because delegate repository can be secured.
         // Get file data can't be secured, because it's used in security check to build identity.
         while (designRepository instanceof RepositoryDelegate) {
             designRepository = ((RepositoryDelegate) designRepository).getOriginal();
         }
         if (isLocalOnly()) {
-            FileData fileData = super.getFileDataForUnversionableRepo(repository);
+            var fileData = super.getFileDataForUnversionableRepo(repository);
             if (designRepository != null && designRepository.supports().branches()) {
                 fileData.setBranch(((BranchRepository) designRepository).getBranch());
             }
             return fileData;
         }
 
-        String version = getHistoryVersion();
+        var version = getHistoryVersion();
         String actualVersion = version == null ? getLastHistoryVersion() : version;
 
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName(getFolderPath());
         fileData.setVersion(actualVersion);
 
@@ -399,7 +398,7 @@ public class RulesProject extends UserWorkspaceProject {
 
         if (actualVersion != null) {
             try {
-                FileData repoData = designRepository.checkHistory(designFolderName, actualVersion);
+                var repoData = designRepository.checkHistory(designFolderName, actualVersion);
                 if (repoData != null) {
                     fileData.setAuthor(repoData.getAuthor());
                     fileData.setModifiedAt(repoData.getModifiedAt());
@@ -407,7 +406,7 @@ public class RulesProject extends UserWorkspaceProject {
                     fileData.setSize(repoData.getSize());
                     fileData.setDeleted(repoData.isDeleted());
                     fileData.setUniqueId(repoData.getUniqueId());
-                    FileMappingData mappingData = repoData.getAdditionalData(FileMappingData.class);
+                    var mappingData = repoData.getAdditionalData(FileMappingData.class);
                     if (mappingData != null) {
                         fileData.addAdditionalData(mappingData);
                     } else if (!designRepository.supports().mappedFolders()) {
@@ -427,7 +426,7 @@ public class RulesProject extends UserWorkspaceProject {
     protected String findLastHistoryVersion() {
         if (designFolderName != null) {
             try {
-                FileData fileData = designRepository.check(designFolderName);
+                var fileData = designRepository.check(designFolderName);
                 if (fileData != null) {
                     return fileData.getVersion();
                 }
@@ -439,7 +438,7 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     private void resetLocalFileData() {
-        FileData fileData = getFileData();
+        var fileData = getFileData();
         if (designRepository.supports().branches()) {
             fileData.setBranch(((BranchRepository) designRepository).getBranch());
         }
@@ -458,7 +457,7 @@ public class RulesProject extends UserWorkspaceProject {
         try {
             Map<String, String> designUniqueIds = designUniqueIds();
             for (FileData localData : localRepository.list(localFolderName + "/")) {
-                String path = localData.getName().substring(localFolderName.length());
+                var path = localData.getName().substring(localFolderName.length());
                 baselines.put(path,
                         new ProjectMetainfo.FileBaseline(designUniqueIds.get(path),
                                 localData.getSize(),
@@ -477,14 +476,14 @@ public class RulesProject extends UserWorkspaceProject {
         if (!designRepository.supports().folders() || !designRepository.supports().uniqueFileId()) {
             return Map.of();
         }
-        String fromFilePath = designFolderName + "/";
-        String historyVersion = getHistoryVersion();
+        var fromFilePath = designFolderName + "/";
+        var historyVersion = getHistoryVersion();
         List<FileData> designFiles = historyVersion != null
                 ? designRepository.listFiles(fromFilePath, historyVersion)
                 : designRepository.list(fromFilePath);
         var uniqueIds = new HashMap<String, String>();
         for (FileData designData : designFiles) {
-            String uniqueId = designData.getUniqueId();
+            var uniqueId = designData.getUniqueId();
             if (uniqueId != null) {
                 uniqueIds.put(designData.getName().substring(designFolderName.length()), uniqueId);
             }
@@ -546,9 +545,9 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public String getRealPath() {
         if (isLocalOnly()) {
-            ProjectState state = localRepository.getProjectState(getFolderPath());
+            var state = localRepository.getProjectState(getFolderPath());
             if (state.getFileData() != null) {
-                FileMappingData mappingData = state.getFileData().getAdditionalData(FileMappingData.class);
+                var mappingData = state.getFileData().getAdditionalData(FileMappingData.class);
                 if (mappingData != null) {
                     return mappingData.getInternalPath();
                 }
@@ -556,17 +555,17 @@ public class RulesProject extends UserWorkspaceProject {
 
             return localFolderName;
         }
-        String folderPath = getDesignFolderName();
-        Repository repository = getDesignRepository();
+        var folderPath = getDesignFolderName();
+        var repository = getDesignRepository();
         if (repository.supports().mappedFolders()) {
             if (isOpened()) {
-                ProjectState state = localRepository.getProjectState(getFolderPath());
+                var state = localRepository.getProjectState(getFolderPath());
                 FileMappingData mappingData = null;
                 if (state.getFileData() != null) {
                     mappingData = state.getFileData().getAdditionalData(FileMappingData.class);
                 }
                 if (mappingData == null) {
-                    final FileData fileData = getFileData();
+                    final var fileData = getFileData();
                     if (fileData != null) {
                         mappingData = fileData.getAdditionalData(FileMappingData.class);
                     }
@@ -586,11 +585,11 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public String getMainBusinessName() {
-        Repository repository = getDesignRepository();
+        var repository = getDesignRepository();
         if (repository == null) {
             return getBusinessName();
         }
-        String folderPath = getDesignFolderName();
+        var folderPath = getDesignFolderName();
         if (repository.supports().mappedFolders()) {
             folderPath = ((FolderMapper) repository).getBusinessName(folderPath);
         }

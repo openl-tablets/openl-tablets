@@ -11,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.studio.projects.model.ProjectIdModel;
-import org.openl.studio.projects.service.ExecutionProgressListener;
 import org.openl.studio.projects.service.ExecutionStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,7 +38,7 @@ class SocketRunExecutionProgressListenerFactoryTest {
 
     @Test
     void onStatusChanged_pending() {
-        ExecutionProgressListener listener = factory.create(user, projectId, TABLE_ID);
+        var listener = factory.create(user, projectId, TABLE_ID);
 
         listener.onStatusChanged(ExecutionStatus.PENDING);
 
@@ -49,7 +48,7 @@ class SocketRunExecutionProgressListenerFactoryTest {
 
     @Test
     void onStatusChanged_started() {
-        ExecutionProgressListener listener = factory.create(user, projectId, TABLE_ID);
+        var listener = factory.create(user, projectId, TABLE_ID);
 
         listener.onStatusChanged(ExecutionStatus.STARTED);
 
@@ -58,7 +57,7 @@ class SocketRunExecutionProgressListenerFactoryTest {
 
     @Test
     void onStatusChanged_completed() {
-        ExecutionProgressListener listener = factory.create(user, projectId, TABLE_ID);
+        var listener = factory.create(user, projectId, TABLE_ID);
 
         listener.onStatusChanged(ExecutionStatus.COMPLETED);
 
@@ -67,7 +66,7 @@ class SocketRunExecutionProgressListenerFactoryTest {
 
     @Test
     void onError() {
-        ExecutionProgressListener listener = factory.create(user, projectId, TABLE_ID);
+        var listener = factory.create(user, projectId, TABLE_ID);
         var cause = new RuntimeException("test error");
 
         listener.onError("Something failed", cause);
@@ -78,7 +77,7 @@ class SocketRunExecutionProgressListenerFactoryTest {
 
     @Test
     void onError_nullCause() {
-        ExecutionProgressListener listener = factory.create(user, projectId, TABLE_ID);
+        var listener = factory.create(user, projectId, TABLE_ID);
 
         listener.onError("Null cause error", null);
 
@@ -87,7 +86,7 @@ class SocketRunExecutionProgressListenerFactoryTest {
 
     @Test
     void multipleStatusChanges() {
-        ExecutionProgressListener listener = factory.create(user, projectId, TABLE_ID);
+        var listener = factory.create(user, projectId, TABLE_ID);
 
         listener.onStatusChanged(ExecutionStatus.PENDING);
         listener.onStatusChanged(ExecutionStatus.STARTED);

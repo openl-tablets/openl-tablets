@@ -1,7 +1,6 @@
 package org.openl.studio.projects.service.tables.read;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.stereotype.Component;
 
@@ -33,8 +32,8 @@ public class DatatypeTableReader extends EditableTableReader<DatatypeView, Datat
         var table = tsn.getTableBody();
         var cellValueReader = new CellValueReader(metaInfoReader);
         if (table != null) {
-            List<DatatypeFieldView> fields = new ArrayList<>();
-            for (int rowId = 0; rowId < table.getHeight(); rowId++) {
+            var fields = new ArrayList<DatatypeFieldView>();
+            for (var rowId = 0; rowId < table.getHeight(); rowId++) {
                 var row = table.getRow(rowId);
                 var fieldBuilder = DatatypeFieldView.builder()
                         .type(row.getCell(DatatypeTableWriter.TYPE_COLUMN, 0).getStringValue())
@@ -57,7 +56,7 @@ public class DatatypeTableReader extends EditableTableReader<DatatypeView, Datat
     }
 
     private static String getExtendsType(String headerSource) {
-        int pos1 = headerSource.indexOf(DatatypeTableWriter.EXTENDS_KEYWORD);
+        var pos1 = headerSource.indexOf(DatatypeTableWriter.EXTENDS_KEYWORD);
         if (pos1 < 0) {
             return null;
         }

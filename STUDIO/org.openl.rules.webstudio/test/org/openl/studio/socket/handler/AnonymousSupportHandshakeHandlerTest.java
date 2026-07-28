@@ -3,7 +3,6 @@ package org.openl.studio.socket.handler;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import java.security.Principal;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -22,7 +21,7 @@ class AnonymousSupportHandshakeHandlerTest {
 
     @Test
     void prefersServletPrincipalWhenPresent() {
-        Principal servletPrincipal = new UsernamePasswordAuthenticationToken("session-user", "n/a", List.of());
+        var servletPrincipal = new UsernamePasswordAuthenticationToken("session-user", "n/a", List.of());
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken("other", "n/a", List.of()));
 

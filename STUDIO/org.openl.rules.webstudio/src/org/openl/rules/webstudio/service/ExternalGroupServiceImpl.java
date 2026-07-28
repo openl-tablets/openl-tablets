@@ -49,7 +49,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     @Override
     public void mergeAllForUser(String loginName, Collection<? extends GrantedAuthority> externalGroups) {
         var lock = lockRegistry.obtain("externalGroupMergeLock_" + loginName);
-        boolean lockAcquired = false;
+        var lockAcquired = false;
         try {
             lockAcquired = lock.tryLock(30, TimeUnit.SECONDS);
             if (!lockAcquired) {
@@ -147,8 +147,8 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
 
                 @Override
                 public ExternalGroup next() {
-                    GrantedAuthority group = it.next();
-                    ExternalGroup externalGroup = new ExternalGroup();
+                    var group = it.next();
+                    var externalGroup = new ExternalGroup();
                     externalGroup.setLoginName(loginName);
                     externalGroup.setGroupName(group.getAuthority());
                     return externalGroup;

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.java.JavaOpenClass;
 
 class OpenLClassCastsTest {
@@ -24,9 +23,9 @@ class OpenLClassCastsTest {
     void testCastDistances() {
         JavaOpenClass integerClass = JavaOpenClass.getOpenClass(Integer.class);
 
-        IOpenCast autoboxing = castFactory.getCast(integerClass, JavaOpenClass.INT);
-        IOpenCast autoboxingWithAutocast = castFactory.getCast(integerClass, JavaOpenClass.DOUBLE);
-        IOpenCast cast = castFactory.getCast(JavaOpenClass.DOUBLE, JavaOpenClass.INT);
+        var autoboxing = castFactory.getCast(integerClass, JavaOpenClass.INT);
+        var autoboxingWithAutocast = castFactory.getCast(integerClass, JavaOpenClass.DOUBLE);
+        var cast = castFactory.getCast(JavaOpenClass.DOUBLE, JavaOpenClass.INT);
         assertTrue(autoboxing.getDistance() < autoboxingWithAutocast.getDistance());
         assertTrue(autoboxingWithAutocast.getDistance() < cast.getDistance());
     }
@@ -34,7 +33,7 @@ class OpenLClassCastsTest {
     @Test
     void testBoxingUpCast() {
         JavaOpenClass comparableClass = JavaOpenClass.getOpenClass(Comparable.class);
-        IOpenCast cast = castFactory.getCast(JavaOpenClass.INT, comparableClass);
+        var cast = castFactory.getCast(JavaOpenClass.INT, comparableClass);
         assertNotNull(cast);
         assertEquals(CastFactory.JAVA_BOXING_UP_CAST_DISTANCE, cast.getDistance());
 
@@ -47,10 +46,10 @@ class OpenLClassCastsTest {
     void testCastFromPrimitiveToOtherPrimitiveWrapper() throws Exception {
         JavaOpenClass doubleWrapperClass = JavaOpenClass.getOpenClass(Double.class);
 
-        IOpenCast autocast = castFactory.getCast(JavaOpenClass.INT, doubleWrapperClass);
+        var autocast = castFactory.getCast(JavaOpenClass.INT, doubleWrapperClass);
         assertNotNull(autocast);
 
-        IOpenCast autocastNoBoxing = castFactory.getCast(JavaOpenClass.INT, JavaOpenClass.DOUBLE);
+        var autocastNoBoxing = castFactory.getCast(JavaOpenClass.INT, JavaOpenClass.DOUBLE);
         assertTrue(autocastNoBoxing.getDistance() < autocast.getDistance());
     }
 

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,7 @@ class BeanOpenFieldTest {
 
     @Test
     void testBeanJavaSpecification() {
-        Map<String, IOpenField> fieldsMap = new HashMap<>();
+        var fieldsMap = new HashMap<String, IOpenField>();
         BeanOpenField.collectFields(fieldsMap, BeanJavaSpecification.class);
 
         assertEquals(2, fieldsMap.size());
@@ -27,7 +26,7 @@ class BeanOpenFieldTest {
 
     @Test
     void testBeanNONJavaSpecification() {
-        Map<String, IOpenField> fieldsMap = new HashMap<>();
+        var fieldsMap = new HashMap<String, IOpenField>();
         BeanOpenField.collectFields(fieldsMap, BeanNONJavaSpecification.class);
 
         assertEquals(2, fieldsMap.size());

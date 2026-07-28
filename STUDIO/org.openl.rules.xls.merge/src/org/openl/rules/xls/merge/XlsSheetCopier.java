@@ -3,38 +3,30 @@ package org.openl.rules.xls.merge;
 import static org.openl.rules.xls.merge.XlsSheetsMatcher.getCommentAuthor;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Shape;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFPicture;
-import org.apache.poi.xssf.usermodel.XSSFPictureData;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTBlip;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTBlipFillProperties;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTAbsoluteAnchor;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTOneCellAnchor;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTPicture;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTTwoCellAnchor;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
 /**
  * This service copies all content from one sheet to another
@@ -76,7 +68,7 @@ public final class XlsSheetCopier {
      */
     private static void copySheet(Cursor src, Cursor dest) throws IOException {
         dest.workbook.setSheetHidden(dest.getSheetIndex(), src.isSheetHidden());
-        for (int rowNum = src.sheet.getFirstRowNum(); rowNum <= src.sheet.getLastRowNum(); rowNum++) {
+        for (var rowNum = src.sheet.getFirstRowNum(); rowNum <= src.sheet.getLastRowNum(); rowNum++) {
             if (rowNum < 0) {
                 break;
             }
@@ -100,11 +92,11 @@ public final class XlsSheetCopier {
      */
     private static void removeAllRows(Sheet sheet) {
         // for some reason removing of merge regions doesn't work with normal loop
-        for (int i = sheet.getNumMergedRegions() - 1; i >= 0; i--) {
+        for (var i = sheet.getNumMergedRegions() - 1; i >= 0; i--) {
             sheet.removeMergedRegion(i);
         }
-        for (int rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum(); rowNum++) {
-            Row row = sheet.getRow(rowNum);
+        for (var rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum(); rowNum++) {
+            var row = sheet.getRow(rowNum);
             if (row != null) {
                 sheet.removeRow(row);
             }
@@ -119,7 +111,7 @@ public final class XlsSheetCopier {
      */
     private static void copyRow(Cursor src, Cursor dest) {
         dest.row.setHeight(src.row.getHeight());
-        for (int cellNum = src.row.getFirstCellNum(); cellNum <= src.row.getLastCellNum(); cellNum++) {
+        for (var cellNum = src.row.getFirstCellNum(); cellNum <= src.row.getLastCellNum(); cellNum++) {
             if (cellNum < 0) {
                 break;
             }
@@ -178,8 +170,8 @@ public final class XlsSheetCopier {
             // nothing to copy
             return;
         }
-        int numCellStyles = dest.workbook.getNumCellStyles();
-        for (int i = 0; i < numCellStyles; i++) {
+        var numCellStyles = dest.workbook.getNumCellStyles();
+        for (var i = 0; i < numCellStyles; i++) {
             dest.cellStyle = dest.workbook.getCellStyleAt(i);
             if (XlsSheetsMatcher.equalStylesInCell(src, dest)) {
                 // reuse cell styles
@@ -193,9 +185,9 @@ public final class XlsSheetCopier {
         dest.cellStyle.setDataFormat(src.cellStyle.getDataFormat());
 
         if (dest.cellStyle instanceof XSSFCellStyle style) {
-            CTXf coreCtxf = style.getCoreXf();
-            long styleId = coreCtxf.getXfId();
-            StylesTable stylesSource = ((XSSFWorkbook) dest.originalWorkbook()).getStylesSource();
+            var coreCtxf = style.getCoreXf();
+            var styleId = coreCtxf.getXfId();
+            var stylesSource = ((XSSFWorkbook) dest.originalWorkbook()).getStylesSource();
             if (stylesSource.getCellStyleXfAt((int) styleId) == null) {
                 // if parent style doesn't exist in the table, just reset it
                 coreCtxf.setXfId(0);
@@ -212,17 +204,17 @@ public final class XlsSheetCopier {
      * @param dest destination
      */
     private static void copyComment(Cursor src, Cursor dest) {
-        ClientAnchor srcClientAnchor = src.comment.getClientAnchor();
+        var srcClientAnchor = src.comment.getClientAnchor();
         if (dest.cell.getCellComment() != null) {
             dest.comment = dest.cell.getCellComment();
-            ClientAnchor destClientAnchor = dest.comment.getClientAnchor();
+            var destClientAnchor = dest.comment.getClientAnchor();
             copyClientAnchor(srcClientAnchor, destClientAnchor);
         } else {
             // Apache POI doesn't support properly threaded comments
             // see https://bz.apache.org/bugzilla/show_bug.cgi?id=65462
             // So they may coppied incorrectly
-            CreationHelper creationHelper = dest.workbook.getCreationHelper();
-            ClientAnchor destClientAnchor = creationHelper.createClientAnchor();
+            var creationHelper = dest.workbook.getCreationHelper();
+            var destClientAnchor = creationHelper.createClientAnchor();
             // raw comment initialization without resize
             destClientAnchor.setRow1(dest.cell.getRowIndex());
             destClientAnchor.setRow2(dest.cell.getRowIndex());
@@ -269,8 +261,8 @@ public final class XlsSheetCopier {
             return;
         }
 
-        XSSFDrawing srcDrawing = (XSSFDrawing) src.sheet.getDrawingPatriarch();
-        XSSFDrawing destDrawing = (XSSFDrawing) dest.sheet.getDrawingPatriarch();
+        var srcDrawing = (XSSFDrawing) src.sheet.getDrawingPatriarch();
+        var destDrawing = (XSSFDrawing) dest.sheet.getDrawingPatriarch();
         if (srcDrawing == null) {
             if (destDrawing != null) {
                 for (Shape shape : destDrawing.getShapes()) {
@@ -288,7 +280,7 @@ public final class XlsSheetCopier {
                 .map(XSSFPicture.class::cast)
                 .collect(Collectors.toMap(XSSFPicture::getShapeName, Function.identity()));
 
-        Map<String, XSSFPicture> pictures1 = pictureGroup.apply(srcDrawing);
+        var pictures1 = pictureGroup.apply(srcDrawing);
         if (destDrawing == null) {
             for (XSSFPicture srcPicture : pictures1.values()) {
                 src.picture = srcPicture;
@@ -296,12 +288,12 @@ public final class XlsSheetCopier {
                 src.picture = null;
             }
         } else {
-            Map<String, XSSFPicture> pictures2 = pictureGroup.apply(destDrawing);
+            var pictures2 = pictureGroup.apply(destDrawing);
             for (Map.Entry<String, XSSFPicture> entry : pictures1.entrySet()) {
                 src.picture = entry.getValue();
-                XSSFPicture destPic = pictures2.get(entry.getKey());
+                var destPic = pictures2.get(entry.getKey());
                 if (destPic != null) {
-                    try (OutputStream os = destPic.getPictureData().getPackagePart().getOutputStream()) {
+                    try (var os = destPic.getPictureData().getPackagePart().getOutputStream()) {
                         os.write(src.picture.getPictureData().getData());
                     }
                 } else {
@@ -324,23 +316,23 @@ public final class XlsSheetCopier {
      * @param picture to delete
      */
     private static void deletePicture(XSSFPicture picture) {
-        String id = Optional.ofNullable(picture.getCTPicture())
+        var id = Optional.ofNullable(picture.getCTPicture())
                 .map(CTPicture::getBlipFill)
                 .map(CTBlipFillProperties::getBlip)
                 .map(CTBlip::getEmbed)
                 .orElse(null);
-        XSSFDrawing drawing = picture.getDrawing();
+        var drawing = picture.getDrawing();
         if (id != null) {
-            PackagePart packagePart = drawing.getPackagePart();
+            var packagePart = drawing.getPackagePart();
             packagePart.removeRelationship(id);
             packagePart.getPackage()
                     .deletePartRecursive(drawing.getRelationPartById(id).getDocumentPart().getPackagePart().getPartName());
         }
 
-        try (XmlCursor cursor = picture.getCTPicture().newCursor()) {
+        try (var cursor = picture.getCTPicture().newCursor()) {
             cursor.toParent();
             if (cursor.getObject() instanceof CTTwoCellAnchor) {
-                int i = 0;
+                var i = 0;
                 for (CTTwoCellAnchor anchor : drawing.getCTDrawing().getTwoCellAnchorArray()) {
                     if (cursor.getObject().equals(anchor)) {
                         drawing.getCTDrawing().removeTwoCellAnchor(i);
@@ -349,7 +341,7 @@ public final class XlsSheetCopier {
                     i++;
                 }
             } else if (cursor.getObject() instanceof CTOneCellAnchor) {
-                int i = 0;
+                var i = 0;
                 for (CTOneCellAnchor anchor : drawing.getCTDrawing().getOneCellAnchorArray()) {
                     if (cursor.getObject().equals(anchor)) {
                         drawing.getCTDrawing().removeOneCellAnchor(i);
@@ -358,7 +350,7 @@ public final class XlsSheetCopier {
                     i++;
                 }
             } else if (cursor.getObject() instanceof CTAbsoluteAnchor) {
-                int i = 0;
+                var i = 0;
                 for (CTAbsoluteAnchor anchor : drawing.getCTDrawing().getAbsoluteAnchorArray()) {
                     if (cursor.getObject().equals(anchor)) {
                         drawing.getCTDrawing().removeAbsoluteAnchor(i);
@@ -377,13 +369,13 @@ public final class XlsSheetCopier {
      * @param dest destination
      */
     private static void createPicture(Cursor src, Cursor dest) {
-        CreationHelper creationHelper = dest.workbook.getCreationHelper();
-        ClientAnchor srcClientAnchor = src.picture.getClientAnchor();
-        ClientAnchor destClientAnchor = creationHelper.createClientAnchor();
+        var creationHelper = dest.workbook.getCreationHelper();
+        var srcClientAnchor = src.picture.getClientAnchor();
+        var destClientAnchor = creationHelper.createClientAnchor();
         copyClientAnchor(srcClientAnchor, destClientAnchor);
 
-        XSSFPictureData srcPictureData = src.picture.getPictureData();
-        int pictureIdx = dest.workbook.addPicture(srcPictureData.getData(), srcPictureData.getPictureType());
+        var srcPictureData = src.picture.getPictureData();
+        var pictureIdx = dest.workbook.addPicture(srcPictureData.getData(), srcPictureData.getPictureType());
         Drawing<?> destDrawing = dest.sheet.getDrawingPatriarch();
         if (destDrawing == null) {
             destDrawing = dest.sheet.createDrawingPatriarch();

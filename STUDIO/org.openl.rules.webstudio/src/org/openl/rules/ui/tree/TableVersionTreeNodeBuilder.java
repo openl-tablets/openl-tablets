@@ -2,7 +2,6 @@ package org.openl.rules.ui.tree;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.IProjectTypes;
 
 /**
@@ -16,8 +15,8 @@ public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        ITableProperties tableProperties = tsn.getTableProperties();
+        var tsn = (TableSyntaxNode) nodeObject;
+        var tableProperties = tsn.getTableProperties();
 
         String name = null;
         String display = null;
@@ -37,20 +36,20 @@ public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
             version = VERSION_NOT_SPECIFIED;
         }
 
-        String sfx = " [" + version + "]";
+        var sfx = " [" + version + "]";
 
         return new String[]{name + sfx, display + sfx, display + sfx};
     }
 
     @Override
     public String getType(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
+        var tsn = (TableSyntaxNode) nodeObject;
         return "%s.%s".formatted(IProjectTypes.PT_TABLE, tsn.getType()).intern();
     }
 
     @Override
     public String getUrl(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
+        var tsn = (TableSyntaxNode) nodeObject;
         return tsn.getUri();
     }
 }

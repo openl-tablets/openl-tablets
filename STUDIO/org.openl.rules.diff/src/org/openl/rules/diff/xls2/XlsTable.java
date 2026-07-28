@@ -5,7 +5,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.syntax.GridLocation;
-import org.openl.source.IOpenSourceCodeModule;
 
 public class XlsTable {
     private final TableSyntaxNode node;
@@ -17,12 +16,12 @@ public class XlsTable {
     }
 
     public String getSheetName() {
-        IOpenSourceCodeModule sheet = node.getModule();
+        var sheet = node.getModule();
         return ((XlsSheetSourceCodeModule) sheet).getSheetName();
     }
 
     public String getTableName() {
-        String header = table.getGridTable().getCell(0, 0).getStringValue();
+        var header = table.getGridTable().getCell(0, 0).getStringValue();
         return header == null ? "" : header;
     }
 

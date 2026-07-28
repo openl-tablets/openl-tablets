@@ -5,7 +5,6 @@ import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,6 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -37,7 +35,7 @@ public class TableViewer {
     private final boolean smartNumbers;
 
     private void setStyle(ICell cell, CellModel cm) {
-        ICellStyle style = cell.getStyle();
+        var style = cell.getStyle();
 
         if (style == null) {
             return;
@@ -66,7 +64,7 @@ public class TableViewer {
             cm.setIndent(style.getIndent());
         }
 
-        short[] rgb = style.getFillForegroundColor();
+        var rgb = style.getFillForegroundColor();
         cm.setRgbBackground(rgb);
 
         cm.setFont(cell.getFont());
@@ -127,7 +125,7 @@ public class TableViewer {
             }
         }
 
-        ICellComment cellComment = cell.getComment();
+        var cellComment = cell.getComment();
         cm.setComment(cellComment != null ? cellComment.getText() : null);
 
         setStyle(cell, cm);
@@ -148,13 +146,13 @@ public class TableViewer {
 
     private String createCellWithMetaInfo(String formattedValue, CellMetaInfo metaInfo, boolean addUri) {
         try {
-            int nextSymbolIndex = 0;
-            StringBuilder buff = new StringBuilder();
+            var nextSymbolIndex = 0;
+            var buff = new StringBuilder();
             if (metaInfo.getUsedNodes() != null) {
                 for (NodeUsage nodeUsage : metaInfo.getUsedNodes()) {
-                    int pstart = nodeUsage.getStart();
-                    int pend = nodeUsage.getEnd();
-                    String tableUri = nodeUsage.getUri();
+                    var pstart = nodeUsage.getStart();
+                    var pend = nodeUsage.getEnd();
+                    var tableUri = nodeUsage.getUri();
                     buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart)));
                     // add link to used table with signature in tooltip
                     buff.append("<span class=\"title")
@@ -198,15 +196,15 @@ public class TableViewer {
     }
 
     public TableModel buildModel(IGridTable gt, int numRowsToDisplay, List<ICell> modifiedCells, IGridRegion region) {
-        int h = IGridRegion.Tool.height(region);
-        int w = IGridRegion.Tool.width(region);
+        var h = IGridRegion.Tool.height(region);
+        var w = IGridRegion.Tool.width(region);
 
-        boolean showHeader = true;
+        var showHeader = true;
         if ("business".equals(view)) {
             showHeader = false;
         }
 
-        TableModel tm = new TableModel(w, h, gt, showHeader);
+        var tm = new TableModel(w, h, gt, showHeader);
         tm.setNumRowsToDisplay(numRowsToDisplay);
 
         if (gt.getGrid() instanceof CompositeGrid) {
@@ -216,8 +214,8 @@ public class TableViewer {
         }
 
         if (modifiedCells != null) {
-            Set<Integer> modifiedRows = modifiedCells.stream().map(ICell::getRow).collect(Collectors.toSet());
-            int lastModifiedRow = modifiedRows.stream().max(Integer::compareTo).orElse(0);
+            var modifiedRows = modifiedCells.stream().map(ICell::getRow).collect(Collectors.toSet());
+            var lastModifiedRow = modifiedRows.stream().max(Integer::compareTo).orElse(0);
             if (lastModifiedRow >= h) {
                 tm = new TableModel(w, lastModifiedRow + 1, gt, showHeader);
             }
@@ -229,13 +227,13 @@ public class TableViewer {
                 }
             }
             for (int row : modifiedRows) {
-                int gridRow = row + region.getTop();
-                long count = modifiedCells.stream().filter(c -> c.getRow() == row).count();
+                var gridRow = row + region.getTop();
+                var count = modifiedCells.stream().filter(c -> c.getRow() == row).count();
                 addDisplayedCellToTableModel(tm, gridRow, row, region, count == w ? modifiedCells : null);
             }
         } else {
-            for (int gridRow = region.getTop(); gridRow <= region.getBottom(); gridRow++) {
-                int row = gridRow - region.getTop();
+            for (var gridRow = region.getTop(); gridRow <= region.getBottom(); gridRow++) {
+                var row = gridRow - region.getTop();
                 addDisplayedCellToTableModel(tm, gridRow, row, region, null);
             }
         }
@@ -249,8 +247,8 @@ public class TableViewer {
                                               int displayedRowIndex,
                                               IGridRegion region,
                                               List<ICell> modifiedCells) {
-        for (int column = region.getLeft(); column <= region.getRight(); column++) {
-            int c = column - region.getLeft();
+        for (var column = region.getLeft(); column <= region.getRight(); column++) {
+            var c = column - region.getLeft();
             if (tm.hasCell(displayedRowIndex, c)) {
                 continue;
             }
@@ -260,14 +258,14 @@ public class TableViewer {
                         .filter(v -> v.getRow() == displayedRowIndex && v.getColumn() == c)
                         .findFirst();
             }
-            ICell cell = changedCell.orElse(grid.getCell(column, gridRow));
-            CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
-            CellModel cm = buildCell(cell, new CellModel(displayedRowIndex, c), metaInfo);
+            var cell = changedCell.orElse(grid.getCell(column, gridRow));
+            var metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
+            var cm = buildCell(cell, new CellModel(displayedRowIndex, c), metaInfo);
             tm.addCell(cm, displayedRowIndex, c);
             if (cm.getColspan() > 1 || cm.getRowspan() > 1) {
-                CellModelDelegator cmd = new CellModelDelegator(cm);
-                for (int i = 0; i < cm.getRowspan(); i++) {
-                    for (int j = 0; j < cm.getColspan(); j++) {
+                var cmd = new CellModelDelegator(cm);
+                for (var i = 0; i < cm.getRowspan(); i++) {
+                    for (var j = 0; j < cm.getColspan(); j++) {
                         if (i == 0 && j == 0) {
                             continue;
                         }
@@ -284,13 +282,13 @@ public class TableViewer {
         org.apache.poi.ss.usermodel.BorderStyle xlsStyle;
         short[] rgb;
 
-        org.apache.poi.ss.usermodel.BorderStyle[] bss = cs.getBorderStyle();
+        var bss = cs.getBorderStyle();
         xlsStyle = bss == null ? org.apache.poi.ss.usermodel.BorderStyle.NONE : bss[side];
 
-        short[][] rgbb = cs.getBorderRGB();
+        var rgbb = cs.getBorderRGB();
         rgb = rgbb == null ? new short[]{0, 0, 0} : rgbb[side];
 
-        BorderStyle bs = new BorderStyle();
+        var bs = new BorderStyle();
         bs.setRgb(rgb);
         switch (xlsStyle) {
             case NONE -> {
@@ -338,7 +336,7 @@ public class TableViewer {
     }
 
     int getColSpan(ICell cell) {
-        IGridRegion gr = cell.getRegion();
+        var gr = cell.getRegion();
         if (gr == null) {
             return 1;
         }
@@ -347,7 +345,7 @@ public class TableViewer {
     }
 
     int getRowSpan(ICell cell) {
-        IGridRegion gr = cell.getRegion();
+        var gr = cell.getRegion();
         if (gr == null) {
             return 1;
         }
@@ -360,11 +358,11 @@ public class TableViewer {
         if ((gr = cell.getRegion()) == null) {
             return grid.getColumnWidth(cell.getColumn());
         }
-        int w = 0;
+        var w = 0;
 
         gr = IGridRegion.Tool.intersect(gr, reg);
         if (gr != null) {
-            for (int c = gr.getLeft(); c <= gr.getRight(); c++) {
+            for (var c = gr.getLeft(); c <= gr.getRight(); c++) {
                 w += grid.getColumnWidth(c);
             }
         }
@@ -382,28 +380,28 @@ public class TableViewer {
     }
 
     void setGrid(TableModel tm) {
-        int width = IGridRegion.Tool.width(reg);
+        var width = IGridRegion.Tool.width(reg);
 
-        for (int i = 0; i <= width; i++) {
+        for (var i = 0; i <= width; i++) {
             setVerticalBorder(i, tm);
         }
 
-        int height = tm.getHeight();
+        var height = tm.getHeight();
 
-        for (int i = 0; i <= height; i++) {
+        for (var i = 0; i <= height; i++) {
             setHorizontalBorder(i, tm);
         }
 
     }
 
     void setHorizontalBorder(int row, TableModel tm) {
-        int width = IGridRegion.Tool.width(reg);
-        int left = reg.getLeft();
-        int top = reg.getTop();
+        var width = IGridRegion.Tool.width(reg);
+        var left = reg.getLeft();
+        var top = reg.getTop();
 
-        for (int i = 0; i < width; i++) {
+        for (var i = 0; i < width; i++) {
             ICellStyle ts = row + top - 1 < 0 ? null : grid.getCell(i + left, row + top - 1).getStyle();
-            ICellStyle bs = grid.getCell(i + left, row + top).getStyle();
+            var bs = grid.getCell(i + left, row + top).getStyle();
 
             CellModel cmTop = ts == null ? null : tm.findCellModel(i, row - 1, ICellStyle.BOTTOM);
             CellModel cmBottom = bs == null ? null : tm.findCellModel(i, row, ICellStyle.TOP);
@@ -415,11 +413,11 @@ public class TableViewer {
             BorderStyle tStyle = ts != null ? getBorderStyle(ts, ICellStyle.BOTTOM) : null;
             BorderStyle bStyle = bs != null ? getBorderStyle(bs, ICellStyle.TOP) : null;
 
-            int W = width(tStyle, bStyle);
-            String style = style(tStyle, bStyle);
-            short[] rgb = rgb(tStyle, bStyle);
+            var W = width(tStyle, bStyle);
+            var style = style(tStyle, bStyle);
+            var rgb = rgb(tStyle, bStyle);
 
-            BorderStyle bstyle = new BorderStyle(W, style, rgb);
+            var bstyle = new BorderStyle(W, style, rgb);
 
             switch (W) {
                 case 0 -> { /* No border */ }
@@ -448,13 +446,13 @@ public class TableViewer {
     }
 
     void setVerticalBorder(int column, TableModel tm) {
-        int height = tm.getHeight();
-        int left = reg.getLeft();
-        int top = reg.getTop();
+        var height = tm.getHeight();
+        var left = reg.getLeft();
+        var top = reg.getTop();
 
-        for (int i = 0; i < height; i++) {
+        for (var i = 0; i < height; i++) {
             ICellStyle ls = column + left - 1 < 0 ? null : grid.getCell(column + left - 1, i + top).getStyle();
-            ICellStyle rs = grid.getCell(column + left, i + top).getStyle();
+            var rs = grid.getCell(column + left, i + top).getStyle();
 
             CellModel cmLeft = ls == null ? null : tm.findCellModel(column - 1, i, ICellStyle.RIGHT);
             CellModel cmRight = rs == null ? null : tm.findCellModel(column, i, ICellStyle.LEFT);
@@ -466,11 +464,11 @@ public class TableViewer {
             BorderStyle lStyle = ls != null ? getBorderStyle(ls, ICellStyle.RIGHT) : null;
             BorderStyle rStyle = rs != null ? getBorderStyle(rs, ICellStyle.LEFT) : null;
 
-            int W = width(lStyle, rStyle);
-            String style = style(lStyle, rStyle);
-            short[] rgb = rgb(lStyle, rStyle);
+            var W = width(lStyle, rStyle);
+            var style = style(lStyle, rStyle);
+            var rgb = rgb(lStyle, rStyle);
 
-            BorderStyle bstyle = new BorderStyle(W, style, rgb);
+            var bstyle = new BorderStyle(W, style, rgb);
 
             switch (W) {
                 case 0 -> { /* No border */ }

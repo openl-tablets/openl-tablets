@@ -25,7 +25,7 @@ public final class SpringInitializer implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         OpenAPIConfiguration.configure();
-        ServletContext servletContext = sce.getServletContext();
+        var servletContext = sce.getServletContext();
         servletContext.log("Initializing Spring root ApplicationContext");
         applicationContext = new ClassPathXmlApplicationContext();
         applicationContext.setId("OpenL_RuleService");
@@ -46,7 +46,7 @@ public final class SpringInitializer implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        ServletContext servletContext = sce.getServletContext();
+        var servletContext = sce.getServletContext();
         servletContext.removeAttribute(THIS);
         applicationContext.close();
     }

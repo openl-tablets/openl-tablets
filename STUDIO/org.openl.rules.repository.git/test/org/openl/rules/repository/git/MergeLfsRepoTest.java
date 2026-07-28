@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.jgit.lib.ConfigConstants;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.LfsFactory;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,8 +32,8 @@ class MergeLfsRepoTest {
 
         repo = createRepository(gitRepo);
 
-        Repository repository = repo.getClosableGit().getRepository();
-        boolean installed = repository.getConfig().getBoolean(ConfigConstants.CONFIG_FILTER_SECTION,
+        var repository = repo.getClosableGit().getRepository();
+        var installed = repository.getConfig().getBoolean(ConfigConstants.CONFIG_FILTER_SECTION,
                 ConfigConstants.CONFIG_SECTION_LFS,
                 ConfigConstants.CONFIG_KEY_USEJGITBUILTIN,
                 false);
@@ -46,7 +45,7 @@ class MergeLfsRepoTest {
 
     @Test
     void testMergeWithoutError() throws IOException {
-        UserInfo author = new UserInfo("test", "my@email", "Test User");
+        var author = new UserInfo("test", "my@email", "Test User");
 
         repo.forBranch("br7").merge("main", author, null);
 
@@ -55,11 +54,11 @@ class MergeLfsRepoTest {
     }
 
     private GitRepository createRepository(File gitRepo) throws IOException {
-        GitRepository newRepo = new GitRepository();
+        var newRepo = new GitRepository();
         newRepo.setId(REPO_ID);
         var repoPath = gitRepo.getAbsolutePath();
         newRepo.setUri(repoPath);
-        String localRepositoriesFolderString = localRepositoriesFolder.getAbsolutePath();
+        var localRepositoriesFolderString = localRepositoriesFolder.getAbsolutePath();
         newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
         newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         newRepo.setGcAutoDetach(false);

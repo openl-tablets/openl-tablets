@@ -14,8 +14,8 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public IGridRegion getRegion() {
-        int left = getGridColumn(0, 0);
-        int top = getGridRow(0, 0);
+        var left = getGridColumn(0, 0);
+        var top = getGridRow(0, 0);
 
         int right;
         int bottom;
@@ -35,8 +35,8 @@ public abstract class AGridTable implements IGridTable {
     public String getUri() {
         if (uri == null) {
             synchronized (this) {
-                int w = getWidth();
-                int h = getHeight();
+                var w = getWidth();
+                var h = getHeight();
                 uri = getGrid().getRangeUri(getGridColumn(0, 0),
                         getGridRow(0, 0),
                         getGridColumn(w - 1, h - 1),
@@ -65,8 +65,8 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public String getUri(int col, int row) {
-        int colStart = getGridColumn(col, row);
-        int rowStart = getGridRow(col, row);
+        var colStart = getGridColumn(col, row);
+        var rowStart = getGridRow(col, row);
         return getGrid().getRangeUri(colStart, rowStart, colStart, rowStart);
     }
 
@@ -92,7 +92,7 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public IGridTable getColumns(int from, int to) {
-        int colsNum = to - from + 1;
+        var colsNum = to - from + 1;
         return getSubtable(from, 0, colsNum, getHeight());
     }
 
@@ -108,7 +108,7 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public IGridTable getRows(int from, int to) {
-        int rowsNum = to - from + 1;
+        var rowsNum = to - from + 1;
         return getSubtable(0, from, getWidth(), rowsNum);
     }
 
@@ -130,7 +130,7 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public String toString() {
-        StringBuilder tableVisualization = new StringBuilder();
+        var tableVisualization = new StringBuilder();
         tableVisualization.append(super.toString())
                 .append(isNormalOrientation() ? "[N]" : "[T]")
                 .append("(")
@@ -140,10 +140,10 @@ public abstract class AGridTable implements IGridTable {
                 .append(")")
                 .append(getRegion().toString())
                 .append("\n");
-        for (int i = 0; i < getHeight(); i++) {
-            int length = 0;
-            for (int j = 0; j < getWidth(); j++) {
-                String strValue = getCell(j, i).getStringValue();
+        for (var i = 0; i < getHeight(); i++) {
+            var length = 0;
+            for (var j = 0; j < getWidth(); j++) {
+                var strValue = getCell(j, i).getStringValue();
                 if (strValue == null) {
                     strValue = "EMPTY";
                 }
@@ -152,7 +152,7 @@ public abstract class AGridTable implements IGridTable {
                 tableVisualization.append("|");
             }
             tableVisualization.append("\n");
-            for (int k = 0; k <= length; k++) {
+            for (var k = 0; k <= length; k++) {
                 tableVisualization.append("-");
             }
             tableVisualization.append("\n");

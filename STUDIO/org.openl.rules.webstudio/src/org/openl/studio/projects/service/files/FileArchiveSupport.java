@@ -57,11 +57,11 @@ class FileArchiveSupport {
      * them before writing. A malformed archive is reported as a bad request.
      */
     List<FileEntry> readArchive(String path, InputStream archive) {
-        List<FileEntry> entries = new ArrayList<>();
+        var entries = new ArrayList<FileEntry>();
         try (var zis = new ZipInputStream(archive)) {
             ZipEntry entry;
-            int count = 0;
-            long total = 0;
+            var count = 0;
+            var total = 0L;
             while ((entry = zis.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
@@ -72,7 +72,7 @@ class FileArchiveSupport {
                 String entryName = FilePaths.stripLeadingSlashes(entry.getName().replace('\\', '/'));
                 String fullPath = path.isEmpty() ? entryName : path + "/" + entryName;
 
-                byte[] data = zis.readNBytes((int) MAX_ARCHIVE_ENTRY_BYTES + 1);
+                var data = zis.readNBytes((int) MAX_ARCHIVE_ENTRY_BYTES + 1);
                 if (data.length > MAX_ARCHIVE_ENTRY_BYTES) {
                     throw new BadRequestException("file.archive.entry.too-large.message", new Object[]{entryName});
                 }

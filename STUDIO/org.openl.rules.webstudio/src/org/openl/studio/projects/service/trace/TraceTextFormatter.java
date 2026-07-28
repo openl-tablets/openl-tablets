@@ -54,7 +54,7 @@ final class TraceTextFormatter {
     }
 
     private static String frameHeader(ExecutableRulesMethod method, FrameKind kind) {
-        StringBuilder buf = new StringBuilder(64);
+        var buf = new StringBuilder(64);
         buf.append(prefix(kind)).append(' ');
         MethodUtil.printMethod(method, buf);
         return buf.toString();
@@ -106,8 +106,8 @@ final class TraceTextFormatter {
             return formatter.format(o);
         }
         if (o.getClass().isArray()) {
-            StringBuilder sb = new StringBuilder("{");
-            for (int i = 0; i < Array.getLength(o); i++) {
+            var sb = new StringBuilder("{");
+            for (var i = 0; i < Array.getLength(o); i++) {
                 if (i > 0) {
                     sb.append(',');
                 }

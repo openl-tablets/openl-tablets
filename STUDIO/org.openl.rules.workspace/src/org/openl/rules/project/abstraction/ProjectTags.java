@@ -49,9 +49,9 @@ public class ProjectTags {
 
         if (project.hasArtefact(TAGS_FILE_NAME)) {
             try {
-                AProjectArtefact artefact = project.getArtefact(TAGS_FILE_NAME);
+                var artefact = project.getArtefact(TAGS_FILE_NAME);
                 if (artefact instanceof AProjectResource resource) {
-                    try (InputStream projectTagsFileStream = resource.getContent()) {
+                    try (var projectTagsFileStream = resource.getContent()) {
                         return readTagsFromStream(projectTagsFileStream);
                     }
                 }

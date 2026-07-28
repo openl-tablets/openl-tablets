@@ -2,15 +2,12 @@ package org.openl.studio.repositories.validator;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Stream;
 import jakarta.inject.Inject;
 
 import org.eclipse.jgit.errors.CorruptObjectException;
@@ -48,11 +45,11 @@ public class ZipArchiveValidator implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
-        Path archive = (Path) target;
+        var archive = (Path) target;
         if (!validateSignature(archive, errors)) {
             return;
         }
-        Charset charset = zipCharsetDetector.detectCharset(() -> Files.newInputStream(archive));
+        var charset = zipCharsetDetector.detectCharset(() -> Files.newInputStream(archive));
         if (charset == null) {
             errors.reject("zip-archive.unknown.charset.message");
             return;
@@ -61,20 +58,20 @@ public class ZipArchiveValidator implements Validator {
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(archive),
                 Collections.singletonMap("encoding", charset.name()))) {
 
-            Path walkRoot = fs.getPath("/");
+            var walkRoot = fs.getPath("/");
             if (ProjectResolver.getInstance().isRulesProject(walkRoot) == null) {
                 errors.reject("zip-archive.unknown.project.structure.message");
                 return;
             }
 
-            Set<Path> rejectedPaths = new HashSet<>();
-            try (Stream<Path> stream = Files.walk(walkRoot)
+            var rejectedPaths = new HashSet<Path>();
+            try (var stream = Files.walk(walkRoot)
                     .filter(p -> !walkRoot.equals(p))
                     .filter(p -> zipFilter.accept(p.toString()))) {
 
                 stream.forEach(path -> {
                     if (rejectedPaths.stream().noneMatch(r -> r.startsWith(path) || path.startsWith(r))) {
-                        for (int i = 0; i < path.getNameCount(); i++) {
+                        for (var i = 0; i < path.getNameCount(); i++) {
                             try {
                                 NameChecker.validatePath(path.getName(i).toString());
                             } catch (IOException e) {
@@ -86,7 +83,7 @@ public class ZipArchiveValidator implements Validator {
                             }
                         }
                         try {
-                            String p = path.toString().replace('\\', '/');
+                            var p = path.toString().replace('\\', '/');
                             if (p.charAt(0) == '/') {
                                 p = p.substring(1);
                             }
@@ -110,12 +107,12 @@ public class ZipArchiveValidator implements Validator {
     }
 
     private boolean validateSignature(Path archive, Errors errors) {
-        boolean isValid = true;
+        var isValid = true;
         if (!Files.isRegularFile(archive)) {
             errors.reject("zip-archive.invalid.archive.message");
             isValid = false;
         } else {
-            int sign = readSignature(archive);
+            var sign = readSignature(archive);
             if (!FileSignatureHelper.isArchiveSign(sign)) {
                 errors.reject("zip-archive.invalid.archive.message");
                 isValid = false;
@@ -128,7 +125,7 @@ public class ZipArchiveValidator implements Validator {
     }
 
     private static int readSignature(Path path) {
-        try (RandomAccessFile raf = new RandomAccessFile(path.toFile(), "r")) {
+        try (var raf = new RandomAccessFile(path.toFile(), "r")) {
             return raf.readInt();
         } catch (IOException ignored) {
             return -1;

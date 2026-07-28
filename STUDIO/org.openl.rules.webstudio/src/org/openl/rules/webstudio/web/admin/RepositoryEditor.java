@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -35,22 +34,22 @@ public class RepositoryEditor {
     }
 
     public static String getNewConfigName(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
-        AtomicInteger max = new AtomicInteger(0);
-        String configName = repoMode.getId();
-        Set<String> configNames = configurations.stream()
+        var max = new AtomicInteger(0);
+        var configName = repoMode.getId();
+        var configNames = configurations.stream()
                 .map(RepositoryConfiguration::getConfigName)
                 .collect(Collectors.toSet());
 
         // existingConfigNames can contain ids that were deleted but were not saved, such ids should not be assigned to
         // a new repository
-        String existingConfigNames = Props.getEnvironment().getProperty(configName + "-repository-configs");
+        var existingConfigNames = Props.getEnvironment().getProperty(configName + "-repository-configs");
         if (StringUtils.isNotEmpty(existingConfigNames)) {
             configNames.addAll(Arrays.asList(existingConfigNames.split(",")));
         }
         configNames.forEach(rc -> {
             if (rc.matches(configName + "\\d+")) {
-                String num = rc.substring(configName.length());
-                int i = Integer.parseInt(num);
+                var num = rc.substring(configName.length());
+                var i = Integer.parseInt(num);
                 if (i > max.get()) {
                     max.set(i);
                 }
@@ -72,10 +71,10 @@ public class RepositoryEditor {
     public void reload() {
         repositoryConfigurations = new ArrayList<>();
 
-        String[] repositoryConfigNames = split(properties.getProperty(repoListConfig));
+        var repositoryConfigNames = split(properties.getProperty(repoListConfig));
         for (String configName : repositoryConfigNames) {
             if (isValidConfig(configName)) {
-                RepositoryConfiguration config = new RepositoryConfiguration(configName, properties);
+                var config = new RepositoryConfiguration(configName, properties);
                 repositoryConfigurations.add(config);
             }
         }
@@ -93,7 +92,7 @@ public class RepositoryEditor {
     public void deleteRepository(String configName) {
         Iterator<RepositoryConfiguration> it = repositoryConfigurations.iterator();
         while (it.hasNext()) {
-            RepositoryConfiguration config = it.next();
+            var config = it.next();
             if (config.getConfigName().equals(configName)) {
                 deletedConfigurations.add(config);
                 it.remove();
@@ -110,9 +109,9 @@ public class RepositoryEditor {
         deletedConfigurations.clear();
 
         String[] configNames = new String[repositoryConfigurations.size()];
-        for (int i = 0; i < repositoryConfigurations.size(); i++) {
-            RepositoryConfiguration config = repositoryConfigurations.get(i);
-            RepositoryConfiguration newConfig = saveRepository(config);
+        for (var i = 0; i < repositoryConfigurations.size(); i++) {
+            var config = repositoryConfigurations.get(i);
+            var newConfig = saveRepository(config);
             repositoryConfigurations.set(i, newConfig);
             configNames[i] = newConfig.getConfigName();
         }
@@ -136,7 +135,7 @@ public class RepositoryEditor {
     private RepositoryConfiguration saveRepository(RepositoryConfiguration config) {
         config.commit();
         if (config.isNameChangedIgnoreCase()) {
-            String newConfigName = config.getName();
+            var newConfigName = config.getName();
             properties.setProperty(Comments.REPOSITORY_PREFIX + config.getConfigName() + ".name", newConfigName);
         }
 
@@ -144,7 +143,7 @@ public class RepositoryEditor {
     }
 
     public RepositoryConfiguration initializeConfiguration(RepositoryType type) {
-        RepositoryMode repositoryMode = switch (repositoryFactoryProxy.getRepoListConfig()) {
+        var repositoryMode = switch (repositoryFactoryProxy.getRepoListConfig()) {
             case AdministrationSettings.DESIGN_REPOSITORY_CONFIGS -> RepositoryMode.DESIGN;
             case AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS -> RepositoryMode.PRODUCTION;
             default -> throw new IllegalArgumentException("Unknown repository mode");

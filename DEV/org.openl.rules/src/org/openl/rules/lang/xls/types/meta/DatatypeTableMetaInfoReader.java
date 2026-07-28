@@ -16,13 +16,10 @@ import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.lang.xls.types.DatatypeOpenClass;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ParserUtils;
@@ -41,8 +38,8 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
 
     @Override
     protected CellMetaInfo getHeaderMetaInfo() {
-        DatatypeOpenClass dataType = getBoundNode().getDataType();
-        IdentifierNode identifier = getBoundNode().getParentClassIdentifier();
+        var dataType = getBoundNode().getDataType();
+        var identifier = getBoundNode().getParentClassIdentifier();
         if (identifier != null && dataType.getSuperClass() != null) {
             return createMetaInfo(identifier, dataType.getSuperClass().getMetaInfo());
         }
@@ -51,16 +48,16 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
 
     @Override
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
-        ILogicalTable logicalTable = getBoundNode().getTable();
+        var logicalTable = getBoundNode().getTable();
 
-        ICell firstCell = logicalTable.getCell(0, 0);
-        int r = row - firstCell.getAbsoluteRow();
-        int c = col - firstCell.getAbsoluteColumn();
+        var firstCell = logicalTable.getCell(0, 0);
+        var r = row - firstCell.getAbsoluteRow();
+        var c = col - firstCell.getAbsoluteColumn();
         if (r < 0 || c < 0) {
             return getHeaderMetaInfo();
         }
         if (!logicalTable.isNormalOrientation()) {
-            int temp = r;
+            var temp = r;
             r = c;
             c = temp;
         }
@@ -68,13 +65,13 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.DEFAULT_COLUMN_TITLE), c) || Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.EXAMPLE_COLUMN_TITLE), c)) {
             // Default Values
             try {
-                ILogicalTable logicalRow = logicalTable.getRow(r);
-                IOpenField field = getField(logicalRow);
+                var logicalRow = logicalTable.getRow(r);
+                var field = getField(logicalRow);
                 if (field == null) {
                     return null;
                 }
-                IOpenClass type = field.getType();
-                boolean multiValue = false;
+                var type = field.getType();
+                var multiValue = false;
                 if (type.getAggregateInfo().isAggregate(type)) {
                     type = type.getAggregateInfo().getComponentType(type);
                     multiValue = true;
@@ -86,15 +83,15 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
                 return null;
             }
         } else if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.TYPE_COLUMN_TITLE), c)) {
-            ILogicalTable logicalRow = logicalTable.getRow(r);
+            var logicalRow = logicalTable.getRow(r);
             GridCellSourceCodeModule typeCellSource = getCellSource(logicalRow, null, c);
             if (!ParserUtils.isBlankOrCommented(typeCellSource.getCode())) {
                 try {
-                    IOpenField field = getField(logicalRow);
+                    var field = getField(logicalRow);
                     if (field == null) {
                         return null;
                     }
-                    IMetaInfo fieldMetaInfo = field.getType().getMetaInfo();
+                    var fieldMetaInfo = field.getType().getMetaInfo();
                     IdentifierNode[] idn = Tokenizer.tokenize(typeCellSource, "[]\n\r");
                     return createMetaInfo(idn[0], fieldMetaInfo);
                 } catch (OpenLCompilationException e) {
@@ -112,8 +109,8 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
             return null;
         }
 
-        DatatypeOpenClass dataType = getBoundNode().getDataType();
-        IOpenField field = dataType.getField(fieldName);
+        var dataType = getBoundNode().getDataType();
+        var field = dataType.getField(fieldName);
         if (field == null) {
             return null;
         }
@@ -124,7 +121,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         if (typeMeta == null) {
             return null;
         }
-        SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
+        var nodeUsage = new SimpleNodeUsage(identifier,
                 typeMeta.getDisplayName(INamedThing.SHORT),
                 typeMeta.getSourceUrl(),
                 NodeType.DATATYPE);
@@ -139,7 +136,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
             // Table with error. Skip it
             return null;
         } else {
-            String name = idn[0].getIdentifier();
+            var name = idn[0].getIdentifier();
             if (name.endsWith(DatatypeTableBoundNode.TRANSIENT_FIELD_SUFFIX) || name
                     .endsWith(DatatypeTableBoundNode.NON_TRANSIENT_FIELD_SUFFIX)) {
                 return name.substring(0, name.length() - 1);

@@ -179,7 +179,7 @@ public abstract class AbstractAlgorithmWrapper extends Algorithm {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractAlgorithmWrapper that = (AbstractAlgorithmWrapper) o;
+        var that = (AbstractAlgorithmWrapper) o;
         return delegate.equals(that.delegate);
     }
 

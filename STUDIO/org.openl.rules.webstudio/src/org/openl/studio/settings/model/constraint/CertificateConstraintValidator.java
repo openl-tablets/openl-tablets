@@ -19,7 +19,7 @@ public class CertificateConstraintValidator implements ConstraintValidator<Certi
 
         try {
             var cf = CertificateFactory.getInstance("X.509");
-            byte[] decoded = Base64.getMimeDecoder().decode(publicServerCert);
+            var decoded = Base64.getMimeDecoder().decode(publicServerCert);
             var cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(decoded));
             cert.checkValidity(); // check if certificate is currently valid
             return true;

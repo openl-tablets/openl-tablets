@@ -29,7 +29,7 @@ public class RuleRow {
     public String getRuleName(int col) {
         try {
             readLock.lock();
-            String ruleName = cache.get(col);
+            var ruleName = cache.get(col);
             if (ruleName != null) {
                 return ruleName;
             }
@@ -37,9 +37,9 @@ public class RuleRow {
             readLock.unlock();
         }
         try {
-            ILogicalTable valueCell = table
+            var valueCell = table
                     .getSubtable(col + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
-            String ruleName = valueCell.getSource().getCell(0, 0).getStringValue();
+            var ruleName = valueCell.getSource().getCell(0, 0).getStringValue();
             if (ruleName == null) {
                 ruleName = StringUtils.EMPTY;
             }

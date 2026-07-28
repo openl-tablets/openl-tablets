@@ -1,7 +1,6 @@
 package org.openl.studio.projects.service.tables.read;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.stereotype.Component;
 
@@ -36,15 +35,15 @@ public class SimpleSpreadsheetReader extends ExecutableTableReader<SimpleSpreads
         var metaInfoReader = tsn.getMetaInfoReader();
         var cellValueReader = new CellValueReader(metaInfoReader);
         var tableBody = tsn.getTableBody();
-        int height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
-        int width = OpenLTableUtils.getWidthWithoutEmptyColumns(tableBody);
+        var height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
+        var width = OpenLTableUtils.getWidthWithoutEmptyColumns(tableBody);
         if (height == 2 && width > 2) {
             tableBody = tableBody.transpose();
             height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
         }
 
-        List<SpreadsheetStepView> steps = new ArrayList<>();
-        for (int row = 1; row < height; row++) {
+        var steps = new ArrayList<SpreadsheetStepView>();
+        for (var row = 1; row < height; row++) {
             var stepParts = SpreadsheetTableReader.splitStepDeclaration(tableBody.getCell(0, row).getStringValue());
             var stepBuilder = SpreadsheetStepView.builder()
                     .name(stepParts.getLeft())

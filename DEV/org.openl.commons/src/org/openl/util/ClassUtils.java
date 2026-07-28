@@ -131,7 +131,7 @@ public final class ClassUtils {
         if (cls == null) {
             return StringUtils.EMPTY;
         }
-        String canonicalName = cls.getCanonicalName();
+        var canonicalName = cls.getCanonicalName();
         if (canonicalName == null) {
             return StringUtils.EMPTY;
         }
@@ -154,14 +154,14 @@ public final class ClassUtils {
         if (cls == null) {
             return StringUtils.EMPTY;
         }
-        String className = cls.getName();
-        final int lastDot = className.lastIndexOf('.'); // package separator
+        var className = cls.getName();
+        final var lastDot = className.lastIndexOf('.'); // package separator
         if (lastDot == -1) {
             // primitive or no package
             return StringUtils.EMPTY;
         }
 
-        int arrayIndex = className.indexOf("[L"); // array encoding
+        var arrayIndex = className.indexOf("[L"); // array encoding
         int start = arrayIndex == -1 ? 0 : (arrayIndex + 2);
 
         return className.substring(start, lastDot);

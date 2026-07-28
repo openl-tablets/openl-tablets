@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.ExcelReaderFactory;
 import org.openl.excel.parser.FolderUtils;
 import org.openl.excel.parser.MergedCell;
@@ -16,12 +15,12 @@ import org.openl.excel.parser.SheetDescriptor;
 class SheetOptimizationTest {
     @Test
     void readFileWithBigSheets() {
-        ExcelReader reader = ExcelReaderFactory.sequentialFactory()
+        var reader = ExcelReaderFactory.sequentialFactory()
                 .create(FolderUtils.getResourcesFolder() + "big-sheet.xlsx");
         List<? extends SheetDescriptor> sheets = reader.getSheets();
         assertEquals(1, sheets.size());
 
-        Object[][] firstSheet = reader.getCells(sheets.getFirst());
+        var firstSheet = reader.getCells(sheets.getFirst());
         assertEquals(3, firstSheet.length);
         assertEquals(2, firstSheet[0].length);
         assertEquals("Environment", firstSheet[0][0]);
@@ -32,19 +31,19 @@ class SheetOptimizationTest {
 
     @Test
     void mergedCells() {
-        ExcelReader reader = ExcelReaderFactory.sequentialFactory()
+        var reader = ExcelReaderFactory.sequentialFactory()
                 .create(FolderUtils.getResourcesFolder() + "sheet-optimization.xlsx");
         List<? extends SheetDescriptor> sheets = reader.getSheets();
         assertEquals(3, sheets.size());
 
-        Object[][] sheet1 = reader.getCells(sheets.getFirst());
+        var sheet1 = reader.getCells(sheets.getFirst());
         assertEquals(18, sheet1.length);
         assertEquals(6, sheet1[0].length);
 
-        Object[][] sheet2 = reader.getCells(sheets.get(1));
+        var sheet2 = reader.getCells(sheets.get(1));
         assertEquals(0, sheet2.length);
 
-        Object[][] sheet3 = reader.getCells(sheets.get(2));
+        var sheet3 = reader.getCells(sheets.get(2));
         assertEquals(10, sheet3.length);
         assertEquals(20, sheet3[0].length);
         assertEquals("S3", sheet3[5][17]);

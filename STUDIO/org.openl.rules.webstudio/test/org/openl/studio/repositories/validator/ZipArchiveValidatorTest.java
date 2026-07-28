@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.validation.BindingResult;
 
 import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 
@@ -20,7 +19,7 @@ class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testArchives_NotOpenLProject() {
-        BindingResult bindingResult = validateAndGetResult(Path.of("test-resources/upload/zip/test-rules-xml.zip"),
+        var bindingResult = validateAndGetResult(Path.of("test-resources/upload/zip/test-rules-xml.zip"),
                 validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
@@ -34,7 +33,7 @@ class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testArchives_NotArchive() {
-        BindingResult bindingResult = validateAndGetResult(Path.of("test-resources/test/export/trivial"), validator);
+        var bindingResult = validateAndGetResult(Path.of("test-resources/test/export/trivial"), validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
         assertObjectError("The provided file is not an archive.", bindingResult.getGlobalError());

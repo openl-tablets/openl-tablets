@@ -5,7 +5,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.module.MethodParametersNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IMethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.text.ILocation;
 
@@ -32,32 +31,32 @@ public class MethodHeaderNodeBinder extends ANodeBinder {
 
         IBoundNode typeNode = bindChildNode(node.getChild(TYPE_NODE), bindingContext);
 
-        String methodName = ((IdentifierNode) node.getChild(METHOD_NAME_NODE)).getIdentifier();
+        var methodName = ((IdentifierNode) node.getChild(METHOD_NAME_NODE)).getIdentifier();
 
-        ISyntaxNode parametersNode = node.getChild(PARAMETERS_NODE);
-        MethodParametersNode boundParametersNode = (MethodParametersNode) bindChildNode(parametersNode, bindingContext);
+        var parametersNode = node.getChild(PARAMETERS_NODE);
+        var boundParametersNode = (MethodParametersNode) bindChildNode(parametersNode, bindingContext);
 
-        IMethodSignature signature = boundParametersNode.getSignature(bindingContext);
+        var signature = boundParametersNode.getSignature(bindingContext);
 
-        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+        for (var i = 0; i < signature.getNumberOfParameters(); i++) {
             if (signature.getParameterName(i) == null) {
                 return new ErrorBoundNode(node);
             }
         }
 
-        ISyntaxNode syntaxNode = typeNode.getSyntaxNode();
+        var syntaxNode = typeNode.getSyntaxNode();
         while (syntaxNode.getNumberOfChildren() == 1 && !(syntaxNode instanceof IdentifierNode)) {
             // Get type node for array
             syntaxNode = syntaxNode.getChild(0);
         }
-        ILocation typeLocation = syntaxNode.getSourceLocation();
+        var typeLocation = syntaxNode.getSourceLocation();
 
         ILocation[] paramTypeLocations = new ILocation[signature.getNumberOfParameters()];
-        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+        for (var i = 0; i < signature.getNumberOfParameters(); i++) {
             paramTypeLocations[i] = boundParametersNode.getParamTypeLocation(i);
         }
 
-        OpenMethodHeader header = new OpenMethodHeader(methodName,
+        var header = new OpenMethodHeader(methodName,
                 typeNode.getType(),
                 signature,
                 null,

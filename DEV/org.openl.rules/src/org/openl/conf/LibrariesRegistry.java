@@ -107,7 +107,7 @@ public class LibrariesRegistry {
         var isOperator = cls.isAnnotationPresent(Operator.class);
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(cls);
         for (var method : cls.getDeclaredMethods()) {
-            int modifiers = method.getModifiers();
+            var modifiers = method.getModifiers();
             if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)) {
                 var openMethod = new JavaOpenMethod(method);
                 if (isOperator || method.isAnnotationPresent(Operator.class)) {
@@ -153,7 +153,7 @@ public class LibrariesRegistry {
 
     public INameSpacedMethodFactory asMethodFactory2() {
         return (namespace, name, params, casts) -> {
-            boolean isOperator = ISyntaxConstants.OPERATORS_NAMESPACE.equals(namespace);
+            var isOperator = ISyntaxConstants.OPERATORS_NAMESPACE.equals(namespace);
             return LibrariesRegistry.this.getMethodCaller(name, params, casts, isOperator);
         };
     }
@@ -202,13 +202,13 @@ public class LibrariesRegistry {
                 methods = defaultMethods;
             } else {
                 // exists in both, so do override
-                HashMap<MethodKey, ArrayList<IOpenMethod>> uniques = new HashMap<>();
+                var uniques = new HashMap<MethodKey, ArrayList<IOpenMethod>>();
                 for (var method : defaultMethods) {
                     // the equal methods are collected to detect ambiguous definition from the different classes
                     uniques.computeIfAbsent(new MethodKey(method), k -> new ArrayList<>()).add(method);
                 }
 
-                HashMap<MethodKey, ArrayList<IOpenMethod>> overrides = new HashMap<>();
+                var overrides = new HashMap<MethodKey, ArrayList<IOpenMethod>>();
                 for (var method : methods) {
                     // the equal methods are collected to detect ambiguous definition from the different classes
                     overrides.computeIfAbsent(new MethodKey(method), k -> new ArrayList<>()).add(method);

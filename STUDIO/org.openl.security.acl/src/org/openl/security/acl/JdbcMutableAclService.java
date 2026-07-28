@@ -1,8 +1,6 @@
 package org.openl.security.acl;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import javax.sql.DataSource;
@@ -61,7 +59,7 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
                 return null;
             }
             // SID not found — try to insert it with a savepoint to handle concurrent inserts
-            boolean useSavepoint = !connection.getAutoCommit();
+            var useSavepoint = !connection.getAutoCommit();
             Savepoint savepoint = useSavepoint ? connection.setSavepoint() : null;
             try {
                 insertSid(connection, sidName, sidIsPrincipal);
@@ -99,16 +97,16 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
      * SQL state class "23" covers integrity constraint violations across all supported databases.
      */
     private static boolean isDuplicateKey(SQLException e) {
-        String sqlState = e.getSQLState();
+        var sqlState = e.getSQLState();
         return sqlState != null && sqlState.startsWith("23");
     }
 
     private static @Nullable Long selectSidId(Connection connection, String sidName,
             boolean sidIsPrincipal) throws SQLException {
-        try (PreparedStatement ps = connection.prepareStatement(SELECT_SID_QUERY)) {
+        try (var ps = connection.prepareStatement(SELECT_SID_QUERY)) {
             ps.setBoolean(1, sidIsPrincipal);
             ps.setString(2, sidName);
-            try (ResultSet rs = ps.executeQuery()) {
+            try (var rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getLong(1);
                 }
@@ -119,7 +117,7 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
 
     private static void insertSid(Connection connection, String sidName,
             boolean sidIsPrincipal) throws SQLException {
-        try (PreparedStatement ps = connection.prepareStatement(INSERT_SID_QUERY)) {
+        try (var ps = connection.prepareStatement(INSERT_SID_QUERY)) {
             ps.setBoolean(1, sidIsPrincipal);
             ps.setString(2, sidName);
             ps.executeUpdate();
@@ -128,13 +126,13 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
 
     @Override
     public void deleteSid(Sid sid) {
-        Long sidId = createOrRetrieveSidPrimaryKey(sid, false);
+        var sidId = createOrRetrieveSidPrimaryKey(sid, false);
         if (sidId == null) {
             return;
         }
         jdbcOperations.update(DELETE_ENTRIES_BY_SID_QUERY, sidId);
 
-        Long newOwnerSid = createOrRetrieveSidPrimaryKey(relevantSystemWideSid, true);
+        var newOwnerSid = createOrRetrieveSidPrimaryKey(relevantSystemWideSid, true);
         jdbcOperations.update(UPDATE_OWNER_QUERY, newOwnerSid, sidId);
         jdbcOperations.update(DELETE_SID_QUERY, sidId);
         aclCache.clearCache();

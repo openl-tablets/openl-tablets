@@ -49,7 +49,7 @@ public class TableModel {
         if (table == null) {
             return null;
         }
-        boolean editing = Constants.MODE_EDIT.equals(mode);
+        var editing = Constants.MODE_EDIT.equals(mode);
         if (editing) {
             // Prepare workbook for edit (load it to memory before editing starts)
             table.edit();
@@ -62,7 +62,7 @@ public class TableModel {
             grid = table.getGrid();
         }
 
-        IGridRegion region = table.getRegion();
+        var region = table.getRegion();
         if (numRows > -1 && region.getTop() + numRows < region.getBottom()) {
             region = new GridRegion(region);
             ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
@@ -83,7 +83,7 @@ public class TableModel {
     public TableModel(int width, int height, IGridTable gridTable, boolean showHeader) {
         this.height = height;
         this.cells = new ICellModel[height][];
-        for (int i = 0; i < cells.length; i++) {
+        for (var i = 0; i < cells.length; i++) {
             cells[i] = new ICellModel[width];
         }
 
@@ -110,7 +110,7 @@ public class TableModel {
             return null;
         }
 
-        ICellModel icm = cells[row][col];
+        var icm = cells[row][col];
         if (icm == null) {
             return null;
         }
@@ -119,14 +119,14 @@ public class TableModel {
                 if (icm instanceof CellModel model) {
                     yield model;
                 }
-                CellModel cm = ((CellModelDelegator) icm).getModel();
+                var cm = ((CellModelDelegator) icm).getModel();
                 yield cm.getRow() == row ? cm : null;
             }
             case ICellStyle.LEFT -> {
                 if (icm instanceof CellModel model) {
                     yield model;
                 }
-                CellModel cm = ((CellModelDelegator) icm).getModel();
+                var cm = ((CellModelDelegator) icm).getModel();
                 yield cm.getColumn() == col ? cm : null;
             }
             case ICellStyle.RIGHT -> {

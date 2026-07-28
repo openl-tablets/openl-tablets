@@ -7,7 +7,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.ColumnMatchMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
@@ -19,16 +18,16 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoun
     private static SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn,
                                                               IOpenSourceCodeModule src,
                                                               int headerTokenLength) throws SyntaxNodeException {
-        String s = src.getCode();
+        var s = src.getCode();
 
         // parse '<ALGORITHM>' if it exists
-        int p2 = s.indexOf('>');
+        var p2 = s.indexOf('>');
         if (p2 < 0) {
             return null;
         }
 
-        int p1 = s.indexOf('<');
-        for (int i = headerTokenLength; i < p1; i++) {
+        var p1 = s.indexOf('<');
+        for (var i = headerTokenLength; i < p1; i++) {
             if (s.charAt(i) != ' ') {
                 // illegal character detected
                 p1 = -1;
@@ -51,15 +50,15 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoun
     @Override
     public IOpenSourceCodeModule createHeaderSource(TableSyntaxNode tableSyntaxNode,
                                                     IBindingContext bindingContext) throws SyntaxNodeException {
-        IGridTable table = tableSyntaxNode.getGridTable();
+        var table = tableSyntaxNode.getGridTable();
 
-        IOpenSourceCodeModule src = new GridCellSourceCodeModule(table, bindingContext);
+        var src = new GridCellSourceCodeModule(table, bindingContext);
 
-        int headerTokenLength = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier().length();
+        var headerTokenLength = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier().length();
 
         var nameOfAlgorithm = cutNameOfAlgorithm(tableSyntaxNode, src, headerTokenLength);
         if (nameOfAlgorithm != null) {
-            String name = nameOfAlgorithm.getCode();
+            var name = nameOfAlgorithm.getCode();
             // TODO
             // headerTokenLength = name.getEndPosition() + 1;
             headerTokenLength = nameOfAlgorithm.getStartPosition() + name.length() + 1;
@@ -74,8 +73,8 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoun
                                               OpenMethodHeader header,
                                               XlsModuleOpenClass module,
                                               IBindingContext context) {
-        IGridTable table = tsn.getGridTable();
-        int headerTokenLength = tsn.getHeader().getHeaderToken().getIdentifier().length();
+        var table = tsn.getGridTable();
+        var headerTokenLength = tsn.getHeader().getHeaderToken().getIdentifier().length();
         IOpenSourceCodeModule nameOfAlgorithm;
         try {
             nameOfAlgorithm = cutNameOfAlgorithm(tsn, new GridCellSourceCodeModule(table, context), headerTokenLength);

@@ -9,10 +9,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.dt.IDecisionTable;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -29,16 +27,16 @@ class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
     @Test
     void testDTExistingDependency() {
-        String tableName = "Rules String test1(int age)";
-        TableSyntaxNode tsn = findTable(tableName);
+        var tableName = "Rules String test1(int age)";
+        var tsn = findTable(tableName);
         if (tsn != null) {
-            BindingDependencies bindDep = ((IDecisionTable) tsn.getMember()).getDependencies();
+            var bindDep = ((IDecisionTable) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals(1, rulesMethods.size(), "There is only one rules dependency");
 
-            ExecutableMethod dependentMethod = (ExecutableMethod) findTable("Rules int getCalcAge(int constant)")
+            var dependentMethod = (ExecutableMethod) findTable("Rules int getCalcAge(int constant)")
                     .getMember();
-            boolean f = false;
+            var f = false;
             for (ExecutableMethod executableMethod : rulesMethods) {
                 if (executableMethod.getName().equals(dependentMethod.getName())) {
                     f = true;
@@ -52,10 +50,10 @@ class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
     @Test
     void testDTNotExistingDependency() {
-        String tableName = "Rules int getCalcAge(int constant)";
-        TableSyntaxNode tsn = findTable(tableName);
+        var tableName = "Rules int getCalcAge(int constant)";
+        var tsn = findTable(tableName);
         if (tsn != null) {
-            BindingDependencies bindDep = ((IDecisionTable) tsn.getMember()).getDependencies();
+            var bindDep = ((IDecisionTable) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals(0, rulesMethods.size(), "There is no dependencies to other rules methods");
         } else {
@@ -65,14 +63,14 @@ class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
     @Test
     void testSpreadsheet() {
-        String tableName = "Spreadsheet SpreadsheetResult processDriver(Driver driver)";
-        TableSyntaxNode tsn = findTable(tableName);
+        var tableName = "Spreadsheet SpreadsheetResult processDriver(Driver driver)";
+        var tsn = findTable(tableName);
         if (tsn != null) {
-            BindingDependencies bindDep = ((Spreadsheet) tsn.getMember()).getDependencies();
+            var bindDep = ((Spreadsheet) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals(8, rulesMethods.size(), "There is 8 rules dependencies");
 
-            Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
+            var expectedRuledDependencies = new HashSet<ExecutableMethod>();
             expectedRuledDependencies
                     .add((ExecutableMethod) findTable("Rules String driverAgeType(Driver driver)").getMember());
             expectedRuledDependencies
@@ -92,7 +90,7 @@ class TestRulesDependencies extends BaseOpenlBuilderHelper {
             expectedRuledDependencies.add((ExecutableMethod) findTable(
                     "Rules DoubleValue driverAccidentPremium(Driver driver, String driverRisk)").getMember());
 
-            int d = 0;
+            var d = 0;
             for (ExecutableMethod executableMethod : rulesMethods) {
                 for (ExecutableMethod expectedRuledDependency : expectedRuledDependencies) {
                     if (executableMethod.getName().equals(expectedRuledDependency.getName())) {
@@ -109,15 +107,15 @@ class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
     @Test
     void testTbasic() {
-        String tableName = "TBasic int factorial(int n)";
-        TableSyntaxNode tsn = findTable(tableName);
+        var tableName = "TBasic int factorial(int n)";
+        var tsn = findTable(tableName);
         if (tsn != null) {
-            BindingDependencies bindDep = ((Algorithm) tsn.getMember()).getDependencies();
+            var bindDep = ((Algorithm) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals(1, rulesMethods.size(), "There is only one rules dependency");
 
-            ExecutableMethod dependentMethod = (ExecutableMethod) findTable("Method void foo()").getMember();
-            boolean f = false;
+            var dependentMethod = (ExecutableMethod) findTable("Method void foo()").getMember();
+            var f = false;
             for (ExecutableMethod executableMethod : rulesMethods) {
                 if (executableMethod.getName().equals(dependentMethod.getName())) {
                     f = true;
@@ -131,18 +129,18 @@ class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
     @Test
     void testMethod() {
-        String tableName = "Method int start()";
-        TableSyntaxNode tsn = findTable(tableName);
+        var tableName = "Method int start()";
+        var tsn = findTable(tableName);
         if (tsn != null) {
-            BindingDependencies bindDep = ((TableMethod) tsn.getMember()).getDependencies();
+            var bindDep = ((TableMethod) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals(2, rulesMethods.size(), "There is 2 rules dependency");
 
-            Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
+            var expectedRuledDependencies = new HashSet<ExecutableMethod>();
             expectedRuledDependencies.add((ExecutableMethod) findTable("Method int start2()").getMember());
             expectedRuledDependencies.add((ExecutableMethod) findTable("Method void callVoid()").getMember());
 
-            int d = 0;
+            var d = 0;
             for (ExecutableMethod executableMethod : rulesMethods) {
                 for (ExecutableMethod expectedRuledDependency : expectedRuledDependencies) {
                     if (executableMethod.getName().equals(expectedRuledDependency.getName())) {
@@ -159,19 +157,19 @@ class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
     @Test
     void tesTestTable() {
-        IOpenClass moduleOpenClass = getCompiledOpenClass().getOpenClass();
-        TestSuiteMethod testMethod = (TestSuiteMethod) moduleOpenClass.getMethod("riskScoreTest", IOpenClass.EMPTY);
+        var moduleOpenClass = getCompiledOpenClass().getOpenClass();
+        var testMethod = (TestSuiteMethod) moduleOpenClass.getMethod("riskScoreTest", IOpenClass.EMPTY);
 
-        BindingDependencies bindDep = testMethod.getDependencies();
+        var bindDep = testMethod.getDependencies();
         Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
         assertEquals(1, rulesMethods.size(), "There is 1 rule dependency");
 
-        Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
+        var expectedRuledDependencies = new HashSet<ExecutableMethod>();
         expectedRuledDependencies
                 .add((ExecutableMethod) findTable("Rules DoubleValue riskScore(String driverRisk)").getMember());
-        boolean allContains = true;
+        var allContains = true;
         for (ExecutableMethod method : expectedRuledDependencies) {
-            boolean f = false;
+            var f = false;
             for (ExecutableMethod executableMethod : rulesMethods) {
                 if (executableMethod.getName().equals(method.getName())) {
                     f = true;

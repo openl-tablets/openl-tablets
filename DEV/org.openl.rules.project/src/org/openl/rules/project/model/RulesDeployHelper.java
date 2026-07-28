@@ -10,8 +10,8 @@ public final class RulesDeployHelper {
 
     public static Set<String> splitRootClassNamesBindingClasses(String rootClassNamesBinding) {
         if (rootClassNamesBinding != null) {
-            String[] rootClasses = rootClassNamesBinding.split(",", -1);
-            Set<String> rootClassNamesBindingClasses = new HashSet<>();
+            var rootClasses = rootClassNamesBinding.split(",", -1);
+            var rootClassNamesBindingClasses = new HashSet<String>();
             for (String className : rootClasses) {
                 if (className != null && className.trim().length() > 0) {
                     rootClassNamesBindingClasses.add(className.trim());

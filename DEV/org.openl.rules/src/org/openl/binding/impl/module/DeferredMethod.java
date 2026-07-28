@@ -6,7 +6,6 @@
 
 package org.openl.binding.impl.module;
 
-import org.openl.IOpenRunner;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.ControlSignalReturn;
 import org.openl.syntax.ISyntaxNode;
@@ -50,7 +49,7 @@ public class DeferredMethod extends AMethod {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
             env.pushThis(target);
-            IOpenRunner runner = env.getRunner();
+            var runner = env.getRunner();
 
             return runner.run(methodBodyBoundNode, params, env);
         } catch (ControlSignalReturn e) {

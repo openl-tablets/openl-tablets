@@ -26,13 +26,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,7 +41,6 @@ import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
-import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
@@ -79,19 +74,19 @@ class GitRepositoryTest {
     @BeforeAll
     static void initTest() throws GitAPIException, IOException {
         // Initialize remote repository
-        try (Git git = Git.init().setDirectory(template).call()) {
-            Repository repository = git.getRepository();
-            StoredConfig config = repository.getConfig();
+        try (var git = Git.init().setDirectory(template).call()) {
+            var repository = git.getRepository();
+            var config = repository.getConfig();
             config.setBoolean(ConfigConstants.CONFIG_GC_SECTION, null, ConfigConstants.CONFIG_KEY_AUTODETACH, false);
             config.save();
 
-            File parent = repository.getDirectory().getParentFile();
-            File rulesFolder = new File(parent, FOLDER_IN_REPOSITORY);
+            var parent = repository.getDirectory().getParentFile();
+            var rulesFolder = new File(parent, FOLDER_IN_REPOSITORY);
 
             // create initial commit in master
             createNewFile(parent, "file-in-master", "root");
             git.add().addFilepattern(".").call();
-            RevCommit commit = git.commit().setMessage("Initial").setCommitter("User 1", "user1@email.to").call();
+            var commit = git.commit().setMessage("Initial").setCommitter("User 1", "user1@email.to").call();
             addTag(git, commit, 1);
 
             // create first commit in test branch
@@ -135,7 +130,7 @@ class GitRepositoryTest {
     void setUp() throws IOException {
 
         remote = new File(root, "remote");
-        File repositoriesFolderFile = new File(root, "repositories");
+        var repositoriesFolderFile = new File(root, "repositories");
         repositoriesFolder = repositoriesFolderFile.toString();
         local = new File(repositoriesFolder, "local");
 
@@ -150,25 +145,25 @@ class GitRepositoryTest {
     void list() throws IOException {
         assertEquals(5, repo.list("").size());
 
-        List<FileData> files = repo.list("rules/project1/");
+        var files = repo.list("rules/project1/");
         assertNotNull(files);
         assertEquals(3, files.size());
 
-        FileData file1 = getFileData(files, "rules/project1/file1");
+        var file1 = getFileData(files, "rules/project1/file1");
         assertNotNull(file1);
         assertEquals("User 1", file1.getAuthor().getName());
         assertEquals("user1@email.to", file1.getAuthor().getEmail());
         assertEquals("Initial commit in test branch", file1.getComment());
         assertEquals(3, file1.getSize());
 
-        FileData file2 = getFileData(files, "rules/project1/file2");
+        var file2 = getFileData(files, "rules/project1/file2");
         assertNotNull(file2);
         assertEquals("User 2", file2.getAuthor().getName());
         assertEquals("user2@email.to", file2.getAuthor().getEmail());
         assertEquals("Second modification", file2.getComment());
         assertEquals(12, file2.getSize());
 
-        FileData file3 = getFileData(files, "rules/project1/folder/file3");
+        var file3 = getFileData(files, "rules/project1/folder/file3");
         assertNotNull(file3);
         assertEquals("User 2", file3.getAuthor().getName());
         assertEquals("user2@email.to", file3.getAuthor().getEmail());
@@ -180,26 +175,26 @@ class GitRepositoryTest {
     void listFolders() throws IOException {
         assertEquals(1, repo.listFolders("").size());
 
-        List<FileData> folders = repo.listFolders("rules/");
+        var folders = repo.listFolders("rules/");
         assertNotNull(folders);
         assertEquals(1, folders.size());
 
-        FileData folderData = folders.getFirst();
+        var folderData = folders.getFirst();
         assertEquals("rules/project1", folderData.getName());
     }
 
     @Test
     void listFiles() throws IOException {
-        List<FileData> files = repo.listFiles("rules/project1/", "Rules_2");
+        var files = repo.listFiles("rules/project1/", "Rules_2");
         assertNotNull(files);
         assertEquals(2, files.size());
         assertContains(files, "rules/project1/file1");
         assertContains(files, "rules/project1/file2");
 
-        FileData file1Rev2 = find(files, "rules/project1/file1");
+        var file1Rev2 = find(files, "rules/project1/file1");
         assertEquals("Rules_2", file1Rev2.getVersion());
 
-        FileData file2Rev2 = find(files, "rules/project1/file2");
+        var file2Rev2 = find(files, "rules/project1/file2");
         assertEquals("Rules_2", file2Rev2.getVersion());
         assertEquals("User 1", file2Rev2.getAuthor().getName());
         assertEquals("user1@email.to", file2Rev2.getAuthor().getEmail());
@@ -217,41 +212,41 @@ class GitRepositoryTest {
         // FileData file1Rev3 = find(files, "rules/project1/file1");
         // assertEquals("Rules_2", file1Rev3.getVersion()); // The file has not been modified in second commit
 
-        FileData file2Rev3 = find(files, "rules/project1/file2");
+        var file2Rev3 = find(files, "rules/project1/file2");
         assertEquals("Rules_3", file2Rev3.getVersion());
         assertEquals("User 2", file2Rev3.getAuthor().getName());
         assertEquals("user2@email.to", file2Rev3.getAuthor().getEmail());
         assertEquals("Second modification", file2Rev3.getComment());
         assertEquals(12, file2Rev3.getSize(), "Expected file content: 'Hello World!'");
 
-        FileData file3Rev3 = find(files, "rules/project1/folder/file3");
+        var file3Rev3 = find(files, "rules/project1/folder/file3");
         assertEquals("Rules_3", file3Rev3.getVersion());
     }
 
     @Test
     void check() throws IOException {
-        FileData file1 = repo.check("rules/project1/file1");
+        var file1 = repo.check("rules/project1/file1");
         assertNotNull(file1);
         assertEquals("User 1", file1.getAuthor().getName());
         assertEquals("user1@email.to", file1.getAuthor().getEmail());
         assertEquals("Initial commit in test branch", file1.getComment());
         assertEquals(3, file1.getSize());
 
-        FileData file2 = repo.check("rules/project1/file2");
+        var file2 = repo.check("rules/project1/file2");
         assertNotNull(file2);
         assertEquals("User 2", file2.getAuthor().getName());
         assertEquals("user2@email.to", file2.getAuthor().getEmail());
         assertEquals("Second modification", file2.getComment());
         assertEquals(12, file2.getSize());
 
-        FileData file3 = repo.check("rules/project1/folder/file3");
+        var file3 = repo.check("rules/project1/folder/file3");
         assertNotNull(file3);
         assertEquals("User 2", file3.getAuthor().getName());
         assertEquals("user2@email.to", file3.getAuthor().getEmail());
         assertEquals("Second modification", file3.getComment());
         assertEquals(9, file3.getSize());
 
-        FileData project1 = repo.check("rules/project1");
+        var project1 = repo.check("rules/project1");
         assertNotNull(project1);
         assertEquals("rules/project1", project1.getName());
         assertEquals("User 2", project1.getAuthor().getName());
@@ -272,9 +267,9 @@ class GitRepositoryTest {
     @Test
     void save() throws IOException {
         // Create a new file
-        String path = "rules/project1/folder/file4";
-        String text = "File located in " + path;
-        FileData result = repo.save(createFileData(path, text), IOUtils.toInputStream(text));
+        var path = "rules/project1/folder/file4";
+        var text = "File located in " + path;
+        var result = repo.save(createFileData(path, text), IOUtils.toInputStream(text));
 
         assertNotNull(result);
         assertEquals(path, result.getName());
@@ -298,8 +293,8 @@ class GitRepositoryTest {
         assertEquals(2, changesCounter.getChanges());
 
         // Clone remote repository to temp folder and check that changes we made before exist there
-        File temp = new File(root, "temp");
-        try (GitRepository secondRepo = createRepository(remote, temp, true)) {
+        var temp = new File(root, "temp");
+        try (var secondRepo = createRepository(remote, temp, true)) {
             assertEquals(text, readText(secondRepo.read("rules/project1/folder/file4")));
         }
 
@@ -314,13 +309,13 @@ class GitRepositoryTest {
         // Regression for EPBDS-16228: a blank user display name must not break the commit.
         // The git committer name falls back to the username (UserInfo.getName()); otherwise an
         // empty committer ident aborts the commit and, in Studio, leaves a project half-opened.
-        String path = "rules/project1/folder/file-blank-dn";
-        String text = "File with blank display name author";
-        FileData data = new FileData();
+        var path = "rules/project1/folder/file-blank-dn";
+        var text = "File with blank display name author";
+        var data = new FileData();
         data.setName(path);
         data.setComment("Comment for " + path);
         data.setAuthor(new UserInfo("jdoe", "jdoe@email", ""));
-        FileData result = repo.save(data, IOUtils.toInputStream(text));
+        var result = repo.save(data, IOUtils.toInputStream(text));
 
         assertNotNull(result);
         // The committer name persisted to git is the username, not the blank display name.
@@ -330,18 +325,18 @@ class GitRepositoryTest {
 
     @Test
     void saveFolder() throws IOException {
-        List<FileItem> changes = Arrays.asList(
+        var changes = Arrays.asList(
                 new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
                 new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
 
-        FileData folderData = new FileData();
+        var folderData = new FileData();
         folderData.setName("rules/project1");
         folderData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
         folderData.setComment("Bulk change");
 
-        FileData savedData = repo.save(folderData, changes, ChangesetType.FULL);
+        var savedData = repo.save(folderData, changes, ChangesetType.FULL);
         assertNotNull(savedData);
-        List<FileData> files = repo.list("rules/project1/");
+        var files = repo.list("rules/project1/");
         assertContains(files, "rules/project1/new-path/file4");
         assertContains(files, "rules/project1/file2");
         assertEquals(2, files.size());
@@ -358,33 +353,33 @@ class GitRepositoryTest {
 
     @Test
     void delete() throws IOException {
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName("rules/project1/file2");
         fileData.setComment("Delete file 2");
         fileData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
-        boolean deleted = repo.delete(fileData);
+        var deleted = repo.delete(fileData);
         assertTrue(deleted, "'file2' has not been deleted");
 
         assertNull(repo.check("rules/project1/file2"), "'file2' still exists");
 
         // Count actual changes in history
-        String projectPath = "rules/project1";
+        var projectPath = "rules/project1";
         assertEquals(3, repo.listHistory(projectPath).size());
 
         // Delete the project
-        FileData projectData = new FileData();
+        var projectData = new FileData();
         projectData.setName(projectPath);
         projectData.setComment("Delete project1");
         projectData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
         assertTrue(repo.delete(projectData), "'project1' has not been deleted");
 
-        FileData deletedProject = repo.check(projectPath);
+        var deletedProject = repo.check(projectPath);
         assertNull(deletedProject, "'project1' still exists");
 
         // Count actual changes in history
-        List<FileData> versionsAfterDelete = repo.listHistory(projectPath);
+        var versionsAfterDelete = repo.listHistory(projectPath);
         assertEquals(4, versionsAfterDelete.size(), "Actual project changes must be 4.");
-        FileData deletedData = versionsAfterDelete.getLast();
+        var deletedData = versionsAfterDelete.getLast();
         assertTrue(deletedData.isDeleted());
         assertEquals(0, repo.listFiles(projectPath, deletedData.getVersion()).size());
         assertEquals(4, repo.listHistory(projectPath, null, false, Page.unpaged()).size(), "Actual project changes must be 4.");
@@ -395,7 +390,7 @@ class GitRepositoryTest {
         assertEquals(0, repo.listHistory(projectPath, null, false, page.withPage(3)).size(), "Actual project changes must be 0.");
 
         // Create new version after deletion
-        String text = "Reincarnation";
+        var text = "Reincarnation";
         repo.save(createFileData(projectPath + "/folder/reincarnate", text), IOUtils.toInputStream(text));
         assertEquals(5, repo.listHistory(projectPath).size());
 
@@ -410,22 +405,22 @@ class GitRepositoryTest {
     @Timeout(value = 10_000, unit = TimeUnit.MILLISECONDS)
     void deleteAndSwitchBranches() throws IOException, GitAPIException {
         repo.createBranch(FOLDER_IN_REPOSITORY, "test1");
-        GitRepository repo2 = repo.forBranch("test1");
+        var repo2 = repo.forBranch("test1");
 
-        final String name = FOLDER_IN_REPOSITORY;
+        final var name = FOLDER_IN_REPOSITORY;
 
         // Delete the project in main branch
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName(name);
         fileData.setComment("Delete project1");
         fileData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
-        boolean deleted = repo.delete(fileData);
+        var deleted = repo.delete(fileData);
         assertTrue(deleted, "'file2' has not been deleted");
 
         // Check that the project is deleted in main branch
         assertEquals(BRANCH, repo.getBranch());
         assertNull(repo.check(name));
-        FileData deletedOnBaseBranch = repo.listHistory(name).getLast();
+        var deletedOnBaseBranch = repo.listHistory(name).getLast();
         assertTrue(deletedOnBaseBranch.isDeleted());
 
         // Check that the project is deleted in secondary branch too
@@ -436,9 +431,9 @@ class GitRepositoryTest {
         assertEquals(0, repo.listFiles(name, deletedOnBaseBranch.getVersion()).size());
 
         // Check that isDeleted() is not broken for files: their status shouldn't be get from main branch.
-        String filePath = "rules/project1/folder/file-new";
-        String text = "text";
-        FileData created = repo2.save(createFileData(filePath, text), IOUtils.toInputStream(text));
+        var filePath = "rules/project1/folder/file-new";
+        var text = "text";
+        var created = repo2.save(createFileData(filePath, text), IOUtils.toInputStream(text));
         assertFalse(created.isDeleted());
         assertFalse(repo2.check(filePath).isDeleted());
         assertFalse(repo2.checkHistory(filePath, created.getVersion()).isDeleted());
@@ -448,14 +443,14 @@ class GitRepositoryTest {
         // Recreate a project
         assertNotNull(repo2.save(createFileData(filePath, text), IOUtils.toInputStream(text)));
         // Check that the commit with project deletion can be read. There should be no deadlock.
-        List<FileData> history = repo2.listHistory(name);
+        var history = repo2.listHistory(name);
         assertTrue(history.size() > 2, "Not enough history records");
-        FileData deletedData = history.get(history.size() - 2);
+        var deletedData = history.get(history.size() - 2);
         assertTrue(deletedData.isDeleted());
     }
 
     private void deleteProjectOutsideOfOpenL(GitRepository repo) throws IOException, GitAPIException {
-        try (Git git = repo.getClosableGit()) {
+        try (var git = repo.getClosableGit()) {
             git.checkout().setName(repo.getBranch()).setForced(true).call();
             git.rm().addFilepattern(FOLDER_IN_REPOSITORY).call();
             git.commit().setMessage("External erase").setCommitter("User 1", "user1@email.to").call();
@@ -464,12 +459,12 @@ class GitRepositoryTest {
 
     @Test
     void listHistory() throws IOException {
-        List<FileData> file2History = repo.listHistory("rules/project1/file2");
+        var file2History = repo.listHistory("rules/project1/file2");
         assertEquals(2, file2History.size());
         assertEquals("Rules_2", file2History.getFirst().getVersion());
         assertEquals("Rules_3", file2History.get(1).getVersion());
 
-        List<FileData> project1History = repo.listHistory("rules/project1");
+        var project1History = repo.listHistory("rules/project1");
         assertEquals(2, project1History.size());
         assertEquals("Rules_2", project1History.getFirst().getVersion());
         assertEquals("Rules_3", project1History.get(1).getVersion());
@@ -483,12 +478,12 @@ class GitRepositoryTest {
         assertEquals("Rules_3", repo.checkHistory("rules/project1/file2", "Rules_3").getVersion());
         assertNull(repo.checkHistory("rules/project1/file2", "Rules_1"));
 
-        FileData v3 = repo.checkHistory("rules/project1", "Rules_3");
+        var v3 = repo.checkHistory("rules/project1", "Rules_3");
         assertEquals("Rules_3", v3.getVersion());
         assertEquals("User 2", v3.getAuthor().getName());
         assertEquals("user2@email.to", v3.getAuthor().getEmail());
 
-        FileData v2 = repo.checkHistory("rules/project1", "Rules_2");
+        var v2 = repo.checkHistory("rules/project1", "Rules_2");
         assertEquals("Rules_2", v2.getVersion());
         assertEquals("User 1", v2.getAuthor().getName());
         assertEquals("user1@email.to", v2.getAuthor().getEmail());
@@ -507,12 +502,12 @@ class GitRepositoryTest {
 
     @Test
     void copyHistory() throws IOException {
-        FileData dest = new FileData();
+        var dest = new FileData();
         dest.setName("rules/project1/file2-copy");
         dest.setComment("Copy file 2");
         dest.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
 
-        FileData copy = repo.copyHistory("rules/project1/file2", dest, "Rules_2");
+        var copy = repo.copyHistory("rules/project1/file2", dest, "Rules_2");
         assertNotNull(copy);
         assertEquals("rules/project1/file2-copy", copy.getName());
         assertEquals("John Smith", copy.getAuthor().getName());
@@ -522,11 +517,11 @@ class GitRepositoryTest {
         assertEquals("Rules_5", copy.getVersion());
         assertEquals("Hello.", readText(repo.read("rules/project1/file2-copy")));
 
-        FileData destProject = new FileData();
+        var destProject = new FileData();
         destProject.setName("rules/project2");
         destProject.setComment("Copy of project1");
         destProject.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
-        FileData project2 = repo.copyHistory("rules/project1", destProject, "Rules_2");
+        var project2 = repo.copyHistory("rules/project1", destProject, "Rules_2");
         assertNotNull(project2);
         assertEquals("rules/project2", project2.getName());
         assertEquals("John Smith", project2.getAuthor().getName());
@@ -534,7 +529,7 @@ class GitRepositoryTest {
         assertEquals("Copy of project1", project2.getComment());
         assertEquals(FileData.UNDEFINED_SIZE, project2.getSize());
         assertEquals("Rules_6", project2.getVersion());
-        List<FileData> project2Files = repo.list("rules/project2/");
+        var project2Files = repo.list("rules/project2/");
         assertEquals(2, project2Files.size());
         assertContains(project2Files, "rules/project2/file1");
         assertContains(project2Files, "rules/project2/file2");
@@ -543,7 +538,7 @@ class GitRepositoryTest {
     @Test
     void changesShouldBeRolledBackOnError() throws Exception {
         try {
-            FileData data = new FileData();
+            var data = new FileData();
             data.setName("rules/project1/file2");
             data.setAuthor(new UserInfo(null));
             data.setComment(null);
@@ -555,21 +550,21 @@ class GitRepositoryTest {
 
         // Check that there are no uncommitted changes after error
         try (Git git = Git.open(local)) {
-            Status status = git.status().call();
+            var status = git.status().call();
             assertTrue(status.getUncommittedChanges().isEmpty());
         }
     }
 
     @Test
     void saveWithUsernameOnlyAuthorUsesUsernameAsCommitter() throws IOException {
-        FileData data = new FileData();
+        var data = new FileData();
         data.setName("rules/project1/username-only");
         data.setAuthor(new UserInfo("admin"));
         data.setComment("Username-only author");
 
-        FileData saved = repo.save(data, IOUtils.toInputStream("content"));
+        var saved = repo.save(data, IOUtils.toInputStream("content"));
 
-        FileData history = repo.checkHistory(saved.getName(), saved.getVersion());
+        var history = repo.checkHistory(saved.getName(), saved.getVersion());
         assertEquals("admin", history.getAuthor().getName());
     }
 
@@ -587,11 +582,11 @@ class GitRepositoryTest {
         }
 
         // Check that repo is cloned successfully
-        try (GitRepository repository = createRepository(remote, local, true)) {
+        try (var repository = createRepository(remote, local, true)) {
             assertEquals(5, repository.list("").size());
         }
         // Reuse cloned before repository. Must not fail.
-        try (GitRepository repository = createRepository(remote, local, true)) {
+        try (var repository = createRepository(remote, local, true)) {
             assertEquals(5, repository.list("").size());
         }
     }
@@ -599,20 +594,20 @@ class GitRepositoryTest {
     @Test
     void neededBranchWasNotClonedBefore() throws IOException {
         // Prepare the test: clone master branch
-        File local = new File(root, "temp");
-        try (GitRepository repository = createRepository(remote, local, Constants.MASTER, true)) {
+        var local = new File(root, "temp");
+        try (var repository = createRepository(remote, local, Constants.MASTER, true)) {
             assertEquals(2, repository.list("").size());
         }
 
         // Check: second time initialize the repo. At this time use the branch "test". It must be pulled
         // successfully and repository must be switched to that branch.
-        try (GitRepository repository = createRepository(remote, local, false)) {
+        try (var repository = createRepository(remote, local, false)) {
             assertEquals(5, repository.list("").size());
 
             // Check that changes are saved to correct branch.
-            String text = "New file";
-            FileItem change1 = new FileItem("rules/project-second/new/file1", IOUtils.toInputStream(text));
-            FileItem change2 = new FileItem("rules/project-second/new/file2", IOUtils.toInputStream(text));
+            var text = "New file";
+            var change1 = new FileItem("rules/project-second/new/file1", IOUtils.toInputStream(text));
+            var change2 = new FileItem("rules/project-second/new/file2", IOUtils.toInputStream(text));
             FileData newProjectData = createFileData("rules/project-second/new", text);
             repository.save(newProjectData, Arrays.asList(change1, change2), ChangesetType.FULL);
             assertEquals(7, repository.list("").size());
@@ -622,22 +617,22 @@ class GitRepositoryTest {
     @Test
     void twoUsersAddFileSimultaneously() throws IOException {
         // Prepare the test: clone master branch
-        File local1 = new File(root, "temp1");
-        File local2 = new File(root, "temp2");
+        var local1 = new File(root, "temp1");
+        var local2 = new File(root, "temp2");
 
         // First user starts to save it's changes
-        try (GitRepository repository1 = createRepository(remote, local1, true)) {
-            String text = "New file";
+        try (var repository1 = createRepository(remote, local1, true)) {
+            var text = "New file";
 
             // Second user is quicker than first
             FileData saved2;
-            try (GitRepository repository2 = createRepository(remote, local2, true)) {
+            try (var repository2 = createRepository(remote, local2, true)) {
                 saved2 = repository2.save(createFileData("rules/project-second/file2", text),
                         IOUtils.toInputStream(text));
             }
 
             // First user does not suspect that second user already committed his changes
-            FileData saved1 = repository1.save(createFileData("rules/project-first/file1", text),
+            var saved1 = repository1.save(createFileData("rules/project-first/file1", text),
                     IOUtils.toInputStream(text));
 
             // Check that the changes of both users are persist and merged
@@ -658,25 +653,25 @@ class GitRepositoryTest {
     @Test
     void mergeConflictInFile() throws IOException {
         // Prepare the test: clone master branch
-        File local1 = new File(root, "temp1");
-        File local2 = new File(root, "temp2");
+        var local1 = new File(root, "temp1");
+        var local2 = new File(root, "temp2");
 
         String baseCommit = null;
         String theirCommit = null;
 
-        final String filePath = "rules/project1/file2";
+        final var filePath = "rules/project1/file2";
 
-        try (GitRepository repository1 = createRepository(remote, local1, true);
-             GitRepository repository2 = createRepository(remote, local2, true)) {
+        try (var repository1 = createRepository(remote, local1, true);
+             var repository2 = createRepository(remote, local2, true)) {
             try {
                 baseCommit = repository1.check(filePath).getVersion();
                 // First user commit
-                String text1 = "foo\nbar";
-                FileData save1 = repository1.save(createFileData(filePath, text1), IOUtils.toInputStream(text1));
+                var text1 = "foo\nbar";
+                var save1 = repository1.save(createFileData(filePath, text1), IOUtils.toInputStream(text1));
                 theirCommit = save1.getVersion();
 
                 // Second user commit (our). Will merge with first user's change (their).
-                String text2 = "foo\nbaz";
+                var text2 = "foo\nbaz";
                 repository2.save(createFileData(filePath, text2), IOUtils.toInputStream(text2));
 
                 fail("MergeConflictException is expected");
@@ -700,21 +695,21 @@ class GitRepositoryTest {
                         repository2.check(filePath).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
 
-                String text2 = "foo\nbaz";
-                String resolveText = "foo\nbar\nbaz";
-                String mergeMessage = "Merge with " + theirCommit;
+                var text2 = "foo\nbaz";
+                var resolveText = "foo\nbar\nbaz";
+                var mergeMessage = "Merge with " + theirCommit;
 
-                List<FileItem> resolveConflicts = Collections
+                var resolveConflicts = Collections
                         .singletonList(new FileItem(filePath, IOUtils.toInputStream(resolveText)));
 
                 FileData fileData = createFileData(filePath, text2);
                 fileData.setVersion(baseCommit);
                 fileData.addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
-                FileData localData = repository2.save(fileData, IOUtils.toInputStream(text2));
+                var localData = repository2.save(fileData, IOUtils.toInputStream(text2));
 
-                FileItem remoteItem = repository2.read(filePath);
+                var remoteItem = repository2.read(filePath);
                 assertEquals(resolveText, readText(remoteItem));
-                FileData remoteData = remoteItem.getData();
+                var remoteData = remoteItem.getData();
                 assertEquals(localData.getVersion(), remoteData.getVersion());
                 assertEquals("John Smith", remoteData.getAuthor().getName());
                 assertEquals("jsmith@email", remoteData.getAuthor().getEmail());
@@ -723,7 +718,7 @@ class GitRepositoryTest {
                 // User modifies a file based on old version (baseCommit) and gets conflict.
                 // Expected: after conflict their conflicting changes in local repository are not reverted.
                 try {
-                    String text3 = "test\nbaz";
+                    var text3 = "test\nbaz";
                     FileData fileData3 = createFileData(filePath, text3);
                     fileData3.setVersion(baseCommit); // It's is needed for this scenario
                     repository2.save(fileData3, IOUtils.toInputStream(text3));
@@ -747,24 +742,24 @@ class GitRepositoryTest {
     @Test
     void mergeConflictInFileMultipleProjects() throws IOException {
         // Prepare the test: clone master branch
-        File local1 = new File(root, "temp1");
-        File local2 = new File(root, "temp2");
+        var local1 = new File(root, "temp1");
+        var local2 = new File(root, "temp2");
 
         String baseCommit = null;
         String theirCommit = null;
 
-        final String filePath = "rules/project1/file2";
+        final var filePath = "rules/project1/file2";
 
-        try (GitRepository repository1 = createRepository(remote, local1, true);
-             GitRepository repository2 = createRepository(remote, local2, true)) {
+        try (var repository1 = createRepository(remote, local1, true);
+             var repository2 = createRepository(remote, local2, true)) {
             baseCommit = repository1.check(filePath).getVersion();
             // First user commit
-            String text1 = "foo\nbar";
-            FileData save1 = repository1.save(createFileData(filePath, text1), IOUtils.toInputStream(text1));
+            var text1 = "foo\nbar";
+            var save1 = repository1.save(createFileData(filePath, text1), IOUtils.toInputStream(text1));
             theirCommit = save1.getVersion();
 
             // Second user commit (our). Will merge with first user's change (their).
-            String text2 = "foo\nbaz";
+            var text2 = "foo\nbaz";
             FileData fileData = createFileData(filePath, text2);
             InputStream stream = IOUtils.toInputStream(text2);
             repository2.save(Collections.singletonList(new FileItem(fileData, stream)));
@@ -781,7 +776,7 @@ class GitRepositoryTest {
             assertEquals(theirCommit, conflictDetails.theirCommit());
             assertNotNull(conflictDetails.yourCommit());
 
-            try (GitRepository repository2 = createRepository(remote, local2, false)) {
+            try (var repository2 = createRepository(remote, local2, false)) {
                 assertNotEquals(conflictDetails.yourCommit(),
                         repository2.check(filePath).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
@@ -792,41 +787,41 @@ class GitRepositoryTest {
     @Test
     void mergeConflictInFolder() throws IOException {
         // Prepare the test: clone master branch
-        File local1 = new File(root, "temp1");
-        File local2 = new File(root, "temp2");
+        var local1 = new File(root, "temp1");
+        var local2 = new File(root, "temp2");
 
         String baseCommit = null;
         String theirCommit = null;
 
-        final String folderPath = "rules/project1";
+        final var folderPath = "rules/project1";
 
-        final String conflictedFile = "rules/project1/file2";
-        try (GitRepository repository1 = createRepository(remote, local1, true);
-             GitRepository repository2 = createRepository(remote, local2, true)) {
+        final var conflictedFile = "rules/project1/file2";
+        try (var repository1 = createRepository(remote, local1, true);
+             var repository2 = createRepository(remote, local2, true)) {
             try {
                 baseCommit = repository1.check(folderPath).getVersion();
                 // First user commit
-                String text1 = "foo\nbar";
-                List<FileItem> changes1 = Arrays.asList(
+                var text1 = "foo\nbar";
+                var changes1 = Arrays.asList(
                         new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
                         new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
                         new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
 
-                FileData folderData1 = new FileData();
+                var folderData1 = new FileData();
                 folderData1.setName("rules/project1");
                 folderData1.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
                 folderData1.setComment("Bulk change by John");
 
-                FileData save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
+                var save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
                 theirCommit = save1.getVersion();
 
                 // Second user commit (our). Will merge with first user's change (their).
-                String text2 = "foo\nbaz";
-                List<FileItem> changes2 = Arrays.asList(
+                var text2 = "foo\nbaz";
+                var changes2 = Arrays.asList(
                         new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
                         new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
 
-                FileData folderData2 = new FileData();
+                var folderData2 = new FileData();
                 folderData2.setName("rules/project1");
                 folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
                 folderData2.setComment("Bulk change by Jane");
@@ -853,29 +848,29 @@ class GitRepositoryTest {
                         repository2.check(conflictedFile).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
 
-                String text2 = "foo\nbaz";
-                String resolveText = "foo\nbar\nbaz";
-                String mergeMessage = "Merge with " + theirCommit;
+                var text2 = "foo\nbaz";
+                var resolveText = "foo\nbar\nbaz";
+                var mergeMessage = "Merge with " + theirCommit;
 
-                List<FileItem> changes2 = Arrays.asList(
+                var changes2 = Arrays.asList(
                         new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
                         new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
 
-                List<FileItem> resolveConflicts = Collections
+                var resolveConflicts = Collections
                         .singletonList(new FileItem(conflictedFile, IOUtils.toInputStream(resolveText)));
 
-                FileData folderData2 = new FileData();
+                var folderData2 = new FileData();
                 folderData2.setName("rules/project1");
                 folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
                 folderData2.setComment("Bulk change by Jane");
                 folderData2.setVersion(baseCommit);
                 folderData2
                         .addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
-                FileData localData = repository2.save(folderData2, changes2, ChangesetType.DIFF);
+                var localData = repository2.save(folderData2, changes2, ChangesetType.DIFF);
 
-                FileItem remoteItem = repository2.read(conflictedFile);
+                var remoteItem = repository2.read(conflictedFile);
                 assertEquals(resolveText, readText(remoteItem));
-                FileData remoteData = remoteItem.getData();
+                var remoteData = remoteItem.getData();
                 assertEquals(localData.getVersion(), remoteData.getVersion());
                 assertEquals("Jane Smith", remoteData.getAuthor().getName());
                 assertEquals("jasmith@email", remoteData.getAuthor().getEmail());
@@ -887,12 +882,12 @@ class GitRepositoryTest {
                 // User modifies a file based on old version (baseCommit) and gets conflict.
                 // Expected: after conflict their conflicting changes in local repository are not reverted.
                 try {
-                    String text3 = "test\nbaz";
-                    List<FileItem> changes3 = Arrays.asList(
+                    var text3 = "test\nbaz";
+                    var changes3 = Arrays.asList(
                             new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
                             new FileItem(conflictedFile, IOUtils.toInputStream(text3)));
 
-                    FileData folderData3 = new FileData();
+                    var folderData3 = new FileData();
                     folderData3.setName("rules/project1");
                     folderData3.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
                     folderData3.setComment("Bulk change by Jane");
@@ -912,40 +907,40 @@ class GitRepositoryTest {
     @Test
     void mergeConflictInFolderWithFileDeleting() throws IOException {
         // Prepare the test: clone master branch
-        File local1 = new File(root, "temp1");
-        File local2 = new File(root, "temp2");
+        var local1 = new File(root, "temp1");
+        var local2 = new File(root, "temp2");
 
         String baseCommit = null;
         String theirCommit = null;
 
-        final String folderPath = "rules/project1";
+        final var folderPath = "rules/project1";
 
-        final String conflictedFile = "rules/project1/file2";
-        try (GitRepository repository1 = createRepository(remote, local1, true);
-             GitRepository repository2 = createRepository(remote, local2, true)) {
+        final var conflictedFile = "rules/project1/file2";
+        try (var repository1 = createRepository(remote, local1, true);
+             var repository2 = createRepository(remote, local2, true)) {
             try {
                 baseCommit = repository1.check(folderPath).getVersion();
                 // First user commit
-                String text1 = "foo\nbar";
-                List<FileItem> changes1 = Arrays.asList(
+                var text1 = "foo\nbar";
+                var changes1 = Arrays.asList(
                         new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
                         new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
                         new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
 
-                FileData folderData1 = new FileData();
+                var folderData1 = new FileData();
                 folderData1.setName("rules/project1");
                 folderData1.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
                 folderData1.setComment("Bulk change by John");
 
-                FileData save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
+                var save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
                 theirCommit = save1.getVersion();
 
                 // Second user commit (our). Will merge with first user's change (their).
-                List<FileItem> changes2 = Arrays.asList(
+                var changes2 = Arrays.asList(
                         new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
                         new FileItem(conflictedFile, null));
 
-                FileData folderData2 = new FileData();
+                var folderData2 = new FileData();
                 folderData2.setName("rules/project1");
                 folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
                 folderData2.setComment("Bulk change by Jane");
@@ -972,15 +967,15 @@ class GitRepositoryTest {
                         repository2.check(conflictedFile).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
 
-                String mergeMessage = "Merge with " + theirCommit;
+                var mergeMessage = "Merge with " + theirCommit;
 
-                List<FileItem> changes2 = Arrays.asList(
+                var changes2 = Arrays.asList(
                         new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
                         new FileItem(conflictedFile, null));
 
-                List<FileItem> resolveConflicts = Collections.singletonList(new FileItem(conflictedFile, null));
+                var resolveConflicts = Collections.singletonList(new FileItem(conflictedFile, null));
 
-                FileData folderData2 = new FileData();
+                var folderData2 = new FileData();
                 folderData2.setName("rules/project1");
                 folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
                 folderData2.setComment("Bulk change by Jane");
@@ -989,7 +984,7 @@ class GitRepositoryTest {
                         .addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
                 repository2.save(folderData2, changes2, ChangesetType.DIFF);
 
-                FileItem remoteItem = repository2.read(conflictedFile);
+                var remoteItem = repository2.read(conflictedFile);
                 assertNull(remoteItem);
             }
         }
@@ -998,40 +993,40 @@ class GitRepositoryTest {
     @Test
     void mergeConflictInFolderMultipleProjects() throws IOException {
         // Prepare the test: clone master branch
-        File local1 = new File(root, "temp1");
-        File local2 = new File(root, "temp2");
+        var local1 = new File(root, "temp1");
+        var local2 = new File(root, "temp2");
 
         String baseCommit = null;
         String theirCommit = null;
 
-        final String folderPath = "rules/project1";
+        final var folderPath = "rules/project1";
 
-        final String conflictedFile = "rules/project1/file2";
-        try (GitRepository repository1 = createRepository(remote, local1, true);
-             GitRepository repository2 = createRepository(remote, local2, true)) {
+        final var conflictedFile = "rules/project1/file2";
+        try (var repository1 = createRepository(remote, local1, true);
+             var repository2 = createRepository(remote, local2, true)) {
             baseCommit = repository1.check(folderPath).getVersion();
             // First user commit
-            String text1 = "foo\nbar";
-            List<FileItem> changes1 = Arrays.asList(
+            var text1 = "foo\nbar";
+            var changes1 = Arrays.asList(
                     new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
                     new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
                     new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
 
-            FileData folderData1 = new FileData();
+            var folderData1 = new FileData();
             folderData1.setName("rules/project1");
             folderData1.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
             folderData1.setComment("Bulk change by John");
 
-            FileData save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
+            var save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
             theirCommit = save1.getVersion();
 
             // Second user commit (our). Will merge with first user's change (their).
-            String text2 = "foo\nbaz";
-            List<FileItem> changes2 = Arrays.asList(
+            var text2 = "foo\nbaz";
+            var changes2 = Arrays.asList(
                     new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
                     new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
 
-            FileData folderData2 = new FileData();
+            var folderData2 = new FileData();
             folderData2.setName("rules/project1");
             folderData2.setAuthor(new UserInfo("jasmith", "jasmith@eamil", "Jane Smith"));
             folderData2.setComment("Bulk change by Jane");
@@ -1049,7 +1044,7 @@ class GitRepositoryTest {
             assertEquals(theirCommit, conflictDetails.theirCommit());
             assertNotNull(conflictDetails.yourCommit());
 
-            try (GitRepository repository2 = createRepository(remote, local2, false)) {
+            try (var repository2 = createRepository(remote, local2, false)) {
                 assertNotEquals(conflictDetails.yourCommit(),
                         repository2.check(conflictedFile).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
@@ -1066,8 +1061,8 @@ class GitRepositoryTest {
 
         // Don't close "project1/test1" and "project1/test2" repositories explicitly.
         // Secondary repositories should be closed by parent repository automatically.
-        BranchRepository repoTest1 = repo.forBranch("project1/test1");
-        BranchRepository repoTest2 = repo.forBranch("project1/test2");
+        var repoTest1 = repo.forBranch("project1/test1");
+        var repoTest2 = repo.forBranch("project1/test2");
 
         assertEquals(BRANCH, repo.getBranch());
         assertEquals("project1/test1", repoTest1.getBranch());
@@ -1077,9 +1072,9 @@ class GitRepositoryTest {
         assertListEquals(Arrays.asList("test", "project1/test2"), repo.getBranches(FOLDER_IN_REPOSITORY));
 
         // Test that forBranch() fetches new branch if it has not been cloned before
-        File temp = new File(root, "temp");
-        try (GitRepository repository = createRepository(remote, temp, Constants.MASTER, true)) {
-            GitRepository branchRepo = repository.forBranch("project1/test2");
+        var temp = new File(root, "temp");
+        try (var repository = createRepository(remote, temp, Constants.MASTER, true)) {
+            var branchRepo = repository.forBranch("project1/test2");
             assertNotNull(branchRepo.check("rules/project1/file1"));
         }
     }
@@ -1087,15 +1082,15 @@ class GitRepositoryTest {
     @Test
     void pathToRepoInsteadOfUri() throws IOException {
         // Will use this path instead of uri. Git accepts that.
-        String remote = new File(root, "remote").getAbsolutePath();
+        var remote = new File(root, "remote").getAbsolutePath();
 
-        try (GitRepository repository = createRepository(remote, local, BRANCH, true)) {
+        try (var repository = createRepository(remote, local, BRANCH, true)) {
             assertNotNull(repository);
         }
-        try (GitRepository repository = createRepository(remote + "/", local, BRANCH, false)) {
+        try (var repository = createRepository(remote + "/", local, BRANCH, false)) {
             assertNotNull(repository);
         }
-        try (GitRepository repository = createRepository(new File(remote).toURI().toString(), local, BRANCH, false)) {
+        try (var repository = createRepository(new File(remote).toURI().toString(), local, BRANCH, false)) {
             assertNotNull(repository);
         }
     }
@@ -1108,11 +1103,11 @@ class GitRepositoryTest {
 
     @Test
     void testFetchChanges() throws IOException, GitAPIException {
-        ObjectId before = repo.getLastRevision();
-        String newBranch = "new-branch";
+        var before = repo.getLastRevision();
+        var newBranch = "new-branch";
 
         // Make a copy before any modifications
-        File local2 = new File(root, "local2");
+        var local2 = new File(root, "local2");
         FileUtils.copy(local, local2);
 
         // Modify on remote
@@ -1120,13 +1115,13 @@ class GitRepositoryTest {
             git.checkout().setName(BRANCH).call();
             git.branchCreate().setName(newBranch).call();
 
-            Repository repository = git.getRepository();
+            var repository = git.getRepository();
 
-            File rulesFolder = new File(repository.getDirectory().getParentFile(), FOLDER_IN_REPOSITORY);
-            File file2 = new File(rulesFolder, "file2");
+            var rulesFolder = new File(repository.getDirectory().getParentFile(), FOLDER_IN_REPOSITORY);
+            var file2 = new File(rulesFolder, "file2");
             writeText(file2, "Modify on remote server");
             git.add().addFilepattern(".").call();
-            RevCommit commit = git.commit()
+            var commit = git.commit()
                     .setAll(true)
                     .setMessage("Second modification")
                     .setCommitter("User 2", "user2@email.to")
@@ -1136,23 +1131,23 @@ class GitRepositoryTest {
         }
 
         // Force fetching
-        ObjectId after = repo.getLastRevision();
+        var after = repo.getLastRevision();
         assertNotEquals(before, after, "Last revision should be changed because of a new commit on a server");
         assertTrue(repo.getAvailableBranches().contains(newBranch), "Branch " + newBranch + " must be created");
 
         // Check that changes are fetched and fast forwarded after getLastRevision()
-        List<FileData> file2History = repo.listHistory("rules/project1/file2");
+        var file2History = repo.listHistory("rules/project1/file2");
         assertEquals(3, file2History.size());
 
         // Check that after repo initialization all changes are fetched and fast forwarded
-        try (GitRepository repo2 = createRepository(remote, local2, false)) {
+        try (var repo2 = createRepository(remote, local2, false)) {
             file2History = repo2.listHistory("rules/project1/file2");
             assertEquals(3, file2History.size());
             assertTrue(repo2.getAvailableBranches().contains(newBranch), "Branch " + newBranch + " must be created");
         }
 
         // Check that all branches are available when repository is cloned.
-        try (GitRepository repo3 = createRepository(remote, new File(root, "local3"), true)) {
+        try (var repo3 = createRepository(remote, new File(root, "local3"), true)) {
             assertTrue(repo3.getAvailableBranches().contains(newBranch), "Branch " + newBranch + " must be created");
         }
 
@@ -1167,25 +1162,25 @@ class GitRepositoryTest {
         assertFalse(repo.getAvailableBranches().contains(BRANCH), "Branch " + BRANCH + " must be deleted");
 
         // Check that after repo initialization the branch is deleted on local repository.
-        try (GitRepository repo2 = createRepository(remote, local2, "master", false)) {
+        try (var repo2 = createRepository(remote, local2, "master", false)) {
             assertFalse(repo2.getAvailableBranches().contains(BRANCH), "Branch " + BRANCH + " must be deleted");
         }
     }
 
     @Test
     void testPullDoesntAutoMerge() throws IOException {
-        final String newBranch = "new-branch";
+        final var newBranch = "new-branch";
         repo.createBranch(FOLDER_IN_REPOSITORY, newBranch);
-        GitRepository newBranchRepo = repo.forBranch(newBranch);
+        var newBranchRepo = repo.forBranch(newBranch);
 
         // Add a new commit in the new branch.
-        final String newPath = "rules/project1/folder/file-in-new-branch";
-        String newText = "File located in " + newPath;
+        final var newPath = "rules/project1/folder/file-in-new-branch";
+        var newText = "File located in " + newPath;
         newBranchRepo.save(createFileData(newPath, newText), IOUtils.toInputStream(newText));
 
         // Add a new commit in 'test' branch after 'new-branch' was created. Forces invocation of 'git checkout test' to
         // switch branch.
-        String mainText = "Modify";
+        var mainText = "Modify";
         repo.save(createFileData("rules/project1/folder/file4", mainText), IOUtils.toInputStream(mainText));
 
         // After current branch was switched to 'test', invoke pull on 'new-branch'.
@@ -1200,26 +1195,26 @@ class GitRepositoryTest {
 
     @Test
     void testOnlySpecifiedBranchesAreMerged() throws IOException {
-        final String branch1 = "branch1";
+        final var branch1 = "branch1";
         repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
-        GitRepository branch1Repo = repo.forBranch(branch1);
+        var branch1Repo = repo.forBranch(branch1);
 
-        final String branch2 = "branch2";
+        final var branch2 = "branch2";
         repo.createBranch(FOLDER_IN_REPOSITORY, branch2);
-        GitRepository branch2Repo = repo.forBranch(branch2);
+        var branch2Repo = repo.forBranch(branch2);
 
         // Add commits in the new branches.
-        final String path1 = "rules/project1/folder/new-file1";
-        String text1 = "Text1";
+        final var path1 = "rules/project1/folder/new-file1";
+        var text1 = "Text1";
         branch1Repo.save(createFileData(path1, text1), IOUtils.toInputStream(text1));
 
-        final String path2 = "rules/project1/folder/new-file2";
-        String text2 = "Text2";
+        final var path2 = "rules/project1/folder/new-file2";
+        var text2 = "Text2";
         branch2Repo.save(createFileData(path2, text2), IOUtils.toInputStream(text2));
 
         // Add a new commit in 'test' branch after new branches were created. Forces invocation of 'git checkout test'
         // to switch branch.
-        String mainText = "Modify";
+        var mainText = "Modify";
         repo.save(createFileData("rules/project1/folder/file4", mainText), IOUtils.toInputStream(mainText));
 
         // After current branch was switched to 'test', merge 'branch1' to 'branch2'.
@@ -1245,10 +1240,10 @@ class GitRepositoryTest {
     @Test
     void testResetUncommittedChanges() throws IOException {
         File parent;
-        try (Git git = repo.getClosableGit()) {
+        try (var git = repo.getClosableGit()) {
             parent = git.getRepository().getDirectory().getParentFile();
         }
-        File existingFile = new File(parent, "file-in-master");
+        var existingFile = new File(parent, "file-in-master");
         assertTrue(existingFile.exists());
 
         // Delete the file but don't commit it. Changes in not committed (modified externally for example or after
@@ -1258,7 +1253,7 @@ class GitRepositoryTest {
         assertFalse(existingFile.exists());
 
         // Save other file.
-        String text = "Some text";
+        var text = "Some text";
         repo.save(createFileData("folder/any-file", text), IOUtils.toInputStream(text));
 
         // Not committed changes should be aborted
@@ -1274,17 +1269,17 @@ class GitRepositoryTest {
     }
 
     private GitRepository createRepository(String remoteUri, File local, String branch, boolean empty) throws IOException {
-        GitRepository newRepo = new GitRepository();
+        var newRepo = new GitRepository();
         newRepo.setId(REPO_ID);
         newRepo.setUri(remoteUri);
         newRepo.setLocalRepositoriesFolder(repositoriesFolder);
         newRepo.setBranch(branch);
         newRepo.setTagPrefix(TAG_PREFIX);
         newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
-        String settingsPath = local.getParent() + "/git-settings";
-        FileSystemRepository settingsRepository = new FileSystemRepository();
+        var settingsPath = local.getParent() + "/git-settings";
+        var settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);
-        String locksRoot = new File(root, "locks").getAbsolutePath();
+        var locksRoot = new File(root, "locks").getAbsolutePath();
         newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.setGcAutoDetach(false);
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, remoteUri, local, repositoriesFolder, true, empty));

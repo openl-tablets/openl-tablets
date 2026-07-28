@@ -20,7 +20,7 @@ class JAXBSerializer {
     }
 
     public void marshal(Object object, OutputStream outputStream) throws JAXBException {
-        Marshaller marshaller = jaxbContext.createMarshaller();
+        var marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true); // excludes header
         marshaller.marshal(object, new SkipUntilBracketOutputStream(outputStream));
@@ -60,7 +60,7 @@ class JAXBSerializer {
                 out.write(b, off, len);
             } else {
                 // the beginning of the tag '<' is still not found
-                for (int i = off; i < off + len; i++) {
+                for (var i = off; i < off + len; i++) {
                     if (foundBracket) {
                         out.write(b, i, off + len - i);
                         break;

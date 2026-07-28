@@ -10,7 +10,6 @@ import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
@@ -91,7 +90,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     @Override
     public BindingDependencies getDependencies() {
-        BindingDependencies bindingDependencies = new RulesBindingDependencies();
+        var bindingDependencies = new RulesBindingDependencies();
         getBoundNode().updateDependency(bindingDependencies);
 
         return bindingDependencies;
@@ -103,7 +102,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     @Override
     public String getSourceUrl() {
-        TableSyntaxNode syntaxNode = getSyntaxNode();
+        var syntaxNode = getSyntaxNode();
         return syntaxNode == null ? null : syntaxNode.getUri();
     }
 

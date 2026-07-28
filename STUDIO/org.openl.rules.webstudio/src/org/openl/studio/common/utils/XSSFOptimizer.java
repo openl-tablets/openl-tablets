@@ -6,8 +6,6 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.poi.xssf.model.StylesTable;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCell;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
@@ -15,7 +13,6 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyles;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCol;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCols;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRow;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheetData;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
 @Slf4j
@@ -38,13 +35,13 @@ public final class XSSFOptimizer {
             return;
         }
 
-        long startedAtNs = System.nanoTime();
-        int sheets = workbook.getNumberOfSheets();
+        var startedAtNs = System.nanoTime();
+        var sheets = workbook.getNumberOfSheets();
 
         log.info("Starting style optimization... (removeUnusedCellXfs={}, sheets={})", removeUnusedCellXfs, sheets);
 
         try {
-            StylesTable stylesSource = workbook.getStylesSource();
+            var stylesSource = workbook.getStylesSource();
             if (stylesSource == null || stylesSource.getCTStylesheet() == null) {
                 log.info("No styles table found. Skipping optimization.");
                 return;
@@ -52,9 +49,9 @@ public final class XSSFOptimizer {
 
             // NOTE: Using reflection is fragile across POI versions. We keep it but fail safely.
             @SuppressWarnings("unchecked")
-            List<CTXf> cellXfs = (List<CTXf>) FieldUtils.readDeclaredField(stylesSource, "xfs", true);        // <cellXfs>
+            var cellXfs = (List<CTXf>) FieldUtils.readDeclaredField(stylesSource, "xfs", true);        // <cellXfs>
             @SuppressWarnings("unchecked")
-            List<CTXf> styleXfs = (List<CTXf>) FieldUtils.readDeclaredField(stylesSource, "styleXfs", true);  // <cellStyleXfs>
+            var styleXfs = (List<CTXf>) FieldUtils.readDeclaredField(stylesSource, "styleXfs", true);  // <cellStyleXfs>
 
             if (cellXfs == null || styleXfs == null) {
                 log.info("Styles lists are not accessible. Skipping optimization.");
@@ -63,13 +60,13 @@ public final class XSSFOptimizer {
 
             // Ensure <cellStyles> exists and is attached to the stylesheet (important when it was null).
             var ct = stylesSource.getCTStylesheet();
-            CTCellStyles cellStyles = ct.getCellStyles();
+            var cellStyles = ct.getCellStyles();
             if (cellStyles == null) {
                 cellStyles = CTCellStyles.Factory.newInstance();
                 ct.setCellStyles(cellStyles);
             }
 
-            List<CTCellStyle> existingNamedStyles = new ArrayList<>(cellStyles.getCellStyleList());
+            var existingNamedStyles = new ArrayList<CTCellStyle>(cellStyles.getCellStyleList());
 
             log.info("Exists: cellXfs={}, styleXfs={}, namedStyles={}",
                     cellXfs.size(), styleXfs.size(), existingNamedStyles.size());
@@ -90,7 +87,7 @@ public final class XSSFOptimizer {
             // POI internals may change. In that case: do not partially modify the workbook further.
             log.error("Style optimization failed: {}", e.getMessage(), e);
         } finally {
-            long elapsedNs = System.nanoTime() - startedAtNs;
+            var elapsedNs = System.nanoTime() - startedAtNs;
             log.info("Style optimization time: {} ms", TimeUnit.NANOSECONDS.toMillis(elapsedNs));
         }
     }
@@ -102,15 +99,15 @@ public final class XSSFOptimizer {
      * - CTCol.style
      */
     private static void compactCellXfsAndRewriteReferences(XSSFWorkbook workbook, List<CTXf> cellXfs) {
-        int size = cellXfs.size();
+        var size = cellXfs.size();
         boolean[] used = new boolean[size];
 
         // Excel default style index 0 is often implicitly used even if no explicit "s" attributes exist.
         used[0] = true;
 
         // Detect usage from sheets (cells, rows, columns).
-        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-            XSSFSheet sheet = workbook.getSheetAt(i);
+        for (var i = 0; i < workbook.getNumberOfSheets(); i++) {
+            var sheet = workbook.getSheetAt(i);
             if (sheet == null || sheet.getCTWorksheet() == null) {
                 continue;
             }
@@ -126,7 +123,7 @@ public final class XSSFOptimizer {
             }
 
             // Rows + cells: <sheetData><row s="..."><c s="..."/></row></sheetData>
-            CTSheetData sheetData = sheet.getCTWorksheet().getSheetData();
+            var sheetData = sheet.getCTWorksheet().getSheetData();
             if (sheetData == null) {
                 continue;
             }
@@ -145,10 +142,10 @@ public final class XSSFOptimizer {
 
         // Build mapping oldIndex -> newIndex and the new compacted list, preserving order.
         int[] map = new int[size];
-        int newIndex = 0;
-        List<CTXf> newCellXfs = new ArrayList<>();
+        var newIndex = 0;
+        var newCellXfs = new ArrayList<CTXf>();
 
-        for (int oldIndex = 0; oldIndex < size; oldIndex++) {
+        for (var oldIndex = 0; oldIndex < size; oldIndex++) {
             if (!used[oldIndex]) {
                 map[oldIndex] = -1;
                 continue;
@@ -158,8 +155,8 @@ public final class XSSFOptimizer {
         }
 
         // Rewrite references across sheets (cells/rows/cols).
-        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-            XSSFSheet sheet = workbook.getSheetAt(i);
+        for (var i = 0; i < workbook.getNumberOfSheets(); i++) {
+            var sheet = workbook.getSheetAt(i);
             if (sheet == null || sheet.getCTWorksheet() == null) {
                 continue;
             }
@@ -174,7 +171,7 @@ public final class XSSFOptimizer {
             }
 
             // Rows + cells
-            CTSheetData sheetData = sheet.getCTWorksheet().getSheetData();
+            var sheetData = sheet.getCTWorksheet().getSheetData();
             if (sheetData == null) {
                 continue;
             }
@@ -204,7 +201,7 @@ public final class XSSFOptimizer {
                                                       List<CTXf> styleXfs,
                                                       CTCellStyles cellStyles,
                                                       List<CTCellStyle> existingNamedStyles) {
-        int styleSize = styleXfs.size();
+        var styleSize = styleXfs.size();
         if (styleSize == 0) {
             // Nothing to compact; still normalize named styles to empty.
             cellStyles.setCount(0);
@@ -216,7 +213,7 @@ public final class XSSFOptimizer {
 
         // Mark used styleXfs by xfId referenced from each cellXf.
         for (CTXf cellXf : cellXfs) {
-            int oldStyleId = (int) cellXf.getXfId();
+            var oldStyleId = (int) cellXf.getXfId();
             if (oldStyleId >= 0 && oldStyleId < styleSize) {
                 usedStyle[oldStyleId] = true;
             }
@@ -224,16 +221,16 @@ public final class XSSFOptimizer {
 
         // Build mapping oldStyleId -> newStyleId and create compacted styleXfs list.
         int[] styleMap = new int[styleSize];
-        int newId = 0;
-        List<CTXf> newStyleXfs = new ArrayList<>();
+        var newId = 0;
+        var newStyleXfs = new ArrayList<CTXf>();
 
-        for (int oldId = 0; oldId < styleSize; oldId++) {
+        for (var oldId = 0; oldId < styleSize; oldId++) {
             if (!usedStyle[oldId]) {
                 styleMap[oldId] = -1;
                 continue;
             }
             styleMap[oldId] = newId;
-            CTXf styleXf = styleXfs.get(oldId);
+            var styleXf = styleXfs.get(oldId);
             // Keep xfId coherent with new index. (Some consumers assume this matches its position.)
             styleXf.setXfId(newId);
             newStyleXfs.add(styleXf);
@@ -242,7 +239,7 @@ public final class XSSFOptimizer {
 
         // Rewrite xfId in all cellXfs.
         for (CTXf cellXf : cellXfs) {
-            int oldStyleId = (int) cellXf.getXfId();
+            var oldStyleId = (int) cellXf.getXfId();
             if (oldStyleId >= 0 && oldStyleId < styleMap.length && styleMap[oldStyleId] >= 0) {
                 cellXf.setXfId(styleMap[oldStyleId]);
             } else {
@@ -252,9 +249,9 @@ public final class XSSFOptimizer {
         }
 
         // Compact named styles: keep only those that reference still-used styleXf IDs and remap them.
-        List<CTCellStyle> newNamedStyles = new ArrayList<>();
+        var newNamedStyles = new ArrayList<CTCellStyle>();
         for (CTCellStyle named : existingNamedStyles) {
-            int oldStyleId = (int) named.getXfId();
+            var oldStyleId = (int) named.getXfId();
             if (oldStyleId >= 0 && oldStyleId < styleMap.length && styleMap[oldStyleId] >= 0) {
                 named.setXfId(styleMap[oldStyleId]);
                 newNamedStyles.add(named);
@@ -280,7 +277,7 @@ public final class XSSFOptimizer {
 
     private static long remapIndexOrDefault(int[] map, int oldIndex) {
         if (oldIndex >= 0 && oldIndex < map.length) {
-            int newIndex = map[oldIndex];
+            var newIndex = map[oldIndex];
             if (newIndex >= 0) {
                 return newIndex;
             }

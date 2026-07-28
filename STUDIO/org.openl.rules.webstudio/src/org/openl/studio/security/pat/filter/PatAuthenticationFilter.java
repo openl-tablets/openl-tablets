@@ -9,13 +9,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import org.openl.studio.security.pat.model.PatAuthResolution;
 import org.openl.studio.security.pat.model.PatToken;
 import org.openl.studio.security.pat.service.PatAuthService;
 
@@ -67,13 +65,13 @@ public class PatAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        var header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header == null || !header.startsWith(PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String tokenValue = header.substring(PREFIX.length()).trim();
+        var tokenValue = header.substring(PREFIX.length()).trim();
 
         PatToken patToken;
         try {
@@ -83,17 +81,17 @@ public class PatAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        PatAuthResolution resolution = patAuthService.resolveAuthentication(patToken);
+        var resolution = patAuthService.resolveAuthentication(patToken);
 
         if (!resolution.valid()) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase());
             return;
         }
 
-        Authentication authResult = resolution.authentication();
+        var authResult = resolution.authentication();
 
         if (authenticationIsRequired(authResult.getName())) {
-            SecurityContext context = securityContextHolderStrategy.createEmptyContext();
+            var context = securityContextHolderStrategy.createEmptyContext();
             context.setAuthentication(authResult);
             securityContextHolderStrategy.setContext(context);
         }
@@ -117,7 +115,7 @@ public class PatAuthenticationFilter extends OncePerRequestFilter {
      * @return true if authentication should be set, false otherwise
      */
     protected boolean authenticationIsRequired(String username) {
-        Authentication existingAuth = securityContextHolderStrategy.getContext().getAuthentication();
+        var existingAuth = securityContextHolderStrategy.getContext().getAuthentication();
 
         if (existingAuth == null) {
             return true;

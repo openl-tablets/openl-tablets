@@ -31,7 +31,7 @@ public class DynamicObjectField extends AOpenField {
         if (target == null) {
             return getType().nullObject();
         }
-        Object res = ((IDynamicObject) target).getFieldValue(getName());
+        var res = ((IDynamicObject) target).getFieldValue(getName());
 
         return res != null ? res : getType().nullObject();
     }

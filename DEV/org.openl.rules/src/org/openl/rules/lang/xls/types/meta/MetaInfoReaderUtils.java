@@ -24,18 +24,18 @@ import org.openl.util.CollectionUtils;
 public class MetaInfoReaderUtils {
 
     public static List<CellMetaInfo> getMetaInfo(IOpenSourceCodeModule source, CompositeMethod method) {
-        int startIndex = 0;
+        var startIndex = 0;
         if (source instanceof CompositeSourceCodeModule module) {
             return getMetaInfoForCompositeSource(method, module, startIndex);
         } else {
-            IOpenSourceCodeModule src = source;
+            var src = source;
             // extract original cell source
             while (src instanceof SubTextSourceCodeModule) {
                 startIndex += src.getStartPosition();
                 src = ((SubTextSourceCodeModule) src).getBaseModule();
             }
             if (src instanceof GridCellSourceCodeModule) {
-                List<NodeUsage> nodeUsages = getNodeUsages(method, source.getCode(), startIndex);
+                var nodeUsages = getNodeUsages(method, source.getCode(), startIndex);
                 return Collections.singletonList(getCellMetaInfoOrNull(nodeUsages));
             }
         }
@@ -54,16 +54,16 @@ public class MetaInfoReaderUtils {
     private static List<CellMetaInfo> getMetaInfoForCompositeSource(CompositeMethod method,
                                                                     CompositeSourceCodeModule source,
                                                                     int startIndex) {
-        List<NodeUsage> nodeUsages = getNodeUsages(method, source.getCode(), startIndex);
+        var nodeUsages = getNodeUsages(method, source.getCode(), startIndex);
 
-        IOpenSourceCodeModule[] modules = source.getModules();
-        int moduleStart = 0;
-        List<CellMetaInfo> metaInfoList = new ArrayList<>();
+        var modules = source.getModules();
+        var moduleStart = 0;
+        var metaInfoList = new ArrayList<CellMetaInfo>();
         for (IOpenSourceCodeModule module : modules) {
-            int moduleEnd = moduleStart + module.getCode().length();
+            var moduleEnd = moduleStart + module.getCode().length();
             if (module instanceof GridCellSourceCodeModule) {
                 // find all methods used in current cell
-                List<NodeUsage> currentCellMethodUsages = new ArrayList<>();
+                var currentCellMethodUsages = new ArrayList<NodeUsage>();
                 for (NodeUsage usage : nodeUsages) {
                     if (usage.getStart() >= moduleStart && usage.getEnd() <= moduleEnd) {
                         switch (usage) {

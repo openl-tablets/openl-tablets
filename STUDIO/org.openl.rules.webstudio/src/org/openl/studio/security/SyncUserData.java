@@ -29,11 +29,11 @@ public class SyncUserData implements Consumer<SimpleUser> {
     @Override
     public void accept(SimpleUser user) {
 
-        String username = user.getUsername();
-        String firstName = user.getFirstName();
-        String lastName = user.getLastName();
-        String email = user.getEmail();
-        String displayName = user.getDisplayName();
+        var username = user.getUsername();
+        var firstName = user.getFirstName();
+        var lastName = user.getLastName();
+        var email = user.getEmail();
+        var displayName = user.getDisplayName();
 
         // Update User details
         userManagementService.syncUserData(username, firstName, lastName, email, displayName);

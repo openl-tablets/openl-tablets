@@ -36,9 +36,9 @@ public class ParameterDeclarationNodeBinder extends ANodeBinder {
     @Override
     public final IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         IBoundNode typeNode = bindChildNode(node.getChild(0), bindingContext);
-        IOpenClass type = typeNode.getType();
-        ISyntaxNode child = node.getChild(1);
-        String name = child.getText();
+        var type = typeNode.getType();
+        var child = node.getChild(1);
+        var name = child.getText();
         if (node.getNumberOfChildren() > 2) {
             validateMetaData(node.getChild(2), bindingContext);
         }

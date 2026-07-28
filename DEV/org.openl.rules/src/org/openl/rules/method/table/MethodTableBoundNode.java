@@ -8,7 +8,6 @@ import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.CompositeSourceCodeModule;
@@ -39,26 +38,26 @@ public class MethodTableBoundNode extends AMethodBasedNode {
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         super.finalizeBind(bindingContext);
 
-        TableSyntaxNode tsn = getTableSyntaxNode();
+        var tsn = getTableSyntaxNode();
 
-        ILogicalTable logicalTable = tsn.getTable();
-        boolean tableHasProperties = tsn.hasPropertiesDefinedInTable();
-        ILogicalTable bodyTable = logicalTable.getRows(tableHasProperties ? 2 : 1);
+        var logicalTable = tsn.getTable();
+        var tableHasProperties = tsn.hasPropertiesDefinedInTable();
+        var bodyTable = logicalTable.getRows(tableHasProperties ? 2 : 1);
 
         if (bodyTable == null) {
-            String errorMessage = "Body section is mandatory for Method table.";
+            var errorMessage = "Body section is mandatory for Method table.";
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, tsn);
             bindingContext.addError(error);
         } else {
-            int height = bodyTable.getHeight();
+            var height = bodyTable.getHeight();
 
             IOpenSourceCodeModule[] cellSources = new IOpenSourceCodeModule[height];
 
-            for (int i = 0; i < height; i++) {
+            for (var i = 0; i < height; i++) {
                 cellSources[i] = new GridCellSourceCodeModule(bodyTable.getRow(i).getSource(), bindingContext);
             }
 
-            IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");
+            var src = new CompositeSourceCodeModule(cellSources, "\n");
 
             OpenLManager.compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
         }

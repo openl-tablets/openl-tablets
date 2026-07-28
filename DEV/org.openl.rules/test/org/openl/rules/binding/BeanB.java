@@ -13,8 +13,8 @@ public class BeanB {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
+        final var prime = 31;
+        var result = 1;
         result = prime * result + (name == null ? 0 : name.hashCode());
         return result;
     }
@@ -30,7 +30,7 @@ public class BeanB {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        BeanB other = (BeanB) obj;
+        var other = (BeanB) obj;
         if (name == null) {
             if (other.name != null) {
                 return false;

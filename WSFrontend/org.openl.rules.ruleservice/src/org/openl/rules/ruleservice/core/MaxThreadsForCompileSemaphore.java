@@ -27,7 +27,7 @@ public final class MaxThreadsForCompileSemaphore {
     }
 
     public <T> T run(Callable<T> callable) throws Exception {
-        boolean requiredSemaphore = MaxThreadsForCompileSemaphore.getInstance().getThreadsMarker().get() == null;
+        var requiredSemaphore = MaxThreadsForCompileSemaphore.getInstance().getThreadsMarker().get() == null;
         try {
             if (requiredSemaphore) {
                 MaxThreadsForCompileSemaphore.getInstance().getThreadsMarker().set(Thread.currentThread());

@@ -38,7 +38,7 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
     @Override
     protected void mergeHeaderCells(SpreadsheetView tableView) {
         if (!isUpdateMode()) {
-            int latestCol = tableView.columns.size();
+            var latestCol = tableView.columns.size();
             if (CollectionUtils.isNotEmpty(tableView.properties)) {
                 latestCol = Math.max(NUMBER_PROPERTIES_COLUMNS - 1, latestCol);
             }
@@ -68,24 +68,24 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
     protected void updateBusinessBody(SpreadsheetView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
 
-        final int headerRowIndex = 0;
-        final int firstStepRowIndex = headerRowIndex + 1;
+        final var headerRowIndex = 0;
+        final var firstStepRowIndex = headerRowIndex + 1;
 
         // Step 1. Write column names and types
-        for (int colNum = 0; colNum < tableView.columns.size(); colNum++) {
+        for (var colNum = 0; colNum < tableView.columns.size(); colNum++) {
             var column = tableView.columns.get(colNum);
             var value = SimpleSpreadsheetTableWriter.createStep(column.name, column.type);
             createOrUpdateCell(tableBody, buildCellKey(colNum + FIRST_DATA_COL_IDX, headerRowIndex), value);
         }
         // Step 2. Write row names and types
-        for (int rowNum = 0; rowNum < tableView.rows.size(); rowNum++) {
+        for (var rowNum = 0; rowNum < tableView.rows.size(); rowNum++) {
             var row = tableView.rows.get(rowNum);
             var value = SimpleSpreadsheetTableWriter.createStep(row.name, row.type);
             createOrUpdateCell(tableBody, buildCellKey(ROW_HEADER_COL_IDX, rowNum + firstStepRowIndex), value);
         }
         // Step 3. Write cell values
-        for (int row = 0; row < tableView.rows.size(); row++) {
-            for (int col = 0; col < tableView.columns.size(); col++) {
+        for (var row = 0; row < tableView.rows.size(); row++) {
+            for (var col = 0; col < tableView.columns.size(); col++) {
                 var cellValue = tableView.cells[row][col];
                 createOrUpdateCell(tableBody, buildCellKey(col + FIRST_DATA_COL_IDX, row + firstStepRowIndex), cellValue.value);
             }
@@ -110,8 +110,8 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
-            int rowId = IGridRegion.Tool.height(tableBody.getRegion());
-            for (int i = 0; i < rows.size(); i++) {
+            var rowId = IGridRegion.Tool.height(tableBody.getRegion());
+            for (var i = 0; i < rows.size(); i++) {
                 appendRow(tableBody, rowId + i, rows.get(i), cells[i]);
             }
             save();
@@ -129,8 +129,8 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
             throw new BadRequestException("spreadsheet.append.rows.cells.mismatch.message");
         }
         // The first column holds the row headers; the remaining columns hold the cell values.
-        int dataColumns = table.getGridTable(IXlsTableNames.VIEW_BUSINESS).getWidth() - FIRST_DATA_COL_IDX;
-        for (int i = 0; i < rows.size(); i++) {
+        var dataColumns = table.getGridTable(IXlsTableNames.VIEW_BUSINESS).getWidth() - FIRST_DATA_COL_IDX;
+        for (var i = 0; i < rows.size(); i++) {
             var cellRow = cells[i];
             // A cell value may be null (an empty cell), but a missing row or cell object cannot be written.
             if (rows.get(i) == null || cellRow == null || Arrays.stream(cellRow).anyMatch(Objects::isNull)) {
@@ -143,7 +143,7 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
     private void appendRow(IGridTable tableBody, int rowId, SpreadsheetRowView row, SpreadsheetCellView[] cells) {
         var rowHeader = SimpleSpreadsheetTableWriter.createStep(row.name, row.type);
         createOrUpdateCell(tableBody, buildCellKey(ROW_HEADER_COL_IDX, rowId), rowHeader);
-        for (int col = 0; col < cells.length; col++) {
+        for (var col = 0; col < cells.length; col++) {
             createOrUpdateCell(tableBody, buildCellKey(col + FIRST_DATA_COL_IDX, rowId), cells[col].value);
         }
     }

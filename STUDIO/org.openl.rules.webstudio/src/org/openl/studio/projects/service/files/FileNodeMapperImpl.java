@@ -7,7 +7,6 @@ import java.util.Date;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.repository.api.FileData;
 import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FolderNode;
 import org.openl.studio.projects.model.files.FsNode;
@@ -21,8 +20,8 @@ class FileNodeMapperImpl implements FileNodeMapper {
 
     @Override
     public FsNode map(AProjectArtefact artefact) {
-        String path = artefact.getInternalPath();
-        String name = artefact.getName();
+        var path = artefact.getInternalPath();
+        var name = artefact.getName();
         String basePath = getParentPath(path);
 
         if (artefact.isFolder()) {
@@ -39,7 +38,7 @@ class FileNodeMapperImpl implements FileNodeMapper {
                 .basePath(basePath)
                 .extension(FileUtils.getExtension(name));
 
-        FileData fileData = artefact.getFileData();
+        var fileData = artefact.getFileData();
         if (fileData != null) {
             builder.size(fileData.getSize());
             builder.lastModified(toZonedDateTime(fileData.getModifiedAt()));

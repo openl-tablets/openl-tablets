@@ -9,36 +9,36 @@ class String2FloatConvertorTest {
 
     @Test
     void testConvertPositive() {
-        String2FloatConvertor converter = new String2FloatConvertor();
-        Number result = converter.parse("123.456", null);
+        var converter = new String2FloatConvertor();
+        var result = converter.parse("123.456", null);
         assertEquals(123.456f, result);
     }
 
     @Test
     void testConvertNegative() {
-        String2FloatConvertor converter = new String2FloatConvertor();
-        Number result = converter.parse("-123.456", null);
+        var converter = new String2FloatConvertor();
+        var result = converter.parse("-123.456", null);
         assertEquals(-123.456f, result);
     }
 
     @Test
     void testConvertPositiveInfinity() {
-        String2FloatConvertor converter = new String2FloatConvertor();
-        Number result = converter.parse("Infinity", null);
+        var converter = new String2FloatConvertor();
+        var result = converter.parse("Infinity", null);
         assertEquals(Float.POSITIVE_INFINITY, result);
     }
 
     @Test
     void testConvertNegativeInfinity() {
-        String2FloatConvertor converter = new String2FloatConvertor();
-        Number result = converter.parse("-Infinity", null);
+        var converter = new String2FloatConvertor();
+        var result = converter.parse("-Infinity", null);
         assertEquals(Float.NEGATIVE_INFINITY, result);
     }
 
     @Test
     void testConvertPositiveOverflow() {
         assertThrows(NumberFormatException.class, () -> {
-            String2FloatConvertor converter = new String2FloatConvertor();
+            var converter = new String2FloatConvertor();
             converter.parse("1E39", null);
         });
     }
@@ -46,7 +46,7 @@ class String2FloatConvertorTest {
     @Test
     void testConvertNegativeOverflow() {
         assertThrows(NumberFormatException.class, () -> {
-            String2FloatConvertor converter = new String2FloatConvertor();
+            var converter = new String2FloatConvertor();
             converter.parse("-1E39", null);
         });
     }

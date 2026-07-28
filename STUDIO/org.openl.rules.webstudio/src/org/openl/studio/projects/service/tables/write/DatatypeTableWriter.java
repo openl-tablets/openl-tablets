@@ -51,7 +51,7 @@ public class DatatypeTableWriter extends TableWriter<DatatypeView> {
     @Override
     protected void updateBusinessBody(DatatypeView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
-        int row = 0;
+        var row = 0;
         for (var field : tableView.fields) {
             write(tableBody, row, field);
             row++;
@@ -78,7 +78,7 @@ public class DatatypeTableWriter extends TableWriter<DatatypeView> {
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
-            int row = IGridRegion.Tool.height(tableBody.getRegion());
+            var row = IGridRegion.Tool.height(tableBody.getRegion());
             for (var field : tableAppend.getFields()) {
                 write(tableBody, row, field);
                 row++;

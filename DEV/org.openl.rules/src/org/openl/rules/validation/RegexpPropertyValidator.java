@@ -1,6 +1,5 @@
 package org.openl.rules.validation;
 
-import java.util.Collection;
 import java.util.LinkedHashSet;
 
 import org.openl.message.OpenLErrorMessage;
@@ -31,12 +30,12 @@ public class RegexpPropertyValidator extends TablesValidator {
 
     @Override
     public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        var messages = new LinkedHashSet<OpenLMessage>();
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             if (PropertiesChecker.isPropertySuitableForTableType(propertyName,
                     tsn.getType()) && tsn.getTableProperties() != null && tsn.getTableProperties()
                     .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE) {
-                String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
+                var propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
                 if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
                     SyntaxNodeException exception = SyntaxNodeExceptionUtils
                             .createError("Incorrect value '%s' for property '%s'".formatted(

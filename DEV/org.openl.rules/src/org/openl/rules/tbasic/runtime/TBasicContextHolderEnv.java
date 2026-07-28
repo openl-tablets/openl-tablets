@@ -131,7 +131,7 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
 
     @Override
     public IRuntimeEnv copy() {
-        Object[] copiedParams = tbasicParams;
+        var copiedParams = tbasicParams;
         try {
             copiedParams = Cloner.clone(tbasicParams);
         } catch (Exception ignored) {

@@ -32,7 +32,7 @@ public final class ConfigProjectClasspathMigrator implements Migrator {
         if (CollectionUtils.isEmpty(classpath)) {
             return;
         }
-        boolean allDefaults = classpath.stream()
+        var allDefaults = classpath.stream()
                 .allMatch(e -> e != null && DEFAULT_CLASSPATH_PATHS.contains(e.replace('\\', '/')));
         if (allDefaults) {
             descriptor.setClasspath(null);

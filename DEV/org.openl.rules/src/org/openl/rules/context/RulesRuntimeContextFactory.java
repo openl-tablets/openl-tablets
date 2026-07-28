@@ -15,7 +15,7 @@ public class RulesRuntimeContextFactory {
     }
 
     public static IRulesRuntimeContext buildRulesRuntimeContext() {
-        DefaultRulesRuntimeContext rulesRuntimeContext = new DefaultRulesRuntimeContext();
+        var rulesRuntimeContext = new DefaultRulesRuntimeContext();
         rulesRuntimeContext.setLocale(LOCALE_HOLDER.get());
         return rulesRuntimeContext;
     }

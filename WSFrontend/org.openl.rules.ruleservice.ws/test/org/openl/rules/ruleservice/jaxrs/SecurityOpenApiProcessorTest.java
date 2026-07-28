@@ -18,7 +18,7 @@ class SecurityOpenApiProcessorTest {
 
         var processor = new SecurityOpenApiProcessor(Json.mapper().copy().setDefaultMergeable(true));
 
-        OpenAPI result = processor.apply(existing);
+        var result = processor.apply(existing);
 
         assertNotNull(result.getSecurity(), "security list must be populated");
         assertEquals(1, result.getSecurity().size());

@@ -12,9 +12,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
 public final class AlgorithmCompilerTool {
@@ -56,7 +54,7 @@ public final class AlgorithmCompilerTool {
         }
 
         if (operationNode == null) {
-            IOpenSourceCodeModule errorSource = candidateNodes.getFirst()
+            var errorSource = candidateNodes.getFirst()
                     .getAlgorithmRow()
                     .getOperation()
                     .asSourceCodeModule();
@@ -73,7 +71,7 @@ public final class AlgorithmCompilerTool {
     }
 
     public static Map<String, AlgorithmTreeNode> getAllDeclaredLables(List<AlgorithmTreeNode> nodesToSearch) {
-        Map<String, AlgorithmTreeNode> labels = new HashMap<>();
+        var labels = new HashMap<String, AlgorithmTreeNode>();
         for (AlgorithmTreeNode node : nodesToSearch) {
             for (StringValue labelOfNode : node.getLabels()) {
                 labels.put(labelOfNode.getValue(), node);
@@ -96,10 +94,10 @@ public final class AlgorithmCompilerTool {
         //
         String fieldName = extractFieldName(instruction);
 
-        IOpenField codeField = JavaOpenClass.getOpenClass(AlgorithmRow.class).getField(fieldName);
+        var codeField = JavaOpenClass.getOpenClass(AlgorithmRow.class).getField(fieldName);
 
         if (codeField == null) {
-            IOpenSourceCodeModule errorSource = candidateNodes.getFirst()
+            var errorSource = candidateNodes.getFirst()
                     .getAlgorithmRow()
                     .getOperation()
                     .asSourceCodeModule();
@@ -121,7 +119,7 @@ public final class AlgorithmCompilerTool {
      * @return
      */
     public static AlgorithmTreeNode getLastExecutableOperation(List<AlgorithmTreeNode> nodes) {
-        AlgorithmTreeNode lastOperation = nodes.getLast();
+        var lastOperation = nodes.getLast();
         if (lastOperation.getSpecificationKeyword().startsWith(TBasicSpecificationKey.END.toString())) {
             lastOperation = getLastExecutableOperation(nodes.subList(0, nodes.size() - 1));
         } else if (!lastOperation.getChildren().isEmpty()) {
@@ -136,18 +134,18 @@ public final class AlgorithmCompilerTool {
      * @return
      */
     public static int getLinkedNodesGroupSize(List<AlgorithmTreeNode> nodesToProcess, int firstNodeIndex) {
-        int linkedNodesGroupSize = 1; // just one operation by default
+        var linkedNodesGroupSize = 1; // just one operation by default
 
-        AlgorithmTreeNode currentNodeToProcess = nodesToProcess.get(firstNodeIndex);
-        String currentNodeKeyword = currentNodeToProcess.getSpecificationKeyword();
+        var currentNodeToProcess = nodesToProcess.get(firstNodeIndex);
+        var currentNodeKeyword = currentNodeToProcess.getSpecificationKeyword();
 
         String[] operationNamesToGroup = whatOperationsToGroup(currentNodeKeyword);
 
         if (operationNamesToGroup != null) {
-            List<String> operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
+            var operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
 
             for (; linkedNodesGroupSize < nodesToProcess.size() - firstNodeIndex; linkedNodesGroupSize++) {
-                AlgorithmTreeNode groupCandidateNode = nodesToProcess.get(firstNodeIndex + linkedNodesGroupSize);
+                var groupCandidateNode = nodesToProcess.get(firstNodeIndex + linkedNodesGroupSize);
                 if (!operationsToGroupWithCurrent.contains(groupCandidateNode.getSpecificationKeyword())) {
                     break;
                 }
@@ -198,7 +196,7 @@ public final class AlgorithmCompilerTool {
      * @return
      */
     public static boolean isOperationFieldInstruction(String instruction) {
-        boolean isInstruction = false;
+        var isInstruction = false;
 
         if (instruction != null) {
             isInstruction = instruction.split(Pattern.quote(FIELD_SEPARATOR)).length == 2;

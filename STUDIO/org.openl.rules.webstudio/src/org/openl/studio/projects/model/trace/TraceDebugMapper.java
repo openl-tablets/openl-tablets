@@ -50,7 +50,6 @@ import org.openl.studio.projects.service.trace.DebugFrame;
 import org.openl.studio.projects.service.trace.SpreadsheetCellNames;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.studio.projects.service.trace.WatchCapture;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 
 /**
@@ -95,10 +94,10 @@ public class TraceDebugMapper {
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
                                              @Nullable CallNode completedTree, List<TableProfile> profileStats,
                                              StackRenderOptions options, boolean treeTruncated) {
-        List<DebugFrameView> views = new ArrayList<>(frames.size());
-        for (int i = 0; i < frames.size(); i++) {
-            DebugFrame frame = frames.get(i);
-            boolean active = i == frames.size() - 1;
+        var views = new ArrayList<DebugFrameView>(frames.size());
+        for (var i = 0; i < frames.size(); i++) {
+            var frame = frames.get(i);
+            var active = i == frames.size() - 1;
             views.add(DebugFrameView.builder()
                     .index(i)
                     .depth(frame.getDepth())
@@ -136,7 +135,7 @@ public class TraceDebugMapper {
      * spreadsheet results render properly and large values load lazily.
      */
     public WatchView toWatchView(List<WatchCapture> captures, boolean truncated, @Nullable ClassLoader classLoader, boolean includeSchema) {
-        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        var previous = Thread.currentThread().getContextClassLoader();
         if (classLoader != null) {
             Thread.currentThread().setContextClassLoader(classLoader);
         }
@@ -144,14 +143,14 @@ public class TraceDebugMapper {
             // Group raw captures by series first, so a factor computed thousands of times in a loop only
             // serializes its first points: the client cannot render more, and the full response would be huge.
             // total still reports how many executions there were, so the outlier count stays visible.
-            Map<String, List<WatchCapture>> byKey = new LinkedHashMap<>();
+            var byKey = new LinkedHashMap<String, List<WatchCapture>>();
             for (WatchCapture capture : captures) {
                 byKey.computeIfAbsent(capture.name() + ' ' + capture.tableUri(), k -> new ArrayList<>()).add(capture);
             }
-            Map<Object, Object> clones = new IdentityHashMap<>();
-            List<WatchSeriesView> series = new ArrayList<>(byKey.size());
+            var clones = new IdentityHashMap<Object, Object>();
+            var series = new ArrayList<WatchSeriesView>(byKey.size());
             byKey.forEach((key, group) -> {
-                WatchCapture first = group.get(0);
+                var first = group.get(0);
                 List<WatchPointView> points = group.stream()
                         .limit(MAX_POINTS_PER_SERIES)
                         .map(capture -> toWatchPoint(capture, clones, includeSchema))
@@ -196,7 +195,7 @@ public class TraceDebugMapper {
                 .limit(Math.max(1, top))
                 .map(TraceDebugMapper::toHotspotView)
                 .toList();
-        int invocations = stats.stream().mapToInt(TableProfile::count).sum();
+        var invocations = stats.stream().mapToInt(TableProfile::count).sum();
         return ProfileSummaryView.builder()
                 .hotspots(hotspots)
                 .distinctTables(stats.size())
@@ -283,12 +282,12 @@ public class TraceDebugMapper {
 
     /** Freeze a frame's variables. Must be called while the session is suspended. */
     public DebugFrameVariables freezeVariables(DebugFrame frame, @Nullable ClassLoader classLoader, boolean includeSchema) {
-        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        var previous = Thread.currentThread().getContextClassLoader();
         if (classLoader != null) {
             Thread.currentThread().setContextClassLoader(classLoader);
         }
         try {
-            Map<Object, Object> clones = new IdentityHashMap<>();
+            var clones = new IdentityHashMap<Object, Object>();
             return DebugFrameVariables.builder()
                     .parameters(freezeParameters(frame, clones, includeSchema))
                     .context(freezeContext(frame, clones, includeSchema))
@@ -309,11 +308,11 @@ public class TraceDebugMapper {
         if (!(frame.getSource() instanceof ExecutableRulesMethod method)) {
             return Collections.emptyList();
         }
-        IMethodSignature signature = method.getSignature();
-        Object[] params = frame.getParams();
-        int count = Math.min(params.length, signature.getNumberOfParameters());
-        List<ParameterValue> result = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
+        var signature = method.getSignature();
+        var params = frame.getParams();
+        var count = Math.min(params.length, signature.getNumberOfParameters());
+        var result = new ArrayList<ParameterValue>(count);
+        for (var i = 0; i < count; i++) {
             var param = new ParameterWithValueDeclaration(
                     signature.getParameterName(i),
                     safeClone(params[i], clones, !frame.isCompleted()),
@@ -337,7 +336,7 @@ public class TraceDebugMapper {
         }
         // Non-spreadsheet frames: just the executed sub-steps.
         List<DebugFrame.ExecutedStep> executed = frame.getExecutedSteps();
-        List<StepValueView> result = new ArrayList<>(executed.size());
+        var result = new ArrayList<StepValueView>(executed.size());
         for (DebugFrame.ExecutedStep step : executed) {
             String name = step.label() != null ? step.label() : step.ref();
             var param = new ParameterWithValueDeclaration(name, safeClone(step.value(), clones, !frame.isCompleted()));
@@ -353,12 +352,12 @@ public class TraceDebugMapper {
 
     /** All cells of a spreadsheet with their status (executed, current, pending) and executed values. */
     private List<StepValueView> spreadsheetSteps(DebugFrame frame, Spreadsheet spreadsheet, Map<Object, Object> clones, boolean includeSchema) {
-        Map<String, Object> executed = new HashMap<>();
+        var executed = new HashMap<String, Object>();
         for (DebugFrame.ExecutedStep step : frame.getExecutedSteps()) {
             executed.put(step.ref(), step.value());
         }
         String currentRef = currentRef(frame);
-        List<StepValueView> steps = new ArrayList<>();
+        var steps = new ArrayList<StepValueView>();
         forEachCell(spreadsheet, cell -> {
             String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
             var builder = StepValueView.builder().ref(ref).label(SpreadsheetCellNames.of(spreadsheet, cell));
@@ -380,7 +379,7 @@ public class TraceDebugMapper {
      * tree can render the whole stack in one pass without cloning any values.
      */
     static List<StepValueView> outlineSteps(DebugFrame frame, boolean withExecutedChildren) {
-        List<StepValueView> steps = withStepDurations(frame, baseSteps(frame));
+        var steps = withStepDurations(frame, baseSteps(frame));
         // Once the run has finished, the executed sub-calls hang off the (lazy) completed tree instead, so a
         // still-published root frame need not re-serialize them deep — that was the other half of a huge stack.
         return withExecutedChildren ? attachExecutedChildren(frame, steps) : steps;
@@ -388,7 +387,7 @@ public class TraceDebugMapper {
 
     /** Attach each executed step's own measured total time, looked up by its ref. */
     private static List<StepValueView> withStepDurations(DebugFrame frame, List<StepValueView> steps) {
-        Map<String, Long> durations = frame.getExecutedSteps().stream()
+        var durations = frame.getExecutedSteps().stream()
                 .collect(Collectors.toMap(DebugFrame.ExecutedStep::ref, DebugFrame.ExecutedStep::durationNanos,
                         (first, second) -> second));
         if (durations.isEmpty()) {
@@ -396,7 +395,7 @@ public class TraceDebugMapper {
         }
         return steps.stream()
                 .map(step -> {
-                    Long nanos = durations.get(step.ref());
+                    var nanos = durations.get(step.ref());
                     return nanos == null ? step : step.toBuilder().durationMillis(toMillis(nanos)).build();
                 })
                 .toList();
@@ -405,9 +404,9 @@ public class TraceDebugMapper {
     /** The frame's own sub-steps (cells or rules) with status, before any executed children are attached. */
     private static List<StepValueView> baseSteps(DebugFrame frame) {
         if (frame.getSource() instanceof Spreadsheet spreadsheet) {
-            Set<String> executedRefs = executedRefs(frame);
+            var executedRefs = executedRefs(frame);
             String currentRef = currentRef(frame);
-            List<StepValueView> steps = new ArrayList<>();
+            var steps = new ArrayList<StepValueView>();
             forEachCell(spreadsheet, cell -> {
                 String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
                 steps.add(StepValueView.builder()
@@ -436,8 +435,8 @@ public class TraceDebugMapper {
         if (children.isEmpty()) {
             return steps;
         }
-        Set<String> covered = new HashSet<>();
-        List<StepValueView> result = new ArrayList<>(steps.size());
+        var covered = new HashSet<String>();
+        var result = new ArrayList<StepValueView>(steps.size());
         for (StepValueView step : steps) {
             covered.add(step.ref());
             List<CallNode> kids = children.get(step.ref());
@@ -568,7 +567,7 @@ public class TraceDebugMapper {
         if (!frame.isCompleted()) {
             return null;
         }
-        long childrenNanos = sumDurations(frame.getExecutedChildren().values().stream().flatMap(List::stream));
+        var childrenNanos = sumDurations(frame.getExecutedChildren().values().stream().flatMap(List::stream));
         return selfMillis(frame.getDurationNanos(), childrenNanos);
     }
 
@@ -593,7 +592,7 @@ public class TraceDebugMapper {
      * under it. The rest are still pending and can be armed for a run-to.
      */
     static List<StepValueView> ruleOutline(IDecisionTable decisionTable, int[] firedRuleIndices) {
-        Set<String> fired = Arrays.stream(firedRuleIndices)
+        var fired = Arrays.stream(firedRuleIndices)
                 .mapToObj(decisionTable::getRuleName)
                 .collect(Collectors.toSet());
         return ruleNames(decisionTable).stream()
@@ -638,7 +637,7 @@ public class TraceDebugMapper {
     }
 
     private static @Nullable String currentRef(DebugFrame frame) {
-        CurrentLocation location = frame.getLocation();
+        var location = frame.getLocation();
         return location == null ? null : location.ref();
     }
 
@@ -691,12 +690,12 @@ public class TraceDebugMapper {
     }
 
     private List<MessageDescription> buildErrors(DebugFrame frame) {
-        Throwable error = frame.getError();
+        var error = frame.getError();
         if (error == null) {
             return Collections.emptyList();
         }
         Throwable cause = Objects.requireNonNullElse(error.getCause(), error);
-        List<MessageDescription> result = new ArrayList<>();
+        var result = new ArrayList<MessageDescription>();
         for (OpenLMessage message : OpenLMessagesUtils.newErrorMessages(cause)) {
             result.add(new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()));
         }
@@ -726,12 +725,12 @@ public class TraceDebugMapper {
             return null;
         }
         List<String> fired = Arrays.stream(firedRules).mapToObj(decisionTable::getRuleName).toList();
-        List<DecisionConditionView> conditions = new ArrayList<>();
+        var conditions = new ArrayList<DecisionConditionView>();
         for (ConditionCheck check : checks) {
             if (!(check.condition() instanceof IBaseCondition condition)) {
                 continue;
             }
-            String name = condition.getName();
+            var name = condition.getName();
             for (int rule : check.rules()) {
                 conditions.add(new DecisionConditionView(name, decisionTable.getRuleName(rule), check.successful()));
             }

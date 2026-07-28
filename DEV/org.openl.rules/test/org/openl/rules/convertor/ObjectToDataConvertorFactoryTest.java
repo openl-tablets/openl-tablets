@@ -19,7 +19,7 @@ class ObjectToDataConvertorFactoryTest {
         assertNotNull(convertor);
         assertTrue(convertor instanceof MatchedConstructorConvertor);
 
-        Double value = (Double) convertor.convert(2333);
+        var value = (Double) convertor.convert(2333);
         assertEquals(2333, value, 0);
     }
 
@@ -32,7 +32,7 @@ class ObjectToDataConvertorFactoryTest {
         assertNotNull(convertor);
         assertTrue(convertor instanceof StaticMethodConvertor);
 
-        BigDecimal value = (BigDecimal) convertor.convert(23.5666);
+        var value = (BigDecimal) convertor.convert(23.5666);
         assertEquals("23.5666", value.toString());
     }
 
@@ -44,9 +44,9 @@ class ObjectToDataConvertorFactoryTest {
         assertNotNull(convertor);
         assertTrue(convertor instanceof MatchedConstructorConvertor);
 
-        double valueToConvert = 23.5666;
+        var valueToConvert = 23.5666;
 
-        BigDecimal value = (BigDecimal) convertor.convert(valueToConvert);
+        var value = (BigDecimal) convertor.convert(valueToConvert);
         assertEquals(valueToConvert, value.doubleValue(), 0);
     }
 

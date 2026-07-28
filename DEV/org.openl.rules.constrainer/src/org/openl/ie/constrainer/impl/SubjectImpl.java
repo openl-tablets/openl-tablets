@@ -34,7 +34,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         Observer _observer;
 
         static UndoAttachObserver getUndo(Subject subject, Observer observer) {
-            UndoAttachObserver undo = (UndoAttachObserver) _factory.getElement();
+            var undo = (UndoAttachObserver) _factory.getElement();
             undo.undoable(subject);
             undo._observer = observer;
             return undo;
@@ -52,7 +52,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
         @Override
         public void undo() {
-            Subject subject = (Subject) undoable();
+            var subject = (Subject) undoable();
             subject.forcedDetachObserver(_observer);
         }
 
@@ -74,7 +74,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         private Observer _observer;
 
         static UndoDetachObserver getUndo(Subject subject, Observer observer) {
-            UndoDetachObserver undo = (UndoDetachObserver) _factory.getElement();
+            var undo = (UndoDetachObserver) _factory.getElement();
             undo.undoable(subject);
             undo._observer = observer;
             return undo;
@@ -92,7 +92,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
         @Override
         public void undo() {
-            Subject subject = (Subject) undoable();
+            var subject = (Subject) undoable();
             subject.forcedAttachObserver(_observer);
         }
 
@@ -129,7 +129,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
         @Override
         public void undo() {
-            Subject subject = (Subject) undoable();
+            var subject = (Subject) undoable();
             subject.forcePublisherMask(_event_mask);
             super.undo();
         }
@@ -137,7 +137,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         @Override
         public void undoable(Undoable u) {
             super.undoable(u);
-            Subject subject = (Subject) u;
+            var subject = (Subject) u;
             _event_mask = subject.publisherMask();
         }
 
@@ -173,11 +173,11 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
     @Override
     public Collection allDependents() {
-        HashSet dependendts = new HashSet();
+        var dependendts = new HashSet();
 
-        for (int i = 0; i < _observers.size(); ++i) {
-            Observer obs = (Observer) _observers.elementAt(i);
-            Object master = obs.master();
+        for (var i = 0; i < _observers.size(); ++i) {
+            var obs = (Observer) _observers.elementAt(i);
+            var master = obs.master();
 
             if (master == null) {
                 continue;
@@ -247,11 +247,11 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
     final public void notifyObservers(EventOfInterest interest) throws Failure {
         // Debug.on(); Debug.print("* "+interest); Debug.off();
         // FastVector observers = (FastVector)_observers.clone();
-        FastVector observers = _observers;
+        var observers = _observers;
         _constrainer.incrementNumberOfNotifications();
-        int size = observers.size();
-        for (int i = 0; i < size; ++i) {
-            Observer observer = (Observer) observers.elementAt(i);
+        var size = observers.size();
+        for (var i = 0; i < size; ++i) {
+            var observer = (Observer) observers.elementAt(i);
             if (observer.interestedIn(interest)) {
                 // Debug.on(); Debug.print("Observer "+i+":
                 // "+observer);Debug.off();

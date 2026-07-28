@@ -45,7 +45,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public String getDataFormatString() {
-        int formatIndex = getDataFormat();
+        var formatIndex = getDataFormat();
         if (formatIndex < 0) {
             return null;
         }

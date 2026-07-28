@@ -28,7 +28,7 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
 
         @Override
         public int nextInt() {
-            int ret = current;
+            var ret = current;
             current += step;
             return ret;
         }
@@ -96,7 +96,7 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
 
     @Override
     public int hashCode() {
-        int hashCode = 1;
+        var hashCode = 1;
 
         hashCode = 31 * hashCode + min;
         hashCode = 31 * hashCode + max;

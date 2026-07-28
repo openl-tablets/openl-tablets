@@ -27,7 +27,7 @@ public class AliasDatatypeBoundNode implements IMemberBoundNode {
 
     @Override
     public void addTo(ModuleOpenClass openClass) {
-        InternalDatatypeClass internalClassMember = new InternalDatatypeClass(domainOpenClass, openClass);
+        var internalClassMember = new InternalDatatypeClass(domainOpenClass, openClass);
         tableSyntaxNode.setMember(internalClassMember);
     }
 

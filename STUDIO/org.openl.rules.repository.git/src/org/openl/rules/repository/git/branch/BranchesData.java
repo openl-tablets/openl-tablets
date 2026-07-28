@@ -32,7 +32,7 @@ public class BranchesData {
 
     public void addBranch(String projectPath, String branch, String commit) {
         Map<String, List<String>> branches = getProjectBranches();
-        List<String> projectBranches = branches.computeIfAbsent(projectPath, k -> new ArrayList<>());
+        var projectBranches = branches.computeIfAbsent(projectPath, k -> new ArrayList<>());
 
         if (!projectBranches.contains(branch)) {
             projectBranches.add(branch);
@@ -47,7 +47,7 @@ public class BranchesData {
         Map<String, List<String>> branches = getProjectBranches();
         if (projectPath == null) {
             // Remove the branch from all mappings.
-            boolean removed = false;
+            var removed = false;
             for (List<String> projectBranchesList : branches.values()) {
                 removed |= projectBranchesList.remove(branch);
             }

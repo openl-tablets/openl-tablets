@@ -13,15 +13,12 @@ import java.util.List;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ConfigConstants;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
@@ -43,10 +40,10 @@ class GitRepositoryBranchStatusTest {
 
     @BeforeAll
     static void initTemplate() throws GitAPIException, IOException {
-        try (Git git = Git.init().setInitialBranch(BASE).setDirectory(template).call()) {
-            Repository repository = git.getRepository();
-            File parent = repository.getDirectory().getParentFile();
-            StoredConfig config = repository.getConfig();
+        try (var git = Git.init().setInitialBranch(BASE).setDirectory(template).call()) {
+            var repository = git.getRepository();
+            var parent = repository.getDirectory().getParentFile();
+            var config = repository.getConfig();
             config.setBoolean(ConfigConstants.CONFIG_GC_SECTION, null, ConfigConstants.CONFIG_KEY_AUTODETACH, false);
             config.save();
             createNewFile(parent, "file-in-master", "root");
@@ -58,16 +55,16 @@ class GitRepositoryBranchStatusTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        File remote = new File(root, "remote");
-        File repositoriesFolder = new File(root, "repositories");
-        File local = new File(repositoriesFolder, "local");
+        var remote = new File(root, "remote");
+        var repositoriesFolder = new File(root, "repositories");
+        var local = new File(repositoriesFolder, "local");
         FileUtils.copy(template, remote);
         repo = createRepository(remote.toURI().toString(), local, repositoriesFolder.getAbsolutePath());
     }
 
     @Test
     void readsLastCommitForEachBranch() throws IOException {
-        GitRepository branch = repo.forBranch(BRANCH);
+        var branch = repo.forBranch(BRANCH);
         branch.save(createFileData("rules/project1/file1", "one"), IOUtils.toInputStream("one"));
         branch.save(createFileData("rules/project1/file2", "two"), IOUtils.toInputStream("two"));
         repo.save(createFileData("rules/project1/file3", "three"), IOUtils.toInputStream("three"));
@@ -77,7 +74,7 @@ class GitRepositoryBranchStatusTest {
         // The unresolvable "missing" branch is omitted, the rest carry tip metadata.
         assertEquals(3, statuses.size());
         for (String branchName : List.of(BRANCH, SAME_TIP_BRANCH, BASE)) {
-            BranchStatus status = statuses.get(branchName);
+            var status = statuses.get(branchName);
             assertNotNull(status, branchName);
             assertNotNull(status.lastCommitRevision());
             assertNotNull(status.lastCommitAt());
@@ -87,13 +84,13 @@ class GitRepositoryBranchStatusTest {
     }
 
     private GitRepository createRepository(String remoteUri, File local, String repositoriesFolder) throws IOException {
-        GitRepository newRepo = new GitRepository();
+        var newRepo = new GitRepository();
         newRepo.setId(REPO_ID);
         newRepo.setUri(remoteUri);
         newRepo.setLocalRepositoriesFolder(repositoriesFolder);
-        FileSystemRepository settingsRepository = new FileSystemRepository();
+        var settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(local.getParent() + "/git-settings");
-        String locksRoot = new File(root, "locks").getAbsolutePath();
+        var locksRoot = new File(root, "locks").getAbsolutePath();
         newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, remoteUri, local, repositoriesFolder, true, true));

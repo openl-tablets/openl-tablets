@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
@@ -67,7 +66,6 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.MethodSignature;
 import org.openl.util.StringUtils;
@@ -150,7 +148,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     public CustomSpreadsheetResultOpenClass buildOrGetCombinedSpreadsheetResult(
             CustomSpreadsheetResultOpenClass... customSpreadsheetResultOpenClasses) {
-        Set<CustomSpreadsheetResultOpenClass> c = new HashSet<>();
+        var c = new HashSet<CustomSpreadsheetResultOpenClass>();
         for (CustomSpreadsheetResultOpenClass t : customSpreadsheetResultOpenClasses) {
             if (t instanceof CombinedSpreadsheetResultOpenClass class1) {
                 c.addAll(class1.getCombinedTypes());
@@ -161,9 +159,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (c.size() == 1) {
             return c.iterator().next();
         }
-        CustomSpreadsheetResultOpenClassesKey key = new CustomSpreadsheetResultOpenClassesKey(
+        var key = new CustomSpreadsheetResultOpenClassesKey(
                 c.toArray(new CustomSpreadsheetResultOpenClass[0]));
-        CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass = combinedSpreadsheetResultOpenClasses
+        var combinedSpreadsheetResultOpenClass = combinedSpreadsheetResultOpenClasses
                 .get(key);
         if (combinedSpreadsheetResultOpenClass == null) {
             combinedSpreadsheetResultOpenClass = new CombinedSpreadsheetResultOpenClass(this);
@@ -186,7 +184,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 if (type instanceof CombinedSpreadsheetResultOpenClass class1) {
                     return class1.convertToModuleType(this, false);
                 }
-                IOpenClass p = findType(type.getName());
+                var p = findType(type.getName());
                 if (p == null) {
                     return specificType.convertToModuleTypeAndRegister(this);
                 }
@@ -201,8 +199,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     public synchronized String generateUniqueCombinedSpreadsheetResultClassName(String name) {
-        String d = name;
-        int i = 0;
+        var d = name;
+        var i = 0;
         while (uniqueCombinedSpreadsheetResultClassNames.contains(d)) {
             d = name + i;
             i++;
@@ -228,7 +226,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             if (this.getGlobalTableProperties().getPriority() < globalProperties.getPriority()) {
                 this.globalTableProperties = globalProperties;
             } else if (Objects.equals(this.getGlobalTableProperties().getPriority(), globalProperties.getPriority())) {
-                Map<String, Object> mergedTableProperties = TablePropertyDefinitionUtils.mergeGlobalProperties(
+                var mergedTableProperties = TablePropertyDefinitionUtils.mergeGlobalProperties(
                         this.globalTableProperties.getGlobalProperties(),
                         globalProperties.getGlobalProperties());
                 this.globalTableProperties = TablePropertyDefinitionUtils
@@ -255,7 +253,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     protected void addXlsDefinitions(CompiledDependency dependency) {
-        IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
+        var openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
         if (openClass instanceof XlsModuleOpenClass xlsModuleOpenClass) {
             this.xlsDefinitions.addAll(xlsModuleOpenClass.getXlsDefinitions());
         }
@@ -268,9 +266,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     protected IOpenClass processDependencyTypeBeforeAdding(IOpenClass type) {
         if (type instanceof ModuleSpecificType specificType) {
-            IOpenClass existingType = findType(type.getName());
+            var existingType = findType(type.getName());
             if (existingType != null) {
-                ModuleSpecificType existingModuleRelatedType = (ModuleSpecificType) existingType;
+                var existingModuleRelatedType = (ModuleSpecificType) existingType;
                 existingModuleRelatedType.updateWithType(type);
                 return existingType;
             } else {
@@ -302,8 +300,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      * Populate current module fields with data from dependent modules.
      */
     protected void initDependencies() {// Reduce iterators over dependencies for
-        List<IOpenField> fields = new ArrayList<>();
-        Map<String, ITable> dataTables = new HashMap<>();
+        var fields = new ArrayList<IOpenField>();
+        var dataTables = new HashMap<String, ITable>();
         // compilation issue with lazy loading
         for (CompiledDependency dependency : this.getDependencies()) {
             // commented as there is no need to add each datatype to upper
@@ -342,7 +340,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField field = super.getField(fname, strictMatch);
+        var field = super.getField(fname, strictMatch);
         if (field == null) {
             if (strictMatch && hiddenFields.containsKey(fname) || !strictMatch && hiddenLowerCasedFields
                     .containsKey(fname)) {
@@ -354,11 +352,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void addFieldsFromDependencies(List<IOpenField> fields) {
-        Set<Integer> fieldsToHide = new HashSet<>();
-        for (int i = 0; i < fields.size() - 1; i++) {
-            for (int j = i + 1; j < fields.size(); j++) {
-                IOpenField openField1 = fields.get(i);
-                IOpenField openField2 = fields.get(j);
+        var fieldsToHide = new HashSet<Integer>();
+        for (var i = 0; i < fields.size() - 1; i++) {
+            for (var j = i + 1; j < fields.size(); j++) {
+                var openField1 = fields.get(i);
+                var openField2 = fields.get(j);
                 if (Objects.equals(openField1.getName(),
                         openField2
                                 .getName()) && openField1 instanceof DataOpenField field && openField2 instanceof DataOpenField field1 && XlsNodeTypes.XLS_DATA
@@ -371,11 +369,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 }
             }
         }
-        for (int i = 0; i < fields.size(); i++) {
+        for (var i = 0; i < fields.size(); i++) {
             if (!fieldsToHide.contains(i)) {
                 addField(fields.get(i));
             } else {
-                IOpenField f = fields.get(i);
+                var f = fields.get(i);
                 this.hiddenFields.computeIfAbsent(f.getName(), e -> new ArrayList<>()).add(f);
                 this.hiddenLowerCasedFields.computeIfAbsent(f.getName().toLowerCase(), e -> new ArrayList<>()).add(f);
             }
@@ -383,7 +381,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void collectDependencyFields(CompiledDependency dependency, List<IOpenField> depFields) {
-        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+        var compiledOpenClass = dependency.getCompiledOpenClass();
         for (IOpenField depField : compiledOpenClass.getOpenClassWithErrors().getFields()) {
             if (isDependencyFieldInheritable(depField)) {
                 depFields.add(depField);
@@ -392,7 +390,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void collectDataTables(CompiledDependency dependency, Map<String, ITable> dataTables) {
-        IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
+        var openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
         if (openClass instanceof XlsModuleOpenClass xlsModuleOpenClass) {
             if (xlsModuleOpenClass.getDataBase() != null) {
                 for (ITable table : xlsModuleOpenClass.getDataBase().getTables()) {
@@ -400,7 +398,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         if (!dataTables.containsKey(table.getName())) {
                             dataTables.put(table.getName(), table);
                         } else {
-                            ITable existingTable = dataTables.get(table.getName());
+                            var existingTable = dataTables.get(table.getName());
                             if (existingTable != null && !Objects.equals(existingTable.getUri(), table.getUri())) {
                                 dataTables.put(table.getName(), null);
                             }
@@ -426,7 +424,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void addDependencyTypes(CompiledDependency dependency) {
-        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+        var compiledOpenClass = dependency.getCompiledOpenClass();
         for (IOpenClass type : compiledOpenClass.getTypes()) {
             try {
                 addType(processDependencyTypeBeforeAdding(type));
@@ -437,7 +435,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     protected void addGlobalTableProperties(CompiledDependency dependency) {
-        IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
+        var openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
         if (openClass instanceof XlsModuleOpenClass xlsModuleOpenClass) {
             addGlobalTableProperties(xlsModuleOpenClass.getGlobalTableProperties());
         }
@@ -449,7 +447,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      * @param dependency compiled dependency module
      */
     protected void addMethods(CompiledDependency dependency) throws DuplicatedMethodException {
-        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+        var compiledOpenClass = dependency.getCompiledOpenClass();
         for (IOpenMethod dependencyMethod : compiledOpenClass.getOpenClassWithErrors().getMethods()) {
             // filter constructor and getOpenClass methods of dependency modules
             //
@@ -494,7 +492,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     public void applyToDependentParsedCode(IParsedCode parsedCode) {
         Objects.requireNonNull(parsedCode, "parsedCode cannot be null");
         if (parsedCode.getTopNode() instanceof XlsModuleSyntaxNode) {
-            XlsModuleSyntaxNode xlsModuleSyntaxNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
+            var xlsModuleSyntaxNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
             for (String value : getImports()) {
                 xlsModuleSyntaxNode.addImport(value);
             }
@@ -512,7 +510,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public void addField(IOpenField openField) {
         Map<String, IOpenField> fields = fieldMap();
-        IOpenField existedField = fields.get(openField.getName());
+        var existedField = fields.get(openField.getName());
         if (existedField != null) {
             if (openField instanceof DataOpenField field && existedField instanceof DataOpenField field1 && XlsNodeTypes.XLS_DATA
                     .equals(field.getNodeType()) && XlsNodeTypes.XLS_DATA
@@ -529,14 +527,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
             throw new DuplicatedFieldException("", openField.getName());
         }
-        IOpenField f = processFieldBeforeAdding(openField);
+        var f = processFieldBeforeAdding(openField);
         fields.put(f.getName(), f);
         addFieldToLowerCaseMap(f);
     }
 
     private static String extractContextParameter(IMethodSignature methodSignature, int index) {
         if (methodSignature instanceof MethodSignature signature) {
-            IParameterDeclaration parameterDeclaration = signature
+            var parameterDeclaration = signature
                     .getParameterDeclaration(index);
             return parameterDeclaration.getContextProperty();
         }
@@ -571,7 +569,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // exists then "overload" it's using decorator; otherwise - just add to
         // the class.
         //
-        IOpenMethod existedMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
+        var existedMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
 
         if (existedMethod != null) {
             if (method instanceof TestSuiteMethod) {
@@ -581,18 +579,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
 
             if (!existedMethod.getType().equals(m.getType())) {
-                String message = "Method '%s' is already defined with another return type '%s'.".formatted(
+                var message = "Method '%s' is already defined with another return type '%s'.".formatted(
                         MethodUtil.printSignature(m, INamedThing.REGULAR),
                         existedMethod.getType().getDisplayName(0));
                 throw new DuplicatedMethodException(message, existedMethod, method);
             }
 
-            IMethodSignature existedMethodSignature = existedMethod.getSignature();
-            IMethodSignature candidateMethodSignature = method.getSignature();
-            for (int i = 0; i < existedMethodSignature.getNumberOfParameters(); i++) {
+            var existedMethodSignature = existedMethod.getSignature();
+            var candidateMethodSignature = method.getSignature();
+            for (var i = 0; i < existedMethodSignature.getNumberOfParameters(); i++) {
                 if (!Objects.equals(extractContextParameter(existedMethodSignature, i),
                         extractContextParameter(candidateMethodSignature, i))) {
-                    String message = "Method '%s' is already defined with another set of context parameters.".formatted(
+                    var message = "Method '%s' is already defined with another set of context parameters.".formatted(
                             MethodUtil.printSignature(method, INamedThing.REGULAR));
                     throw new DuplicatedMethodException(message, existedMethod, method);
                 }
@@ -614,8 +612,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 if (!m.equals(existedMethod)) {
                     // Create decorator for existed method.
                     //
-                    OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existedMethod);
-                    OpenMethodDispatcher wrappedDispatcher = (OpenMethodDispatcher) WrapperLogic
+                    var dispatcher = getOpenMethodDispatcher(existedMethod);
+                    var wrappedDispatcher = (OpenMethodDispatcher) WrapperLogic
                             .wrapOpenMethod(dispatcher, this, false);
                     wrappedDispatcher.addMethod(m);
                     super.removeMethod(existedMethod);
@@ -629,7 +627,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             if (dispatchingValidationEnabled && !(m instanceof TestSuiteMethod) && isDimensionalPropertyPresented(m)) {
                 // Create dispatcher for existed method.
                 //
-                OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(m);
+                var dispatcher = getOpenMethodDispatcher(m);
 
                 IOpenMethod openMethod = WrapperLogic.wrapOpenMethod(dispatcher, this, false);
 
@@ -646,7 +644,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 .getDimensionalTableProperties();
         ITableProperties propertiesFromMethod = PropertiesHelper.getTableProperties(m);
         for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
-            String propertyValue = propertiesFromMethod.getPropertyValueAsString(dimensionProperty.getName());
+            var propertyValue = propertiesFromMethod.getPropertyValueAsString(dimensionProperty.getName());
             if (StringUtils.isNotEmpty(propertyValue)) {
                 return true;
             }
@@ -685,12 +683,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private TestSuiteMethod createNewTestSuiteMethod(TestSuiteMethod testSuiteMethod) {
-        IOpenMethod method = testSuiteMethod.getTestedMethod();
-        IOpenMethod newTargetMethod = getDeclaredMethod(method.getName(), method.getSignature().getParameterTypes());
+        var method = testSuiteMethod.getTestedMethod();
+        var newTargetMethod = getDeclaredMethod(method.getName(), method.getSignature().getParameterTypes());
         if (newTargetMethod == null) {
             newTargetMethod = method;
         }
-        TestSuiteMethod copy = new TestSuiteMethod(newTargetMethod, testSuiteMethod);
+        var copy = new TestSuiteMethod(newTargetMethod, testSuiteMethod);
         copy.setModuleName(testSuiteMethod.getModuleName());
         return copy;
     }
@@ -738,7 +736,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     .getMethods()) {
                 if (dependencyMethod instanceof TestSuiteMethod testSuiteMethod) {
                     try {
-                        TestSuiteMethod newTestSuiteMethod = createNewTestSuiteMethod(testSuiteMethod);
+                        var newTestSuiteMethod = createNewTestSuiteMethod(testSuiteMethod);
                         addMethod(newTestSuiteMethod);
                     } catch (OpenlNotCheckedException e) {
                         addError(e);

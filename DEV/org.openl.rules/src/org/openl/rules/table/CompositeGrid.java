@@ -5,7 +5,6 @@ package org.openl.rules.table;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -59,17 +58,17 @@ public class CompositeGrid extends AGrid {
 
     @Override
     public ICell getCell(int column, int row) {
-        Transform t = transform(column, row);
+        var t = transform(column, row);
         if (t == null) {
             return null;
         }
-        ICell delegate = t.grid().getCell(t.getCol(), t.getRow());
+        var delegate = t.grid().getCell(t.getCol(), t.getRow());
         return new CompositeCell(column, row, getRegionContaining(column, row), delegate, t.getGridTable());
     }
 
     @Override
     public int getColumnWidth(int col) {
-        Transform t = transform(col, 0);
+        var t = transform(col, 0);
         return t == null ? 100 : t.grid().getColumnWidth(t.getCol());
     }
 
@@ -109,15 +108,15 @@ public class CompositeGrid extends AGrid {
 
     @Override
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
-        Transform t1 = transform(colStart, rowStart);
-        Transform t2 = transform(colEnd, rowEnd);
+        var t1 = transform(colStart, rowStart);
+        var t2 = transform(colEnd, rowEnd);
         if (t1 == null || t2 == null) {
             return null;
         }
         if (t1.grid() != t2.grid() || isGenerated(t1.grid()) || isGenerated(t2.grid())) {
             // try to find some range in real table
-            int h = 0;
-            int w = 0;
+            var h = 0;
+            var w = 0;
             for (IGridTable gridTable : gridTables) {
                 if (isGenerated(gridTable.getGrid())) {
                     h = h + gridTable.getHeight();
@@ -148,7 +147,7 @@ public class CompositeGrid extends AGrid {
 
     @Override
     public String getUri() {
-        Transform t = transform(0, 0);
+        var t = transform(0, 0);
         return t == null ? null : t.grid().getUri();
     }
 
@@ -169,24 +168,24 @@ public class CompositeGrid extends AGrid {
      * current grid.
      */
     private void initMergedRegions() {
-        List<IGridRegion> mergedRegionsList = new ArrayList<>();
+        var mergedRegionsList = new ArrayList<IGridRegion>();
 
         // hash set of source grids for every table
         Set<IGrid> gridSet = getGridSet();
 
         for (IGrid grid : gridSet) {
-            for (int i = 0; i < grid.getNumberOfMergedRegions(); i++) {
+            for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
 
                 // get each merged region from the grid
-                IGridRegion mergedRegion = grid.getMergedRegion(i);
+                var mergedRegion = grid.getMergedRegion(i);
 
-                for (int j = 0; j < gridTables.length; j++) {
+                for (var j = 0; j < gridTables.length; j++) {
                     // check if table belongs to grid
                     if (gridTables[j].getGrid() != grid) {
                         continue;
                     }
 
-                    IGridRegion tableRegion = gridTables[j].getRegion();
+                    var tableRegion = gridTables[j].getRegion();
 
                     // check if merged region on the sheet belongs to table
                     // region
@@ -194,11 +193,11 @@ public class CompositeGrid extends AGrid {
 
                     if (intersection != null) {
                         if (!gridTables[j].isNormalOrientation()) {
-                            int left = intersection.getTop();
-                            int top = intersection.getLeft();
+                            var left = intersection.getTop();
+                            var top = intersection.getLeft();
 
-                            int right = intersection.getBottom();
-                            int bottom = intersection.getRight();
+                            var right = intersection.getBottom();
+                            var bottom = intersection.getRight();
 
                             intersection = new GridRegion(top, left, bottom, right);
                         }
@@ -227,7 +226,7 @@ public class CompositeGrid extends AGrid {
     }
 
     private Set<IGrid> getGridSet() {
-        Set<IGrid> gridSet = new HashSet<>();
+        var gridSet = new HashSet<IGrid>();
         for (IGridTable gridTable : gridTables) {
             gridSet.add(gridTable.getGrid());
         }
@@ -240,21 +239,21 @@ public class CompositeGrid extends AGrid {
     private void initMappedRegions() {
         mappedRegions = new GridRegion[gridTables.length];
 
-        int w = 0;
-        int h = 0;
+        var w = 0;
+        var h = 0;
 
-        for (int i = 0; i < gridTables.length; i++) {
-            IGridRegion reg = gridTables[i].getRegion();
+        for (var i = 0; i < gridTables.length; i++) {
+            var reg = gridTables[i].getRegion();
             GridRegion mapped;
             int last = i == gridTables.length - 1 ? 1 : 0;
 
             if (vertical) {
-                int rh = IGridRegion.Tool.height(reg);
+                var rh = IGridRegion.Tool.height(reg);
                 mapped = new GridRegion(h, 0, h + rh - 1 + last, width);
 
                 h += rh;
             } else {
-                int rw = IGridRegion.Tool.width(reg);
+                var rw = IGridRegion.Tool.width(reg);
                 mapped = new GridRegion(0, w, height, w + rw - 1 + last);
 
                 w += rw;
@@ -269,7 +268,7 @@ public class CompositeGrid extends AGrid {
      */
     private void initWidthAndHeight() {
         for (IGridTable gridTable : gridTables) {
-            IGridRegion reg = gridTable.getRegion();
+            var reg = gridTable.getRegion();
             if (vertical) {
                 height += IGridRegion.Tool.height(reg);
                 width = Math.max(width, IGridRegion.Tool.width(reg));
@@ -282,7 +281,7 @@ public class CompositeGrid extends AGrid {
 
     @Override
     public boolean isEmpty(int col, int row) {
-        Transform t = transform(col, row);
+        var t = transform(col, row);
         return t == null || t.grid().isEmpty(t.getCol(), t.getRow());
     }
 
@@ -294,12 +293,12 @@ public class CompositeGrid extends AGrid {
      * @return {@link Transform} that contains coordinates to cell in the appropriate grid.
      */
     public Transform transform(int col, int row) {
-        for (int i = 0; i < mappedRegions.length; i++) {
+        for (var i = 0; i < mappedRegions.length; i++) {
             // find the region to which this coordinates belong to
             if (IGridRegion.Tool.contains(mappedRegions[i], col, row)) {
                 // according to the found region, get the appropriate table
                 // region.
-                IGridRegion reg = gridTables[i].getRegion();
+                var reg = gridTables[i].getRegion();
 
                 // transform grid coordinates to table grid one.
                 int transformedCol;

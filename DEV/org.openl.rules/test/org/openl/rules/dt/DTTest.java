@@ -174,13 +174,13 @@ class DTTest {
     }
 
     private static Collection<Object> buildCollection(Object... values) {
-        Collection<Object> ret = new ArrayList<>();
+        var ret = new ArrayList<Object>();
         Collections.addAll(ret, values);
         return ret;
     }
 
     private static Set<Object> buildSet(Object... values) {
-        Set<Object> ret = new HashSet<>();
+        var ret = new HashSet<Object>();
         Collections.addAll(ret, values);
         return ret;
     }

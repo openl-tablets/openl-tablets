@@ -75,7 +75,7 @@ public final class AlgorithmWrapper extends AbstractAlgorithmWrapper implements 
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AlgorithmWrapper that = (AlgorithmWrapper) o;
+        var that = (AlgorithmWrapper) o;
         return delegate.equals(that.delegate);
     }
 

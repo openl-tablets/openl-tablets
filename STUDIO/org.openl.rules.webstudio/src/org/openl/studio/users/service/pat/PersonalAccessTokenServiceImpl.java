@@ -68,7 +68,7 @@ public class PersonalAccessTokenServiceImpl implements PersonalAccessTokenServic
         if (!PatToken.isValidPublicId(publicId)) {
             return null;
         }
-        PersonalAccessToken token = tokenDao.getByPublicId(publicId);
+        var token = tokenDao.getByPublicId(publicId);
         if (token == null || !loginName.equals(token.getLoginName())) {
             return null;
         }

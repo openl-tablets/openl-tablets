@@ -45,7 +45,7 @@ public class ContainsInOrNotInArraySelector implements IIntSelector {
             return true;
         }
 
-        boolean isIn = realParams[0] == null || adaptor.extractBooleanValue(realParams[0]);
+        var isIn = realParams[0] == null || adaptor.extractBooleanValue(realParams[0]);
 
         return ArrayTool.contains(realParams[1], value) ^ isIn;
     }

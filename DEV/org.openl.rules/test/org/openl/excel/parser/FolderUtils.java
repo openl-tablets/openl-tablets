@@ -9,11 +9,11 @@ public final class FolderUtils {
 
     public static String getResourcesFolder() {
         // If run from IDE
-        String folder = "test/rules/";
+        var folder = "test/rules/";
 
         if (!new File(folder).exists()) {
             // If run jar from the "/target" folder
-            String parent = Path.of("..").toAbsolutePath().normalize().toString();
+            var parent = Path.of("..").toAbsolutePath().normalize().toString();
             folder = parent + "/" + folder;
         }
         if (!new File(folder).exists()) {

@@ -39,7 +39,7 @@ public class ConstructorSugarSupport {
                         .addVar(ISyntaxConstants.THIS_NAMESPACE, bindingContext.getTemporaryVarName(), type);
                 var varBindingContext = TypeBindingContext.create(bindingContext, localVar, 1);
                 for (var child : childNodes) {
-                    String childType = child.getType();
+                    var childType = child.getType();
                     if ("op.assign".equals(childType)) {
                         isAllParamsNoAssign = false;
                         var iBoundNode = ANodeBinder.bindChildNode(child, varBindingContext);

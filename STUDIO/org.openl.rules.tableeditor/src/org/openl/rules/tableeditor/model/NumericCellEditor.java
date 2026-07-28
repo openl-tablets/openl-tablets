@@ -12,7 +12,7 @@ public class NumericCellEditor implements ICellEditor {
 
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
-        EditorTypeResponse typeResponse = new EditorTypeResponse(CE_NUMERIC);
+        var typeResponse = new EditorTypeResponse(CE_NUMERIC);
         typeResponse.setParams(params);
         return typeResponse;
     }

@@ -17,11 +17,11 @@ public class BinaryOperatorOrNodeBinder extends BinaryOperatorNodeBinder {
 
         IBoundNode[] children = bindChildren(node, bindingContext);
 
-        IBoundNode left = children[0];
-        IBoundNode right = children[1];
+        var left = children[0];
+        var right = children[1];
 
-        IOpenClass leftType = left.getType();
-        IOpenClass rightType = right.getType();
+        var leftType = left.getType();
+        var rightType = right.getType();
 
         if ((leftType.getInstanceClass() == boolean.class || leftType.getInstanceClass() == Boolean.class) && (rightType
                 .getInstanceClass() == boolean.class || rightType.getInstanceClass() == Boolean.class)) {
@@ -29,8 +29,8 @@ public class BinaryOperatorOrNodeBinder extends BinaryOperatorNodeBinder {
             return new BinaryOpNodeOr(node, left, right);
         }
 
-        int index = node.getType().lastIndexOf('.');
-        String methodName = node.getType().substring(index + 1);
+        var index = node.getType().lastIndexOf('.');
+        var methodName = node.getType().substring(index + 1);
         IMethodCaller methodCaller = findBinaryOperatorMethodCaller(methodName,
                 new IOpenClass[]{leftType, rightType},
                 bindingContext);

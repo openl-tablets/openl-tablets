@@ -57,9 +57,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     private static String makeJavaIdentifier(String src) {
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < src.length(); i++) {
-            char c = src.charAt(i);
+        var buf = new StringBuilder();
+        for (var i = 0; i < src.length(); i++) {
+            var c = src.charAt(i);
             if (i == 0) {
                 buf.append(Character.isJavaIdentifierStart(c) ? c : '_');
             } else {
@@ -129,7 +129,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     protected void addType(String name, IOpenClass type, boolean overwrite) {
-        IOpenClass openClass = internalTypes.put(name, type);
+        var openClass = internalTypes.put(name, type);
         if (!overwrite && openClass != null && !openClass.equals(type)) {
             throw new DuplicatedTypeException(null, type.getName());
         }
@@ -148,8 +148,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
     private static boolean isDependencyModuleRec(ModuleOpenClass module,
                                                  ModuleOpenClass inModule,
                                                  IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
-        IdentityHashMap<ModuleOpenClass, Boolean> c = cache.computeIfAbsent(inModule, e -> new IdentityHashMap<>());
-        Boolean t = c.get(module);
+        var c = cache.computeIfAbsent(inModule, e -> new IdentityHashMap<>());
+        var t = c.get(module);
         if (t != null) {
             return t;
         }

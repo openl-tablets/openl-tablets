@@ -52,13 +52,13 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
         if (message.containsKey(ID_KEY)) {
             return;
         }
-        String id = (String) message.getExchange().get(ID_KEY);
+        var id = (String) message.getExchange().get(ID_KEY);
         if (id == null) {
             id = LoggingMessage.nextId();
             message.getExchange().put(ID_KEY, id);
         }
         message.put(ID_KEY, id);
-        final LoggingMessage buffer = new LoggingMessage("Request", id);
+        final var buffer = new LoggingMessage("Request", id);
 
         append(message.get(Message.RESPONSE_CODE), buffer.getResponseCode());
         append(message.get(Message.ENCODING), buffer.getEncoding());
@@ -66,9 +66,9 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
         append(message.get(Message.CONTENT_TYPE), buffer.getContentType());
         append(message.get(Message.PROTOCOL_HEADERS), buffer.getHeader());
 
-        String uri = (String) message.get(Message.REQUEST_URL);
+        var uri = (String) message.get(Message.REQUEST_URL);
         if (uri == null) {
-            String address = (String) message.get(Message.ENDPOINT_ADDRESS);
+            var address = (String) message.get(Message.ENDPOINT_ADDRESS);
             uri = (String) message.get(Message.REQUEST_URI);
             if (uri != null && uri.startsWith("/")) {
                 if (address != null && !address.startsWith(uri)) {
@@ -80,7 +80,7 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
         }
         if (uri != null) {
             buffer.getAddress().append(uri);
-            String query = (String) message.get(Message.QUERY_STRING);
+            var query = (String) message.get(Message.QUERY_STRING);
             if (query != null) {
                 buffer.getAddress().append("?").append(query);
             }
@@ -92,11 +92,11 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
             return;
         }
 
-        InputStream is = message.getContent(InputStream.class);
+        var is = message.getContent(InputStream.class);
         if (is != null) {
             logInputStream(message, is, buffer, (String) message.get(Message.ENCODING));
         } else {
-            Reader reader = message.getContent(Reader.class);
+            var reader = message.getContent(Reader.class);
             if (reader != null) {
                 logReader(message, reader, buffer);
             }
@@ -118,7 +118,7 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
 
     protected void logReader(Message message, Reader reader, LoggingMessage buffer) {
         try {
-            CachedWriter writer = new CachedWriter();
+            var writer = new CachedWriter();
             IOUtils.copyAndCloseInput(reader, writer);
             message.setContent(Reader.class, writer.getReader());
 
@@ -129,7 +129,7 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
     }
 
     private void logInputStream(Message message, InputStream is, LoggingMessage buffer, String encoding) {
-        try (CachedOutputStream bos = new CachedOutputStream()) {
+        try (var bos = new CachedOutputStream()) {
             // use the appropriate input stream and restore it later
             InputStream bis = is instanceof DelegatingInputStream dis ? dis.getInputStream() : is;
 

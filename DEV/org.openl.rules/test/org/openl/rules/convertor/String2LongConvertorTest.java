@@ -9,22 +9,22 @@ class String2LongConvertorTest {
 
     @Test
     void testConvertPositive() {
-        String2LongConvertor converter = new String2LongConvertor();
-        Number result = converter.parse("9223372036854775807", null);
+        var converter = new String2LongConvertor();
+        var result = converter.parse("9223372036854775807", null);
         assertEquals(Long.MAX_VALUE, result);
     }
 
     @Test
     void testConvertNegative() {
-        String2LongConvertor converter = new String2LongConvertor();
-        Number result = converter.parse("-9223372036854775808", null);
+        var converter = new String2LongConvertor();
+        var result = converter.parse("-9223372036854775808", null);
         assertEquals(Long.MIN_VALUE, result);
     }
 
     @Test
     void testConvertPositiveOverflow() {
         assertThrows(NumberFormatException.class, () -> {
-            String2LongConvertor converter = new String2LongConvertor();
+            var converter = new String2LongConvertor();
             converter.parse("9223372036854775808", null);
         });
     }
@@ -32,7 +32,7 @@ class String2LongConvertorTest {
     @Test
     void testConvertNegativeOverflow() {
         assertThrows(NumberFormatException.class, () -> {
-            String2LongConvertor converter = new String2LongConvertor();
+            var converter = new String2LongConvertor();
             converter.parse("-9223372036854775809", null);
         });
     }
@@ -40,7 +40,7 @@ class String2LongConvertorTest {
     @Test
     void testConvertNonInteger() {
         assertThrows(NumberFormatException.class, () -> {
-            String2LongConvertor converter = new String2LongConvertor();
+            var converter = new String2LongConvertor();
             converter.parse("1.3", null);
         });
     }

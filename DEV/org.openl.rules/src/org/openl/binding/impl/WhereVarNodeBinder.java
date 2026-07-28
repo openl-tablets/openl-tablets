@@ -19,7 +19,7 @@ public class WhereVarNodeBinder extends ANodeBinder {
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
-        String name = ((IdentifierNode) node.getChild(0)).getIdentifier();
+        var name = ((IdentifierNode) node.getChild(0)).getIdentifier();
 
         return LocalVarBinder.createLocalVarDeclarationNode(node, name, node.getChild(1), null, bindingContext, true);
     }

@@ -26,7 +26,7 @@ public class JarRepositoryFactory implements RepositoryFactory {
 
     @Override
     public Repository create(Function<String, String> settings) {
-        JarLocalRepository repository = new JarLocalRepository();
+        var repository = new JarLocalRepository();
         repository.initialize();
         return repository;
     }

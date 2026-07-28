@@ -42,7 +42,7 @@ public class GenericKey {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            SingleKey singleKey = (SingleKey) o;
+            var singleKey = (SingleKey) o;
             return object.equals(singleKey.object);
         }
 
@@ -71,7 +71,7 @@ public class GenericKey {
                 return false;
             }
 
-            TupleKey toupleKey = (TupleKey) o;
+            var toupleKey = (TupleKey) o;
 
             if (!object1.equals(toupleKey.object1)) {
                 return false;
@@ -81,7 +81,7 @@ public class GenericKey {
 
         @Override
         public int hashCode() {
-            int result = object1.hashCode();
+            var result = object1.hashCode();
             result = 31 * result + object2.hashCode();
             return result;
         }

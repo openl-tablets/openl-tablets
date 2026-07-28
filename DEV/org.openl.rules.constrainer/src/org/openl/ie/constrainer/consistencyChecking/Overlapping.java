@@ -96,7 +96,7 @@ public class Overlapping {
     public int[] getOverlapped() {
         int[] arr = new int[_overlapped.size()];
         Iterator<Integer> iter = _overlapped.iterator();
-        int i = 0;
+        var i = 0;
         while (iter.hasNext()) {
             arr[i++] = iter.next();
         }
@@ -109,8 +109,8 @@ public class Overlapping {
      *         with the according values
      */
     public Map<String, Integer> getSolution() {
-        Map<String, Integer> map = new HashMap<>();
-        for (int i = 0; i < _solutionNames.length; i++) {
+        var map = new HashMap<String, Integer>();
+        for (var i = 0; i < _solutionNames.length; i++) {
             map.put(_solutionNames[i], _solutionValues[i]);
         }
         return map;

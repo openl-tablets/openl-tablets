@@ -294,7 +294,7 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractSpreadsheetWrapper that = (AbstractSpreadsheetWrapper) o;
+        var that = (AbstractSpreadsheetWrapper) o;
         return delegate.equals(that.delegate);
     }
 

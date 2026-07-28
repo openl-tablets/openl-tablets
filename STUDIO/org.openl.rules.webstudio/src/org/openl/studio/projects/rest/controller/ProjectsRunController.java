@@ -102,7 +102,7 @@ public class ProjectsRunController {
             throw new NotFoundException("table.message");
         }
 
-        String uri = table.getUri();
+        var uri = table.getUri();
         var method = currentOpenedModule
                 ? projectModel.getOpenedModuleMethod(uri)
                 : projectModel.getMethod(uri);

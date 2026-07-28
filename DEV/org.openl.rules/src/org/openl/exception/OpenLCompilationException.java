@@ -91,8 +91,8 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     @Override
     public String toString() {
 
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
+        var stringWriter = new StringWriter();
+        var printWriter = new PrintWriter(stringWriter);
 
         printError(this, printWriter);
         SourceCodeURLTool.printSourceLocation(getSourceLocation(), printWriter);
@@ -103,13 +103,13 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
     private static void printError(OpenLException error, PrintWriter writer) {
 
-        Throwable cause = error.getCause();
+        var cause = error.getCause();
 
         String message;
 
         if (cause instanceof CompositeOpenlException syntaxErrorException) {
 
-            for (int i = 0; i < syntaxErrorException.getErrors().length; i++) {
+            for (var i = 0; i < syntaxErrorException.getErrors().length; i++) {
                 printError(syntaxErrorException.getErrors()[i], writer);
             }
 

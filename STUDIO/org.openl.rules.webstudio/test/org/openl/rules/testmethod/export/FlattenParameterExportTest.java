@@ -5,16 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import org.openl.rules.testmethod.TestUnitsResults;
 
 class FlattenParameterExportTest extends AbstractParameterExportTest {
 
@@ -36,12 +31,12 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
     void simpleType() throws IOException {
         export.write(sheet, mockResults(params(0.5)), true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
+        var sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW, sheetToCheck.getFirstRowNum());
         assertEquals(5, sheetToCheck.getLastRowNum());
 
-        int rowNum = BaseExport.FIRST_ROW;
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var rowNum = BaseExport.FIRST_ROW;
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "Parameters of TestRule");
 
         rowNum += 2;
@@ -63,11 +58,11 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
     void halfFilled() throws IOException {
         export.write(sheet, mockResults(params(new A("name1")), params(new A("name2"))), true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
+        var sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW, sheetToCheck.getFirstRowNum());
         assertEquals(BaseExport.FIRST_ROW + 3, sheetToCheck.getLastRowNum());
-        int rowNum = BaseExport.FIRST_ROW;
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var rowNum = BaseExport.FIRST_ROW;
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "Parameters of TestRule");
 
         rowNum += 2;
@@ -83,15 +78,15 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
 
     @Test
     void arrayOfObjects() throws IOException {
-        List<TestUnitsResults> result = mockResults(params((Object) new A[]{new A("name1"), new A("name2")}),
+        var result = mockResults(params((Object) new A[]{new A("name1"), new A("name2")}),
                 params((Object) null),
                 params((Object) new A[]{new A("name3")}),
                 params());
         export.write(sheet, result, true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
-        int rowNum = BaseExport.FIRST_ROW + 2;
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
+        var row = sheetToCheck.getRow(rowNum);
 
         assertRowEquals(row, "ID", "#1", "#2", "#3", "#4");
 
@@ -106,22 +101,22 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
 
     @Test
     void complexObjects() throws IOException {
-        A A1 = new A("name1", 1);
-        A A2 = new A("name2", 2);
+        var A1 = new A("name1", 1);
+        var A2 = new A("name2", 2);
 
-        B B11 = new B("id11", new A("n1", 111, 2, 3), new A("n2", 112));
-        B B12 = new B("id12", new A("n3", 121), new A("n4", 122), new A("n5", 123));
+        var B11 = new B("id11", new A("n1", 111, 2, 3), new A("n2", 112));
+        var B12 = new B("id12", new A("n3", 121), new A("n4", 122), new A("n5", 123));
 
-        B B1 = new B("id1", A1, A2);
+        var B1 = new B("id1", A1, A2);
         B1.setChildBValues(B11, B12);
 
         export.write(sheet, mockResults(params(B1)), true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
+        var sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW + 21, sheetToCheck.getLastRowNum());
-        int rowNum = BaseExport.FIRST_ROW + 2;
+        var rowNum = BaseExport.FIRST_ROW + 2;
 
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "ID", "#1");
 
         row = sheetToCheck.getRow(++rowNum);
@@ -186,15 +181,15 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
 
     @Test
     void nestedComplexFieldsWithTheSameDataAndType() throws IOException {
-        B B1 = new B(null, new A("name1", 1),  new A(null, 2),  new A("name3", 3));
+        var B1 = new B(null, new A("name1", 1),  new A(null, 2),  new A("name3", 3));
 
         export.write(sheet, mockResults(params(B1)), true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
+        var sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW + 7, sheetToCheck.getLastRowNum());
-        int rowNum = BaseExport.FIRST_ROW + 2;
+        var rowNum = BaseExport.FIRST_ROW + 2;
 
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "ID", "#1");
 
         row = sheetToCheck.getRow(++rowNum);
@@ -217,15 +212,15 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
 
     @Test
     void nestedArrayWithComplex_Case1() throws IOException {
-        C C1 = new C(new A("name1"), new A("name1"));
+        var C1 = new C(new A("name1"), new A("name1"));
 
         export.write(sheet, mockResults(params(C1)), true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
+        var sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW + 4, sheetToCheck.getLastRowNum());
-        int rowNum = BaseExport.FIRST_ROW + 2;
+        var rowNum = BaseExport.FIRST_ROW + 2;
 
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "ID", "#1");
 
         row = sheetToCheck.getRow(++rowNum);
@@ -244,10 +239,10 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
                         params(new A("name2", 5, 6), "str2")),
                 true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
-        int rowNum = BaseExport.FIRST_ROW + 2;
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
 
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "ID", "#1", "#2");
 
         row = sheetToCheck.getRow(++rowNum);
@@ -274,10 +269,10 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
                         params(new A[]{new A("name4.1"), new A("name4.2", 7)}, "str4")),
                 true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
-        int rowNum = BaseExport.FIRST_ROW + 2;
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
 
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "ID", "#1", "#2", "#3", "#4");
 
         row = sheetToCheck.getRow(++rowNum);
@@ -308,10 +303,10 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
                         mockResult("SecondTest", params(1, "str1", 3.5), params(2, "str2", 4.5))),
                 true);
 
-        XSSFSheet sheetToCheck = saveAndReadSheet();
+        var sheetToCheck = saveAndReadSheet();
         // First test
-        int rowNum = BaseExport.FIRST_ROW;
-        XSSFRow row = sheetToCheck.getRow(rowNum);
+        var rowNum = BaseExport.FIRST_ROW;
+        var row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row, "Parameters of FirstTest");
 
         rowNum += 2;

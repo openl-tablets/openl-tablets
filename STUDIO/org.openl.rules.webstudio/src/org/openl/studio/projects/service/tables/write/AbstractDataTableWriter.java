@@ -36,7 +36,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
 
     protected void mergeHeader(T tableView) {
         if (!isUpdateMode()) {
-            int latestCol = tableView.headers.size();
+            var latestCol = tableView.headers.size();
             if (CollectionUtils.isNotEmpty(tableView.properties)) {
                 latestCol = Math.max(NUMBER_PROPERTIES_COLUMNS, latestCol);
             }
@@ -55,8 +55,8 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
     protected final void updateBusinessBody(T tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
 
-        int col = 0;
-        boolean hasForeignKeys = hasForeignKeysInHeaders(tableView.headers);
+        var col = 0;
+        var hasForeignKeys = hasForeignKeysInHeaders(tableView.headers);
         int displayValueRowIndex = hasForeignKeys ? 2 : 1;
         for (var header : tableView.headers) {
             createOrUpdateCell(tableBody, buildCellKey(col, 0), header.fieldName);
@@ -72,7 +72,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
         }
 
         // Write Data rows
-        int nextRow = writeDataRowsToBusinessBody(tableBody, displayValueRowIndex + 1, tableView.rows);
+        var nextRow = writeDataRowsToBusinessBody(tableBody, displayValueRowIndex + 1, tableView.rows);
 
         if (isUpdateMode()) {
             // Clean up removed rows
@@ -82,7 +82,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
             }
 
             // Clean up removed columns
-            int width = tableView.headers.size();
+            var width = tableView.headers.size();
             var currentWidth = IGridRegion.Tool.width(tableBody.getRegion());
             if (width < currentWidth) {
                 removeColumns(tableBody, currentWidth - width, width);
@@ -101,7 +101,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
      * Write all data rows to business body starting at row 1
      */
     protected int writeDataRowsToBusinessBody(IGridTable tableBody, int fromRow, Collection<DataRowView> rows) {
-        int row = fromRow;
+        var row = fromRow;
         for (var dataRow : rows) {
             writeDataRowToBusinessBody(tableBody, row, dataRow);
             row++;
@@ -113,7 +113,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
      * Write a single data row to business body
      */
     protected void writeDataRowToBusinessBody(IGridTable tableBody, int row, DataRowView dataRow) {
-        int col = 0;
+        var col = 0;
         for (var value : dataRow.values) {
             createOrUpdateCell(tableBody, buildCellKey(col, row), value);
             col++;
@@ -128,7 +128,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
         if (!isUpdateMode()) {
             throw new IllegalStateException("Append operation is only allowed in update mode.");
         }
-        int tableColumns = getGridTable(IXlsTableNames.VIEW_BUSINESS).getWidth();
+        var tableColumns = getGridTable(IXlsTableNames.VIEW_BUSINESS).getWidth();
         for (var dataRow : rows) {
             requireColumnsWithinTable(dataRow.values.size(), tableColumns);
         }
@@ -138,7 +138,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
 
             // Calculate next row after existing data
             // The height already points to the next empty row after all existing data
-            int row = IGridRegion.Tool.height(tableBody.getRegion());
+            var row = IGridRegion.Tool.height(tableBody.getRegion());
 
             // Append new rows
             for (var dataRow : rows) {
@@ -159,13 +159,13 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
             // business body of originalTable does not include rows with field name and foreign key info
             var gridRegion = originalTable.getRegion();
             var originalGrid = originalTable.getGrid();
-            int leftCell = gridRegion.getLeft();
-            int topCell = gridRegion.getTop();
-            int firstPropertyRow = IGridRegion.Tool.height(originalGrid.getCell(leftCell, topCell).getAbsoluteRegion());
-            String propsHeader = originalGrid.getCell(leftCell, topCell + firstPropertyRow).getStringValue();
-            int fromRow = 1;
+            var leftCell = gridRegion.getLeft();
+            var topCell = gridRegion.getTop();
+            var firstPropertyRow = IGridRegion.Tool.height(originalGrid.getCell(leftCell, topCell).getAbsoluteRegion());
+            var propsHeader = originalGrid.getCell(leftCell, topCell + firstPropertyRow).getStringValue();
+            var fromRow = 1;
             if (!GridTool.tableWithoutPropertySection(propsHeader)) {
-                int propsCount = originalGrid.getCell(leftCell, topCell + 1).getHeight();
+                var propsCount = originalGrid.getCell(leftCell, topCell + 1).getHeight();
                 fromRow += propsCount;
             }
             return originalTable.getSubtable(0,

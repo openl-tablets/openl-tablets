@@ -29,7 +29,7 @@ public class ZipRulesProjectBuilder extends RulesProjectBuilder {
 
     @Override
     public boolean addFile(String fileName, InputStream inputStream) throws ProjectException {
-        String filteredFileName = folderExtractor.extractFromRootFolder(fileName);
+        var filteredFileName = folderExtractor.extractFromRootFolder(fileName);
         if (filteredFileName != null) {
             if (filter != null && !filter.accept(filteredFileName)) {
                 return false;
@@ -42,7 +42,7 @@ public class ZipRulesProjectBuilder extends RulesProjectBuilder {
 
     @Override
     public boolean addFolder(String folderName) throws ProjectException {
-        String filteredFolderName = folderExtractor.extractFromRootFolder(folderName);
+        var filteredFolderName = folderExtractor.extractFromRootFolder(folderName);
         if (filteredFolderName != null) {
             if (!filter.accept(filteredFolderName)) {
                 return false;

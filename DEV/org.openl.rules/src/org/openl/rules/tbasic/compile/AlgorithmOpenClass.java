@@ -54,7 +54,7 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
     }
 
     private Collection<IOpenField> filterFields(Collection<IOpenField> fields) {
-        Collection<IOpenField> visibleFields = new ArrayList<>();
+        var visibleFields = new ArrayList<IOpenField>();
         for (IOpenField field : fields) {
             if (!invisibleFields.contains(field.getName())) {
                 visibleFields.add(field);

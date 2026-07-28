@@ -21,7 +21,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     public IntExpArray(Constrainer c, FastVector v) {
         this(c, v.size());
 
-        for (int i = 0; i < _data.length; ++i) {
+        for (var i = 0; i < _data.length; ++i) {
             _data[i] = (IntExp) v.elementAt(i);
         }
     }
@@ -39,7 +39,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
 
         name(array_name);
 
-        for (int i = 0; i < _data.length; ++i) {
+        for (var i = 0; i < _data.length; ++i) {
             _data[i] = c.addIntVar(min, max, array_name + "(" + i + ")");
         }
     }
@@ -56,7 +56,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
 
         name(array_name);
 
-        for (int i = 0; i < _data.length; ++i) {
+        for (var i = 0; i < _data.length; ++i) {
             _data[i] = c.addIntVar(min, max, array_name + "(" + i + ")", int_domain);
         }
     }
@@ -211,7 +211,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     public IntExpArray(Constrainer c, List<IntExp> v) {
         this(c, v.size());
 
-        for (int i = 0; i < _data.length; ++i) {
+        for (var i = 0; i < _data.length; ++i) {
             _data[i] = v.get(i);
         }
     }
@@ -241,9 +241,9 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      * Returns the maximal value for all expressions in this array.
      */
     public int max() {
-        int max = Integer.MIN_VALUE;
+        var max = Integer.MIN_VALUE;
         for (IntExp datum : _data) {
-            int maxi = datum.max();
+            var maxi = datum.max();
             if (maxi > max) {
                 max = maxi;
             }
@@ -259,7 +259,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      */
     public IntExpArray merge(IntExpArray array) {
         int i;
-        List<IntExp> new_data = new ArrayList<>(_data.length + array._data.length);
+        var new_data = new ArrayList<IntExp>(_data.length + array._data.length);
 
         for (i = 0; i < _data.length; i++) {
             new_data.add(_data[i]);
@@ -276,9 +276,9 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      * Returns the minimal value for all expressions in this array.
      */
     public int min() {
-        int min = Integer.MAX_VALUE;
+        var min = Integer.MAX_VALUE;
         for (IntExp datum : _data) {
-            int mini = datum.min();
+            var mini = datum.min();
             if (mini < min) {
                 min = mini;
             }
@@ -340,11 +340,11 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      */
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder();
+        var buf = new StringBuilder();
 
         buf.append("[");
 
-        for (int i = 0; i < _data.length; ++i) {
+        for (var i = 0; i < _data.length; ++i) {
             if (i > 0) {
                 buf.append(" ");
             }

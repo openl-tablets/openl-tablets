@@ -2,7 +2,6 @@ package org.openl.rules.validation.properties.dimentional;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 
 /**
  * Column that is used in the dispatching table, built by dimension properties of the group of tables. Handles the
@@ -25,12 +24,12 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
 
     @Override
     public String getCodeExpression() {
-        MatchingExpression matchExpression = getProperty().getExpression();
+        var matchExpression = getProperty().getExpression();
         String result = getMatchByDefaultCodeExpression(matchExpression);
 
         // array values can have only "contains" operation
         //
-        StringBuilder codeExpression = new StringBuilder();
+        var codeExpression = new StringBuilder();
 
         if (matchExpression != null) {
             codeExpression.append("contains(");
@@ -40,7 +39,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
             codeExpression.append(")");
             result += codeExpression.toString();
         } else {
-            String message = "Cannot create expression for '%s' property validation.".formatted(
+            var message = "Cannot create expression for '%s' property validation.".formatted(
                     getProperty().getName());
             throw new OpenlNotCheckedException(message);
         }

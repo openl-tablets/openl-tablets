@@ -23,15 +23,15 @@ public final class UndoStack implements Serializable {
      * Restores the state of this stack to the newSize.
      */
     public void backtrack(int newSize) {
-        int size = _stack.size();
+        var size = _stack.size();
 
         if (newSize > size) {
             Constrainer.abort("Internal error in UndoStack.backtrack(): newSize > size");
         }
 
-        int nUndos = size - newSize;
+        var nUndos = size - newSize;
         while (nUndos-- > 0) {
-            Undo undo_object = popUndo();
+            var undo_object = popUndo();
             undo_object.undo();
         }
     }

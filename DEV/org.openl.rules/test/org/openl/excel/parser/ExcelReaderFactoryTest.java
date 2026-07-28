@@ -24,16 +24,16 @@ class ExcelReaderFactoryTest {
         ExcelReaderFactory sequentialFactory = ExcelReaderFactory.sequentialFactory();
         ExcelReaderFactory fullReadFactory = ExcelReaderFactory.fullReadFactory();
 
-        try (ExcelReader lightReader = sequentialFactory.create(fileName);
-             ExcelReader fullReader = fullReadFactory.create(fileName)) {
+        try (var lightReader = sequentialFactory.create(fileName);
+             var fullReader = fullReadFactory.create(fileName)) {
             List<? extends SheetDescriptor> fullReaderSheets = fullReader.getSheets();
             List<? extends SheetDescriptor> lightReaderSheets = lightReader.getSheets();
 
             assertEquals(fullReaderSheets.size(), lightReaderSheets.size());
 
-            for (int i = 0; i < fullReaderSheets.size(); i++) {
-                SheetDescriptor fullSheet = fullReaderSheets.get(i);
-                SheetDescriptor lightSheet = lightReaderSheets.get(i);
+            for (var i = 0; i < fullReaderSheets.size(); i++) {
+                var fullSheet = fullReaderSheets.get(i);
+                var lightSheet = lightReaderSheets.get(i);
 
                 assertEquals(fullSheet.getName(), lightSheet.getName());
                 assertArrayEquals(fullReader.getCells(fullSheet),

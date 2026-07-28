@@ -62,7 +62,7 @@ public final class WrapperLogic {
     }
 
     public static SimpleRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
-        IRuntimeEnv env1 = env;
+        var env1 = env;
         if (env instanceof TBasicContextHolderEnv tBasicContextHolderEnv) {
             env1 = tBasicContextHolderEnv.getEnv();
             while (env1 instanceof TBasicContextHolderEnv) {
@@ -93,13 +93,13 @@ public final class WrapperLogic {
         if (type == null) {
             return null;
         }
-        int dim = 0;
-        IOpenClass g = type;
+        var dim = 0;
+        var g = type;
         while (g.isArray()) {
             g = g.getComponentClass();
             dim++;
         }
-        IOpenClass t = xlsModuleOpenClass.toModuleType(g);
+        var t = xlsModuleOpenClass.toModuleType(g);
         return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : type;
     }
 
@@ -108,10 +108,10 @@ public final class WrapperLogic {
     }
 
     public static IMethodSignature buildMethodSignature(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
-        IOpenClass[] parameterTypes = openMethod.getSignature().getParameterTypes();
+        var parameterTypes = openMethod.getSignature().getParameterTypes();
         IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];
         IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache = null;
-        for (int i = 0; i < parameterTypes.length; i++) {
+        for (var i = 0; i < parameterTypes.length; i++) {
             if (cache == null) {
                 cache = new IdentityHashMap<>();
             }
@@ -190,7 +190,7 @@ public final class WrapperLogic {
                                                Object[] params,
                                                IRuntimeEnv env) {
         SimpleRuntimeEnv simpleRuntimeEnv = WrapperLogic.extractSimpleRulesRuntimeEnv(env);
-        IOpenClass topClass = simpleRuntimeEnv.getTopClass();
+        var topClass = simpleRuntimeEnv.getTopClass();
         if (topClass != null) {
             try {
                 simpleRuntimeEnv.setTopClass(wrapper.getXlsModuleOpenClass());
@@ -204,9 +204,9 @@ public final class WrapperLogic {
 
     private static Object invoke(IRulesMethodWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
         SimpleRuntimeEnv simpleRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
-        IOpenClass topClass = simpleRuntimeEnv.getTopClass();
+        var topClass = simpleRuntimeEnv.getTopClass();
         if (topClass == null) {
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            var oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 IOpenClass typeClass;
                 if (target instanceof IDynamicObject dynamicObject) {
@@ -214,7 +214,7 @@ public final class WrapperLogic {
                 } else if (ASMProxyFactory.isProxy(target)) {
                     ASMProxyHandler invocationHandler = ASMProxyFactory.getProxyHandler(target);
                     if (invocationHandler instanceof IOpenLMethodHandler<?,?> openLMethodHandler) {
-                        Object openlInstance = openLMethodHandler.getTarget();
+                        var openlInstance = openLMethodHandler.getTarget();
                         if (openlInstance instanceof IDynamicObject dynamicObject) {
                             typeClass = dynamicObject.getType();
                         } else {
@@ -235,7 +235,7 @@ public final class WrapperLogic {
             }
         } else {
             if (topClass != wrapper.getXlsModuleOpenClass()) {
-                IOpenMethod method = wrapper.getTopOpenClassMethod(topClass);
+                var method = wrapper.getTopOpenClassMethod(topClass);
                 if (method != null) {
                     method = extractNonLazyMethod(method);
                     if (method != wrapper) {

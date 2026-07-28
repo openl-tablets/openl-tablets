@@ -83,7 +83,7 @@ public class TagConfigController {
     public void deleteTag(
             @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
             @Parameter(description = "tags.tag.id.desc") @PathVariable("id") final Long id) {
-        final Tag tag = tagService.getById(id);
+        final var tag = tagService.getById(id);
         if (tag == null || !Objects.equals(tag.getType().getId(), tagTypeId)) {
             throw new NotFoundException("tag.message");
         }
@@ -133,7 +133,7 @@ public class TagConfigController {
             throw new BadRequestException("invalid.name.message");
         }
 
-        final TagType existing = tagTypeService.getByName(name);
+        final var existing = tagTypeService.getByName(name);
         if (existing != null && !existing.getId().equals(id)) {
             throw new ConflictException("duplicated.tag-type.message", name);
         }
@@ -184,7 +184,7 @@ public class TagConfigController {
 
         if (tagId == null) {
             tag = new Tag();
-            final TagType tagType = tagTypeService.getById(tagTypeId);
+            final var tagType = tagTypeService.getById(tagTypeId);
             if (tagType == null) {
                 throw new NotFoundException("tag-type.message");
             }
@@ -203,7 +203,7 @@ public class TagConfigController {
             throw new BadRequestException("invalid.name.message");
         }
 
-        final Tag existing = tagService.getByName(tag.getType().getId(), name);
+        final var existing = tagService.getByName(tag.getType().getId(), name);
         if (existing != null && !existing.getId().equals(tagId)) {
             throw new ConflictException("duplicated.tag.message", name);
         }
@@ -230,7 +230,7 @@ public class TagConfigController {
     public void saveTemplates(@RequestBody List<String> templates) {
         for (String template : templates) {
             if (StringUtils.isNotBlank(template)) {
-                String error = tagTemplateService.validate(template);
+                var error = tagTemplateService.validate(template);
                 if (error != null) {
                     throw new BadRequestException("tag-template.invalid.message", new Object[]{error});
                 }

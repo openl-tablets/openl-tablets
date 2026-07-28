@@ -34,7 +34,7 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
     }
 
     private Object[] modifyParameters(Object[] methodParameters) {
-        int parametersCount = getSignature().getNumberOfParameters();
+        var parametersCount = getSignature().getNumberOfParameters();
         Object[] modifiedParameters = new Object[parametersCount];
         System.arraycopy(methodParameters, 0, modifiedParameters, 0, indexOfFirstVarArg);
 
@@ -47,10 +47,10 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
     }
 
     private Object buildVarArgsParameter(Object[] methodParameters) {
-        int countOfParametersForVarArgs = methodParameters.length - indexOfFirstVarArg;
+        var countOfParametersForVarArgs = methodParameters.length - indexOfFirstVarArg;
         Object params = Array.newInstance(componentVarArgClass, countOfParametersForVarArgs);
 
-        for (int i = 0; i < countOfParametersForVarArgs; i++) {
+        for (var i = 0; i < countOfParametersForVarArgs; i++) {
             if (parameterCasts == null) {
                 Array.set(params, i, methodParameters[i + indexOfFirstVarArg]);
             } else {

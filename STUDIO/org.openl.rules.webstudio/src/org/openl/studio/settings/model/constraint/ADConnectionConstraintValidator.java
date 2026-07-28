@@ -33,7 +33,7 @@ public class ADConnectionConstraintValidator implements ConstraintValidator<ADCo
         } catch (AuthenticationException e) {
             ctx.disableDefaultConstraintViolation();
             if (e.getCause() instanceof InvalidSearchFilterException cause) {
-                String message = "Invalid search filter: " + cause.getMessage();
+                var message = "Invalid search filter: " + cause.getMessage();
                 ctx.buildConstraintViolationWithTemplate(message)
                         .addPropertyNode("searchFilter")
                         .addConstraintViolation();
@@ -50,7 +50,7 @@ public class ADConnectionConstraintValidator implements ConstraintValidator<ADCo
     }
 
     private String extractRootMessage(Throwable t) {
-        Throwable root = t;
+        var root = t;
         while (root.getCause() != null) {
             root = root.getCause();
         }

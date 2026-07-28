@@ -31,9 +31,9 @@ public class IdentifierSequenceBinder extends ANodeBinder {
 
     private static String concatChildren(ISyntaxNode node) {
 
-        StringBuilder builder = new StringBuilder(100);
+        var builder = new StringBuilder(100);
 
-        for (int i = 0; i < node.getNumberOfChildren(); i++) {
+        for (var i = 0; i < node.getNumberOfChildren(); i++) {
             builder.append(((IdentifierNode) node.getChild(i)).getIdentifier());
         }
 

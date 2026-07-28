@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
@@ -41,7 +40,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.utils.WebTool;
@@ -67,7 +65,6 @@ import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.trace.DebugFrame;
-import org.openl.studio.projects.service.trace.DebugListener;
 import org.openl.studio.projects.service.trace.DebugSession;
 import org.openl.studio.projects.service.trace.DebugSessionRegistry;
 import org.openl.studio.projects.service.trace.DefaultSourceClassifier;
@@ -144,12 +141,12 @@ public class ProjectsTraceDebugController {
             throw new NotFoundException("table.message");
         }
 
-        DebugListener listener = listenerFactory.create(user, projectId, tableId);
+        var listener = listenerFactory.create(user, projectId, tableId);
         var objectMapper = configureObjectMapper();
         // The launcher sends the input server-side once; a restart (profiling toggle, replay) re-runs the trace
         // without resending it. Reuse the remembered input when this call carries neither input nor test ranges;
         // otherwise it is a fresh launch, so remember its input for the next restart.
-        String effectiveInputJson = inputJson;
+        var effectiveInputJson = inputJson;
         if (inputJson == null && testRanges == null) {
             effectiveInputJson = sessionRegistry.lastInputJson();
         } else {
@@ -159,7 +156,7 @@ public class ProjectsTraceDebugController {
                 currentOpenedModule, effectiveInputJson, objectMapper, sessionRegistry.breakpoints(),
                 sessionRegistry.watches(), stopAtEntry, profiling, listener);
 
-        DebugSession session = sessionRegistry.start(traceDebugService.startSession(request));
+        var session = sessionRegistry.start(traceDebugService.startSession(request));
         // Build the inspection mapper now, while the traced module is the current module, so the session
         // cache is not later pinned to a different module by a concurrent open (e.g. GET /breakpoint-tables).
         createMapper(session);
@@ -195,7 +192,7 @@ public class ProjectsTraceDebugController {
             @RequestParam("step") @Parameter(description = "trace.param.step-ref.desc") String step,
             @RequestParam(value = "offset", defaultValue = "0") @Min(0) @Parameter(description = "trace.param.offset.desc") int offset,
             @RequestParam(value = "limit", defaultValue = "100") @Min(1) @Parameter(description = "trace.param.limit.desc") int limit) {
-        DebugSession session = requireSession(project);
+        var session = requireSession(project);
         return session.inLock(() -> {
             requireNotRunning(session);
             return TraceDebugMapper.toChildrenView(session.getDebugger().completedTree(), uri, instance, step,
@@ -212,10 +209,10 @@ public class ProjectsTraceDebugController {
             @RequestParam(value = "includeTree", defaultValue = "true") @Parameter(description = "trace.param.include-tree.desc") boolean includeTree,
             @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop,
             @RequestParam(value = "view", defaultValue = "full") @Parameter(description = "trace.param.view.desc") StackViewMode view) {
-        DebugSession session = requireSession(project);
+        var session = requireSession(project);
         return session.inLock(() -> {
             requireSuspendedState(session);
-            DebugStatus result = session.getDebugger().command(type.toCommand(), STEP_TIMEOUT_MILLIS);
+            var result = session.getDebugger().command(type.toCommand(), STEP_TIMEOUT_MILLIS);
             if (result == DebugStatus.RUNNING) {
                 // The step did not reach a suspend point within the timeout, so the worker is still executing.
                 // Reading its live, mutating frames here would race the worker; report RUNNING with no frames
@@ -231,7 +228,7 @@ public class ProjectsTraceDebugController {
     @PostMapping("/resume")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void resume(@ProjectId @PathVariable("projectId") RulesProject project) {
-        DebugSession session = requireSession(project);
+        var session = requireSession(project);
         session.inLock(() -> {
             requireSuspendedState(session);
             session.getDebugger().resume();
@@ -253,8 +250,8 @@ public class ProjectsTraceDebugController {
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index,
             @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
-        DebugSession session = requireSession(project);
-        TraceDebugMapper mapper = createMapper(session);
+        var session = requireSession(project);
+        var mapper = createMapper(session);
         return withInspectableFrame(session, index,
                 frame -> mapper.freezeVariables(frame, session.getClassLoader(), includeSchema));
     }
@@ -265,7 +262,7 @@ public class ProjectsTraceDebugController {
     public List<CellHighlight> highlights(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
-        DebugSession session = requireSession(project);
+        var session = requireSession(project);
         return withInspectableFrame(session, index, traceHighlightService::computeHighlights);
     }
 
@@ -276,7 +273,7 @@ public class ProjectsTraceDebugController {
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("parameterId") @Parameter(description = "trace.param.parameter-id.desc") int parameterId,
             @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
-        DebugSession session = requireSession(project);
+        var session = requireSession(project);
         var param = parameterRegistry.get(parameterId);
         if (param == null) {
             throw new NotFoundException("trace.parameter.not.found.message");
@@ -307,8 +304,8 @@ public class ProjectsTraceDebugController {
     public WatchView watch(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
-        DebugSession session = requireSession(project);
-        TraceDebugMapper mapper = createMapper(session);
+        var session = requireSession(project);
+        var mapper = createMapper(session);
         return session.inLock(() -> {
             requireNotRunning(session);
             var debugger = session.getDebugger();
@@ -338,21 +335,21 @@ public class ProjectsTraceDebugController {
     @ApiResponse(responseCode = "200", description = "trace.breakpoint-tables.200.desc")
     @GetMapping("/breakpoint-tables")
     public List<BreakpointTableView> breakpointTables(@ProjectId @PathVariable("projectId") RulesProject project) {
-        ProjectModel projectModel = projectService.openProject(project, null).awaitCompiled();
+        var projectModel = projectService.openProject(project, null).awaitCompiled();
         var classifier = new DefaultSourceClassifier();
 
         // Offer only the tables reachable from the table being traced, so a breakpoint is suggested only
         // where it could fire. With no active session (or a root outside the dependency graph, e.g. a test
         // table), fall back to every table.
-        DebugSession session = sessionRegistry.find(projectIdentifierMapper.map(project));
+        var session = sessionRegistry.find(projectIdentifierMapper.map(project));
         Set<String> reachable = session == null ? Set.of()
                 : tablesGraphService.reachableTableIds(projectModel, session.getTableId(),
                         GraphDirection.DEPENDENCIES, null);
-        boolean limitToReachable = !reachable.isEmpty();
+        var limitToReachable = !reachable.isEmpty();
 
         // Distinct by name: one target per name, keyed by the name so a breakpoint stops on any same-named
         // table (every overloaded or dimensional version).
-        Map<String, BreakpointTableView> byName = new LinkedHashMap<>();
+        var byName = new LinkedHashMap<String, BreakpointTableView>();
         projectModel.getAllTableSyntaxNodes().stream()
                 .filter(tsn -> !limitToReachable || reachable.contains(tsn.getId()))
                 .map(TableSyntaxNode::getMember)
@@ -381,7 +378,7 @@ public class ProjectsTraceDebugController {
             @RequestParam(value = "release", defaultValue = "false") @Parameter(description = "trace.param.release.desc") boolean release,
             @RequestParam(value = "smartNumbers", defaultValue = "true") @Parameter(description = "trace.param.smart-numbers.desc") boolean smartNumbers)
             throws IOException {
-        DebugSession session = requireSession(project);
+        var session = requireSession(project);
         // The tree is node-capped, so the whole trace fits in memory; render it and return it in one response.
         var buffer = new StringWriter();
         traceExportService.exportTrace(session, buffer, smartNumbers);
@@ -401,7 +398,7 @@ public class ProjectsTraceDebugController {
     }
 
     private DebugSession requireSession(RulesProject project) {
-        DebugSession session = sessionRegistry.find(projectIdentifierMapper.map(project));
+        var session = sessionRegistry.find(projectIdentifierMapper.map(project));
         if (session == null) {
             throw new NotFoundException("trace.execution.task.message");
         }
@@ -436,7 +433,7 @@ public class ProjectsTraceDebugController {
     private <T> T withInspectableFrame(DebugSession session, int index, Function<DebugFrame, T> inspection) {
         return session.inLock(() -> {
             requireNotRunning(session);
-            DebugFrame frame = session.getDebugger().frameAt(index);
+            var frame = session.getDebugger().frameAt(index);
             if (frame == null) {
                 throw new NotFoundException("trace.frame.not.found.message");
             }

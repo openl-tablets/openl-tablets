@@ -73,32 +73,32 @@ class WebStudioWorkspaceRelatedDependencyManagerTest {
     void test() throws ProjectResolvingException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);
 
-        final WebStudioWorkspaceRelatedSimpleProjectEngineFactory<?> factory = (WebStudioWorkspaceRelatedSimpleProjectEngineFactory<?>) (new WebStudioWorkspaceRelatedSimpleProjectEngineFactoryBuilder<>()
+        final var factory = (WebStudioWorkspaceRelatedSimpleProjectEngineFactory<?>) (new WebStudioWorkspaceRelatedSimpleProjectEngineFactoryBuilder<>()
                 .setProject("test/rules/compilation")
                 .setExecutionMode(false)
                 .build());
 
-        WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceRelatedDependencyManager = (WebStudioWorkspaceRelatedDependencyManager) factory
+        var webStudioWorkspaceRelatedDependencyManager = (WebStudioWorkspaceRelatedDependencyManager) factory
                 .getDependencyManager();
-        Random rnd = new Random();
+        var rnd = new Random();
 
-        final int times = 200;
-        CountDownLatch countDownLatch = new CountDownLatch(times);
-        int c = 0;
-        for (int i = 0; i < times; i++) {
+        final var times = 200;
+        var countDownLatch = new CountDownLatch(times);
+        var c = 0;
+        for (var i = 0; i < times; i++) {
             if (i % 4 == 0) {
                 c++;
             }
         }
-        CountDownLatch countDownLatchLambda = new CountDownLatch(c);
-        AtomicLong count = new AtomicLong(0);
-        AtomicLong count1 = new AtomicLong(0);
-        for (int i = 0; i < times; i++) {
-            final int i0 = i;
+        var countDownLatchLambda = new CountDownLatch(c);
+        var count = new AtomicLong(0);
+        var count1 = new AtomicLong(0);
+        for (var i = 0; i < times; i++) {
+            final var i0 = i;
             executorService.submit(() -> {
                 try {
                     if (i0 % 4 != 0) {
-                        int p = (rnd.nextInt(3) + 1);
+                        var p = (rnd.nextInt(3) + 1);
                         Collection<ResolvedDependency> resolvedDependencies;
                         try {
                             resolvedDependencies = webStudioWorkspaceRelatedDependencyManager

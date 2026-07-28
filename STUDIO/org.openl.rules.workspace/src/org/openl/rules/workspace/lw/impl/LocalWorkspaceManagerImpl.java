@@ -61,7 +61,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             log.warn("workspaceHome is not initialized. Default value is used.");
             workspaceHome = FileUtils.getTempDirectoryPath() + "/rules-workspaces/";
         }
-        File location = new File(workspaceHome);
+        var location = new File(workspaceHome);
         if (!location.mkdirs() && !location.exists()) {
             final String message = MessageFormat.format("Cannot create workspace location ''{0}''", workspaceHome);
             throw new FileNotFoundException(message);
@@ -70,9 +70,9 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     }
 
     private LocalWorkspaceImpl createWorkspace(String userId) {
-        File userWorkspace = userDir(userId).toFile();
+        var userWorkspace = userDir(userId).toFile();
         log.debug("Workspace for user ''{}'' will be located at ''{}''", userId, userWorkspace.getAbsolutePath());
-        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(userId,
+        var workspace = new LocalWorkspaceImpl(userId,
                 userWorkspace,
                 designTimeRepository,
                 registryOf(userId));
@@ -92,8 +92,8 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
      * including the registry reconciliation, could read or delete files outside the root.
      */
     private Path userDir(String userId) {
-        Path root = getWorkspaceHome();
-        Path userDir = root.resolve(userId).toAbsolutePath().normalize();
+        var root = getWorkspaceHome();
+        var userDir = root.resolve(userId).toAbsolutePath().normalize();
         if (!FolderHelper.isSafeFolderName(userId) || !root.equals(userDir.getParent())) {
             throw new IllegalArgumentException("The user id is not a valid workspace folder name.");
         }
@@ -107,7 +107,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     @Override
     public void refreshMetainfoRegistry(String userId) {
-        MetainfoRegistry registry = metainfoRegistries.get(userId);
+        var registry = metainfoRegistries.get(userId);
         if (registry == null) {
             // The first load performs the same reconciliation, so loading now is enough.
             registryOf(userId);
@@ -118,7 +118,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     @Override
     public LocalWorkspace getWorkspace(String userId) {
-        LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
+        var lwi = localWorkspaces.get(userId);
         if (lwi == null) {
             lwi = createWorkspace(userId);
             localWorkspaces.put(userId, lwi);
@@ -132,7 +132,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             return new DummyLockEngine();
         }
         synchronized (lockEngines) {
-            LockEngine lockEngine = lockEngines.get(type);
+            var lockEngine = lockEngines.get(type);
             if (lockEngine == null) {
                 lockEngine = LockEngineImpl.create(new File(workspaceHome), type);
                 lockEngines.put(type, lockEngine);

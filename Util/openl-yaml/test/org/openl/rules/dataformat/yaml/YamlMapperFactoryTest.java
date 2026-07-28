@@ -66,7 +66,7 @@ class YamlMapperFactoryTest {
     }
 
     private static Date createDate(int year, int month, int dayOfMonth) {
-        Calendar cal = new GregorianCalendar();
+        var cal = new GregorianCalendar();
         cal.set(year, month - 1, dayOfMonth, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();

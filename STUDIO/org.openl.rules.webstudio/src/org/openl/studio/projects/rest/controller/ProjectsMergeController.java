@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -136,13 +135,13 @@ public class ProjectsMergeController {
             dependencyManager.pause();
         }
         var studio = projectService.getWebStudio();
-        String nameBeforeMerge = project.getName();
-        String nameAfterMerge = nameBeforeMerge;
-        String realPath = project.getRealPath();
-        String currentBranch = project.getBranch();
-        boolean wasOpened = project.isOpened();
+        var nameBeforeMerge = project.getName();
+        var nameAfterMerge = nameBeforeMerge;
+        var realPath = project.getRealPath();
+        var currentBranch = project.getBranch();
+        var wasOpened = project.isOpened();
         var repoId = project.getDesignRepository().getId();
-        boolean shouldResumeDependencies = false;
+        var shouldResumeDependencies = false;
         try {
             studio.freezeProject(nameBeforeMerge);
             var mergeResult = mergeService.merge(project, request.otherBranch(), request.mode(), force);
@@ -157,9 +156,9 @@ public class ProjectsMergeController {
                         project.close();
                         workspace.refresh();
 
-                        Optional<RulesProject> refreshedProject = workspace.getProjectByPath(repoId, realPath);
+                        var refreshedProject = workspace.getProjectByPath(repoId, realPath);
                         if (refreshedProject.isPresent()) {
-                            RulesProject mergedProject = refreshedProject.get();
+                            var mergedProject = refreshedProject.get();
                             mergedProject.setBranch(currentBranch);
                             mergedProject.open();
                             nameAfterMerge = mergedProject.getName();
@@ -203,8 +202,8 @@ public class ProjectsMergeController {
         // Validate that the project has unresolved conflicts
         var mergeConflictInfo = getMergeConflictInfo0(project);
 
-        List<FileConflictResolution> resolutions = new ArrayList<>();
-        Map<String, InputStreamSource> customFiles = new HashMap<>();
+        var resolutions = new ArrayList<FileConflictResolution>();
+        var customFiles = new HashMap<String, InputStreamSource>();
         request.resolutions()
                 .forEach(resolution -> {
                     resolutions.add(new FileConflictResolution(resolution.filePath(), resolution.strategy()));
@@ -219,12 +218,12 @@ public class ProjectsMergeController {
         var mergeOperation = mergeConflictInfo.isMerging();
         var model = projectService.openProject(project).awaitCompiled();
         var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
-        boolean wasOpened = project.isOpened();
+        var wasOpened = project.isOpened();
         if (dependencyManager != null) {
             dependencyManager.pause();
         }
         var studio = projectService.getWebStudio();
-        boolean shouldResumeDependencies = false;
+        var shouldResumeDependencies = false;
         // Delegate to service for resolution
         try {
             if (!mergeOperation) {

@@ -34,7 +34,7 @@ public class AclRepositoryId {
 
     @JsonValue
     public String encode() {
-        String src = type.name();
+        var src = type.name();
         if (id != null) {
             src += ID_SEPARATOR + id;
         }
@@ -43,8 +43,8 @@ public class AclRepositoryId {
 
     @JsonCreator
     public static AclRepositoryId decode(String encoded) {
-        String decoded = new String(Base64.getDecoder().decode(encoded));
-        String[] parts = decoded.split(":");
+        var decoded = new String(Base64.getDecoder().decode(encoded));
+        var parts = decoded.split(":");
         if (parts.length > 2) {
             throw new IllegalArgumentException("Invalid id value: " + encoded);
         }

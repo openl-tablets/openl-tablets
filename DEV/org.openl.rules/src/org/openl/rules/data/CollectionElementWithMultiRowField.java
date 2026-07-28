@@ -43,11 +43,11 @@ public class CollectionElementWithMultiRowField extends AOpenField {
             return getType().nullObject();
         }
 
-        DatatypeArrayMultiRowElementContext context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
-        int elementIndex = context.getIndex(fieldPathFromRoot, target);
+        var context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
+        var elementIndex = context.getIndex(fieldPathFromRoot, target);
 
         Object res = null;
-        Object v = field.get(target, env);
+        var v = field.get(target, env);
         if (collectionType.isArray()) {
             res = getForArray(elementIndex, v);
         }
@@ -67,7 +67,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
 
     @SuppressWarnings("unchecked")
     private Object getForList(int elementIndex, Object v) {
-        List<Object> list = (List<Object>) v;
+        var list = (List<Object>) v;
         if (v == null || list.size() < elementIndex + 1) {
             return getType().nullObject();
         } else {
@@ -81,9 +81,9 @@ public class CollectionElementWithMultiRowField extends AOpenField {
             return;
         }
 
-        Object v = field.get(target, env);
-        DatatypeArrayMultiRowElementContext context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
-        int elementIndex = context.getIndex(fieldPathFromRoot, target);
+        var v = field.get(target, env);
+        var context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
+        var elementIndex = context.getIndex(fieldPathFromRoot, target);
         if (collectionType.isArray()) {
             setForArray(target, value, env, v, elementIndex);
         }
@@ -104,8 +104,8 @@ public class CollectionElementWithMultiRowField extends AOpenField {
             if (Array.getLength(v) < elementIndex + 1) {
                 Object newArray = Array.newInstance(arrayType.getInstanceClass(), elementIndex + 1);
 
-                int oldArryLeng = Array.getLength(v);
-                for (int i = 0; i < oldArryLeng; i++) {
+                var oldArryLeng = Array.getLength(v);
+                for (var i = 0; i < oldArryLeng; i++) {
                     Array.set(newArray, i, Array.get(v, i));
                 }
                 if (!isPkField()) {
@@ -124,7 +124,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
     private void setForList(Object target, Object value, IRuntimeEnv env, Object v, int elementIndex) {
         if (v == null) {
             if (!isPkField()) {
-                List<Object> list = new ArrayList<>();
+                var list = new ArrayList<Object>();
                 while (list.size() <= elementIndex) {
                     list.add(getType().nullObject());
                 }
@@ -132,7 +132,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
                 setIntoTarget(target, list, env);
             }
         } else {
-            List<Object> list = (List<Object>) v;
+            var list = (List<Object>) v;
             while (list.size() <= elementIndex) {
                 list.add(getType().nullObject());
             }

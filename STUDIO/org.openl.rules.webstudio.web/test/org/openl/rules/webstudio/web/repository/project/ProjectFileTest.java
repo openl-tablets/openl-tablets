@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +19,6 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,7 +31,7 @@ class ProjectFileTest {
     void streamFileIsSavedToTempFileOnDemand() throws IOException {
         var projectFile = new ProjectFile("openapi.json", new ByteArrayInputStream(CONTENT));
         try {
-            File tempFile = projectFile.getTempFile();
+            var tempFile = projectFile.getTempFile();
             assertTrue(tempFile.isFile());
             assertSame(tempFile, projectFile.getTempFile());
             if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
@@ -42,10 +40,10 @@ class ProjectFileTest {
             }
             assertEquals(CONTENT.length, projectFile.getSize());
             // The content stays readable after the source stream has been consumed into the temporary file.
-            try (InputStream input = projectFile.getInput()) {
+            try (var input = projectFile.getInput()) {
                 assertArrayEquals(CONTENT, input.readAllBytes());
             }
-            try (InputStream input = projectFile.getInput()) {
+            try (var input = projectFile.getInput()) {
                 assertArrayEquals(CONTENT, input.readAllBytes());
             }
         } finally {
@@ -57,7 +55,7 @@ class ProjectFileTest {
     void destroyDeletesTempFileAndIsRepeatable() throws IOException {
         var projectFile = new ProjectFile("openapi.json", new ByteArrayInputStream(CONTENT));
         try {
-            File tempFile = projectFile.getTempFile();
+            var tempFile = projectFile.getTempFile();
             projectFile.destroy();
             assertFalse(tempFile.exists());
             projectFile.destroy();
@@ -102,7 +100,7 @@ class ProjectFileTest {
 
     @Test
     void boundedCopyRejectsOversizedStream(@TempDir Path tempDir) throws IOException {
-        File target = tempDir.resolve("upload").toFile();
+        var target = tempDir.resolve("upload").toFile();
         assertThrows(IOException.class,
                 () -> ProjectFile.copyBounded(new ByteArrayInputStream(CONTENT), target, CONTENT.length - 1));
 
@@ -111,7 +109,7 @@ class ProjectFileTest {
     }
 
     private static Set<Path> listUploadTempFiles() throws IOException {
-        try (Stream<Path> files = Files.list(Path.of(System.getProperty("java.io.tmpdir")))) {
+        try (var files = Files.list(Path.of(System.getProperty("java.io.tmpdir")))) {
             return files.filter(f -> f.getFileName().toString().startsWith("openl-upload"))
                     .collect(Collectors.toSet());
         }

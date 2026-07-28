@@ -39,10 +39,10 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
     public List<ProjectDependency> getDependencies(RulesProject project) {
         // Build the business-name index once per request; listing a page resolves dependencies for
         // every project and would otherwise rebuild it each time (O(N^2)).
-        Map<String, List<RulesProject>> projectIndex = listingContext.dependencyIndex(() ->
+        var projectIndex = listingContext.dependencyIndex(() ->
                 getAllProjects().stream().collect(Collectors.groupingBy(RulesProject::getBusinessName)));
 
-        List<ProjectDependency> dependencies = new ArrayList<>();
+        var dependencies = new ArrayList<ProjectDependency>();
         calcDependencies(project, new HashSet<>(Set.of(project.getBusinessName())), dependencies, projectIndex);
         return dependencies;
     }
@@ -52,15 +52,15 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         // Match on the business name: a rules.xml <dependency> references a project by that name, and it
         // is stable across states, unlike getName() which for a closed project in a mapped repo carries the
         // internal path suffix and would not match.
-        String businessName = project.getBusinessName();
-        Map<String, List<RulesProject>> usedByIndex = listingContext.usedByIndex(this::buildUsedByIndex);
+        var businessName = project.getBusinessName();
+        var usedByIndex = listingContext.usedByIndex(this::buildUsedByIndex);
         return usedByIndex.getOrDefault(businessName, List.of());
     }
 
     private Map<String, List<RulesProject>> buildUsedByIndex() throws ProjectException {
-        Map<String, List<RulesProject>> index = new HashMap<>();
+        var index = new HashMap<String, List<RulesProject>>();
         for (RulesProject pr : getAllProjects()) {
-            Set<String> dependencyNames = projectDescriptorResolver.getDependencies(pr).stream()
+            var dependencyNames = projectDescriptorResolver.getDependencies(pr).stream()
                     .map(ProjectDependencyDescriptor::getName)
                     .collect(Collectors.toSet());
             for (String dependencyName : dependencyNames) {
@@ -86,11 +86,11 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
             return;
         }
 
-        String repoId = project.getRepository().getId();
-        String projectBranch = project.getBranch();
+        var repoId = project.getRepository().getId();
+        var projectBranch = project.getBranch();
 
         for (ProjectDependencyDescriptor dependency : dependenciesDescriptors) {
-            String dependencyName = dependency.getName();
+            var dependencyName = dependency.getName();
             if (processedProjects.add(dependencyName)) {
                 // A name the workspace has no project for is kept as it is declared: the screen shows the
                 // dependency and says it is missing, instead of hiding what rules.xml asks for.

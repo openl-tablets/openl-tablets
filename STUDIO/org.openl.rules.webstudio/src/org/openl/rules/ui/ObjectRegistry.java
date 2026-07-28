@@ -19,7 +19,7 @@ public class ObjectRegistry<T> {
     }
 
     public Integer putIfAbsent(T value) {
-        Integer id = getId(value);
+        var id = getId(value);
         if (id != null) {
             return id;
         }

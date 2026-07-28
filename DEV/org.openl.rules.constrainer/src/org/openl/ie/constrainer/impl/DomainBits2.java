@@ -113,7 +113,7 @@ public final class DomainBits2 extends DomainImpl {
 
     @Override
     public void iterateDomain(IntExp.IntDomainIterator it) throws Failure {
-        for (int i = _min - _initial_min; i <= _max - _initial_min; ++i) {
+        for (var i = _min - _initial_min; i <= _max - _initial_min; ++i) {
             if (_bits.at(i)) {
                 if (!it.doSomethingOrStop(i + _initial_min)) {
                     return;
@@ -146,8 +146,8 @@ public final class DomainBits2 extends DomainImpl {
         } else if (max >= _max && min <= _max) {
             return setMax(min - 1);
         }
-        boolean is_removed = false;
-        for (int i = min; i <= max; i++) {
+        var is_removed = false;
+        for (var i = min; i <= max; i++) {
             if (contains(i)) {
                 _variable.addUndo();
                 _bits.set(i - _initial_min, false);
@@ -209,7 +209,7 @@ public final class DomainBits2 extends DomainImpl {
             }
         }
 
-        for (int i = _max - _initial_min; i >= 0 && !_bits.at(i); i--) {
+        for (var i = _max - _initial_min; i >= 0 && !_bits.at(i); i--) {
             if (--_max < _min) {
                 constrainer().fail("max");
             }
@@ -246,7 +246,7 @@ public final class DomainBits2 extends DomainImpl {
             }
         }
 
-        for (int i = _min - _initial_min; i < _bits.size() && !_bits.at(i); i++) {
+        for (var i = _min - _initial_min; i < _bits.size() && !_bits.at(i); i++) {
             if (++_min > _max) {
                 constrainer().fail("min");
             }

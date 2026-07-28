@@ -16,7 +16,7 @@ class ConfigEmptyTagMigratorTest {
 
     @Test
     void rewritesRulesXmlOnDiskWhenEmptyTagsPresent(@TempDir Path projectFolder) throws IOException {
-        Path file = projectFolder.resolve("rules.xml");
+        var file = projectFolder.resolve("rules.xml");
         Files.writeString(file, """
                 <project>
                     <name>x</name>
@@ -31,7 +31,7 @@ class ConfigEmptyTagMigratorTest {
                 </project>
                 """, StandardCharsets.UTF_8);
 
-        List<Path> changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
+        var changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
 
         assertEquals(1, changed.size());
         assertEquals(file, changed.getFirst());
@@ -50,7 +50,7 @@ class ConfigEmptyTagMigratorTest {
 
     @Test
     void rewritesRulesDeployXmlOnDiskWhenEmptyTagsPresent(@TempDir Path projectFolder) throws IOException {
-        Path file = projectFolder.resolve("rules-deploy.xml");
+        var file = projectFolder.resolve("rules-deploy.xml");
         Files.writeString(file, """
                 <rules-deploy>
                     <serviceName>svc</serviceName>
@@ -58,7 +58,7 @@ class ConfigEmptyTagMigratorTest {
                 </rules-deploy>
                 """, StandardCharsets.UTF_8);
 
-        List<Path> changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
+        var changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
 
         assertEquals(1, changed.size());
         assertEquals(file, changed.getFirst());
@@ -71,8 +71,8 @@ class ConfigEmptyTagMigratorTest {
 
     @Test
     void rewritesBothFilesInOneMigratorRun(@TempDir Path projectFolder) throws IOException {
-        Path rulesXml = projectFolder.resolve("rules.xml");
-        Path deployXml = projectFolder.resolve("rules-deploy.xml");
+        var rulesXml = projectFolder.resolve("rules.xml");
+        var deployXml = projectFolder.resolve("rules-deploy.xml");
         Files.writeString(rulesXml, """
                 <project>
                     <name>x</name>
@@ -86,7 +86,7 @@ class ConfigEmptyTagMigratorTest {
                 </rules-deploy>
                 """, StandardCharsets.UTF_8);
 
-        List<Path> changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
+        var changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
 
         // Order matters: project file first (rules.xml roundtrip runs before rules-deploy.xml).
         assertEquals(List.of(rulesXml, deployXml), changed);
@@ -94,7 +94,7 @@ class ConfigEmptyTagMigratorTest {
 
     @Test
     void skipsWhenBothConfigFilesMissing(@TempDir Path projectFolder) throws IOException {
-        List<Path> changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
+        var changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
 
         assertEquals(List.of(), changed);
         assertFalse(Files.exists(projectFolder.resolve("rules.xml")));

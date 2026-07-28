@@ -14,9 +14,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.Point;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ITestUnit;
@@ -73,7 +71,7 @@ public class TestBean {
     public TestBean() {
         studio = WebStudioUtils.getWebStudio();
         String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
-        IOpenLTable table = studio.getModel().getTableById(id);
+        var table = studio.getModel().getTableById(id);
         if (table != null) {
             uri = table.getUri();
         }
@@ -98,7 +96,7 @@ public class TestBean {
 
     private void initPagination() {
         testsPerPage = studio.getTestsPerPage();
-        int perPage = getRequestIntParameter(Constants.REQUEST_PARAM_PERPAGE, testsPerPage);
+        var perPage = getRequestIntParameter(Constants.REQUEST_PARAM_PERPAGE, testsPerPage);
         if ((perPage == ALL || perPage > 0) && perPage != testsPerPage) {
             testsPerPage = perPage;
         }
@@ -107,7 +105,7 @@ public class TestBean {
             lastPage = testsPerPage == ALL ? DEFAULT_PAGE : (int) Math.ceil((double) ranResults.length / testsPerPage);
         }
 
-        int initPage = getRequestIntParameter(Constants.REQUEST_PARAM_PAGE, DEFAULT_PAGE);
+        var initPage = getRequestIntParameter(Constants.REQUEST_PARAM_PAGE, DEFAULT_PAGE);
         if (initPage > DEFAULT_PAGE && initPage <= lastPage) {
             page = initPage;
         }
@@ -121,7 +119,7 @@ public class TestBean {
         }
 
         testsFailuresPerTest = studio.getTestsFailuresPerTest();
-        int failuresPerTest = getRequestIntParameter(Constants.REQUEST_PARAM_FAILURES_NUMBER, testsFailuresPerTest);
+        var failuresPerTest = getRequestIntParameter(Constants.REQUEST_PARAM_FAILURES_NUMBER, testsFailuresPerTest);
         if (failuresPerTest == ALL || failuresPerTest > 0) {
             testsFailuresPerTest = failuresPerTest;
         }
@@ -168,8 +166,8 @@ public class TestBean {
             ranTestsSorted = true;
         }
 
-        int startPos = (page - 1) * testsPerPage;
-        int endPos = startPos + testsPerPage;
+        var startPos = (page - 1) * testsPerPage;
+        var endPos = startPos + testsPerPage;
         if (endPos >= ranResults.length || testsPerPage == ALL) {
             endPos = ranResults.length;
         }
@@ -193,7 +191,7 @@ public class TestBean {
 
     public int getNumberOfFailedTests() {
         if (numberOfFailedTests == null) {
-            int cnt = 0;
+            var cnt = 0;
             for (TestUnitsResults result : ranResults) {
                 if (result != null && result.getNumberOfFailures() > 0) {
                     cnt++;
@@ -208,7 +206,7 @@ public class TestBean {
      * @return Actual calculated result as Object
      */
     private Object getActualResultInternal(Object objTestUnit) {
-        ITestUnit testUnit = (ITestUnit) objTestUnit;
+        var testUnit = (ITestUnit) objTestUnit;
         return testUnit.getActualResult();
     }
 
@@ -217,8 +215,8 @@ public class TestBean {
     }
 
     public boolean isComplexResult(Object objTestUnit) {
-        Object actualValue = getActualResultInternal(objTestUnit);
-        ParameterWithValueDeclaration param = new ParameterWithValueDeclaration("actual", actualValue);
+        var actualValue = getActualResultInternal(objTestUnit);
+        var param = new ParameterWithValueDeclaration("actual", actualValue);
         return !param.getType().isSimple() && !isResultThrowable(objTestUnit);
     }
 
@@ -229,11 +227,11 @@ public class TestBean {
     }
 
     public String getFormattedSpreadsheetResultFromTestUnit(ITestUnit objTestUnit) {
-        Object actualResultInternal = objTestUnit.getActualResult();
+        var actualResultInternal = objTestUnit.getActualResult();
 
         try {
             if (actualResultInternal instanceof SpreadsheetResult spreadsheetResult) {
-                Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
+                var fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
                 return ObjectViewer
                         .displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
             }
@@ -244,14 +242,14 @@ public class TestBean {
     }
 
     private Map<Point, ComparedResult> getFieldsCoordinates(ITestUnit testUnit, SpreadsheetResult spreadsheetResult) {
-        Map<Point, ComparedResult> fieldsCoordinates = new HashMap<>();
+        var fieldsCoordinates = new HashMap<Point, ComparedResult>();
         List<ComparedResult> fieldsToTest = testUnit.getComparisonResults();
 
         if (fieldsToTest != null) {
-            Map<String, Point> coordinates = getAbsoluteSpreadsheetFieldCoordinates(spreadsheetResult);
+            var coordinates = getAbsoluteSpreadsheetFieldCoordinates(spreadsheetResult);
 
             for (ComparedResult fieldToTest : fieldsToTest) {
-                Point fieldCoordinates = coordinates.get(fieldToTest.getFieldName());
+                var fieldCoordinates = coordinates.get(fieldToTest.getFieldName());
                 if (fieldCoordinates != null) {
                     fieldsCoordinates.put(fieldCoordinates, fieldToTest);
                 }
@@ -261,20 +259,20 @@ public class TestBean {
     }
 
     private static Map<String, Point> getAbsoluteSpreadsheetFieldCoordinates(SpreadsheetResult spreadsheetResult) {
-        Map<String, Point> absoluteCoordinates = new HashMap<>();
+        var absoluteCoordinates = new HashMap<String, Point>();
 
-        IGridTable sourceTable = spreadsheetResult.getLogicalTable().getSource();
+        var sourceTable = spreadsheetResult.getLogicalTable().getSource();
 
-        String[] rowNames = spreadsheetResult.getRowNames();
-        String[] columnNames = spreadsheetResult.getColumnNames();
+        var rowNames = spreadsheetResult.getRowNames();
+        var columnNames = spreadsheetResult.getColumnNames();
 
-        for (int i = 0; i < rowNames.length; i++) {
-            for (int j = 0; j < columnNames.length; j++) {
-                int column = getColumn(sourceTable, j);
-                int row = getRow(sourceTable, i);
-                ICell cell = sourceTable.getCell(column, row);
+        for (var i = 0; i < rowNames.length; i++) {
+            for (var j = 0; j < columnNames.length; j++) {
+                var column = getColumn(sourceTable, j);
+                var row = getRow(sourceTable, i);
+                var cell = sourceTable.getCell(column, row);
                 Point absolute = Point.get(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
-                String sb = SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i];
+                var sb = SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i];
                 absoluteCoordinates.put(sb, absolute);
             }
         }
@@ -288,10 +286,10 @@ public class TestBean {
      * @return column number
      */
     private static int getColumn(IGridTable spreadsheet, int columnFieldNumber) {
-        int column = 0;
-        int shift = 0;
+        var column = 0;
+        var shift = 0;
         // The column 0 contains row headers that's why "<=" instead of "<"
-        for (int i = 0; i <= columnFieldNumber; i++) {
+        for (var i = 0; i <= columnFieldNumber; i++) {
             if (shift == 0) {
                 shift = spreadsheet.getCell(i, 0).getWidth();
                 columnFieldNumber += shift - 1;
@@ -320,10 +318,10 @@ public class TestBean {
      * @return row number
      */
     private static int getRow(IGridTable spreadsheet, int rowFieldNumber) {
-        int row = 0;
-        int shift = 0;
+        var row = 0;
+        var shift = 0;
         // The row 0 contains column headers that's why "<=" instead of "<"
-        for (int i = 0; i <= rowFieldNumber; i++) {
+        for (var i = 0; i <= rowFieldNumber; i++) {
             if (shift == 0) {
                 shift = spreadsheet.getCell(i, 0).getHeight();
                 rowFieldNumber += shift - 1;
@@ -339,7 +337,7 @@ public class TestBean {
     }
 
     public String getTestTableId(Object testResults) {
-        String uri = ((TestUnitsResults) testResults).getTestSuite().getUri();
+        var uri = ((TestUnitsResults) testResults).getTestSuite().getUri();
         return TableUtils.makeTableId(uri);
     }
 
@@ -374,7 +372,7 @@ public class TestBean {
             return null;
         }
 
-        int rows = HTMLRenderer.getMaxNumRowsToDisplay(tests.size(), columnCount);
+        var rows = HTMLRenderer.getMaxNumRowsToDisplay(tests.size(), columnCount);
         if (rows == HTMLRenderer.ALL_ROWS) {
             return tests;
         }

@@ -3,7 +3,6 @@ package org.openl.types.java;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -33,14 +32,14 @@ public final class BeanOpenField implements IOpenField {
     public static void collectFields(Map<String, IOpenField> map, Class<?> c) {
         try {
             BeanInfo info = Introspector.getBeanInfo(c, c.getSuperclass());
-            PropertyDescriptor[] pds = info.getPropertyDescriptors();
+            var pds = info.getPropertyDescriptors();
             for (PropertyDescriptor pd : pds) {
                 if (pd.getPropertyType() == null || "class".equals(pd.getName())) {
                     // (int) only method(s)
                     continue;
                 }
 
-                String fieldName = pd.getName();
+                var fieldName = pd.getName();
                 try {
                     c.getDeclaredField(fieldName);
                 } catch (NoSuchFieldException ex) {
@@ -50,7 +49,7 @@ public final class BeanOpenField implements IOpenField {
                     //
                     try {
                         String fname = ClassUtils.capitalize(fieldName);
-                        Field field = c.getDeclaredField(fname);
+                        var field = c.getDeclaredField(fname);
                         // Reset the name
                         fieldName = field.getName();
                         pd.setName(fieldName);
@@ -61,7 +60,7 @@ public final class BeanOpenField implements IOpenField {
                             // when getAB() was generated for 'aB' field name.
                             // In this case Introspector returns 'AB' field name.
                             String fname = StringUtils.uncapitalize(fieldName);
-                            Field field = c.getDeclaredField(fname);
+                            var field = c.getDeclaredField(fname);
                             // Reset the name
                             fieldName = field.getName();
                             pd.setName(fieldName);
@@ -74,7 +73,7 @@ public final class BeanOpenField implements IOpenField {
 
                 }
 
-                BeanOpenField bf = new BeanOpenField(pd);
+                var bf = new BeanOpenField(pd);
 
                 if (map.get(fieldName) == null || map.get(fieldName).isStatic()) {
                     map.put(fieldName, bf);

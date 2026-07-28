@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -70,7 +69,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
         modelConverters.ifPresent(converters -> {
             // iter from last to the first element because ModelConverters::addConverter always add to the first place.
             // But we need to keep original priority order
-            for (int i = converters.size() - 1; i > -1; i--) {
+            for (var i = converters.size() - 1; i > -1; i--) {
                 ModelConverters.getInstance().addConverter(converters.get(i));
             }
         });
@@ -90,7 +89,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
                                                     MethodInfo methodInfo,
                                                     List<ParameterInfo> paramInfos,
                                                     Set<io.swagger.v3.oas.annotations.Parameter> ignore) {
-        Map<PKey, Parameter> parameters = new LinkedHashMap<>();
+        var parameters = new LinkedHashMap<PKey, Parameter>();
 
         // process Parameters from Open API Operation annotation
         if (methodInfo.getOperationAnnotation() != null) {
@@ -201,10 +200,10 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
         var cookieValue = paramInfo.getParameterAnnotation(CookieValue.class);
 
         var parameter = new Parameter();
-        boolean empty = true;
+        var empty = true;
         String defaultValue = null;
         if (pathVar != null) {
-            boolean optional = false;
+            var optional = false;
             if (paramInfo.getType() instanceof ParameterizedType) {
                 optional = ((ParameterizedType) paramInfo.getType()).getRawType() == Optional.class;
             }
@@ -365,7 +364,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
         if (cl == null) {
             cl = Object.class;
         }
-        Set<MediaType> possibleMediaTypes = new TreeSet<>(
+        var possibleMediaTypes = new TreeSet<MediaType>(
                 MediaType.SPECIFICITY_COMPARATOR.thenComparing(MediaType.QUALITY_VALUE_COMPARATOR));
         for (var converter : mappingHandlerAdapter.getMessageConverters()) {
             possibleMediaTypes.addAll(converter.getSupportedMediaTypes(cl));

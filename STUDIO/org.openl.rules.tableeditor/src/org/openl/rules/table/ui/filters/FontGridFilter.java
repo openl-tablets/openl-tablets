@@ -77,7 +77,7 @@ public class FontGridFilter extends AGridFilter {
 
     @Override
     public FormattedCell filterFormat(FormattedCell cell) {
-        CellFont font = (CellFont) cell.getFont();
+        var font = (CellFont) cell.getFont();
 
         if (fontColor != null) {
             font.setFontColor(fontColor);

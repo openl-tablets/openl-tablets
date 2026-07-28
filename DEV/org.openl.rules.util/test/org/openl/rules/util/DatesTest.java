@@ -222,7 +222,7 @@ class DatesTest {
         assertNull(Dates.setTime(date, 2, 2, 1, -1));
         assertEquals(new Date(122, 1, 3), Dates.setDate(date, 2022, 2, 3));
         assertEquals(new Date(122, 0, 1, 11, 11, 11), Dates.setTime(date, 11, 11, 11));
-        long l = new Date(122, 0, 1, 11, 11, 11).getTime() + 11;
+        var l = new Date(122, 0, 1, 11, 11, 11).getTime() + 11;
         assertEquals(l, Dates.setTime(date, 11, 11, 11, 11).getTime());
     }
 

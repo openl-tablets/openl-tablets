@@ -43,7 +43,7 @@ public class CollectionElementField extends AOpenField {
         }
 
         Object res = null;
-        Object v = field.get(target, env);
+        var v = field.get(target, env);
         if (collectionType.isArray()) {
             res = getForArray(v);
         }
@@ -66,7 +66,7 @@ public class CollectionElementField extends AOpenField {
 
     @SuppressWarnings("unchecked")
     private Object getForList(Object v) {
-        List<Object> list = (List<Object>) v;
+        var list = (List<Object>) v;
         if (list == null || list.size() < elementIndex + 1) {
             return getType().nullObject();
         } else {
@@ -76,7 +76,7 @@ public class CollectionElementField extends AOpenField {
 
     @SuppressWarnings("unchecked")
     private Object getForMap(Object v) {
-        Map<Object, Object> map = (Map<Object, Object>) v;
+        var map = (Map<Object, Object>) v;
         if (v == null) {
             return getType().nullObject();
         }
@@ -88,7 +88,7 @@ public class CollectionElementField extends AOpenField {
         if (target == null) {
             return;
         }
-        Object v = field.get(target, env);
+        var v = field.get(target, env);
         if (collectionType.isArray()) {
             setForArray(target, value, env, v);
         }
@@ -109,8 +109,8 @@ public class CollectionElementField extends AOpenField {
         } else if (Array.getLength(v) < elementIndex + 1) {
             Object newArray = Array.newInstance(this.getType().getInstanceClass(), elementIndex + 1);
 
-            int oldArryLeng = Array.getLength(v);
-            for (int i = 0; i < oldArryLeng; i++) {
+            var oldArryLeng = Array.getLength(v);
+            for (var i = 0; i < oldArryLeng; i++) {
                 Array.set(newArray, i, Array.get(v, i));
             }
 
@@ -124,14 +124,14 @@ public class CollectionElementField extends AOpenField {
     @SuppressWarnings("unchecked")
     private void setForList(Object target, Object value, IRuntimeEnv env, Object v) {
         if (v == null) {
-            List<Object> list = new ArrayList<>();
+            var list = new ArrayList<Object>();
             while (list.size() <= elementIndex) {
                 list.add(getType().nullObject());
             }
             list.set(elementIndex, value);
             setIntoTarget(target, list, env);
         } else {
-            List<Object> list = (List<Object>) v;
+            var list = (List<Object>) v;
             while (list.size() <= elementIndex) {
                 list.add(getType().nullObject());
             }
@@ -142,11 +142,11 @@ public class CollectionElementField extends AOpenField {
     @SuppressWarnings("unchecked")
     private void setForMap(Object target, Object value, IRuntimeEnv env, Object v) {
         if (v == null) {
-            Map<Object, Object> map = new HashMap<>();
+            var map = new HashMap<Object, Object>();
             map.put(mapKey, value);
             setIntoTarget(target, map, env);
         } else {
-            Map<Object, Object> map = (Map<Object, Object>) v;
+            var map = (Map<Object, Object>) v;
             map.put(mapKey, value);
         }
     }

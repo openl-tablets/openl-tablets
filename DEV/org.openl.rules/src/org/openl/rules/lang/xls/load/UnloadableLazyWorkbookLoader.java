@@ -37,7 +37,7 @@ public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
      */
     @Override
     public Workbook getWorkbook() {
-        Workbook cachedWorkbook = workbookCache.get();
+        var cachedWorkbook = workbookCache.get();
         if (cachedWorkbook != null) {
             return cachedWorkbook;
         }
@@ -88,7 +88,7 @@ public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
      */
     @Override
     public int getNumberOfSheets() {
-        Integer numberOfSheets = numberOfSheetsCache;
+        var numberOfSheets = numberOfSheetsCache;
         if (numberOfSheets == null) {
             numberOfSheets = getWorkbook().getNumberOfSheets();
             if (canUnload) {
@@ -100,7 +100,7 @@ public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
 
     @Override
     public SpreadsheetConstants getSpreadsheetConstants() {
-        SpreadsheetConstants spreadsheetConstants = spreadsheetConstantsCache;
+        var spreadsheetConstants = spreadsheetConstantsCache;
         if (spreadsheetConstants == null) {
             spreadsheetConstants = new SpreadsheetConstants(getWorkbook().getSpreadsheetVersion());
             if (canUnload) {

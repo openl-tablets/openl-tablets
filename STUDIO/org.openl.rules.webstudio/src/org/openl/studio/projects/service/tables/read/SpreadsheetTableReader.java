@@ -1,7 +1,6 @@
 package org.openl.studio.projects.service.tables.read;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
@@ -38,26 +37,26 @@ public class SpreadsheetTableReader extends ExecutableTableReader<SpreadsheetVie
         var tsn = openLTable.getSyntaxNode();
         var cellValueReader = new CellValueReader(tsn.getMetaInfoReader());
         var tableBody = tsn.getTableBody();
-        int height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
-        int width = OpenLTableUtils.getWidthWithoutEmptyColumns(tableBody);
+        var height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
+        var width = OpenLTableUtils.getWidthWithoutEmptyColumns(tableBody);
 
-        List<SpreadsheetRowView> rows = new ArrayList<>(height - 1);
-        for (int row = 1; row < height; row++) {
+        var rows = new ArrayList<SpreadsheetRowView>(height - 1);
+        for (var row = 1; row < height; row++) {
             var rowParts = splitStepDeclaration(tableBody.getCell(0, row).getStringValue());
             var rowBuilder = SpreadsheetRowView.builder().name(rowParts.getLeft()).type(rowParts.getRight());
             rows.add(rowBuilder.build());
         }
         builder.rows(rows);
-        List<SpreadsheetColumnView> columns = new ArrayList<>(width - 1);
-        for (int col = 1; col < width; col++) {
+        var columns = new ArrayList<SpreadsheetColumnView>(width - 1);
+        for (var col = 1; col < width; col++) {
             var colParts = splitStepDeclaration(tableBody.getCell(col, 0).getStringValue());
             var colBuilder = SpreadsheetColumnView.builder().name(colParts.getLeft()).type(colParts.getRight());
             columns.add(colBuilder.build());
         }
         builder.columns(columns);
         SpreadsheetCellView[][] cells = new SpreadsheetCellView[height - 1][width - 1];
-        for (int row = 1; row < height; row++) {
-            for (int col = 1; col < width; col++) {
+        for (var row = 1; row < height; row++) {
+            for (var col = 1; col < width; col++) {
                 var cellValue = cellValueReader.apply(tableBody.getCell(col, row));
                 var cellBuilder = SpreadsheetCellView.builder().value(cellValue);
                 cells[row - 1][col - 1] = cellBuilder.build();

@@ -42,7 +42,7 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         sb.append("Method '");
         if (pars != null) {

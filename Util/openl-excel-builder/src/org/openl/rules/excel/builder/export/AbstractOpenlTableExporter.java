@@ -31,7 +31,7 @@ public abstract class AbstractOpenlTableExporter<T extends Model> implements Ope
     }
 
     protected void exportTables(Collection<T> models, Sheet sheet) {
-        Cursor startPosition = getStartPosition();
+        var startPosition = getStartPosition();
         Cursor endPosition;
         for (T table : models) {
             endPosition = exportTable(table, startPosition, getTableStyle(), sheet);
@@ -40,15 +40,15 @@ public abstract class AbstractOpenlTableExporter<T extends Model> implements Ope
     }
 
     public void addMergedHeader(Sheet sheet, Cursor cursor, CellStyle style, CellRangeSettings cellRangeSettings) {
-        CellRangeAddress mergedRegion = new CellRangeAddress(cursor.getRow(),
+        var mergedRegion = new CellRangeAddress(cursor.getRow(),
                 cursor.getRow() + cellRangeSettings.getHeight(),
                 cursor.getColumn(),
                 cursor.getColumn() + cellRangeSettings.getWidth());
         if (cellRangeSettings.getHeight() > 0 || cellRangeSettings.getWidth() > 0) {
             sheet.addMergedRegionUnsafe(mergedRegion);
         }
-        for (int i = mergedRegion.getFirstRow(); i <= mergedRegion.getLastRow(); i++) {
-            for (int j = mergedRegion.getFirstColumn(); j <= mergedRegion.getLastColumn(); j++) {
+        for (var i = mergedRegion.getFirstRow(); i <= mergedRegion.getLastRow(); i++) {
+            for (var j = mergedRegion.getFirstColumn(); j <= mergedRegion.getLastColumn(); j++) {
                 Cell sheetCell = PoiExcelHelper.getOrCreateCell(j, i, sheet);
                 sheetCell.setCellStyle(style);
             }

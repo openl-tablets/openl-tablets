@@ -11,7 +11,6 @@ import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DtColumnsDefinitionMetaInfoReader;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.TableNameChecker;
@@ -33,15 +32,15 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
                                     RulesModuleBindingContext bindingContext,
                                     XlsModuleOpenClass module) throws Exception {
 
-        ADtColumnsDefinitionTableBoundNode aDtColumnsDefinitionTableBoundNode = makeNode(tsn, module, openl);
+        var aDtColumnsDefinitionTableBoundNode = makeNode(tsn, module, openl);
 
-        IdentifierNode in = parseHeader(tsn);
+        var in = parseHeader(tsn);
         String tableName;
         if (in != null) {
             tableName = in.getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
-                String formattedPrefix = tableNamePrefix.substring(0, tableNamePrefix.length() - 2);
-                String message = NAME_ERROR_MESSAGE.formatted(formattedPrefix + " table", tableName);
+                var formattedPrefix = tableNamePrefix.substring(0, tableNamePrefix.length() - 2);
+                var message = NAME_ERROR_MESSAGE.formatted(formattedPrefix + " table", tableName);
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, in));
             }
             aDtColumnsDefinitionTableBoundNode.setTableName(tableName);
@@ -62,7 +61,7 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
      * @return identifier node with name if exists.
      */
     private IdentifierNode parseHeader(TableSyntaxNode tsn) throws OpenLCompilationException {
-        IOpenSourceCodeModule src = tsn.getHeader().getModule();
+        var src = tsn.getHeader().getModule();
 
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 

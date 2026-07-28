@@ -32,7 +32,7 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
     @Override
     protected void mergeHeaderCells(SimpleRulesView tableView) {
         if (!isUpdateMode()) {
-            int latestCol = tableView.headers.size() - 1;
+            var latestCol = tableView.headers.size() - 1;
             if (CollectionUtils.isNotEmpty(tableView.properties)) {
                 latestCol = NUMBER_PROPERTIES_COLUMNS - 1;
             }
@@ -46,10 +46,10 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
     protected void updateBusinessBody(SimpleRulesView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
         writeConditionHeaders(tableBody, tableView);
-        int row = 1;
-        int colMax = 0;
+        var row = 1;
+        var colMax = 0;
         for (var rule : tableView.rules) {
-            int col = 0;
+            var col = 0;
             for (var header : tableView.headers) {
                 createOrUpdateCell(tableBody, buildCellKey(col++, row), rule.get(header.title));
             }
@@ -73,7 +73,7 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
     }
 
     private void writeConditionHeaders(IGridTable tableBody, SimpleRulesView tableView) {
-        int col = 0;
+        var col = 0;
         for (var arg : tableView.headers) {
             createOrUpdateCell(tableBody, buildCellKey(col, 0), arg.title);
             col++;
@@ -89,9 +89,9 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var headers = SimpleRulesTableReader
                     .getConditionHeaders(LogicalTableHelper.logicalTable(tableBody.getRow(0)));
-            int row = IGridRegion.Tool.height(tableBody.getRegion());
+            var row = IGridRegion.Tool.height(tableBody.getRegion());
             for (var rule : tableAppend.getRules()) {
-                int col = 0;
+                var col = 0;
                 for (var header : headers) {
                     createOrUpdateCell(tableBody, buildCellKey(col++, row), rule.get(header.title));
                 }

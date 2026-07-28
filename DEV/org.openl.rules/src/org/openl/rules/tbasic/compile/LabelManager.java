@@ -23,7 +23,7 @@ public class LabelManager {
                 return false;
             }
 
-            LabelType otherLabelType = (LabelType) other;
+            var otherLabelType = (LabelType) other;
 
             return name.equals(otherLabelType.name) && loopLabel == otherLabelType.loopLabel;
         }
@@ -81,15 +81,15 @@ public class LabelManager {
     public void generateAllLabels(String[] labelInstructions) {
         for (String labelInstruction : labelInstructions) {
             if (labelInstruction != null) {
-                LabelType labelType = getLabelType(labelInstruction);
+                var labelType = getLabelType(labelInstruction);
                 generateLabel(labelType);
             }
         }
     }
 
     public String generateLabel(LabelType labelType) {
-        String namePrefix = labelType.getName();
-        String label = namePrefix + "Label" + nextLabelNumber++;
+        var namePrefix = labelType.getName();
+        var label = namePrefix + "Label" + nextLabelNumber++;
 
         // TODO register label in cash, code mess
         currentLabels.put(labelType, label);
@@ -111,9 +111,9 @@ public class LabelManager {
     }
 
     public String getLabelByInstruction(String labelInstruction) {
-        LabelType labelType = getLabelType(labelInstruction);
+        var labelType = getLabelType(labelInstruction);
 
-        String label = getExistingLabel(currentLabels, labelType);
+        var label = getExistingLabel(currentLabels, labelType);
 
         if (label == null) {
             label = generateLabel(labelType);
@@ -131,7 +131,7 @@ public class LabelManager {
         } else {
             throw new RuntimeException("Smth wrong in labels.....");
         }
-        String label = getExistingLabel(stackedLabels, labelType);
+        var label = getExistingLabel(stackedLabels, labelType);
 
         labelsStack.push(stackedLabels);
 
@@ -153,12 +153,12 @@ public class LabelManager {
 
     // TODO
     private LabelType getLabelTypeByInstruction(String labelInstruction) {
-        String instruction = labelInstruction.substring(LABEL_INSTRUCTION_PREFIX.length());
+        var instruction = labelInstruction.substring(LABEL_INSTRUCTION_PREFIX.length());
 
-        String loopKeyword = "loop";
-        String[] instructionParts = instruction.split("_");
+        var loopKeyword = "loop";
+        var instructionParts = instruction.split("_");
 
-        LabelType labelType = new LabelType();
+        var labelType = new LabelType();
 
         // label should contain 1 or 2 parts, first with label name, second with
         // loop keyword

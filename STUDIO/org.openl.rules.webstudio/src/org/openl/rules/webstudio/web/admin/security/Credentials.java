@@ -23,8 +23,8 @@ public class Credentials {
 
     @JsonCreator
     public static Credentials decode(String encoded) {
-        String decoded = new String(java.util.Base64.getDecoder().decode(encoded));
-        String[] parts = decoded.split(":");
+        var decoded = new String(java.util.Base64.getDecoder().decode(encoded));
+        var parts = decoded.split(":");
         if (parts.length != 2) {
             throw new IllegalArgumentException("Invalid credentials value: " + encoded);
         }

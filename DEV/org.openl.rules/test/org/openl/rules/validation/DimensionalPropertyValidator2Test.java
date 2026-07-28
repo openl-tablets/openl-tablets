@@ -26,9 +26,9 @@ class DimensionalPropertyValidator2Test {
     void test_loopInternal_UNKNOWN_overlapState() {
         final String[] propA = new String[]{"A", "B", "C"};
         final String[] propB = new String[]{"A", "B", "C"};
-        final String key = "somekey";
+        final var key = "somekey";
 
-        final OverlapState actual = validator.loopInternal(startState, vResult, key, propA, propB);
+        final var actual = validator.loopInternal(startState, vResult, key, propA, propB);
 
         assertEquals(startState, actual);
         for (String anActual : vResult) {
@@ -74,11 +74,11 @@ class DimensionalPropertyValidator2Test {
     }
 
     private void testIncludeToA(String key, String[] propA, final String[] propB) {
-        final OverlapState actual = validator.loopInternal(startState, vResult, key, propA, propB);
+        final var actual = validator.loopInternal(startState, vResult, key, propA, propB);
 
         assertEquals(OverlapState.INCLUDE_TO_A, actual);
         assertEquals(key, vResult[0]);
-        for (int i = 1; i < 3; i++) {
+        for (var i = 1; i < 3; i++) {
             if (vResult[i] != null) {
                 fail("All elements must be null.");
             }
@@ -86,7 +86,7 @@ class DimensionalPropertyValidator2Test {
     }
 
     private void testIncludeToB(String key, String[] propA, final String[] propB) {
-        final OverlapState actual = validator.loopInternal(startState, vResult, key, propA, propB);
+        final var actual = validator.loopInternal(startState, vResult, key, propA, propB);
 
         assertEquals(OverlapState.INCLUDE_TO_B, actual);
         assertEquals(key, vResult[1]);
@@ -95,7 +95,7 @@ class DimensionalPropertyValidator2Test {
     }
 
     private void testNotOverlap(String key, String[] propA, final String[] propB) {
-        final OverlapState actual = validator.loopInternal(startState, vResult, key, propA, propB);
+        final var actual = validator.loopInternal(startState, vResult, key, propA, propB);
 
         assertEquals(OverlapState.NOT_OVERLAP, actual);
         for (String anActual : vResult) {
@@ -106,10 +106,10 @@ class DimensionalPropertyValidator2Test {
     }
 
     private void testOverlap(String key, String[] propA, final String[] propB) {
-        final OverlapState actual = validator.loopInternal(startState, vResult, key, propA, propB);
+        final var actual = validator.loopInternal(startState, vResult, key, propA, propB);
 
         assertEquals(OverlapState.OVERLAP, actual);
-        for (int i = 0; i < 2; i++) {
+        for (var i = 0; i < 2; i++) {
             if (vResult[i] != null) {
                 fail("All elements must be null.");
             }

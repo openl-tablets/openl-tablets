@@ -93,7 +93,7 @@ public final class Arrays {
         } else {
             componentType = Object.class;
         }
-        Object[] result = (Object[]) Array.newInstance(componentType, array.length + elements.length);
+        var result = (Object[]) Array.newInstance(componentType, array.length + elements.length);
         System.arraycopy(array, 0, result, 0, index);
         System.arraycopy(elements, 0, result, index, elements.length);
         System.arraycopy(array, index, result, index + elements.length, array.length - index);
@@ -123,7 +123,7 @@ public final class Arrays {
             return values;
         }
         // handle negatives
-        int size = values.length;
+        var size = values.length;
         if (endIndexExclusive < 0) {
             endIndexExclusive = size + endIndexExclusive; // remember end is negative
         }
@@ -144,7 +144,7 @@ public final class Arrays {
             endIndexExclusive = 0;
         }
 
-        final int newSize = endIndexExclusive - startIndexInclusive;
+        final var newSize = endIndexExclusive - startIndexInclusive;
         if (newSize == size && startIndexInclusive == 0) {
             return values;
         }
@@ -184,7 +184,7 @@ public final class Arrays {
         if (elements == null) {
             return array;
         }
-        ArrayList<T> result = new ArrayList<>(java.util.Arrays.asList(array));
+        var result = new ArrayList<T>(java.util.Arrays.asList(array));
         java.util.Arrays.stream(elements).forEach(result::remove);
         return (T[]) result.toArray();
     }
@@ -201,7 +201,7 @@ public final class Arrays {
         }
 
         // Count non-nulls elements to create an array with appropriate size.
-        int count = 0;
+        var count = 0;
         for (T value : elements) {
             if (value != null) {
                 count++;
@@ -215,8 +215,8 @@ public final class Arrays {
 
         // Copy non-null elements to the result array.
         Class<?> componentType = elements.getClass().getComponentType();
-        T[] result = (T[]) Array.newInstance(componentType, count);
-        int i = 0;
+        var result = (T[]) Array.newInstance(componentType, count);
+        var i = 0;
         for (T value : elements) {
             if (value != null) {
                 result[i] = value;
@@ -260,7 +260,7 @@ public final class Arrays {
         if (isEmpty(values)) {
             return values;
         }
-        T[] sortedArray = values.clone();
+        var sortedArray = values.clone();
         java.util.Arrays.sort(sortedArray, Comparator.nullsLast(Comparator.naturalOrder()));
         return sortedArray;
     }

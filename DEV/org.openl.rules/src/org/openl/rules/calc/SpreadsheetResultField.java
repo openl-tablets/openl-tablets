@@ -20,14 +20,14 @@ public class SpreadsheetResultField extends AOpenField implements NodeDescriptio
         if (target == null) {
             return getType().nullObject();
         }
-        SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
-        String name = getName();
+        var spreadsheetResult = (SpreadsheetResult) target;
+        var name = getName();
 
         if (!spreadsheetResult.hasField(name)) {
             return getType().nullObject();
         }
 
-        Object res = spreadsheetResult.getFieldValue(name);
+        var res = spreadsheetResult.getFieldValue(name);
         return res != null ? res : getType().nullObject();
     }
 
@@ -41,8 +41,8 @@ public class SpreadsheetResultField extends AOpenField implements NodeDescriptio
         if (target == null) {
             return;
         }
-        SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
-        String name = getName();
+        var spreadsheetResult = (SpreadsheetResult) target;
+        var name = getName();
 
         if (!spreadsheetResult.hasField(name)) {
             throw new OpenLRuntimeException("Field '%s' does not exist in SpreadsheetResult".formatted(name));

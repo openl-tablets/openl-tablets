@@ -25,11 +25,11 @@ final class ArrayCast implements IOpenCast {
             throw new ClassCastException(
                     "Cannot cast '%s' to '%s'.".formatted(fromClass.getTypeName(), toClass.getTypeName()));
         }
-        int length = Array.getLength(from);
+        var length = Array.getLength(from);
         Object convertedArray = Array.newInstance(toClass, length);
-        for (int i = 0; i < length; i++) {
+        for (var i = 0; i < length; i++) {
             Object fromValue = Array.get(from, i);
-            Object toValue = openCast.convert(fromValue);
+            var toValue = openCast.convert(fromValue);
             Array.set(convertedArray, i, toValue);
         }
         return convertedArray;

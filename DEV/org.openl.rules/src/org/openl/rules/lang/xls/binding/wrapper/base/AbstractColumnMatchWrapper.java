@@ -231,7 +231,7 @@ public abstract class AbstractColumnMatchWrapper extends ColumnMatch {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractColumnMatchWrapper that = (AbstractColumnMatchWrapper) o;
+        var that = (AbstractColumnMatchWrapper) o;
         return delegate.equals(that.delegate);
     }
 

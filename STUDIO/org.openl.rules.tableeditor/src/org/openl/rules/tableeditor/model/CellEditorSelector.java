@@ -33,7 +33,7 @@ public class CellEditorSelector {
         if (cell.getFormula() != null) {
             return factory.makeFormulaEditor();
         }
-        ICellEditor editor = selectEditor(cell, cell.getStringValue(), meta);
+        var editor = selectEditor(cell, cell.getStringValue(), meta);
         return editor == null ? defaultEditor(cell) : editor;
     }
 
@@ -48,7 +48,7 @@ public class CellEditorSelector {
             Class<?> instanceClass = dataType.getInstanceClass();
 
             if (domain instanceof EnumDomain<?> enumDomain) {
-                Object[] allObjects = enumDomain.getAllObjects();
+                var allObjects = enumDomain.getAllObjects();
 
                 if (allObjects instanceof String[] allObjectValues) {
 
@@ -68,8 +68,8 @@ public class CellEditorSelector {
                     }
 
                     String[] allObjectValues = new String[allObjects.length];
-                    for (int i = 0; i < allObjects.length; i++) {
-                        Object value = allObjects[i];
+                    for (var i = 0; i < allObjects.length; i++) {
+                        var value = allObjects[i];
                         allObjectValues[i] = value instanceof String s ? s : formatter.format(value);
                     }
 
@@ -133,7 +133,7 @@ public class CellEditorSelector {
     }
 
     private ICellEditor defaultEditor(ICell cell) {
-        final String cellValue = cell.getStringValue();
+        final var cellValue = cell.getStringValue();
         return cellValue != null && cellValue.indexOf('\n') >= 0 ? factory.makeMultilineEditor()
                 : factory.makeTextEditor();
     }

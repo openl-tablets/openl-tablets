@@ -34,22 +34,22 @@ class String2DateConvertorTest {
 
     @Test
     void testParse() {
-        String2DateConvertor converter = new String2DateConvertor();
-        Date result = converter.parse("06/17/2014", null);
+        var converter = new String2DateConvertor();
+        var result = converter.parse("06/17/2014", null);
         assertEquals(new Date(114, 5, 17), result);
     }
 
     @Test
     void testParseByPattern() {
-        String2DateConvertor converter = new String2DateConvertor();
-        Date result = converter.parse("17-06-2014", "dd-MM-yyyy");
+        var converter = new String2DateConvertor();
+        var result = converter.parse("17-06-2014", "dd-MM-yyyy");
         assertEquals(new Date(114, 5, 17), result);
     }
 
     @Test
     void testParseEmpty() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String2DateConvertor converter = new String2DateConvertor();
+            var converter = new String2DateConvertor();
             converter.parse("", null);
         });
     }
@@ -57,7 +57,7 @@ class String2DateConvertorTest {
     @Test
     void testParseWrongValue() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String2DateConvertor converter = new String2DateConvertor();
+            var converter = new String2DateConvertor();
             converter.parse("Kin-Dza-Dza", null);
         });
     }
@@ -65,7 +65,7 @@ class String2DateConvertorTest {
     @Test
     void testParseExtraSymbol() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String2DateConvertor converter = new String2DateConvertor();
+            var converter = new String2DateConvertor();
             converter.parse("2021-01-01T", null);
         });
     }
@@ -73,21 +73,21 @@ class String2DateConvertorTest {
     @Test
     void testParseMissprint() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String2DateConvertor converter = new String2DateConvertor();
+            var converter = new String2DateConvertor();
             converter.parse("10/13/20 17", null);
         });
     }
 
     @Test
     void testParseNull() {
-        String2DateConvertor converter = new String2DateConvertor();
+        var converter = new String2DateConvertor();
         assertNull(converter.parse(null, null));
     }
 
     @Test
     void testParseUSDateTime() {
-        String2DateConvertor converter = new String2DateConvertor();
-        Date result = converter.parse("04/01/2021 12:00 AM", null);
+        var converter = new String2DateConvertor();
+        var result = converter.parse("04/01/2021 12:00 AM", null);
         assertEquals(createDate(2021, 4, 1, 0, 0, 0, 0), result);
 
         result = converter.parse("8/1/2013 11:59 PM", null);
@@ -114,9 +114,9 @@ class String2DateConvertorTest {
 
     @Test
     void testParseISO8601() {
-        String2DateConvertor converter = new String2DateConvertor();
+        var converter = new String2DateConvertor();
 
-        Date result = converter.parse("2021-01-01T01:01", null);
+        var result = converter.parse("2021-01-01T01:01", null);
         assertEquals(createDate(2021, 1, 1, 1, 1, 0, 0), result);
 
         result = converter.parse("2021-01-01T01:01:01.000", null);
@@ -128,9 +128,9 @@ class String2DateConvertorTest {
         try {
             // set +2 as default
             setUpTimeZone(TimeZone.getTimeZone("Europe/Helsinki"));
-            String2DateConvertor converter = new String2DateConvertor();
+            var converter = new String2DateConvertor();
 
-            Date result = converter.parse("2021-01-01T01:01", null);
+            var result = converter.parse("2021-01-01T01:01", null);
             assertEquals(createDate(2021, 1, 1, 1, 1, 0, 0), result);
 
             result = converter.parse("2021-01-01T01:01:01.000", null);
@@ -181,7 +181,7 @@ class String2DateConvertorTest {
     }
 
     private static Date createDate(int year, int month, int dayOfMonth, int hour, int minute, int seconds, int mills) {
-        Calendar cal = new GregorianCalendar();
+        var cal = new GregorianCalendar();
         cal.set(year, month - 1, dayOfMonth, hour, minute, seconds);
         cal.set(Calendar.MILLISECOND, mills);
         return cal.getTime();

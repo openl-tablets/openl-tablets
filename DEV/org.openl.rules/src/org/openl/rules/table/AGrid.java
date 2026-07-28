@@ -19,26 +19,26 @@ public abstract class AGrid implements IGrid {
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
 
         if (colStart == colEnd && rowStart == rowEnd) {
-            ICell cell = getCell(colStart, rowStart);
-            IGridRegion region = cell.getRegion();
+            var cell = getCell(colStart, rowStart);
+            var region = cell.getRegion();
             if (region == null || (region.getRight() == region.getLeft() && region.getBottom() == region.getTop())) {
                 return getUri() + "&cell=" + cell.getUri();
             } else {
-                String range = getCell(region.getLeft(), region.getTop())
+                var range = getCell(region.getLeft(), region.getTop())
                         .getUri() + RANGE_SEPARATOR + getCell(region.getRight(), region.getBottom()).getUri();
                 return getUri() + "&range=" + range;
             }
         }
 
-        String range = getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR + getCell(colEnd, rowEnd).getUri();
+        var range = getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR + getCell(colEnd, rowEnd).getUri();
         return getUri() + "&range=" + range;
     }
 
     @Override
     public IGridRegion getRegionContaining(int col, int row) {
-        int nRegions = getNumberOfMergedRegions();
-        for (int i = 0; i < nRegions; i++) {
-            IGridRegion reg = getMergedRegion(i);
+        var nRegions = getNumberOfMergedRegions();
+        for (var i = 0; i < nRegions; i++) {
+            var reg = getMergedRegion(i);
             if (IGridRegion.Tool.contains(reg, col, row)) {
                 return reg;
             }
@@ -48,7 +48,7 @@ public abstract class AGrid implements IGrid {
 
     @Override
     public IGridRegion getRegionStartingAt(int colFrom, int rowFrom) {
-        IGridRegion reg = getRegionContaining(colFrom, rowFrom);
+        var reg = getRegionContaining(colFrom, rowFrom);
         if (reg != null && reg.getLeft() == colFrom && reg.getTop() == rowFrom) {
             return reg;
         }
@@ -67,7 +67,7 @@ public abstract class AGrid implements IGrid {
 
     @Override
     public boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
-        IGridRegion region = getRegionContaining(firstCellColumn, firstCellRow);
+        var region = getRegionContaining(firstCellColumn, firstCellRow);
         return region != null && IGridRegion.Tool
                 .contains(region, secondCellColumn, secondCellRow);
     }

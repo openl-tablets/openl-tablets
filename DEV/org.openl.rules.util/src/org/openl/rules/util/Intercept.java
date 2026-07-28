@@ -42,8 +42,8 @@ public final class Intercept {
         if (inputStats == null || inputStats.y.length <= 1) {
             return null;
         }
-        Double avgY = inputStats.getAvgY();
-        Double avgX = inputStats.getAvgX();
+        var avgY = inputStats.getAvgY();
+        var avgX = inputStats.getAvgX();
         Double slopeB = avgX == null ? null : Slope.slope(inputStats);
         return slopeB == null ? null : avgY - (slopeB * avgX);
     }
@@ -88,8 +88,8 @@ public final class Intercept {
         if (inputStats == null || inputStats.y.length <= 1) {
             return null;
         }
-        Float avgY = inputStats.getAvgY();
-        Float avgX = inputStats.getAvgX();
+        var avgY = inputStats.getAvgY();
+        var avgX = inputStats.getAvgX();
         Float slopeB = avgX == null ? null : Slope.slope(inputStats);
         return slopeB == null ? null : avgY - (slopeB * avgX);
     }
@@ -98,8 +98,8 @@ public final class Intercept {
         if (inputStats == null || inputStats.y.length <= 1) {
             return null;
         }
-        BigDecimal avgY = inputStats.getAvgY();
-        BigDecimal avgX = inputStats.getAvgX();
+        var avgY = inputStats.getAvgY();
+        var avgX = inputStats.getAvgX();
         BigDecimal slopeB = avgX == null ? null : Slope.slope(inputStats);
         return slopeB == null ? null : avgY.subtract(slopeB.multiply(avgX));
     }

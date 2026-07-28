@@ -17,10 +17,10 @@ public class AddAllMethodFilter implements MethodFilter {
     public static AddAllMethodDetails resolve(IOpenClass[] callParams, ICastFactory castFactory) {
         int[] dims = new int[callParams.length];
         boolean[] paramAsElement = new boolean[callParams.length];
-        for (int i = 0; i < callParams.length; i++) {
+        for (var i = 0; i < callParams.length; i++) {
             if (!NullOpenClass.isAnyNull(callParams[i])) {
-                int dim = 0;
-                IOpenClass t = callParams[i];
+                var dim = 0;
+                var t = callParams[i];
                 while (t.isArray()) {
                     t = t.getComponentClass();
                     dim++;
@@ -28,9 +28,9 @@ public class AddAllMethodFilter implements MethodFilter {
                 dims[i] = dim;
             }
         }
-        int maxDim = 0;
-        int minDim = Integer.MAX_VALUE;
-        for (int i = 0; i < callParams.length; i++) {
+        var maxDim = 0;
+        var minDim = Integer.MAX_VALUE;
+        for (var i = 0; i < callParams.length; i++) {
             if (maxDim < dims[i]) {
                 maxDim = dims[i];
             }
@@ -39,7 +39,7 @@ public class AddAllMethodFilter implements MethodFilter {
             maxDim = 1;
         }
 
-        for (int i = 0; i < callParams.length; i++) {
+        for (var i = 0; i < callParams.length; i++) {
             if (!NullOpenClass.isAnyNull(callParams[i])) {
                 if (dims[i] < minDim) {
                     minDim = dims[i];
@@ -51,7 +51,7 @@ public class AddAllMethodFilter implements MethodFilter {
             }
         }
         IOpenClass t = null;
-        for (int i = 0; i < callParams.length; i++) {
+        for (var i = 0; i < callParams.length; i++) {
             if (t == null && maxDim == dims[i]) {
                 t = callParams[i];
             } else if (t != null && maxDim == dims[i]) {
@@ -70,15 +70,15 @@ public class AddAllMethodFilter implements MethodFilter {
             }
         }
 
-        int dim = 0;
-        IOpenClass g = t;
+        var dim = 0;
+        var g = t;
         while (g.isArray()) {
             g = g.getComponentClass();
             dim++;
         }
-        IOpenClass type = g.getArrayType(dim);
+        var type = g.getArrayType(dim);
         IOpenCast[] openCasts = new IOpenCast[callParams.length];
-        for (int i = 0; i < callParams.length; i++) {
+        for (var i = 0; i < callParams.length; i++) {
             if (callParams[i] != null && !NullOpenClass.isAnyNull(callParams[i])) {
                 openCasts[i] = castFactory.getCast(
                         paramAsElement[i] ? callParams[i] : callParams[i].getComponentClass(),

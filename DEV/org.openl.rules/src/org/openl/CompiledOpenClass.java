@@ -60,7 +60,7 @@ public class CompiledOpenClass {
 
     public void throwErrorExceptionsIfAny() {
         if (hasErrors()) {
-            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(allMessages,
+            var errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(allMessages,
                     Severity.ERROR);
             throw new CompositeOpenlException("Module contains critical errors", null, errorMessages);
         }

@@ -30,15 +30,15 @@ class CollectionComparator extends GenericComparator<Collection<?>> {
 
     @Override
     boolean equals(Collection<?> expected, Collection<?> actual) {
-        int size = expected.size();
+        var size = expected.size();
         if (size != actual.size()) {
             return false;
         }
         Iterator<?> expectedItr = expected.iterator();
         Iterator<?> actualItr = actual.iterator();
         while (expectedItr.hasNext() && actualItr.hasNext()) {
-            Object expectedVal = expectedItr.next();
-            Object actualVal = actualItr.next();
+            var expectedVal = expectedItr.next();
+            var actualVal = actualItr.next();
             if (!comparator.isEqual(expectedVal, actualVal)) {
                 return false;
             }

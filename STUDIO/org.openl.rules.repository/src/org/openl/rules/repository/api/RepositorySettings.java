@@ -33,7 +33,7 @@ public class RepositorySettings implements Closeable {
     }
 
     public void lock(String fileName) throws IOException {
-        boolean locked = lockManager.getLock(fileName).forceLock("", lockTimeToLive, TimeUnit.SECONDS);
+        var locked = lockManager.getLock(fileName).forceLock("", lockTimeToLive, TimeUnit.SECONDS);
         if (!locked) {
             throw new IOException("Cannot create a lock for '" + fileName + "'");
         }

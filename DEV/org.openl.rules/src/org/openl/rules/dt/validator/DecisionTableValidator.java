@@ -32,8 +32,8 @@ public final class DecisionTableValidator implements IValidator {
                                                               Map<String, IDomainAdaptor> domains,
                                                               IOpenClass type) {
 
-        IDecisionTableValidatedObject validatedObject = new DecisionTableValidatedObject(decisionTable, domains);
-        OpenL openl = ((XlsModuleOpenClass) type).getOpenl();
+        var validatedObject = new DecisionTableValidatedObject(decisionTable, domains);
+        var openl = ((XlsModuleOpenClass) type).getOpenl();
 
         return (DecisionTableValidationResult) getInstance().validate(validatedObject, openl);
     }

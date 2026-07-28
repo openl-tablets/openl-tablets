@@ -38,7 +38,7 @@ public abstract class ABoundNode implements IBoundNode {
     @Override
     public final Object evaluate(IRuntimeEnv env) {
         try {
-            Object res = evaluateRuntime(env);
+            var res = evaluateRuntime(env);
             return res != null ? res : getType().nullObject();
         } catch (OpenLRuntimeException | ControlSignal ore) {
             throw ore;

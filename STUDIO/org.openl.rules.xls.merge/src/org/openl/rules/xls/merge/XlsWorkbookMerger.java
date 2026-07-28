@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
 
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.HSSFPaletteDiffResult;
@@ -91,15 +89,15 @@ public class XlsWorkbookMerger implements Closeable {
      * @return difference result
      */
     public WorkbookDiffResult getDiffResult() {
-        Map<DiffStatus, Set<String>> diffResult = new HashMap<>();
+        var diffResult = new HashMap<DiffStatus, Set<String>>();
         Map<String, XlsMatch> ourToBase = XlsWorkbooksMatcher.match(baseWorkbook, ourWorkbook);
         Map<String, XlsMatch> theirToBase = XlsWorkbooksMatcher.match(baseWorkbook, theirWorkbook);
 
         final Function<DiffStatus, Set<String>> initGroupValue = key -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
         for (String sheetName : ourToBase.keySet()) {
-            XlsMatch ourMatchRes = ourToBase.get(sheetName);
-            XlsMatch theirMatchRes = theirToBase.get(sheetName);
+            var ourMatchRes = ourToBase.get(sheetName);
+            var theirMatchRes = theirToBase.get(sheetName);
             DiffStatus diffDecision;
             if (ourMatchRes != null && ourMatchRes == theirMatchRes) {
                 if (ourMatchRes == XlsMatch.EQUAL) {
@@ -109,7 +107,7 @@ public class XlsWorkbookMerger implements Closeable {
                     // sheet was removed for both workbooks
                     continue;
                 } else {
-                    boolean hasChanges = XlsSheetsMatcher.hasChanges(ourWorkbook,
+                    var hasChanges = XlsSheetsMatcher.hasChanges(ourWorkbook,
                             ourWorkbook.getSheet(sheetName),
                             theirWorkbook,
                             theirWorkbook.getSheet(sheetName));
@@ -152,8 +150,8 @@ public class XlsWorkbookMerger implements Closeable {
         var ourToTheir = HSSFPaletteMatcher.matchPalette(toHSSFBook(ourWorkbook), toHSSFBook(theirWorkbook));
 
         for (Short cIdx : ourToBase.keySet()) {
-            XlsMatch ourMatchRes = ourToBase.get(cIdx);
-            XlsMatch theirMatchRes = theirToBase.get(cIdx);
+            var ourMatchRes = ourToBase.get(cIdx);
+            var theirMatchRes = theirToBase.get(cIdx);
             DiffStatus diffDecision;
             if (ourMatchRes == theirMatchRes) {
                 if (ourMatchRes == XlsMatch.EQUAL) {
@@ -163,7 +161,7 @@ public class XlsWorkbookMerger implements Closeable {
                     // sheet was removed for both workbooks
                     continue;
                 } else {
-                    XlsMatch match = ourToTheir.get(cIdx);
+                    var match = ourToTheir.get(cIdx);
                     if (match == XlsMatch.EQUAL) {
                         continue;
                     }
@@ -218,10 +216,10 @@ public class XlsWorkbookMerger implements Closeable {
         }
         var sheetDiffResult = diffResult.getSheetDiffResult();
         var paletteDifResult = diffResult.getPaletteDiffResult();
-        try (StreamWorkbook ourBook = new StreamWorkbook(our, false);
-             StreamWorkbook theirBook = new StreamWorkbook(their, true)) {
+        try (var ourBook = new StreamWorkbook(our, false);
+             var theirBook = new StreamWorkbook(their, true)) {
             if (sheetDiffResult.hasChangesToMerge()) {
-                List<Cell> formulas = new ArrayList<>();
+                var formulas = new ArrayList<Cell>();
                 for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
                     switch (sheetDiffResult.getTheirMatchResult(sheetName)) {
                         case UPDATED -> XlsSheetCopier.copy(theirBook,
@@ -235,14 +233,14 @@ public class XlsWorkbookMerger implements Closeable {
                                 ourBook.createSheet(sheetName),
                                 formulas);
                         case REMOVED -> {
-                            int sheetIdx = ourBook.getSheetIndex(sheetName);
+                            var sheetIdx = ourBook.getSheetIndex(sheetName);
                             ourBook.removeSheetAt(sheetIdx);
                         }
                         default -> throw new IllegalStateException("Failed to merge.");
                     }
                 }
                 // evaluate all formula cells in the end
-                FormulaEvaluator formulaEvaluator = ourBook.getCreationHelper().createFormulaEvaluator();
+                var formulaEvaluator = ourBook.getCreationHelper().createFormulaEvaluator();
                 formulas.forEach(formulaEvaluator::evaluateFormulaCell);
                 // optimize styles
                 if (ourBook.unwrap() instanceof HSSFWorkbook) {
@@ -256,7 +254,7 @@ public class XlsWorkbookMerger implements Closeable {
                 var theirPalette = theirHssfBook.getCustomPalette();
 
                 for (short i = FIRST_COLOR_INDEX; i < LAST_COLOR_INDEX; i++) {
-                    XlsMatch theirMatchResult = paletteDifResult.getTheirMatchResult(i);
+                    var theirMatchResult = paletteDifResult.getTheirMatchResult(i);
                     if (theirMatchResult == XlsMatch.UPDATED || theirMatchResult == XlsMatch.CREATED) {
                         var theirColor = theirPalette.getColor(i);
                         var rgb = theirColor.getTriplet();

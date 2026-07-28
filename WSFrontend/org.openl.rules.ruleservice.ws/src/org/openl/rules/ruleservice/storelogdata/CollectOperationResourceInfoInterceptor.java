@@ -1,7 +1,5 @@
 package org.openl.rules.ruleservice.storelogdata;
 
-import java.lang.reflect.Method;
-
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.message.Message;
@@ -34,16 +32,16 @@ public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterc
 
     private static void injectServiceMethod(Message message) {
         StoreLogData storeLogData = StoreLogDataHolder.get();
-        OperationResourceInfo operationResourceInfo = message.getExchange().get(OperationResourceInfo.class);
+        var operationResourceInfo = message.getExchange().get(OperationResourceInfo.class);
         if (operationResourceInfo != null) {
-            Method serviceMethod = operationResourceInfo.getAnnotatedMethod();
+            var serviceMethod = operationResourceInfo.getAnnotatedMethod();
             storeLogData.setServiceMethod(serviceMethod);
         } else {
-            BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
-            MethodDispatcher md = (MethodDispatcher) message.getExchange()
+            var bop = message.getExchange().get(BindingOperationInfo.class);
+            var md = (MethodDispatcher) message.getExchange()
                     .get(Service.class)
                     .get(MethodDispatcher.class.getName());
-            Method method = md.getMethod(bop);
+            var method = md.getMethod(bop);
             storeLogData.setServiceMethod(method);
         }
     }

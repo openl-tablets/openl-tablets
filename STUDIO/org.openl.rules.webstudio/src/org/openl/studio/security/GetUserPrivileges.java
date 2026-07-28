@@ -8,7 +8,6 @@ import java.util.function.BiFunction;
 import org.springframework.security.core.GrantedAuthority;
 
 import org.openl.rules.security.Group;
-import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
@@ -33,10 +32,10 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
     @Override
     public Collection<GrantedAuthority> apply(String user, Collection<? extends GrantedAuthority> authorities) {
 
-        Collection<GrantedAuthority> privileges = new ArrayList<>();
+        var privileges = new ArrayList<GrantedAuthority>();
 
         // Add a default group if it presents
-        Group defaultGroup = getDefaultGroup();
+        var defaultGroup = getDefaultGroup();
         if (defaultGroup != null) {
             privileges.add(defaultGroup);
         }
@@ -45,7 +44,7 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         mapAuthorities(authorities, privileges);
 
         // Add authorities from the DB if exists
-        User userDetails = userManagementService.getUser(user);
+        var userDetails = userManagementService.getUser(user);
         if (userDetails != null) {
             privileges.addAll(userDetails.getAuthorities());
         }
@@ -55,8 +54,8 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
 
     private void mapAuthorities(Collection<? extends GrantedAuthority> authorities, Collection<GrantedAuthority> privileges) {
         for (GrantedAuthority authority : authorities) {
-            String authorityName = authority.getAuthority();
-            Group group = groupManagementService.getGroupByName(authorityName);
+            var authorityName = authority.getAuthority();
+            var group = groupManagementService.getGroupByName(authorityName);
             // Expand priveleges from the DB
             privileges.add(Objects.requireNonNullElse(group, authority));
         }
@@ -66,7 +65,7 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         if (StringUtils.isBlank(defaultGroup)) {
             return null;
         }
-        Group group = groupManagementService.getGroupByName(defaultGroup);
+        var group = groupManagementService.getGroupByName(defaultGroup);
         if (group != null) {
             return group;
         }

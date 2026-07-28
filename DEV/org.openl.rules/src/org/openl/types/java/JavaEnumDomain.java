@@ -45,12 +45,12 @@ public class JavaEnumDomain implements IDomain<Object> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         @SuppressWarnings("rawtypes")
-        Iterator itr = iterator();
-        boolean f = false;
+        var itr = iterator();
+        var f = false;
         while (itr.hasNext()) {
-            Object v = itr.next();
+            var v = itr.next();
             if (f) {
                 sb.append(", ");
             } else {
@@ -68,7 +68,7 @@ public class JavaEnumDomain implements IDomain<Object> {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        JavaEnumDomain objects = (JavaEnumDomain) o;
+        var objects = (JavaEnumDomain) o;
 
         return enumClass.equals(objects.enumClass);
     }

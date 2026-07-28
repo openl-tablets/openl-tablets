@@ -22,11 +22,11 @@ public class CharNodeBinder extends ANodeBinder {
      */
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
-        String s = node.getText();
-        char c = s.charAt(1);
+        var s = node.getText();
+        var c = s.charAt(1);
 
         if (c == '\\') {
-            char nextC = s.charAt(2);
+            var nextC = s.charAt(2);
             switch (nextC) {
                 case 'b':
                     c = '\b';

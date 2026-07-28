@@ -37,14 +37,14 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     private void makeCode(String separator) {
-        StringBuilder buf = new StringBuilder(100);
+        var buf = new StringBuilder(100);
 
-        for (int i = 0; i < modules.length; i++) {
+        for (var i = 0; i < modules.length; i++) {
             if (modules[i] == null) {
                 continue;
             }
 
-            String code = modules[i].getCode();
+            var code = modules[i].getCode();
             modulesCount[i] = code.length() + separator.length();
             buf.append(code);
             buf.append(separator);
@@ -75,7 +75,7 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
 
     @Override
     public String getUri() {
-        for (int i = 0; i < modulesCount.length; i++) {
+        for (var i = 0; i < modulesCount.length; i++) {
             if (modulesCount[i] > 0) {
                 return modules[i].getUri();
             }

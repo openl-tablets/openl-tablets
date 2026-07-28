@@ -26,7 +26,7 @@ public abstract class TemplatesResolver {
             return names;
         }
 
-        List<String> templateNames = resolveTemplates(category);
+        var templateNames = resolveTemplates(category);
         names = Collections.unmodifiableList(templateNames);
 
         templateNamesCache.put(category, names);

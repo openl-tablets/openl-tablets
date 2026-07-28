@@ -53,8 +53,8 @@ public class EnumDomain<T> implements IDomain<T> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        boolean f = false;
+        var sb = new StringBuilder();
+        var f = false;
         for (Object o : index) {
             if (f) {
                 sb.append(",");
@@ -80,7 +80,7 @@ public class EnumDomain<T> implements IDomain<T> {
 
     @Override
     public int hashCode() {
-        int result = index.hashCode();
+        var result = index.hashCode();
         result = 31 * result + componentType.hashCode();
         return result;
     }

@@ -77,7 +77,7 @@ public class DynamicObject implements IDynamicObject {
 
     @Override
     public String toString() {
-        NicePrinter printer = new NicePrinter();
+        var printer = new NicePrinter();
         printer.print(this, getNicePrinterAdaptor());
         return printer.getBuffer().toString();
     }

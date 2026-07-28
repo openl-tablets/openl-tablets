@@ -3,8 +3,6 @@ package org.openl.rules.lang.xls.binding;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 
 import org.openl.OpenL;
@@ -14,9 +12,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
@@ -40,12 +36,12 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
                                     RulesModuleBindingContext bindingContext,
                                     XlsModuleOpenClass module) throws Exception {
 
-        OpenMethodHeader header = createHeader(tableSyntaxNode, openl, bindingContext);
+        var header = createHeader(tableSyntaxNode, openl, bindingContext);
         header.setDeclaringClass(module);
 
         checkForDuplicates(tableSyntaxNode, bindingContext, header);
 
-        T node = createNode(tableSyntaxNode, openl, header, module, bindingContext);
+        var node = createNode(tableSyntaxNode, openl, header, module, bindingContext);
         if (!bindingContext.isExecutionMode()) {
             tableSyntaxNode.setMetaInfoReader(createMetaInfoReader(node));
         }
@@ -56,8 +52,8 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
 
     public IOpenSourceCodeModule createHeaderSource(TableSyntaxNode tableSyntaxNode,
                                                     IBindingContext bindingContext) throws SyntaxNodeException {
-        IGridTable table = tableSyntaxNode.getGridTable();
-        IOpenSourceCodeModule source = new GridCellSourceCodeModule(table, bindingContext);
+        var table = tableSyntaxNode.getGridTable();
+        var source = new GridCellSourceCodeModule(table, bindingContext);
 
         return new SubTextSourceCodeModule(source,
                 tableSyntaxNode.getHeader()
@@ -72,8 +68,8 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
                                          RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
         try {
             bindingContext.setIgnoreCustomSpreadsheetResultCompilation(true);
-            IOpenSourceCodeModule headerSource = createHeaderSource(tableSyntaxNode, bindingContext);
-            OpenMethodHeader methodHeader = (OpenMethodHeader) OpenLManager
+            var headerSource = createHeaderSource(tableSyntaxNode, bindingContext);
+            var methodHeader = (OpenMethodHeader) OpenLManager
                     .makeMethodHeader(openl, headerSource, bindingContext);
             if (methodHeader == null) {
                 throw SyntaxNodeExceptionUtils.createError("Invalid method header.", tableSyntaxNode);
@@ -94,7 +90,7 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
                                     RulesModuleBindingContext bindingContext,
                                     OpenMethodHeader header) throws DuplicatedTableException {
 
-        String key = makeKey(tableSyntaxNode, header);
+        var key = makeKey(tableSyntaxNode, header);
 
         if (!bindingContext.isTableSyntaxNodePresented(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
@@ -113,10 +109,10 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
      */
     private String makeKey(TableSyntaxNode tableSyntaxNode, OpenMethodHeader header) {
 
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
         builder.append(header.getName());
 
-        List<String> names = new ArrayList<>();
+        var names = new ArrayList<String>();
 
         for (IOpenClass parameter : header.getSignature().getParameterTypes()) {
             names.add(parameter.getName());
@@ -126,8 +122,8 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
 
         // Dimensional properties and version
         //
-        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
-        List<Object> values = new ArrayList<>();
+        var tableProperties = tableSyntaxNode.getTableProperties();
+        var values = new ArrayList<Object>();
 
         for (String property : TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames()) {
             values.add(tableProperties.getPropertyValue(property));
@@ -144,18 +140,18 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
         if (collection == null) {
             return null;
         }
-        Iterator iterator = collection.iterator();
+        var iterator = collection.iterator();
 
         if (!iterator.hasNext()) {
             return StringUtils.EMPTY;
         }
-        Object first = iterator.next();
+        var first = iterator.next();
         if (!iterator.hasNext()) {
             return Objects.toString(first);
         }
 
         // two or more elements
-        StringBuilder buf = new StringBuilder(256); // Java default is 16, probably
+        var buf = new StringBuilder(256); // Java default is 16, probably
         // too small
         if (first != null) {
             buf.append(first);
@@ -163,7 +159,7 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
 
         while (iterator.hasNext()) {
             buf.append(", ");
-            Object obj = iterator.next();
+            var obj = iterator.next();
             if (obj != null) {
                 if (obj.getClass().isArray()) {
                     buf.append(Arrays.toString((Object[]) obj));

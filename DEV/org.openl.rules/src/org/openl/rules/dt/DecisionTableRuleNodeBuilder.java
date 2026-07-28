@@ -29,13 +29,13 @@ public class DecisionTableRuleNodeBuilder {
 
     public int[] makeRulesAry() {
 
-        int size = rules.size();
+        var size = rules.size();
         if (size == 0) {
             return DecisionTableRuleNode.ZERO_ARRAY;
         }
         int[] res = new int[size];
 
-        for (int i = 0; i < res.length; i++) {
+        for (var i = 0; i < res.length; i++) {
             res[i] = rules.get(i);
         }
         return res;

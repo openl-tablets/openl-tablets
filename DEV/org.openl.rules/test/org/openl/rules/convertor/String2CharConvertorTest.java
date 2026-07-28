@@ -10,15 +10,15 @@ class String2CharConvertorTest {
 
     @Test
     void testParse() {
-        String2CharConvertor converter = new String2CharConvertor();
-        Character result = converter.parse("X", null);
+        var converter = new String2CharConvertor();
+        var result = converter.parse("X", null);
         assertEquals(Character.valueOf('X'), result);
     }
 
     @Test
     void testParseEmpty() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String2BooleanConvertor converter = new String2BooleanConvertor();
+            var converter = new String2BooleanConvertor();
             converter.parse("", null);
         });
     }
@@ -26,14 +26,14 @@ class String2CharConvertorTest {
     @Test
     void testParseWrongValue() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String2BooleanConvertor converter = new String2BooleanConvertor();
+            var converter = new String2BooleanConvertor();
             converter.parse("12", null);
         });
     }
 
     @Test
     void testParseNull() {
-        String2CharConvertor converter = new String2CharConvertor();
+        var converter = new String2CharConvertor();
         assertNull(converter.parse(null, null));
     }
 

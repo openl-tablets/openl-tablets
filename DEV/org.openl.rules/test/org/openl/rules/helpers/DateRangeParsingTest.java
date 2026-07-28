@@ -85,7 +85,7 @@ class DateRangeParsingTest {
 
     @Test
     void testSimpleRangeFormat() throws ParseException {
-        DateRange range = new DateRange("03/12/2019");
+        var range = new DateRange("03/12/2019");
         assertInclude(range, "03/12/2019 00:00:00");
         assertExclude(range, "03/12/2019 00:00:01", "03/11/2019 23:59:59");
 
@@ -100,7 +100,7 @@ class DateRangeParsingTest {
 
     @Test
     void testMinMaxRangeFormat() throws ParseException {
-        DateRange range = new DateRange("03/12/2019 - 12/01/2019");
+        var range = new DateRange("03/12/2019 - 12/01/2019");
         assertInclude(range,
                 "03/12/2019 00:00:00",
                 "03/12/2019 00:00:01",
@@ -137,7 +137,7 @@ class DateRangeParsingTest {
 
     @Test
     void testVerbal() throws ParseException {
-        DateRange range = new DateRange("03/12/2019 and more");
+        var range = new DateRange("03/12/2019 and more");
         assertInclude(range,
                 "03/12/2019 00:00:00",
                 "03/12/2019 00:00:01",
@@ -178,7 +178,7 @@ class DateRangeParsingTest {
 
     @Test
     void testMoreLessFormat() throws ParseException {
-        DateRange range = new DateRange(">= 03/12/2019");
+        var range = new DateRange(">= 03/12/2019");
         assertInclude(range,
                 "03/12/2019 00:00:00",
                 "03/12/2019 00:00:01",
@@ -229,7 +229,7 @@ class DateRangeParsingTest {
 
     @Test
     void testBracketsFormat() throws ParseException {
-        DateRange range = new DateRange("[03/12/2019; 12/01/2019]");
+        var range = new DateRange("[03/12/2019; 12/01/2019]");
         assertInclude(range,
                 "03/12/2019 00:00:00",
                 "03/12/2019 00:00:01",
@@ -265,7 +265,7 @@ class DateRangeParsingTest {
 
     @Test
     void testMoreLessFormatBothBounds() throws ParseException {
-        DateRange range = new DateRange(">=03/12/2019 <=12/01/2019");
+        var range = new DateRange(">=03/12/2019 <=12/01/2019");
         assertInclude(range,
                 "03/12/2019 00:00:00",
                 "03/12/2019 00:00:01",
@@ -334,7 +334,7 @@ class DateRangeParsingTest {
 
     @Test
     void testNulls() {
-        DateRange range = new DateRange("<12/01/2019 >03/12/2019");
+        var range = new DateRange("<12/01/2019 >03/12/2019");
         assertFalse(range.contains((Date) null));
     }
 
@@ -384,7 +384,7 @@ class DateRangeParsingTest {
     }
 
     private Date toDate(String s) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.US);
+        var formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.US);
         formatter.setLenient(false); // Strict matching
         formatter.getCalendar().set(0, 0, 0, 0, 0, 0); // at
         formatter.getCalendar().set(Calendar.MILLISECOND, 0);

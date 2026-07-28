@@ -100,7 +100,7 @@ public class ProjectFileRoot implements FileRoot {
             // The mount is rooted at the project folder, so the base path and the item names are
             // translated into the paths of the project's backing repository — the working copy for an
             // open project. The staged changes are committed to the design repository on check-in.
-            String projectPath = project.getFolderPath();
+            var projectPath = project.getFolderPath();
             List<FileItem> repoItems = items.stream()
                     .map(item -> new FileItem(inProject(projectPath, item.getData().getName()), item.getStream()))
                     .toList();
@@ -196,7 +196,7 @@ public class ProjectFileRoot implements FileRoot {
      * Wraps a project (current or historical) in a detached folder over the same repository and path.
      */
     private static AProjectFolder wrap(AProject source) {
-        AProjectFolder folder = new AProjectFolder(new HashMap<>(),
+        var folder = new AProjectFolder(new HashMap<>(),
                 source.getProject(), source.getRepository(), source.getFolderPath());
         source.getArtefacts().forEach(folder::addArtefact);
         return folder;

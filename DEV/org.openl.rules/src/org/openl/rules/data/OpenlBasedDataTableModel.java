@@ -44,20 +44,20 @@ public class OpenlBasedDataTableModel implements ITableModel {
 
     private ColumnDescriptor[] initializeDescriptors(ColumnDescriptor[] descriptors) {
         // group descriptors by KEY and put PK columns in first position of each group
-        int cntDescriptors = 0;
-        Map<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>> descriptorGroups = new TreeMap<>();
+        var cntDescriptors = 0;
+        var descriptorGroups = new TreeMap<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>>();
         for (ColumnDescriptor descriptor : descriptors) {
             if (descriptor == null) {
                 continue;
             }
-            int columnIdx = descriptor.getColumnIdx();
+            var columnIdx = descriptor.getColumnIdx();
             while (columnIdx > idxs.size()) {
                 idxs.add(null);
             }
             idxs.add(descriptor);
             cntDescriptors++;
-            ColumnDescriptor.ColumnGroupKey key = descriptor.buildGroupKey();
-            List<ColumnDescriptor> descriptorsByKey = descriptorGroups.computeIfAbsent(key, k -> new LinkedList<>());
+            var key = descriptor.buildGroupKey();
+            var descriptorsByKey = descriptorGroups.computeIfAbsent(key, k -> new LinkedList<>());
             if (descriptor.isPrimaryKey()) {
                 descriptorsByKey.addFirst(descriptor);
             } else {
@@ -67,9 +67,9 @@ public class OpenlBasedDataTableModel implements ITableModel {
 
         // transform map to flat array and keep order
         ColumnDescriptor[] res = new ColumnDescriptor[cntDescriptors];
-        int i = 0;
+        var i = 0;
         for (Map.Entry<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>> e : descriptorGroups.entrySet()) {
-            ColumnDescriptor.ColumnGroupKey key = e.getKey();
+            var key = e.getKey();
             for (ColumnDescriptor descriptor : e.getValue()) {
                 descriptor.setGroupKey(key);
                 res[i] = descriptor;

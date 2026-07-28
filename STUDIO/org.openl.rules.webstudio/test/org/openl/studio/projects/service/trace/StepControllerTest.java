@@ -12,14 +12,14 @@ class StepControllerTest {
 
     @Test
     void stopAtEntrySuspendsOnFirstEnter() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(true);
         assertTrue(controller.shouldSuspend(DebugEvent.ENTER, 1, "uri", null, null, 0));
     }
 
     @Test
     void runToBreakpointDoesNotStopWithoutBreakpoint() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(false);
         assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 1, "uri", null, null, 0));
         assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 3, "uri", CurrentLocation.cell(0, 0), null, 0));
@@ -27,7 +27,7 @@ class StepControllerTest {
 
     @Test
     void tableBreakpointStopsOnEnterAtAnyDepth() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(false);
         controller.setBreakpoints(Set.of("bp"));
         assertTrue(controller.shouldSuspend(DebugEvent.ENTER, 7, "bp", null, null, 0));
@@ -37,7 +37,7 @@ class StepControllerTest {
 
     @Test
     void subStepBreakpointStopsOnMatchingCell() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(false);
         controller.setBreakpoints(Set.of("uri#R2C3"));
         assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", CurrentLocation.cell(2, 3), null, 0));
@@ -48,7 +48,7 @@ class StepControllerTest {
 
     @Test
     void instanceIndexedCellBreakpointFiresOnlyOnThatExecution() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(false);
         controller.setBreakpoints(Set.of("uri#R2C3@1"));
         var cell = CurrentLocation.cell(2, 3);
@@ -60,7 +60,7 @@ class StepControllerTest {
 
     @Test
     void instanceIndexedTableBreakpointFiresOnlyOnThatEnter() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(false);
         controller.setBreakpoints(Set.of("uri@3"));
         assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 5, "uri", null, null, 2));
@@ -69,7 +69,7 @@ class StepControllerTest {
 
     @Test
     void plainCellBreakpointStillFiresOnEveryExecution() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(false);
         controller.setBreakpoints(Set.of("uri#R2C3"));
         var cell = CurrentLocation.cell(2, 3);
@@ -79,7 +79,7 @@ class StepControllerTest {
 
     @Test
     void ruleFiredBreakpointStopsWhenAnyRuleFires() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(false);
         controller.setBreakpoints(Set.of("uri#" + CurrentLocation.RULE_FIRED_REF));
         CurrentLocation fired = CurrentLocation.dtRule(List.of("R3"));
@@ -92,7 +92,7 @@ class StepControllerTest {
 
     @Test
     void ruleBreakpointStopsOnlyOnTheNamedRule() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(false);
         controller.setBreakpoints(Set.of("uri#R3"));
         // Firing R3 matches the specific-rule breakpoint, but firing another rule does not.
@@ -104,7 +104,7 @@ class StepControllerTest {
 
     @Test
     void nameBreakpointStopsOnAnySameNamedTable() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(false);
         controller.setBreakpoints(Set.of("MyRule"));
         // Two versions share the name "MyRule" but have different URIs; the name breakpoint stops on both.
@@ -118,7 +118,7 @@ class StepControllerTest {
 
     @Test
     void stepIntoStopsAtNextEventAnyDepth() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.arm(DebugCommand.STEP_INTO, 2);
         assertTrue(controller.shouldSuspend(DebugEvent.ENTER, 3, "uri", null, null, 0));
         assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 9, "uri", CurrentLocation.cell(0, 0), null, 0));
@@ -129,7 +129,7 @@ class StepControllerTest {
 
     @Test
     void stepOverStopsAtCurrentDepthAndOwnExitButRunsThroughCallees() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.arm(DebugCommand.STEP_OVER, 3);
         assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 3, "uri", CurrentLocation.cell(0, 0), null, 0));
         assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 2, "uri", CurrentLocation.cell(0, 0), null, 0));
@@ -142,7 +142,7 @@ class StepControllerTest {
 
     @Test
     void stepOutStopsAtFrameExitThenAboveCurrentFrame() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.arm(DebugCommand.STEP_OUT, 3);
         // The current frame runs to completion: its own lines do not stop, but its exit does.
         assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 3, "uri", CurrentLocation.cell(0, 0), null, 0));
@@ -154,7 +154,7 @@ class StepControllerTest {
 
     @Test
     void resumeClearsStepping() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.arm(DebugCommand.STEP_INTO, 2);
         controller.arm(DebugCommand.RESUME, 2);
         assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 5, "uri", null, null, 0));
@@ -163,7 +163,7 @@ class StepControllerTest {
 
     @Test
     void pauseSuspendsAtNextEvent() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.armInitial(false);
         controller.requestPause();
         assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", CurrentLocation.cell(0, 0), null, 0));
@@ -171,7 +171,7 @@ class StepControllerTest {
 
     @Test
     void armClearsPendingPause() {
-        StepController controller = new StepController();
+        var controller = new StepController();
         controller.requestPause();
         controller.arm(DebugCommand.RESUME, 2);
         assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", CurrentLocation.cell(0, 0), null, 0));

@@ -61,7 +61,7 @@ public final class DefaultSourceClassifier implements SourceClassifier {
 
     /** Labels a fired decision-table rule by its name (as the legacy trace did), e.g. {@code R10}. */
     private static CurrentLocation dtRuleLocation(ActionInvoker invoker, @Nullable Object frameSource) {
-        int[] rules = invoker.getRules();
+        var rules = invoker.getRules();
         if (frameSource instanceof IDecisionTable decisionTable) {
             List<String> ruleNames = Arrays.stream(rules)
                     .mapToObj(decisionTable::getRuleName)
@@ -77,7 +77,7 @@ public final class DefaultSourceClassifier implements SourceClassifier {
     }
 
     private static @Nullable CurrentLocation operationLocation(RuntimeOperation operation) {
-        String name = operation.getNameForDebug();
+        var name = operation.getNameForDebug();
         return name == null ? null : CurrentLocation.operation(name);
     }
 
@@ -97,7 +97,7 @@ public final class DefaultSourceClassifier implements SourceClassifier {
         if (rules == null || rules.length == 0) {
             return null;
         }
-        boolean successful = args[2] instanceof Boolean flag && flag;
+        var successful = args[2] instanceof Boolean flag && flag;
         return new ConditionCheck(args[0], rules, successful);
     }
 }

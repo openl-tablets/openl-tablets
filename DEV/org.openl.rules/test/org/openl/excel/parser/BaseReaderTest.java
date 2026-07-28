@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICellComment;
 
 // Stays public with protected @Test/lifecycle methods: subclasses live in sub-packages and inherit these tests.
 // Package-private members would not be inherited across packages, so the inherited tests would stop running.
@@ -57,12 +56,12 @@ public abstract class BaseReaderTest {
 
     @Test
     protected void getMainSheet() {
-        Object[][] cells = reader.getCells(reader.getSheets().getFirst());
+        var cells = reader.getCells(reader.getSheets().getFirst());
         assertEquals(15, cells.length);
         assertEquals(1, cells[0].length);
 
         //// Different type assertions
-        int row = 0;
+        var row = 0;
         assertEquals("Value", cells[row][0]);
 
         row++;
@@ -127,7 +126,7 @@ public abstract class BaseReaderTest {
 
     @Test
     protected void getSecondSheet() {
-        Object[][] cells = reader.getCells(reader.getSheets().get(1));
+        var cells = reader.getCells(reader.getSheets().get(1));
         assertEquals(8, cells.length);
         assertEquals(2, cells[0].length);
 
@@ -153,22 +152,22 @@ public abstract class BaseReaderTest {
 
     @Test
     protected void getSheet3() {
-        Object[][] cells = reader.getCells(reader.getSheets().get(2));
+        var cells = reader.getCells(reader.getSheets().get(2));
         assertEquals(0, cells.length);
     }
 
     @Test
     protected void getComments() {
-        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(17, 1, 17, 1));
+        var tableStyles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(17, 1, 17, 1));
 
-        ICellComment comment = tableStyles.getComment(17, 1);
+        var comment = tableStyles.getComment(17, 1);
         assertNotNull(comment);
         assertEquals("OpenL User:\nThis cell contains spaces only.", comment.getText());
     }
 
     @Test
     protected void getFormulas() {
-        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(10, 1, 13, 1));
+        var tableStyles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(10, 1, 13, 1));
 
         assertEquals("B7/2", tableStyles.getFormula(10, 1));
         assertEquals("B10", tableStyles.getFormula(11, 1));
@@ -178,11 +177,11 @@ public abstract class BaseReaderTest {
 
     @Test
     protected void getSharedFormulas() {
-        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().get(3), new GridRegion(2, 2, 11, 2));
+        var tableStyles = reader.getTableStyles(reader.getSheets().get(3), new GridRegion(2, 2, 11, 2));
 
         // Sometimes Excel uses Shared Formulas to optimize file size.
         // Check that formula exists in each row.
-        for (int r = 2; r < 12; r++) {
+        for (var r = 2; r < 12; r++) {
             assertEquals("B" + (r + 1) + "*10", tableStyles.getFormula(r, 2), "Test #" + (r - 1) + " is failed");
         }
     }

@@ -19,7 +19,7 @@ public class ProjectDescriptorNameAdaptor implements FileAdaptor {
 
     @Override
     public boolean accept(Path path) {
-        String fileName = path.toString();
+        var fileName = path.toString();
         if (fileName.charAt(0) == '/' || fileName.charAt(0) == '\\') {
             fileName = fileName.substring(1);
         }

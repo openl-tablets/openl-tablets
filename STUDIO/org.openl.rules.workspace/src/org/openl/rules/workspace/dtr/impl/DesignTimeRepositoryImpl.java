@@ -77,14 +77,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
 
             repositories = new ArrayList<>();
-            RepositoryListener callback = new RepositoryListener(listeners);
+            var callback = new RepositoryListener(listeners);
 
             rulesLocation = getBasePath();
-            String[] designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES))
+            var designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES))
                     .split("\\s*,\\s*", -1);
             for (String repoId : designRepositories) {
 
-                Repository repository = createRepo(repoId, rulesLocation);
+                var repository = createRepo(repoId, rulesLocation);
 
                 repositories.add(repository);
 
@@ -103,7 +103,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     private String getBasePath() {
-        String repoPrefix = Comments.REPOSITORY_PREFIX + "design";
+        var repoPrefix = Comments.REPOSITORY_PREFIX + "design";
         var basePath = propertyResolver.getProperty(repoPrefix + ".base.path");
         if (basePath == null) {
             basePath = propertyResolver.getProperty("repo-default.design.base.path");
@@ -117,7 +117,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     protected Repository createRepo(String configName, String baseFolder) {
         Repository repo = null;
         try {
-            String repoPrefix = Comments.REPOSITORY_PREFIX + configName;
+            var repoPrefix = Comments.REPOSITORY_PREFIX + configName;
             repo = RepositoryInstatiator.newRepository(repoPrefix, propertyResolver::getProperty);
             if (repo instanceof RepositorySettingsAware aware) {
                 aware.setRepositorySettings(repositorySettings);
@@ -153,7 +153,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return (Repository) Proxy.newProxyInstance(getClass().getClassLoader(),
                     new Class[]{Repository.class},
                     (proxy, method, args) -> {
-                        final String methodName = method.getName();
+                        final var methodName = method.getName();
                         final Class<?> returnType = method.getReturnType();
                         if (methodName.startsWith("set") && returnType == void.class) {
                             return null;
@@ -164,7 +164,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         } else if ("getId".equals(methodName) && returnType == String.class) {
                             return configName;
                         }
-                        String repoName = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + configName + ".name");
+                        var repoName = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + configName + ".name");
                         if ("getName".equals(methodName) && returnType == String.class) {
                             return repoName;
                         }
@@ -180,9 +180,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
 
-            ProjectKey projectKey = new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT));
+            var projectKey = new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT));
 
-            AProject cached = projects.get(projectKey);
+            var cached = projects.get(projectKey);
             if (cached != null) {
                 return cached;
             } else {
@@ -200,13 +200,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public AProject getProject(String repositoryId, String name, CommonVersion version) {
-        String repoVersion = version.getVersionName();
-        ProjectKey key = new ProjectKey(repositoryId, "%s:%s".formatted(name, repoVersion));
-        AProject project = projectsVersions.get(key);
+        var repoVersion = version.getVersionName();
+        var key = new ProjectKey(repositoryId, "%s:%s".formatted(name, repoVersion));
+        var project = projectsVersions.get(key);
 
         if (project == null) {
-            Repository repository = getRepository(repositoryId);
-            String projectPath = rulesLocation + name;
+            var repository = getRepository(repositoryId);
+            var projectPath = rulesLocation + name;
 
             if (repository.supports().branches()) {
                 try {
@@ -217,18 +217,18 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                                         p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
                                 .findFirst();
                         if (projectOptional.isPresent()) {
-                            String realPath = projectOptional.get().getRealPath();
+                            var realPath = projectOptional.get().getRealPath();
                             projectPath = ((FolderMapper) repository).findMappedName(realPath);
                         }
                     }
-                    FileData fileData = repository.checkHistory(projectPath, repoVersion);
+                    var fileData = repository.checkHistory(projectPath, repoVersion);
                     if (fileData != null) {
                         project = new AProject(repository, fileData);
                     } else {
-                        BranchRepository branchRepository = (BranchRepository) repository;
-                        List<String> branches = branchRepository.getBranches(projectPath);
+                        var branchRepository = (BranchRepository) repository;
+                        var branches = branchRepository.getBranches(projectPath);
                         for (String branch : branches) {
-                            BranchRepository secondaryBranch = branchRepository.forBranch(branch);
+                            var secondaryBranch = branchRepository.forBranch(branch);
                             fileData = secondaryBranch.checkHistory(projectPath, repoVersion);
                             if (fileData != null) {
                                 project = new AProject(secondaryBranch, fileData);
@@ -272,7 +272,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
                 .findFirst();
         if (project.isPresent()) {
-            Repository repository = project.get().getRepository();
+            var repository = project.get().getRepository();
             if (branch != null && repository.supports().branches()) {
                 repository = ((BranchRepository) repository).forBranch(branch);
             }
@@ -328,7 +328,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         for (Repository repository : repositories) {
             Collection<FileData> fileDatas = Collections.emptyList();
             try {
-                String path = rulesLocation;
+                var path = rulesLocation;
                 if (repository.supports().folders()) {
                     fileDatas = repository.listFolders(path);
                 } else {
@@ -339,7 +339,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 exceptions.add("Repository '%s' : %s".formatted(repository.getName(), e.getMessage()));
             }
             for (FileData fileData : fileDatas) {
-                AProject project = new AProject(repository, fileData);
+                var project = new AProject(repository, fileData);
                 if (project.isDeleted()) {
                     continue;
                 }
@@ -358,7 +358,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
             // Check full name for mapped repositories
-            AProject project = projects.get(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)));
+            var project = projects.get(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)));
             if (project != null && !project.isDeleted()) {
                 return true;
             }

@@ -30,14 +30,14 @@ public class MethodDeclarationNodeBinder extends ANodeBinder {
 
         IBoundNode typeNode = bindChildNode(node.getChild(TYPE_NODE), bindingContext);
 
-        String methodName = ((IdentifierNode) node.getChild(METHOD_NAME_NODE)).getIdentifier();
+        var methodName = ((IdentifierNode) node.getChild(METHOD_NAME_NODE)).getIdentifier();
 
-        ISyntaxNode methodBodyNode = node.getChild(BODY_NODE);
-        ISyntaxNode parametersNode = node.getChild(PARAMETERS_NODE);
+        var methodBodyNode = node.getChild(BODY_NODE);
+        var parametersNode = node.getChild(PARAMETERS_NODE);
 
-        MethodParametersNode boundParametersNode = (MethodParametersNode) bindChildNode(parametersNode, bindingContext);
+        var boundParametersNode = (MethodParametersNode) bindChildNode(parametersNode, bindingContext);
 
-        DeferredMethod dm = new DeferredMethod(methodName,
+        var dm = new DeferredMethod(methodName,
                 typeNode.getType(),
                 boundParametersNode.getSignature(bindingContext),
                 null,

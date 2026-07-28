@@ -78,7 +78,7 @@ class ReturnTypesProxyInterfacesTest {
     @Test
     void testPrimitiveLongArrayReturnType() {
         final long[] expected = new long[]{1, 2, 3};
-        final long[] actual = initInstance(PrimitiveLongArrayReturnType.class).doArray();
+        final var actual = initInstance(PrimitiveLongArrayReturnType.class).doArray();
         assertArraysEquals(expected, actual);
     }
 
@@ -89,19 +89,19 @@ class ReturnTypesProxyInterfacesTest {
 
     @Test
     void testVoidReturnTypeToInt() {
-        VoidReturnTypeToInt voidReturnTypeToInt = initInstance(VoidReturnTypeToInt.class);
+        var voidReturnTypeToInt = initInstance(VoidReturnTypeToInt.class);
         assertEquals(0, voidReturnTypeToInt.voidMethod());
     }
 
     private void assertArraysEquals(long[] expected, long[] actual) {
         assertEquals(expected.length, actual.length);
-        for (int i = 0; i < expected.length; i++) {
+        for (var i = 0; i < expected.length; i++) {
             assertEquals((Long) actual[i], (Long) expected[i]);
         }
     }
 
     private void assertReturnTypeException(String expectedMsg, RuntimeException actual) {
-        Throwable cause = actual.getCause();
+        var cause = actual.getCause();
         while (cause != null && !cause.getMessage().equals(expectedMsg)) {
             cause = cause.getCause();
         }

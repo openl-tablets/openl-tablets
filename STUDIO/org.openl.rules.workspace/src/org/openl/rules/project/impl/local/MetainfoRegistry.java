@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
@@ -301,7 +300,7 @@ public class MetainfoRegistry {
     private <T, E extends Exception> T runLocked(String projectName,
                                                  String secondProjectName,
                                                  LockedAction<T, E> action) throws E {
-        boolean directOrder = projectName.compareTo(secondProjectName) <= 0;
+        var directOrder = projectName.compareTo(secondProjectName) <= 0;
         var first = lockOf(directOrder ? projectName : secondProjectName);
         var second = lockOf(directOrder ? secondProjectName : projectName);
         first.lock();
@@ -414,7 +413,7 @@ public class MetainfoRegistry {
                 // to a store in progress, so it is garbage. The target record is intact.
                 FileUtils.deleteQuietly(leftover.toFile());
             }
-            boolean hasFolder = Files.isDirectory(userDir.resolve(projectName));
+            var hasFolder = Files.isDirectory(userDir.resolve(projectName));
             if (!Files.isRegularFile(recordFile)) {
                 records.remove(projectName);
                 dirtyProjects.remove(projectName);
@@ -458,7 +457,7 @@ public class MetainfoRegistry {
         if (!Files.isDirectory(metainfoDir)) {
             return names;
         }
-        try (Stream<Path> stream = Files.list(metainfoDir)) {
+        try (var stream = Files.list(metainfoDir)) {
             stream.filter(Files::isRegularFile)
                     .map(path -> path.getFileName().toString())
                     // A leftover of an interrupted record write also identifies its project, so an
@@ -480,7 +479,7 @@ public class MetainfoRegistry {
         if (!Files.isDirectory(userDir)) {
             return folders;
         }
-        try (Stream<Path> stream = Files.list(userDir)) {
+        try (var stream = Files.list(userDir)) {
             stream.filter(Files::isDirectory)
                     .map(path -> path.getFileName().toString())
                     .filter(name -> !name.startsWith("."))
@@ -506,7 +505,7 @@ public class MetainfoRegistry {
     private boolean hasLocalChanges(String projectName, ProjectMetainfo metainfo) {
         var projectDir = userDir.resolve(projectName);
         var unseen = new HashSet<>(metainfo.files().keySet());
-        try (Stream<Path> stream = Files.walk(projectDir)) {
+        try (var stream = Files.walk(projectDir)) {
             for (Path file : (Iterable<Path>) stream.filter(Files::isRegularFile)::iterator) {
                 if (differsFromBaseline(projectDir, file, metainfo, unseen)) {
                     return true;

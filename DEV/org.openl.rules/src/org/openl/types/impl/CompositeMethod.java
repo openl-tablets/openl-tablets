@@ -12,7 +12,6 @@ import java.util.Optional;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
@@ -72,10 +71,10 @@ public class CompositeMethod extends ExecutableMethod {
             invokable = methodBodyBoundNode != null;
             methodBodyBoundNode = null;
         }
-        IMethodSignature signature = getSignature();
+        var signature = getSignature();
         if (signature instanceof MethodSignature methodSignature) {
-            for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-                IParameterDeclaration paramDeclaration = methodSignature.getParameterDeclaration(i);
+            for (var i = 0; i < signature.getNumberOfParameters(); i++) {
+                var paramDeclaration = methodSignature.getParameterDeclaration(i);
                 Optional.ofNullable(paramDeclaration).ifPresent(IParameterDeclaration::removeDebugInformation);
             }
         }
@@ -91,7 +90,7 @@ public class CompositeMethod extends ExecutableMethod {
 
     @Override
     public BindingDependencies getDependencies() {
-        BindingDependencies dependencies = new BindingDependencies();
+        var dependencies = new BindingDependencies();
         updateDependency(dependencies);
         return dependencies;
     }

@@ -127,8 +127,8 @@ public abstract class UserWorkspaceProject extends AProject {
         if (isLocalOnly()) {
             return;
         }
-        BranchRepository branchRepository = (BranchRepository) getDesignRepository();
-        String currentBranch = branchRepository.getBranch();
+        var branchRepository = (BranchRepository) getDesignRepository();
+        var currentBranch = branchRepository.getBranch();
         if (!newBranch.equals(currentBranch)) {
             try {
                 setDesignRepository(branchRepository.forBranch(newBranch));

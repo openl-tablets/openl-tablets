@@ -3,9 +3,7 @@ package org.openl.rules.calc.result;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenIndex;
 
 public class ArrayResultBuilder implements IResultBuilder {
 
@@ -26,17 +24,17 @@ public class ArrayResultBuilder implements IResultBuilder {
 
     @Override
     public Object buildResult(SpreadsheetResultCalculator resultCalculator) {
-        int size = cells.length;
-        IAggregateInfo aggregateInfo = type.getAggregateInfo();
-        Object array = aggregateInfo.makeIndexedAggregate(aggregateInfo.getComponentType(type), size);
+        var size = cells.length;
+        var aggregateInfo = type.getAggregateInfo();
+        var array = aggregateInfo.makeIndexedAggregate(aggregateInfo.getComponentType(type), size);
 
-        IOpenIndex index = aggregateInfo.getIndex(type);
+        var index = aggregateInfo.getIndex(type);
         Object[][] result = null;
         if (calculateAllCells) {
             result = resultCalculator.getValues();
         }
-        for (int i = 0; i < size; ++i) {
-            SpreadsheetCell cell = cells[i];
+        for (var i = 0; i < size; ++i) {
+            var cell = cells[i];
             Object value;
             if (calculateAllCells) {
                 value = result[cell.getRowIndex()][cell.getColumnIndex()];

@@ -1,7 +1,6 @@
 package org.openl.studio.projects.service.trace;
 
 import java.io.IOException;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.serialization.JsonUtils;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMethod;
 import org.openl.util.StringUtils;
 
@@ -36,7 +34,7 @@ public class TableInputParserServiceImpl implements TableInputParserService {
         }
 
         try {
-            JsonNode rootNode = mapper.readTree(inputJson);
+            var rootNode = mapper.readTree(inputJson);
 
             // Auto-detect: if has "params" key, it's structured format
             if (rootNode.isObject() && rootNode.has("params")) {
@@ -60,27 +58,27 @@ public class TableInputParserServiceImpl implements TableInputParserService {
      */
     private ParseResult parseStructuredFormat(JsonNode rootNode, IOpenMethod method, ObjectMapper mapper)
             throws IOException {
-        IMethodSignature signature = method.getSignature();
-        int paramCount = signature.getNumberOfParameters();
+        var signature = method.getSignature();
+        var paramCount = signature.getNumberOfParameters();
         Object[] params = new Object[paramCount];
         IRulesRuntimeContext runtimeContext = null;
 
-        JsonNode paramsNode = rootNode.get("params");
+        var paramsNode = rootNode.get("params");
         if (paramsNode != null && paramsNode.isObject()) {
-            for (int i = 0; i < paramCount; i++) {
-                String paramName = signature.getParameterName(i);
-                JsonNode paramValue = paramsNode.get(paramName);
+            for (var i = 0; i < paramCount; i++) {
+                var paramName = signature.getParameterName(i);
+                var paramValue = paramsNode.get(paramName);
                 if (paramValue != null) {
-                    String paramJson = mapper.writeValueAsString(paramValue);
+                    var paramJson = mapper.writeValueAsString(paramValue);
                     params[i] = JsonUtils.fromJSON(paramJson,
                             signature.getParameterType(i).getInstanceClass(), mapper);
                 }
             }
         }
 
-        JsonNode contextNode = rootNode.get("runtimeContext");
+        var contextNode = rootNode.get("runtimeContext");
         if (contextNode != null && !contextNode.isNull()) {
-            String contextJson = mapper.writeValueAsString(contextNode);
+            var contextJson = mapper.writeValueAsString(contextNode);
             runtimeContext = JsonUtils.fromJSON(contextJson, IRulesRuntimeContext.class, mapper);
         }
 
@@ -106,8 +104,8 @@ public class TableInputParserServiceImpl implements TableInputParserService {
      */
     private ParseResult parseRawFormat(String inputJson, JsonNode rootNode, IOpenMethod method,
                                        ObjectMapper mapper) throws IOException {
-        IMethodSignature signature = method.getSignature();
-        int paramCount = signature.getNumberOfParameters();
+        var signature = method.getSignature();
+        var paramCount = signature.getNumberOfParameters();
         Object[] params = new Object[paramCount];
 
         // Not a JSON object - might be plain value for single parameter
@@ -120,7 +118,7 @@ public class TableInputParserServiceImpl implements TableInputParserService {
         }
 
         // Split JSON into field map
-        Map<String, String> fieldMap = JsonUtils.splitJSON(inputJson, mapper);
+        var fieldMap = JsonUtils.splitJSON(inputJson, mapper);
 
         if (fieldMap.isEmpty()) {
             return new ParseResult(params, null);
@@ -139,9 +137,9 @@ public class TableInputParserServiceImpl implements TableInputParserService {
         }
 
         // Match fields by parameter name
-        for (int i = 0; i < paramCount; i++) {
-            String paramName = signature.getParameterName(i);
-            String fieldJson = fieldMap.get(paramName);
+        for (var i = 0; i < paramCount; i++) {
+            var paramName = signature.getParameterName(i);
+            var fieldJson = fieldMap.get(paramName);
             if (fieldJson != null) {
                 params[i] = JsonUtils.fromJSON(fieldJson,
                         signature.getParameterType(i).getInstanceClass(), mapper);
@@ -151,7 +149,7 @@ public class TableInputParserServiceImpl implements TableInputParserService {
 
         // Check for explicit runtimeContext field first
         IRulesRuntimeContext runtimeContext = null;
-        String contextJson = fieldMap.remove("runtimeContext");
+        var contextJson = fieldMap.remove("runtimeContext");
         if (contextJson != null) {
             runtimeContext = JsonUtils.fromJSON(contextJson, IRulesRuntimeContext.class, mapper);
         } else if (!fieldMap.isEmpty()) {

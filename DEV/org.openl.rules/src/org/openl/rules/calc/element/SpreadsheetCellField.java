@@ -25,7 +25,7 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        SpreadsheetResultCalculator spreadsheetResultCalculator = (SpreadsheetResultCalculator) target;
+        var spreadsheetResultCalculator = (SpreadsheetResultCalculator) target;
 
         if (spreadsheetResultCalculator == null) {
             return getType().nullObject();
@@ -41,7 +41,7 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
     @Override
     public IOpenClass getType() {
         if (this.type == null) {
-            IOpenClass t = cell.getType();
+            var t = cell.getType();
             if (t == null) {
                 if (structureBuilderContainer.getSpreadsheetStructureBuilder() == null) {
                     throw new IllegalStateException("Spreadsheet cell type is not resolved at compile time");

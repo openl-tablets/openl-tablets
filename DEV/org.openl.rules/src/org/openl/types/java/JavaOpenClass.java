@@ -82,14 +82,14 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     public static JavaOpenClass getOpenClass(Class<?> c) {
-        JavaOpenClass res = JavaOpenClassCache.getInstance().get(c);
+        var res = JavaOpenClassCache.getInstance().get(c);
         if (res == null) {
             if (c.isInterface()) {
                 res = new JavaOpenInterface(c);
             } else if (c.isEnum()) {
                 res = new JavaOpenEnum(c);
             } else {
-                CustomJavaOpenClass annotation = c.getAnnotation(CustomJavaOpenClass.class);
+                var annotation = c.getAnnotation(CustomJavaOpenClass.class);
                 if (annotation != null) {
                     res = createOpenClass(c, annotation);
                 } else {
@@ -121,7 +121,7 @@ public class JavaOpenClass extends AOpenClass {
 
         IOpenClass[] ary = new IOpenClass[cc.length];
 
-        for (int i = 0; i < cc.length; i++) {
+        for (var i = 0; i < cc.length; i++) {
             ary[i] = getOpenClass(cc[i]);
         }
 
@@ -154,9 +154,9 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     private void initializeFields() {
-        Field[] ff = getInstanceClass().getDeclaredFields();
-        Map<String, IOpenField> openFields = new HashMap<>();
-        Map<String, IOpenField> staticOpenFields = new HashMap<>();
+        var ff = getInstanceClass().getDeclaredFields();
+        var openFields = new HashMap<String, IOpenField>();
+        var staticOpenFields = new HashMap<String, IOpenField>();
 
         if (isPublic(getInstanceClass())) {
             for (Field field : ff) {
@@ -204,7 +204,7 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public String getDisplayName(int mode) {
-        String name = getName();
+        var name = getName();
         switch (mode) {
             case INamedThing.SHORT:
             case INamedThing.REGULAR:
@@ -279,12 +279,12 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
-        Map<MethodKey, IOpenMethod> methods = new HashMap<>();
-        Method[] mm = getInstanceClass().getDeclaredMethods();
+        var methods = new HashMap<MethodKey, IOpenMethod>();
+        var mm = getInstanceClass().getDeclaredMethods();
         if (isPublic(getInstanceClass())) {
             for (Method method : mm) {
                 if (isPublic(method)) {
-                    JavaOpenMethod om = new JavaOpenMethod(method);
+                    var om = new JavaOpenMethod(method);
                     methods.put(new MethodKey(om), om);
                 }
             }
@@ -302,12 +302,12 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     protected Map<MethodKey, IOpenMethod> initConstructorMap() {
-        Map<MethodKey, IOpenMethod> constructors = new HashMap<>();
+        var constructors = new HashMap<MethodKey, IOpenMethod>();
 
-        Constructor<?>[] cc = getInstanceClass().getDeclaredConstructors();
+        var cc = getInstanceClass().getDeclaredConstructors();
         for (Constructor<?> constructor : cc) {
             if (isPublic(constructor)) {
-                JavaOpenConstructor om = new JavaOpenConstructor(constructor);
+                var om = new JavaOpenConstructor(constructor);
                 constructors.put(new MethodKey(om), processConstructor(om));
             }
         }
@@ -342,9 +342,9 @@ public class JavaOpenClass extends AOpenClass {
         if (superClasses == null) {
             synchronized (this) {
                 if (superClasses == null) {
-                    Class<?>[] interfaces = getInstanceClass().getInterfaces();
+                    var interfaces = getInstanceClass().getInterfaces();
                     Class<?> superClass = getInstanceClass().getSuperclass();
-                    List<IOpenClass> superClasses = new ArrayList<>(interfaces.length + 1);
+                    var superClasses = new ArrayList<IOpenClass>(interfaces.length + 1);
                     if (superClass != null) {
                         superClasses.add(getOpenClass(superClass));
                     }
@@ -361,7 +361,7 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public Collection<IOpenField> getFields() {
-        Map<String, IOpenField> fields = new HashMap<>(fieldMap());
+        var fields = new HashMap<String, IOpenField>(fieldMap());
         for (IOpenClass superClass : superClasses()) {
             if (superClass.isInterface() && !isAbstract()) {
                 // no need to add fields from interface if current instance is not abstract class
@@ -371,8 +371,8 @@ public class JavaOpenClass extends AOpenClass {
                 if (candidateField.getType() == JavaOpenClass.CLASS) {
                     continue;
                 }
-                final String name = candidateField.getName();
-                final IOpenField origField = fields.get(name);
+                final var name = candidateField.getName();
+                final var origField = fields.get(name);
                 if (origField == null) {
                     fields.put(name, candidateField);
                 } else {
@@ -495,7 +495,7 @@ public class JavaOpenClass extends AOpenClass {
 
         @Override
         protected Map<MethodKey, IOpenMethod> initMethodMap() {
-            Map<MethodKey, IOpenMethod> methodMap = new HashMap<>(super.initMethodMap());
+            var methodMap = new HashMap<MethodKey, IOpenMethod>(super.initMethodMap());
 
             for (IOpenMethod om : JavaOpenClass.OBJECT.getMethods()) { // Any interface has Object methods. For example:
                 // toString()
@@ -512,7 +512,7 @@ public class JavaOpenClass extends AOpenClass {
         @Override
         public Object newInstance(IRuntimeEnv env) {
             try {
-                Object res = createCollectionInstance();
+                var res = createCollectionInstance();
                 if (res != null) {
                     return res;
                 }
@@ -520,7 +520,7 @@ public class JavaOpenClass extends AOpenClass {
                 if (generatedImplClass == null) {
                     synchronized (this) {
                         if (generatedImplClass == null) {
-                            InterfaceImplBuilder builder = new InterfaceImplBuilder(getInstanceClass());
+                            var builder = new InterfaceImplBuilder(getInstanceClass());
                             generatedImplClass = ClassLoaderUtils.defineClass(builder.getBeanName(),
                                     builder.byteCode(),
                                     Thread.currentThread().getContextClassLoader());
@@ -562,7 +562,7 @@ public class JavaOpenClass extends AOpenClass {
     @Override
     public IOpenField getStaticField(String fname) {
         ensureFieldsInitialized();
-        IOpenField openField = staticFields.get(fname);
+        var openField = staticFields.get(fname);
         if (openField == null) {
             for (IOpenClass superClass : superClasses()) {
                 if (!superClass.isInterface()) {
@@ -583,7 +583,7 @@ public class JavaOpenClass extends AOpenClass {
     @Override
     public Collection<IOpenField> getStaticFields() {
         ensureFieldsInitialized();
-        Collection<IOpenField> ret = new ArrayList<>(staticFields.values());
+        var ret = new ArrayList<IOpenField>(staticFields.values());
         for (IOpenClass superClass : superClasses()) {
             if (!superClass.isInterface()) {
                 Collection<IOpenField> staticFields = superClass.getStaticFields();

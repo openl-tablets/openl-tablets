@@ -23,7 +23,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
@@ -89,7 +88,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         String anchorDir = FilePaths.parent(FilePaths.trimSlashes(anchorPath));
         String base = FilePaths.trimSlashes(project.getRealPath());
 
-        List<Candidate> candidates = new ArrayList<>();
+        var candidates = new ArrayList<Candidate>();
         // Inside the project: the artefact tree reflects the working copy and unpacks flat projects.
         collectInProject(project, base, anchorDir, fileName, candidates);
         // Outside the project: only a folder design repository exposes anything beyond a project. The
@@ -110,7 +109,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
             return List.of();
         }
         String anchorDir = FilePaths.parent(FilePaths.trimSlashes(anchorPath));
-        List<Candidate> candidates = new ArrayList<>();
+        var candidates = new ArrayList<Candidate>();
         collectFromRepository(unwrapRepository(repository), repository.getId(), anchorDir, fileName, null, candidates);
         return finish(candidates, anchorDir, includeContent);
     }
@@ -121,7 +120,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
             if (artefact.isFolder()) {
                 collectInProject((AProjectFolder) artefact, base, anchorDir, fileName, out);
             } else {
-                Candidate candidate = candidateFromArtefact(artefact, base, anchorDir, fileName);
+                var candidate = candidateFromArtefact(artefact, base, anchorDir, fileName);
                 if (candidate != null) {
                     out.add(candidate);
                 }
@@ -160,7 +159,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         var aclService = aclServiceProvider.getDesignRepoAclService();
         for (FileData data : repository.list("")) {
             String path = FilePaths.trimSlashes(data.getName());
-            boolean match = !data.isDeleted()
+            var match = !data.isDeleted()
                     && !exceedsSizeLimit(data)
                     && fileName.equals(FilePaths.name(path))
                     && !isExcluded(path, excludeBase)
@@ -197,7 +196,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         candidates.sort(Comparator
                 .comparingInt((Candidate c) -> distance(anchorDir, FilePaths.parent(c.path())))
                 .thenComparing(Candidate::path));
-        List<FsNode> result = new ArrayList<>();
+        var result = new ArrayList<FsNode>();
         for (Candidate candidate : candidates) {
             if (result.size() >= MAX_FILES_COUNT) {
                 break;
@@ -253,7 +252,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         }
         String[] from = fromDir.isEmpty() ? new String[0] : fromDir.split("/");
         String[] to = toDir.isEmpty() ? new String[0] : toDir.split("/");
-        int common = 0;
+        var common = 0;
         while (common < from.length && common < to.length && from[common].equals(to[common])) {
             common++;
         }
@@ -269,7 +268,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         if (data == null) {
             return false;
         }
-        long size = data.getSize();
+        var size = data.getSize();
         return size != FileData.UNDEFINED_SIZE && size > MAX_FILE_SIZE_BYTES;
     }
 
@@ -286,7 +285,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
     }
 
     private static String readContent(AProjectResource resource) throws IOException {
-        try (InputStream in = resource.getContent()) {
+        try (var in = resource.getContent()) {
             return in == null ? null : readBoundedText(in);
         } catch (ProjectException e) {
             throw new ConflictException("file.read.failed.message");
@@ -294,7 +293,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
     }
 
     private static String readContent(Repository repository, String path) throws IOException {
-        try (FileItem item = repository.read(path)) {
+        try (var item = repository.read(path)) {
             if (item == null || item.getStream() == null) {
                 return null;
             }
@@ -312,7 +311,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
      * metadata size check is unable to reject an oversized file before it is read.
      */
     private static String readBoundedText(InputStream in) throws IOException {
-        byte[] data = in.readNBytes((int) (MAX_FILE_SIZE_BYTES + 1));
+        var data = in.readNBytes((int) (MAX_FILE_SIZE_BYTES + 1));
         if (data.length > MAX_FILE_SIZE_BYTES) {
             return null;
         }
@@ -320,7 +319,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
     }
 
     private static Repository unwrapRepository(Repository repo) {
-        Repository current = repo;
+        var current = repo;
         while (current instanceof RepositoryDelegate delegate) {
             current = delegate.getOriginal();
         }

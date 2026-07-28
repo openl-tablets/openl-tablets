@@ -4,8 +4,6 @@ import java.lang.reflect.Array;
 import java.util.function.Predicate;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridTable;
 import org.openl.util.StringUtils;
 
 class CellValueSelector implements Predicate<TableSyntaxNode> {
@@ -21,11 +19,11 @@ class CellValueSelector implements Predicate<TableSyntaxNode> {
         if (StringUtils.isBlank(value)) {
             return true;
         }
-        IGridTable table = node.getGridTable();
-        for (int row = 0; row < table.getHeight(); row++) {
-            for (int col = 0; col < table.getWidth(); col++) {
-                ICell cell = table.getCell(col, row);
-                Object cellValue = cell.getObjectValue();
+        var table = node.getGridTable();
+        for (var row = 0; row < table.getHeight(); row++) {
+            for (var col = 0; col < table.getWidth(); col++) {
+                var cell = table.getCell(col, row);
+                var cellValue = cell.getObjectValue();
                 if (selectValue(cellValue)) {
                     return true;
                 }
@@ -40,8 +38,8 @@ class CellValueSelector implements Predicate<TableSyntaxNode> {
         }
 
         if (cellValue.getClass().isArray()) {
-            int len = Array.getLength(cellValue);
-            for (int i = 0; i < len; i++) {
+            var len = Array.getLength(cellValue);
+            for (var i = 0; i < len; i++) {
                 Object cv = Array.get(cellValue, i);
                 if (selectValue(cv)) {
                     return true;

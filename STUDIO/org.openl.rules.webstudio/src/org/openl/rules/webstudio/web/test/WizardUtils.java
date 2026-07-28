@@ -44,7 +44,7 @@ final class WizardUtils {
     public static Collection<IOpenClass> getImportedClasses() {
         var projectModel = WebStudioUtils.getProjectModel();
         var classLoader = projectModel.getCompiledOpenClass().getClassLoader();
-        Set<IOpenClass> classes = new TreeSet<>(Comparator
+        var classes = new TreeSet<IOpenClass>(Comparator
                 .comparing(type -> type.getDisplayName(INamedThing.SHORT), String.CASE_INSENSITIVE_ORDER));
 
         for (String packageName : projectModel.getXlsModuleNode().getImports()) {
@@ -86,7 +86,7 @@ final class WizardUtils {
     private static boolean isValid(IOpenClass openType) {
         Class<?> instanceClass = openType.getInstanceClass();
 
-        int modifiers = instanceClass.getModifiers();
+        var modifiers = instanceClass.getModifiers();
         if (!Modifier.isPublic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers)) {
             return false;
         }
@@ -106,7 +106,7 @@ final class WizardUtils {
      * @return The classes
      */
     static Set<Class<?>> getClasses(String packageName, ClassLoader classLoader) {
-        String path = packageName.replace('.', '/');
+        var path = packageName.replace('.', '/');
         Enumeration<URL> resources;
         try {
             resources = classLoader.getResources(path);
@@ -115,11 +115,11 @@ final class WizardUtils {
             return Collections.emptySet();
         }
 
-        Set<Class<?>> classes = new HashSet<>();
+        var classes = new HashSet<Class<?>>();
 
         while (resources.hasMoreElements()) {
-            URL resource = resources.nextElement();
-            String protocol = resource.getProtocol();
+            var resource = resources.nextElement();
+            var protocol = resource.getProtocol();
 
             if (protocol != null) {
                 switch (protocol.toLowerCase()) {
@@ -139,7 +139,7 @@ final class WizardUtils {
     }
 
     private static void loadFromJar(Set<Class<?>> classes, String packageName, ClassLoader classLoader, URL pathURL) {
-        String jarPath = pathURL.getFile().split("!")[0];
+        var jarPath = pathURL.getFile().split("!")[0];
         URL jar;
         try {
             jar = new URL(jarPath);
@@ -155,9 +155,9 @@ final class WizardUtils {
 
             while ((entry = zip.getNextEntry()) != null) {
                 if (entry.getName().endsWith(".class")) {
-                    String fullClassName = entry.getName().replace(".class", "").replace('/', '.');
+                    var fullClassName = entry.getName().replace(".class", "").replace('/', '.');
                     if (fullClassName.startsWith(packageName)) {
-                        String className = fullClassName.substring(packageName.length() + 1);
+                        var className = fullClassName.substring(packageName.length() + 1);
                         if (!className.contains(".") && !className.contains("$")) {
                             try {
                                 classes.add(Class.forName(fullClassName, true, classLoader));
@@ -195,17 +195,17 @@ final class WizardUtils {
             return;
         }
 
-        File[] files = directory.listFiles();
+        var files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
-                String fileName = file.getName();
+                var fileName = file.getName();
                 if (!file.isDirectory()) {
-                    String suffix = ".class";
+                    var suffix = ".class";
                     if (fileName.endsWith(suffix) && !fileName.contains("$")) {
                         try {
-                            String className = fileName.substring(0, fileName.length() - suffix.length());
-                            String fullClassName = packageName + '.' + className;
-                            Class<?> type = Class.forName(fullClassName, true, classLoader);
+                            var className = fileName.substring(0, fileName.length() - suffix.length());
+                            var fullClassName = packageName + '.' + className;
+                            var type = Class.forName(fullClassName, true, classLoader);
                             classes.add(type);
                         } catch (Exception | LinkageError e) {
                             log.debug(e.getMessage(), e);

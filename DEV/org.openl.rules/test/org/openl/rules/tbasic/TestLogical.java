@@ -10,7 +10,7 @@ class TestLogical {
     private void okRows(String xlsFile, int param, int expectedResult) {
 
         ITestAlgorithm2 a = TestUtils.create(xlsFile, ITestAlgorithm2.class);
-        int result = a.modification(param);
+        var result = a.modification(param);
         assertEquals(expectedResult, result);
     }
 

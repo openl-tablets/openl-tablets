@@ -31,7 +31,7 @@ public class OpenLSamlBuilder {
 
     static {
         OpenSamlInitializationService.requireInitialize(factory -> {
-            AuthnRequestMarshaller marshaller = new AuthnRequestMarshaller() {
+            var marshaller = new AuthnRequestMarshaller() {
 
                 @Override
                 public Element marshall(XMLObject object, Element element) throws MarshallingException {

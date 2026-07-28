@@ -106,7 +106,7 @@ public class GoalInstantiate extends GoalImpl {
             return null;
         }
 
-        int chosen_value = _intvar.min();
+        var chosen_value = _intvar.min();
 
         return _impl.instantiate(chosen_value);
     }

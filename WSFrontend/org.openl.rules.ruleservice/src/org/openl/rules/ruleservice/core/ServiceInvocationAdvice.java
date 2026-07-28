@@ -113,7 +113,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             this.sprBeanPropertyNamingStrategy = null;
         }
 
-        final ObjectMapper mapper = configureObjectMapper(applicationContext, rulesDeploy, serviceClassLoader, (XlsModuleOpenClass) openClass);
+        final var mapper = configureObjectMapper(applicationContext, rulesDeploy, serviceClassLoader, (XlsModuleOpenClass) openClass);
         serializer = (Object x) -> {
             try {
                 Object object;
@@ -133,7 +133,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         this.loggingEnabled = Boolean
                 .parseBoolean(applicationContext.getEnvironment().getProperty("ruleservice.logging.enabled"));
 
-        AnnotationConfigApplicationContext serviceContext = new AnnotationConfigApplicationContext();
+        var serviceContext = new AnnotationConfigApplicationContext();
         var configurationClass = getConfigurationClass(serviceClassLoader);
         if (configurationClass != null) {
             serviceContext.setClassLoader(configurationClass.getClassLoader());
@@ -153,7 +153,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
         this.serviceContext = serviceContext;
 
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        var oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(this.serviceClassLoader);
             for (Method method : methodMap.keySet()) {
@@ -183,7 +183,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                                                RulesDeploy rulesDeploy,
                                                ClassLoader classLoader,
                                                XlsModuleOpenClass openClass) {
-        ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
+        var objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
         objectMapperFactory.setRulesDeploy(rulesDeploy);
         objectMapperFactory.setEnvironment(context.getEnvironment());
         objectMapperFactory.setXlsModuleOpenClass(openClass);
@@ -197,8 +197,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private Map<Class<?>, CustomSpreadsheetResultOpenClass> initMapClassToSprOpenClass() {
-        XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
-        Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToCustomSpreadsheetResultOpenClass = new HashMap<>();
+        var xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+        var mapClassToCustomSpreadsheetResultOpenClass = new HashMap<Class<?>, CustomSpreadsheetResultOpenClass>();
         for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
             if (type instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
                 mapClassToCustomSpreadsheetResultOpenClass.put(customSpreadsheetResultOpenClass.getBeanClass(),
@@ -211,7 +211,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                     combinedSpreadsheetResultOpenClass);
         }
         if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass = xlsModuleOpenClass
+            var customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass = xlsModuleOpenClass
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass();
             mapClassToCustomSpreadsheetResultOpenClass.put(
@@ -222,11 +222,11 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private <T> T createBean(Method method, Class<T> interceptorClass) {
-        IOpenMember openMember = getOpenMember(method);
+        var openMember = getOpenMember(method);
         try {
             iOpenMethodHolder.set(openMember);
             var beanFactory = serviceContext.getAutowireCapableBeanFactory();
-            T o = beanFactory.createBean(interceptorClass);
+            var o = beanFactory.createBean(interceptorClass);
             if (o instanceof IOpenClassAware aware) {
                 aware.setIOpenClass(openClass);
             }
@@ -354,7 +354,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                                    Object result,
                                    Exception t,
                                    Object... args) throws Exception {
-        Object ret = result;
+        var ret = result;
         for (var interceptor : afterInterceptors.getOrDefault(interfaceMethod, Collections.emptyList())) {
             invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, result, t);
             if (t == null) {
@@ -397,8 +397,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
     @Override
     public Object invoke(Method calledMethod, Object[] args) {
-        String methodName = calledMethod.getName();
-        Class<?>[] parameterTypes = calledMethod.getParameterTypes();
+        var methodName = calledMethod.getName();
+        var parameterTypes = calledMethod.getParameterTypes();
         Object result = null;
         Method beanMethod = null;
         if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
@@ -410,7 +410,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             }
         }
         try {
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            var oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 LoggingHandler.setup(this);
                 Thread.currentThread().setContextClassLoader(serviceClassLoader);
@@ -445,7 +445,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                             result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
                         }
                     } catch (InvocationTargetException | UndeclaredThrowableException e) {
-                        Throwable t = e.getCause();
+                        var t = e.getCause();
                         if (t instanceof Exception exception) {
                             ex = exception;
                             ex.addSuppressed(e);
@@ -479,8 +479,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
     private Object[] processArguments(Method interfaceMethod, Method beanMethod, Object[] args) {
         Object[] newArgs = new Object[beanMethod.getParameterCount()];
-        int i = 0;
-        int j = 0;
+        var i = 0;
+        var j = 0;
         for (Parameter parameter : interfaceMethod.getParameters()) {
             if (!parameter.isAnnotationPresent(ExternalParam.class)) {
                 if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {

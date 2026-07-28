@@ -41,7 +41,7 @@ public class RepositoryAccessService {
     }
 
     private RepositoryCapabilities computeCapabilities(String repositoryId, AclRepositoryType type, Repository repository) {
-        boolean design = type == AclRepositoryType.DESIGN;
+        var design = type == AclRepositoryType.DESIGN;
         return RepositoryCapabilities.builder()
                 .canCreateProject(flag(design && canCreateProject(repositoryId, repository)))
                 .canManage(flag(aclServiceProvider.getAclService(type.getType())

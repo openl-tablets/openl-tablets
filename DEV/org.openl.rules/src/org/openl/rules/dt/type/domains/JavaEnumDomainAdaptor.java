@@ -41,7 +41,7 @@ public class JavaEnumDomainAdaptor implements IDomainAdaptor {
 
     @Override
     public IDomainAdaptor merge(IDomainAdaptor adaptor) {
-        JavaEnumDomainAdaptor a = (JavaEnumDomainAdaptor) adaptor;
+        var a = (JavaEnumDomainAdaptor) adaptor;
 
         if (domain.getEnumClass() != a.domain.getEnumClass()) {
             throw new RuntimeException("Wrong use of JavaEnumDomain for " + domain.getEnumClass().getName());

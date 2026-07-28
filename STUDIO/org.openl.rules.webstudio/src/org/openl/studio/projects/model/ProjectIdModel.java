@@ -20,7 +20,7 @@ public class ProjectIdModel {
 
     @JsonValue
     public String encode() {
-        String src = repository + ID_SEPARATOR + projectName;
+        var src = repository + ID_SEPARATOR + projectName;
         return Base64.getEncoder().encodeToString(src.getBytes());
     }
 
@@ -29,7 +29,7 @@ public class ProjectIdModel {
      * {@link #decode(String)} accepts both this and the standard {@link #encode()} form.
      */
     public String encodeUrlSafe() {
-        String src = repository + ID_SEPARATOR + projectName;
+        var src = repository + ID_SEPARATOR + projectName;
         return Base64.getUrlEncoder().encodeToString(src.getBytes());
     }
 
@@ -38,8 +38,8 @@ public class ProjectIdModel {
         // Accept both the standard and the URL-safe Base64 alphabets. Callers that put the id in a URL path
         // segment use '-'/'_' instead of '+'/'/' to avoid an encoded slash, which servlet containers reject.
         // Standard ids never contain '-'/'_', so this mapping is a no-op for them and stays backward compatible.
-        String normalized = encoded.replace('-', '+').replace('_', '/');
-        String decoded = new String(Base64.getDecoder().decode(normalized));
+        var normalized = encoded.replace('-', '+').replace('_', '/');
+        var decoded = new String(Base64.getDecoder().decode(normalized));
         var parts = decoded.indexOf(ID_SEPARATOR);
         if (parts == -1) {
             throw new IllegalArgumentException("Invalid projectId: " + encoded);
@@ -65,7 +65,7 @@ public class ProjectIdModel {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ProjectIdModel that = (ProjectIdModel) o;
+        var that = (ProjectIdModel) o;
         return Objects.equals(repository, that.repository) && Objects.equals(projectName, that.projectName);
     }
 

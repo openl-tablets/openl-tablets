@@ -9,7 +9,6 @@ package org.openl.types.impl;
 import java.util.Iterator;
 
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.AIndexedIterator;
@@ -32,7 +31,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
 
     @Override
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
-        IOpenClass componentClass = aggregateType.getComponentClass();
+        var componentClass = aggregateType.getComponentClass();
         if (componentClass == null) {
             return null;
         }
@@ -42,7 +41,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
         } else {
             // we support to work with Datatype arrays like this: people["John"]
             // also different object types may be used as indexes : vehicleSymbols[vehicle]
-            IOpenField indexField = componentClass.getIndexField();
+            var indexField = componentClass.getIndexField();
 
             if (indexField != null) {
                 // If the type of the suggested index is the same as the type of indexed field

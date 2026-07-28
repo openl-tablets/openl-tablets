@@ -108,7 +108,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
                                           ApiResponses classApiResponses,
                                           ApiResponses methodApiResponses,
                                           Components components) {
-        Set<String> statusCodes = new HashSet<>();
+        var statusCodes = new HashSet<String>();
         if (exHandlerInfo.getStatusCode() != null) {
             statusCodes.add(exHandlerInfo.getStatusCode());
         } else {
@@ -124,7 +124,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
                         if (OpenApiUtils.isHidden(cl)) {
                             continue;
                         }
-                        Method bestMatchingMethod = exHandlerAdviceCache
+                        var bestMatchingMethod = exHandlerAdviceCache
                                 .get(exHandlerInfo.getControllerAdviceBeanType())
                                 .resolveMethodByExceptionType(cl);
                         if (exHandlerInfo.getMethod().equals(bestMatchingMethod)) {
@@ -271,7 +271,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
 
     private void decorate(MethodInfo methodInfo, ApiResponses responses, Components components) {
         var returnType = methodInfo.getReturnType();
-        boolean genericResponseCode = false;
+        var genericResponseCode = false;
         if (returnType instanceof ParameterizedType type) {
             var rawType = type.getRawType();
             if (rawType == ResponseEntity.class || rawType == HttpEntity.class) {

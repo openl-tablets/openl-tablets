@@ -624,8 +624,8 @@ public final class PomlessMojo extends AbstractMojo {
             return false;
         }
         var anchorDir = anchor.getBasedir().toPath().toAbsolutePath().normalize();
-        int matchesFlat = 0;
-        int matchesPath = 0;
+        var matchesFlat = 0;
+        var matchesPath = 0;
         for (var leaf : leaves) {
             var orig = leaf.groupId();
             if (orig == null) {

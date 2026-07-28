@@ -11,12 +11,12 @@ class StepModelTest {
 
     @Test
     void testStepModel() {
-        StepModel numStep = new StepModel("num", "String", "calculation.", "0");
-        StepModel oneMoreNumStep = new StepModel("num", "String", "calculation.", "0");
-        StepModel sumStep = new StepModel("sum", "String", "calculation.", "0");
-        StepModel doubleNumStep = new StepModel("num", "Double", "calculation.", "0");
-        StepModel numWithoutDescriptionStep = new StepModel("num", "String", "", "0");
-        StepModel numWithValueStep = new StepModel("num", "String", "calculation.", "1");
+        var numStep = new StepModel("num", "String", "calculation.", "0");
+        var oneMoreNumStep = new StepModel("num", "String", "calculation.", "0");
+        var sumStep = new StepModel("sum", "String", "calculation.", "0");
+        var doubleNumStep = new StepModel("num", "Double", "calculation.", "0");
+        var numWithoutDescriptionStep = new StepModel("num", "String", "", "0");
+        var numWithValueStep = new StepModel("num", "String", "calculation.", "1");
 
         assertEquals(numStep, numStep);
         assertNotEquals(numStep, null);
@@ -36,7 +36,7 @@ class StepModelTest {
         assertNotEquals(numStep, numWithValueStep);
         assertNotEquals(numStep.hashCode(), numWithValueStep.hashCode());
 
-        StepModel probeStep = new StepModel();
+        var probeStep = new StepModel();
         probeStep.setName("probeStep");
         probeStep.setType("Object");
         probeStep.setValue("=new Object()");

@@ -35,7 +35,7 @@ class MappedRepositoryTest {
         writeProject("absent-name-project", "<project></project>");
         writeProject("named-project", "<project><name>RealName</name></project>");
 
-        List<String> mapped = listMappedFolders("DESIGN/");
+        var mapped = listMappedFolders("DESIGN/");
 
         assertEquals(3, mapped.size(), "All projects must be mapped: " + mapped);
         assertTrue(mapped.stream().anyMatch(name -> name.startsWith("DESIGN/no-name-project:")),
@@ -47,7 +47,7 @@ class MappedRepositoryTest {
     }
 
     private List<String> listMappedFolders(String baseFolder) throws IOException {
-        FileSystemRepository delegate = new FileSystemRepository();
+        var delegate = new FileSystemRepository();
         delegate.setRoot(root);
         delegate.initialize();
 
@@ -62,7 +62,7 @@ class MappedRepositoryTest {
     }
 
     private void writeProject(String folder, String rulesXml) throws IOException {
-        Path projectFolder = root.resolve(folder);
+        var projectFolder = root.resolve(folder);
         Files.createDirectories(projectFolder);
         Files.writeString(projectFolder.resolve("rules.xml"), rulesXml, StandardCharsets.UTF_8);
     }

@@ -22,7 +22,7 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
     protected String getCategory(TableSyntaxNode tableSyntaxNode) {
 
         String result;
-        String category = super.getCategory(tableSyntaxNode);
+        var category = super.getCategory(tableSyntaxNode);
 
         String[] categories = StringUtils.split(category, '-');
 
@@ -48,7 +48,7 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
             return false;
         }
 
-        String category = super.getCategory(tableSyntaxNode);
+        var category = super.getCategory(tableSyntaxNode);
         String[] categories = StringUtils.split(category, '-');
 
         return categoryLevel < categories.length;

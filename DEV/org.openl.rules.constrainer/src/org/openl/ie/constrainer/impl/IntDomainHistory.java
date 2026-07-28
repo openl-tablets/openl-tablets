@@ -34,7 +34,7 @@ public final class IntDomainHistory implements Serializable {
         int _removeIndex, _numberOfRemoves;
 
         static IntEventDomain getEvent(IntDomainHistory history) {
-            IntEventDomain ev = (IntEventDomain) _factory.getElement();
+            var ev = (IntEventDomain) _factory.getElement();
             ev.init(history);
             return ev;
         }
@@ -137,7 +137,7 @@ public final class IntDomainHistory implements Serializable {
     public IntDomainHistory(IntVar var) {
         _var = var;
 
-        int max_size = Math.min(_var.size(), 30);
+        var max_size = Math.min(_var.size(), 30);
         _history = new FastVectorInt(2 * max_size);
         _remove_history = new FastVectorInt(max_size);
         save();
@@ -201,10 +201,10 @@ public final class IntDomainHistory implements Serializable {
      * added by SV 20.01.03 to support removeRangeInternal in IntVarImpl
      */
     void remove(int range_min, int range_max) {
-        int t_min = Math.max(_min, range_min);
-        int t_max = Math.min(_max, range_max);
+        var t_min = Math.max(_min, range_min);
+        var t_max = Math.min(_max, range_max);
 
-        for (int i = t_min; i <= t_max; i++) {
+        for (var i = t_min; i <= t_max; i++) {
             _remove_history.add(i);
         }
         _mask |= EventOfInterest.REMOVE;
@@ -220,9 +220,9 @@ public final class IntDomainHistory implements Serializable {
         _var.forceMin(_min);
         _max = _history.elementAt(index + MAX_IDX);
         _var.forceMax(_max);
-        int firstRemoveIndex = _history.elementAt(index + REMOVE_IDX);
+        var firstRemoveIndex = _history.elementAt(index + REMOVE_IDX);
 
-        for (int i = _remove_history.size() - 1; i >= firstRemoveIndex; --i) {
+        for (var i = _remove_history.size() - 1; i >= firstRemoveIndex; --i) {
             _var.forceInsert(_remove_history.elementAt(i));
         }
 
@@ -234,7 +234,7 @@ public final class IntDomainHistory implements Serializable {
     }
 
     int save() {
-        int old = _currentIndex;
+        var old = _currentIndex;
         _currentIndex = _history.size();
         _min = _var.min();
         _history.add(_min);

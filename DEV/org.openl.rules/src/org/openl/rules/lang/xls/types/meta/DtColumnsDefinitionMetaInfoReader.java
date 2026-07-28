@@ -14,7 +14,6 @@ import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.dt.ADtColumnsDefinitionTableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -23,14 +22,12 @@ import org.openl.rules.table.CellKey.CellKeyFactory;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
-import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
 public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtColumnsDefinitionTableBoundNode> {
@@ -58,12 +55,12 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
         CellKey cellKey = CellKeyFactory.getCellKey(col, row);
         Pair<CompositeMethod, String> value = expressions.get(cellKey);
         if (value != null) {
-            String stringValue = value.getValue();
+            var stringValue = value.getValue();
             if (stringValue != null) {
                 List<NodeUsage> nodeUsages;
-                CompositeMethod method = value.getKey();
-                int startIndex = 0;
-                List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils.getNodeUsages(method, stringValue, startIndex);
+                var method = value.getKey();
+                var startIndex = 0;
+                var parsedNodeUsages = MetaInfoReaderUtils.getNodeUsages(method, stringValue, startIndex);
                 nodeUsages = new ArrayList<>(parsedNodeUsages);
                 return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages, false);
             }
@@ -73,20 +70,20 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
         Triple<IOpenMethodHeader, String, Integer> value1 = inputs.get(cellKey);
         if (value1 != null) {
             List<NodeUsage> nodeUsages = new ArrayList<>();
-            IOpenMethodHeader header = value1.getLeft();
-            for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                IOpenClass parameterType = header.getSignature().getParameterType(i);
-                IMetaInfo metaInfo = parameterType.getMetaInfo();
+            var header = value1.getLeft();
+            for (var i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
+                var parameterType = header.getSignature().getParameterType(i);
+                var metaInfo = parameterType.getMetaInfo();
                 while (metaInfo == null && parameterType.isArray()) {
                     parameterType = parameterType.getComponentClass();
                     metaInfo = parameterType.getMetaInfo();
                 }
                 if (metaInfo != null && header instanceof OpenMethodHeader openMethodHeader) {
-                    ILocation[] paramTypeLocations = openMethodHeader.getParamTypeLocations();
-                    ILocation sourceLocation = paramTypeLocations[i];
-                    TextInfo text = new TextInfo(value1.getMiddle());
-                    int start = sourceLocation.getStart().getAbsolutePosition(text) - value1.getRight();
-                    int end = sourceLocation.getEnd().getAbsolutePosition(text) - value1.getRight() + 1; // 1 - is
+                    var paramTypeLocations = openMethodHeader.getParamTypeLocations();
+                    var sourceLocation = paramTypeLocations[i];
+                    var text = new TextInfo(value1.getMiddle());
+                    var start = sourceLocation.getStart().getAbsolutePosition(text) - value1.getRight();
+                    var end = sourceLocation.getEnd().getAbsolutePosition(text) - value1.getRight() + 1; // 1 - is
                     // because
                     // location
                     // returns
@@ -109,13 +106,13 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
         // Link for parameters
         Pair<IParameterDeclaration, String> value2 = parameters.get(cellKey);
         if (value2 != null) {
-            IOpenClass type = value2.getKey().getType();
+            var type = value2.getKey().getType();
             while (type.getMetaInfo() == null && type.isArray()) {
                 type = type.getComponentClass();
             }
-            IMetaInfo metaInfo = type.getMetaInfo();
+            var metaInfo = type.getMetaInfo();
             if (metaInfo != null) {
-                StringSourceCodeModule source = new StringSourceCodeModule(value2.getValue(),
+                var source = new StringSourceCodeModule(value2.getValue(),
                         getTableSyntaxNode().getUri());
                 IdentifierNode[] paramNodes;
                 try {
@@ -124,7 +121,7 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                     return null;
                 }
                 if (paramNodes.length > 0) {
-                    SimpleNodeUsage nodeUsage = new SimpleNodeUsage(paramNodes[0],
+                    var nodeUsage = new SimpleNodeUsage(paramNodes[0],
                             metaInfo.getDisplayName(INamedThing.SHORT),
                             metaInfo.getSourceUrl(),
                             type,

@@ -8,14 +8,10 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import org.openl.CompiledOpenClass;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.studio.projects.model.trace.DebugStatus;
 import org.openl.studio.projects.model.trace.FrameKind;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * Verifies the executed call tree when spreadsheet steps reference each other, on a module shaped like
@@ -33,24 +29,24 @@ class CrossStepCallTreeTest {
     @Test
     @DisplayName("Attributes calls and step references to the step whose formula makes them")
     void attributesCallsToTheCallingStep() {
-        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
         assertTrue(compiled.getAllMessages().isEmpty(), () -> "module must compile: " + compiled.getAllMessages());
-        IOpenClass module = compiled.getOpenClass();
-        IOpenMethod method = module.getMethods().stream()
+        var module = compiled.getOpenClass();
+        var method = module.getMethods().stream()
                 .filter(candidate -> "DeterminePremium".equals(candidate.getName()))
                 .findFirst()
                 .orElseThrow();
 
-        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        var debugger = new TraceDebugger(DebugListener.NOOP);
         debugger.start("cross-step", compiled.getClassLoader(), false, true, () -> {
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
-            Object target = module.newInstance(env);
+            var target = module.newInstance(env);
             method.invoke(target, new Object[]{10}, env);
         });
         assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(10_000));
 
-        CallNode tree = debugger.completedTree();
+        var tree = debugger.completedTree();
         assertNotNull(tree, "profiling keeps the executed tree");
         assertEquals("DeterminePremium", tree.name());
 
@@ -90,29 +86,29 @@ class CrossStepCallTreeTest {
     @Test
     @DisplayName("A step that triggers another cell does not count that cell's time twice")
     void doesNotDoubleCountNestedStepTime() {
-        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
-        IOpenClass module = compiled.getOpenClass();
-        IOpenMethod method = module.getMethods().stream()
+        var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        var module = compiled.getOpenClass();
+        var method = module.getMethods().stream()
                 .filter(candidate -> "DeterminePremium".equals(candidate.getName()))
                 .findFirst()
                 .orElseThrow();
 
-        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        var debugger = new TraceDebugger(DebugListener.NOOP);
         debugger.start("cross-step-timing", compiled.getClassLoader(), false, true, () -> {
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
-            Object target = module.newInstance(env);
+            var target = module.newInstance(env);
             method.invoke(target, new Object[]{10}, env);
         });
         assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(10_000));
 
-        CallNode tree = debugger.completedTree();
+        var tree = debugger.completedTree();
         assertNotNull(tree);
         // Several steps resolve or call other cells on the way ($GetContext → $RatingDate → $Value_Premiums →
         // $Term). Each step's own time excludes that nested work, so the steps are disjoint slices of the frame
         // and never sum past its own duration. Before nested time was subtracted, the referring step counted the
         // referenced cell as well and the steps overran the frame.
-        long stepsTotal = tree.steps().stream().mapToLong(CallNode.Step::durationNanos).sum();
+        var stepsTotal = tree.steps().stream().mapToLong(CallNode.Step::durationNanos).sum();
         assertTrue(stepsTotal <= tree.durationNanos(),
                 () -> "steps total " + stepsTotal + "ns must not exceed frame " + tree.durationNanos() + "ns");
     }

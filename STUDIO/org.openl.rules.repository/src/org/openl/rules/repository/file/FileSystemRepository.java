@@ -166,7 +166,7 @@ public class FileSystemRepository implements Repository, Closeable {
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         var result = new ArrayList<FileData>();
         for (FileItem fileItem : fileItems) {
-            FileData saved = write(fileItem.getData(), fileItem.getStream());
+            var saved = write(fileItem.getData(), fileItem.getStream());
             result.add(saved);
         }
         invokeListener();
@@ -190,7 +190,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public boolean delete(List<FileData> data) throws IOException {
-        boolean deleted = false;
+        var deleted = false;
         for (var fd : data) {
             var f = resolveInRoot(fd.getName());
             try {
@@ -246,7 +246,7 @@ public class FileSystemRepository implements Repository, Closeable {
         var file = resolveInRoot(name);
         try {
             if (Files.exists(file)) {
-                FileData data = getFileData(file);
+                var data = getFileData(file);
                 return Collections.singletonList(data);
             }
         } catch (Exception ex) {

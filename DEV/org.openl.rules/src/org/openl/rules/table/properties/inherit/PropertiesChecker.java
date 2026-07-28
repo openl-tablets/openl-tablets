@@ -50,17 +50,17 @@ public final class PropertiesChecker {
                                        Set<String> propertyNamesToCheck,
                                        TableSyntaxNode tableSyntaxNode,
                                        InheritanceLevel level) {
-        String tableType = tableSyntaxNode.getType();
+        var tableType = tableSyntaxNode.getType();
         String typeName = getTypeName(tableSyntaxNode);
 
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForTableType(propertyNameToCheck, tableType)) {
-                String message = "Property '%s' cannot be defined in '%s' table."
+                var message = "Property '%s' cannot be defined in '%s' table."
                         .formatted(propertyNameToCheck, typeName);
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
                 bindingContext.addError(error);
             } else if (level != null && !PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
-                String message = "Property '%s' cannot be defined on level '%s'.".formatted(
+                var message = "Property '%s' cannot be defined on level '%s'.".formatted(
                         propertyNameToCheck,
                         level.getDisplayName());
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
@@ -81,7 +81,7 @@ public final class PropertiesChecker {
             if (propertyDefinition != null && propertyDefinition.getDeprecation() != null && !propertyDefinition
                     .getDeprecation()
                     .isEmpty()) {
-                String message = "Property '%s' was deprecated. Please remove it.".formatted(propertyNameToCheck);
+                var message = "Property '%s' was deprecated. Please remove it.".formatted(propertyNameToCheck);
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
@@ -97,10 +97,10 @@ public final class PropertiesChecker {
      */
     public static boolean isPropertySuitableForLevel(InheritanceLevel currentLevel, String propertyName) {
         final Logger log = LoggerFactory.getLogger(PropertiesChecker.class);
-        boolean result = false;
+        var result = false;
         TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
         if (propertyDefinition != null) {
-            InheritanceLevel[] inheritanceLevels = propertyDefinition.getInheritanceLevel();
+            var inheritanceLevels = propertyDefinition.getInheritanceLevel();
             if (inheritanceLevels != null && inheritanceLevels.length > 0) {
                 if (Arrays.asList(inheritanceLevels).contains(currentLevel)) {
                     result = true;

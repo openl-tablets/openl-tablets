@@ -11,11 +11,9 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.repository.api.FileData;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -32,7 +30,7 @@ public class ProjectDescriptorArtefactResolver {
     private final CacheManager cacheManager;
 
     private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException {
-        FileData fileData = project.getFileData();
+        var fileData = project.getFileData();
         if (fileData == null) {
             return null;
         }
@@ -45,7 +43,7 @@ public class ProjectDescriptorArtefactResolver {
                 : null;
         var cache = cacheKey == null ? null : cacheManager.getCache(CACHE_NAME);
         if (cache != null) {
-            ProjectDescriptor cached = cache.get(cacheKey, ProjectDescriptor.class);
+            var cached = cache.get(cacheKey, ProjectDescriptor.class);
             if (cached != null) {
                 return cached;
             }
@@ -57,7 +55,7 @@ public class ProjectDescriptorArtefactResolver {
             return null;
         }
 
-        AProjectArtefact artefact = project.getArtefact(ProjectDescriptor.FILE_NAME);
+        var artefact = project.getArtefact(ProjectDescriptor.FILE_NAME);
         if (artefact instanceof AProjectResource resource) {
             ProjectDescriptor descriptor;
             InputStream content = null;
@@ -77,7 +75,7 @@ public class ProjectDescriptorArtefactResolver {
     }
 
     public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException {
-        ProjectDescriptor pd = getProjectDescriptor(project);
+        var pd = getProjectDescriptor(project);
         return (pd != null && pd.getDependencies() != null) ? pd.getDependencies() : Collections.emptyList();
     }
 
@@ -96,7 +94,7 @@ public class ProjectDescriptorArtefactResolver {
             return pd.getName();
         }
         // rules.xml is absent or does not declare a name - fall back to the physical project folder name
-        String actualPath = project.getRealPath();
+        var actualPath = project.getRealPath();
         return actualPath.substring(actualPath.lastIndexOf('/') + 1);
     }
 }

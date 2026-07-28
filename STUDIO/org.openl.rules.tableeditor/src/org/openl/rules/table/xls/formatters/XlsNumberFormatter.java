@@ -38,8 +38,8 @@ class XlsNumberFormatter implements IFormatter {
             return null;
         }
 
-        double doubleValue = number.doubleValue();
-        String formattedDate = dataFormatter.formatRawCellContents(doubleValue, formatIndex, format);
+        var doubleValue = number.doubleValue();
+        var formattedDate = dataFormatter.formatRawCellContents(doubleValue, formatIndex, format);
 
         if (format.startsWith("# ?/") || format.startsWith("# ??/") || format.startsWith("# ???/")) {
             if (doubleValue < 1 && doubleValue > 0) {
@@ -53,7 +53,7 @@ class XlsNumberFormatter implements IFormatter {
 
     @Override
     public Object parse(String value) {
-        NumberFormatter numberFormatter = new NumberFormatter(locale);
+        var numberFormatter = new NumberFormatter(locale);
         return numberFormatter.parse(value);
     }
 

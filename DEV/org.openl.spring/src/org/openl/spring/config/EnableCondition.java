@@ -24,10 +24,10 @@ class EnableCondition implements Condition {
                         var m = EXPRESSION.matcher(property);
 
                         if (m.matches()) {
-                            String actual = env.getProperty(m.group("prop"));
-                            String expected = m.group("val").trim();
+                            var actual = env.getProperty(m.group("prop"));
+                            var expected = m.group("val").trim();
 
-                            boolean isMatchValid = switch (m.group("cond")) {
+                            var isMatchValid = switch (m.group("cond")) {
                                 case "=" -> expected.equals(actual);
                                 case "!" -> !expected.equals(actual);
                                 default -> throw new IllegalStateException("Unexpected condition: " + m.group("cond"));

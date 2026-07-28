@@ -56,7 +56,7 @@ public class DataOpenField extends AOpenField {
         if (target == null) {
             return getType().nullObject();
         }
-        Object dynamicObject = ((IDynamicObject) target).getFieldValue(getName());
+        var dynamicObject = ((IDynamicObject) target).getFieldValue(getName());
 
         if (dynamicObject == null) {
             dynamicObject = this.data;

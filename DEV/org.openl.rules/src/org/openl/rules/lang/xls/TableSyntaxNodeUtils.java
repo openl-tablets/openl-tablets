@@ -5,9 +5,7 @@ import java.util.Date;
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.formatters.Formats;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethod;
 import org.openl.util.StringUtils;
 
@@ -25,7 +23,7 @@ public final class TableSyntaxNodeUtils {
                                                 OverloadedMethodsDictionary dictionary,
                                                 Formats formats) {
 
-        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
+        var tableProperties = tableSyntaxNode.getTableProperties();
 
         String display = null;
         String name = null;
@@ -45,7 +43,7 @@ public final class TableSyntaxNodeUtils {
         }
 
         String sfx = i < 2 ? "" : " (" + i + ")";
-        String dimensionInfo = StringUtils.EMPTY;
+        var dimensionInfo = StringUtils.EMPTY;
 
         if (dictionary != null && tableProperties != null && tableSyntaxNode
                 .getMember() instanceof IOpenMethod && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())) {
@@ -59,7 +57,7 @@ public final class TableSyntaxNodeUtils {
                 for (String dimensionalPropertyName : dimensionalPropertyNames) {
                     String value;
 
-                    Object propertyValue = tableProperties.getPropertyValue(dimensionalPropertyName);
+                    var propertyValue = tableProperties.getPropertyValue(dimensionalPropertyName);
                     if (formats != null && propertyValue instanceof Date date) {
                         value = formats.formatDateOrDateTime(date);
                     } else {
@@ -67,7 +65,7 @@ public final class TableSyntaxNodeUtils {
                     }
 
                     if (StringUtils.isNotEmpty(value)) {
-                        String propertyInfo = dimensionalPropertyName + "=" + value;
+                        var propertyInfo = dimensionalPropertyName + "=" + value;
                         dimensionInfo = dimensionInfo + (StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY
                                 : ", ") + propertyInfo;
                     }
@@ -87,7 +85,7 @@ public final class TableSyntaxNodeUtils {
     // Update header parsing in all components on Binding phase
     // @author DLiauchuk
     public static String str2name(String methodHeader, XlsNodeTypes tableType) {
-        String resultName = methodHeader;
+        var resultName = methodHeader;
 
         if (StringUtils.isBlank(resultName)) {
             resultName = "NO NAME";
@@ -122,8 +120,8 @@ public final class TableSyntaxNodeUtils {
     }
 
     public static String getTestName(IOpenMethod testMethod) {
-        IMemberMetaInfo mi = testMethod.getInfo();
-        TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
+        var mi = testMethod.getInfo();
+        var tnode = (TableSyntaxNode) mi.getSyntaxNode();
         return getTableDisplayValue(tnode, 0, null)[INamedThing.SHORT];
     }
 }

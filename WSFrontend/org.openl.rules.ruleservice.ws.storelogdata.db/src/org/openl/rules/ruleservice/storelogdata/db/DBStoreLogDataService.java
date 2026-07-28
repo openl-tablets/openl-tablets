@@ -7,13 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,10 +53,10 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
     }
 
     private EntityManager getEntityManager(Method m, Annotation annotation) {
-        InjectEntityManager injectEntityManager = (InjectEntityManager) annotation;
+        var injectEntityManager = (InjectEntityManager) annotation;
         Class<?>[] entityClasses;
         if (injectEntityManager.value().length == 0) {
-            StoreLogDataToDB storeLogDataToDB = m.getAnnotation(StoreLogDataToDB.class);
+            var storeLogDataToDB = m.getAnnotation(StoreLogDataToDB.class);
             if (storeLogDataToDB != null) {
                 entityClasses = storeLogDataToDB.value();
             } else {
@@ -68,7 +65,7 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
         } else {
             entityClasses = injectEntityManager.value();
         }
-        SessionFactory entityManagerFactory = hibernateSessionOperations.getSessionFactory(entityClasses);
+        var entityManagerFactory = hibernateSessionOperations.getSessionFactory(entityClasses);
         return entityManagerFactory.createEntityManager();
     }
 
@@ -79,16 +76,16 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
 
     @Override
     protected void save(StoreLogData storeLogData, boolean sync) throws StoreLogDataException {
-        StoreLogDataToDB storeLogDataToDBAnnotation = storeLogData.getServiceClass()
+        var storeLogDataToDBAnnotation = storeLogData.getServiceClass()
                 .getAnnotation(StoreLogDataToDB.class);
-        Method serviceMethod = storeLogData.getServiceMethod();
+        var serviceMethod = storeLogData.getServiceMethod();
         if (serviceMethod != null && serviceMethod.isAnnotationPresent(StoreLogDataToDB.class)) {
             storeLogDataToDBAnnotation = serviceMethod.getAnnotation(StoreLogDataToDB.class);
         }
         if (storeLogDataToDBAnnotation == null) {
             return;
         }
-        List<Object> entities = new ArrayList<>();
+        var entities = new ArrayList<Object>();
         if (storeLogDataToDBAnnotation.value().length == 0) {
             if (!storeLogData.isIgnorable(DefaultEntity.class)) {
                 entities.add(new DefaultEntity());
@@ -115,7 +112,7 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
                 }
             }
         }
-        Set<Class<?>> entityClasses = new HashSet<>();
+        var entityClasses = new HashSet<Class<?>>();
         for (Object entity : entities) {
             try {
                 storeLogDataMapper.map(storeLogData, entity);

@@ -16,15 +16,15 @@ public class LogicalTableHelper {
      * @return number of logical columns in the first table row.
      */
     static int calcLogicalColumns(IGridTable table) {
-        int W = table.getWidth();
+        var W = table.getWidth();
         if (W == 1) {
             return 1;
         }
 
-        int columns = 0;
+        var columns = 0;
 
         int cellWidth;
-        for (int w = 0; w < W; w += cellWidth, columns++) {
+        for (var w = 0; w < W; w += cellWidth, columns++) {
             cellWidth = table.getCell(w, 0).getWidth();
         }
         return columns;
@@ -38,13 +38,13 @@ public class LogicalTableHelper {
      * @return number of logical rows in the first table column.
      */
     static int calcLogicalRows(IGridTable table) {
-        int H = table.getHeight();
+        var H = table.getHeight();
         if (H == 1) {
             return 1;
         }
-        int rows = 0;
+        var rows = 0;
         int cellHeight;
-        for (int h = 0; h < H; h += cellHeight, rows++) {
+        for (var h = 0; h < H; h += cellHeight, rows++) {
             cellHeight = table.getCell(0, h).getHeight();
         }
         return rows;
@@ -78,8 +78,8 @@ public class LogicalTableHelper {
      * @return {@link ILogicalTable} table with correctly calculated height and width.
      */
     public static ILogicalTable logicalTable(IGridTable table) {
-        int width = calcLogicalColumns(table);
-        int height = calcLogicalRows(table);
+        var width = calcLogicalColumns(table);
+        var height = calcLogicalRows(table);
         if (width == table.getWidth() && height == table.getHeight()) {
             return new SimpleLogicalTable(table);
         }
@@ -98,39 +98,39 @@ public class LogicalTableHelper {
      * @return
      */
     public static ILogicalTable mergeBounds(ILogicalTable leftRows, ILogicalTable topColumns) {
-        IGridTable leftRowsGrid = leftRows.getSource();
+        var leftRowsGrid = leftRows.getSource();
         if (!leftRowsGrid.isNormalOrientation()) {
             throw new RuntimeException("Left Rows must have Normal Orientation");
         }
 
-        IGridTable topColumnsGrid = topColumns.getSource();
+        var topColumnsGrid = topColumns.getSource();
         if (!topColumnsGrid.isNormalOrientation()) {
             throw new RuntimeException("Top Columns must have Normal Orientation");
         }
 
-        IGridRegion leftRowsRegion = leftRowsGrid.getRegion();
-        IGridRegion topColumnsRegion = topColumnsGrid.getRegion();
+        var leftRowsRegion = leftRowsGrid.getRegion();
+        var topColumnsRegion = topColumnsGrid.getRegion();
 
-        int rLeft = leftRowsRegion.getRight() + 1;
-        int cLeft = topColumnsRegion.getLeft();
-        int left = cLeft;
-        int startColumn = 0;
+        var rLeft = leftRowsRegion.getRight() + 1;
+        var cLeft = topColumnsRegion.getLeft();
+        var left = cLeft;
+        var startColumn = 0;
         if (cLeft < rLeft) {
             startColumn = topColumns.findColumnStart(rLeft - cLeft);
             left = rLeft;
         }
 
-        int rTop = leftRowsRegion.getTop();
-        int cTop = topColumnsRegion.getBottom() + 1;
-        int top = rTop;
-        int startRow = 0;
+        var rTop = leftRowsRegion.getTop();
+        var cTop = topColumnsRegion.getBottom() + 1;
+        var top = rTop;
+        var startRow = 0;
         if (rTop < cTop) {
             startRow = leftRows.findRowStart(cTop - rTop);
             top = cTop;
         }
 
-        int right = topColumnsRegion.getRight();
-        int bottom = leftRowsRegion.getBottom();
+        var right = topColumnsRegion.getRight();
+        var bottom = leftRowsRegion.getBottom();
 
         if (right < left) {
             throw new RuntimeException("Invalid horizontal dimension");
@@ -140,10 +140,10 @@ public class LogicalTableHelper {
             throw new RuntimeException("Invalid vertical dimension");
         }
 
-        IGridTable gt = new GridTable(top, left, bottom, right, leftRowsGrid.getGrid());
+        var gt = new GridTable(top, left, bottom, right, leftRowsGrid.getGrid());
 
-        int nRows = leftRows.getHeight() - startRow;
-        int nColumns = topColumns.getWidth() - startColumn;
+        var nRows = leftRows.getHeight() - startRow;
+        var nColumns = topColumns.getWidth() - startColumn;
 
         if (gt.getHeight() == nRows && gt.getWidth() == nColumns) {
             // TODO Light delegator
@@ -153,15 +153,15 @@ public class LogicalTableHelper {
 
         int[] rowsOffset = new int[nRows + 1];
         int[] columnsOffset = new int[nColumns + 1];
-        int rOffset = 0;
-        int i = 0;
+        var rOffset = 0;
+        var i = 0;
         for (; i < nRows; i++) {
             rowsOffset[i] = rOffset;
             rOffset += leftRows.getRowHeight(i + startRow);
         }
         rowsOffset[i] = rOffset;
 
-        int cOffset = 0;
+        var cOffset = 0;
         i = 0;
         for (; i < nColumns; i++) {
             columnsOffset[i] = cOffset;
@@ -192,9 +192,9 @@ public class LogicalTableHelper {
 
     public static ILogicalTable unmergeColumns(ILogicalTable table, int fromColumn, int toColumn) {
 
-        IGridTable gt = table.getSource();
+        var gt = table.getSource();
 
-        int gridWidth = gt.getWidth();
+        var gridWidth = gt.getWidth();
 
         if (table.getWidth() == gridWidth) {
             return table;
@@ -202,27 +202,27 @@ public class LogicalTableHelper {
 
         int[] columnOffsets = getColumnOffsets(table);
 
-        int gridFromOffset = columnOffsets[fromColumn];
+        var gridFromOffset = columnOffsets[fromColumn];
 
-        int gridToOffset = columnOffsets[toColumn];
+        var gridToOffset = columnOffsets[toColumn];
 
         if (gridToOffset - gridFromOffset == toColumn - fromColumn) {
             return table;
         }
 
-        int gridColumnsToUnmerge = gridToOffset - gridFromOffset;
+        var gridColumnsToUnmerge = gridToOffset - gridFromOffset;
 
-        int restOfColumns = table.getWidth() - toColumn;
+        var restOfColumns = table.getWidth() - toColumn;
 
-        int newWidth = fromColumn + gridColumnsToUnmerge + restOfColumns;
+        var newWidth = fromColumn + gridColumnsToUnmerge + restOfColumns;
 
         int[] newColumnOffsets = new int[newWidth + 1];
 
         System.arraycopy(columnOffsets, 0, newColumnOffsets, 0, fromColumn); // copy beginning
 
-        int offset = columnOffsets[fromColumn];
+        var offset = columnOffsets[fromColumn];
 
-        for (int i = 0; i < gridColumnsToUnmerge; ++i, ++offset) {
+        for (var i = 0; i < gridColumnsToUnmerge; ++i, ++offset) {
             newColumnOffsets[fromColumn + i] = offset;
         }
 
@@ -254,7 +254,7 @@ public class LogicalTableHelper {
 
     static int[] calculateColumnOffsets(int width, IGridTable gt) {
         int[] columnOffset = new int[width + 1];
-        int offset = 0;
+        var offset = 0;
 
         for (int i = 0, cellWidth; i < width; offset += cellWidth, ++i) {
             columnOffset[i] = offset;
@@ -267,7 +267,7 @@ public class LogicalTableHelper {
 
     static int[] calculateRowOffsets(int height, IGridTable gt) {
         int[] rowOffset = new int[height + 1];
-        int offset = 0;
+        var offset = 0;
 
         for (int i = 0, cellHeight; i < height; offset += cellHeight, ++i) {
             rowOffset[i] = offset;

@@ -94,18 +94,18 @@ public class Algorithm extends AlgorithmFunction {
 
     @Override
     public BindingDependencies getDependencies() {
-        BindingDependencies bindingDependencies = new RulesBindingDependencies();
+        var bindingDependencies = new RulesBindingDependencies();
         getBoundNode().updateDependency(bindingDependencies);
 
         return bindingDependencies;
     }
 
     public Collection<AlgorithmSubroutineMethod> getSubroutines() {
-        IOpenClass thisIOpenClass = getThisClass();
+        var thisIOpenClass = getThisClass();
         if (thisIOpenClass == null) {
             return Collections.emptyList();
         }
-        List<AlgorithmSubroutineMethod> subroutines = new ArrayList<>();
+        var subroutines = new ArrayList<AlgorithmSubroutineMethod>();
         for (IOpenMethod method : thisIOpenClass.getMethods()) {
             if (method instanceof AlgorithmSubroutineMethod subroutineMethod) {
                 subroutines.add(subroutineMethod);

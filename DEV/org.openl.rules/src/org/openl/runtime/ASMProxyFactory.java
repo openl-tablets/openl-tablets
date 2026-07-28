@@ -31,7 +31,7 @@ public final class ASMProxyFactory {
 
     public static <T> T newProxyInstance(ClassLoader classLoader, ASMProxyHandler handler, Class<T> proxyInterface) {
         @SuppressWarnings("unchecked")
-        T proxyInstance = (T) newProxyInstance(classLoader, handler, new Class[]{proxyInterface});
+        var proxyInstance = (T) newProxyInstance(classLoader, handler, new Class[]{proxyInterface});
         return proxyInstance;
 
     }
@@ -75,7 +75,7 @@ public final class ASMProxyFactory {
      */
     static String proxyClassName(Class<?>[] interfaces) {
         var sb = new StringBuilder(interfaces[0].getName()).append(PROXY_SUFFIX);
-        for (int i = 1; i < interfaces.length; i++) {
+        for (var i = 1; i < interfaces.length; i++) {
             sb.append('$').append(escape(interfaces[i].getName()));
         }
         return sb.toString();
@@ -89,7 +89,7 @@ public final class ASMProxyFactory {
      */
     static String escape(String binaryName) {
         var sb = new StringBuilder(binaryName.length() + 4);
-        for (int i = 0; i < binaryName.length(); i++) {
+        for (var i = 0; i < binaryName.length(); i++) {
             var c = binaryName.charAt(i);
             switch (c) {
                 case '_' -> sb.append("_u");
@@ -127,7 +127,7 @@ public final class ASMProxyFactory {
     }
 
     private static void writeConstructor(ClassWriter cw, Type name) {
-        GeneratorAdapter mv = new GeneratorAdapter(Opcodes.ACC_PUBLIC,
+        var mv = new GeneratorAdapter(Opcodes.ACC_PUBLIC,
                 Method.getMethod("void <init>(" + ASMProxyHandler.class.getName() + ")"),
                 null,
                 null,
@@ -143,7 +143,7 @@ public final class ASMProxyFactory {
     }
 
     private static void writeMethods(ClassWriter cw, Method method, java.lang.reflect.Method m, Type name, Type proxyInterface) {
-        GeneratorAdapter mv = new GeneratorAdapter(Opcodes.ACC_PUBLIC,
+        var mv = new GeneratorAdapter(Opcodes.ACC_PUBLIC,
                 method,
                 null,
                 new Type[]{Type.getType(Exception.class)},
@@ -158,8 +158,8 @@ public final class ASMProxyFactory {
         mv.push(method.getName());
         mv.push(method.getArgumentTypes().length);
         mv.newArray(CLASS_TYPE);
-        Type[] parameterTypes = method.getArgumentTypes();
-        for (int i = 0; i < parameterTypes.length; i++) {
+        var parameterTypes = method.getArgumentTypes();
+        for (var i = 0; i < parameterTypes.length; i++) {
             mv.dup();
             mv.push(i);
             mv.push(parameterTypes[i]);

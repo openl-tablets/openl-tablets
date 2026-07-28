@@ -186,7 +186,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     }
 
     private static String getName(FileData fileData) {
-        FileMappingData fileMappingData = fileData.getAdditionalData(FileMappingData.class);
+        var fileMappingData = fileData.getAdditionalData(FileMappingData.class);
         if (fileMappingData != null) {
             return fileMappingData.getInternalPath();
         } else {
@@ -198,7 +198,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     public FileData save(FileData folderData,
                          Iterable<FileItem> files,
                          ChangesetType changesetType) throws IOException {
-        List<FileItem> newContentFileItems = new ArrayList<>();
+        var newContentFileItems = new ArrayList<FileItem>();
         for (FileItem fileItem : files) {
             if (fileItem.getStream() != null) {
                 checkSavePermissions(fileItem.getData().getName());
@@ -210,7 +210,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
             }
         }
         if (changesetType == ChangesetType.FULL) {
-            List<FileData> existingContentFileData = repository.list(folderData.getName());
+            var existingContentFileData = repository.list(folderData.getName());
             for (FileData fileData : existingContentFileData) {
                 if (newContentFileItems.stream()
                         .noneMatch(e -> Objects.equals(e.getData().getName(), fileData.getName()))) {

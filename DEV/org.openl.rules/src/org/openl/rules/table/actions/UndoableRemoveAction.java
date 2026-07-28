@@ -1,7 +1,6 @@
 package org.openl.rules.table.actions;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -21,15 +20,15 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
         if (!canPerformAction(fullTableRegion)) {
             return;
         }
-        int numberToRemove = getNumberToRemove(table);
+        var numberToRemove = getNumberToRemove(table);
 
-        List<IUndoableGridTableAction> actions = new ArrayList<>();
-        IUndoableGridTableAction ua = performAction(numberToRemove, fullTableRegion, table);
+        var actions = new ArrayList<IUndoableGridTableAction>();
+        var ua = performAction(numberToRemove, fullTableRegion, table);
         actions.add(ua);
-        GridRegionAction allTable = getGridRegionAction(fullTableRegion, numberToRemove);
+        var allTable = getGridRegionAction(fullTableRegion, numberToRemove);
         actions.add(allTable);
         if (isDecoratorTable(table)) {
-            GridRegionAction displayTable = getGridRegionAction(table.getRegion(), numberToRemove);
+            var displayTable = getGridRegionAction(table.getRegion(), numberToRemove);
             actions.add(displayTable);
         }
         action = new UndoableCompositeAction(actions);

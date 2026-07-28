@@ -53,11 +53,11 @@ final class CustomOpenApiProcessor implements UnaryOperator<OpenAPI> {
     public OpenAPI apply(OpenAPI openAPI) {
         var resolver = new PathMatchingResourcePatternResolver(classLoader);
         for (String pattern : LOCATION_PATTERNS) {
-            Resource[] resources = resolver.getResources(pattern);
+            var resources = resolver.getResources(pattern);
             Arrays.sort(resources, RESOURCE_COMPARATOR);
             for (Resource resource : resources) {
-                String source = readString(resource);
-                String resolved = propertyResolver.resolvePlaceholders(source);
+                var source = readString(resource);
+                var resolved = propertyResolver.resolvePlaceholders(source);
                 openAPI = mapper.readerForUpdating(new ConfigWrapper(openAPI)).readValue(resolved, ConfigWrapper.class).openAPI;
             }
         }

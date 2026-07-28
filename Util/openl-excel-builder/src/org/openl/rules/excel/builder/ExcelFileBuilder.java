@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
@@ -51,9 +50,9 @@ public class ExcelFileBuilder {
      * @param projectModel - model of the project.
      */
     public static void generateProject(ProjectModel projectModel) {
-        String projectName = projectModel.getName();
-        String fileName = projectName + ".xlsx";
-        try (FileOutputStream fos = new FileOutputStream(fileName)) {
+        var projectName = projectModel.getName();
+        var fileName = projectName + ".xlsx";
+        try (var fos = new FileOutputStream(fileName)) {
             writeProject(projectModel, fos);
         } catch (IOException e) {
             log.error("Error on saving the file occurred.", e);
@@ -116,9 +115,9 @@ public class ExcelFileBuilder {
     private static void writeDataTypes(Set<DatatypeModel> datatypeModels, OutputStream outputStream) {
         try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
-            SXSSFSheet dtSheet = workbook.createSheet(DATATYPES_SHEET);
-            TableStyle datatypeStyles = stylesMap.get(DATATYPES_SHEET);
-            DatatypeTableExporter datatypeTableExporter = new DatatypeTableExporter();
+            var dtSheet = workbook.createSheet(DATATYPES_SHEET);
+            var datatypeStyles = stylesMap.get(DATATYPES_SHEET);
+            var datatypeTableExporter = new DatatypeTableExporter();
             datatypeTableExporter.setTableStyle(datatypeStyles);
             datatypeTableExporter.export(datatypeModels, dtSheet);
             dtSheet.validateMergedRegions();
@@ -132,9 +131,9 @@ public class ExcelFileBuilder {
     private static void writeDataTables(List<DataModel> dataModels, OutputStream outputStream) {
         try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
-            SXSSFSheet dtSheet = workbook.createSheet(DATA_SHEET);
-            TableStyle datatypeStyles = stylesMap.get(DATA_SHEET);
-            DataTableExporter dataTableExporter = new DataTableExporter();
+            var dtSheet = workbook.createSheet(DATA_SHEET);
+            var datatypeStyles = stylesMap.get(DATA_SHEET);
+            var dataTableExporter = new DataTableExporter();
             dataTableExporter.setTableStyle(datatypeStyles);
             dataTableExporter.export(dataModels, dtSheet);
             dtSheet.validateMergedRegions();
@@ -154,7 +153,7 @@ public class ExcelFileBuilder {
     private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels, OutputStream outputStream) {
         try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
-            TableStyle sprStyles = stylesMap.get(SPR_RESULT_SHEET);
+            var sprStyles = stylesMap.get(SPR_RESULT_SHEET);
             writeSpreadsheets(spreadsheetModels, workbook, sprStyles);
             autoSizeSheets(workbook);
             workbook.write(outputStream);
@@ -166,9 +165,9 @@ public class ExcelFileBuilder {
     private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels,
                                           SXSSFWorkbook workbook,
                                           TableStyle tableStyle) {
-        SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
-        SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter();
-        Set<String> reservedWords = spreadsheetModels.stream()
+        var sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
+        var sprTableExporter = new SpreadsheetResultTableExporter();
+        var reservedWords = spreadsheetModels.stream()
                 .map(SpreadsheetModel::getSteps)
                 .flatMap(Collection::stream)
                 .map(StepModel::getName)
@@ -180,7 +179,7 @@ public class ExcelFileBuilder {
     }
 
     private static void editTextIfNeeded(SpreadsheetTableStyle tableStyle, Set<String> reservedWords) {
-        String defaultValueHeader = tableStyle.getValueHeaderText();
+        var defaultValueHeader = tableStyle.getValueHeaderText();
         if (defaultValueHeader == null) {
             return;
         }
@@ -199,8 +198,8 @@ public class ExcelFileBuilder {
     }
 
     private static void writeDataTables(List<DataModel> dataModels, SXSSFWorkbook workbook, TableStyle tableStyle) {
-        SXSSFSheet dataTableSheet = workbook.createSheet(DATA_SHEET);
-        DataTableExporter dtExporter = new DataTableExporter();
+        var dataTableSheet = workbook.createSheet(DATA_SHEET);
+        var dtExporter = new DataTableExporter();
         dtExporter.setTableStyle(tableStyle);
         dtExporter.export(dataModels, dataTableSheet);
         dataTableSheet.validateMergedRegions();
@@ -212,9 +211,9 @@ public class ExcelFileBuilder {
                                               EnvironmentModel environmentModel) {
         try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
-            TableStyle sprStyle = stylesMap.get(SPR_RESULT_SHEET);
-            TableStyle envStyle = stylesMap.get(ENV_SHEET);
-            TableStyle dataTableStyle = stylesMap.get(DATA_SHEET);
+            var sprStyle = stylesMap.get(SPR_RESULT_SHEET);
+            var envStyle = stylesMap.get(ENV_SHEET);
+            var dataTableStyle = stylesMap.get(DATA_SHEET);
             writeSpreadsheets(spreadsheetModels, workbook, sprStyle);
             writeEnvironment(environmentModel, workbook, envStyle);
             writeDataTables(dataModels, workbook, dataTableStyle);
@@ -229,8 +228,8 @@ public class ExcelFileBuilder {
         if (environmentModel == null) {
             return;
         }
-        SXSSFSheet envSheet = workbook.createSheet(ENV_SHEET);
-        EnvironmentTableExporter environmentTableExporter = new EnvironmentTableExporter();
+        var envSheet = workbook.createSheet(ENV_SHEET);
+        var environmentTableExporter = new EnvironmentTableExporter();
         environmentTableExporter.setTableStyle(style);
         environmentTableExporter.export(Collections.singletonList(environmentModel), envSheet);
         envSheet.validateMergedRegions();
@@ -246,20 +245,20 @@ public class ExcelFileBuilder {
         try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
 
-            SXSSFSheet dtSheet = workbook.createSheet(DATATYPES_SHEET);
-            SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
-            SXSSFSheet dataSheet = workbook.createSheet(DATA_SHEET);
-            TableStyle datatypeStyles = stylesMap.get(DATATYPES_SHEET);
-            TableStyle sprStyles = stylesMap.get(SPR_RESULT_SHEET);
-            TableStyle dataStyles = stylesMap.get(DATA_SHEET);
+            var dtSheet = workbook.createSheet(DATATYPES_SHEET);
+            var sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
+            var dataSheet = workbook.createSheet(DATA_SHEET);
+            var datatypeStyles = stylesMap.get(DATATYPES_SHEET);
+            var sprStyles = stylesMap.get(SPR_RESULT_SHEET);
+            var dataStyles = stylesMap.get(DATA_SHEET);
 
-            DatatypeTableExporter datatypeTableExporter = new DatatypeTableExporter();
+            var datatypeTableExporter = new DatatypeTableExporter();
             datatypeTableExporter.setTableStyle(datatypeStyles);
 
-            SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter();
+            var sprTableExporter = new SpreadsheetResultTableExporter();
             sprTableExporter.setTableStyle(sprStyles);
 
-            DataTableExporter dataTableExporter = new DataTableExporter();
+            var dataTableExporter = new DataTableExporter();
             dataTableExporter.setTableStyle(dataStyles);
 
             datatypeTableExporter.export(projectModel.getDatatypeModels(), dtSheet);
@@ -281,9 +280,9 @@ public class ExcelFileBuilder {
      * @param workbook - target document.
      */
     private static void autoSizeSheets(SXSSFWorkbook workbook) {
-        int numberOfSheets = workbook.getNumberOfSheets();
-        for (int i = 0; i < numberOfSheets; i++) {
-            SXSSFSheet sheet = workbook.getSheetAt(i);
+        var numberOfSheets = workbook.getNumberOfSheets();
+        for (var i = 0; i < numberOfSheets; i++) {
+            var sheet = workbook.getSheetAt(i);
             sheet.trackAllColumnsForAutoSizing();
             autoSizeColumns(sheet);
         }
@@ -295,12 +294,12 @@ public class ExcelFileBuilder {
      * @param sheet
      */
     private static void autoSizeColumns(SXSSFSheet sheet) {
-        SXSSFRow row = sheet.getRow(sheet.getLastRowNum());
+        var row = sheet.getRow(sheet.getLastRowNum());
         if (row == null) {
             return;
         }
         short lastColumn = row.getLastCellNum();
-        for (int i = 1; i < lastColumn; i++) {
+        for (var i = 1; i < lastColumn; i++) {
             sheet.autoSizeColumn(i, true);
         }
     }

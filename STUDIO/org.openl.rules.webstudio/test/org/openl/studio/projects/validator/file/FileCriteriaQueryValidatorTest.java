@@ -9,7 +9,6 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.validation.BindingResult;
 
 import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 import org.openl.studio.projects.service.files.FileCriteriaQuery;
@@ -173,7 +172,7 @@ class FileCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest {
     // --- helpers ---
 
     private void assertBasePathInvalid(FileCriteriaQuery query, String basePath) {
-        BindingResult result = validateAndGetResult(query, validator);
+        var result = validateAndGetResult(query, validator);
         assertEquals(1, result.getFieldErrorCount());
         assertFieldError("basePath",
                 "The base path '%s' is not valid.".formatted(basePath),

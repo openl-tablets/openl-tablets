@@ -1,7 +1,6 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,7 @@ public final class ProjectHelper {
     }
 
     public static TestSuiteMethod[] allTesters(IOpenClass openClass) {
-        List<TestSuiteMethod> res = new ArrayList<>();
+        var res = new ArrayList<TestSuiteMethod>();
         for (IOpenMethod tester : openClass.getMethods()) {
             if (isTester(tester)) {
                 res.add((TestSuiteMethod) tester);
@@ -74,7 +73,7 @@ public final class ProjectHelper {
      * consider tester is test for tested method.
      */
     public static boolean isTestForMethod(TestSuiteMethod tester, IOpenMethod tested) {
-        IOpenMethod toTest = tester.getTestedMethod();
+        var toTest = tester.getTestedMethod();
         if (toTest.equals(tested)) {
             return true;
         }

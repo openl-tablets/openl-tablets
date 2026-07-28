@@ -6,7 +6,6 @@ import java.io.InputStream;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.IProjectResource;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 
 public class LocalProjectResource extends ALocalProjectArtefact implements IProjectResource {
@@ -27,7 +26,7 @@ public class LocalProjectResource extends ALocalProjectArtefact implements IProj
     @Override
     public InputStream getContent() throws ProjectException {
         try {
-            FileItem item = repository.read(data.getName());
+            var item = repository.read(data.getName());
             if (item == null) {
                 throw new ProjectException("Resource ''{0}'' is not found.", null, getName());
             }

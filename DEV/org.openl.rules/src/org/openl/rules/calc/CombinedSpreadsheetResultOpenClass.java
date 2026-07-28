@@ -106,12 +106,12 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
             if (register) {
                 throw new IllegalStateException("Not supported for combined spreadsheet result type.");
             }
-            CustomSpreadsheetResultOpenClass[] customSpreadsheetResultOpenClasses = getCombinedTypes().stream()
+            var customSpreadsheetResultOpenClasses = getCombinedTypes().stream()
                     .map(((XlsModuleOpenClass) module)::toModuleType)
                     .filter(e -> e instanceof CustomSpreadsheetResultOpenClass)
                     .map(CustomSpreadsheetResultOpenClass.class::cast)
                     .toArray(CustomSpreadsheetResultOpenClass[]::new);
-            CustomSpreadsheetResultOpenClass type = ((XlsModuleOpenClass) module)
+            var type = ((XlsModuleOpenClass) module)
                     .buildOrGetCombinedSpreadsheetResult(customSpreadsheetResultOpenClasses);
             type.setMetaInfo(getMetaInfo());
             return type;
@@ -124,7 +124,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
         if (beanClassName == null) {
             synchronized (this) {
                 if (beanClassName == null) {
-                    String name = getCombinedTypes().stream()
+                    var name = getCombinedTypes().stream()
                             .map(CustomSpreadsheetResultOpenClass::getName)
                             .map(this::spreadsheetResultNameToBeanName)
                             .sorted()
@@ -145,8 +145,8 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
 
     @Override
     public String getName() {
-        StringBuilder sb = new StringBuilder();
-        List<CustomSpreadsheetResultOpenClass> types = getCombinedTypes().stream()
+        var sb = new StringBuilder();
+        var types = getCombinedTypes().stream()
                 .distinct()
                 .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
                 .collect(Collectors.toList());
@@ -162,9 +162,9 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
 
     @Override
     public String getDisplayName(int mode) {
-        String name = getName();
-        boolean f = false;
-        long c = 0;
+        var name = getName();
+        var f = false;
+        var c = 0L;
         if (name.length() > MAX_LENGTH_DISPLAY_NAME) {
             name = name.substring(0, MAX_LENGTH_DISPLAY_NAME);
             name = name.substring(0, name.lastIndexOf("&"));

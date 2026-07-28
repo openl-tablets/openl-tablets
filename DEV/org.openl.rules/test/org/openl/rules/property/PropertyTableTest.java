@@ -10,17 +10,13 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.CompiledOpenClass;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.enumeration.ValidateDTEnum;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
 class PropertyTableTest extends BaseOpenlBuilderHelper {
@@ -33,10 +29,10 @@ class PropertyTableTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testPropertyTableLoading() {
-        String tableName = "Rules void hello1(int hour)";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var tableName = "Rules void hello1(int hour)";
+        var resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
-        ITableProperties tableProperties = resultTsn.getTableProperties();
+        var tableProperties = resultTsn.getTableProperties();
         assertNotNull(tableProperties);
 
         Map<String, Object> moduleProperties = tableProperties.getModuleProperties();
@@ -62,17 +58,17 @@ class PropertyTableTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testFieldsInOpenClass() {
-        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
-        IOpenClass openClassWithErrors = compiledOpenClass.getOpenClassWithErrors();
+        var compiledOpenClass = getCompiledOpenClass();
+        var openClassWithErrors = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenField> fields = openClassWithErrors.getFields();
         assertTrue(fields.stream().anyMatch(e -> "categoryProp".equals(e.getName())));
         for (IOpenField openField : fields) {
-            IOpenField field = openClassWithErrors.getField(openField.getName());
+            var field = openClassWithErrors.getField(openField.getName());
             if (field instanceof PropertiesOpenField) {
-                IRuntimeEnv environment = new SimpleVM().getRuntimeEnv();
-                Object myInstance = openClassWithErrors.newInstance(environment);
-                ITableProperties properties = (ITableProperties) field.get(myInstance, environment);
-                String scope = properties.getScope();
+                var environment = new SimpleVM().getRuntimeEnv();
+                var myInstance = openClassWithErrors.newInstance(environment);
+                var properties = (ITableProperties) field.get(myInstance, environment);
+                var scope = properties.getScope();
                 assertFalse(InheritanceLevel.MODULE.getDisplayName().equalsIgnoreCase(scope));
             }
         }

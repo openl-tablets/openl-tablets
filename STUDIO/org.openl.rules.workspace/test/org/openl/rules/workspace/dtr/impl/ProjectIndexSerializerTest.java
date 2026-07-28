@@ -67,7 +67,7 @@ class ProjectIndexSerializerTest {
     }
 
     private static Date createDate(int year, int month, int dayOfMonth, int hour, int minute, int seconds) {
-        Calendar cal = new GregorianCalendar();
+        var cal = new GregorianCalendar();
         cal.set(year, month - 1, dayOfMonth, hour, minute, seconds);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();

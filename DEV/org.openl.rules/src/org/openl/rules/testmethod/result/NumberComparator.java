@@ -38,7 +38,7 @@ class NumberComparator implements TestResultComparator {
                 return false;
             } else {
                 // Number ~= Number
-                double diff = Math.abs(actual - expected);
+                var diff = Math.abs(actual - expected);
                 double epsilon = delta == null ? Math.ulp(actual) : delta;
                 return epsilon < 1 ? diff <= epsilon : diff < epsilon;
             }

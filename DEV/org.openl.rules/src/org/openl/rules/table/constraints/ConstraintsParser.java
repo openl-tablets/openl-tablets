@@ -13,12 +13,12 @@ public final class ConstraintsParser {
     public static final String CONSTRAINTS_SEPARATOR = "&";
 
     public static List<Constraint> parse(String value) {
-        List<Constraint> constraints = new ArrayList<>();
-        ConstraintFactory constraintFactory = new ConstraintFactory();
+        var constraints = new ArrayList<Constraint>();
+        var constraintFactory = new ConstraintFactory();
 
         if (StringUtils.isNotBlank(value)) {
             for (String constraintExpression : value.split(CONSTRAINTS_SEPARATOR)) {
-                Constraint constraint = constraintFactory.getConstraint(constraintExpression);
+                var constraint = constraintFactory.getConstraint(constraintExpression);
                 if (constraint != null) {
                     constraints.add(constraint);
                 }

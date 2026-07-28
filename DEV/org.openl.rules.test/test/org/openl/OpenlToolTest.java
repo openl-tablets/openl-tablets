@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IMethodSignature;
@@ -26,11 +25,11 @@ class OpenlToolTest {
     @Test
     void testMakeMethod() {
         OpenL openl = OpenL.getInstance();
-        String name = "abc";
-        IMethodSignature signature = IMethodSignature.VOID;
+        var name = "abc";
+        var signature = IMethodSignature.VOID;
         IOpenClass declaringClass = null;
 
-        IBindingContext cxt = openl.getBinder().makeBindingContext();
+        var cxt = openl.getBinder().makeBindingContext();
 
         IOpenMethod m = OpenLManager
                 .makeMethodWithUnknownType(openl, new StringSourceCodeModule("5", null), name, signature, declaringClass, cxt);

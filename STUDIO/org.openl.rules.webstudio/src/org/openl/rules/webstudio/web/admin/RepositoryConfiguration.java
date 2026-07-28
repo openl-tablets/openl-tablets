@@ -5,11 +5,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import jakarta.validation.Valid;
@@ -99,14 +97,14 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         this.repoMode = repoMode;
 
         // Define default settings for the new repository
-        String defaultSettingsPrefix = REPOSITORY_DEFAULT_PREFIX + repoMode.getId();
+        var defaultSettingsPrefix = REPOSITORY_DEFAULT_PREFIX + repoMode.getId();
         properties.setProperty(nameWithPrefix + ".comment-template.$ref", defaultSettingsPrefix + ".comment-template");
         properties.setProperty(nameWithPrefix + ".base.path.$ref", defaultSettingsPrefix + ".base.path");
         if (repoMode.equals(RepositoryMode.DESIGN)) {
             properties.setProperty(nameWithPrefix + ".new-branch.$ref", defaultSettingsPrefix + ".new-branch");
         }
 
-        String defValue = properties.getProperty(defaultSettingsPrefix + ".name");
+        var defValue = properties.getProperty(defaultSettingsPrefix + ".name");
         setName(valueFinder.apply("name", defValue));
         oldName = name;
 
@@ -119,7 +117,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     }
 
     private void load() {
-        String factoryClassName = properties.getProperty(REPOSITORY_FACTORY);
+        var factoryClassName = properties.getProperty(REPOSITORY_FACTORY);
         repoType = RepositoryInstatiator.getRefID(factoryClassName);
         RepositoryType repositoryType = RepositoryType.findByFactory(repoType);
         if (repositoryType == null) {
@@ -173,7 +171,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
             case GIT -> {
                 if (createUniquePath) {
                     // Generate a unique path for a just created GIT configuration
-                    String defValue = properties.getProperty(REPOSITORY_DEFAULT_PREFIX + repositoryMode.getId() + GitRepositorySettings.URI_SUFFIX);
+                    var defValue = properties.getProperty(REPOSITORY_DEFAULT_PREFIX + repositoryMode.getId() + GitRepositorySettings.URI_SUFFIX);
                     properties.setProperty(nameWithPrefix + GitRepositorySettings.URI_SUFFIX, valueFinder.apply("uri", defValue));
                 }
                 yield new GitRepositorySettings(properties, configPrefix, repositoryMode);
@@ -186,7 +184,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     private void store(PropertiesHolder propertiesHolder) {
         propertiesHolder.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
 
-        String factoryId = Objects.requireNonNull(RepositoryType.findByFactory(repoType)).factoryId;
+        var factoryId = Objects.requireNonNull(RepositoryType.findByFactory(repoType)).factoryId;
         propertiesHolder.setProperty(REPOSITORY_REF, factoryId);
 
         settings.store(propertiesHolder);
@@ -201,7 +199,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
 
     @JsonIgnore
     public PropertiesHolder getPropertiesToValidate() {
-        InMemoryProperties tempProps = new InMemoryProperties(getProperties().getPropertyResolver());
+        var tempProps = new InMemoryProperties(getProperties().getPropertyResolver());
         store(tempProps);
         return tempProps;
     }
@@ -272,11 +270,11 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
 
         @Override
         public int compare(RepositoryConfiguration o1, RepositoryConfiguration o2) {
-            Matcher m1 = pattern.matcher(o1.getName());
-            Matcher m2 = pattern.matcher(o2.getName());
+            var m1 = pattern.matcher(o1.getName());
+            var m2 = pattern.matcher(o2.getName());
             while (true) {
-                boolean f1 = m1.find();
-                boolean f2 = m2.find();
+                var f1 = m1.find();
+                var f2 = m2.find();
                 if (!f1 && !f2) {
                     return 0;
                 }
@@ -284,15 +282,15 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
                     return f1 ? 1 : -1;
                 }
 
-                String s1 = m1.group(1);
-                String s2 = m2.group(1);
-                int compare = s1.compareToIgnoreCase(s2);
+                var s1 = m1.group(1);
+                var s2 = m2.group(1);
+                var compare = s1.compareToIgnoreCase(s2);
                 if (compare != 0) {
                     return compare;
                 }
 
-                String n1 = m1.group(2);
-                String n2 = m2.group(2);
+                var n1 = m1.group(2);
+                var n2 = m2.group(2);
                 if (!n1.equals(n2)) {
                     if (n1.isEmpty()) {
                         return -1;
@@ -308,22 +306,22 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
 
     private static BiFunction<String, String, String> createValueFinder(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
         return (paramNameSuffix, defValue) -> {
-            AtomicInteger max = new AtomicInteger(-1);
-            String configName = repoMode.getId();
-            Set<String> configNames = configurations.stream().map(RepositoryConfiguration::getConfigName).collect(Collectors
+            var max = new AtomicInteger(-1);
+            var configName = repoMode.getId();
+            var configNames = configurations.stream().map(RepositoryConfiguration::getConfigName).collect(Collectors
                     .toSet());
 
             //existingConfigNames can contain ids that were deleted but were not saved, such ids should not be assigned to a new repository
-            String existingConfigNames = Props.getEnvironment().getProperty(configName + "-repository-configs");
+            var existingConfigNames = Props.getEnvironment().getProperty(configName + "-repository-configs");
             if (StringUtils.isNotEmpty(existingConfigNames)) {
                 configNames.addAll(Arrays.asList(existingConfigNames.split(",")));
             }
 
             configNames.forEach(rc -> configurations.forEach(configuration -> {
-                String repoValue = configuration.getPropertiesToValidate()
+                var repoValue = configuration.getPropertiesToValidate()
                         .getProperty(Comments.REPOSITORY_PREFIX + rc + "." + paramNameSuffix);
                 if (repoValue != null && repoValue.startsWith(defValue)) {
-                    final String suffix = repoValue.substring(defValue.length());
+                    final var suffix = repoValue.substring(defValue.length());
                     if (suffix.matches("\\d*")) {
                         try {
                             int i = suffix.isEmpty() ? 0 : Integer.parseInt(suffix);
@@ -337,7 +335,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
                     }
                 }
             }));
-            int index = max.get();
+            var index = max.get();
             return index >= 0 && index < Integer.MAX_VALUE ? defValue + (max.incrementAndGet()) : defValue;
         };
     }

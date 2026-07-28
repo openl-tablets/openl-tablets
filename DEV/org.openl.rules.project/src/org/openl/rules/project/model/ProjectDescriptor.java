@@ -110,7 +110,7 @@ public class ProjectDescriptor {
     private boolean classPathCleanupRegistered;
 
     public String getRelativeUri() {
-        Path parent = projectFolder.getParent();
+        var parent = projectFolder.getParent();
         if (parent == null) {
             return projectFolder.toUri().toString();
         } else {
@@ -120,7 +120,7 @@ public class ProjectDescriptor {
 
     private URI fixJarURI(URI jarURI) {
         if ("jar".equals(jarURI.getScheme())) {
-            URI uriToZip = jarURI;
+            var uriToZip = jarURI;
             if (uriToZip.getSchemeSpecificPart().contains("%")) {
                 // FIXME workaround to fix double URI encoding for URIs from ZipPath
                 try {
@@ -142,7 +142,7 @@ public class ProjectDescriptor {
         try {
             projectUrl = fixJarURI(projectFolder.toUri()).normalize().toURL();
             if ("jar".equals(projectUrl.getProtocol())) {
-                String file = projectUrl.getPath();
+                var file = projectUrl.getPath();
                 // jar URLs must be ended with '!/' or '/' for proper URLClassLoader work
                 if (!file.endsWith("/")) {
                     String suffix;
@@ -168,9 +168,9 @@ public class ProjectDescriptor {
         if (classPathUrls == null) {
             synchronized (this) {
                 if (classPathUrls == null) {
-                    List<URL> urls = new ArrayList<>();
+                    var urls = new ArrayList<URL>();
                     urls.add(projectUrl);
-                    List<URL> originalUrls = new ArrayList<>(urls);
+                    var originalUrls = new ArrayList<URL>(urls);
                     for (String path : processClasspathPathPatterns()) {
                         path = path.replaceAll("\\\\", "/");
                         URL url;
@@ -192,7 +192,7 @@ public class ProjectDescriptor {
                                         Path temp = Files.createTempFile("tmp-" + FileUtils.getBaseName(path) + "-",
                                                 FileUtils.getExtension(path));
                                         classPathTempFiles.add(temp);
-                                        try (InputStream is = url.openStream()) {
+                                        try (var is = url.openStream()) {
                                             Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
                                         }
                                         url = temp.toUri().normalize().toURL();
@@ -206,7 +206,7 @@ public class ProjectDescriptor {
                                 continue;
                             }
                         }
-                        boolean f = false;
+                        var f = false;
                         for (URL url1 : originalUrls) {
                             if (url1.sameFile(originalUrl)) {
                                 f = true;
@@ -259,7 +259,7 @@ public class ProjectDescriptor {
 
         @Override
         public synchronized void run() {
-            List<Path> failed = new ArrayList<>();
+            var failed = new ArrayList<Path>();
             for (Path file : files) {
                 try {
                     Files.deleteIfExists(file);
@@ -286,10 +286,10 @@ public class ProjectDescriptor {
     }
 
     private Set<String> processClasspathPathPatterns() {
-        Set<String> pathEntries = new HashSet<>();
+        var pathEntries = new HashSet<String>();
         var entries = CollectionUtils.isEmpty(classpath) ? DEFAULT_CLASSPATH : this.classpath;
         for (String pathEntry : entries) {
-            String path = pathEntry.replace('\\', '/').trim();
+            var path = pathEntry.replace('\\', '/').trim();
             if (path.startsWith("./")) {
                 path = path.substring(2);
             }
@@ -301,7 +301,7 @@ public class ProjectDescriptor {
                     // it is a folder
                     pathEntries.add(path);
                 } else {
-                    File file = new File(path);
+                    var file = new File(path);
                     if (file.isAbsolute() && file.isDirectory()) {
                         // it is a folder
                         pathEntries.add(path + "/");
@@ -326,7 +326,7 @@ public class ProjectDescriptor {
                     if (attrs.isDirectory()) {
                         return FileVisitResult.CONTINUE;
                     }
-                    String relativePath = rootFolder.relativize(file).toString();
+                    var relativePath = rootFolder.relativize(file).toString();
                     relativePath = relativePath.replace('\\', '/');
                     if (FileUtils.pathMatches(pathPattern, relativePath)) {
                         pathEntries.add(relativePath);
@@ -480,10 +480,10 @@ public class ProjectDescriptor {
     }
 
     private boolean containsInProcessedModules(Collection<Module> modules, Module m, Path projectRoot) {
-        final Path targetModulePath = projectRoot.resolve(m.getRulesRootPath());
+        final var targetModulePath = projectRoot.resolve(m.getRulesRootPath());
 
         for (Module module : modules) {
-            Path modulePath = projectRoot.resolve(module.getRulesRootPath());
+            var modulePath = projectRoot.resolve(module.getRulesRootPath());
             if (targetModulePath.equals(modulePath)) {
                 return true;
             }
@@ -493,24 +493,24 @@ public class ProjectDescriptor {
 
     public List<Module> getAllModulesMatchingPathPattern(Module module,
                                                          String pathPattern) throws IOException {
-        List<Module> matchedModules = new ArrayList<>();
+        var matchedModules = new ArrayList<Module>();
 
-        String ptrn = pathPattern.trim();
-        Path rootPath = getProjectFolder();
+        var ptrn = pathPattern.trim();
+        var rootPath = getProjectFolder();
 
         Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                String relativePath = rootPath.relativize(file).toString().replace("\\", "/");
+                var relativePath = rootPath.relativize(file).toString().replace("\\", "/");
                 if (isNotTemporaryFile(file) && FileUtils.pathMatches(ptrn, relativePath)) {
-                    Path modulePath = file.toAbsolutePath();
-                    Module m = new Module();
+                    var modulePath = file.toAbsolutePath();
+                    var m = new Module();
                     m.setProject(ProjectDescriptor.this);
                     m.setRulesRootPath(relativePath);
                     m.setName(FileUtils.getBaseName(modulePath.toString()));
                     m.setMethodFilter(module.getMethodFilter());
                     if (module.getWebstudioConfiguration() != null) {
-                        WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
+                        var webstudioConfiguration = new WebstudioConfiguration();
                         webstudioConfiguration
                                 .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
                         m.setWebstudioConfiguration(webstudioConfiguration);

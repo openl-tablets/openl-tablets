@@ -37,20 +37,20 @@ public class ProjectAccessService {
     private final ProjectListingContext listingContext;
 
     public ProjectCapabilities computeCapabilities(AProject project) {
-        boolean read = aclProjectsHelper.hasPermission(project, BasePermission.READ);
-        boolean write = aclProjectsHelper.hasPermission(project, BasePermission.WRITE);
-        boolean delete = aclProjectsHelper.hasPermission(project, BasePermission.DELETE);
-        boolean administer = aclProjectsHelper.hasPermission(project, BasePermission.ADMINISTRATION);
+        var read = aclProjectsHelper.hasPermission(project, BasePermission.READ);
+        var write = aclProjectsHelper.hasPermission(project, BasePermission.WRITE);
+        var delete = aclProjectsHelper.hasPermission(project, BasePermission.DELETE);
+        var administer = aclProjectsHelper.hasPermission(project, BasePermission.ADMINISTRATION);
         if (!(project instanceof UserWorkspaceProject workspaceProject)) {
             return ProjectCapabilities.builder().build();
         }
-        boolean localOnly = workspaceProject.isLocalOnly();
+        var localOnly = workspaceProject.isLocalOnly();
         // A local-only project is itself the working copy, so it is always editable; a committed project
         // must be opened for editing first. canModify folds in the branch-protection and lock state.
-        boolean editable = projectStateValidator.canModify(workspaceProject)
+        var editable = projectStateValidator.canModify(workspaceProject)
                 && (localOnly || workspaceProject.isOpenedForEditing());
         // Compare, view-history and export are all "read a shared (non-local) project".
-        boolean readShared = read && !localOnly;
+        var readShared = read && !localOnly;
         return ProjectCapabilities.builder()
                 .project(Capabilities.builder()
                         .canWrite(flag(write && editable))

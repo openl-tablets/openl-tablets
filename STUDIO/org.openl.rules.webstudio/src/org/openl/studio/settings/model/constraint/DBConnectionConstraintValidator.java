@@ -25,7 +25,7 @@ public class DBConnectionConstraintValidator implements ConstraintValidator<DBCo
     }
 
     private boolean testConnection(DBSettings settings, ConstraintValidatorContext ctx) {
-        try (Connection connection = openConnection(settings)) {
+        try (var connection = openConnection(settings)) {
             return connection.isValid(2);
         } catch (SQLException e) {
             var errorMessage = Optional.of(e.getErrorCode())

@@ -3,7 +3,6 @@ package org.openl.rules.table.xls.writers;
 import java.util.Date;
 
 import org.apache.poi.ss.usermodel.BuiltinFormats;
-import org.apache.poi.ss.usermodel.CellStyle;
 
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -17,10 +16,10 @@ public class XlsCellDateWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
-        Date dateValue = (Date) getValueToWrite();
+        var dateValue = (Date) getValueToWrite();
         getCellToWrite().setCellValue(dateValue);
 
-        CellStyle previousStyle = getCellToWrite().getCellStyle();
+        var previousStyle = getCellToWrite().getCellStyle();
         getCellToWrite().setCellStyle(
                 PoiExcelHelper.createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook()));
         getCellToWrite().getCellStyle().cloneStyleFrom(previousStyle);

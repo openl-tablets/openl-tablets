@@ -1,7 +1,6 @@
 package org.openl.rules.service;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
@@ -21,15 +20,15 @@ public class TableServiceImpl {
 
     public synchronized void removeTable(IGridTable table) throws TableServiceException {
         try {
-            IGridRegion tableRegion = table.getRegion();
-            int left = tableRegion.getLeft();
-            int top = tableRegion.getTop();
-            int right = tableRegion.getRight();
-            int bottom = tableRegion.getBottom();
-            XlsSheetGridModel sheetModel = (XlsSheetGridModel) table.getGrid();
-            for (int row = top; row <= bottom; row++) {
-                for (int col = left; col <= right; col++) {
-                    ICell cell = sheetModel.getCell(col, row);
+            var tableRegion = table.getRegion();
+            var left = tableRegion.getLeft();
+            var top = tableRegion.getTop();
+            var right = tableRegion.getRight();
+            var bottom = tableRegion.getBottom();
+            var sheetModel = (XlsSheetGridModel) table.getGrid();
+            for (var row = top; row <= bottom; row++) {
+                for (var col = left; col <= right; col++) {
+                    var cell = sheetModel.getCell(col, row);
                     if (cell.getWidth() != 1 || cell.getHeight() != 1) {
                         sheetModel.removeMergedRegion(col, row);
                     }
@@ -48,7 +47,7 @@ public class TableServiceImpl {
     public synchronized IGridRegion moveTable(IGridTable table) throws TableServiceException {
         IGridRegion newRegion;
         try {
-            TableBuilder tableBuilder = new TableBuilder((XlsSheetGridModel) table.getGrid(), metaInfoWriter);
+            var tableBuilder = new TableBuilder((XlsSheetGridModel) table.getGrid(), metaInfoWriter);
             tableBuilder.beginTable(table.getWidth(), table.getHeight());
             newRegion = tableBuilder.getTableRegion();
             tableBuilder.writeGridTable(table);
@@ -65,7 +64,7 @@ public class TableServiceImpl {
             throw new TableServiceException("Bad destination region size.");
         }
         try {
-            TableBuilder tableBuilder = new TableBuilder((XlsSheetGridModel) table.getGrid(), metaInfoWriter);
+            var tableBuilder = new TableBuilder((XlsSheetGridModel) table.getGrid(), metaInfoWriter);
             tableBuilder.beginTable(destRegion);
             tableBuilder.writeGridTable(table);
             tableBuilder.endTable();

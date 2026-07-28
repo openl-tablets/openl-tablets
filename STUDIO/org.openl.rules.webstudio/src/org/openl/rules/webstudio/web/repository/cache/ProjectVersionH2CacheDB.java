@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -80,7 +79,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     }
 
     public boolean isCacheEmpty() throws IOException {
-        int count = 0;
+        var count = 0;
         Connection connection = null;
         PreparedStatement selectPreparedStatement = null;
         ResultSet rs = null;
@@ -198,7 +197,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
         Connection connection = null;
         PreparedStatement selectPreparedStatement = null;
         ResultSet rs = null;
-        boolean state = false;
+        var state = false;
         try {
             connection = getDBConnection();
             connection.setAutoCommit(false);
@@ -220,7 +219,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     }
 
     public void closeDb() throws IOException {
-        try (Connection connection = getDBConnection(); Statement statement = connection.createStatement()) {
+        try (var connection = getDBConnection(); var statement = connection.createStatement()) {
             statement.execute("SHUTDOWN");
         } catch (Exception e) {
             throw new IOException(e);
@@ -259,7 +258,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
         PreparedStatement insertPreparedStatement = null;
         ResultSet checkStateResult = null;
         ResultSet rs = null;
-        int state = 0;
+        var state = 0;
         try {
             connection.setAutoCommit(false);
             checkPreparedStatement = connection.prepareStatement(CHECK_STATE_QUERY);

@@ -49,8 +49,8 @@ public abstract class Range<T> {
     }
 
     protected void validate() {
-        T left = getLeft();
-        T right = getRight();
+        var left = getLeft();
+        var right = getRight();
         if (left != null && right != null && compare(left, right) > 0) {
             var sb = new StringBuilder(96);
             sb.append("The right bound '");
@@ -88,16 +88,16 @@ public abstract class Range<T> {
         if (value == null) {
             return false;
         }
-        Type type = getType();
+        var type = getType();
         if (type.left != Bound.UNBOUND) {
-            int comparison = compare(getLeft(), value);
+            var comparison = compare(getLeft(), value);
             if (comparison > 0 || comparison == 0 && type.left == Bound.OPEN) {
                 // less than the left bound
                 return false;
             }
         }
         if (type.right != Bound.UNBOUND) {
-            int comparison = compare(value, getRight());
+            var comparison = compare(value, getRight());
             if (comparison > 0 || comparison == 0 && type.right == Bound.OPEN) {
                 // greater than the right bound
                 return false;
@@ -132,7 +132,7 @@ public abstract class Range<T> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Range<?> other = (Range<?>) obj;
+        var other = (Range<?>) obj;
 
         return getType().left == other.getType().left &&
                 getType().right == other.getType().right &&
@@ -147,8 +147,8 @@ public abstract class Range<T> {
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder(20);
-        Type type = getType();
+        var s = new StringBuilder(20);
+        var type = getType();
         switch (type) {
             case OPEN:
             case CLOSED:
@@ -188,14 +188,14 @@ public abstract class Range<T> {
 
 
     private int compareLeft(Range<T> range) {
-        Type type = getType();
-        Type otherType = range.getType();
+        var type = getType();
+        var otherType = range.getType();
         if (type.left != Bound.UNBOUND) {
             if (otherType.left == Bound.UNBOUND) {
                 // -Infinity is always less than any bound
                 return 1;
             }
-            int comparison = compare(getLeft(), range.getLeft());
+            var comparison = compare(getLeft(), range.getLeft());
             if (comparison == 0 && type.left == otherType.left) {
                 return 0;
             } else {
@@ -209,14 +209,14 @@ public abstract class Range<T> {
 
 
     private int compareRight(Range<T> range) {
-        Type type = getType();
-        Type otherType = range.getType();
+        var type = getType();
+        var otherType = range.getType();
         if (type.right != Bound.UNBOUND) {
             if (otherType.right == Bound.UNBOUND) {
                 // Infinity is always greater than any bound
                 return -1;
             }
-            int comparison = compare(getRight(), range.getRight());
+            var comparison = compare(getRight(), range.getRight());
             if (comparison == 0 && type.right == otherType.right) {
                 return 0;
             } else {

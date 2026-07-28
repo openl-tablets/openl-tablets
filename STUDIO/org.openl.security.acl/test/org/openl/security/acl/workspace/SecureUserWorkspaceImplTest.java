@@ -41,7 +41,7 @@ class SecureUserWorkspaceImplTest {
 
     @Test
     void revokedOpenedCopyIsClosedAndHidden() throws ProjectException {
-        RulesProject project = project(true, false, false);
+        var project = project(true, false, false);
 
         assertTrue(secureWorkspace.getProjects().isEmpty());
 
@@ -50,7 +50,7 @@ class SecureUserWorkspaceImplTest {
 
     @Test
     void grantedOpenedCopyStaysOpened() throws ProjectException {
-        RulesProject project = project(true, false, true);
+        var project = project(true, false, true);
 
         assertTrue(secureWorkspace.getProjects().contains(project));
 
@@ -59,7 +59,7 @@ class SecureUserWorkspaceImplTest {
 
     @Test
     void localProjectIsNotClosed() throws ProjectException {
-        RulesProject project = project(true, true, false);
+        var project = project(true, true, false);
 
         assertTrue(secureWorkspace.getProjects().isEmpty());
 
@@ -68,7 +68,7 @@ class SecureUserWorkspaceImplTest {
 
     @Test
     void closedProjectIsNotTouched() throws ProjectException {
-        RulesProject project = project(false, false, false);
+        var project = project(false, false, false);
 
         assertTrue(secureWorkspace.getProjects().isEmpty());
 
@@ -77,7 +77,7 @@ class SecureUserWorkspaceImplTest {
 
     @Test
     void closeFailureDoesNotBreakTheListing() throws ProjectException {
-        RulesProject project = project(true, false, false);
+        var project = project(true, false, false);
         doThrow(new ProjectException("Locked")).when(project).close();
 
         assertTrue(secureWorkspace.getProjects().isEmpty());
@@ -85,7 +85,7 @@ class SecureUserWorkspaceImplTest {
 
     @Test
     void repositoryListingEvictsTheRevokedCopy() throws ProjectException {
-        RulesProject project = project(true, false, false);
+        var project = project(true, false, false);
         when(delegate.getProjects("design")).thenReturn(List.of(project));
 
         assertTrue(secureWorkspace.getProjects("design").isEmpty());

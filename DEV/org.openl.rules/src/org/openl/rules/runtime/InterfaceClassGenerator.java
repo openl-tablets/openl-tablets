@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.openl.binding.impl.component.ComponentOpenClass;
@@ -64,17 +63,17 @@ public class InterfaceClassGenerator {
             return generateAndLoad(className, classLoader, classBuilder);
         }
 
-        Set<MethodKey> methodsInClass = new HashSet<>();
+        var methodsInClass = new HashSet<MethodKey>();
 
-        Map<IOpenClass, Boolean> validationMap = new HashMap<>();
+        var validationMap = new HashMap<IOpenClass, Boolean>();
 
         final Collection<IOpenMethod> methods = openClass.getMethods();
         for (IOpenMethod method : methods) {
             if (!isIgnoredMember(method, validationMap)) {
                 var signature = method.getSignature();
-                String name = method.getName();
+                var name = method.getName();
                 Class<?> returnType = method.getType().getInstanceClass();
-                boolean isMember = isMember(name, returnType, signature.getParameterTypes());
+                var isMember = isMember(name, returnType, signature.getParameterTypes());
                 if (isMember) {
                     var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
                     if (provideRuntimeContext) {
@@ -82,7 +81,7 @@ public class InterfaceClassGenerator {
                         methodBuilder.addParameter(new TypeDescription(IRulesRuntimeContext.class.getName()));
                     }
                     var pNum = signature.getNumberOfParameters();
-                    for (int i = 0; i < pNum; i++) {
+                    for (var i = 0; i < pNum; i++) {
                         var paramName = signature.getParameterName(i);
                         var paramType = signature.getParameterType(i).getInstanceClass().getName();
                         methodBuilder.addParameterName(paramName);
@@ -98,9 +97,9 @@ public class InterfaceClassGenerator {
             if (!isIgnoredMember(field, validationMap) && field.isReadable()) {
                 String name = ClassUtils.getter(field.getName());
                 Class<?> returnType = field.getType().getInstanceClass();
-                boolean isMember = isMember(name, returnType, IOpenClass.EMPTY);
+                var isMember = isMember(name, returnType, IOpenClass.EMPTY);
                 if (isMember) {
-                    MethodKey key = new MethodKey(name, IOpenClass.EMPTY);
+                    var key = new MethodKey(name, IOpenClass.EMPTY);
                     // Skip getter for field if method is defined with the same signature.
                     if (!methodsInClass.contains(key)) {
                         var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
@@ -154,13 +153,13 @@ public class InterfaceClassGenerator {
     }
 
     private static boolean isInvalidType(IOpenClass openClass, Map<IOpenClass, Boolean> invalidTypeMap) {
-        Boolean v = invalidTypeMap.get(openClass);
+        var v = invalidTypeMap.get(openClass);
         if (v != null) {
             return v;
         }
         invalidTypeMap.put(openClass, Boolean.FALSE);
         if (openClass.isArray()) {
-            boolean isInvalidComponentType = isInvalidType(openClass.getComponentClass(), invalidTypeMap);
+            var isInvalidComponentType = isInvalidType(openClass.getComponentClass(), invalidTypeMap);
             invalidTypeMap.put(openClass, isInvalidComponentType);
             return isInvalidComponentType;
         }
@@ -190,10 +189,10 @@ public class InterfaceClassGenerator {
         }
 
         // Then check module-level signature-based filter (regex on full method signature)
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append(returnType.getCanonicalName());
         sb.append(" ").append(name).append("(");
-        boolean first = true;
+        var first = true;
         for (IOpenClass paramType : parameterTypes) {
             if (first) {
                 first = false;
@@ -205,7 +204,7 @@ public class InterfaceClassGenerator {
         sb.append(")");
         var methodSignature = sb.toString();
 
-        boolean isMember = true;
+        var isMember = true;
         if (includes != null && includes.length > 0) {
             isMember = false;
             for (String pattern : includes) {
@@ -225,7 +224,7 @@ public class InterfaceClassGenerator {
     }
 
     private boolean isNameIncluded(String name) {
-        boolean included = true;
+        var included = true;
         if (nameIncludes != null && !nameIncludes.isEmpty()) {
             included = false;
             for (var pattern : nameIncludes) {

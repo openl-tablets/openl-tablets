@@ -20,7 +20,7 @@ public class DeclareIteratorOperation extends RuntimeOperation {
 
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
-        Iterator iterator = getIterator(param);
+        var iterator = getIterator(param);
         environment.getTbasicTarget().setFieldValue(IteratorNextOperation.ITERATOR + elementName, iterator, true);
 
         return new Result(ReturnType.NEXT, iterator);

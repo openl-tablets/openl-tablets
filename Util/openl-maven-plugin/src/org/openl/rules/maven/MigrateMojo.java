@@ -16,8 +16,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.command.add.AddScmResult;
-import org.apache.maven.scm.command.checkin.CheckInScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 
 import org.openl.OpenClassUtil;
@@ -149,7 +147,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
                 // run — surviving migrators may still apply useful changes. The error message goes to ERROR,
                 // the stacktrace stays at DEBUG so build logs remain readable by default.
                 try {
-                    List<Path> changed = migrator.migrate(source, generatedInterface);
+                    var changed = migrator.migrate(source, generatedInterface);
                     if (changed.isEmpty()) {
                         debug("[", migrator.getId(), "] no changes.");
                         continue;
@@ -269,12 +267,12 @@ public final class MigrateMojo extends BaseOpenLMojo {
         var fileSet = new ScmFileSet(baseDir, files);
         var repository = scmManager.makeScmRepository(scmConnection);
 
-        AddScmResult addResult = scmManager.add(repository, fileSet);
+        var addResult = scmManager.add(repository, fileSet);
         if (!addResult.isSuccess()) {
             throw new MojoFailureException("[" + migrator.getId() + "] SCM add failed: "
                     + addResult.getCommandOutput());
         }
-        CheckInScmResult checkInResult = scmManager.checkIn(repository, fileSet, message);
+        var checkInResult = scmManager.checkIn(repository, fileSet, message);
         if (!checkInResult.isSuccess()) {
             throw new MojoFailureException("[" + migrator.getId() + "] SCM check-in failed: "
                     + checkInResult.getCommandOutput());

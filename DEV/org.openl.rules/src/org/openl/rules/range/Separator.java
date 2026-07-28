@@ -42,7 +42,7 @@ enum Separator {
         if (index + chars.length > text.length()) {
             return false;
         }
-        for (int i = 0; i < chars.length; i++) {
+        for (var i = 0; i < chars.length; i++) {
             if (text.charAt(index + i) != chars[i]) {
                 return false;
             }

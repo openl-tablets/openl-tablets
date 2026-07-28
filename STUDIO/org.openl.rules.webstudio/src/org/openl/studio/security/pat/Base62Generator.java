@@ -37,7 +37,7 @@ public final class Base62Generator {
         }
 
         char[] out = new char[length];
-        for (int i = 0; i < length; i++) {
+        for (var i = 0; i < length; i++) {
             out[i] = ALPHABET[SECURE_RANDOM.nextInt(ALPHABET.length)];
         }
         return new String(out);

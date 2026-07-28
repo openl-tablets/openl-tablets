@@ -71,7 +71,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
             return false;
         }
 
-        URLSourceCodeModule urlSource = (URLSourceCodeModule) obj;
+        var urlSource = (URLSourceCodeModule) obj;
 
         return Objects.equals(url, urlSource.url);
     }

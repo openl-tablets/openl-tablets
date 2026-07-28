@@ -35,7 +35,7 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
     private UserWorkspaceFactory userWorkspaceFactory = new DefaultUserWorkspaceFactory();
 
     private UserWorkspace createUserWorkspace(WorkspaceUser user) {
-        UserWorkspace userWorkspace = getUserWorkspaceFactory()
+        var userWorkspace = getUserWorkspaceFactory()
                 .create(localWorkspaceManager, designTimeRepository, user);
         userWorkspace.addWorkspaceListener(this);
         return userWorkspace;
@@ -58,7 +58,7 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      * @return new or cached instance of user workspace
      */
     public UserWorkspace getUserWorkspace(WorkspaceUser user) {
-        UserWorkspace existing = userWorkspaces.get(user.getUserId());
+        var existing = userWorkspaces.get(user.getUserId());
         if (existing != null) {
             return existing;
         }

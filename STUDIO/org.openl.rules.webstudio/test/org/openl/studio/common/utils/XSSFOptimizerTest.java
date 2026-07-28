@@ -11,11 +11,9 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyles;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
 class XSSFOptimizerTest {
@@ -24,11 +22,11 @@ class XSSFOptimizerTest {
     void removeUnusedStyles() throws Exception {
         byte[] savedFile;
 
-        try (FileInputStream inputStream = new FileInputStream("test-resources/XSSFOptimizerTest.xlsx")) {
-            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+        try (var inputStream = new FileInputStream("test-resources/XSSFOptimizerTest.xlsx")) {
+            var workbook = new XSSFWorkbook(inputStream);
 
             // Check the state before optimization
-            CTCellStyles cellStyles = workbook.getStylesSource().getCTStylesheet().getCellStyles();
+            var cellStyles = workbook.getStylesSource().getCTStylesheet().getCellStyles();
             assertEquals(3, cellStyles.getCellStyleList().size());
             assertStyleExist("My Custom Style 2", cellStyles.getCellStyleList());
 
@@ -38,8 +36,8 @@ class XSSFOptimizerTest {
         }
 
         // Read saved file and get style info
-        StylesTable stylesSource = new XSSFWorkbook(new ByteArrayInputStream(savedFile)).getStylesSource();
-        CTCellStyles cellStyles = stylesSource.getCTStylesheet().getCellStyles();
+        var stylesSource = new XSSFWorkbook(new ByteArrayInputStream(savedFile)).getStylesSource();
+        var cellStyles = stylesSource.getCTStylesheet().getCellStyles();
 
         // Check that styles are removed
         assertNotNull(cellStyles);
@@ -49,13 +47,13 @@ class XSSFOptimizerTest {
         assertStyleExist("Normal", styleList);
 
         @SuppressWarnings("unchecked")
-        List<CTXf> styleXfs = (List<CTXf>) FieldUtils.readDeclaredField(stylesSource, "styleXfs", true);
+        var styleXfs = (List<CTXf>) FieldUtils.readDeclaredField(stylesSource, "styleXfs", true);
         assertNotNull(styleXfs);
         assertEquals(3, styleXfs.size());
     }
 
     private void assertStyleExist(String name, List<CTCellStyle> styleList) {
-        boolean found = false;
+        var found = false;
         for (CTCellStyle style : styleList) {
             if (name.equals(style.getName())) {
                 found = true;
@@ -66,7 +64,7 @@ class XSSFOptimizerTest {
     }
 
     private byte[] save(XSSFWorkbook workbook) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        var outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
         return outputStream.toByteArray();
     }

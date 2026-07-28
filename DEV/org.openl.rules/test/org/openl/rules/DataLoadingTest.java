@@ -16,17 +16,17 @@ class DataLoadingTest {
     void testMethodOverload1() {
         ITestI instance = TestUtils.create(SRC, ITestI.class);
 
-        Date[] res = instance.getDateSet();
+        var res = instance.getDateSet();
         Date[] expected = {new Date("12/31/2010"), new Date("1/1/2012")};
 
-        for (int i = 0; i < expected.length; i++) {
+        for (var i = 0; i < expected.length; i++) {
             assertEquals(expected[i], res[i]);
         }
 
-        Calendar[] resCal = instance.getCalendarSet();
+        var resCal = instance.getCalendarSet();
         Calendar[] expectedCal = {cal(expected[0]), cal(expected[1])};
 
-        for (int i = 0; i < expectedCal.length; i++) {
+        for (var i = 0; i < expectedCal.length; i++) {
             assertEquals(expectedCal[i], resCal[i]);
         }
 

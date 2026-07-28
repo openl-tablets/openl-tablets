@@ -151,8 +151,8 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @SuppressWarnings("unchecked")
     public static boolean isFromValuesIncludedToValues(DomainOpenClass from, DomainOpenClass to, IOpenCast openCast) {
-        IDomain<Object> fromDomain = (IDomain<Object>) from.getDomain();
-        IDomain<Object> toDomain = (IDomain<Object>) to.getDomain();
+        var fromDomain = (IDomain<Object>) from.getDomain();
+        var toDomain = (IDomain<Object>) to.getDomain();
         try {
             for (Object value : fromDomain) {
                 if (!toDomain.selectObject(openCast != null ? openCast.convert(value) : value)) {
@@ -277,7 +277,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
             return false;
         }
 
-        DomainOpenClass that = (DomainOpenClass) o;
+        var that = (DomainOpenClass) o;
 
         if (name.equals(that.name)) {
             return domain.equals(that.domain);

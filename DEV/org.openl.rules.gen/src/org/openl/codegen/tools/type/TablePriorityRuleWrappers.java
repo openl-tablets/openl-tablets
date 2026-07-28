@@ -1,8 +1,6 @@
 package org.openl.codegen.tools.type;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openl.codegen.tools.type.TablePriorityRuleWrapper.JavaClassPriorityRuleWrapper;
@@ -29,13 +27,13 @@ public class TablePriorityRuleWrappers {
     private static final Pattern SIMPLE_PRIORITY_RULE_PATTERN = Pattern.compile("([a-zA-Z]+)\\(([a-zA-Z]+)\\)");
 
     private static SimplePriorityRuleWrapper[] constructSimplePriorityRuleWrappers(String[] priorityRules) {
-        List<SimplePriorityRuleWrapper> wrappers = new ArrayList<>();
+        var wrappers = new ArrayList<SimplePriorityRuleWrapper>();
         for (String priorityRule : priorityRules) {
             try {
-                Matcher matcher = SIMPLE_PRIORITY_RULE_PATTERN.matcher(priorityRule);
+                var matcher = SIMPLE_PRIORITY_RULE_PATTERN.matcher(priorityRule);
                 if (matcher.matches()) {
-                    String operationName = matcher.group(1);
-                    String propertyName = matcher.group(2);
+                    var operationName = matcher.group(1);
+                    var propertyName = matcher.group(2);
 
                     if (operationName.equalsIgnoreCase(MIN_OPERATION_NAME)) {
                         wrappers.add(new SimplePriorityRuleWrapper(priorityRule,
@@ -58,7 +56,7 @@ public class TablePriorityRuleWrappers {
     }
 
     private static JavaClassPriorityRuleWrapper[] constructJavaClassPriorityRuleWrappers(String[] priorityRules) {
-        List<JavaClassPriorityRuleWrapper> wrappers = new ArrayList<>();
+        var wrappers = new ArrayList<JavaClassPriorityRuleWrapper>();
         for (String priorityRule : priorityRules) {
             try {
                 if (priorityRule.startsWith(PREFIX)) {

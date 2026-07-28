@@ -15,7 +15,6 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.MessageFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,12 +29,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiConsumer;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
@@ -43,17 +40,14 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
-import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.ResetCommand;
-import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
@@ -78,9 +72,7 @@ import org.eclipse.jgit.lib.ObjectIdRef;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeMessageFormatter;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -214,7 +206,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         if (isEmpty()) {
             return Collections.emptyList();
         }
-        ObjectId objectId = resolveBranchId();
+        var objectId = resolveBranchId();
         if (objectId == null) {
             return Collections.emptyList();
         }
@@ -240,7 +232,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public FileData save(FileData data, InputStream stream) throws IOException {
         initializeGit(true);
 
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         try {
             log.debug("save(data, stream): lock");
             writeLock.lock();
@@ -268,8 +260,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         initializeGit(true);
 
-        List<FileData> result = new ArrayList<>();
-        Lock writeLock = repositoryLock.writeLock();
+        var result = new ArrayList<FileData>();
+        var writeLock = repositoryLock.writeLock();
         String firstCommitId = null;
         try {
             log.debug("save(multipleFiles): lock");
@@ -279,7 +271,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             checkoutForcedOrReset(branch);
 
             for (FileItem fileItem : fileItems) {
-                RevCommit commit = createCommit(fileItem.getData(), fileItem.getStream());
+                var commit = createCommit(fileItem.getData(), fileItem.getStream());
                 if (firstCommitId == null) {
                     firstCommitId = commit.getId().getName();
                 }
@@ -310,10 +302,10 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private void saveSingleFile(FileData data, InputStream stream) throws IOException {
         String commitId = null;
         try {
-            String parentVersion = data.getVersion();
-            boolean checkoutOldVersion = isCheckoutOldVersion(data.getName(), parentVersion);
+            var parentVersion = data.getVersion();
+            var checkoutOldVersion = isCheckoutOldVersion(data.getName(), parentVersion);
             checkoutForcedOrReset(checkoutOldVersion ? parentVersion : branch);
-            RevCommit commit = createCommit(data, stream);
+            var commit = createCommit(data, stream);
             commitId = commit.getId().getName();
 
             resolveAndMerge(data, checkoutOldVersion, commit);
@@ -330,9 +322,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private RevCommit createCommit(FileData data, InputStream stream) throws GitAPIException, IOException {
-        String fileInRepository = data.getName();
+        var fileInRepository = data.getName();
 
-        File file = new File(getLocalGitRoot(), fileInRepository);
+        var file = new File(getLocalGitRoot(), fileInRepository);
         createParent(file);
         IOUtils.copyAndClose(stream, new FileOutputStream(file));
 
@@ -359,7 +351,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private boolean deleteInternal(FileData data) throws IOException {
         String commitId = null;
 
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         try {
             log.debug("delete(): lock");
             writeLock.lock();
@@ -367,14 +359,14 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             checkoutForcedOrReset(branch);
 
-            String name = data.getName();
-            File file = new File(getLocalGitRoot(), name);
+            var name = data.getName();
+            var file = new File(getLocalGitRoot(), name);
             if (!file.exists()) {
                 return false;
             }
 
             git.rm().addFilepattern(name).call();
-            RevCommit commit = git.commit()
+            var commit = git.commit()
                     .setMessage(formatComment(CommitType.DELETE, data))
                     .setOnly(name)
                     .setNoVerify(noVerify)
@@ -407,7 +399,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public boolean delete(List<FileData> data) throws IOException {
         initializeGit(true);
 
-        boolean deleted = false;
+        var deleted = false;
         for (FileData f : data) {
             deleted |= deleteInternal(f);
         }
@@ -421,7 +413,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private FileData copy(String srcName, FileData destData) throws IOException {
         String commitId = null;
 
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         try {
             log.debug("copy(): lock");
             writeLock.lock();
@@ -429,12 +421,12 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             checkoutForcedOrReset(branch);
 
-            File src = new File(getLocalGitRoot(), srcName);
-            File dest = new File(getLocalGitRoot(), destData.getName());
+            var src = new File(getLocalGitRoot(), srcName);
+            var dest = new File(getLocalGitRoot(), destData.getName());
             IOUtils.copyAndClose(new FileInputStream(src), new FileOutputStream(dest));
 
             git.add().addFilepattern(destData.getName()).call();
-            RevCommit commit = git.commit()
+            var commit = git.commit()
                     .setMessage(formatComment(CommitType.SAVE, destData))
                     .setNoVerify(noVerify)
                     .setCommitter(committerName(destData.getAuthor()), committerEmail(destData.getAuthor()))
@@ -520,7 +512,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             return copy(srcName, destData);
         }
 
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         try {
             log.debug("copyHistory(): lock");
             writeLock.lock();
@@ -528,15 +520,15 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             checkoutForcedOrReset(branch);
 
-            File src = new File(getLocalGitRoot(), srcName);
+            var src = new File(getLocalGitRoot(), srcName);
             if (src.isDirectory()) {
-                List<FileItem> files = new ArrayList<>();
+                var files = new ArrayList<FileItem>();
                 try {
-                    List<FileData> fileData = listFiles(srcName + "/", version);
+                    var fileData = listFiles(srcName + "/", version);
                     for (FileData data : fileData) {
-                        String fileFrom = data.getName();
-                        FileItem fileItem = readHistory(fileFrom, data.getVersion());
-                        String fileTo = destData.getName() + fileFrom.substring(srcName.length());
+                        var fileFrom = data.getName();
+                        var fileItem = readHistory(fileFrom, data.getVersion());
+                        var fileTo = destData.getName() + fileFrom.substring(srcName.length());
                         files.add(new FileItem(fileTo, fileItem.getStream()));
                     }
                     saveMultipleFiles(destData, files, ChangesetType.FULL);
@@ -607,7 +599,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             return;
         }
 
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         writeLock.lock();
         try {
             log.debug("initialize(): lock");
@@ -650,13 +642,13 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             // Check if we should skip hooks.
             detectCanRunHooks();
 
-            boolean shouldFastForward = gitRoot.remote() && !gitRoot.empty();
+            var shouldFastForward = gitRoot.remote() && !gitRoot.empty();
             if (shouldFastForward) {
-                try (Repository repository = Git.open(getLocalGitRoot()).getRepository()) {
+                try (var repository = Git.open(getLocalGitRoot()).getRepository()) {
                     configureBuiltInLFS(repository);
 
                     initLfsCredentials();
-                    FetchResult fetchResult = fetchAll();
+                    var fetchResult = fetchAll();
                     doFastForward(fetchResult);
                     fastForwardNotMergedCommits(fetchResult);
                 } finally {
@@ -704,19 +696,19 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     private void cloneRemoteRepository() throws IOException, GitAPIException {
         try {
-            CloneCommand cloneCommand = Git.cloneRepository()
+            var cloneCommand = Git.cloneRepository()
                     .setURI(uri)
                     .setDirectory(getLocalGitRoot())
                     .setBranch(branch)
                     .setNoCheckout(true)
                     .setCloneAllBranches(true);
 
-            CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.CLONE);
+            var credentialsProvider = getCredentialsProvider(GitActionType.CLONE);
             if (credentialsProvider != null) {
                 cloneCommand.setCredentialsProvider(credentialsProvider);
             }
 
-            Git cloned = cloneCommand.call();
+            var cloned = cloneCommand.call();
             successAuthentication(GitActionType.CLONE);
 
             // After cloning without checkout we don't have HEAD and local branches. Need to create them.
@@ -744,7 +736,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     private void initLocalRepository() throws IOException, GitAPIException {
         try {
-            Git repo = Git.init().setDirectory(getLocalGitRoot()).call();
+            var repo = Git.init().setDirectory(getLocalGitRoot()).call();
             repo.close();
         } catch (Exception e) {
             FileUtils.deleteQuietly(getLocalGitRoot());
@@ -755,7 +747,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private void updateGitConfigs() throws IOException {
-        StoredConfig config = git.getRepository().getConfig();
+        var config = git.getRepository().getConfig();
 
         if (gcAutoDetach != null) {
             config.setBoolean(ConfigConstants.CONFIG_GC_SECTION,
@@ -769,8 +761,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     private void trackRemoteBranches(Git git) throws GitAPIException {
         List<Ref> remoteBranches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
-        TreeSet<String> localBranches = getAvailableBranches(git);
-        String remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
+        var localBranches = getAvailableBranches(git);
+        var remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
         for (Ref remoteBranch : remoteBranches) {
             if (remoteBranch.isSymbolic()) {
                 log.debug("Skip the symbolic branch '{}'.", remoteBranch.getName());
@@ -780,7 +772,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 log.warn("The branch {} will not be tracked", remoteBranch.getName());
                 continue;
             }
-            String branchName = remoteBranch.getName().substring(remotePrefix.length());
+            var branchName = remoteBranch.getName().substring(remotePrefix.length());
             try {
                 if (!localBranches.contains(branchName)) {
                     createRemoteTrackingBranch(git, branchName);
@@ -796,9 +788,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     private void detectCanRunHooks() {
         noVerify = false;
-        File hookDir = new File(git.getRepository().getDirectory(), Constants.HOOKS);
-        File preCommitHook = new File(hookDir, PreCommitHook.NAME);
-        File commitMsgHook = new File(hookDir, CommitMsgHook.NAME);
+        var hookDir = new File(git.getRepository().getDirectory(), Constants.HOOKS);
+        var preCommitHook = new File(hookDir, PreCommitHook.NAME);
+        var commitMsgHook = new File(hookDir, CommitMsgHook.NAME);
         if (!preCommitHook.isFile() && !commitMsgHook.isFile()) {
             log.debug("Hooks are absent");
             noVerify = true;
@@ -824,7 +816,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         // Unknown host
         if (cause instanceof UnknownHostException) {
             String error;
-            final String message = cause.getMessage();
+            final var message = cause.getMessage();
             if (message != null) {
                 error = "Unknown host (%s) for URL %s.".formatted(message, uri);
             } else {
@@ -906,7 +898,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     public void setCommentTemplate(String commentTemplate) {
         this.commentTemplate = commentTemplate;
-        String ct = commentTemplate.replace("{commit-type}", "{0}").replace("{user-message}", "{1}");
+        var ct = commentTemplate.replace("{commit-type}", "{0}").replace("{user-message}", "{1}");
         this.escapedCommentTemplate = escapeCurlyBrackets(ct);
         this.commitMessageParser = new CommitMessageParser(commentTemplate);
     }
@@ -969,7 +961,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private FileData createFileData(TreeWalk dirWalk, String baseFolder, ObjectId start) {
-        String fullPath = baseFolder + dirWalk.getPathString();
+        var fullPath = baseFolder + dirWalk.getPathString();
         return new LazyFileData(branch,
                 fullPath,
                 this,
@@ -980,7 +972,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private boolean isEmpty() throws IOException {
-        Ref headRef = git.getRepository().exactRef(Constants.HEAD);
+        var headRef = git.getRepository().exactRef(Constants.HEAD);
         return headRef == null || headRef.getObjectId() == null;
     }
 
@@ -992,7 +984,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private FileData createFileData(TreeWalk dirWalk, RevCommit fileCommit) {
-        String fullPath = dirWalk.getPathString();
+        var fullPath = dirWalk.getPathString();
 
         return new LazyFileData(branch,
                 fullPath,
@@ -1004,7 +996,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private ObjectId getFileId(TreeWalk dirWalk) {
-        int fileModeBits = dirWalk.getFileMode().getBits();
+        var fileModeBits = dirWalk.getFileMode().getBits();
         ObjectId fileId = null;
         if ((fileModeBits & FileMode.TYPE_FILE) != 0) {
             fileId = dirWalk.getObjectId(0);
@@ -1015,14 +1007,14 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     ObjectId getLastRevision() throws GitAPIException, IOException {
         FetchResult fetchResult = null;
 
-        Lock readLock = repositoryLock.readLock();
+        var readLock = repositoryLock.readLock();
 
         if (remote) {
             try {
                 readLock.lock();
                 initLfsCredentials();
 
-                boolean remoteLocked = remoteRepoLock.tryLock();
+                var remoteLocked = remoteRepoLock.tryLock();
                 if (!remoteLocked) {
                     // Skip because is already fetching by other thread.
                     return null;
@@ -1038,8 +1030,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             }
         }
 
-        boolean branchesChanged = false;
-        Lock writeLock = repositoryLock.writeLock();
+        var branchesChanged = false;
+        var writeLock = repositoryLock.writeLock();
         try {
             log.debug("getLastRevision(): lock write");
             writeLock.lock();
@@ -1052,14 +1044,14 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             TreeSet<String> availableBranches = getAvailableBranches();
 
-            BranchesData branches = getBranches(true);
-            Set<String> projectBranches = branches.getDescriptions()
+            var branches = getBranches(true);
+            var projectBranches = branches.getDescriptions()
                     .stream()
                     .map(BranchDescription::getName)
                     .collect(Collectors.toCollection(HashSet::new));
             branches.getProjectBranches().values().forEach(projectBranches::addAll);
 
-            List<String> branchesToRemove = new ArrayList<>();
+            var branchesToRemove = new ArrayList<String>();
             projectBranches.forEach(projectBranch -> {
                 if (!availableBranches.contains(projectBranch)) {
                     branchesToRemove.add(projectBranch);
@@ -1099,9 +1091,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     private BranchesData getBranches(boolean withLock) throws IOException {
         if (repositorySettings != null) {
-            boolean modified = !repositorySettings.getSyncDate().equals(settingsSyncDate);
+            var modified = !repositorySettings.getSyncDate().equals(settingsSyncDate);
             if (!modified) {
-                FileData fileData = repositorySettings.getRepository().check(branchesConfigFile);
+                var fileData = repositorySettings.getRepository().check(branchesConfigFile);
                 modified = fileData != null && settingsSyncDate.before(fileData.getModifiedAt());
             }
             if (modified) {
@@ -1119,9 +1111,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
      * @return true if need to force listener invocation. It can be if some branch was added or deleted.
      */
     private boolean doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
-        boolean branchesChanged = false;
+        var branchesChanged = false;
         for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
-            RefUpdate.Result result = refUpdate.getResult();
+            var result = refUpdate.getResult();
             switch (result) {
                 case FAST_FORWARD -> {
                     if (!isEmpty()) {
@@ -1141,13 +1133,13 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 case REJECTED_CURRENT_BRANCH -> checkoutForced(baseBranch); // On the next fetch the branch probably will be deleted
                 case FORCED -> {
                     if (ObjectId.zeroId().equals(refUpdate.getNewObjectId())) {
-                        String remoteName = refUpdate.getRemoteName();
+                        var remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
                             // Delete the branch
                             String branchToDelete = Repository.shortenRefName(remoteName);
                             String currentBranch = Repository.shortenRefName(git.getRepository().getFullBranch());
                             if (branchToDelete.equals(currentBranch)) {
-                                String branchToCheckout = git.lsRemote()
+                                var branchToCheckout = git.lsRemote()
                                         .setCredentialsProvider(getCredentialsProvider(GitActionType.FETCH_ALL))
                                         .callAsMap()
                                         .get("HEAD")
@@ -1162,7 +1154,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 }
                 case NEW -> {
                     if (ObjectId.zeroId().equals(refUpdate.getOldObjectId())) {
-                        String remoteName = refUpdate.getRemoteName();
+                        var remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
                             createRemoteTrackingBranch(git, Repository.shortenRefName(remoteName));
                             branchesChanged = true;
@@ -1202,8 +1194,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         // In this case fetchResult.getTrackingRefUpdates() can be empty.
         // If everything is merged into current branch, this method does nothing.
         // Obviously this method is not needed. It's invoked only to fix unexpected errors during work with repository.
-        Ref advertisedRef = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
-        Ref localRef = git.getRepository().findRef(branch);
+        var advertisedRef = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
+        var localRef = git.getRepository().findRef(branch);
         if (localRef != null && advertisedRef != null && !localRef.getObjectId().equals(advertisedRef.getObjectId())) {
             if (isMergedInto(advertisedRef.getObjectId(), localRef.getObjectId(), false)) {
                 // We enter here only if we have inconsistent repository state. Need additional investigation if this
@@ -1243,7 +1235,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
 
         try {
-            Ref r = fetchResult.getAdvertisedRef(branch);
+            var r = fetchResult.getAdvertisedRef(branch);
             if (r == null) {
                 r = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
             }
@@ -1255,8 +1247,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 return;
             }
 
-            String mergeMessage = getMergeMessage(r);
-            MergeResult mergeResult = git.merge()
+            var mergeMessage = getMergeMessage(r);
+            var mergeResult = git.merge()
                     .include(r.getObjectId())
                     .setStrategy(MergeStrategy.RECURSIVE)
                     .setMessage(mergeMessage)
@@ -1295,7 +1287,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     private void validateNonConflictingMerge(MergeResult mergeResult) throws IOException {
         log.debug("Merge result: {}", mergeResult);
-        MergeResult.MergeStatus status = mergeResult.getMergeStatus();
+        var status = mergeResult.getMergeStatus();
         if (!status.isSuccessful()) {
             if (status == MergeResult.MergeStatus.CONFLICTING) {
                 // Conflicting merge result is processed in validateMergeConflict().
@@ -1312,8 +1304,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                                        String branchFrom,
                                        UserInfo userInfo) throws GitAPIException, IOException {
         if (mergeResult.getMergeStatus() == MergeResult.MergeStatus.CONFLICTING) {
-            ObjectId[] mergedCommits = mergeResult.getMergedCommits();
-            Repository repository = git.getRepository();
+            var mergedCommits = mergeResult.getMergedCommits();
+            var repository = git.getRepository();
             List<Ref> tags = git.tagList().call();
 
             String baseCommit = getVersionName(repository, tags, mergeResult.getBase());
@@ -1345,7 +1337,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             }
 
             Set<String> conflictedFiles = mergeResult.getConflicts().keySet();
-            Map<String, String> diffs = new HashMap<>();
+            var diffs = new HashMap<String, String>();
 
             if (ourId != null && theirId != null) {
                 AbstractTreeIterator ourTreeParser = prepareTreeParser(repository, ourId);
@@ -1362,22 +1354,22 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 Pattern newPathPattern = Pattern.compile("(diff --git .+\\n.+\\+\\+\\+ \"b/).+?(\".*\\n@@.+)",
                         Pattern.DOTALL);
                 for (DiffEntry entry : diff) {
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    try (DiffFormatter formatter = new DiffFormatter(outputStream)) {
+                    var outputStream = new ByteArrayOutputStream();
+                    try (var formatter = new DiffFormatter(outputStream)) {
                         formatter.setRepository(repository);
                         formatter.setQuotePaths(false);
                         formatter.format(entry);
                         String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath()
                                 : entry.getNewPath();
-                        String comparison = outputStream.toString(StandardCharsets.UTF_8);
+                        var comparison = outputStream.toString(StandardCharsets.UTF_8);
 
                         // JGit currently doesn't support switching off quoting symbols with code < 0x80, so we used
                         // decode paths ourselves.
-                        Matcher oldPathMatcher = oldPathPattern.matcher(comparison);
+                        var oldPathMatcher = oldPathPattern.matcher(comparison);
                         if (oldPathMatcher.matches()) {
                             comparison = oldPathMatcher.replaceFirst("$1" + entry.getOldPath() + "$2");
                         }
-                        Matcher newPathMatcher = newPathPattern.matcher(comparison);
+                        var newPathMatcher = newPathPattern.matcher(comparison);
                         if (newPathMatcher.matches()) {
                             comparison = newPathMatcher.replaceFirst("$1" + entry.getNewPath() + "$2");
                         }
@@ -1386,8 +1378,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 }
             }
 
-            Map<String, WorkbookDiffResult> toAutoResolve = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-            boolean allCanAutoResolve = true;
+            var toAutoResolve = new TreeMap<String, WorkbookDiffResult>(String.CASE_INSENSITIVE_ORDER);
+            var allCanAutoResolve = true;
             for (String conflictedFile : conflictedFiles) {
                 if (!FileTypeHelper.isExcelFile(conflictedFile)) {
                     // skip non-excel resources
@@ -1410,7 +1402,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     try (XlsWorkbookMerger workbookMerger = XlsWorkbookMerger.create(baseConflictedFile.getStream(),
                             ourConflictedFile.getStream(),
                             theirConflictedFile.getStream())) {
-                        WorkbookDiffResult diffResult = workbookMerger.getDiffResult();
+                        var diffResult = workbookMerger.getDiffResult();
                         if (!diffResult.hasConflicts()) {
                             toAutoResolve.put(conflictedFile, diffResult);
                             diffs.remove(conflictedFile);
@@ -1451,7 +1443,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     theirBranch = branch;
                 }
                 try {
-                    ConflictResolveData conflictResolveData = autoResolveConflicts(toAutoResolve,
+                    var conflictResolveData = autoResolveConflicts(toAutoResolve,
                             ourCommit,
                             ourBranch,
                             theirCommit,
@@ -1474,10 +1466,10 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                                                      String ourBranch,
                                                      String theirCommit,
                                                      String theirBranch) throws IOException {
-        List<FileItem> autoResolved = new ArrayList<>();
-        StringBuilder sb = new StringBuilder("Merge commit with ").append(theirCommit)
+        var autoResolved = new ArrayList<FileItem>();
+        var sb = new StringBuilder("Merge commit with ").append(theirCommit)
                 .append("\n\n Automatically resolved conflicts:");
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        var output = new ByteArrayOutputStream();
         BiConsumer<String, String> appendSheetMergeLog = (sheetName, branchName) -> {
             sb.append("\n\t\t").append(sheetName);
             if (branchName != null) {
@@ -1487,14 +1479,14 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         for (String conflictedFile : toAutoResolve.keySet()) {
             output.reset();
             sb.append("\n\t").append(conflictedFile);
-            WorkbookDiffResult diffResult = toAutoResolve.get(conflictedFile);
+            var diffResult = toAutoResolve.get(conflictedFile);
             var sheetDiffResult = diffResult.getSheetDiffResult();
-            FileItem ourConflictedFile = parseHistory0(conflictedFile, ourCommit, new ReadHistoryVisitor(ourCommit));
+            var ourConflictedFile = parseHistory0(conflictedFile, ourCommit, new ReadHistoryVisitor(ourCommit));
             for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.OUR)) {
                 appendSheetMergeLog.accept(sheetName, ourBranch);
             }
 
-            FileItem theirConflictedFile = parseHistory0(conflictedFile,
+            var theirConflictedFile = parseHistory0(conflictedFile,
                     theirCommit,
                     new ReadHistoryVisitor(theirCommit));
             for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
@@ -1509,12 +1501,12 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private static AbstractTreeIterator prepareTreeParser(Repository repository, ObjectId objectId) throws IOException {
         // from the commit we can build the tree which allows us to construct the TreeParser
         // noinspection Duplicates
-        try (RevWalk walk = new RevWalk(repository)) {
-            RevCommit commit = walk.parseCommit(objectId);
-            RevTree tree = walk.parseTree(commit.getTree().getId());
+        try (var walk = new RevWalk(repository)) {
+            var commit = walk.parseCommit(objectId);
+            var tree = walk.parseTree(commit.getTree().getId());
 
-            CanonicalTreeParser treeParser = new CanonicalTreeParser();
-            try (ObjectReader reader = repository.newObjectReader()) {
+            var treeParser = new CanonicalTreeParser();
+            try (var reader = repository.newObjectReader()) {
                 treeParser.reset(reader, tree.getId());
             }
 
@@ -1525,9 +1517,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private FetchResult fetchAll() throws GitAPIException {
-        FetchCommand fetchCommand = git.fetch();
+        var fetchCommand = git.fetch();
         fetchCommand.setTagOpt(TagOpt.FETCH_TAGS);
-        CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.FETCH_ALL);
+        var credentialsProvider = getCredentialsProvider(GitActionType.FETCH_ALL);
         if (credentialsProvider != null) {
             fetchCommand.setCredentialsProvider(credentialsProvider);
         }
@@ -1535,7 +1527,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/*"));
         fetchCommand.setRemoveDeletedRefs(true);
         fetchCommand.setTimeout(connectionTimeout);
-        FetchResult result = fetchCommand.call();
+        var result = fetchCommand.call();
         successAuthentication(GitActionType.FETCH_ALL);
         return result;
     }
@@ -1559,7 +1551,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 throw new IOException("Cannot find branch '%s'".formatted(branch));
             }
 
-            CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.PUSH);
+            var credentialsProvider = getCredentialsProvider(GitActionType.PUSH);
             if (credentialsProvider != null) {
                 push.setCredentialsProvider(credentialsProvider);
             }
@@ -1578,7 +1570,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             Collection<RemoteRefUpdate> remoteUpdates = result.getRemoteUpdates();
             for (RemoteRefUpdate remoteUpdate : remoteUpdates) {
-                RemoteRefUpdate.Status status = remoteUpdate.getStatus();
+                var status = remoteUpdate.getStatus();
                 switch (status) {
                     case OK, UP_TO_DATE, NON_EXISTING -> { /* Successful operation. Continue. */ }
                     case REJECTED_NONFASTFORWARD -> throw new IOException(
@@ -1588,7 +1580,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     case REJECTED_REMOTE_CHANGED -> throw new IOException(
                             "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
                     case REJECTED_OTHER_REASON -> {
-                        String message = remoteUpdate.getMessage();
+                        var message = remoteUpdate.getMessage();
                         if ("pre-receive hook declined".equals(message)) {
                             message = "Remote git server rejected your commit because of pre-receive hook. Details:\n" + result
                                     .getMessages();
@@ -1606,24 +1598,24 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private <T> T iterate(String path, WalkCommand<T> command) throws IOException {
-        Lock readLock = repositoryLock.readLock();
+        var readLock = repositoryLock.readLock();
         try {
             log.debug("iterate(): lock");
             readLock.lock();
             initLfsCredentials();
 
-            Repository repository = git.getRepository();
+            var repository = git.getRepository();
             if (isEmpty()) {
                 return command.apply(repository, null, path);
             }
 
-            try (RevWalk walk = new RevWalk(repository)) {
-                ObjectId branchId = resolveBranchId();
+            try (var walk = new RevWalk(repository)) {
+                var branchId = resolveBranchId();
                 if (branchId == null) {
                     return command.apply(repository, null, path);
                 }
-                RevCommit commit = walk.parseCommit(branchId);
-                RevTree tree = commit.getTree();
+                var commit = walk.parseCommit(branchId);
+                var tree = commit.getTree();
 
                 // Create TreeWalk for root folder
                 try (TreeWalk rootWalk = buildTreeWalk(repository, path, tree)) {
@@ -1648,7 +1640,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                                  String globalFilter,
                                  boolean techRevs,
                                  Pageable page) throws IOException {
-        Lock readLock = repositoryLock.readLock();
+        var readLock = repositoryLock.readLock();
         try {
             log.debug("iterateHistory(): lock");
             readLock.lock();
@@ -1668,22 +1660,22 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             List<Ref> tags = git.tagList().call();
 
-            Repository repository = git.getRepository();
+            var repository = git.getRepository();
 
-            int totalProcessed = 0;
-            int processed = 0;
-            int skip = -1;
-            int maxCount = Integer.MAX_VALUE;
+            var totalProcessed = 0;
+            var processed = 0;
+            var skip = -1;
+            var maxCount = Integer.MAX_VALUE;
             if (!page.isUnpaged()) {
                 skip = page.getOffset();
                 maxCount = page.getPageSize();
             }
-            try (ObjectReader or = repository.newObjectReader()) {
+            try (var or = repository.newObjectReader()) {
                 TreeWalk tw = createTreeWalk(or, name);
 
                 while (iterator.hasNext() && processed < maxCount) {
-                    RevCommit commit = iterator.next();
-                    boolean hasChanges = hasChangesInPath(tw, commit, git);
+                    var commit = iterator.next();
+                    var hasChanges = hasChangesInPath(tw, commit, git);
                     if (!techRevs && !hasChanges) {
                         continue;
                     }
@@ -1691,7 +1683,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     if (totalProcessed <= skip) {
                         continue;
                     }
-                    boolean stop = historyVisitor.visit(name, commit, getVersionName(repository, tags, commit));
+                    var stop = historyVisitor.visit(name, commit, getVersionName(repository, tags, commit));
                     historyVisitor.getLastVisited().setTechnicalRevision(!hasChanges);
                     processed++;
                     if (stop) {
@@ -1743,7 +1735,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private <T> T parseHistory(String name, String version, HistoryVisitor<T> historyVisitor) throws IOException {
-        Lock readLock = repositoryLock.readLock();
+        var readLock = repositoryLock.readLock();
         try {
             log.debug("parseHistory(): lock");
             readLock.lock();
@@ -1765,14 +1757,14 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         try {
             List<Ref> tags = git.tagList().call();
 
-            try (RevWalk walk = new RevWalk(git.getRepository())) {
+            try (var walk = new RevWalk(git.getRepository())) {
                 if (isEmpty()) {
                     return historyVisitor.getResult();
                 }
 
-                ObjectId id = getCommitByVersion(version);
+                var id = getCommitByVersion(version);
                 if (id != null) {
-                    RevCommit commit = walk.parseCommit(id);
+                    var commit = walk.parseCommit(id);
                     historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
                 } else {
                     log.warn("Cannot find commit for version {}", version);
@@ -1803,13 +1795,13 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
      */
     private void reset(String commitToDiscard) {
         try {
-            String fullBranch = git.getRepository().getFullBranch();
+            var fullBranch = git.getRepository().getFullBranch();
             if (ObjectId.isId(fullBranch)) {
                 // Detached HEAD. Just checkout to current branch and reset working dir.
                 log.debug("Found detached HEAD: {}.", fullBranch);
                 git.checkout().setName(branch).setForced(true).call();
             } else {
-                ResetCommand resetCommand = git.reset().setMode(ResetCommand.ResetType.HARD);
+                var resetCommand = git.reset().setMode(ResetCommand.ResetType.HARD);
                 // If commit is not merged to our branch, it's detached - in this case no need to reset commit tree.
                 if (commitToDiscard != null && isCommitMerged(commitToDiscard)) {
                     log.debug("Discard commit: {}.", commitToDiscard);
@@ -1819,9 +1811,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     resetCommand.call();
                 } catch (JGitInternalException e) {
                     // check if index file is corrupted
-                    File indexFile = git.getRepository().getIndexFile();
+                    var indexFile = git.getRepository().getIndexFile();
                     try {
-                        DirCache dc = new DirCache(indexFile, git.getRepository().getFS());
+                        var dc = new DirCache(indexFile, git.getRepository().getFS());
                         dc.read();
                         log.error(e.getMessage(), e);
                     } catch (CorruptObjectException ex) {
@@ -1861,17 +1853,17 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private boolean isCommitMerged(String commitId) throws IOException {
-        Repository repository = git.getRepository();
-        try (RevWalk revWalk = new RevWalk(repository)) {
-            RevCommit branchHead = revWalk.parseCommit(repository.resolve(Constants.R_HEADS + branch));
-            RevCommit otherHead = revWalk.parseCommit(repository.resolve(commitId));
+        var repository = git.getRepository();
+        try (var revWalk = new RevWalk(repository)) {
+            var branchHead = revWalk.parseCommit(repository.resolve(Constants.R_HEADS + branch));
+            var otherHead = revWalk.parseCommit(repository.resolve(commitId));
             return revWalk.isMergedInto(otherHead, branchHead);
         }
     }
 
     private String getNextTagId() throws GitAPIException {
         List<Ref> call = git.tagList().call();
-        long maxId = 0;
+        var maxId = 0L;
         for (Ref tagRef : call) {
             String name = getLocalTagName(tagRef);
             if (name.startsWith(tagPrefix)) {
@@ -1900,8 +1892,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     static RevCommit findFirstCommit(Git git, ObjectId startCommit, String path) throws IOException, GitAPIException {
         // We cannot use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits so
         // some history elements aren't shown. So we iterate all commits and filter them out ourselves.
-        Repository repository = git.getRepository();
-        try (ObjectReader or = repository.newObjectReader()) {
+        var repository = git.getRepository();
+        try (var or = repository.newObjectReader()) {
             TreeWalk tw = createTreeWalk(or, path);
             for (RevCommit commit : git.log().add(startCommit).call()) {
                 if (hasChangesInPath(tw, commit, git)) {
@@ -1915,13 +1907,13 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit, Git git) throws IOException,
             GitAPIException {
-        Repository repository = git.getRepository();
-        RevCommit[] parents = commit.getParents();
-        int parentsNum = parents.length;
+        var repository = git.getRepository();
+        var parents = commit.getParents();
+        var parentsNum = parents.length;
 
         tw.reset(getTreesToCompare(commit));
 
-        Set<Integer> changes = new HashSet<>();
+        var changes = new HashSet<Integer>();
 
         while (tw.next()) {
             if (parentsNum == 0) {
@@ -1929,9 +1921,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 return true;
             }
 
-            int currentMode = tw.getRawMode(parentsNum);
-            for (int i = 0; i < parentsNum; i++) {
-                int parentMode = tw.getRawMode(i);
+            var currentMode = tw.getRawMode(parentsNum);
+            for (var i = 0; i < parentsNum; i++) {
+                var parentMode = tw.getRawMode(i);
                 if (currentMode != parentMode || !tw.idEqual(i, parentsNum)) {
                     // Path configured in tw was changed
                     changes.add(i);
@@ -1958,14 +1950,14 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 // Find a common parent for commits that were merged.
                 // Then we compare it to each commit that changed the project in question.
                 // If there is a difference between commits, then it should be displayed.
-                try (RevWalk walk = new RevWalk(repository)) {
+                try (var walk = new RevWalk(repository)) {
                     walk.setRevFilter(RevFilter.MERGE_BASE);
 
                     for (RevCommit parent : parents) {
-                        RevCommit revCommit = walk.parseCommit(parent);
+                        var revCommit = walk.parseCommit(parent);
                         walk.markStart(revCommit);
                     }
-                    RevCommit mergeBase = walk.next();
+                    var mergeBase = walk.next();
 
                     if (mergeBase != null) {
                         for (int i : changes) {
@@ -1983,9 +1975,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                             Iterable<RevCommit> commits = git.log().addRange(mergeBase, parents[i]).call();
                             for (RevCommit prevParentCommit : commits) {
                                 tw.reset(getTreesToCompare(prevParentCommit));
-                                int prevParentCount = prevParentCommit.getParentCount();
-                                int modified = 0;
-                                for (int j = 0; j < prevParentCount; j++) {
+                                var prevParentCount = prevParentCommit.getParentCount();
+                                var modified = 0;
+                                for (var j = 0; j < prevParentCount; j++) {
                                     if (tw.next() && !tw.idEqual(j, prevParentCount)) {
                                         // Path configured in tw was changed
                                         modified++;
@@ -2006,11 +1998,11 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private static ObjectId[] getTreesToCompare(RevCommit commit) {
-        RevCommit[] parents = commit.getParents();
-        int parentsNum = parents.length;
+        var parents = commit.getParents();
+        var parentsNum = parents.length;
 
         ObjectId[] trees = new ObjectId[parentsNum + 1];
-        for (int i = 0; i < parentsNum; i++) {
+        for (var i = 0; i < parentsNum; i++) {
             trees[i] = parents[i].getTree();
         }
         // The last tree is a tree for inspecting commit.
@@ -2022,7 +2014,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private static TreeWalk createTreeWalk(ObjectReader or, String path) {
         TreeFilter t = AndTreeFilter.create(PathFilterGroup.create(Collections.singleton(PathFilter.create(path))),
                 TreeFilter.ANY_DIFF);
-        TreeWalk tw = new TreeWalk(or);
+        var tw = new TreeWalk(or);
         tw.setFilter(t);
         tw.setRecursive(t.shouldBeRecursive());
         return tw;
@@ -2031,7 +2023,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private static Ref getTagRefForCommit(Repository repository, List<Ref> tags, ObjectId commitId) throws IOException {
         Ref tagRefForCommit = null;
         for (Ref tagRef : tags) {
-            ObjectId objectId = repository.getRefDatabase().peel(tagRef).getPeeledObjectId();
+            var objectId = repository.getRefDatabase().peel(tagRef).getPeeledObjectId();
             if (objectId == null) {
                 objectId = tagRef.getObjectId();
             }
@@ -2045,7 +2037,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private static String getLocalTagName(Ref tagRef) {
-        String name = tagRef.getName();
+        var name = tagRef.getName();
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
     }
 
@@ -2058,7 +2050,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         pull(commitToRevert, mergeAuthor);
 
         if (!tagPrefix.isEmpty()) {
-            String tagName = tagPrefix + getNextTagId();
+            var tagName = tagPrefix + getNextTagId();
             git.tag().setObjectId(commit).setName(tagName).call();
         }
     }
@@ -2076,7 +2068,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                          ChangesetType changesetType) throws IOException {
         initializeGit(true);
 
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         try {
             log.debug("save(folderData, files, changesetType): lock");
             writeLock.lock();
@@ -2107,7 +2099,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             return;
         }
 
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         try {
             log.debug("pull(author): lock");
             writeLock.lock();
@@ -2132,7 +2124,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
         initializeGit(true);
 
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         String refToResetTo = null;
         try {
             log.debug("merge(): lock");
@@ -2146,9 +2138,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             }
             refToResetTo = git.getRepository().findRef(branch).getObjectId().getName();
 
-            Ref branchRef = git.getRepository().findRef(branchFrom);
-            String mergeMessage = getMergeMessage(branchRef);
-            MergeResult mergeResult = git.merge()
+            var branchRef = git.getRepository().findRef(branchFrom);
+            var mergeMessage = getMergeMessage(branchRef);
+            var mergeResult = git.merge()
                     .include(branchRef)
                     .setCommit(false)
                     .setMessage(mergeMessage)
@@ -2185,12 +2177,12 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public boolean isMergedInto(String from, String to) throws IOException {
         initializeGit(true);
 
-        Lock readLock = repositoryLock.readLock();
+        var readLock = repositoryLock.readLock();
         try {
             log.debug("isMergedInto(): lock");
             readLock.lock();
             initLfsCredentials();
-            Repository repository = git.getRepository();
+            var repository = git.getRepository();
             return isMergedInto(repository.resolve(from), repository.resolve(to), true);
         } finally {
             resetLfsCredentials();
@@ -2212,25 +2204,25 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
      * @throws IOException if any error is occurred during this method
      */
     private boolean isMergedInto(ObjectId fromId, ObjectId toId, boolean skipEmptyChanges) throws IOException {
-        Repository repository = git.getRepository();
+        var repository = git.getRepository();
 
-        try (RevWalk revWalk = new RevWalk(repository)) {
+        try (var revWalk = new RevWalk(repository)) {
             if (fromId == null || toId == null) {
                 return false;
             }
-            RevCommit fromCommit = revWalk.parseCommit(fromId);
-            RevCommit toCommit = revWalk.parseCommit(toId);
-            boolean merged = revWalk.isMergedInto(fromCommit, toCommit);
+            var fromCommit = revWalk.parseCommit(fromId);
+            var toCommit = revWalk.parseCommit(toId);
+            var merged = revWalk.isMergedInto(fromCommit, toCommit);
             if (!merged && skipEmptyChanges) {
                 if (fromCommit.getParentCount() == 2) {
                     // fromCommit is a merge commit
-                    final RevCommit parent1 = fromCommit.getParent(0);
-                    final RevCommit parent2 = fromCommit.getParent(1);
+                    final var parent1 = fromCommit.getParent(0);
+                    final var parent2 = fromCommit.getParent(1);
 
                     if (hasSameContent(parent1, fromCommit) || hasSameContent(parent2, fromCommit)) {
                         // Merge commit has same content as one of their parents
-                        final boolean firstParentMerged = isMergedInto(parent1, toCommit, true);
-                        final boolean secondParentMerged = isMergedInto(parent2, toCommit, true);
+                        final var firstParentMerged = isMergedInto(parent1, toCommit, true);
+                        final var secondParentMerged = isMergedInto(parent2, toCommit, true);
                         if (firstParentMerged && secondParentMerged) {
                             // If both parents are merged to our commit and one of the parents is same as child (merge
                             // commit), we can assume that the merge commit doesn't have any valuable updates.
@@ -2249,7 +2241,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private boolean hasSameContent(RevCommit commit1, RevCommit commit2) throws IOException {
-        try (DiffFormatter diffFormatter = new DiffFormatter(NullOutputStream.INSTANCE)) {
+        try (var diffFormatter = new DiffFormatter(NullOutputStream.INSTANCE)) {
             diffFormatter.setRepository(git.getRepository());
             List<DiffEntry> diffEntries = diffFormatter.scan(commit1, commit2);
             if (diffEntries.isEmpty()) {
@@ -2265,11 +2257,11 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
         String commitId = null;
         try {
-            String parentVersion = folderData.getVersion();
-            boolean checkoutOldVersion = isCheckoutOldVersion(folderData.getName(), parentVersion);
+            var parentVersion = folderData.getVersion();
+            var checkoutOldVersion = isCheckoutOldVersion(folderData.getName(), parentVersion);
             checkoutForcedOrReset(checkoutOldVersion ? parentVersion : branch);
 
-            RevCommit commit = createCommit(folderData, files, changesetType);
+            var commit = createCommit(folderData, files, changesetType);
             commitId = commit.getId().getName();
 
             resolveAndMerge(folderData, checkoutOldVersion, commit);
@@ -2298,26 +2290,26 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private RevCommit createCommit(FileData folderData,
                                    Iterable<FileItem> files,
                                    ChangesetType changesetType) throws IOException, GitAPIException {
-        String relativeFolder = folderData.getName();
+        var relativeFolder = folderData.getName();
 
-        List<String> changedFiles = new ArrayList<>();
+        var changedFiles = new ArrayList<String>();
 
         // Add new files and update existing ones
-        List<File> savedFiles = new ArrayList<>();
+        var savedFiles = new ArrayList<File>();
         for (FileItem change : files) {
-            File file = new File(getLocalGitRoot(), change.getData().getName());
+            var file = new File(getLocalGitRoot(), change.getData().getName());
             savedFiles.add(file);
             applyChangeInWorkspace(change, changedFiles);
         }
 
         if (changesetType == ChangesetType.FULL) {
             // Remove absent files
-            String basePath = getLocalGitRoot().getAbsolutePath();
-            File folder = new File(getLocalGitRoot(), relativeFolder);
+            var basePath = getLocalGitRoot().getAbsolutePath();
+            var folder = new File(getLocalGitRoot(), relativeFolder);
             removeAbsentFiles(basePath, folder, savedFiles);
         }
 
-        CommitCommand commitCommand = git.commit()
+        var commitCommand = git.commit()
                 .setNoVerify(noVerify)
                 .setMessage(formatComment(CommitType.SAVE, folderData))
                 .setCommitter(committerName(folderData.getAuthor()), committerEmail(folderData.getAuthor()));
@@ -2327,12 +2319,12 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     private void applyChangeInWorkspace(FileItem change, Collection<String> changedFiles) throws IOException,
             GitAPIException {
-        File file = new File(getLocalGitRoot(), change.getData().getName());
+        var file = new File(getLocalGitRoot(), change.getData().getName());
         createParent(file);
 
-        InputStream stream = change.getStream();
+        var stream = change.getStream();
         if (stream != null) {
-            try (FileOutputStream output = new FileOutputStream(file)) {
+            try (var output = new FileOutputStream(file)) {
                 stream.transferTo(output);
             }
             git.add().addFilepattern(change.getData().getName()).call();
@@ -2365,8 +2357,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private void resolveAndMerge(FileData folderData,
                                  boolean checkoutOldVersion,
                                  RevCommit commit) throws GitAPIException, IOException {
-        ConflictResolveData conflictResolveData = folderData.getAdditionalData(ConflictResolveData.class);
-        RevCommit lastCommit = commit;
+        var conflictResolveData = folderData.getAdditionalData(ConflictResolveData.class);
+        var lastCommit = commit;
 
         if (conflictResolveData != null) {
             lastCommit = resolveConflict(folderData.getAuthor(), conflictResolveData);
@@ -2375,10 +2367,10 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         if (checkoutOldVersion || conflictResolveData != null) {
             // Merge detached commit to existing branch.
             checkoutForced(branch);
-            ObjectId commitId = lastCommit.getId();
-            ObjectIdRef.Unpeeled ref = new ObjectIdRef.Unpeeled(Ref.Storage.LOOSE, commitId.name(), commitId.copy());
-            String mergeMessage = getMergeMessage(ref);
-            MergeResult mergeDetached = git.merge().include(commitId).setMessage(mergeMessage).setCommit(false).call();
+            var commitId = lastCommit.getId();
+            var ref = new ObjectIdRef.Unpeeled(Ref.Storage.LOOSE, commitId.name(), commitId.copy());
+            var mergeMessage = getMergeMessage(ref);
+            var mergeDetached = git.merge().include(commitId).setMessage(mergeMessage).setCommit(false).call();
             validateNonConflictingMerge(mergeDetached);
             validateMergeConflict(mergeDetached, false, folderData.getBranch(), folderData.getAuthor());
             applyMergeCommit(mergeDetached, mergeMessage, folderData.getAuthor());
@@ -2388,7 +2380,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private RevCommit resolveConflict(UserInfo author, ConflictResolveData conflictResolveData) throws GitAPIException,
             IOException {
         // Merge with a commit we have a conflict.
-        MergeResult mergeResult = git.merge()
+        var mergeResult = git.merge()
                 .include(getCommitByVersion(conflictResolveData.getCommitToMerge()))
                 .call();
 
@@ -2404,18 +2396,18 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
 
         // Resolve merge conflict.
-        String mergeMessage = conflictResolveData.getMergeMessage();
+        var mergeMessage = conflictResolveData.getMergeMessage();
         if (mergeMessage == null) {
             mergeMessage = "Merge";
         }
-        CommitCommand conflictResolveCommit = git.commit()
+        var conflictResolveCommit = git.commit()
                 .setNoVerify(noVerify)
                 .setMessage(mergeMessage)
                 .setCommitter(committerName(author), committerEmail(author));
 
-        Status status = git.status().call();
+        var status = git.status().call();
 
-        Set<String> changedFiles = new HashSet<>();
+        var changedFiles = new HashSet<String>();
         for (FileItem change : conflictResolveData.getResolvedFiles()) {
             applyChangeInWorkspace(change, changedFiles);
         }
@@ -2443,14 +2435,14 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private ObjectId getCommitByVersion(String version) throws IOException {
-        Ref ref = git.getRepository().findRef(version);
+        var ref = git.getRepository().findRef(version);
         if (ref == null) {
             // Version is a hash for commit
             return git.getRepository().resolve(version);
         }
 
         // Version is a tag.
-        ObjectId objectId = git.getRepository().getRefDatabase().peel(ref).getPeeledObjectId();
+        var objectId = git.getRepository().getRefDatabase().peel(ref).getPeeledObjectId();
         // Not annotated tags return null for getPeeledObjectId().
         return objectId == null ? ref.getObjectId() : objectId;
     }
@@ -2474,7 +2466,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public void createBranch(String projectPath, String newBranch, String startPoint) throws IOException {
         initializeGit(true);
 
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         try {
             log.debug("createBranch(): lock");
             writeLock.lock();
@@ -2490,8 +2482,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             }
 
             // If newBranch does not exist, create it.
-            Ref branchRef = git.getRepository().findRef(newBranch);
-            boolean branchAbsents = branchRef == null;
+            var branchRef = git.getRepository().findRef(newBranch);
+            var branchAbsents = branchRef == null;
             if (branchAbsents) {
                 // Checkout existing branch
                 if (isEmpty()) {
@@ -2510,7 +2502,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             lockSettings();
             try {
-                BranchesData branches = getBranches(false);
+                var branches = getBranches(false);
                 branches.addBranch(projectPath, branch, null);
                 branches.addBranch(projectPath, newBranch, branchRef.getObjectId().getName());
 
@@ -2545,7 +2537,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public void deleteBranch(String projectPath, String branch) throws IOException {
         initializeGit(true);
 
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         try {
             log.debug("deleteBranch(): lock");
             writeLock.lock();
@@ -2556,7 +2548,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             if (projectPath == null) {
                 lockSettings();
                 try {
-                    BranchesData branches = getBranches(false);
+                    var branches = getBranches(false);
                     // Remove the branch from all mappings.
                     if (branches.removeBranch(null, branch)) {
                         saveBranches();
@@ -2573,7 +2565,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             } else {
                 lockSettings();
                 try {
-                    BranchesData branches = getBranches(false);
+                    var branches = getBranches(false);
                     // Remove branch mapping for specific project only.
                     if (branches.removeBranch(projectPath, branch)) {
                         saveBranches();
@@ -2599,13 +2591,13 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public List<String> getBranches(String projectPath) throws IOException {
         initializeGit(true);
 
-        Lock readLock = repositoryLock.readLock();
+        var readLock = repositoryLock.readLock();
         try {
             log.debug("getBranches(): lock");
             readLock.lock();
             initLfsCredentials();
 
-            BranchesData branches = getBranches(true);
+            var branches = getBranches(true);
             if (projectPath == null) {
                 // Return all available branches
                 TreeSet<String> branchNames = getAvailableBranches();
@@ -2644,12 +2636,12 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
         initializeGit(true);
 
-        Lock readLock = repositoryLock.readLock();
+        var readLock = repositoryLock.readLock();
         try {
             readLock.lock();
-            Repository repository = git.getRepository();
+            var repository = git.getRepository();
             var result = new HashMap<String, BranchStatus>();
-            try (RevWalk walk = new RevWalk(repository)) {
+            try (var walk = new RevWalk(repository)) {
                 for (String branchName : branchNames) {
                     try {
                         getBranchStatus(repository, walk, branchName)
@@ -2668,19 +2660,19 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private static Optional<BranchStatus> getBranchStatus(Repository repository,
                                                           RevWalk walk,
                                                           String branchName) throws IOException {
-        ObjectId branchId = repository.resolve(branchName);
+        var branchId = repository.resolve(branchName);
         if (branchId == null) {
             return Optional.empty();
         }
         walk.reset();
         walk.setRevFilter(RevFilter.ALL);
-        RevCommit tip = walk.parseCommit(branchId);
+        var tip = walk.parseCommit(branchId);
         walk.parseBody(tip);
         var ident = tip.getAuthorIdent();
         var author = new UserInfo(ident.getName(), ident.getEmailAddress(), ident.getName());
-        Instant lastAt = ident.getWhenAsInstant();
-        String message = tip.getShortMessage();
-        String revision = tip.getName();
+        var lastAt = ident.getWhenAsInstant();
+        var message = tip.getShortMessage();
+        var revision = tip.getName();
         return Optional.of(new BranchStatus(author, lastAt, message, revision));
     }
 
@@ -2688,7 +2680,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public GitRepository forBranch(String branch) throws IOException {
         initializeGit(true);
 
-        Lock readLock = repositoryLock.readLock();
+        var readLock = repositoryLock.readLock();
         readLock.lock();
         try {
             log.debug("forBranch(): read: lock");
@@ -2697,10 +2689,10 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             if (git.getRepository().findRef(branch) == null) {
                 List<Ref> refs = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
 
-                boolean branchExist = false;
-                String remoteBranchName = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + branch;
+                var branchExist = false;
+                var remoteBranchName = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + branch;
                 for (Ref ref : refs) {
-                    String name = ref.getName();
+                    var name = ref.getName();
                     if (remoteBranchName.equals(name)) {
                         branchExist = true;
                         break;
@@ -2717,7 +2709,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             readLock.unlock();
             log.debug("forBranch(): read: unlock");
         }
-        Lock writeLock = repositoryLock.writeLock();
+        var writeLock = repositoryLock.writeLock();
         try {
             log.debug("forBranch(): write: lock");
             writeLock.lock();
@@ -2739,7 +2731,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             createRemoteTrackingBranch(git, branch);
         }
 
-        GitRepository repo = new GitRepository();
+        var repo = new GitRepository();
 
         repo.setId(id);
         repo.setName(name);
@@ -2784,11 +2776,11 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private TreeSet<String> getAvailableBranches(Git git) throws GitAPIException {
-        TreeSet<String> branchNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        var branchNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 
         List<Ref> refs = git.branchList().call();
         for (Ref ref : refs) {
-            String name = ref.getName();
+            var name = ref.getName();
             if (name.startsWith(Constants.R_HEADS)) {
                 name = name.substring(Constants.R_HEADS.length());
                 branchNames.add(name);
@@ -2802,9 +2794,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             return;
         }
 
-        PushCommand push = git.push().setRefSpecs(refSpec).setTimeout(connectionTimeout);
+        var push = git.push().setRefSpecs(refSpec).setTimeout(connectionTimeout);
 
-        CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.PUSH_BRANCH);
+        var credentialsProvider = getCredentialsProvider(GitActionType.PUSH_BRANCH);
         if (credentialsProvider != null) {
             push.setCredentialsProvider(credentialsProvider);
         }
@@ -2829,12 +2821,12 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
 
         settingsSyncDate = repositorySettings.getSyncDate();
-        FileItem fileItem = repositorySettings.getRepository().read(branchesConfigFile);
+        var fileItem = repositorySettings.getRepository().read(branchesConfigFile);
         if (fileItem != null) {
             if (settingsSyncDate.before(fileItem.getData().getModifiedAt())) {
                 settingsSyncDate = fileItem.getData().getModifiedAt();
             }
-            try (InputStreamReader in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
+            try (var in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
                 branches.copyFrom(mapper.readValue(in, BranchesData.class));
             }
         }
@@ -2844,7 +2836,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         if (repositorySettings == null) {
             return;
         }
-        FileData data = new FileData();
+        var data = new FileData();
         data.setName(branchesConfigFile);
         data.setAuthor(new UserInfo(getClass().getName()));
         data.setComment("Update branches info");
@@ -2855,7 +2847,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private void removeAbsentFiles(String baseAbsolutePath,
                                    File directory,
                                    Collection<File> toSave) throws GitAPIException {
-        File[] found = directory.listFiles();
+        var found = directory.listFiles();
 
         if (found != null) {
             for (File file : found) {
@@ -2863,7 +2855,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     removeAbsentFiles(baseAbsolutePath, file, toSave);
                 } else {
                     if (!toSave.contains(file)) {
-                        String relativePath = file.getAbsolutePath()
+                        var relativePath = file.getAbsolutePath()
                                 .substring(baseAbsolutePath.length())
                                 .replace('\\', '/');
                         if (relativePath.startsWith("/")) {
@@ -2877,14 +2869,14 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private void createParent(File file) throws FileNotFoundException {
-        File parentFile = file.getParentFile();
+        var parentFile = file.getParentFile();
         if (!parentFile.mkdirs() && !parentFile.exists()) {
             throw new FileNotFoundException("Cannot create the folder " + parentFile.getAbsolutePath());
         }
     }
 
     private String escapeCurlyBrackets(String value) {
-        String ret = value.replaceAll("\\{(?![012]})", "'{'");
+        var ret = value.replaceAll("\\{(?![012]})", "'{'");
         return ret.replaceAll("(?<!\\{[012])}", "'}'");
     }
 
@@ -2897,7 +2889,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private String getMergeMessage(Ref r) throws IOException {
-        String userMessage = new MergeMessageFormatter().format(Collections.singletonList(r),
+        var userMessage = new MergeMessageFormatter().format(Collections.singletonList(r),
                 git.getRepository().exactRef(Constants.HEAD));
         if (escapedCommentTemplate == null) {
             return userMessage;
@@ -3003,18 +2995,18 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private void configureBuiltInLFS(Repository repository) throws IOException {
-        boolean lfsApplied = false;
+        var lfsApplied = false;
 
-        try (RevWalk walk = new RevWalk(repository)) {
+        try (var walk = new RevWalk(repository)) {
             ObjectId branchId = null;
             if (repository.findRef(branch) != null) {
                 branchId = repository.resolve(branch);
             }
             if (branchId != null) {
-                RevCommit commit = walk.parseCommit(branchId);
+                var commit = walk.parseCommit(branchId);
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, Constants.DOT_GIT_ATTRIBUTES, commit.getTree())) {
-                    ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
+                    var loader = repository.open(rootWalk.getObjectId(0));
                     lfsApplied = new String(loader.getBytes(), StandardCharsets.UTF_8).contains("filter=lfs");
                 } catch (FileNotFoundException ignored) {
                     // .gitattributes does not exist; LFS is not configured
@@ -3027,7 +3019,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         if (useLFS) {
             log.info("LFS is enabled for repository '{}'.", name);
             try {
-                boolean installed = repository.getConfig()
+                var installed = repository.getConfig()
                         .getBoolean(ConfigConstants.CONFIG_FILTER_SECTION,
                                 ConfigConstants.CONFIG_SECTION_LFS,
                                 ConfigConstants.CONFIG_KEY_USEJGITBUILTIN,
@@ -3041,7 +3033,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 throw new IOException(e);
             }
 
-            File hookFile = repository.getFS().findHook(repository, PrePushHook.NAME);
+            var hookFile = repository.getFS().findHook(repository, PrePushHook.NAME);
             if (hookFile != null) {
                 try (var input = new FileInputStream(hookFile)) {
                     var content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
@@ -3051,9 +3043,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                         log.info(
                                 "Rename pre-push hook to avoid conflict between LFS built-in hook and existing pre-push hook. Repo: {}",
                                 repository);
-                        String from = hookFile.getPath();
-                        String to = from + ".renamed";
-                        boolean renamed = hookFile.renameTo(new File(to));
+                        var from = hookFile.getPath();
+                        var to = from + ".renamed";
+                        var renamed = hookFile.renameTo(new File(to));
                         if (!renamed) {
                             log.warn("Cannot rename '{}' to '{}'", from, to);
                         }
@@ -3125,14 +3117,14 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                                     String baseFolder) throws IOException {
             if (rootWalk != null) {
                 // Iterate files in folder
-                List<FileData> files = new ArrayList<>();
+                var files = new ArrayList<FileData>();
                 if (rootWalk.getFilter() == TreeFilter.ALL) {
                     while (rootWalk.next()) {
                         files.add(createFileData(rootWalk, baseFolder, start));
                     }
                 } else {
                     if (rootWalk.getTreeCount() > 0) {
-                        try (TreeWalk dirWalk = new TreeWalk(repository)) {
+                        try (var dirWalk = new TreeWalk(repository)) {
                             dirWalk.addTree(rootWalk.getObjectId(0));
                             dirWalk.setRecursive(true);
                             while (dirWalk.next()) {
@@ -3169,7 +3161,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     return collectFolderData(rootWalk, baseFolder);
                 } else {
                     if (rootWalk.getTreeCount() > 0) {
-                        try (TreeWalk dirWalk = new TreeWalk(repository)) {
+                        try (var dirWalk = new TreeWalk(repository)) {
                             dirWalk.addTree(rootWalk.getObjectId(0));
                             return collectFolderData(dirWalk, baseFolder);
                         }
@@ -3181,9 +3173,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
 
         private List<FileData> collectFolderData(TreeWalk rootWalk, String baseFolder) throws IOException {
-            List<FileData> files = new ArrayList<>();
+            var files = new ArrayList<FileData>();
             rootWalk.setRecursive(false);
-            ObjectId start = resolveBranchId();
+            var start = resolveBranchId();
             while (rootWalk.next()) {
                 if ((rootWalk.getFileMode().getBits() & FileMode.TYPE_TREE) != 0) {
                     files.add(createFileData(rootWalk, baseFolder, start));
@@ -3213,8 +3205,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                               TreeWalk rootWalk,
                               String baseFolder) throws IOException {
             if (rootWalk != null && StringUtils.isNotEmpty(baseFolder)) {
-                FileData fileData = createFileData(rootWalk, "", resolveBranchId());
-                ObjectLoader loader = downloadLfs(repository.open(rootWalk.getObjectId(0)));
+                var fileData = createFileData(rootWalk, "", resolveBranchId());
+                var loader = downloadLfs(repository.open(rootWalk.getObjectId(0)));
                 return new FileItem(fileData, loader.openStream());
             } else {
                 return null;
@@ -3233,7 +3225,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
         @Override
         public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException {
-            RevTree tree = commit.getTree();
+            var tree = commit.getTree();
 
             FileData data;
             try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
@@ -3281,7 +3273,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         @Override
         public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException {
             if (commitVersion.equals(version)) {
-                RevTree tree = commit.getTree();
+                var tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
                     history.addAll(new ListCommand(commit).apply(repository, rootWalk, fullPath));
@@ -3315,7 +3307,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         @Override
         public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException {
             if (commitVersion.equals(version)) {
-                RevTree tree = commit.getTree();
+                var tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
                     result = createFileData(rootWalk, commit);
@@ -3348,11 +3340,11 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         @Override
         public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException {
             if (commitVersion.equals(version)) {
-                RevTree tree = commit.getTree();
+                var tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
-                    FileData fileData = createFileData(rootWalk, commit);
-                    ObjectLoader loader = downloadLfs(repository.open(rootWalk.getObjectId(0)));
+                    var fileData = createFileData(rootWalk, commit);
+                    var loader = downloadLfs(repository.open(rootWalk.getObjectId(0)));
                     result = new FileItem(fileData, loader.openStream());
                 } catch (FileNotFoundException e) {
                     result = null;
@@ -3393,7 +3385,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
         @Override
         protected RawCharSequence text(RevCommit cmit) {
-            String id = cmit.getId().getName();
+            var id = cmit.getId().getName();
             return new RawCharSequence(id.getBytes(StandardCharsets.UTF_8), 0, id.length());
         }
     }

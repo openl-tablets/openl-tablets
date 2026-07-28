@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.maven.RepositoryUtils;
@@ -151,7 +150,7 @@ public class VerifyMojo extends BaseOpenLMojo {
     }
 
     private Map<String, File> getTransitiveDependencies() {
-        Set<String> pluginDependencies = plugin.getDependencies().stream()
+        var pluginDependencies = plugin.getDependencies().stream()
                 .map(d -> versionlessKey(d.getGroupId(), d.getArtifactId(), null))
                 .collect(Collectors.toSet());
         return getFilteredDependencies(Artifact.SCOPE_PROVIDED::equals).stream()

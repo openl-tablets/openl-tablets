@@ -45,10 +45,10 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         }
 
         if (methodCaller instanceof CastingMethodCaller) {
-            IOpenMethod method = methodCaller.getMethod();
+            var method = methodCaller.getMethod();
             if (("eq".equals(method.getName()) || "ne".equals(method.getName())) && method.getDeclaringClass()
                     .getInstanceClass() == Comparison.class) {
-                IOpenClass[] parameterTypes = method.getSignature().getParameterTypes();
+                var parameterTypes = method.getSignature().getParameterTypes();
                 if (parameterTypes.length == 2) {
                     if (parameterTypes[0].getInstanceClass() == Object.class && parameterTypes[1]
                             .getInstanceClass() == Object.class) {
@@ -78,7 +78,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
                                                                         ISyntaxNode node,
                                                                         IBindingContext bindingContext) {
         if (b1.getType().getDomain() != null && b2 instanceof LiteralBoundNode literalBoundNode) {
-            IDomain<Object> domain = (IDomain<Object>) b1.getType().getDomain();
+            var domain = (IDomain<Object>) b1.getType().getDomain();
             if (literalBoundNode.getValue() != null && !domain.selectObject(literalBoundNode.getValue())) {
                 BindHelper.processWarn("Warning: Object '%s' is outside of valid domain '%s'. The comparison always returns %s.".formatted(
                         literalBoundNode.getValue(),
@@ -93,16 +93,16 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
                                                              IOpenMethod method,
                                                              ISyntaxNode node,
                                                              IBindingContext bindingContext) {
-        IOpenClass b1Type = b1.getType();
-        IOpenClass b2Type = b2.getType();
+        var b1Type = b1.getType();
+        var b2Type = b2.getType();
         if (!Objects.equals(b1Type, b2Type)) {
             Class<?> b1InstanceClass = b1Type.getInstanceClass();
             Class<?> b2InstanceClass = b2Type.getInstanceClass();
             if (b1InstanceClass == null || b2InstanceClass == null) {
                 return;
             }
-            boolean b1Final = Modifier.isFinal(b1InstanceClass.getModifiers());
-            boolean b2Final = Modifier.isFinal(b2InstanceClass.getModifiers());
+            var b1Final = Modifier.isFinal(b1InstanceClass.getModifiers());
+            var b2Final = Modifier.isFinal(b2InstanceClass.getModifiers());
             if (!b1Final && !b2Final) {
                 return;
             }
@@ -133,7 +133,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
             return methodCaller;
         }
 
-        String inverse = INVERSE_METHOD.get(methodName);
+        var inverse = INVERSE_METHOD.get(methodName);
 
         if (inverse != null) {
 
@@ -156,7 +156,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         // This is the most privileged place for searching.
         // @author DLiauchuk
         //
-        IMethodCaller methodCaller = bindingContext
+        var methodCaller = bindingContext
                 .findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, argumentTypes);
         if (methodCaller != null) {
             return methodCaller;
@@ -203,9 +203,9 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
             throw SyntaxNodeExceptionUtils.createError("Binary node must have 2 subnodes.", node);
         }
 
-        int index = node.getType().lastIndexOf('.');
+        var index = node.getType().lastIndexOf('.');
 
-        String methodName = node.getType().substring(index + 1);
+        var methodName = node.getType().substring(index + 1);
         IBoundNode[] children = bindChildren(node, bindingContext);
 
         return bindOperator(node, methodName, children[0], children[1], bindingContext);

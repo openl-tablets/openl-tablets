@@ -30,9 +30,9 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
      */
     @Override
     public IOpenClass getComponentType(IOpenClass aggregateType) {
-        DomainOpenClass domainType = (DomainOpenClass) aggregateType;
+        var domainType = (DomainOpenClass) aggregateType;
 
-        String domainName = domainType.getName();
+        var domainName = domainType.getName();
         if (!domainType.isArray()) {
             return null;
         }
@@ -40,7 +40,7 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
         // remove on dimension to get component type
         // MyData[][] -> MyData[]
         // MyData[] -> MyData
-        String componentType = domainName.replaceFirst("\\[]", "");
+        var componentType = domainName.replaceFirst("\\[]", "");
 
         return new DomainOpenClass(componentType,
                 super.getComponentType(domainType.getBaseClass()),

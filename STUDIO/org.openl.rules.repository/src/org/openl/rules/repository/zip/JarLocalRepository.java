@@ -6,7 +6,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -36,10 +35,10 @@ public class JarLocalRepository extends AbstractArchiveRepository {
     private final PathMatchingResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
 
     public void initialize() {
-        final Map<String, Path> localStorage = new HashMap<>();
+        final var localStorage = new HashMap<String, Path>();
         final Consumer<Resource> collector = res -> {
             try {
-                final URI uri = res.getURI();
+                final var uri = res.getURI();
                 final Path path = toPath(uri);
                 final String name = FileUtils.getBaseName(path.getFileName().toString());
                 var existed = localStorage.put(name, path);
@@ -76,19 +75,19 @@ public class JarLocalRepository extends AbstractArchiveRepository {
     }
 
     private Stream<Resource> getResources(String fileName) throws IOException {
-        String locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + fileName;
+        var locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + fileName;
         return Stream.of(resourceResolver.getResources(locationPattern));
     }
 
     private static Path toPath(URI uri) {
         if ("jar".equals(uri.getScheme())) {
-            String path = uri.getRawSchemeSpecificPart();
-            int sep = path.indexOf("!/");
+            var path = uri.getRawSchemeSpecificPart();
+            var sep = path.indexOf("!/");
             if (sep > -1) {
                 path = path.substring(0, sep);
             }
             try {
-                URI uriToZip = new URI(path);
+                var uriToZip = new URI(path);
                 if (uriToZip.getSchemeSpecificPart().contains("%")) {
                     //FIXME workaround to fix double URI encoding for URIs from ZipPath
                     try {

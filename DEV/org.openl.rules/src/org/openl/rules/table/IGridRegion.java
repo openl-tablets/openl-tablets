@@ -60,21 +60,21 @@ public interface IGridRegion {
          * @return intersection of incoming grid regions. <code>null</code> if there is no intersection.
          */
         public static IGridRegion intersect(IGridRegion i1, IGridRegion i2) {
-            int left = Math.max(i1.getLeft(), i2.getLeft());
-            int right = Math.min(i1.getRight(), i2.getRight());
-            int top = Math.max(i1.getTop(), i2.getTop());
-            int bottom = Math.min(i1.getBottom(), i2.getBottom());
+            var left = Math.max(i1.getLeft(), i2.getLeft());
+            var right = Math.min(i1.getRight(), i2.getRight());
+            var top = Math.max(i1.getTop(), i2.getTop());
+            var bottom = Math.min(i1.getBottom(), i2.getBottom());
             return top <= bottom && left <= right ? new GridRegion(top, left, bottom, right) : null;
         }
 
         public static boolean intersects(IGridRegion i1, IGridRegion i2) {
-            int left = Math.max(i1.getLeft(), i2.getLeft());
-            int right = Math.min(i1.getRight(), i2.getRight());
+            var left = Math.max(i1.getLeft(), i2.getLeft());
+            var right = Math.min(i1.getRight(), i2.getRight());
             if (right < left) {
                 return false;
             }
-            int top = Math.max(i1.getTop(), i2.getTop());
-            int bottom = Math.min(i1.getBottom(), i2.getBottom());
+            var top = Math.max(i1.getTop(), i2.getTop());
+            var bottom = Math.min(i1.getBottom(), i2.getBottom());
             return top <= bottom;
         }
 
@@ -87,10 +87,10 @@ public interface IGridRegion {
         }
 
         public static int getColumn(String cell) {
-            int col = 0;
-            int mul = 'Z' - 'A' + 1;
-            for (int i = 0; i < cell.length(); i++) {
-                char ch = cell.charAt(i);
+            var col = 0;
+            var mul = 'Z' - 'A' + 1;
+            for (var i = 0; i < cell.length(); i++) {
+                var ch = cell.charAt(i);
                 if (!Character.isLetter(ch)) {
                     return col - 1;
                 }
@@ -100,8 +100,8 @@ public interface IGridRegion {
         }
 
         public static int getRow(String cell) {
-            for (int i = 0; i < cell.length(); i++) {
-                char ch = cell.charAt(i);
+            for (var i = 0; i < cell.length(); i++) {
+                var ch = cell.charAt(i);
                 if (Character.isDigit(ch)) {
                     return Integer.parseInt(cell.substring(i)) - 1;
                 }
@@ -111,25 +111,25 @@ public interface IGridRegion {
 
         public static IGridRegion makeRegion(String range) {
 
-            int idx = range.indexOf(AGrid.RANGE_SEPARATOR);
+            var idx = range.indexOf(AGrid.RANGE_SEPARATOR);
             if (idx < 0) {
-                int col1 = getColumn(range);
-                int row1 = getRow(range);
+                var col1 = getColumn(range);
+                var row1 = getRow(range);
                 return new GridRegion(row1, col1, row1, col1);
             }
             String[] rr = StringUtils.split(range, AGrid.RANGE_SEPARATOR);
 
-            int col1 = getColumn(rr[0]);
-            int row1 = getRow(rr[0]);
-            int col2 = getColumn(rr[1]);
-            int row2 = getRow(rr[1]);
+            var col1 = getColumn(rr[0]);
+            var row1 = getRow(rr[0]);
+            var col2 = getColumn(rr[1]);
+            var row2 = getRow(rr[1]);
 
             return new GridRegion(row1, col1, row2, col2);
         }
 
         public static boolean isValidRegion(IGridRegion region, SpreadsheetConstants spreadsheetConstants) {
-            int rowIndex = region.getBottom();
-            int columnIndex = region.getRight();
+            var rowIndex = region.getBottom();
+            var columnIndex = region.getRight();
             return rowIndex >= 0 && rowIndex <= spreadsheetConstants
                     .getMaxRowIndex() && columnIndex >= 0 && columnIndex <= spreadsheetConstants.getMaxColumnIndex();
         }

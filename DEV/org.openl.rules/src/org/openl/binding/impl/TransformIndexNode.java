@@ -1,7 +1,6 @@
 package org.openl.binding.impl;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
@@ -31,17 +30,17 @@ class TransformIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object target = targetNode.evaluate(env);
+        var target = targetNode.evaluate(env);
         if (target == null) {
             return null;
         }
-        Iterator<Object> elementsIterator = targetNode.getType().getAggregateInfo().getIterator(target);
-        ArrayList<Object> result = new ArrayList<>();
+        var elementsIterator = targetNode.getType().getAggregateInfo().getIterator(target);
+        var result = new ArrayList<Object>();
         while (elementsIterator.hasNext()) {
-            Object element = elementsIterator.next();
+            var element = elementsIterator.next();
             element = openCast != null ? openCast.convert(element) : element;
             tempVar.set(null, element, env);
-            Object transformed = transformer.evaluate(env);
+            var transformed = transformer.evaluate(env);
             result.add(transformed);
         }
         return CollectionUtils.toArray(result, transformer.getType().getInstanceClass());
@@ -49,7 +48,7 @@ class TransformIndexNode extends ABoundNode {
 
     @Override
     public IOpenClass getType() {
-        IOpenClass componentType = transformer.getType();
+        var componentType = transformer.getType();
         return componentType.getAggregateInfo().getIndexedAggregateType(componentType);
     }
 }

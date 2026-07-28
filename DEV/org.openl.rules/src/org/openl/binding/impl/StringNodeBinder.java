@@ -15,13 +15,13 @@ import org.openl.types.java.JavaOpenClass;
 public class StringNodeBinder extends ANodeBinder {
 
     public static char processOctal(String s, int startIndex) {
-        int len = calcOctalLen(s, startIndex);
+        var len = calcOctalLen(s, startIndex);
         return processCharacter(s, startIndex, len, 8);
     }
 
     private static int calcOctalLen(String s, int startIndex) {
-        int i = startIndex;
-        int len = 0;
+        var i = startIndex;
+        var len = 0;
         while (i < s.length() && len < 3 && validOctal(s.charAt(i))) {
             i++;
             len++;
@@ -41,7 +41,7 @@ public class StringNodeBinder extends ANodeBinder {
     }
 
     private static char processCharacter(String s, int startIndex, int len, int radix) {
-        int endIndex = startIndex + len;
+        var endIndex = startIndex + len;
         if (startIndex > endIndex) {
             throw new IllegalArgumentException("Invalid character sequence.");
         }
@@ -51,16 +51,16 @@ public class StringNodeBinder extends ANodeBinder {
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
 
-        String s = node.getText();
-        int len = s.length();
+        var s = node.getText();
+        var len = s.length();
 
-        StringBuilder buf = new StringBuilder(len);
+        var buf = new StringBuilder(len);
 
-        for (int i = 1; i < len - 1; i++) {
-            char c = s.charAt(i);
+        for (var i = 1; i < len - 1; i++) {
+            var c = s.charAt(i);
             if (c == '\\') {
                 ++i;
-                char nextC = s.charAt(i);
+                var nextC = s.charAt(i);
                 switch (nextC) {
                     case 'b':
                         buf.append('\b');

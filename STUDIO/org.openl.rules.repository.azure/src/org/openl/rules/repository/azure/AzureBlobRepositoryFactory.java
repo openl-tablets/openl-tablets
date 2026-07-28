@@ -21,7 +21,7 @@ public class AzureBlobRepositoryFactory implements RepositoryFactory {
 
     @Override
     public Repository create(Function<String, String> settings) {
-        AzureBlobRepository repository = new AzureBlobRepository();
+        var repository = new AzureBlobRepository();
         RepositoryInstatiator.setParams(repository, settings);
         repository.initialize();
         return repository;

@@ -10,7 +10,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
@@ -33,7 +32,7 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
     public void initialize() {
         Path root = null;
         if (uri != null) {
-            File rootFile = new File(uri);
+            var rootFile = new File(uri);
             if (!rootFile.exists()) {
                 rootFile.mkdirs();
             }
@@ -42,7 +41,7 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                 throw new IllegalStateException("Failed to initialize the root directory: [%s].".formatted(root));
             }
         }
-        final Map<String, Path> localStorage = new HashMap<>();
+        final var localStorage = new HashMap<String, Path>();
         if (archives != null && archives.length > 0) {
             for (String archive : archives) {
                 if (StringUtils.isBlank(archive)) {
@@ -50,8 +49,8 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                 }
                 archive = archive.trim().replace('\\', '/');
                 Path pathToArchive = Path.of(archive);
-                boolean exists = Files.exists(pathToArchive);
-                boolean isArchive = exists && zipArchiveFilter(pathToArchive);
+                var exists = Files.exists(pathToArchive);
+                var isArchive = exists && zipArchiveFilter(pathToArchive);
                 if (!pathToArchive.isAbsolute() && (!exists || !isArchive) && root != null) {
                     // if path is not absolute, try to resolve it from root folder
                     pathToArchive = root.resolve(archive);
@@ -79,7 +78,7 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                     @Override
                     public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) {
                         if (attrs.isDirectory() || zipArchiveFilter(p)) {
-                            String archName = p.getFileName().toString();
+                            var archName = p.getFileName().toString();
                             if (!attrs.isDirectory()) {
                                 archName = FileUtils.getBaseName(archName);
                             }

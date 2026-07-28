@@ -20,19 +20,14 @@ import org.openl.rules.calc.IOriginalDeclaredClassesOpenField;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.DataOpenField;
-import org.openl.rules.data.ITable;
 import org.openl.rules.dt.DTColumnsDefinitionField;
 import org.openl.rules.dt.data.ConditionOrActionDirectParameterField;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.data.DecisionTableDataType;
-import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
-import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
 final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
@@ -50,10 +45,10 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
 
     @Override
     public Optional<NodeUsage> create(IBoundNode boundNode, String sourceString, int startPosition) {
-        IBoundNode targetNode = boundNode.getTargetNode();
-        FieldBoundNode fieldNode = (FieldBoundNode) boundNode;
-        IOpenField boundField = fieldNode.getBoundField();
-        IOpenClass type = boundField.getDeclaringClass();
+        var targetNode = boundNode.getTargetNode();
+        var fieldNode = (FieldBoundNode) boundNode;
+        var boundField = fieldNode.getBoundField();
+        var type = boundField.getDeclaringClass();
         if ((type == null || type == NullOpenClass.the) && targetNode != null) {
             type = targetNode.getType();
         }
@@ -64,14 +59,14 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
             return Optional.empty();
         }
 
-        TextInfo tableHeaderText = new TextInfo(sourceString);
-        ISyntaxNode syntaxNode = boundNode.getSyntaxNode();
+        var tableHeaderText = new TextInfo(sourceString);
+        var syntaxNode = boundNode.getSyntaxNode();
         String description;
         String uri = null;
         if (boundField instanceof IOriginalDeclaredClassesOpenField combinedOpenField) {
-            IOpenClass[] declaredClasses = combinedOpenField.getDeclaringClasses();
+            var declaredClasses = combinedOpenField.getDeclaringClasses();
             if (Arrays.stream(declaredClasses).allMatch(e -> e instanceof CustomSpreadsheetResultOpenClass)) {
-                Collection<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = Arrays
+                var customSpreadsheetResultOpenClasses = Arrays
                         .stream(declaredClasses)
                         .map(CustomSpreadsheetResultOpenClass.class::cast)
                         .flatMap(
@@ -79,11 +74,11 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
                                         .getCombinedTypes()
                                         .stream() : Stream.of(e))
                         .collect(Collectors.toList());
-                Map<IOpenClass, List<CustomSpreadsheetResultOpenClass>> groupedByTypes = customSpreadsheetResultOpenClasses
+                var groupedByTypes = customSpreadsheetResultOpenClasses
                         .stream()
                         .filter(e -> e.getField(boundField.getName()) != null)
                         .collect(Collectors.groupingBy(c -> c.getField(boundField.getName()).getType()));
-                StringBuilder classNames = new StringBuilder();
+                var classNames = new StringBuilder();
                 if (groupedByTypes.keySet().size() > 1) {
                     for (Map.Entry<IOpenClass, List<CustomSpreadsheetResultOpenClass>> e : groupedByTypes.entrySet()) {
                         classNames.append("\n").append(MethodUtil.printType(e.getKey())).append(" in ");
@@ -97,11 +92,11 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
                         .printType(boundField.getType()) + " " + boundField.getName();
             }
             syntaxNode = getIdentifierSyntaxNode(syntaxNode);
-            IMetaInfo metaInfo = type.getMetaInfo();
+            var metaInfo = type.getMetaInfo();
             if (metaInfo != null) {
                 uri = metaInfo.getSourceUrl();
             } else {
-                IMetaInfo mi = boundField.getType().getMetaInfo();
+                var mi = boundField.getType().getMetaInfo();
                 if (mi != null) {
                     uri = mi.getSourceUrl();
                 }
@@ -110,8 +105,8 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
             description = nodeDescriptionHolder.getDescription();
             syntaxNode = getIdentifierSyntaxNode(syntaxNode);
         } else if (type instanceof XlsModuleOpenClass && boundField instanceof DataOpenField field) {
-            final ITable foreignTable = field.getTable();
-            TableSyntaxNode tableSyntaxNode = foreignTable.getTableSyntaxNode();
+            final var foreignTable = field.getTable();
+            var tableSyntaxNode = foreignTable.getTableSyntaxNode();
             description = tableSyntaxNode.getHeaderLineValue().getValue();
             uri = tableSyntaxNode.getUri();
         } else if (type instanceof XlsModuleOpenClass && boundField instanceof ConstantOpenField constantOpenField) {
@@ -131,7 +126,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
             description = "Parameter of " + conditionOrActionDirectParameterField.getConditionOrAction()
                     .getName() + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
         } else if (boundField instanceof DTColumnsDefinitionField dtColumnsDefinitionField) {
-            DTColumnsDefinition dtColumnsDefinition = dtColumnsDefinitionField.getDtColumnsDefinition();
+            var dtColumnsDefinition = dtColumnsDefinitionField.getDtColumnsDefinition();
             String columnType;
             if (dtColumnsDefinition.isCondition()) {
                 columnType = "condition";
@@ -142,7 +137,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
                     .printType(boundField.getType()) + " " + boundField.getName();
             uri = dtColumnsDefinition.getUri();
         } else {
-            IMetaInfo metaInfo = type.getMetaInfo();
+            var metaInfo = type.getMetaInfo();
             while (metaInfo == null && type.isArray()) {
                 type = type.getComponentClass();
                 metaInfo = type.getMetaInfo();
@@ -155,28 +150,28 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
             } else if (type != NullOpenClass.the && !(type instanceof DecisionTableDataType)) {
                 description = MethodUtil.printType(type) + "\n" + description;
             } else {
-                IMetaInfo mi = boundField.getType().getMetaInfo();
+                var mi = boundField.getType().getMetaInfo();
                 if (mi != null) {
                     uri = mi.getSourceUrl();
                 }
             }
         }
-        ILocation typeLocation = syntaxNode.getSourceLocation();
+        var typeLocation = syntaxNode.getSourceLocation();
         if (typeLocation != null) {
-            int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
-            int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because typeLocation returns 'end' inclusively
+            var start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
+            var end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because typeLocation returns 'end' inclusively
             return Optional.of(new SimpleNodeUsage(start, end, description, uri, NodeType.FIELD));
         }
         return Optional.empty();
     }
 
     private static String concatenateSpreadsheetResultTables(Collection<CustomSpreadsheetResultOpenClass> types) {
-        StringBuilder sb = new StringBuilder();
-        boolean stringLengthExceeded = false;
-        int concatenated = 0;
+        var sb = new StringBuilder();
+        var stringLengthExceeded = false;
+        var concatenated = 0;
         for (CustomSpreadsheetResultOpenClass c : types.size() > 3 ? new ArrayList<>(types).subList(0, 3) : types) {
             concatenated++;
-            StringBuilder sb1 = new StringBuilder();
+            var sb1 = new StringBuilder();
             if (c instanceof CombinedSpreadsheetResultOpenClass class1) {
                 for (CustomSpreadsheetResultOpenClass t : class1.getCombinedTypes()) {
                     if (sb1.length() > 0) {
@@ -202,7 +197,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
             sb.append(sb1);
             concatenated++;
         }
-        int more = types.size() - concatenated;
+        var more = types.size() - concatenated;
         if (types.size() > MAX_DESCRIPTION_CLASS_NUMBER || stringLengthExceeded) {
             sb.append("...(").append(more).append(") more");
         }

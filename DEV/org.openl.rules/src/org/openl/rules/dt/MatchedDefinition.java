@@ -66,7 +66,7 @@ class MatchedDefinition {
         if (parametersToRename == null || name == null) {
             return name;
         }
-        String newName = parametersToRename.get(name.toLowerCase());
+        var newName = parametersToRename.get(name.toLowerCase());
         return newName != null ? newName : name;
     }
 
@@ -105,14 +105,14 @@ class MatchedDefinition {
                                                    List<ExpressionIdentifier> identifiers,
                                                    Pair<Map<String, String>, Boolean>... namesMaps) {
         identifiers = new ArrayList<>(identifiers); // identifiers is unmodifiable
-        final TextInfo textInfo = new TextInfo(code);
+        final var textInfo = new TextInfo(code);
         identifiers.sort(Comparator
                 .<ExpressionIdentifier>comparingInt(e -> e.getLocation().getStart().getAbsolutePosition(textInfo))
                 .reversed());
-        StringBuilder sb = new StringBuilder(code);
+        var sb = new StringBuilder(code);
         for (ExpressionIdentifier identifier : identifiers) {
-            int start = identifier.getLocation().getStart().getAbsolutePosition(textInfo);
-            int end = identifier.getLocation().getEnd().getAbsolutePosition(textInfo);
+            var start = identifier.getLocation().getStart().getAbsolutePosition(textInfo);
+            var end = identifier.getLocation().getEnd().getAbsolutePosition(textInfo);
             for (Pair<Map<String, String>, Boolean> m : namesMaps) {
                 if (m != null && m.getKey() != null && m.getKey()
                         .containsKey(

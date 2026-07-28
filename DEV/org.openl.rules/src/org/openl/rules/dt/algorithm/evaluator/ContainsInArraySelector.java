@@ -22,9 +22,9 @@ public class ContainsInArraySelector implements IIntSelector {
             return true;
         }
 
-        Object array = condition.getParamValue(0, ruleN);
-        int size = Array.getLength(array);
-        for (int i = 0; i < size; ++i) {
+        var array = condition.getParamValue(0, ruleN);
+        var size = Array.getLength(array);
+        for (var i = 0; i < size; ++i) {
             if (Objects.equals(Array.get(array, i), value)) {
                 return true;
             }
