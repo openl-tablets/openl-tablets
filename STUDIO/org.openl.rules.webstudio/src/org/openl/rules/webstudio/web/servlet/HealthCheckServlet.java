@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -27,6 +28,7 @@ import org.jspecify.annotations.NonNull;
         loadOnStartup = 1)
 public final class HealthCheckServlet extends HttpServlet {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Override
