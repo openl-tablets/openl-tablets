@@ -45,7 +45,7 @@ For more information on configuration files, see [Configuration Points](#configu
 
 ### Service Manager
 
-**Service Manager** is the main component of OpenL Rule Services frontend joining all major parts, such as a loader, rule service publishers, and Service Configurer. For more information on OpenL Rule Services frontend components, see [OpenL Tablets Developers Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/developer_guide).
+**Service Manager** is the main component of OpenL Rule Services frontend joining all major parts, such as a loader, rule service publishers, and Service Configurer. For more information on OpenL Rule Services frontend components, see [OpenL Tablets Developers Guide](../../developer-guides/).
 
 Service Manager manages all currently running services and intelligently controls all operations for deploying, undeploying, and redeploying the services. These operations are only performed in the following cases:
 
@@ -56,7 +56,7 @@ Service Manager always acts as a data source listener as described in further se
 
 ### Configuration Points
 
-Any part of OpenL Rule Services frontend can be replaced by the user’s own implementation. For more information on the system architecture, see [OpenL Tablets Developers Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/developer_guide).
+Any part of OpenL Rule Services frontend can be replaced by the user’s own implementation. For more information on the system architecture, see [OpenL Tablets Developers Guide](../../developer-guides/).
 
 If the common approach is used, the following components must be configured:
 
@@ -456,7 +456,7 @@ For more information on serialization values, see <https://fasterxml.github.io/j
 
 JSON payload of the same datatype with different `serializationInclusion` property values are as follows:
 
-![](../../assets/images/rule-services/01e96b672cddf6a2778693641109b4ab.jpeg)
+![JSON payload of the same datatype with different serializationInclusion values](../../assets/images/rule-services/01e96b672cddf6a2778693641109b4ab.jpeg)
 
 *JSON payload of the same datatype with different* `serializationInclusion` *values*
 
