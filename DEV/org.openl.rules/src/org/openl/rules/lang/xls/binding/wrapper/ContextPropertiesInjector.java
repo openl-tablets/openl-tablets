@@ -91,7 +91,9 @@ class ContextPropertiesInjector {
         var openCast = castFactory.getCast(field.getType(), contextTypeOpenClass);
         if (ContextPropertyBinderUtils.isNonValidCastForContextProperty(openCast)) {
             throw new IllegalStateException(String.format(
-                    "Type mismatch for context property '%s' for field '%s' in class '%s'. " + "Cannot convert from '%s' to '%s'.",
+                    """
+                    Type mismatch for context property '%s' for field '%s' in class '%s'. \
+                    Cannot convert from '%s' to '%s'.""",
                     field.getContextProperty(),
                     field.getName(),
                     field.getDeclaringClass().getName(),

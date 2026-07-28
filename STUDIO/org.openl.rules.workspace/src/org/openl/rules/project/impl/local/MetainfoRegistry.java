@@ -222,8 +222,9 @@ public class MetainfoRegistry {
      */
     public boolean renameProjectFolder(String projectName, String newProjectName) {
         if (!FolderHelper.isSafeFolderName(newProjectName)) {
-            log.warn("The new name '{}' of the '{}' project is not a valid folder name."
-                    + " The rename is skipped.", newProjectName, projectName);
+            log.warn("""
+                    The new name '{}' of the '{}' project is not a valid folder name.\
+                     The rename is skipped.""", newProjectName, projectName);
             return false;
         }
         return Boolean.TRUE.equals(runLocked(projectName, newProjectName, () -> {
@@ -237,8 +238,9 @@ public class MetainfoRegistry {
                 rename(projectName, newProjectName);
                 return true;
             } catch (RuntimeException e) {
-                log.error("Cannot rename the metainfo of the '{}' project to '{}'."
-                        + " The folder rename is rolled back.", projectName, newProjectName, e);
+                log.error("""
+                        Cannot rename the metainfo of the '{}' project to '{}'.\
+                         The folder rename is rolled back.""", projectName, newProjectName, e);
                 rollbackFolderRename(projectName, newProjectName);
                 return false;
             }
@@ -426,8 +428,9 @@ public class MetainfoRegistry {
             try {
                 metainfo = parse(recordFile);
             } catch (IOException | RuntimeException e) {
-                log.error("The metainfo record of the '{}' project is unreadable and will be dropped together"
-                        + " with the project folder.", projectName, e);
+                log.error("""
+                        The metainfo record of the '{}' project is unreadable and will be dropped together\
+                         with the project folder.""", projectName, e);
                 dropCorrupted(projectName);
                 return;
             }

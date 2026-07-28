@@ -217,10 +217,12 @@ class StringRangeParsingTest {
     void testSpecialCases() {
         assertEquals("[.aaa....bbb.]", new StringRange(".aaa.-.bbb.").toString());
         assertEquals("[\\aaa\\..\\bbb\\]", new StringRange("\\aaa\\-\\bbb\\").toString());
-        assertEquals("[a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words" +
-                        " becomes truncated when it defines in the String range..should work correctly]",
-                new StringRange("a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words" +
-                        " becomes truncated when it defines in the String range - should work correctly").toString());
+        assertEquals("""
+                        [a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words\
+                         becomes truncated when it defines in the String range..should work correctly]""",
+                new StringRange("""
+                        a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words\
+                         becomes truncated when it defines in the String range - should work correctly""").toString());
 
     }
 

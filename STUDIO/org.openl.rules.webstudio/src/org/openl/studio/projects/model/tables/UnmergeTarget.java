@@ -18,8 +18,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 })
 public sealed interface UnmergeTarget permits UnmergeTarget.Cells {
 
-    @Schema(name = "UnmergeCells", description = "Unmerges the merged cell that covers the given position, "
-            + "splitting it back into individual cells.")
+    @Schema(name = "UnmergeCells", description = """
+            Unmerges the merged cell that covers the given position, \
+            splitting it back into individual cells.""")
     record Cells(
             @Schema(description = "0-based row index of any cell in the merged region (0..height-1).")
             @NotNull

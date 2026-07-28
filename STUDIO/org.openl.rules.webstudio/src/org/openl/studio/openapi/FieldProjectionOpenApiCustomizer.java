@@ -43,8 +43,9 @@ public class FieldProjectionOpenApiCustomizer implements OpenApiOperationCustomi
                 .name(FieldProjectionSupport.PARAMETER_NAME)
                 .in(QUERY)
                 .required(false)
-                .description("Comma-separated list of response fields to return, including nested selection, "
-                        + "e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.")
+                .description("""
+                        Comma-separated list of response fields to return, including nested selection, \
+                        e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.""")
                 .schema(new StringSchema()));
     }
 

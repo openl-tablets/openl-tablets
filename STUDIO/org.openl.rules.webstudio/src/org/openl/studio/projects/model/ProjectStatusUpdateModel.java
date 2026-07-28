@@ -29,16 +29,19 @@ public record ProjectStatusUpdateModel(
         @Parameter(description = "Specific project revision to open. When provided, the project is opened at this historical version.")
         String revision,
 
-        @Parameter(description = "Commit message used when the project has local modifications that must be saved "
-                + "before the status change.")
+        @Parameter(description = """
+                Commit message used when the project has local modifications that must be saved \
+                before the status change.""")
         String comment,
 
-        @Parameter(description = "Optional. Set to true only when comment is null and local modifications must be "
-                + "saved using the repository's default comment generation rules.")
+        @Parameter(description = """
+                Optional. Set to true only when comment is null and local modifications must be \
+                saved using the repository's default comment generation rules.""")
         Boolean save,
 
-        @Parameter(description = "Discard local project modifications while closing, switching branches, "
-                + "or opening a revision.")
+        @Parameter(description = """
+                Discard local project modifications while closing, switching branches, \
+                or opening a revision.""")
         Boolean discardChanges,
 
         @Parameter(description = "List of branches selected by the user for this project.")

@@ -333,7 +333,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public void updateWithType(IOpenClass openClass) {
         if (beanClassByteCode != null) {
             throw new IllegalStateException(
-                    "Java bean class for custom spreadsheet result is loaded to classloader. " + "Custom spreadsheet result cannot be extended.");
+                    """
+                    Java bean class for custom spreadsheet result is loaded to classloader. \
+                    Custom spreadsheet result cannot be extended.""");
         }
         if (openClass instanceof SpreadsheetResultOpenClass class1) {
             this.updateWithType(class1.toCustomSpreadsheetResultOpenClass());

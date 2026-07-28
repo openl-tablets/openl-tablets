@@ -21,21 +21,25 @@ import io.swagger.v3.oas.annotations.media.Schema;
 })
 public sealed interface AppendTarget permits AppendTarget.Rows, AppendTarget.Columns {
 
-    @Schema(name = "AppendRows", description = "Adds one or more rows to the end of the table. Each new row must be "
-            + "exactly as wide as the table.")
+    @Schema(name = "AppendRows", description = """
+            Adds one or more rows to the end of the table. Each new row must be \
+            exactly as wide as the table.""")
     record Rows(
             @NotEmpty
-            @Parameter(description = "New rows top to bottom, each a list of cells left to right. A cell may set "
-                    + "colspan/rowspan to merge. Each row must be exactly as wide as the table.")
+            @Parameter(description = """
+                    New rows top to bottom, each a list of cells left to right. A cell may set \
+                    colspan/rowspan to merge. Each row must be exactly as wide as the table.""")
             List<List<@Valid RawCellInput>> cells) implements AppendTarget {
     }
 
-    @Schema(name = "AppendColumns", description = "Adds one or more columns to the end of the table. Each new column "
-            + "must be exactly as tall as the table.")
+    @Schema(name = "AppendColumns", description = """
+            Adds one or more columns to the end of the table. Each new column \
+            must be exactly as tall as the table.""")
     record Columns(
             @NotEmpty
-            @Parameter(description = "New columns left to right, each a list of cells top to bottom. A cell may set "
-                    + "colspan/rowspan to merge. Each column must be exactly as tall as the table.")
+            @Parameter(description = """
+                    New columns left to right, each a list of cells top to bottom. A cell may set \
+                    colspan/rowspan to merge. Each column must be exactly as tall as the table.""")
             List<List<@Valid RawCellInput>> cells) implements AppendTarget {
     }
 

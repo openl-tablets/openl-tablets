@@ -167,8 +167,9 @@ public class Migrator {
             var metainfo = legacyMetainfo(studioProps.resolve(".version"),
                     legacyBaselines(studioProps.resolve("file-properties")));
             if (metainfo == null) {
-                log.warn("The '{}' project has no repository link. The folder is deleted at the first"
-                        + " workspace load.", projectName);
+                log.warn("""
+                        The '{}' project has no repository link. The folder is deleted at the first\
+                         workspace load.""", projectName);
                 return;
             }
             MetainfoRegistry.store(userDir, projectName, metainfo);

@@ -25,9 +25,10 @@ final class AlgorithmErrorHelper {
                                                                             RuntimeOperation operation) {
         var sourceOperationUrl = operation.getSourceCode().getSourceUri();
         String errorMessage = String.format(
-                "Unexpected error appeared while executing TBasic component logic. " +
-                        "It's unusal situation and the most propably something is wrong in component's internal logic, " +
-                        "please contact developers. Error: %s at %s",
+                """
+                Unexpected error appeared while executing TBasic component logic. \
+                It's unusal situation and the most propably something is wrong in component's internal logic, \
+                please contact developers. Error: %s at %s""",
                 message,
                 sourceOperationUrl);
 
