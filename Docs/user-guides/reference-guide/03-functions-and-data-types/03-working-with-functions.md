@@ -32,11 +32,11 @@ For example, in the `max(value1, value2)` expression, **max** is the rule or fun
 
 If an action is performed in a rule, use the corresponding function in the rules table. For example, to calculate the best result for a gamer in the following example, use the **max** function and enter *max(score1, score2, score3)* in the **C1** column. This expression instructs OpenL Tablets to select the maximum value in the set. The **contains** function can be used to determine the gamer level.
 
-Subsequent sections provide description for mostly often used OpenL Tablets functions. For a full list of functions, see [Math Functions](../../05-appendices/04-math-functions.md), [Array Functions](../../05-appendices/02-array-functions.md), [Date Functions](../../05-appendices/03-date-functions.md), [String Functions](../../05-appendices/05-string-functions.md), and [Special Functions](../../05-appendices/06-special-functions.md).
+Subsequent sections provide description for mostly often used OpenL Tablets functions. For a full list of functions, see [Math Functions](../05-appendices/04-math-functions.md), [Array Functions](../05-appendices/02-array-functions.md), [Date Functions](../05-appendices/03-date-functions.md), [String Functions](../05-appendices/05-string-functions.md), and [Special Functions](../05-appendices/06-special-functions.md).
 
 ### Understanding Math Functions
 
-Math functions serve for performing math operations on numeric data. These functions support all numeric data types described in [Working with Data Types](working-with-data-types.md#working-with-data-types).
+Math functions serve for performing math operations on numeric data. These functions support all numeric data types described in [Working with Data Types](02-working-with-data-types.md#working-with-data-types).
 
 The following example illustrates how to use functions in OpenL Tablets. The rule in the diagram defines a gamer level depending on the best result in three attempts.
 
