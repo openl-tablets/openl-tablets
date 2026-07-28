@@ -31,6 +31,8 @@ import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -4242,18 +4244,11 @@ public final class DecisionTableHelper {
         return Pair.of(cnt, nonHeaderCnt);
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class ParameterTokens {
         final Token[] tokens;
         final Map<Token, Integer> tokensToParameterIndex;
         final Map<Token, IOpenField[]> tokenToFieldsChain;
-
-        ParameterTokens(Token[] tokens,
-                        Map<Token, Integer> tokensToParameterIndex,
-                        Map<Token, IOpenField[]> tokenToFieldsChain) {
-            this.tokens = tokens;
-            this.tokensToParameterIndex = tokensToParameterIndex;
-            this.tokenToFieldsChain = tokenToFieldsChain;
-        }
 
         IOpenField[] getFieldsChain(Token value) {
             return tokenToFieldsChain.get(value);
@@ -4268,6 +4263,7 @@ public final class DecisionTableHelper {
         }
     }
 
+    @RequiredArgsConstructor
     public static class NumberOfColumnsUnderTitleCounter {
         final ILogicalTable logicalTable;
         final int firstColumnHeight;
@@ -4294,23 +4290,15 @@ public final class DecisionTableHelper {
             List<Integer> numberOfColumns = numberOfColumnsMap.computeIfAbsent(column, e -> init(column));
             return numberOfColumns.get(num);
         }
-
-        public NumberOfColumnsUnderTitleCounter(ILogicalTable logicalTable, int firstColumnHeight) {
-            this.logicalTable = logicalTable;
-            this.firstColumnHeight = firstColumnHeight;
-        }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class FuzzyContext {
         final ParameterTokens parameterTokens;
         Token[] returnTokens = null;
         Map<Token, IOpenField[][]> returnTypeFuzzyTokens = null;
         IOpenClass fuzzyReturnType;
         int maxDistance;
-
-        private FuzzyContext(ParameterTokens parameterTokens) {
-            this.parameterTokens = parameterTokens;
-        }
 
         private FuzzyContext(ParameterTokens parameterTokens,
                              Token[] returnTokens,

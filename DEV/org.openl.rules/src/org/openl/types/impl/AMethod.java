@@ -5,6 +5,8 @@
  */
 package org.openl.types.impl;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.MethodUtil;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -15,13 +17,10 @@ import org.openl.types.IOpenMethodHeader;
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public abstract class AMethod implements IOpenMethod {
 
     private final IOpenMethodHeader header;
-
-    public AMethod(IOpenMethodHeader header) {
-        this.header = header;
-    }
 
     @Override
     public IOpenClass getDeclaringClass() {

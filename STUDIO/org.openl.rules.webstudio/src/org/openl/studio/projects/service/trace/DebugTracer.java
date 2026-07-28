@@ -1,5 +1,7 @@
 package org.openl.studio.projects.service.trace;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.types.Invokable;
@@ -16,13 +18,10 @@ import org.openl.vm.Tracer;
  *
  * @author Yury Molchan
  */
+@RequiredArgsConstructor
 public final class DebugTracer extends Tracer {
 
     private final DebugHook hook;
-
-    public DebugTracer(DebugHook hook) {
-        this.hook = hook;
-    }
 
     @Override
     public boolean isTracing() {

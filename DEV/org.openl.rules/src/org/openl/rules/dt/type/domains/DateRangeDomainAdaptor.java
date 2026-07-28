@@ -2,6 +2,8 @@ package org.openl.rules.dt.type.domains;
 
 import java.util.Date;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.domain.DateRangeDomain;
 import org.openl.ie.constrainer.IntVar;
 
@@ -10,12 +12,9 @@ import org.openl.ie.constrainer.IntVar;
  *
  * @author PUdalau
  */
+@RequiredArgsConstructor
 public class DateRangeDomainAdaptor implements IDomainAdaptor {
     private final DateRangeDomain domain;
-
-    public DateRangeDomainAdaptor(DateRangeDomain domain) {
-        this.domain = domain;
-    }
 
     @Override
     public int getIndex(Object value) {

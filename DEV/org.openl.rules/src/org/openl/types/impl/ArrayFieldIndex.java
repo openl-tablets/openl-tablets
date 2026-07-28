@@ -8,19 +8,17 @@ package org.openl.types.impl;
 
 import java.lang.reflect.Array;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.util.IntegerValuesUtils;
 
+@RequiredArgsConstructor
 public class ArrayFieldIndex implements IOpenIndex {
     private final IOpenClass elementType;
     private final IOpenField indexField;
-
-    public ArrayFieldIndex(IOpenClass elementType, IOpenField indexField) {
-        this.elementType = elementType;
-        this.indexField = indexField;
-    }
 
     @Override
     public IOpenClass getElementType() {

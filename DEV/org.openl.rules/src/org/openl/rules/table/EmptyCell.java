@@ -2,16 +2,15 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
+@RequiredArgsConstructor
 public class EmptyCell implements ICell {
 
     private final ICell cell;
-
-    public EmptyCell(ICell cell) {
-        this.cell = cell;
-    }
 
     @Override
     public int getRow() {

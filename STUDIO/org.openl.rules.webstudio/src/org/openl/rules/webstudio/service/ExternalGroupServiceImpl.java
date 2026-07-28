@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.integration.support.locks.LockRegistry;
@@ -24,6 +25,7 @@ import org.openl.rules.security.standalone.persistence.ExternalGroup;
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor
 @Slf4j
 public class ExternalGroupServiceImpl implements ExternalGroupService {
 
@@ -31,14 +33,6 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     private final ExternalGroupDao externalGroupDao;
     private final LockRegistry lockRegistry;
     private final TransactionTemplate txTemplate;
-
-    public ExternalGroupServiceImpl(ExternalGroupDao externalGroupDao,
-                                    LockRegistry lockRegistry,
-                                    TransactionTemplate txTemplate) {
-        this.externalGroupDao = externalGroupDao;
-        this.lockRegistry = lockRegistry;
-        this.txTemplate = txTemplate;
-    }
 
     @Override
     @Transactional

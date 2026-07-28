@@ -14,6 +14,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import org.openl.rules.testmethod.ITestUnit;
@@ -28,15 +30,12 @@ import org.openl.types.impl.ThisField;
  * <p>
  * Not thread-safe.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class JUnitReportWriter {
     // NumberFormat is not thread-safe
     private final NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
     private final File dir;
     private XMLStreamWriter xml;
-
-    JUnitReportWriter(File dir) {
-        this.dir = dir;
-    }
 
     private static final String CDATA_START = "<![CDATA[";
     private static final String CDATA_END = "]]>";

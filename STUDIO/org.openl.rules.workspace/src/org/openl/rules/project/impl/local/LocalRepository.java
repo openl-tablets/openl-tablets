@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.ChangesetType;
@@ -178,12 +180,9 @@ public class LocalRepository extends FileSystemRepository {
         return base.relativize(pathAbsolute).toString().replace('\\', '/');
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private final class RegistryProjectState implements ProjectState {
         private final String projectName;
-
-        private RegistryProjectState(String projectName) {
-            this.projectName = projectName;
-        }
 
         @Override
         public void notifyModified() {

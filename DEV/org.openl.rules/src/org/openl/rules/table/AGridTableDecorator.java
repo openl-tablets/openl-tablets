@@ -1,15 +1,14 @@
 package org.openl.rules.table;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public abstract class AGridTableDecorator extends AGridTable {
 
     protected final IGridTable table;
-
-    public AGridTableDecorator(IGridTable table) {
-        this.table = table;
-    }
 
     @Override
     public IGrid getGrid() {

@@ -6,20 +6,17 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.table.ILogicalTable;
 
+@RequiredArgsConstructor
 public class RuleRow {
 
     private final int row;
     private final ILogicalTable table;
-
-    public RuleRow(int row, ILogicalTable table) {
-        this.row = row;
-        this.table = table;
-    }
 
     private final Map<Integer, String> cache = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();

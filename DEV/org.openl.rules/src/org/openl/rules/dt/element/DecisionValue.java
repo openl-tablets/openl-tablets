@@ -6,9 +6,12 @@
 
 package org.openl.rules.dt.element;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class DecisionValue {
 
     private static final int FALSE = 1;
@@ -22,12 +25,6 @@ public class DecisionValue {
     private final int type;
     private final boolean booleanValue;
     private final boolean special;
-
-    public DecisionValue(int type, boolean booleanValue, boolean special) {
-        this.type = type;
-        this.booleanValue = booleanValue;
-        this.special = special;
-    }
 
     public boolean getBooleanValue() {
         return booleanValue;

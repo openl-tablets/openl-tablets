@@ -1,7 +1,11 @@
 package org.openl.excel.parser.sax;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.excel.parser.SheetDescriptor;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class SAXSheetDescriptor implements SheetDescriptor {
     private final String name;
     private final int index;
@@ -9,12 +13,6 @@ public final class SAXSheetDescriptor implements SheetDescriptor {
 
     private int firstRowNum;
     private int firstColNum;
-
-    SAXSheetDescriptor(String name, int index, String relationId) {
-        this.name = name;
-        this.index = index;
-        this.relationId = relationId;
-    }
 
     @Override
     public String getName() {

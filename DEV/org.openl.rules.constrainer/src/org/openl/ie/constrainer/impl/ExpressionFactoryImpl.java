@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Expression;
 import org.openl.ie.constrainer.ExpressionFactory;
@@ -38,6 +40,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         Class clazz();
     }
 
+    @RequiredArgsConstructor
     static class ExpressionKeyImpl implements ExpressionKey {
         private final Class _clazz;
         private final Object[] _args;
@@ -83,11 +86,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             }
 
             return true;
-        }
-
-        public ExpressionKeyImpl(Class clazz, Object[] args) {
-            _clazz = clazz;
-            _args = args;
         }
 
         @Override

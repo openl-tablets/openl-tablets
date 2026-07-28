@@ -1,6 +1,8 @@
 package org.openl.studio.projects.model.trace;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.studio.projects.service.trace.DebugCommand;
 
@@ -11,6 +13,7 @@ import org.openl.studio.projects.service.trace.DebugCommand;
  * {@link DebugCommand} it performs. Resuming is a separate, asynchronous endpoint, so {@code RESUME} is
  * intentionally not a step type.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum StepType {
 
     @JsonProperty("into")
@@ -23,10 +26,6 @@ public enum StepType {
     OUT(DebugCommand.STEP_OUT);
 
     private final DebugCommand command;
-
-    StepType(DebugCommand command) {
-        this.command = command;
-    }
 
     /** The engine command this step performs. */
     public DebugCommand toCommand() {

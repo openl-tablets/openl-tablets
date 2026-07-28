@@ -52,6 +52,8 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.util.RefUtils;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -1306,16 +1308,11 @@ public class OpenApiProjectValidator {
                 provideRuntimeContext);
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class KeyBySchemasRef {
         private final IOpenClass openClass;
         private final String actualSchemaRef;
         private final String expectedSchemaRef;
-
-        private KeyBySchemasRef(IOpenClass openClass, String actualSchemaRef, String expectedSchemaRef) {
-            this.openClass = openClass;
-            this.actualSchemaRef = actualSchemaRef;
-            this.expectedSchemaRef = expectedSchemaRef;
-        }
 
         @Override
         public boolean equals(Object o) {
@@ -1333,16 +1330,11 @@ public class OpenApiProjectValidator {
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class KeyByFieldType {
         private final IOpenClass openClass;
         private final IOpenClass openFieldType;
         private final String expectedSchemaRef;
-
-        private KeyByFieldType(IOpenClass openClass, IOpenClass openFieldType, String expectedSchemaRef) {
-            this.openClass = openClass;
-            this.openFieldType = openFieldType;
-            this.expectedSchemaRef = expectedSchemaRef;
-        }
 
         @Override
         public boolean equals(Object o) {

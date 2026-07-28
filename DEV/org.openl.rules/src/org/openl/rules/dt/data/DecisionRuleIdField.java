@@ -1,5 +1,8 @@
 package org.openl.rules.dt.data;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -7,13 +10,10 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class DecisionRuleIdField implements IOpenField {
 
     private final DecisionTableDataType decisionTableDataType;
-
-    DecisionRuleIdField(DecisionTableDataType decisionTableDataType) {
-        this.decisionTableDataType = decisionTableDataType;
-    }
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {

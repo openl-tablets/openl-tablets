@@ -10,11 +10,14 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.ConfigPrefixSettingsHolder;
 import org.openl.studio.settings.model.SettingValueWrapper;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class SettingValueWrapperSerializer extends JsonSerializer<Object> implements ContextualSerializer {
 
     private final Function<Object, Boolean> readOnlyLookup;
@@ -24,11 +27,6 @@ public class SettingValueWrapperSerializer extends JsonSerializer<Object> implem
         // Default constructor must be present for Jackson
         this.readOnlyLookup = null;
         secret = false;
-    }
-
-    private SettingValueWrapperSerializer(Function<Object, Boolean> readOnlyLookup, boolean secret) {
-        this.readOnlyLookup = readOnlyLookup;
-        this.secret = secret;
     }
 
     @Override

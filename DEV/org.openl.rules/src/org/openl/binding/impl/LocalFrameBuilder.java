@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.types.IMemberMetaInfo;
@@ -21,18 +24,12 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  */
 public class LocalFrameBuilder {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class LocalVar implements ILocalVar {
         private final String namespace;
         private final String name;
         private final int indexInLocalFrame;
         private final IOpenClass type;
-
-        private LocalVar(String namespace, String name, int indexInLocalFrame, IOpenClass type) {
-            this.namespace = namespace;
-            this.name = name;
-            this.indexInLocalFrame = indexInLocalFrame;
-            this.type = type;
-        }
 
         /*
          * (non-Javadoc)

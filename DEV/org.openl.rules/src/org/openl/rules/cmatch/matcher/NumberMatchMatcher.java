@@ -1,17 +1,15 @@
 package org.openl.rules.cmatch.matcher;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.helpers.INumberRange;
 
+@RequiredArgsConstructor
 public class NumberMatchMatcher implements IMatcher {
     private final Class<?> directClass;
     private final Class<?> rangeClass;
-
-    public NumberMatchMatcher(Class<?> directClass, Class<?> rangeClass) {
-        this.directClass = directClass;
-        this.rangeClass = rangeClass;
-    }
 
     @Override
     public Object fromString(String checkValue) {

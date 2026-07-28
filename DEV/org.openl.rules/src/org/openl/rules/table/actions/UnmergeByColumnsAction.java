@@ -3,6 +3,8 @@ package org.openl.rules.table.actions;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -11,15 +13,12 @@ import org.openl.rules.table.IWritableGrid;
 /**
  * @author PUdalau
  */
+@RequiredArgsConstructor
 public class UnmergeByColumnsAction implements IUndoableGridTableAction {
 
     private final IGridRegion region;
     private List<IGridRegion> createdRegions;
     private List<IGridRegion> removedRegions;
-
-    public UnmergeByColumnsAction(IGridRegion region) {
-        this.region = region;
-    }
 
     @Override
     public void doAction(IGridTable table) {

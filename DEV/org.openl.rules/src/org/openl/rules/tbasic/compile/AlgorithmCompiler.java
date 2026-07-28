@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentBindingContext;
@@ -34,6 +36,7 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * @author User
  */
+@RequiredArgsConstructor
 public class AlgorithmCompiler {
     /***************************************************************************
      * Initial data
@@ -67,14 +70,6 @@ public class AlgorithmCompiler {
                 new DeclareArrayElementPreprocessor());
         operationPreprocessors.put(OperationType.SUBROUTINE.toString(), new DeclareSubroutinePreprocessor());
         operationPreprocessors.put(OperationType.FUNCTION.toString(), new DeclareFunctionPreprocessor());
-    }
-
-    public AlgorithmCompiler(IBindingContext context,
-                             IOpenMethodHeader header,
-                             List<AlgorithmTreeNode> nodesToCompile) {
-        this.context = context;
-        this.header = header;
-        this.nodesToCompile = nodesToCompile;
     }
 
     /***************************************************************************

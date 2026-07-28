@@ -1,12 +1,12 @@
 package org.openl.rules.dt.storage;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public abstract class ReadOnlyStorage<T> implements IStorage<T> {
 
     private final StorageInfo info;
-
-    ReadOnlyStorage(StorageInfo info) {
-        this.info = info;
-    }
 
     @Override
     public void setValue(int index, Object o) {

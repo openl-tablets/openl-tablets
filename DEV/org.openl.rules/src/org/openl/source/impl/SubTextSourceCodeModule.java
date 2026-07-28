@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.fast.FastStringReader;
 
@@ -21,6 +23,7 @@ import org.openl.util.fast.FastStringReader;
  * negative it is the relative position from the end of the base code
  */
 @Deprecated
+@RequiredArgsConstructor
 public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
 
     private final IOpenSourceCodeModule baseModule;
@@ -28,11 +31,6 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
     private int endPosition = 0;
 
     private Map<String, Object> params;
-
-    public SubTextSourceCodeModule(IOpenSourceCodeModule baseModule, int startPosition) {
-        this.baseModule = baseModule;
-        this.startPosition = startPosition;
-    }
 
     public SubTextSourceCodeModule(IOpenSourceCodeModule baseModule, int startPosition, int endPosition) {
         this.baseModule = baseModule;

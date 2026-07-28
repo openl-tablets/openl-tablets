@@ -22,9 +22,11 @@ import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.MessageBodyWriter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 @SuppressWarnings("rawtypes")
 public class TextPlainMessageProvider implements MessageBodyWriter, MessageBodyReader {
 
@@ -45,10 +47,6 @@ public class TextPlainMessageProvider implements MessageBodyWriter, MessageBodyR
     }
 
     private final ObjectMapper objectMapper;
-
-    public TextPlainMessageProvider(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @SuppressWarnings("unchecked")
     @Override

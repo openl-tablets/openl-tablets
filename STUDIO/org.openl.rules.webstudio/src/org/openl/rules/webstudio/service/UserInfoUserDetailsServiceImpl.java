@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,19 +20,12 @@ import org.openl.rules.security.standalone.dao.UserDao;
  * @author Andrey Naumenko
  * @author adjusted to new security model.
  */
+@RequiredArgsConstructor
 public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
 
     private final UserDao userDao;
     private final AdminUsers adminUsersInitializer;
     private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper;
-
-    public UserInfoUserDetailsServiceImpl(UserDao userDao,
-                                          AdminUsers adminUsersInitializer,
-                                          BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
-        this.userDao = userDao;
-        this.adminUsersInitializer = adminUsersInitializer;
-        this.privilegeMapper = privilegeMapper;
-    }
 
     @Override
     public User loadUserByUsername(String name) throws UsernameNotFoundException, DataAccessException {

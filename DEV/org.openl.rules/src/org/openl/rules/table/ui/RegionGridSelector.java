@@ -3,11 +3,14 @@
  */
 package org.openl.rules.table.ui;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.IGridRegion;
 
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class RegionGridSelector implements IGridSelector {
 
     private final IGridRegion[] regions;
@@ -16,11 +19,6 @@ public class RegionGridSelector implements IGridSelector {
 
     public RegionGridSelector(IGridRegion region, boolean exclude) {
         regions = new IGridRegion[]{region};
-        this.exclude = exclude;
-    }
-
-    public RegionGridSelector(IGridRegion[] regions, boolean exclude) {
-        this.regions = regions;
         this.exclude = exclude;
     }
 

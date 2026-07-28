@@ -8,6 +8,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
@@ -20,17 +21,12 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.PropertiesUtils;
 
+@RequiredArgsConstructor
 @Slf4j
 public class ProjectTagsMigrator {
     public static final String MIGRATION_COMMENT = "Tags in project %s were moved to tags.properties file";
     public static final String PATH_SEPARATOR = "/";
     private final DesignTimeRepository designTimeRepository;
-
-
-
-    public ProjectTagsMigrator(DesignTimeRepository designTimeRepository) {
-        this.designTimeRepository = designTimeRepository;
-    }
 
 
     public void migrate(String repositoryId, String projectPath, Map<String, String> projectTags,

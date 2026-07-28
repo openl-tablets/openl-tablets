@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.consistencyChecking.DTChecker.Utils;
 
@@ -33,14 +36,11 @@ public class Overlapping {
      *
      */
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum OverlappingStatus {
         BLOCK(0x01),
         PARTIAL(0x02),
         OVERRIDE(0x04);
-
-        OverlappingStatus(int bit) {
-            this.bit = bit;
-        }
 
         private final int bit;
 

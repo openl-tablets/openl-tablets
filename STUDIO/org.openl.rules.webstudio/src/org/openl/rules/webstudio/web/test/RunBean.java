@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.test;
 import java.util.List;
 import jakarta.annotation.PostConstruct;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -20,6 +21,7 @@ import org.openl.util.StringUtils;
  */
 @Service
 @RequestScope
+@RequiredArgsConstructor
 public class RunBean {
 
     private final RunTestHelper runTestHelper;
@@ -32,10 +34,6 @@ public class RunBean {
      * ID of tested table
      */
     private String id;
-
-    public RunBean(RunTestHelper runTestHelper) {
-        this.runTestHelper = runTestHelper;
-    }
 
     @PostConstruct
     public void init() {

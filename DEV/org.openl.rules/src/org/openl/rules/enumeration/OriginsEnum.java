@@ -1,15 +1,15 @@
 package org.openl.rules.enumeration;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum OriginsEnum {
 
     Base("Base"),
     Deviation("Deviation");
 
     private final String displayName;
-
-    OriginsEnum(String displayName) {
-        this.displayName = displayName;
-    }
 
     @Override
     public String toString() {

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 public class Order {
@@ -28,6 +30,7 @@ public class Order {
     /**
      * Order Status
      */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum StatusEnum {
         PLACED("placed"),
 
@@ -36,10 +39,6 @@ public class Order {
         DELIVERED("delivered");
 
         private final String value;
-
-        StatusEnum(String value) {
-            this.value = value;
-        }
 
         @JsonValue
         public String getValue() {

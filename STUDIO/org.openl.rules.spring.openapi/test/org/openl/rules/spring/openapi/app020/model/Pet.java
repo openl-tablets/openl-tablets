@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 public class Pet {
 
@@ -32,6 +34,7 @@ public class Pet {
     /**
      * pet status in the store
      */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum StatusEnum {
         AVAILABLE("available"),
 
@@ -40,10 +43,6 @@ public class Pet {
         SOLD("sold");
 
         private final String value;
-
-        StatusEnum(String value) {
-            this.value = value;
-        }
 
         @JsonValue
         public String getValue() {

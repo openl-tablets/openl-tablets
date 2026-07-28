@@ -1,19 +1,16 @@
 package org.openl.rules.table.xls;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import org.openl.rules.table.ui.ICellFont;
 
+@RequiredArgsConstructor
 public class XlsCellFont implements ICellFont {
 
     private final Font font;
     private final Workbook workbook;
-
-    public XlsCellFont(Font font, Workbook workbook) {
-        this.font = font;
-        this.workbook = workbook;
-    }
 
     @Override
     public short[] getFontColor() {

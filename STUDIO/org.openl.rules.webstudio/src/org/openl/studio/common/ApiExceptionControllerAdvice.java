@@ -8,6 +8,7 @@ import jakarta.validation.ConstraintViolationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -37,16 +38,13 @@ import org.openl.util.StringUtils;
  * @author Vladyslav Pikus
  */
 @ControllerAdvice
+@RequiredArgsConstructor
 @SuppressWarnings("NullableProblems")
 @Slf4j
 public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
 
     private final ExceptionMappingService exceptionMappingService;
-
-    public ApiExceptionControllerAdvice(ExceptionMappingService exceptionMappingService) {
-        this.exceptionMappingService = exceptionMappingService;
-    }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ValidationError> handleAllRestRuntimeExceptions(ValidationException e, WebRequest request) {

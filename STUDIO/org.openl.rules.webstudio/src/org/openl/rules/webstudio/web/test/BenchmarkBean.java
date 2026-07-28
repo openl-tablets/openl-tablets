@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.ToLongFunction;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -17,6 +18,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
 
+@RequiredArgsConstructor
 @Service
 @SessionScope
 public class BenchmarkBean {
@@ -26,10 +28,6 @@ public class BenchmarkBean {
     private final List<BenchmarkInfoView> benchmarks = new ArrayList<>();
     private List<BenchmarkInfoView> comparedBenchmarks = List.of();
     private List<BenchmarkInfoView> benchmarkOrders;
-
-    public BenchmarkBean(RunTestHelper runTestHelper) {
-        this.runTestHelper = runTestHelper;
-    }
 
     private static boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
         return testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()

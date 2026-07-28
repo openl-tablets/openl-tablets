@@ -1,16 +1,15 @@
 package org.openl.rules.dt.validator;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.domain.IDomain;
 import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.types.IParameterDeclaration;
 
+@RequiredArgsConstructor
 public class ConditionAnalyzer {
 
     private final IBaseDecisionRow condition;
-
-    public ConditionAnalyzer(IBaseDecisionRow condition) {
-        this.condition = condition;
-    }
 
     public IDomain<?> getParameterDomain(String parameterName) {
 

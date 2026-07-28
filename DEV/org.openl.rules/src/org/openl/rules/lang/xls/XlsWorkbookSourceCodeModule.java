@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -27,6 +28,7 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 
 @Deprecated
+@RequiredArgsConstructor
 @Slf4j
 public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
@@ -43,11 +45,6 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
         this(src, WorkbookLoaders.getWorkbookLoader(src));
-    }
-
-    public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, WorkbookLoader workbookLoader) {
-        this.src = src;
-        this.workbookLoader = workbookLoader;
     }
 
     private void initWorkbookColors() {

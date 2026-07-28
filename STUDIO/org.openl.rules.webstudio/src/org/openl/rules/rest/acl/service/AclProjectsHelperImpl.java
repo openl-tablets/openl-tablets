@@ -3,6 +3,7 @@ package org.openl.rules.rest.acl.service;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 
@@ -14,16 +15,11 @@ import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.CollectionUtils;
 
+@RequiredArgsConstructor
 public class AclProjectsHelperImpl implements AclProjectsHelper {
 
     private final RepositoryAclServiceProvider aclServiceProvider;
     private final boolean allowProjectCreateDelete;
-
-    public AclProjectsHelperImpl(RepositoryAclServiceProvider aclServiceProvider,
-                                 boolean allowProjectCreateDelete) {
-        this.aclServiceProvider = aclServiceProvider;
-        this.allowProjectCreateDelete = allowProjectCreateDelete;
-    }
 
     @Override
     public boolean hasPermission(AProject project, Permission permission) {

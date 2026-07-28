@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.record.CellValueRecordInterface;
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
@@ -13,15 +15,12 @@ import org.apache.poi.hssf.record.FormatRecord;
 import org.apache.poi.hssf.record.Record;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class StyleTrackingListener implements HSSFListener {
     private final HSSFListener delegate;
     private final Map<Integer, FormatRecord> customFormats = new HashMap<>();
     private final List<ExtendedFormatRecord> extendedFormats = new ArrayList<>();
     private final List<FontRecord> fonts = new ArrayList<>();
-
-    StyleTrackingListener(HSSFListener delegate) {
-        this.delegate = delegate;
-    }
 
     @Override
     public void processRecord(Record record) {

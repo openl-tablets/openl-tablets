@@ -9,6 +9,8 @@ import java.util.function.UnaryOperator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.io.Resource;
@@ -27,6 +29,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
  * "https://github.com/swagger-api/swagger-core/wiki/Swagger-2.X---Integration-and-Configuration#configuration">Swagger
  * configuration</a>
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class CustomOpenApiProcessor implements UnaryOperator<OpenAPI> {
 
     private static final String[] LOCATION_PATTERNS = {
@@ -41,12 +44,6 @@ final class CustomOpenApiProcessor implements UnaryOperator<OpenAPI> {
     private final ObjectMapper mapper;
     private final ClassLoader classLoader;
     private final PropertyResolver propertyResolver;
-
-    CustomOpenApiProcessor(ObjectMapper mapper, ClassLoader classLoader, PropertyResolver propertyResolver) {
-        this.mapper = mapper;
-        this.classLoader = classLoader;
-        this.propertyResolver = propertyResolver;
-    }
 
     @Override
     @SneakyThrows
@@ -71,11 +68,8 @@ final class CustomOpenApiProcessor implements UnaryOperator<OpenAPI> {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
+    @RequiredArgsConstructor
     public static class ConfigWrapper {
         public final OpenAPI openAPI;
-
-        public ConfigWrapper(OpenAPI openAPI) {
-            this.openAPI = openAPI;
-        }
     }
 }

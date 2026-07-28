@@ -2,6 +2,8 @@ package org.openl.rules.rest.acl.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Sid;
@@ -9,15 +11,11 @@ import org.springframework.security.acls.model.Sid;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class ASidExistsValidator {
 
     private final UserManagementService userService;
     private final GroupManagementService groupService;
-
-    protected ASidExistsValidator(UserManagementService userService, GroupManagementService groupService) {
-        this.userService = userService;
-        this.groupService = groupService;
-    }
 
     protected boolean isValid(Sid sid, ConstraintValidatorContext ctx) {
         return switch (sid) {

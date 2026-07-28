@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.ParametersAreNonnullByDefault;
 import jakarta.annotation.Nullable;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ import org.openl.studio.projects.service.tests.TestExecutionStatus;
 
 @Component
 @ParametersAreNonnullByDefault
+@RequiredArgsConstructor
 public class ProjectSocketNotificationService {
 
     private static final  String STATUS = "/status";
@@ -41,10 +43,6 @@ public class ProjectSocketNotificationService {
     private static final String CHANGE_PING = "CHANGED";
 
     private final SimpMessagingTemplate messagingTemplate;
-
-    public ProjectSocketNotificationService(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
-    }
 
     /**
      * Notifies user about test execution status change.

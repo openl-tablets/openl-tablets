@@ -2,6 +2,7 @@ package org.openl.rules.lang.xls.load;
 
 import java.lang.ref.WeakReference;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import org.openl.rules.lang.xls.SpreadsheetConstants;
@@ -13,6 +14,7 @@ import org.openl.source.IOpenSourceCodeModule;
  * garbage collected, and after that if {@link #getWorkbook()} is called, the workbook will be loaded again. If you want
  * to prevent garbage collecting loaded Workbook instance, invoke {@link #setCanUnload(boolean) setCanUnload(false)}.
  */
+@RequiredArgsConstructor
 public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
 
     private final IOpenSourceCodeModule fileSource;
@@ -23,10 +25,6 @@ public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
     private WeakReference<Workbook> workbookCache = new WeakReference<>(null);
     private Integer numberOfSheetsCache;
     private SpreadsheetConstants spreadsheetConstantsCache;
-
-    public UnloadableLazyWorkbookLoader(IOpenSourceCodeModule fileSource) {
-        this.fileSource = fileSource;
-    }
 
     /**
      * Get the workbook. Depending on {@link #isCanUnload()} state, when this method is repeatedly called, it can (but

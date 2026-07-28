@@ -2,6 +2,9 @@ package org.openl.rules.model.scaffolding;
 
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ParameterModel implements InputParameter {
 
     private final TypeInfo type;
@@ -13,12 +16,6 @@ public class ParameterModel implements InputParameter {
         this.type = type;
         this.formattedName = formattedName;
         this.originalName = formattedName;
-    }
-
-    public ParameterModel(TypeInfo type, String formattedName, String originalName) {
-        this.type = type;
-        this.formattedName = formattedName;
-        this.originalName = originalName;
     }
 
     @Override

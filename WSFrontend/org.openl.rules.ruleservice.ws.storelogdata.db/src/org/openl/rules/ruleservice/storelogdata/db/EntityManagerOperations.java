@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -18,14 +19,11 @@ import org.openl.spring.config.ConditionalOnEnable;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.db.enabled")
+@RequiredArgsConstructor
 @Slf4j
 public class EntityManagerOperations implements RuleServicePublisherListener {
 
     private final HibernateSessionFactoryBuilder hibernateSessionFactoryBuilder;
-
-    public EntityManagerOperations(HibernateSessionFactoryBuilder hibernateSessionFactoryBuilder) {
-        this.hibernateSessionFactoryBuilder = hibernateSessionFactoryBuilder;
-    }
 
     private static class Key {
         final Set<Class<?>> entityClasses;

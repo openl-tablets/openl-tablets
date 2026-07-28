@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 
@@ -20,14 +23,11 @@ import org.openl.rules.security.standalone.persistence.TagType;
  * <p>Types and values are matched ignoring case, the way they are looked up in the database, and the
  * configured spelling is what the catalog reports back.
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TagCatalog {
 
 
     private final Map<String, TypeEntry> typesByName;
-
-    private TagCatalog(Map<String, TypeEntry> typesByName) {
-        this.typesByName = typesByName;
-    }
 
     /** A configured tag type together with the values it allows. */
     private record TypeEntry(TagType type, Map<String, String> valuesByName) {

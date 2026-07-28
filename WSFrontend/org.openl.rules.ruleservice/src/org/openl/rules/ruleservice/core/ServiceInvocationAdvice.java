@@ -15,6 +15,8 @@ import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
@@ -288,10 +290,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         return serializer;
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     class Inst implements ServiceInvocationAdviceListener.Instantiator {
-        Inst(Method method) {
-            this.method = method;
-        }
 
         final Method method;
 

@@ -4,15 +4,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class XlsxReportWriter {
     private final File dir;
-
-    XlsxReportWriter(File dir) {
-        this.dir = dir;
-    }
 
     public void write(TestUnitsResults result) throws Exception {
         var testSuite = result.getTestSuite();

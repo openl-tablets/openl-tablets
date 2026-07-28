@@ -1,9 +1,12 @@
 package org.openl.rules.cmatch.algorithm;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class Argument {
     private final int index;
     /**
@@ -11,11 +14,6 @@ public class Argument {
      */
     private final IOpenClass type;
     private IOpenField field;
-
-    public Argument(int index, IOpenClass type) {
-        this.index = index;
-        this.type = type;
-    }
 
     public Argument(int index, IOpenField field) {
         this.index = index;

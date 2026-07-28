@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -29,6 +31,7 @@ import org.openl.vm.IRuntimeEnv;
  * controller thread to read; while suspended the worker mutates nothing, so the snapshot's frames and
  * their live arguments stay stable.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class DebugHookImpl implements DebugHook {
 
     private final SourceClassifier classifier;
@@ -88,14 +91,6 @@ final class DebugHookImpl implements DebugHook {
     private @Nullable OpenMethodDispatcher pendingDispatch;
     /** The version the pending dispatcher selected (from its {@code rule} put), used to flag the chosen candidate. */
     private @Nullable IOpenMethod pendingChosen;
-
-    DebugHookImpl(SourceClassifier classifier, StepController stepController, DebugChannel channel,
-                  DebugListener listener) {
-        this.classifier = classifier;
-        this.stepController = stepController;
-        this.channel = channel;
-        this.listener = listener;
-    }
 
     void setProfiling(boolean profiling) {
         this.profiling = profiling;
@@ -470,6 +465,7 @@ final class DebugHookImpl implements DebugHook {
     }
 
     /** Mutable accumulator for one table's aggregated time across every invocation in the run. */
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class TableAccumulator {
         private final String uri;
         private final String name;
@@ -477,12 +473,6 @@ final class DebugHookImpl implements DebugHook {
         private int count;
         private long totalNanos;
         private long selfNanos;
-
-        private TableAccumulator(String uri, String name, FrameKind kind) {
-            this.uri = uri;
-            this.name = name;
-            this.kind = kind;
-        }
 
         private void add(long totalNanos, long selfNanos) {
             count++;

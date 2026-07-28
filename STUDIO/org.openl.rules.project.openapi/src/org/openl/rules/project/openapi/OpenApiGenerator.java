@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
@@ -195,15 +197,11 @@ public class OpenApiGenerator {
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Builder {
 
         private final ProjectDescriptor projectDescriptor;
         private final RulesInstantiationStrategy instantiationStrategy;
-
-        private Builder(ProjectDescriptor projectDescriptor, RulesInstantiationStrategy instantiationStrategy) {
-            this.projectDescriptor = projectDescriptor;
-            this.instantiationStrategy = instantiationStrategy;
-        }
 
         /**
          * Creates new instance of {@link OpenApiGenerator}

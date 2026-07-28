@@ -1,7 +1,10 @@
 package org.openl.rules.rest.compile;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.message.Severity;
 
+@RequiredArgsConstructor
 public class OpenlProblemMessage {
 
     private final long id;
@@ -12,24 +15,6 @@ public class OpenlProblemMessage {
     private final String tableId;
     private final String errorCell;
     private final Severity severity;
-
-    public OpenlProblemMessage(long id,
-                               String summary,
-                               boolean hasStacktrace,
-                               String[] errorCode,
-                               boolean hasLinkToCell,
-                               String tableId,
-                               String errorCell,
-                               Severity severity) {
-        this.id = id;
-        this.summary = summary;
-        this.hasStacktrace = hasStacktrace;
-        this.errorCode = errorCode;
-        this.hasLinkToCell = hasLinkToCell;
-        this.tableId = tableId;
-        this.errorCell = errorCell;
-        this.severity = severity;
-    }
 
     public long getId() {
         return id;

@@ -3,6 +3,9 @@ package org.openl.rules.range;
 import java.text.ParseException;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Base class of ranges with utility methods.
  *
@@ -17,6 +20,7 @@ public abstract class Range<T> {
         UNBOUND // Infinity
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum Type {
         OPEN(Bound.OPEN, Bound.OPEN), // (x; y)
         CLOSED(Bound.CLOSED, Bound.CLOSED), // [x; y]
@@ -33,11 +37,6 @@ public abstract class Range<T> {
 
 
         public final Bound left, right;
-
-        Type(Bound left, Bound right) {
-            this.left = left;
-            this.right = right;
-        }
     }
 
     protected RangeParser parse(String text) {

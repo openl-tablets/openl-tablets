@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -42,6 +43,7 @@ import org.openl.util.StringUtils;
 
 @RestController
 @RequestMapping("/test")
+@RequiredArgsConstructor
 @Tag(name = "Test")
 @Deprecated(forRemoval = true)
 @Slf4j
@@ -49,10 +51,6 @@ public class TestDownloadController {
 
 
     private final Environment environment;
-
-    public TestDownloadController(Environment environment) {
-        this.environment = environment;
-    }
 
     @Operation(summary = "test.download.summary", description = "test.download.desc")
     @GetMapping(value = "/testcase")

@@ -3,9 +3,12 @@ package org.openl.codegen.tools.type;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.codegen.tools.type.TablePriorityRuleWrapper.JavaClassPriorityRuleWrapper;
 import org.openl.codegen.tools.type.TablePriorityRuleWrapper.SimplePriorityRuleWrapper;
 
+@RequiredArgsConstructor
 public class TablePriorityRuleWrappers {
 
     private static final String PREFIX = "javaclass:";
@@ -13,12 +16,6 @@ public class TablePriorityRuleWrappers {
     private static final String MAX_OPERATION_NAME = "MAX";
     private final SimplePriorityRuleWrapper[] simplePriorityRuleWrappers;
     private final JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers;
-
-    public TablePriorityRuleWrappers(SimplePriorityRuleWrapper[] simplePriorityRuleWrappers,
-                                     JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers) {
-        this.simplePriorityRuleWrappers = simplePriorityRuleWrappers;
-        this.javaClassPriorityRuleWrappers = javaClassPriorityRuleWrappers;
-    }
 
     public TablePriorityRuleWrappers(String[] priorityRules) {
         this(constructSimplePriorityRuleWrappers(priorityRules), constructJavaClassPriorityRuleWrappers(priorityRules));

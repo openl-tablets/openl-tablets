@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.table.formatters.ArrayFormatter;
@@ -12,15 +14,12 @@ import org.openl.util.formatters.EnumFormatter;
 
 class XlsArrayFormatTest {
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum TestConstants {
         TEST_CONST_1("Test Constant 1"),
         TEST_CONST_2("Test Constant 2");
 
         private final String displayName;
-
-        TestConstants(String displayName) {
-            this.displayName = displayName;
-        }
 
         @Override
         public String toString() {

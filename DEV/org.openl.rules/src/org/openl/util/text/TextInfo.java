@@ -9,17 +9,16 @@ package org.openl.util.text;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class TextInfo {
 
     private final String text;
     private int[] lineTable;
-
-    public TextInfo(String text) {
-        this.text = text;
-    }
 
     public String getLine(int i) {
         var from = lines()[i];

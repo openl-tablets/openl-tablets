@@ -14,17 +14,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class URLSourceCodeModule extends ASourceCodeModule {
     private final URL url;
-
-    public URLSourceCodeModule(URL url) {
-        this.url = url;
-    }
 
     public URLSourceCodeModule(String file) {
         this(toUrl(new File(file)));

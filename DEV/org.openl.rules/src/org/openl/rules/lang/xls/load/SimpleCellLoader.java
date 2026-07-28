@@ -1,16 +1,14 @@
 package org.openl.rules.lang.xls.load;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 
 /**
  * Stores the strong reference to previously loaded Cell instance and is not unloaded.
  */
+@RequiredArgsConstructor
 public class SimpleCellLoader implements CellLoader {
     private final Cell cell;
-
-    public SimpleCellLoader(Cell cell) {
-        this.cell = cell;
-    }
 
     /**
      * Get the cell. When this method is repeatedly called, always returns the same instance of Cell java object.

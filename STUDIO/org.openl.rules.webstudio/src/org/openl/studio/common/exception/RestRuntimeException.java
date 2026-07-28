@@ -2,10 +2,12 @@ package org.openl.studio.common.exception;
 
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+@RequiredArgsConstructor
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class RestRuntimeException extends RuntimeException {
 
@@ -16,11 +18,6 @@ public class RestRuntimeException extends RuntimeException {
 
     public RestRuntimeException(String code) {
         this(code, null);
-    }
-
-    public RestRuntimeException(String code, Object[] args) {
-        this.code = code;
-        this.args = args;
     }
 
     public HttpStatus getHttpStatus() {

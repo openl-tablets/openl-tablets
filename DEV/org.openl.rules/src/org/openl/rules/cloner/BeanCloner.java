@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * This cloner use Java Bean introspection to get public properties and fields, and using them to copy data to the
  * new created Java Bean instance.
@@ -86,13 +88,10 @@ class BeanCloner<T> implements ICloner<T> {
         Object get(Object source) throws InvocationTargetException, IllegalAccessException;
     }
 
+    @RequiredArgsConstructor
     static class FieldGetSetter implements GetSetter {
 
         private final Field field;
-
-        public FieldGetSetter(Field field) {
-            this.field = field;
-        }
 
         @Override
         public void set(Object target, Object value) throws IllegalAccessException {
@@ -105,14 +104,10 @@ class BeanCloner<T> implements ICloner<T> {
         }
     }
 
+    @RequiredArgsConstructor
     static class PropertyGetSetter implements GetSetter {
         private final Method getter;
         private final Method setter;
-
-        public PropertyGetSetter(Method getter, Method setter) {
-            this.getter = getter;
-            this.setter = setter;
-        }
 
         @Override
         public void set(Object target, Object value) throws InvocationTargetException, IllegalAccessException {

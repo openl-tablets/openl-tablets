@@ -1,13 +1,12 @@
 package org.openl.codegen.tools.type;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
+@RequiredArgsConstructor
 public class TablePriorityRuleWrapper {
     private final String priorityRule;
-
-    public TablePriorityRuleWrapper(String priorityRule) {
-        this.priorityRule = priorityRule;
-    }
 
     public String getPriorityRule() {
         return priorityRule;

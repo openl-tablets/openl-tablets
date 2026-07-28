@@ -1,5 +1,7 @@
 package org.openl.rules.service;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridRegion.Tool;
@@ -7,15 +9,12 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
 
+@RequiredArgsConstructor
 public class TableServiceImpl {
     private final MetaInfoWriter metaInfoWriter;
 
     public TableServiceImpl() {
         this(null);
-    }
-
-    public TableServiceImpl(MetaInfoWriter metaInfoWriter) {
-        this.metaInfoWriter = metaInfoWriter;
     }
 
     public synchronized void removeTable(IGridTable table) throws TableServiceException {

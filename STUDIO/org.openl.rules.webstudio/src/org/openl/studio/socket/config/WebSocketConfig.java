@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,19 +40,12 @@ import org.openl.studio.socket.handler.SecurityContextHandshakeInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final ApplicationContext applicationContext;
     private final ObjectMapper objectMapper;
     private final AuthorizationManager<Message<?>> messageAuthorizationManager;
-
-    public WebSocketConfig(ApplicationContext applicationContext,
-                           ObjectMapper objectMapper,
-                           AuthorizationManager<Message<?>> messageAuthorizationManager) {
-        this.applicationContext = applicationContext;
-        this.objectMapper = objectMapper;
-        this.messageAuthorizationManager = messageAuthorizationManager;
-    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {

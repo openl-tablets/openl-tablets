@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.method.HandlerMethod;
@@ -18,15 +19,12 @@ import org.openl.util.StreamUtils;
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor
 public class SpringMvcHandlerMethodsHelper {
 
     private final ApplicationContext context;
     private volatile Map<RequestMappingInfo, HandlerMethod> handlerMethods;
     private volatile Map<String, Object> controllerAdvices;
-
-    public SpringMvcHandlerMethodsHelper(ApplicationContext context) {
-        this.context = context;
-    }
 
     /**
      * Find all Spring Methods Handlers

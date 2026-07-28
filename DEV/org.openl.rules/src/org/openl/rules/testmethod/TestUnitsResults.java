@@ -3,6 +3,8 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.util.ClassUtils;
@@ -11,16 +13,13 @@ import org.openl.util.ClassUtils;
  * Test units results for the test table. Consist of the test suit method itself. And a number of test units that were
  * represented in test table.
  */
+@RequiredArgsConstructor
 public class TestUnitsResults implements INamedThing {
 
     private final TestSuite testSuite;
     private final ArrayList<ITestUnit> testUnits = new ArrayList<>();
 
     private boolean testedRulesHaveErrors = false;
-
-    public TestUnitsResults(TestSuite testSuite) {
-        this.testSuite = testSuite;
-    }
 
     public TestSuite getTestSuite() {
         return testSuite;

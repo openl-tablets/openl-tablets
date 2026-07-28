@@ -2,6 +2,7 @@ package org.openl.studio.security;
 
 import java.util.function.Consumer;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.security.SimpleUser;
@@ -12,19 +13,12 @@ import org.openl.rules.webstudio.service.UserManagementService;
 /**
  * Updates user details in the DB.
  */
+@RequiredArgsConstructor
 @Service("syncUserData")
 public class SyncUserData implements Consumer<SimpleUser> {
     private final UserManagementService userManagementService;
     private final AdminUsers adminUsersInitializer;
     private final ExternalGroupService externalGroupService;
-
-    public SyncUserData(UserManagementService userManagementService,
-                        AdminUsers adminUsersInitializer,
-                        ExternalGroupService externalGroupService) {
-        this.userManagementService = userManagementService;
-        this.adminUsersInitializer = adminUsersInitializer;
-        this.externalGroupService = externalGroupService;
-    }
 
     @Override
     public void accept(SimpleUser user) {

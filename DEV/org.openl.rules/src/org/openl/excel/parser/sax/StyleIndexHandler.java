@@ -3,6 +3,8 @@ package org.openl.excel.parser.sax;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.FormulaParser;
@@ -115,14 +117,10 @@ public class StyleIndexHandler extends DefaultHandler {
         return FormulaRenderer.toFormulaString(null, convertedTokens);
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class SharedFormulaDefinition {
         private final String value;
         private final String ref;
-
-        private SharedFormulaDefinition(String value, String ref) {
-            this.value = value;
-            this.ref = ref;
-        }
 
         public String getValue() {
             return value;

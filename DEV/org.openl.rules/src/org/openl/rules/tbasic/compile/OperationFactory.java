@@ -3,6 +3,8 @@ package org.openl.rules.tbasic.compile;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
@@ -13,16 +15,13 @@ import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
  * <p>
  * Created by dl on 9/16/14.
  */
+@RequiredArgsConstructor
 public class OperationFactory {
 
     private static final String OPERATIONS_PACKAGE = "org.openl.rules.tbasic.runtime.operations";
     private static final String OPERATION_SUFFIX = "Operation";
 
     private final ParameterConverterManager parameterConverter;
-
-    public OperationFactory(ParameterConverterManager parameterConverter) {
-        this.parameterConverter = parameterConverter;
-    }
 
     public RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile,
                                             ConversionRuleStep conversionStep,

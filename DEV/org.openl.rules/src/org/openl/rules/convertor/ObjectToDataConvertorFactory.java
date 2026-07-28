@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
@@ -26,14 +27,10 @@ import org.openl.util.RuntimeExceptionWrapper;
  * @author PUdalau
  */
 public class ObjectToDataConvertorFactory {
+    @RequiredArgsConstructor
     public static class ClassCastPair {
         private final Class<?> from;
         private final Class<?> to;
-
-        public ClassCastPair(Class<?> from, Class<?> to) {
-            this.from = from;
-            this.to = to;
-        }
 
         public Class<?> getFrom() {
             return from;
@@ -58,12 +55,9 @@ public class ObjectToDataConvertorFactory {
         }
     }
 
+    @RequiredArgsConstructor
     public static class MatchedConstructorConvertor implements IObjectToDataConvertor {
         private final Constructor<?> ctr;
-
-        public MatchedConstructorConvertor(Constructor<?> ctr) {
-            this.ctr = ctr;
-        }
 
         @Override
         public Object convert(Object data) {

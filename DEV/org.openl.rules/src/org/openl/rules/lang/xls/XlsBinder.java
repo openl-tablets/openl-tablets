@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.openl.ICompileContext;
@@ -91,6 +92,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  * @author snshor
  */
+@RequiredArgsConstructor
 public class XlsBinder implements IOpenBinder {
 
     private static class BinderFactoryHolder {
@@ -142,10 +144,6 @@ public class XlsBinder implements IOpenBinder {
             throw new OpenLConfigurationException("The openl %s already exists".formatted(name), null);
         }
         openls.put(name, opl);
-    }
-
-    public XlsBinder(ICompileContext compileContext) {
-        this.compileContext = compileContext;
     }
 
     @Override

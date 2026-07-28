@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.session.SessionRegistry;
@@ -30,6 +31,7 @@ import org.openl.util.StringUtils;
 /**
  * @author Andrei Astrouski
  */
+@RequiredArgsConstructor
 public class UserManagementService {
 
     private final UserDao userDao;
@@ -37,18 +39,6 @@ public class UserManagementService {
     private final SessionRegistry sessionRegistry;
     private final PasswordEncoder passwordEncoder;
     private final JdbcMutableAclService aclService;
-
-    public UserManagementService(UserDao userDao,
-                                 GroupDao groupDao,
-                                 SessionRegistry sessionRegistry,
-                                 PasswordEncoder passwordEncoder,
-                                 JdbcMutableAclService aclService) {
-        this.userDao = userDao;
-        this.groupDao = groupDao;
-        this.sessionRegistry = sessionRegistry;
-        this.passwordEncoder = passwordEncoder;
-        this.aclService = aclService;
-    }
 
     @Transactional(readOnly = true)
     public List<org.openl.rules.security.User> getAllUsers() {

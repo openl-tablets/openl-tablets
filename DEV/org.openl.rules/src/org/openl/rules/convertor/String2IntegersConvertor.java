@@ -2,15 +2,14 @@ package org.openl.rules.convertor;
 
 import java.text.DecimalFormat;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 abstract class String2IntegersConvertor<T extends Number> extends String2NumberConverter<T> {
 
     private final long min;
     private final long max;
-
-    String2IntegersConvertor(long min, long max) {
-        this.min = min;
-        this.max = max;
-    }
 
     @Override
     final T convert(Number number, String data) {

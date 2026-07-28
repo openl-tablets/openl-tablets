@@ -5,20 +5,18 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.util.PropertiesUtils;
 
+@RequiredArgsConstructor
 @Slf4j
 public class ProjectTags {
     public static final String TAGS_FILE_NAME = "tags.properties";
     protected final AProject project;
     protected volatile Map<String, String> tags;
-
-    public ProjectTags(AProject project) {
-        this.project = project;
-    }
 
     private Map<String, String> readTagsFromStream(InputStream projectTagsFileStream) {
         var readTags = new HashMap<String, String>();

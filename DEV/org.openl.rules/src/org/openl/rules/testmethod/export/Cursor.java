@@ -1,13 +1,12 @@
 package org.openl.rules.testmethod.export;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class Cursor {
     private final int rowNum;
     private final int colNum;
-
-    Cursor(int rowNum, int colNum) {
-        this.rowNum = rowNum;
-        this.colNum = colNum;
-    }
 
     public int getRowNum() {
         return rowNum;

@@ -2,7 +2,10 @@ package org.openl.rules.webstudio.web.admin.security;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum UserMode {
 
     SINGLE("single"),
@@ -12,10 +15,6 @@ public enum UserMode {
     OAUTH2("oauth2");
 
     private final String value;
-
-    UserMode(String value) {
-        this.value = value;
-    }
 
     @JsonValue
     public String getValue() {

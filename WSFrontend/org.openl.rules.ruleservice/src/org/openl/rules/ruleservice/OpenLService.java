@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.openl.binding.MethodUtil;
@@ -134,18 +136,12 @@ public class OpenLService {
         return new Invoker(instance, caller, args, mapper);
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class Invoker {
         private final Object instance;
         private final Method caller;
         private final Object[] args;
         private final ObjectMapper mapper;
-
-        private Invoker(Object instance, Method caller, Object[] args, ObjectMapper mapper) {
-            this.instance = instance;
-            this.caller = caller;
-            this.args = args;
-            this.mapper = mapper;
-        }
 
         Object invoke() throws Exception {
             return caller.invoke(instance, args);

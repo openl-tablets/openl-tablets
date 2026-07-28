@@ -1,5 +1,7 @@
 package org.openl.rules.datatype.binding;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.AGridTable;
 import org.openl.rules.table.GridRegion;
@@ -184,13 +186,10 @@ public class MockGridTable extends AGridTable {
     /**
      * Stub implementation for the IGrid just getCell is implemented to avoid NPE
      */
+    @RequiredArgsConstructor
     private static class TestGrid extends AGrid {
 
         private final IGridTable table;
-
-        public TestGrid(IGridTable table) {
-            this.table = table;
-        }
 
         @Override
         public ICell getCell(int column, int row) {

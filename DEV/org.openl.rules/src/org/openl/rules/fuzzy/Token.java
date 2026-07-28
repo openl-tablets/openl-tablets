@@ -1,5 +1,8 @@
 package org.openl.rules.fuzzy;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class Token {
 
     private final String value;
@@ -8,12 +11,6 @@ public class Token {
 
     public Token(String value, int distance) {
         this(value, distance, 0);
-    }
-
-    public Token(String value, int distance, int minMatchedTokens) {
-        this.value = value;
-        this.distance = distance;
-        this.minMatchedTokens = minMatchedTokens;
     }
 
     public String getValue() {

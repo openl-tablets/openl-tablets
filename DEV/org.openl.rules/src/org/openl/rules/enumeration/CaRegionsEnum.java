@@ -1,15 +1,15 @@
 package org.openl.rules.enumeration;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum CaRegionsEnum {
 
     QC("Québec"),
     HQ("Hors Québec");
 
     private final String displayName;
-
-    CaRegionsEnum(String displayName) {
-        this.displayName = displayName;
-    }
 
     @Override
     public String toString() {

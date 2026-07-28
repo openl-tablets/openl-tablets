@@ -13,6 +13,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.core.env.PropertyResolver;
@@ -42,6 +44,7 @@ import org.openl.util.StringUtils;
 /**
  * @author Aleh Bykhavets
  */
+@RequiredArgsConstructor
 @Slf4j
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
@@ -63,11 +66,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final RepositorySettings repositorySettings;
 
     private final List<String> exceptions = new ArrayList<>();
-
-    public DesignTimeRepositoryImpl(PropertyResolver propertyResolver, RepositorySettings repositorySettings) {
-        this.propertyResolver = propertyResolver;
-        this.repositorySettings = repositorySettings;
-    }
 
     public void init() throws RepositoryException {
         synchronized (projects) {
@@ -428,12 +426,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return exceptions;
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class RepositoryListener implements Listener {
         private final List<DesignTimeRepositoryListener> listeners;
-
-        private RepositoryListener(List<DesignTimeRepositoryListener> listeners) {
-            this.listeners = listeners;
-        }
 
         @Override
         public void onChange() {

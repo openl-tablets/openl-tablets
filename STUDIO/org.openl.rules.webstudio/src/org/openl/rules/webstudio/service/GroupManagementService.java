@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,15 +16,11 @@ import org.openl.security.acl.JdbcMutableAclService;
 /**
  * @author Andrei Astrouski
  */
+@RequiredArgsConstructor
 public class GroupManagementService {
 
     private final GroupDao groupDao;
     private final JdbcMutableAclService aclService;
-
-    public GroupManagementService(GroupDao groupDao, JdbcMutableAclService aclService) {
-        this.groupDao = groupDao;
-        this.aclService = aclService;
-    }
 
     public List<org.openl.rules.security.Group> getGroups() {
         List<Group> groups = groupDao.getAllGroups();

@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.ADynamicClass;
@@ -41,6 +43,7 @@ public class UserErrorOpenClass extends ADynamicClass {
         return new UserErrorOpenClass();
     }
 
+    @RequiredArgsConstructor
     public static class Entry {
         final Object value;
 
@@ -49,10 +52,6 @@ public class UserErrorOpenClass extends ADynamicClass {
         }
 
         public Entry(String value) {
-            this.value = value;
-        }
-
-        public Entry(Object value) {
             this.value = value;
         }
 

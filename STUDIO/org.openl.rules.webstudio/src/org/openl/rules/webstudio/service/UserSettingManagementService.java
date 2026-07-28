@@ -2,11 +2,13 @@ package org.openl.rules.webstudio.service;
 
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.security.standalone.dao.UserSettingDao;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 public class UserSettingManagementService {
 
     private final UserSettingDao userSettingDao;
@@ -15,11 +17,6 @@ public class UserSettingManagementService {
      * Needed to retrieve default values
      */
     private final PropertyResolver propertyResolver;
-
-    public UserSettingManagementService(UserSettingDao userSettingDao, PropertyResolver propertyResolver) {
-        this.userSettingDao = userSettingDao;
-        this.propertyResolver = propertyResolver;
-    }
 
     public String getStringProperty(String login, String key) {
         var setting = userSettingDao.getProperty(login, key);

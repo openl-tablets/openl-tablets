@@ -1,9 +1,11 @@
 package org.openl.rules.table.xls.writers;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
+@RequiredArgsConstructor
 public abstract class AXlsCellWriter {
 
     public static final String ARRAY_WRITER = "Array Writer";
@@ -20,10 +22,6 @@ public abstract class AXlsCellWriter {
     private Cell cellToWrite;
     private Object valueToWrite;
     private String strValue;
-
-    public AXlsCellWriter(XlsSheetGridModel xlsSheetGridModel) {
-        this.xlsSheetGridModel = xlsSheetGridModel;
-    }
 
     public XlsSheetGridModel getXlsSheetGridModel() {
         return xlsSheetGridModel;

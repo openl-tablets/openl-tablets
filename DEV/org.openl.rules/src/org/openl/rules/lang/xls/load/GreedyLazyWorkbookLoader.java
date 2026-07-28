@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls.load;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import org.openl.rules.lang.xls.SpreadsheetConstants;
@@ -8,16 +9,13 @@ import org.openl.source.IOpenSourceCodeModule;
 /**
  * Lazily loads workbook only when it's needed but never unloads it
  */
+@RequiredArgsConstructor
 public class GreedyLazyWorkbookLoader implements WorkbookLoader {
 
     private final IOpenSourceCodeModule fileSource;
 
     private Workbook workbook;
     private SpreadsheetConstants spreadsheetConstants;
-
-    public GreedyLazyWorkbookLoader(IOpenSourceCodeModule fileSource) {
-        this.fileSource = fileSource;
-    }
 
     @Override
     public Workbook getWorkbook() {

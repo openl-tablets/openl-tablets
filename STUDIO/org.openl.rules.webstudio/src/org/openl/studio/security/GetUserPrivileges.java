@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
 import org.openl.rules.security.Group;
@@ -16,18 +17,11 @@ import org.openl.util.StringUtils;
  * Get all privileges for the given user, including group-based privileges.
  * Used in ad, saml, and oauth2 modes where groups are managed externally.
  */
+@RequiredArgsConstructor
 public class GetUserPrivileges implements BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> {
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
     private final String defaultGroup;
-
-    public GetUserPrivileges(UserManagementService userManagementService,
-                             GroupManagementService groupManagementService,
-                             String defaultGroup) {
-        this.userManagementService = userManagementService;
-        this.groupManagementService = groupManagementService;
-        this.defaultGroup = defaultGroup;
-    }
 
     @Override
     public Collection<GrantedAuthority> apply(String user, Collection<? extends GrantedAuthority> authorities) {

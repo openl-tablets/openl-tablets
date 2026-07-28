@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -54,6 +55,7 @@ import org.openl.util.StringUtils;
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private final XlsSheetSourceCodeModule sheetSource;
@@ -61,10 +63,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     private RegionsPool mergedRegionsPool;
 
     private final Map<String, AXlsCellWriter> cellWriters = new HashMap<>();
-
-    public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
-        this.sheetSource = sheetSource;
-    }
 
     private void extractMergedRegions() {
         mergedRegionsPool = new RegionsPool(null);

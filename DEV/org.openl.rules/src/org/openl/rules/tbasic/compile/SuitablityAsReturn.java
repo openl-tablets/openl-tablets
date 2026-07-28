@@ -1,5 +1,9 @@
 package org.openl.rules.tbasic.compile;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum SuitablityAsReturn {
     RETURN(2),
     SUITABLE(1),
@@ -13,9 +17,5 @@ public enum SuitablityAsReturn {
         } else {
             return second;
         }
-    }
-
-    SuitablityAsReturn(int value) {
-        this.value = value;
     }
 }

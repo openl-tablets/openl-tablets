@@ -2,22 +2,19 @@ package org.openl.excel.parser.event.style;
 
 import static org.openl.excel.parser.event.style.PoiUtils.toRgb;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.record.FontRecord;
 import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.ss.usermodel.Font;
 
 import org.openl.rules.table.ui.ICellFont;
 
+@RequiredArgsConstructor
 class OpenLCellFont implements ICellFont {
     private static final short BOLDWEIGHT_BOLD = 0x2bc;
 
     private final FontRecord font;
     private final PaletteRecord palette;
-
-    public OpenLCellFont(FontRecord font, PaletteRecord palette) {
-        this.font = font;
-        this.palette = palette;
-    }
 
     @Override
     public short[] getFontColor() {

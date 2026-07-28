@@ -7,18 +7,17 @@ import static org.openl.rules.diff.tree.DiffStatus.ORIGINAL;
 import static org.openl.rules.diff.tree.DiffStatus.ORIGINAL_ABSENT;
 import static org.openl.rules.diff.tree.DiffStatus.REMOVED;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.diff.hierarchy.Projection;
 
+@RequiredArgsConstructor
 public class DiffElementImpl implements DiffElement {
     private final Projection projection;
     private DiffStatus diffStatus;
     private boolean hierarhyEqual;
     private boolean childrenEqual;
     private boolean selfEqual;
-
-    public DiffElementImpl(Projection projection) {
-        this.projection = projection;
-    }
 
     @Override
     public DiffStatus getDiffStatus() {

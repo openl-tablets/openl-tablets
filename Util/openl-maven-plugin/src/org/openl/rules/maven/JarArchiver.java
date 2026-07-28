@@ -13,6 +13,9 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.info.OpenLVersion;
 import org.openl.util.IOUtils;
 
@@ -21,6 +24,7 @@ import org.openl.util.IOUtils;
  *
  * @author Yury Molchan
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class JarArchiver extends SimpleFileVisitor<Path> {
     private static final int BUFFER_SIZE = 64 * 1024;
     private static final Pattern BACK_SLASH = Pattern.compile("\\\\");
@@ -28,11 +32,6 @@ final class JarArchiver extends SimpleFileVisitor<Path> {
     private final Path dir;
     private final JarOutputStream zos;
     private final byte[] buffer = new byte[BUFFER_SIZE];
-
-    private JarArchiver(Path dir, JarOutputStream zos) {
-        this.dir = dir;
-        this.zos = zos;
-    }
 
     /**
      * Pack a file or all files in a source directory to a zipped output stream. This method does not close the output

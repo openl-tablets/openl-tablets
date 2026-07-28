@@ -1,14 +1,13 @@
 package org.openl.rules.dt.type;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IOpenField;
 
+@RequiredArgsConstructor
 public class BooleanFieldAdaptor extends BooleanTypeAdaptor {
 
     private final IOpenField field;
-
-    public BooleanFieldAdaptor(IOpenField field) {
-        this.field = field;
-    }
 
     @Override
     public boolean extractBooleanValue(Object target) {

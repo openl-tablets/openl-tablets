@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Schema(implementation = String.class)
 public class Credentials {
 
@@ -15,11 +18,6 @@ public class Credentials {
     @Parameter(description = "Password to check the connection to the LDAP server. It will not be saved anywhere.", example = "admin")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private final String password;
-
-    private Credentials(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
 
     @JsonCreator
     public static Credentials decode(String encoded) {

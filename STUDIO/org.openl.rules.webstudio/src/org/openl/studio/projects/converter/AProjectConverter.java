@@ -2,6 +2,7 @@ package org.openl.studio.projects.converter;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
@@ -13,13 +14,10 @@ import org.openl.studio.projects.model.ProjectIdModel;
 
 @Component
 @ParametersAreNonnullByDefault
+@RequiredArgsConstructor
 public class AProjectConverter implements Converter<String, AProject> {
 
     private final DesignTimeRepository designTimeRepository;
-
-    public AProjectConverter(DesignTimeRepository designTimeRepository) {
-        this.designTimeRepository = designTimeRepository;
-    }
 
     @Override
     public AProject convert(String source) {

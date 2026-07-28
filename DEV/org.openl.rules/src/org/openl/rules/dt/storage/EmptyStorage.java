@@ -1,14 +1,14 @@
 package org.openl.rules.dt.storage;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.dt.Expr;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class EmptyStorage implements IStorage<Object> {
 
     private final StorageInfo info;
-
-    EmptyStorage(StorageInfo info) {
-        this.info = info;
-    }
 
     @Override
     public int size() {

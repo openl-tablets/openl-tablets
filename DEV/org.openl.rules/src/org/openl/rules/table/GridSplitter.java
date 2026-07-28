@@ -9,19 +9,18 @@ package org.openl.rules.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class GridSplitter {
 
     private final List<IGridTable> tables = new ArrayList<>();
     private final RegionsPool pool = new RegionsPool(null);
 
     private final IGrid grid;
-
-    public GridSplitter(IGrid grid) {
-        this.grid = grid;
-    }
 
     boolean cellIsUsed(int col, int row) {
         return pool.getRegionContaining(col, row) != null;

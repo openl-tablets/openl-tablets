@@ -3,6 +3,7 @@ package org.openl.studio.repositories.service;
 import java.io.IOException;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -19,17 +20,12 @@ import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.repositories.model.ProjectRevision;
 
+@RequiredArgsConstructor
 @Service
 public class ProjectRevisionServiceImpl implements ProjectRevisionService {
 
     private final DesignTimeRepository designTimeRepository;
     private final RepositoryAclService designRepositoryAclService;
-
-    public ProjectRevisionServiceImpl(DesignTimeRepository designTimeRepository,
-                                      RepositoryAclService designRepositoryAclService) {
-        this.designTimeRepository = designTimeRepository;
-        this.designRepositoryAclService = designRepositoryAclService;
-    }
 
     @Lookup
     protected HistoryRepositoryMapper getHistoryRepositoryMapper(Repository repository) {

@@ -5,6 +5,9 @@ import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.vm.ce.SimpleRulesRuntimeEnvMT;
 import org.openl.vm.IRuntimeEnv;
@@ -110,17 +113,12 @@ public final class ServiceMT {
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class RunnableRecursiveAction extends RecursiveAction {
         private static final long serialVersionUID = -6827837658658403954L;
         private final Runnable runnable;
         private final SimpleRuntimeEnv env;
         private final ClassLoader classLoader;
-
-        private RunnableRecursiveAction(Runnable runnable, SimpleRuntimeEnv env, ClassLoader classLoader) {
-            this.runnable = runnable;
-            this.env = env;
-            this.classLoader = classLoader;
-        }
 
         @Override
         protected void compute() {

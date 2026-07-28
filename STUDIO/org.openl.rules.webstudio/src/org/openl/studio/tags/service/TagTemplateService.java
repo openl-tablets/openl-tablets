@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import org.openl.rules.security.standalone.persistence.TagTemplate;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class TagTemplateService {
@@ -27,12 +29,6 @@ public class TagTemplateService {
     private final TagTypeDao tagTypeDao;
     private final TagDao tagDao;
     private final TagTemplateDao tagTemplateDao;
-
-    public TagTemplateService(TagTypeDao tagTypeDao, TagDao tagDao, TagTemplateDao tagTemplateDao) {
-        this.tagTypeDao = tagTypeDao;
-        this.tagDao = tagDao;
-        this.tagTemplateDao = tagTemplateDao;
-    }
 
     public List<String> getTemplates() {
         return tagTemplateDao.getAll().stream().map(TagTemplate::getTemplate).collect(Collectors.toList());

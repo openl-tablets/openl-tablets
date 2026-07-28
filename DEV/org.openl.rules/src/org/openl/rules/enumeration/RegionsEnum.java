@@ -1,5 +1,9 @@
 package org.openl.rules.enumeration;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum RegionsEnum {
 
     NCSA("Americas"),
@@ -8,10 +12,6 @@ public enum RegionsEnum {
     APJ("Asia Pacific; Japan");
 
     private final String displayName;
-
-    RegionsEnum(String displayName) {
-        this.displayName = displayName;
-    }
 
     @Override
     public String toString() {

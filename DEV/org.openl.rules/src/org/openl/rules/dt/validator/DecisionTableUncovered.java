@@ -3,18 +3,17 @@
  */
 package org.openl.rules.dt.validator;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.util.ArrayOfNamedValues;
 
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class DecisionTableUncovered {
 
     private final ArrayOfNamedValues values;
-
-    public DecisionTableUncovered(ArrayOfNamedValues values) {
-        this.values = values;
-    }
 
     public ArrayOfNamedValues getValues() {
         return values;

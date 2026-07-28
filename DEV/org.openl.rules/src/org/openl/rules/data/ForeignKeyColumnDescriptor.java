@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -625,14 +627,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return null;
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     static class ResultChainObject {
         private final Object value;
         private final IOpenClass type;
-
-        ResultChainObject(Object value, IOpenClass type) {
-            this.value = value;
-            this.type = type;
-        }
 
         public Object getValue() {
             return value;

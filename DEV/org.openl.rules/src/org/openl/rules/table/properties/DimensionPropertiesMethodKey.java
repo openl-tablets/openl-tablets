@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.IOpenMethod;
@@ -18,14 +20,11 @@ import org.openl.types.impl.MethodKey;
  *
  * @author DLiauchuk
  */
+@RequiredArgsConstructor
 public final class DimensionPropertiesMethodKey {
 
     private final IOpenMethod method;
     private int hashCode = 0;
-
-    public DimensionPropertiesMethodKey(IOpenMethod method) {
-        this.method = method;
-    }
 
     public IOpenMethod getMethod() {
         return method;

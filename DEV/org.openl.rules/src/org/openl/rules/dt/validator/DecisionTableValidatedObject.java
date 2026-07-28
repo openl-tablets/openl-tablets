@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.domain.EnumDomain;
@@ -33,16 +34,13 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 @Slf4j
 public class DecisionTableValidatedObject implements IDecisionTableValidatedObject, IConditionTransformer {
 
 
     private final IDecisionTable decisionTable;
     private Map<String, IDomainAdaptor> domainMap;
-
-    public DecisionTableValidatedObject(IDecisionTable decisionTable) {
-        this.decisionTable = decisionTable;
-    }
 
     public DecisionTableValidatedObject(IDecisionTable decisionTable, Map<String, IDomainAdaptor> domainMap) {
         this.decisionTable = decisionTable;

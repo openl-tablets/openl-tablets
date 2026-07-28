@@ -5,12 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ZipFromFile implements ZipCharsetDetector.ZipSource {
     private final File uploadedFile;
-
-    public ZipFromFile(File uploadedFile) {
-        this.uploadedFile = uploadedFile;
-    }
 
     @Override
     public InputStream createStream() throws FileNotFoundException {

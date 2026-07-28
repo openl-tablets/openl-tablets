@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -8,6 +10,7 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class DataOpenFieldWrapper extends DataOpenField {
     static {
         WrapperValidation.validateWrapperClass(DataOpenFieldWrapper.class, DataOpenFieldWrapper.class.getSuperclass());
@@ -15,11 +18,6 @@ public class DataOpenFieldWrapper extends DataOpenField {
 
     private final DataOpenField delegate;
     private final IOpenClass type;
-
-    public DataOpenFieldWrapper(DataOpenField delegate, IOpenClass type) {
-        this.delegate = delegate;
-        this.type = type;
-    }
 
     public DataOpenField getDelegate() {
         return delegate;

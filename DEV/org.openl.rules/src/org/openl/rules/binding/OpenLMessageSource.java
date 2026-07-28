@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.util.CollectionUtils;
@@ -18,6 +19,7 @@ import org.openl.util.StringUtils;
 /**
  * OpenL Project MessageSource service. Loads all i18n message properties for required {@link Locale}
  */
+@RequiredArgsConstructor
 @Slf4j
 public class OpenLMessageSource {
 
@@ -30,10 +32,6 @@ public class OpenLMessageSource {
     private final Map<Locale, MessageBundle> cacheLocalProperties = new ConcurrentHashMap<>();
     // Cache to hold already loaded properties per name.
     private final Map<String, Map<String, String>> cacheProperties = new ConcurrentHashMap<>();
-
-    public OpenLMessageSource(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
 
     /**
      * Get message bundle for target {@link Locale}
@@ -125,6 +123,7 @@ public class OpenLMessageSource {
         return new MessageBundle(properties, locale);
     }
 
+    @RequiredArgsConstructor
     public static class MessageBundle {
 
         private final Map<String, String> properties;
@@ -132,11 +131,6 @@ public class OpenLMessageSource {
 
         // Cache to hold already generated MessageFormats per message code.
         private final Map<String, MessageFormat> cachedMessageFormats = new ConcurrentHashMap<>();
-
-        public MessageBundle(Map<String, String> properties, Locale locale) {
-            this.properties = properties;
-            this.locale = locale;
-        }
 
         public String msg(String code, Object... args) {
             if (code == null) {

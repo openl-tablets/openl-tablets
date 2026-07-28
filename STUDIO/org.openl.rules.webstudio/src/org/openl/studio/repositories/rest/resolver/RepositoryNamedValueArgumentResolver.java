@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ValueConstants;
@@ -28,13 +29,10 @@ import org.openl.util.StringUtils;
  * @see DesignTimeRepository
  */
 @Component
+@RequiredArgsConstructor
 public class RepositoryNamedValueArgumentResolver extends AbstractNamedValueMethodArgumentResolver {
 
     private final DesignTimeRepository dtRepository;
-
-    public RepositoryNamedValueArgumentResolver(DesignTimeRepository dtRepository) {
-        this.dtRepository = dtRepository;
-    }
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {

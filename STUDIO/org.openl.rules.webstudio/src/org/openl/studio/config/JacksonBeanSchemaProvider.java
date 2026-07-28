@@ -10,6 +10,7 @@ import com.github.victools.jsonschema.generator.CustomDefinition;
 import com.github.victools.jsonschema.generator.CustomDefinitionProviderV2;
 import com.github.victools.jsonschema.generator.SchemaGenerationContext;
 import com.github.victools.jsonschema.generator.SchemaKeyword;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.calc.SpreadsheetResultBeanClass;
 
@@ -22,6 +23,7 @@ import org.openl.rules.calc.SpreadsheetResultBeanClass;
  * <p>
  * This approach mirrors how Swagger's ModelResolver uses Jackson introspection.
  */
+@RequiredArgsConstructor
 public class JacksonBeanSchemaProvider implements CustomDefinitionProviderV2 {
 
     private final ObjectMapper objectMapper;
@@ -35,10 +37,6 @@ public class JacksonBeanSchemaProvider implements CustomDefinitionProviderV2 {
      * by a single thread.
      */
     private final Set<Class<?>> inProgress = new HashSet<>();
-
-    public JacksonBeanSchemaProvider(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public void resetAfterSchemaGenerationFinished() {

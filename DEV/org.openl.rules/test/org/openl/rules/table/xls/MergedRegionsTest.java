@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.jupiter.api.Test;
@@ -104,6 +105,7 @@ class MergedRegionsTest {
      * <p>
      * Signals that difference between result cell and expected cell has been detected.
      */
+    @RequiredArgsConstructor
     private static class DifferentCellsException extends Exception {
         private static final long serialVersionUID = 1L;
         private final ICell resultCell;
@@ -115,11 +117,6 @@ class MergedRegionsTest {
 
         public ICell getExpectedCell() {
             return expectedCell;
-        }
-
-        public DifferentCellsException(ICell resultCell, ICell expectedCell) {
-            this.resultCell = resultCell;
-            this.expectedCell = expectedCell;
         }
 
     }

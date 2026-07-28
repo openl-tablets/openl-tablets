@@ -4,16 +4,15 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
+@RequiredArgsConstructor
 class TopClassOpenMethodWrapperCache {
 
     private final IRulesMethodWrapper methodWrapper;
-
-    public TopClassOpenMethodWrapperCache(IRulesMethodWrapper methodWrapper) {
-        this.methodWrapper = methodWrapper;
-    }
 
     final Map<IOpenClass, WeakReference<IOpenMethod>> cache = new WeakHashMap<>();
 

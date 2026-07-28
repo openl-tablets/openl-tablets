@@ -1,7 +1,10 @@
 package org.openl.rules.lang.xls;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.IGridTable;
 
+@RequiredArgsConstructor
 public class TablePart implements Comparable<TablePart> {
 
     String partName;
@@ -11,11 +14,6 @@ public class TablePart implements Comparable<TablePart> {
 
     final IGridTable table;
     final XlsSheetSourceCodeModule source;
-
-    public TablePart(IGridTable table, XlsSheetSourceCodeModule source) {
-        this.table = table;
-        this.source = source;
-    }
 
     public String getPartName() {
         return partName;

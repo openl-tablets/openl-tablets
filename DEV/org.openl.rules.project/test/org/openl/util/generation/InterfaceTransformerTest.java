@@ -23,6 +23,8 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlTransient;
 import jakarta.xml.bind.annotation.XmlType;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassWriter;
 
@@ -157,15 +159,12 @@ class InterfaceTransformerTest {
         int testMethod2(double arg0);
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum ParameterIn {
         DEFAULT(""),
         HEADER("header");
 
         private final String value;
-
-        ParameterIn(String value) {
-            this.value = value;
-        }
 
         @Override
         public String toString() {

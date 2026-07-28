@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -25,13 +27,10 @@ import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.validation.ValidationResult;
 
+@RequiredArgsConstructor
 public class UniquePropertyValueValidator extends TablesValidator {
 
     private final String propertyName;
-
-    public UniquePropertyValueValidator(String propertyName) {
-        this.propertyName = propertyName;
-    }
 
     @Override
     public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {

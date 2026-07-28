@@ -1,16 +1,15 @@
 package org.openl.domain;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class IntArrayIterator extends AIntIterator {
 
     private int current = 0;
     private final int[] ary;
-
-    public IntArrayIterator(int[] ary) {
-        this.ary = ary;
-    }
 
     @Override
     public boolean hasNext() {

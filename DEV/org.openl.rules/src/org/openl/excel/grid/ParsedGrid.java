@@ -5,6 +5,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.excel.parser.AlignedValue;
@@ -312,14 +314,10 @@ public class ParsedGrid extends AGrid {
 
     //////////////////////////////////////////////////////////////////////
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class CellRowCol {
         final int row;
         final int col;
-
-        private CellRowCol(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
 
         @Override
         public boolean equals(Object o) {
@@ -339,12 +337,9 @@ public class ParsedGrid extends AGrid {
         }
     }
 
+    @RequiredArgsConstructor
     private static class EmptyTableStyles implements TableStyles {
         private final IGridRegion extendedRegion;
-
-        public EmptyTableStyles(IGridRegion extendedRegion) {
-            this.extendedRegion = extendedRegion;
-        }
 
         @Override
         public IGridRegion getRegion() {

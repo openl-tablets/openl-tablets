@@ -2,6 +2,7 @@ package org.openl.studio.rest.resolver.test;
 
 import java.util.function.Consumer;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,13 +14,10 @@ import org.openl.studio.rest.resolver.PaginationDefault;
 
 @RestController
 @RequestMapping("/pagination-test")
+@RequiredArgsConstructor
 public class PaginationTestController {
 
     private final Consumer<Pageable> pageableConsumer;
-
-    public PaginationTestController(Consumer<Pageable> pageableConsumer) {
-        this.pageableConsumer = pageableConsumer;
-    }
 
     @GetMapping("/pageOrOffset")
     public void getPage(Pageable page) {

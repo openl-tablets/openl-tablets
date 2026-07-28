@@ -2,6 +2,9 @@ package org.openl.ie.constrainer.impl;
 
 import java.io.Serializable;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Expression;
 import org.openl.ie.constrainer.Failure;
@@ -46,12 +49,9 @@ public abstract class ExpressionObserver extends Observer {
     /**
      * A generic implementation of the EventMap interface.
      */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     static class EventMapImpl implements EventMap {
         private final int[] _masks;
-
-        EventMapImpl(int[] masks) {
-            _masks = masks;
-        }
 
         @Override
         public int publishToSubscribe(int publish_mask) {

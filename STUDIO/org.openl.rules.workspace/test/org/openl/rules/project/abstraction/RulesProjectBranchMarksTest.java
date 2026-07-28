@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -134,15 +136,11 @@ class RulesProjectBranchMarksTest {
     }
 
     /** A design repository that reports itself as sitting on {@code branch} of a repository based on {@code baseBranch}. */
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class BranchedDesignRepository extends StubDesignRepository implements BranchRepository {
 
         private final String branch;
         private final String baseBranch;
-
-        private BranchedDesignRepository(String branch, String baseBranch) {
-            this.branch = branch;
-            this.baseBranch = baseBranch;
-        }
 
         @Override
         public Features supports() {

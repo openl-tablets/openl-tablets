@@ -3,18 +3,17 @@
  */
 package org.openl.rules.table;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CellKey {
 
     private final int col;
     private final int row;
-
-    private CellKey(int col, int row) {
-        this.col = col;
-        this.row = row;
-    }
 
     public int getColumn() {
         return col;
