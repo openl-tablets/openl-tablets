@@ -5,13 +5,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Patches {@code org.apache.maven.ReactorReader}'s internal indexes via reflection so synthesised pom-less
@@ -29,9 +28,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yury Molchan
  */
+@Slf4j
 final class ReactorReaderInjector {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ReactorReaderInjector.class);
 
     private static final String REACTOR_READER_CLASS = "org.apache.maven.ReactorReader";
     private static final String CHAINED_READERS_FIELD = "readers";
@@ -53,7 +51,7 @@ final class ReactorReaderInjector {
         var workspaceReader = session.getRepositorySession().getWorkspaceReader();
         var reactorReader = findReactorReader(workspaceReader);
         if (reactorReader == null) {
-            LOG.debug("No ReactorReader on the workspace reader chain; skipping pom-less index injection.");
+            log.debug("No ReactorReader on the workspace reader chain; skipping pom-less index injection.");
             return;
         }
         try {
@@ -70,7 +68,7 @@ final class ReactorReaderInjector {
                 typedByGa.computeIfAbsent(gaKey, k -> new ArrayList<>()).add(p);
             }
         } catch (ReflectiveOperationException e) {
-            LOG.warn("Failed to patch ReactorReader for pom-less projects; sibling resolution will fall back to repositories.", e);
+            log.warn("Failed to patch ReactorReader for pom-less projects; sibling resolution will fall back to repositories.", e);
         }
     }
 
@@ -114,7 +112,7 @@ final class ReactorReaderInjector {
         } catch (NoSuchFieldException ignored) {
             // Workspace reader exposes no readers list — leaf reader, nothing to unwrap.
         } catch (ReflectiveOperationException e) {
-            LOG.debug("Failed to introspect workspace reader chain on {}.", reader.getClass(), e);
+            log.debug("Failed to introspect workspace reader chain on {}.", reader.getClass(), e);
         }
         return null;
     }
