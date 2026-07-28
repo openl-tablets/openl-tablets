@@ -90,9 +90,9 @@ This section describes dependencies configuration.
 
     *Example of configuring project dependencies – fragment of rules.xml*
 
-For more information on configuring rules.xml, see [OpenL Tablets Developers Guide > Rules Project Descriptor](https://openldocs.readthedocs.io/en/latest/documentation/guides/developer_guide#rules-project-descriptor).
+For more information on configuring rules.xml, see [OpenL Tablets Developers Guide > Rules Project Descriptor](../../../developer-guides/rules-projects.md#rules-project-descriptor).
 
-By a business user, project dependencies are easily set and updated in OpenL Studio as described in [OpenL Studio Guide > Defining Project Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide#defining-project-dependencies).
+By a business user, project dependencies are easily set and updated in OpenL Studio as described in [OpenL Studio Guide > Defining Project Dependencies](../../openl-studio/rules-editor.md#defining-project-dependencies).
 
 A project can contain any number of dependencies. Dependency projects may also have dependencies. Avoid cyclic dependencies.
 
