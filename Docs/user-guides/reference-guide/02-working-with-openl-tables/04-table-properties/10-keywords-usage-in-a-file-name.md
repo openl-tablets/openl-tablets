@@ -4,7 +4,7 @@ The **Any** keyword can be used for rule module versioning, for all business enu
 
 An alternative keyword for the state business property is CW, which stands for **country wide.** If the CW value is set to the **Property State** in a file name, the rules of the corresponding module work for any state. Usually, only one value can be indicated in the file name and listing all values in a filename is not available. This feature enables listing all values for property state in a file name by defining the **CW** value instead. It is useful when, for instance, there are particular files with rules for particular states, and a file with rules common for all states.
 
-To use the feature, define the **Properties** pattern for a file name as described in [Properties Defined in the File Name](../../04-table-properties/08-properties-defined-in-the-file-name.md#properties-defined-in-the-file-name).
+To use the feature, define the **Properties** pattern for a file name as described in [Properties Defined in the File Name](08-properties-defined-in-the-file-name.md#properties-defined-in-the-file-name).
 
 ![](../../ref-guide-images/definingPropertyPatternStateLineBusiness.jpeg)
 

@@ -10,9 +10,9 @@ For example, the **Scope** property defines whether properties are applicable to
 
 The following topics are included in this section:
 
--   [Dev Properties List](../../04-table-properties/07-dev-properties.md#dev-properties-list)
--   [Variation Related Properties](../../04-table-properties/07-dev-properties.md#variation-related-properties)
--   [Using the Precision Property in Testing](../../04-table-properties/07-dev-properties.md#using-the-precision-property-in-testing)
+-   [Dev Properties List](07-dev-properties.md#dev-properties-list)
+-   [Variation Related Properties](07-dev-properties.md#variation-related-properties)
+-   [Using the Precision Property in Testing](07-dev-properties.md#using-the-precision-property-in-testing)
 
 ##### Dev Properties List
 

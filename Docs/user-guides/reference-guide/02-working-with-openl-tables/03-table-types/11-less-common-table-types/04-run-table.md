@@ -26,4 +26,4 @@ A run table has the following structure:
 2.  The third row contains display values intended for business users.
 3.  Starting with the fourth row, each row is a set of input parameters to be passed to the called rule table.
 
-For more information on how to specify values of input parameters which have complex constructions, see [Specifying Data for Aggregated Objects](03-data-table/04-specifying-data-for-aggregated-objects.md#specifying-data-for-aggregated-objects) and [Ensuring Data Integrity](03-data-table/05-ensuring-data-integrity.md#ensuring-data-integrity).
+For more information on how to specify values of input parameters which have complex constructions, see [Specifying Data for Aggregated Objects](../07-data-table/04-specifying-data-for-aggregated-objects.md#specifying-data-for-aggregated-objects) and [Ensuring Data Integrity](../07-data-table/05-ensuring-data-integrity.md#ensuring-data-integrity).
