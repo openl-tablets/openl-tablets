@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -63,7 +62,7 @@ public class AdminUsers {
                     null,
                     null
             );
-            userService.updateAuthorities(username, Collections.singleton(adminGroup));
+            userService.updateAuthorities(username, Set.of(adminGroup));
         } else if (!user.hasPrivilege(ADMIN)) {
             var groups = new HashSet<String>();
             groups.add(adminGroup);
@@ -86,14 +85,14 @@ public class AdminUsers {
         }
         if (!groupService.existsByName(ADMIN_GROUP)) {
             groupService.addGroup(ADMIN_GROUP, "A group with ADMIN privileges (restored)");
-            groupService.updateGroup(ADMIN_GROUP, Collections.singleton(ADMIN));
+            groupService.updateGroup(ADMIN_GROUP, Set.of(ADMIN));
             return ADMIN_GROUP;
         }
         var group = (user + "_Group");
         if (!groupService.existsByName(group)) {
             groupService.addGroup(group, "A group for restoring ADMIN privileges");
         }
-        groupService.updateGroup(group, Collections.singleton(ADMIN));
+        groupService.updateGroup(group, Set.of(ADMIN));
         return group;
     }
 

@@ -2,6 +2,7 @@ package org.openl.syntax.code;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.openl.binding.IBoundCode;
 import org.openl.message.OpenLMessage;
@@ -18,8 +19,8 @@ public class ProcessedCode {
         this.parsedCode = parsedCode;
         this.boundCode = boundCode;
         this.allMessages = allMessages != null ? Collections.unmodifiableCollection(allMessages)
-                : Collections.emptyList();
-        this.messages = messages != null ? Collections.unmodifiableCollection(messages) : Collections.emptyList();
+                : List.of();
+        this.messages = messages != null ? Collections.unmodifiableCollection(messages) : List.of();
     }
 
     /**

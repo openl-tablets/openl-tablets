@@ -101,7 +101,7 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
     @Override
     public void onUndeploy(String deployPath) {
         var emToClose = entityManagers.get();
-        entityManagers.set(Collections.emptyMap());
+        entityManagers.set(Map.of());
         for (SessionFactory sf : emToClose.values()) {
             try {
                 sf.close();

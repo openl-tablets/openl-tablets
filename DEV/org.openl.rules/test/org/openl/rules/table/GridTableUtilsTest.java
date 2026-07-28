@@ -3,7 +3,7 @@ package org.openl.rules.table;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ class GridTableUtilsTest {
         ILogicalTable table = LogicalTableHelper.logicalTable(grid);
         var regions = GridTableUtils.getGridRegions(table);
         assertEquals(1, regions.size());
-        var expected = Collections.singletonList(mr(0, 0, 1, 1));
+        var expected = List.of(mr(0, 0, 1, 1));
         assertEquals(expected, regions);
     }
 

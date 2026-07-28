@@ -2,7 +2,6 @@ package org.openl.rules.dt;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -339,7 +338,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         var dtColumnsDefinition = createDefinition(header,
                 expressionCell.getStringValue() != null ? expressionCell.getStringValue() : StringUtils.EMPTY,
                 parsedCode.getErrors().length == 0 ? DecisionTableUtils.extractIdentifiers(parsedCode.getTopNode())
-                        : Collections.emptyList(),
+                        : List.of(),
                 parameters);
         dtColumnsDefinition.setCompositeMethodInitializer(() -> this.addTo(getXlsModuleOpenClass()));
         definitions.put(dtColumnsDefinition,

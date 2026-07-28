@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -115,9 +116,9 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     @Override
     public Collection<IOpenClass> superClasses() {
         if (superClass != null) {
-            return Collections.singletonList(superClass);
+            return List.of(superClass);
         } else {
-            return Collections.emptyList();
+            return List.of();
         }
     }
 

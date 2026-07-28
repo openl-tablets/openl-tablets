@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -140,7 +139,7 @@ public class XlsWorkbookMerger implements Closeable {
 
     private HSSFPaletteDiffResult calcPaletteDiff() {
         if (!hssf) {
-            return new HSSFPaletteDiffResult(Collections.emptyMap(), Collections.emptyMap());
+            return new HSSFPaletteDiffResult(Map.of(), Map.of());
         }
 
         var diffResult = new HashMap<DiffStatus, Set<Short>>();

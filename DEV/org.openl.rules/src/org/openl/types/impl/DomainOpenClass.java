@@ -1,7 +1,7 @@
 package org.openl.types.impl;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -240,7 +240,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     @Override
     public Collection<IOpenClass> getTypes() {
         // Default implementation
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -293,7 +293,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @Override
     public Iterable<IOpenMethod> constructors() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

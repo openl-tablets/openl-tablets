@@ -333,7 +333,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private void beforeInvocation(Method interfaceMethod, Object... args) throws Throwable {
-        for (var interceptor : beforeInterceptors.getOrDefault(interfaceMethod, Collections.emptyList())) {
+        for (var interceptor : beforeInterceptors.getOrDefault(interfaceMethod, List.of())) {
             invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, null, null);
             interceptor.before(interfaceMethod, serviceTarget, args);
             invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, null, null);
@@ -355,7 +355,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                                    Exception t,
                                    Object... args) throws Exception {
         var ret = result;
-        for (var interceptor : afterInterceptors.getOrDefault(interfaceMethod, Collections.emptyList())) {
+        for (var interceptor : afterInterceptors.getOrDefault(interfaceMethod, List.of())) {
             invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, result, t);
             if (t == null) {
                 ret = interceptor.afterReturning(interfaceMethod, ret, args);

@@ -66,7 +66,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
 
         var privileges = privilegeMapper.apply(simpleUser.getUsername(), simpleUser.getAuthorities());
 
-        var principal = new DefaultSaml2AuthenticatedPrincipal(simpleUser.getUsername(), Collections.emptyMap());
+        var principal = new DefaultSaml2AuthenticatedPrincipal(simpleUser.getUsername(), Map.of());
         principal.setRelyingPartyRegistrationId(responseToken.getToken().getRelyingPartyRegistration().getRegistrationId());
         return new Saml2Authentication(principal, responseToken.getToken().getSaml2Response(), privileges);
     }
@@ -149,7 +149,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
         }
 
         private List<String> getAttributeValues(String key) {
-            return Collections.unmodifiableList(fields.getOrDefault(key, Collections.emptyList()));
+            return Collections.unmodifiableList(fields.getOrDefault(key, List.of()));
         }
 
         // The resulting fields are used to create a SimpleUser, only strings are expected.

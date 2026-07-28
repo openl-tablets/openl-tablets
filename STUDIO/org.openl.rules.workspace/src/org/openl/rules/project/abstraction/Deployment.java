@@ -2,7 +2,6 @@ package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +108,7 @@ public class Deployment extends AProjectFolder implements IDeployment {
                 }
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
-                return Collections.emptyMap();
+                return Map.of();
             }
 
             var result = new HashMap<String, AProjectArtefact>();

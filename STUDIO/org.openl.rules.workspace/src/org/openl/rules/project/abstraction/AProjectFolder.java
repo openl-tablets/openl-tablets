@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -194,7 +193,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                         } else {
                             var fileData = fromRepository.check(from.getFolderPath());
                             if (fileData == null) {
-                                fromList = Collections.emptyList();
+                                fromList = List.of();
                             } else {
                                 fromProjectVersion = fileData.getVersion();
                                 fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);

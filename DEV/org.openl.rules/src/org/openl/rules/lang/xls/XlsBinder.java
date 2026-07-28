@@ -291,7 +291,7 @@ public class XlsBinder implements IOpenBinder {
             bindInternal(moduleNode,
                     moduleOpenClass,
                     propertiesNodes,
-                    Collections.emptyMap(),
+                    Map.of(),
                     openl,
                     rulesModuleBindingContext);
 
@@ -712,7 +712,7 @@ public class XlsBinder implements IOpenBinder {
                                                       int index) {
         OpenMethodHeader openMethodHeader = null;
         var errors = SyntaxNodeException.EMPTY_ARRAY;
-        Collection<OpenLMessage> messages = Collections.emptyList();
+        Collection<OpenLMessage> messages = List.of();
         try {
             var aExecutableNodeBinder = (AExecutableNodeBinder) getBinderFactories()
                     .get(tableSyntaxNode.getType());

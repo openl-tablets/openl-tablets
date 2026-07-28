@@ -3,7 +3,6 @@ package org.openl.rules.project.abstraction;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -92,7 +91,7 @@ public class AProjectArtefact implements IProjectArtefact {
 
     public List<ProjectVersion> getVersions() {
         if (getFileData() == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         Collection<FileData> fileDatas;
         try {

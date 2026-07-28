@@ -9,6 +9,7 @@ package org.openl.binding.impl;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundNode;
@@ -34,7 +35,7 @@ public class BoundCode implements IBoundCode {
         this.topNode = topNode;
         this.errors = errors;
         if (messages == null) {
-            this.messages = Collections.emptyList();
+            this.messages = List.of();
         } else {
             this.messages = new LinkedHashSet<>(messages);
         }

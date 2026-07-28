@@ -3,7 +3,6 @@ package org.openl.rules.lang.xls.types.meta;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -333,7 +332,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
         final Map<CellKey, HeaderMetaInfo> simpleRulesActionMap = getMetaInfos().getActions();
         for (Map.Entry<CellKey, HeaderMetaInfo> entry : simpleRulesActionMap.entrySet()) {
-            setMetaInfo(entry.getKey(), Collections.singletonList(entry.getValue()), region, this::buildActionHint);
+            setMetaInfo(entry.getKey(), List.of(entry.getValue()), region, this::buildActionHint);
         }
         final List<CellKey> unmatched = getMetaInfos().getUnmatched();
         for (CellKey cellKey : unmatched) {
@@ -352,7 +351,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             var nodeUsage = new SimpleNodeUsage(0, cellValue.length(), description, null, NodeType.OTHER);
             setPreparedMetaInfo(cellKey.getRow(),
                     cellKey.getColumn(),
-                    new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage)));
+                    new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage)));
         }
     }
 
@@ -380,7 +379,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     returnMetaInfo.getUri() != null ? NodeType.OTHERUNDERLINED : NodeType.OTHER);
             var metaInfo = new CellMetaInfo(JavaOpenClass.STRING,
                     false,
-                    Collections.singletonList(simpleNodeUsage));
+                    List.of(simpleNodeUsage));
             setPreparedMetaInfo(row, col, metaInfo);
         }
     }
@@ -584,7 +583,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                             metaInfo.getSourceUrl(),
                             typeForLink,
                             NodeType.DATATYPE);
-                    return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
+                    return new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage));
                 }
             }
         }

@@ -8,7 +8,6 @@ package org.openl.syntax.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +40,7 @@ public final class Tokenizer {
 
     private Set<Integer> makeTable(String x) {
         if (StringUtils.isEmpty(x)) {
-            return Collections.emptySet();
+            return Set.of();
         }
         var ret = new HashSet<Integer>();
         for (var i = 0; i < x.length(); i++) {

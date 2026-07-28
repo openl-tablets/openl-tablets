@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * @author snshor
@@ -21,7 +22,7 @@ public class EnumDomain<T> implements IDomain<T> {
 
     public EnumDomain(T[] elements) {
         componentType = elements == null ? Object.class : elements.getClass().getComponentType();
-        index = new LinkedHashSet<>(elements == null ? Collections.emptyList() : Arrays.asList(elements));
+        index = new LinkedHashSet<>(elements == null ? List.of() : Arrays.asList(elements));
     }
 
     public boolean contains(T obj) {

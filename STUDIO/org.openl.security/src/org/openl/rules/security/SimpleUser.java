@@ -3,8 +3,8 @@ package org.openl.rules.security;
 import java.io.Serial;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -183,7 +183,7 @@ public class SimpleUser implements User {
         private Builder() {
             this.target = new SimpleUser();
             this.target.externalFlags = UserExternalFlags.builder().build();
-            this.target.privileges = Collections.emptySet();
+            this.target.privileges = Set.of();
         }
 
         public Builder setFirstName(String firstName) {

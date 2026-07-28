@@ -6,8 +6,8 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import jakarta.inject.Inject;
 
 import org.eclipse.jgit.errors.CorruptObjectException;
@@ -56,7 +56,7 @@ public class ZipArchiveValidator implements Validator {
         }
 
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(archive),
-                Collections.singletonMap("encoding", charset.name()))) {
+                Map.of("encoding", charset.name()))) {
 
             var walkRoot = fs.getPath("/");
             if (ProjectResolver.getInstance().isRulesProject(walkRoot) == null) {

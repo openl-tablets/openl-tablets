@@ -2,7 +2,7 @@ package org.openl.rules.lang.xls.types.meta;
 
 import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getCellSource;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
@@ -126,7 +126,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
                 typeMeta.getSourceUrl(),
                 NodeType.DATATYPE);
 
-        return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
+        return new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage));
     }
 
     private static String getName(ILogicalTable row) throws OpenLCompilationException {

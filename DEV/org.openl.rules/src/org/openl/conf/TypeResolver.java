@@ -340,7 +340,7 @@ public class TypeResolver implements INameSpacedTypeFactory {
 
     public TypeResolver(ClassLoader classLoader) {
         this.classLoader = classLoader;
-        packages = Collections.emptyList();
+        packages = List.of();
     }
 
     public TypeResolver(ClassLoader classLoader, Collection<Class<?>> classes, Collection<String> packages) {

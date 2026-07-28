@@ -291,7 +291,7 @@ public class JavaOpenClass extends AOpenClass {
         }
 
         if (methods.isEmpty()) {
-            return Collections.emptyMap();
+            return Map.of();
         }
         return Collections.unmodifiableMap(methods);
     }
@@ -312,7 +312,7 @@ public class JavaOpenClass extends AOpenClass {
             }
         }
         if (constructors.isEmpty()) {
-            return Collections.emptyMap();
+            return Map.of();
         }
 
         return Collections.unmodifiableMap(constructors);

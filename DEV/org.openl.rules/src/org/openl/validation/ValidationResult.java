@@ -3,6 +3,7 @@ package org.openl.validation;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import org.openl.message.OpenLMessage;
 
@@ -36,7 +37,7 @@ public class ValidationResult {
     public ValidationResult(ValidationStatus status, Collection<OpenLMessage> messages) {
         this.status = status;
         if (messages == null) {
-            this.messages = Collections.emptyList();
+            this.messages = List.of();
         } else {
             this.messages = new LinkedHashSet<>(messages);
         }
@@ -58,7 +59,7 @@ public class ValidationResult {
      */
     public Collection<OpenLMessage> getMessages() {
         if (messages == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         return Collections.unmodifiableCollection(messages);
     }

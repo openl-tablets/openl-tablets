@@ -7,8 +7,8 @@
 package org.openl.types;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
@@ -207,7 +207,7 @@ public final class NullOpenClass implements IOpenClass {
 
     @Override
     public Collection<IOpenClass> superClasses() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -223,40 +223,40 @@ public final class NullOpenClass implements IOpenClass {
     @Override
     public Collection<IOpenClass> getTypes() {
         // Default implementation
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
     public Collection<IOpenField> getFields() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
     public Collection<IOpenField> getDeclaredFields() {
         // Default implementation
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
     public Collection<IOpenMethod> getMethods() {
         // Default implementation
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
     public Collection<IOpenMethod> getDeclaredMethods() {
         // Default implementation
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
     public Iterable<IOpenMethod> methods(String name) {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
     public Iterable<IOpenMethod> constructors() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

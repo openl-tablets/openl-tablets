@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,7 @@ public class SimpleProjectEngineFactory<T> {
         protected String workspace;
         protected ClassLoader classLoader;
         protected Class<T> interfaceClass = null;
-        protected Map<String, Object> externalParameters = Collections.emptyMap();
+        protected Map<String, Object> externalParameters = Map.of();
         protected boolean executionMode = true;
         protected String[] projectDependencies;
 
@@ -60,7 +59,7 @@ public class SimpleProjectEngineFactory<T> {
         }
 
         public SimpleProjectEngineFactoryBuilder<T> setExternalParameters(Map<String, Object> externalParameters) {
-            this.externalParameters = Objects.requireNonNullElse(externalParameters, Collections.emptyMap());
+            this.externalParameters = Objects.requireNonNullElse(externalParameters, Map.of());
             return this;
         }
 

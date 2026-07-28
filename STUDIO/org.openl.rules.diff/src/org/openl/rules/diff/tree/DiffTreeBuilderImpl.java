@@ -1,7 +1,6 @@
 package org.openl.rules.diff.tree;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +74,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
 
     protected List<Projection> getChildren(Projection p) {
         if (p == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         return p.getChildren();

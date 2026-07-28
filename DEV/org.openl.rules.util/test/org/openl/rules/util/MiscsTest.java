@@ -14,8 +14,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,17 +37,9 @@ class MiscsTest {
         assertTrue(isEmpty(new byte[0]));
         assertFalse(isEmpty(new byte[]{0}));
         assertTrue(isEmpty(new ArrayList()));
-        assertFalse(isEmpty(new ArrayList() {
-            {
-                add(1);
-            }
-        }));
+        assertFalse(isEmpty(List.of(1)));
         assertTrue(isEmpty(new HashMap<>()));
-        assertFalse(isEmpty(new HashMap() {
-            {
-                put(1, 1);
-            }
-        }));
+        assertFalse(isEmpty(Map.of(1, 1)));
 
         assertTrue(isEmpty((Iterable) Collections::emptyIterator));
         assertFalse(isEmpty((Iterable) () -> new Scanner("NotEmptyString")));
@@ -66,17 +60,9 @@ class MiscsTest {
         assertFalse(isNotEmpty(new byte[0]));
         assertTrue(isNotEmpty(new byte[]{0}));
         assertFalse(isNotEmpty(new ArrayList()));
-        assertTrue(isNotEmpty(new ArrayList() {
-            {
-                add(1);
-            }
-        }));
+        assertTrue(isNotEmpty(List.of(1)));
         assertFalse(isNotEmpty(new HashMap<>()));
-        assertTrue(isNotEmpty(new HashMap() {
-            {
-                put(1, 1);
-            }
-        }));
+        assertTrue(isNotEmpty(Map.of(1, 1)));
 
         assertFalse(isNotEmpty((Iterable) Collections::emptyIterator));
         assertTrue(isNotEmpty((Iterable) () -> new Scanner("NotEmptyString")));
@@ -86,19 +72,11 @@ class MiscsTest {
     void testLength() {
         assertEquals(0, length((HashSet<?>) null));
         assertEquals(0, length(new HashSet()));
-        assertEquals(1, length(new HashSet() {
-            {
-                add(false);
-            }
-        }));
+        assertEquals(1, length(Set.of(false)));
 
         assertEquals(0, length((Map<?, ?>) null));
         assertEquals(0, length(new HashMap<>()));
-        assertEquals(1, length(new HashMap() {
-            {
-                put(false, true);
-            }
-        }));
+        assertEquals(1, length(Map.of(false, true)));
     }
 
     @Test

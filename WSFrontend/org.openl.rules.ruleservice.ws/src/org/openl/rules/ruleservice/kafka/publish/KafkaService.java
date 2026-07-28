@@ -6,8 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -168,7 +168,7 @@ public final class KafkaService implements Runnable {
     }
 
     private void subscribeConsumer() {
-        consumer.subscribe(Collections.singletonList(getInTopic()), new ConsumerRebalanceListener() {
+        consumer.subscribe(List.of(getInTopic()), new ConsumerRebalanceListener() {
             @Override
             public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                 if (log.isInfoEnabled()) {

@@ -22,7 +22,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -242,7 +241,7 @@ class ZipProjectSaveStrategyTest {
 
     private static void assertSame(Path expectedArchive, InputStream actualStream) throws IOException {
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(expectedArchive),
-                Collections.singletonMap("encoding", StandardCharsets.UTF_8.displayName()))) {
+                Map.of("encoding", StandardCharsets.UTF_8.displayName()))) {
             var root = fs.getPath("/");
             try (var actualZipStream = new ZipInputStream(actualStream)) {
                 ZipEntry ze;
@@ -269,7 +268,7 @@ class ZipProjectSaveStrategyTest {
                                    String expectedPrefix,
                                    Map<String, FileItem> actualFileItems) throws IOException {
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(expectedArchive),
-                Collections.singletonMap("encoding", StandardCharsets.UTF_8.displayName()))) {
+                Map.of("encoding", StandardCharsets.UTF_8.displayName()))) {
             var root = fs.getPath("/");
             actualFileItems.forEach((actualName, actualItem) -> {
                 assertTrue(actualName.startsWith(expectedPrefix));

@@ -3,7 +3,6 @@ package org.openl.security.acl.repository;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -72,7 +71,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
         if (simpleRepositoryAclService.isGranted(getId(), projectPath, List.of(BasePermission.READ))) {
             return branchRepository.getBranches(projectPath);
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

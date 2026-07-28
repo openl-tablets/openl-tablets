@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -231,7 +230,7 @@ public class ExcelFileBuilder {
         var envSheet = workbook.createSheet(ENV_SHEET);
         var environmentTableExporter = new EnvironmentTableExporter();
         environmentTableExporter.setTableStyle(style);
-        environmentTableExporter.export(Collections.singletonList(environmentModel), envSheet);
+        environmentTableExporter.export(List.of(environmentModel), envSheet);
         envSheet.validateMergedRegions();
     }
 

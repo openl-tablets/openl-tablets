@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -189,11 +188,11 @@ public class AProject extends AProjectFolder implements IProject {
                     historyFileDatas = getRepository().listHistory(folderPath);
                 } else {
                     // File repository does not have versions
-                    historyFileDatas = Collections.emptyList();
+                    historyFileDatas = List.of();
                 }
             } catch (IOException ex) {
                 log.error(ex.getMessage(), ex);
-                return Collections.emptyList();
+                return List.of();
             }
         }
         return historyFileDatas;

@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -805,9 +804,9 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
             assertEquals("java.lang.String", cellMetaInfo.getDataType().getName());
         }
         List<? extends NodeUsage> usedNodes = cellMetaInfo != null ? cellMetaInfo.getUsedNodes()
-                : Collections.emptyList();
+                : List.of();
         if (usedNodes == null) {
-            usedNodes = Collections.emptyList();
+            usedNodes = List.of();
         }
         assertEquals(size, usedNodes.size());
         return usedNodes;

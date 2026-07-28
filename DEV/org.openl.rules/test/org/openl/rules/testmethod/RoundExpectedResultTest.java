@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,12 +50,9 @@ class RoundExpectedResultTest {
             "MyM6_61Test3",
             "MyM7Test2");
 
-    private final Map<String, Collection<Integer>> partialSuccessTests = new HashMap<String, Collection<Integer>>() {
-        {
-            put("MyM4_2Test", Collections.singletonList(1));
-            put("MyM7_2Test", Arrays.asList(1, 3));
-        }
-    };
+    private final Map<String, Collection<Integer>> partialSuccessTests = Map.of(
+            "MyM4_2Test", List.of(1),
+            "MyM7_2Test", Arrays.asList(1, 3));
 
     @Test
     void testUserExceptionSupport1() {

@@ -10,7 +10,6 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -350,7 +349,7 @@ public class Migrator {
 
         // Another case: production-repository-configs = production, production1, production2
         var repositories = Optional.ofNullable(configList).map(s -> Arrays
-                .asList(StringUtils.split(s, ','))).orElse(Collections.emptyList());
+                .asList(StringUtils.split(s, ','))).orElse(List.of());
         var severalReposIncludingProduction = repositories.size() > 1 && repositories
                 .contains("production");
 

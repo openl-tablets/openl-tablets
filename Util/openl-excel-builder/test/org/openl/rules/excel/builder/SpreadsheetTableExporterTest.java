@@ -10,7 +10,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.AfterAll;
@@ -34,7 +35,7 @@ class SpreadsheetTableExporterTest {
         resultModel.setName("TestDoubleSpr");
 
         var inputParameter = new ParameterModel(new TypeInfo(String.class), "name");
-        resultModel.setParameters(Collections.singletonList(inputParameter));
+        resultModel.setParameters(List.of(inputParameter));
         var doubleStep = new StepModel("simpleCalculation", "Double", "=0.0d");
         var stringStep = new StepModel("calculateName", "String", "=" + "\"\"");
         var sprStep = new StepModel("calculateIndex", "IndexCalculation", "=new IndexCalculation()");
@@ -47,10 +48,10 @@ class SpreadsheetTableExporterTest {
 
         var projectModel = new ProjectModel(TEST_PROJECT,
                 false,
-                Collections.emptySet(),
-                Collections.emptyList(),
-                Collections.singletonList(resultModel),
-                Collections.emptyList());
+                Set.of(),
+                List.of(),
+                List.of(resultModel),
+                List.of());
 
         ExcelFileBuilder.generateProject(projectModel);
 

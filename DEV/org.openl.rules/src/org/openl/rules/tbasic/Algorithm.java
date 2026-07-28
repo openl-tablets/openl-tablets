@@ -2,7 +2,6 @@ package org.openl.rules.tbasic;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -103,7 +102,7 @@ public class Algorithm extends AlgorithmFunction {
     public Collection<AlgorithmSubroutineMethod> getSubroutines() {
         var thisIOpenClass = getThisClass();
         if (thisIOpenClass == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         var subroutines = new ArrayList<AlgorithmSubroutineMethod>();
         for (IOpenMethod method : thisIOpenClass.getMethods()) {

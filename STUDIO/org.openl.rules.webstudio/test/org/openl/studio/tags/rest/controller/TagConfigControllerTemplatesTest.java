@@ -8,7 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -49,11 +48,11 @@ class TagConfigControllerTemplatesTest {
 
     @Test
     void testGetTemplates_empty() {
-        when(tagTemplateService.getTemplates()).thenReturn(Collections.emptyList());
+        when(tagTemplateService.getTemplates()).thenReturn(List.of());
 
         var result = controller.getTemplates();
 
-        assertEquals(Collections.emptyList(), result);
+        assertEquals(List.of(), result);
     }
 
     @Test

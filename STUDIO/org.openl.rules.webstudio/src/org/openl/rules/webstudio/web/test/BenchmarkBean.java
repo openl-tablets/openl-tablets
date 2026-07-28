@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.ToLongFunction;
@@ -25,7 +24,7 @@ public class BenchmarkBean {
     private final RunTestHelper runTestHelper;
 
     private final List<BenchmarkInfoView> benchmarks = new ArrayList<>();
-    private List<BenchmarkInfoView> comparedBenchmarks = Collections.emptyList();
+    private List<BenchmarkInfoView> comparedBenchmarks = List.of();
     private List<BenchmarkInfoView> benchmarkOrders;
 
     public BenchmarkBean(RunTestHelper runTestHelper) {
@@ -68,7 +67,7 @@ public class BenchmarkBean {
                 benchmarks.addFirst(biv);
             }
         }
-        comparedBenchmarks = Collections.emptyList();
+        comparedBenchmarks = List.of();
     }
 
     public String compare() {
@@ -86,7 +85,7 @@ public class BenchmarkBean {
 
     public String delete() {
         benchmarks.removeIf(BenchmarkInfoView::isSelected);
-        comparedBenchmarks = Collections.emptyList();
+        comparedBenchmarks = List.of();
         return null;
     }
 

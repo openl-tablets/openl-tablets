@@ -37,7 +37,7 @@ public abstract class AOpenClass implements IOpenClass {
     private volatile StaticOpenClass staticOpenClass;
 
 
-    protected static final Map<MethodKey, IOpenMethod> STUB = Collections.emptyMap();
+    protected static final Map<MethodKey, IOpenMethod> STUB = Map.of();
     private IOpenField indexField;
 
     protected IMetaInfo xlsMetaInfo;
@@ -373,7 +373,7 @@ public abstract class AOpenClass implements IOpenClass {
             methods.putAll(m);
         }
         if (methods.isEmpty()) {
-            return Collections.emptyList();
+            return List.of();
         }
         return Collections.unmodifiableCollection(methods.values());
     }
@@ -429,7 +429,7 @@ public abstract class AOpenClass implements IOpenClass {
     public Collection<IOpenClass> getTypes() {
         // Default implementation.
         // To do nothing. Not everyone has internal types.
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -471,7 +471,7 @@ public abstract class AOpenClass implements IOpenClass {
             }
         }
         List<IOpenMethod> found = allMethodNamesMap.get(name);
-        return found == null ? Collections.emptyList() : Collections.unmodifiableList(found);
+        return found == null ? List.of() : Collections.unmodifiableList(found);
     }
 
     @Override
@@ -484,7 +484,7 @@ public abstract class AOpenClass implements IOpenClass {
                 }
             }
         }
-        return allConstructors == null ? Collections.emptyList() : allConstructors;
+        return allConstructors == null ? List.of() : allConstructors;
     }
 
     public static Map<String, List<IOpenMethod>> buildMethodNameMap(Iterable<IOpenMethod> methods) {

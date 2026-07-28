@@ -7,7 +7,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1457,10 +1456,10 @@ public class OpenApiProjectValidator {
                             propertiesOfExpectedSchema = extractObjectSchema(expectedComposedSchema).getProperties();
                             propertiesOfActualSchema = extractObjectSchema(actualComposedSchema).getProperties();
                             if (propertiesOfActualSchema == null) {
-                                propertiesOfActualSchema = Collections.emptyMap();
+                                propertiesOfActualSchema = Map.of();
                             }
                             if (propertiesOfExpectedSchema == null) {
-                                propertiesOfExpectedSchema = Collections.emptyMap();
+                                propertiesOfExpectedSchema = Map.of();
                             }
                             parentPresentedInBothSchemas = true;
                         }

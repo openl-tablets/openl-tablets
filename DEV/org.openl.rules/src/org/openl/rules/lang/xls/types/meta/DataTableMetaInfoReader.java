@@ -1,6 +1,6 @@
 package org.openl.rules.lang.xls.types.meta;
 
-import java.util.Collections;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -125,7 +125,7 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
                                 foreignTable.getTableSyntaxNode().getHeaderLineValue().getValue(),
                                 foreignTable.getTableSyntaxNode().getUri(),
                                 NodeType.DATA);
-                        return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
+                        return new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage));
                     }
 
                 }

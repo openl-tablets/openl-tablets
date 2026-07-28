@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -69,7 +68,7 @@ public class ModulePageBean {
         if (imports != null) {
             return new ArrayList<>(imports);
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     /**
@@ -82,7 +81,7 @@ public class ModulePageBean {
             return removeXLSExtention(includes);
         }
 
-        return Collections.emptyList();
+        return List.of();
     }
 
     public List<String> getDependencies() {
@@ -91,7 +90,7 @@ public class ModulePageBean {
         if (dependencies != null) {
             return new ArrayList<>(dependencies);
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     /**

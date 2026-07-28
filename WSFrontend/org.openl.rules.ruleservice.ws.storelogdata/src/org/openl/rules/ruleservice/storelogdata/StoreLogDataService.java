@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.storelogdata;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 /**
  * Interface for service that responsible for storing logging info into external resource.
@@ -15,7 +15,7 @@ public interface StoreLogDataService {
     void save(StoreLogData storeLogData) throws StoreLogDataException;
 
     default Collection<Inject<?>> additionalInjects() {
-        return Collections.emptyList();
+        return List.of();
     }
 
 }

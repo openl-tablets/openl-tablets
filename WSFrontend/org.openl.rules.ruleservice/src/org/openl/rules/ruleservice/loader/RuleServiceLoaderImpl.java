@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.ProviderNotFoundException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -217,7 +216,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             var zipRoot = FileSystems.getFileSystem(jarURI).getPath("/");
             return projectResolver.isRulesProject(zipRoot) != null;
         } catch (FileSystemNotFoundException ignored) {
-            try (FileSystem fs = FileSystems.newFileSystem(jarURI, Collections.emptyMap())) {
+            try (FileSystem fs = FileSystems.newFileSystem(jarURI, Map.of())) {
                 return projectResolver.isRulesProject(fs.getPath("/")) != null;
             } catch (IOException | UnsupportedOperationException | ProviderNotFoundException e) {
                 return false;
@@ -234,7 +233,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             var project = new LocalProject(deploymentFolder, resourceMap);
             deployment = new LocalDeployment(deploymentFolder.getName().split("/", -1)[0],
                     commonVersion,
-                    Collections.singletonMap(project.getName(), project));
+                    Map.of(project.getName(), project));
         } else {
             var projectFolders = repository.listFolders(getDeployPath() + deploymentFolder.getName());
             var projectMap = new HashMap<String, IProject>();

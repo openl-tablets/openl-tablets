@@ -9,7 +9,7 @@ import java.io.File;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -63,7 +63,7 @@ class ResolvingStrategiesTest {
     @Test
     void testSimpleZip() throws Exception {
         Path projectZip = Path.of("test-resources/Tutorial 1%20+.zip");
-        try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(projectZip), Collections.emptyMap())) {
+        try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(projectZip), Map.of())) {
             var zipRoot = fs.getPath("/");
             var resolvingStrategy = new SimpleXlsResolvingStrategy();
             assertTrue(resolvingStrategy.isRulesProject(zipRoot));

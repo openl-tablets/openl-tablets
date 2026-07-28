@@ -1,7 +1,6 @@
 package org.openl.binding.impl;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,8 +48,8 @@ public class NewNodeBinder extends ANodeBinder {
         bindingContext.pushMessages();
         var errorsAndMessagesPopped = false;
         var sugarConstructor = false;
-        List<SyntaxNodeException> syntaxNodeExceptions = Collections.emptyList();
-        Collection<OpenLMessage> openLMessages = Collections.emptyList();
+        List<SyntaxNodeException> syntaxNodeExceptions = List.of();
+        Collection<OpenLMessage> openLMessages = List.of();
         try {
             var children = bindChildren(node, bindingContext, 1, childrenCount);
             syntaxNodeExceptions = bindingContext.popErrors();

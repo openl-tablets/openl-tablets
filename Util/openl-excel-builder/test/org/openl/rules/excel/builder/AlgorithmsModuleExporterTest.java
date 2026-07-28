@@ -14,7 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.AfterAll;
@@ -58,13 +58,13 @@ class AlgorithmsModuleExporterTest {
 
         var dt = new DatatypeModel("Test");
         var stringField = new FieldModel("type", "String", "Hello, World");
-        dt.setFields(Collections.singletonList(stringField));
+        dt.setFields(List.of(stringField));
 
         var testModel = new DataModel("getTest", "Test", null, dt);
 
         try (var algorithmsFileOutputSteam = new ByteArrayOutputStream()) {
-            ExcelFileBuilder.generateAlgorithmsModule(Collections.singletonList(resultModel),
-                    Collections.singletonList(testModel),
+            ExcelFileBuilder.generateAlgorithmsModule(List.of(resultModel),
+                    List.of(testModel),
                     algorithmsFileOutputSteam,
                     environmentModel);
             try (var fos = new FileOutputStream(ALGORITHMS)) {

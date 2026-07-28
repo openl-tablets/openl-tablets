@@ -1,9 +1,9 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -27,7 +27,7 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
                               Map<String, FieldDescription> parentFields,
                               Map<String, FieldDescription> originalMethodTypes,
                               String methodName) {
-        super(beanName, beanFields, parentType, parentFields, Collections.emptySet(), false, false, true);
+        super(beanName, beanFields, parentType, parentFields, Set.of(), false, false, true);
         this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
         this.originalMethodTypes = originalMethodTypes;
     }

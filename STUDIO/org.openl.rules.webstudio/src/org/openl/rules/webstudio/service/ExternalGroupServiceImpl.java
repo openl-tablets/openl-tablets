@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -76,7 +76,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public List<Group> findAllForUser(String loginName) {
         return externalGroupDao.findAllForUser(loginName)
                 .stream()
-                .map(ext -> new SimpleGroup(ext.getGroupName(), ext.getGroupName(), Collections.emptySet()))
+                .map(ext -> new SimpleGroup(ext.getGroupName(), ext.getGroupName(), Set.of()))
                 .collect(Collectors.toList());
     }
 
@@ -106,7 +106,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public List<Group> findNotMatchedForUser(String loginName) {
         return externalGroupDao.findNotMatchedForUser(loginName)
                 .stream()
-                .map(ext -> new SimpleGroup(ext.getGroupName(), ext.getGroupName(), Collections.emptySet()))
+                .map(ext -> new SimpleGroup(ext.getGroupName(), ext.getGroupName(), Set.of()))
                 .collect(Collectors.toList());
     }
 
@@ -121,7 +121,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public List<Group> findAllByName(String groupName, int limit) {
         return externalGroupDao.findAllByName(groupName, limit)
                 .stream()
-                .map(ext -> new SimpleGroup(ext, ext, Collections.emptySet()))
+                .map(ext -> new SimpleGroup(ext, ext, Set.of()))
                 .collect(Collectors.toList());
     }
 

@@ -1,6 +1,5 @@
 package org.openl.rules.rest;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -148,9 +147,9 @@ public class ManagementController {
             groupManagementService.updateGroup(oldName, name, description);
         }
         if (Boolean.TRUE.equals(admin)) {
-            groupManagementService.updateGroup(name, Collections.singleton(Privileges.ADMIN.getAuthority()));
+            groupManagementService.updateGroup(name, Set.of(Privileges.ADMIN.getAuthority()));
         } else {
-            groupManagementService.updateGroup(name, Collections.emptySet());
+            groupManagementService.updateGroup(name, Set.of());
         }
 
         var sid = new GrantedAuthoritySid(name);

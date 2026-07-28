@@ -3,7 +3,6 @@ package org.openl.spring.env;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -141,7 +140,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         var origin = settings;
 
         // 'unconfigure' settings for matching with defaults. to get settings not from a file
-        settings = Collections.emptyMap();
+        settings = Map.of();
 
         // Do clean up from default values
         properties.entrySet()

@@ -1,6 +1,5 @@
 package org.openl.rules.project.model;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +18,7 @@ public final class RulesDeployHelper {
             }
             return rootClassNamesBindingClasses;
         } else {
-            return Collections.emptySet();
+            return Set.of();
         }
     }
 

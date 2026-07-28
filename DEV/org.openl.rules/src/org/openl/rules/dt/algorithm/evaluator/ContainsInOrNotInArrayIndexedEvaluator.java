@@ -3,7 +3,6 @@ package org.openl.rules.dt.algorithm.evaluator;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -77,7 +76,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
             copyRules.addRule(i);
 
             if (condition.isEmpty(i)) {
-                valueSets.add(Collections.emptySet());
+                valueSets.add(Set.of());
                 continue;
             }
 

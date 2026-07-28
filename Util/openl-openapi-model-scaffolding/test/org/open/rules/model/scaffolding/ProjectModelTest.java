@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -44,22 +44,22 @@ class ProjectModelTest {
     void testProjectModelWithContext() {
         var bankRating = new ProjectModel(BANK_RATING,
                 true,
-                Collections.emptySet(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList());
+                Set.of(),
+                List.of(),
+                List.of(),
+                List.of());
         var bankRatingCopy = new ProjectModel(BANK_RATING,
                 true,
-                Collections.emptySet(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList());
+                Set.of(),
+                List.of(),
+                List.of(),
+                List.of());
         var bankRatingWithoutContext = new ProjectModel(BANK_RATING,
                 false,
-                Collections.emptySet(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList());
+                Set.of(),
+                List.of(),
+                List.of(),
+                List.of());
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());
         assertTrue(bankRating.isRuntimeContextProvided());
@@ -77,22 +77,22 @@ class ProjectModelTest {
 
         var bankRating = new ProjectModel(BANK_RATING,
                 true,
-                Collections.emptySet(),
-                Collections.emptyList(),
+                Set.of(),
+                List.of(),
                 Arrays.asList(firstSpr, secondSpr),
-                Collections.emptyList());
+                List.of());
         var bankRatingCopy = new ProjectModel(BANK_RATING,
                 true,
-                Collections.emptySet(),
-                Collections.emptyList(),
+                Set.of(),
+                List.of(),
                 Arrays.asList(firstSpr, secondSpr),
-                Collections.emptyList());
+                List.of());
         var bankRatingWithOneSpr = new ProjectModel(BANK_RATING,
                 true,
-                Collections.emptySet(),
-                Collections.emptyList(),
-                Collections.singletonList(firstSpr),
-                Collections.emptyList());
+                Set.of(),
+                List.of(),
+                List.of(firstSpr),
+                List.of());
 
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());
@@ -110,21 +110,21 @@ class ProjectModelTest {
         var bankRating = new ProjectModel(BANK_RATING,
                 true,
                 asSet(dm, oneMoreDm),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList());
+                List.of(),
+                List.of(),
+                List.of());
         var bankRatingCopy = new ProjectModel(BANK_RATING,
                 true,
                 asSet(dm, oneMoreDm),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList());
+                List.of(),
+                List.of(),
+                List.of());
         var bankRatingWithOneDataType = new ProjectModel(BANK_RATING,
                 true,
                 asSet(oneMoreDm),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList());
+                List.of(),
+                List.of(),
+                List.of());
 
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());

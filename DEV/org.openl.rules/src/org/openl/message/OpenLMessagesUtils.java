@@ -2,7 +2,6 @@ package org.openl.message;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,7 @@ public class OpenLMessagesUtils {
             }
             return messages;
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     public static OpenLMessage newWarnMessage(String message, ISyntaxNode source) {
@@ -96,6 +95,6 @@ public class OpenLMessagesUtils {
             return groupedMessages;
         }
 
-        return Collections.emptyList();
+        return List.of();
     }
 }

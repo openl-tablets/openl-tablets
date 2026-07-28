@@ -1,7 +1,6 @@
 package org.openl.rules.xls.merge;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -107,7 +106,7 @@ class Cursor {
                 .filter(XSSFDrawing.class::isInstance)
                 .map(XSSFDrawing.class::cast)
                 .map(XSSFDrawing::getShapes)
-                .orElse(Collections.emptyList());
+                .orElse(List.of());
     }
 
     /**

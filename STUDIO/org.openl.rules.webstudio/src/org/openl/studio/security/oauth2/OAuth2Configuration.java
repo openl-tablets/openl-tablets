@@ -1,7 +1,6 @@
 package org.openl.studio.security.oauth2;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -69,19 +68,19 @@ public class OAuth2Configuration {
     private static URI oidc(URI issuer) {
         return UriComponentsBuilder.fromUri(issuer)
                 .replacePath(issuer.getPath() + OIDC_METADATA_PATH)
-                .build(Collections.emptyMap());
+                .build(Map.of());
     }
 
     private static URI oidcRfc8414(URI issuer) {
         return UriComponentsBuilder.fromUri(issuer)
                 .replacePath(OIDC_METADATA_PATH + issuer.getPath())
-                .build(Collections.emptyMap());
+                .build(Map.of());
     }
 
     private static URI oauth(URI issuer) {
         return UriComponentsBuilder.fromUri(issuer)
                 .replacePath(OAUTH_METADATA_PATH + issuer.getPath())
-                .build(Collections.emptyMap());
+                .build(Map.of());
     }
 
 }

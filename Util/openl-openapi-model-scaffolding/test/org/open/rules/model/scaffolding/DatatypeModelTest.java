@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -56,8 +56,8 @@ class DatatypeModelTest {
 
         var height = new FieldModel("height", "String");
 
-        dm.setFields(Collections.singletonList(height));
-        oneMoreDm.setFields(Collections.singletonList(height));
+        dm.setFields(List.of(height));
+        oneMoreDm.setFields(List.of(height));
         assertEquals(dm, oneMoreDm);
         assertEquals(dm.hashCode(), oneMoreDm.hashCode());
     }

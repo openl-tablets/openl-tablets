@@ -2,7 +2,6 @@ package org.openl.studio.projects.model.trace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -306,7 +305,7 @@ public class TraceDebugMapper {
 
     private List<ParameterValue> freezeParameters(DebugFrame frame, Map<Object, Object> clones, boolean includeSchema) {
         if (!(frame.getSource() instanceof ExecutableRulesMethod method)) {
-            return Collections.emptyList();
+            return List.of();
         }
         var signature = method.getSignature();
         var params = frame.getParams();
@@ -365,7 +364,7 @@ public class TraceDebugMapper {
                 var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones, !frame.isCompleted()), cell.getType());
                 steps.add(builder.status(StepStatus.EXECUTED).value(buildParameterValue(param, true, includeSchema)).build());
             } else {
-                steps.add(builder.status(stepStatus(ref, Collections.emptySet(), currentRef)).build());
+                steps.add(builder.status(stepStatus(ref, Set.of(), currentRef)).build());
             }
         });
         return steps;
@@ -692,7 +691,7 @@ public class TraceDebugMapper {
     private List<MessageDescription> buildErrors(DebugFrame frame) {
         var error = frame.getError();
         if (error == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         Throwable cause = Objects.requireNonNullElse(error.getCause(), error);
         var result = new ArrayList<MessageDescription>();

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ class TestUnitTest {
         TestDescription test = mock(TestDescription.class);
         when(test.isExpectedResultDefined()).thenReturn(true);
         when(test.getExpectedResult()).thenReturn(0.93);
-        when(test.getFields()).thenReturn(Collections.singletonList(new ThisField(JavaOpenClass.DOUBLE)));
+        when(test.getFields()).thenReturn(List.of(new ThisField(JavaOpenClass.DOUBLE)));
 
         var unit = new TestUnit(test, 0.93, null, 100);
 

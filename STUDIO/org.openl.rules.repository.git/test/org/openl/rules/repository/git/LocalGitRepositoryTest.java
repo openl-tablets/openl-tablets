@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.ObjectDirectory;
@@ -110,8 +110,8 @@ class LocalGitRepositoryTest {
         assertTrue(packDirectory.delete());
         assertFalse(packDirectory.exists());
 
-        var changes = Collections
-                .singletonList(new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
+        var changes = List
+                .of(new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
 
         var folderData = new FileData();
         folderData.setName("rules/project1");
@@ -190,8 +190,8 @@ class LocalGitRepositoryTest {
             final var resolveMessage = "Resolve conflict (use theirs)";
 
             // !!! The text must be same as in branch1 for this test scenario. Resolve with choosing "all theirs".
-            var resolvedFiles = Collections
-                    .singletonList(new FileItem(file, IOUtils.toInputStream(textInBranch1)));
+            var resolvedFiles = List
+                    .of(new FileItem(file, IOUtils.toInputStream(textInBranch1)));
 
             repo.merge("branch1",
                     new UserInfo("admin", "admin@email", "Admin"),
@@ -251,8 +251,8 @@ class LocalGitRepositoryTest {
             final var resolveMessage = "Resolve conflict (use yours)";
 
             // !!! The text must be same as in master for this test scenario. Resolve with choosing "all yours".
-            var resolvedFiles = Collections
-                    .singletonList(new FileItem(file, IOUtils.toInputStream(textInMaster)));
+            var resolvedFiles = List
+                    .of(new FileItem(file, IOUtils.toInputStream(textInMaster)));
 
             repo.merge("branch1",
                     new UserInfo("admin", "admin@email", "Admin"),
@@ -368,8 +368,8 @@ class LocalGitRepositoryTest {
         } catch (MergeConflictException e) {
             var conflictDetails = e.getDetails();
             final var resolveMessage = "Resolve conflict (use theirs)";
-            var resolvedFiles = Collections
-                    .singletonList(new FileItem("rules/project1/file1", IOUtils.toInputStream(textInBranch1)));
+            var resolvedFiles = List
+                    .of(new FileItem("rules/project1/file1", IOUtils.toInputStream(textInBranch1)));
 
             // Resolve conflict with choosing "theirs".
             repo.merge(branch2,

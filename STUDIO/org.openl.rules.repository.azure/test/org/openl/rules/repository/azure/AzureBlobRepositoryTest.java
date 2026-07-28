@@ -283,7 +283,7 @@ class AzureBlobRepositoryTest {
         if (options.getDetails().getRetrieveVersions()) {
             List<BlobEmulation> versions = blobs.get(options.getPrefix());
             final var list = new ArrayList<BlobItem>(
-                    versions == null ? Collections.emptyList()
+                    versions == null ? List.of()
                             : versions.stream().map(BlobEmulation::getBlobItem).collect(Collectors.toList()));
             // To conform behavior of Azure Blob Storage
             Collections.reverse(list);

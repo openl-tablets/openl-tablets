@@ -2,7 +2,6 @@ package org.openl.rules.diff.xls2;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -88,12 +87,12 @@ public class XlsDiff2 {
 
     private void load(File xlsFile1, File xlsFile2) {
         if (xlsFile1 == null) {
-            tables1 = Collections.emptyList();
+            tables1 = List.of();
         } else {
             tables1 = load(new URLSourceCodeModule(URLSourceCodeModule.toUrl(xlsFile1)));
         }
         if (xlsFile2 == null) {
-            tables2 = Collections.emptyList();
+            tables2 = List.of();
         } else {
             tables2 = load(new URLSourceCodeModule(URLSourceCodeModule.toUrl(xlsFile2)));
         }

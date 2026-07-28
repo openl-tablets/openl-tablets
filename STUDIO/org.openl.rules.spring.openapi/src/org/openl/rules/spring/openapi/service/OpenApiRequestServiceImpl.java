@@ -5,7 +5,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -243,7 +242,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                         : parameterType));
         var parameter = ParameterProcessor.applyAnnotations(null,
                 parameterType,
-                apiParameter != null ? List.of(apiParameter) : Collections.emptyList(),
+                apiParameter != null ? List.of(apiParameter) : List.of(),
                 components,
                 new String[0],
                 consumes,

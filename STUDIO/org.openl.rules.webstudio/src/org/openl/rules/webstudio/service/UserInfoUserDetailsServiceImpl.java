@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.function.BiFunction;
 
 import org.springframework.dao.DataAccessException;
@@ -43,7 +43,7 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("Unknown user: '%s'".formatted(name));
         }
 
-        var privileges = mapPrivileges(user, Collections.emptyList());
+        var privileges = mapPrivileges(user, List.of());
 
         var simpleUser = SimpleUser.builder()
                 .setFirstName(user.getFirstName())

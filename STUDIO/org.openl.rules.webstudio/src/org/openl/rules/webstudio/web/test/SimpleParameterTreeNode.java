@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -79,7 +78,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
             return result;
         }
 
-        return Collections.emptyList();
+        return List.of();
     }
 
     public void setValueForEdit(String value) {

@@ -2,7 +2,6 @@ package org.openl.util.print;
 
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +34,7 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
             propertyDescriptors = Introspector.getBeanInfo(obj.getClass()).getPropertyDescriptors();
         } catch (Exception e) {
             log.debug("Ignored error: ", e);
-            return Collections.emptyMap();
+            return Map.of();
         }
         var fieldMap = new HashMap<String, Object>();
         for (PropertyDescriptor descriptor : propertyDescriptors) {

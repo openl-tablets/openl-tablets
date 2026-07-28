@@ -5,8 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 
@@ -38,8 +38,7 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
 
     @PostConstruct
     public void setup() {
-        supportedInjects = Collections
-                .singleton(new Inject<>(InjectEntityManager.class, this::getEntityManager, EntityManager::close));
+        supportedInjects = Set.of(new Inject<>(InjectEntityManager.class, this::getEntityManager, EntityManager::close));
     }
 
     @Override

@@ -208,7 +208,7 @@ public class Table implements ITable {
         var index = new HashMap<String, Integer>();
 
         if (dataIdxToTableRowNum == null || dataIdxToTableRowNum.isEmpty()) {
-            return Collections.emptyMap();
+            return Map.of();
         }
 
         for (Map.Entry<Integer, Integer> entry : dataIdxToTableRowNum.entrySet()) {
@@ -244,7 +244,7 @@ public class Table implements ITable {
         var values = new LinkedHashSet<>();
 
         if (dataIdxToTableRowNum == null || dataIdxToTableRowNum.isEmpty()) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         for (Map.Entry<Integer, Integer> entry : dataIdxToTableRowNum.entrySet()) {
