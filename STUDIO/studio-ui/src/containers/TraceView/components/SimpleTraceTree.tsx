@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Checkbox, Empty, Spin, Tooltip } from 'antd'
+import { Checkbox, Empty, Spin, Tooltip, Typography } from 'antd'
 import { CaretDownOutlined, CaretRightOutlined, LinkOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
@@ -218,25 +218,27 @@ const SimpleTraceTree: React.FC = () => {
         const target = row.target as SimpleInspectTarget
         const open = () => void inspect(target)
         return (
-            <Tooltip key={row.key} title={t('simple.inspectHint')}>
-                <div
-                    data-rowkey={row.key}
-                    data-testid={`simple-node-${row.key}`}
-                    onClick={open}
-                    onKeyDown={onActivate(open)}
-                    role="button"
-                    style={indent(row.depth)}
-                    tabIndex={0}
-                    className={cx(styles.row, styles.frame, styles.runnable,
-                        selectedKey === (target.selectionKey ?? target.key) && styles.selected)}
-                >
-                    {twisty(row.expandKey)}
-                    {kindIcon(node.kind)}
-                    <span className={styles.name}>{node.name}</span>
-                    <span className={styles.kind}>{node.kind}</span>
-                    <DispatchBadge dispatch={node.dispatch} />
-                </div>
-            </Tooltip>
+            <div
+                key={row.key}
+                data-rowkey={row.key}
+                data-testid={`simple-node-${row.key}`}
+                onClick={open}
+                onKeyDown={onActivate(open)}
+                role="button"
+                style={indent(row.depth)}
+                tabIndex={0}
+                className={cx(styles.row, styles.frame, styles.runnable,
+                    selectedKey === (target.selectionKey ?? target.key) && styles.selected)}
+            >
+                {twisty(row.expandKey)}
+                {kindIcon(node.kind)}
+                {/* The detailed title carries the kind prefix (DT, SpreadSheet…), so no separate kind tag. It
+                    truncates in place, with the full title on hover only when it does not fit. */}
+                <Typography.Text className={styles.labelText} ellipsis={{ tooltip: node.name }}>
+                    {node.name}
+                </Typography.Text>
+                <DispatchBadge dispatch={node.dispatch} />
+            </div>
         )
     }
 
@@ -244,25 +246,25 @@ const SimpleTraceTree: React.FC = () => {
         const step = row.step as StepValueView
         const target = row.target as SimpleInspectTarget
         const open = () => void inspect(target)
+        const label = step.label || step.ref
         return (
-            <Tooltip key={row.key} title={t('simple.inspectHint')}>
-                <div
-                    data-rowkey={row.key}
-                    data-testid={`simple-step-${row.key}`}
-                    onClick={open}
-                    onKeyDown={onActivate(open)}
-                    role="button"
-                    style={indent(row.depth)}
-                    tabIndex={0}
-                    className={cx(styles.row, styles.runnable,
-                        selectedKey === (target.selectionKey ?? target.key) && styles.selected,
-                        flashKey === row.key && styles.flashed)}
-                >
-                    {twisty(row.expandKey)}
-                    {stepIcon(row.owner?.kind)}
-                    <span className={styles.leafLabel}>{step.label || step.ref}</span>
-                </div>
-            </Tooltip>
+            <div
+                key={row.key}
+                data-rowkey={row.key}
+                data-testid={`simple-step-${row.key}`}
+                onClick={open}
+                onKeyDown={onActivate(open)}
+                role="button"
+                style={indent(row.depth)}
+                tabIndex={0}
+                className={cx(styles.row, styles.runnable,
+                    selectedKey === (target.selectionKey ?? target.key) && styles.selected,
+                    flashKey === row.key && styles.flashed)}
+            >
+                {twisty(row.expandKey)}
+                {stepIcon(row.owner?.kind)}
+                <Typography.Text className={styles.labelText} ellipsis={{ tooltip: label }}>{label}</Typography.Text>
+            </div>
         )
     }
 

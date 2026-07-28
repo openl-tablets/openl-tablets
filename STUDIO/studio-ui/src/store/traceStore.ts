@@ -831,8 +831,10 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 // One full profiled run: the response arrives once the whole calculation has finished,
                 // carrying the executed tree to download.
                 const stack = await traceService.startTrace(projectId, launchOptions(
+                    // Detailed titles (signature, result, cell values) are the business view's default — the
+                    // advanced debugger never asks for them, keeping its tree lean.
                     { tableId, fromModule, testRanges, inputJson },
-                    { stopAtEntry: false, profiling: true }
+                    { stopAtEntry: false, profiling: true, detailedTitles: true }
                 ))
                 if (get().runId !== token) return
                 applyStack(stack)

@@ -134,6 +134,12 @@ export const useStyles = createStyles(({ css, token }) => ({
         overflow: hidden;
         text-overflow: ellipsis;
     `,
+    // A business-tree row's main label: takes the remaining width so a long detailed title truncates in place.
+    // Typography.Text then shows the full text on hover only when it does not fit.
+    labelText: css`
+        flex: 1;
+        min-width: 0;
+    `,
     // Executed-tree node header: a returned table, kept readable so its name and timing stand out.
     callNode: css`
         color: ${token.colorTextSecondary};

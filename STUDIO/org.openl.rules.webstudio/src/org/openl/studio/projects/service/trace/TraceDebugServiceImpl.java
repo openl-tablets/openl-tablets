@@ -45,7 +45,7 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
                 request.sessionId());
 
         debugger.start("trace-debug-" + request.tableId(), classLoader, request.stopAtEntry(), request.profiling(),
-                () -> testSuite.invokeSequentially(openClass, 1, debugger.tracer()));
+                request.detailedTitles(), () -> testSuite.invokeSequentially(openClass, 1, debugger.tracer()));
         return session;
     }
 

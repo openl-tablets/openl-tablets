@@ -11567,6 +11567,15 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "detailedTitles",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "includeTree",
             "schema": {
               "type": "boolean",

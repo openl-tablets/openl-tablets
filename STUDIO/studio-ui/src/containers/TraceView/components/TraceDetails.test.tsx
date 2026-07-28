@@ -84,8 +84,8 @@ describe('TraceDetails', () => {
         render(<TraceDetails />)
 
         expect(screen.getByTestId('debug-details')).toBeInTheDocument()
-        // The frame title, its input parameter, and its result all appear.
-        expect(screen.getByText('CoveragePremium')).toBeInTheDocument()
+        // The business view shows no title — the tree already names the rule — but the input and result appear.
+        expect(screen.queryByText('CoveragePremium')).toBeNull()
         expect(screen.getByText('age')).toBeInTheDocument()
         expect(screen.getByText('30')).toBeInTheDocument()
         expect(screen.getByText('1.5')).toBeInTheDocument()
@@ -176,7 +176,7 @@ describe('TraceDetails', () => {
         })
         render(<TraceDetails />)
 
-        expect(screen.getByText('$Value$Limit')).toBeInTheDocument() // titled by the step
+        expect(screen.queryByText('$Value$Limit')).toBeNull() // no duplicated title in the business view
         // The step's inputs arrive from the step-inputs endpoint, named as the formula writes them.
         expect(getStepInputs).toHaveBeenCalledWith('p1', 0, 'S9')
         await waitFor(() => expect(screen.getByText('$LimitIndex')).toBeInTheDocument())

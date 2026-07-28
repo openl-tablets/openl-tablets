@@ -61,6 +61,8 @@ final class DebugHookImpl implements DebugHook {
     private @Nullable Throwable brokenException;
     /** Retain the structure of returned sub-calls so the executed call tree can be shown. Set before the worker runs. */
     private boolean profiling;
+    /** Build the classic detailed titles (signature, result, cell values) into the tree — the business view only. */
+    private boolean detailedTitles;
     /** Cell names or refs whose value is captured on every execution of their table. May be updated mid-run. */
     private volatile Set<String> watches = Set.of();
     /** Captured watched values, appended on the worker thread as cells compute. */
@@ -94,6 +96,10 @@ final class DebugHookImpl implements DebugHook {
 
     void setProfiling(boolean profiling) {
         this.profiling = profiling;
+    }
+
+    void setDetailedTitles(boolean detailedTitles) {
+        this.detailedTitles = detailedTitles;
     }
 
     /** Watch a set of cells by name ({@code $...} label) or ref, capturing their value on every execution. */
@@ -370,7 +376,7 @@ final class DebugHookImpl implements DebugHook {
                 // the pop. A returned root frame has no parent to hold it, so it becomes the completed tree. The
                 // slot was reserved on entry (recorded), so a frame whose subtree filled the cap still attaches.
                 if (recorded) {
-                    CallNode node = frame.toCallNode(StringPool::intern);
+                    CallNode node = frame.toCallNode(StringPool::intern, detailedTitles);
                     if (parent != null) {
                         parent.recordExecutedChild(callerRef, node);
                     } else {

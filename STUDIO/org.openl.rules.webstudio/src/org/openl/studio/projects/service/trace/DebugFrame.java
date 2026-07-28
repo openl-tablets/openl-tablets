@@ -18,6 +18,7 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.dt.IDecisionTable;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.studio.projects.model.trace.DecisionRow;
 import org.openl.studio.projects.model.trace.DispatchInfo;
@@ -145,16 +146,24 @@ public final class DebugFrame {
     }
 
     /**
-     * Snapshot this frame as an executed call-tree node: its sub-steps and their sub-calls, no values.
+     * Snapshot this frame as an executed call-tree node: its sub-steps and their sub-calls.
      *
      * <p>The table URI, name, and each step reference pass through {@code intern}, so the same table
      * repeated across thousands of nodes shares one instance of each string instead of duplicating it.
+     *
+     * <p>With {@code detailedTitles} on (the business view), the node and its cells read like the classic
+     * trace — the method signature and result, and each cell's value — instead of a bare name. Those strings
+     * hold per-run values, so they are built only on request and left un-interned; the advanced debugger
+     * passes {@code false} to keep the tree lean.
      */
-    CallNode toCallNode(UnaryOperator<String> intern) {
+    CallNode toCallNode(UnaryOperator<String> intern, boolean detailedTitles) {
+        String displayName = detailedTitles && source instanceof ExecutableRulesMethod method
+                ? TraceTitleFormatter.tableTitle(kind, method, result, error != null)
+                : intern.apply(name);
         // A decision table breaks down into its evaluated conditions (matched/unmatched, like the legacy
         // detailed trace) plus the rule it returned, instead of a bare fired-rule step.
         if (source instanceof IDecisionTable decisionTable) {
-            return new CallNode(intern.apply(uri), intern.apply(name), invocationIndex, kind, durationNanos,
+            return new CallNode(intern.apply(uri), displayName, invocationIndex, kind, durationNanos,
                     decisionSteps(decisionTable, intern), dispatch, null, notRetained, childNanos);
         }
         var steps = new ArrayList<CallNode.Step>();
@@ -162,7 +171,7 @@ public final class DebugFrame {
         for (ExecutedStep step : executedSteps) {
             if (covered.add(step.ref())) {
                 steps.add(new CallNode.Step(intern.apply(step.ref()),
-                        step.label() == null ? null : intern.apply(step.label()),
+                        stepLabel(step, intern, detailedTitles),
                         step.durationNanos(), List.copyOf(childrenOf(step.ref()))));
             }
         }
@@ -185,14 +194,61 @@ public final class DebugFrame {
                     if ((type == SpreadsheetCellType.VALUE || type == SpreadsheetCellType.CONSTANT)
                             && !covered.contains(ref)) {
                         steps.add(new CallNode.Step(intern.apply(ref),
-                                intern.apply(SpreadsheetCellNames.of(spreadsheet, cell)), 0, List.of(), true));
+                                staticCellLabel(spreadsheet, cell, intern, detailedTitles), 0, List.of(), true));
                     }
                 }
             }
             steps.sort(Comparator.comparingLong(DebugFrame::gridOrder));
         }
-        return new CallNode(intern.apply(uri), intern.apply(name), invocationIndex, kind, durationNanos,
+        return new CallNode(intern.apply(uri), displayName, invocationIndex, kind, durationNanos,
                 steps, dispatch, null, notRetained, childNanos);
+    }
+
+    /**
+     * A step's tree label. With detailed titles on, a spreadsheet cell appends its computed value
+     * ({@code $Cell = 42}); the value is unique per run, so it is left un-interned.
+     */
+    private @Nullable String stepLabel(ExecutedStep step, UnaryOperator<String> intern, boolean detailedTitles) {
+        String label = step.label();
+        if (label == null) {
+            return null;
+        }
+        if (detailedTitles && source instanceof Spreadsheet spreadsheet) {
+            SpreadsheetCell cell = cellAt(spreadsheet, step.ref());
+            String value = cell == null ? null : TraceTitleFormatter.cellValue(cell.getType(), step.value());
+            return value == null ? intern.apply(label) : label + " = " + value;
+        }
+        return intern.apply(label);
+    }
+
+    /** A static (value/constant) cell's tree label, with its value appended when detailed titles are on. */
+    private static String staticCellLabel(Spreadsheet spreadsheet, SpreadsheetCell cell,
+                                          UnaryOperator<String> intern, boolean detailedTitles) {
+        String name = SpreadsheetCellNames.of(spreadsheet, cell);
+        if (!detailedTitles) {
+            return intern.apply(name);
+        }
+        String value = TraceTitleFormatter.cellValue(cell.getType(), cell.getValue());
+        return value == null ? intern.apply(name) : name + " = " + value;
+    }
+
+    /** The spreadsheet cell for a step's {@code RnCm} reference, or {@code null} when it is not a grid cell. */
+    private static @Nullable SpreadsheetCell cellAt(Spreadsheet spreadsheet, String ref) {
+        int c = ref.indexOf('C');
+        if (ref.isEmpty() || ref.charAt(0) != 'R' || c < 0) {
+            return null;
+        }
+        try {
+            int row = Integer.parseInt(ref.substring(1, c));
+            int col = Integer.parseInt(ref.substring(c + 1));
+            SpreadsheetCell[][] cells = spreadsheet.getCells();
+            if (row >= 0 && row < cells.length && col >= 0 && col < cells[row].length) {
+                return cells[row][col];
+            }
+        } catch (NumberFormatException ignored) {
+            // A non-numeric reference is not a grid cell.
+        }
+        return null;
     }
 
     /**

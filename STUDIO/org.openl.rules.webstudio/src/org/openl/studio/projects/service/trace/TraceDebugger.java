@@ -97,21 +97,23 @@ public final class TraceDebugger {
      * @param body        the rule execution to run
      */
     public void start(String threadName, @Nullable ClassLoader classLoader, boolean stopAtEntry, DebugBody body) {
-        start(threadName, classLoader, stopAtEntry, false, body);
+        start(threadName, classLoader, stopAtEntry, false, false, body);
     }
 
     /**
      * Start a debug session, optionally retaining the executed call tree.
      *
-     * @param threadName  worker thread name
-     * @param classLoader context classloader for the worker, or {@code null} to keep the current one
-     * @param stopAtEntry suspend at the first frame instead of running to the first breakpoint
-     * @param profiling   retain the structure of returned sub-calls so the executed call tree can be shown
-     * @param body        the rule execution to run
+     * @param threadName     worker thread name
+     * @param classLoader    context classloader for the worker, or {@code null} to keep the current one
+     * @param stopAtEntry    suspend at the first frame instead of running to the first breakpoint
+     * @param profiling      retain the structure of returned sub-calls so the executed call tree can be shown
+     * @param detailedTitles build the classic detailed titles (signature, result, cell values) into the tree
+     * @param body           the rule execution to run
      */
     public void start(String threadName, @Nullable ClassLoader classLoader, boolean stopAtEntry, boolean profiling,
-                      DebugBody body) {
+                      boolean detailedTitles, DebugBody body) {
         hook.setProfiling(profiling);
+        hook.setDetailedTitles(detailedTitles);
         stepController.armInitial(stopAtEntry);
         startHaltCount = channel.haltCount();
         channel.markRunning();

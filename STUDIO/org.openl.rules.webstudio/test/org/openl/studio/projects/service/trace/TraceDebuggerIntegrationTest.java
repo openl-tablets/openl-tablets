@@ -248,7 +248,7 @@ class TraceDebuggerIntegrationTest {
     @Test
     void profilingRetainsAReturnedSubCallUnderTheCallingCell() {
         TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
-        debugger.start("profiling-worker", null, true, true, program(debugger));
+        debugger.start("profiling-worker", null, true, true, false, program(debugger));
         try {
             runUntilSubCallReturned(debugger);
             DebugFrame t0 = debugger.stack().getFirst();
@@ -280,7 +280,7 @@ class TraceDebuggerIntegrationTest {
     void profilingKeepsTheWholeTreeWithTimingsAfterCompletion() {
         TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
         // No stop-at-entry, profiling on: it runs straight to completion, keeping the executed tree.
-        debugger.start("completed-tree-worker", null, false, true, program(debugger));
+        debugger.start("completed-tree-worker", null, false, true, false, program(debugger));
         assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
 
         CallNode tree = debugger.completedTree();

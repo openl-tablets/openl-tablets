@@ -92,7 +92,7 @@ class TreeNodeCapTest {
 
         var debugger = new TraceDebugger(DebugListener.NOOP);
         debugger.setMaxTreeNodes(cap);
-        debugger.start("node-cap", compiled.getClassLoader(), false, true, () -> {
+        debugger.start("node-cap", compiled.getClassLoader(), false, true, false, () -> {
             var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
             root.invoke(module.newInstance(env), new Object[0], env);
