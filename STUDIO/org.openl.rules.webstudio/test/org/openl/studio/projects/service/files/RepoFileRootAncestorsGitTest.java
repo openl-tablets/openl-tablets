@@ -11,7 +11,6 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
@@ -125,7 +124,7 @@ class RepoFileRootAncestorsGitTest {
         if (parent != null) {
             Files.createDirectories(parent);
         }
-        Files.writeString(path, content, StandardCharsets.UTF_8,
+        Files.writeString(path, content,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

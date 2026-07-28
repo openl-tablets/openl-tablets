@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -33,7 +32,7 @@ class CustomOpenApiProcessorTest {
     }
 
     private static void writeJson(Path dir, String name, String body) throws IOException {
-        Files.writeString(dir.resolve(name), body, StandardCharsets.UTF_8);
+        Files.writeString(dir.resolve(name), body);
     }
 
     @Test

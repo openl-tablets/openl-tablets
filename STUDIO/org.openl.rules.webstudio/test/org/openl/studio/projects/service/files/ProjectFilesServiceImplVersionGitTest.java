@@ -146,7 +146,7 @@ class ProjectFilesServiceImplVersionGitTest {
         if (parent != null) {
             Files.createDirectories(parent);
         }
-        Files.writeString(path, content, StandardCharsets.UTF_8,
+        Files.writeString(path, content,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

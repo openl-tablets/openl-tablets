@@ -4,7 +4,6 @@ import static org.openl.rules.testmethod.TestStatus.TR_OK;
 
 import java.io.File;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -98,7 +97,7 @@ class JUnitReportWriter {
         dir.mkdirs();
         var file = new File(dir, filename);
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        try (Writer writer = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
+        try (Writer writer = Files.newBufferedWriter(file.toPath())) {
             xml = factory.createXMLStreamWriter(writer);
             try {
                 writeTestsuite(suitName, tests, failures, errors, executionTime, testUnits);

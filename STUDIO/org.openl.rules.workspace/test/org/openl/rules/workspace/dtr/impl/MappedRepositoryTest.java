@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -64,7 +63,7 @@ class MappedRepositoryTest {
     private void writeProject(String folder, String rulesXml) throws IOException {
         var projectFolder = root.resolve(folder);
         Files.createDirectories(projectFolder);
-        Files.writeString(projectFolder.resolve("rules.xml"), rulesXml, StandardCharsets.UTF_8);
+        Files.writeString(projectFolder.resolve("rules.xml"), rulesXml);
     }
 
 }
