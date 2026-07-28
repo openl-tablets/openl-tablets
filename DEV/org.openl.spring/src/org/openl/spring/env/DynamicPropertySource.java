@@ -144,7 +144,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
 
         // Do clean up from default values
         properties.entrySet()
-                .removeIf(e -> Objects.equals(resolver.getRawProperty(e.getKey().toString()), e.getValue().toString()));
+                .removeIf(e -> Objects.equals(resolver.getRawProperty(e.getKey()), e.getValue()));
 
         // Remove version for correct determining of properties to save
         properties.remove(PROP_VERSION);

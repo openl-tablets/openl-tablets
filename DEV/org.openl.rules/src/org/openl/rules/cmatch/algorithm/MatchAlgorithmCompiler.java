@@ -232,7 +232,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         for (var index = 0; index < inValues.length; index++) {
             var s = inValues[index].getString().trim();
 
-            if (s.length() > 0) {
+            if (!s.isEmpty()) {
                 // ignore empty cells
                 Object v;
                 ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, s);

@@ -319,7 +319,7 @@ public final class BindHelper {
                                                       IBindingContext bindingContext) {
         if (!OpenClassUtils.belongsToEnum(allObjects, key)) {
             processError(
-                    String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                    "Object '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
                             key,
                             parameterType.getName(),
                             DomainUtils.toString(parameterType.getDomain())),
@@ -343,7 +343,7 @@ public final class BindHelper {
             cast.convert(literalNode.getValue());
         } catch (OutsideOfValidDomainException exception) {
             processError(
-                    String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                    "Object '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
                             literalNode.getValue(),
                             parameterType.getName(),
                             DomainUtils.toString(parameterType.getDomain())),

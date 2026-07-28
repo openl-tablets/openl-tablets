@@ -24,11 +24,10 @@ final class AlgorithmErrorHelper {
     public static OpenLAlgorithmExecutionException createExecutionException(String message,
                                                                             RuntimeOperation operation) {
         var sourceOperationUrl = operation.getSourceCode().getSourceUri();
-        String errorMessage = String.format(
-                """
+        String errorMessage = """
                 Unexpected error appeared while executing TBasic component logic. \
                 It's unusal situation and the most propably something is wrong in component's internal logic, \
-                please contact developers. Error: %s at %s""",
+                please contact developers. Error: %s at %s""".formatted(
                 message,
                 sourceOperationUrl);
 

@@ -247,7 +247,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
             var value = getCellStringValue(valuesTable);
 
-            if (value != null && value.length() > 0) {
+            if (value != null && !value.isEmpty()) {
                 result = getValueByForeignKeyIndex(bindingContext,
                         foreignTable,
                         foreignKeyIndex,
