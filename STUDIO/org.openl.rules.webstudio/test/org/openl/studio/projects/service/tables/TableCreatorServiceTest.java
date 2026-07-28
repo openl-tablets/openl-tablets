@@ -29,7 +29,6 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.RawTableCell;
@@ -182,12 +181,9 @@ class TableCreatorServiceTest {
 
     @Test
     void rejectsNamelessTableRatherThanFailingOnIt() {
-        var projectModel = mock(ProjectModel.class);
-
         // The name is what the header declares; a table saved without one can never be found again by its creator.
-        assertThrows(BadRequestException.class, () -> service.requireUniqueTable(projectModel, null));
-        assertThrows(BadRequestException.class, () -> service.requireUniqueTable(projectModel, "  "));
-        verify(projectModel, never()).getAllTableSyntaxNodes();
+        assertThrows(BadRequestException.class, () -> service.requireTableName(null));
+        assertThrows(BadRequestException.class, () -> service.requireTableName("  "));
     }
 
     @Test

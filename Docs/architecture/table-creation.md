@@ -1,7 +1,10 @@
-# Table Creation
+# Table Creation and Copying
 
 OpenL Studio creates every kind of OpenL table from one dialog. The dialog is not an editor: it produces a table
 that compiles, in the place the author chose, and leaves everything past that to the table editor.
+
+An existing table is copied from a separate dialog. The browser reads its raw cell matrix, changes the header and
+properties selected by the author, and submits the result through the same table-creation API.
 
 ## Anatomy
 
@@ -79,6 +82,35 @@ The destination decides only where the table is written. It never narrows what t
 exercise any executable table in the project that returns a value, whichever module holds it. Run can also exercise
 one returning nothing, because it calls without asserting a result.
 
+## Copying a table
+
+The **Copy** action on an editable table opens a modal titled with that table's name. Its settings use the same
+layout and controls as table creation:
+
+- **Table Name** — an OpenL identifier. It may match an existing table name; the browser writes it into the copied
+  header.
+- **Module** — free text with suggestions from the modules the project declares.
+- **Sheet** — free text with suggestions from the selected module's workbook.
+
+An unlisted module or sheet name creates that destination, exactly as it does in the creation dialog. A new module
+is placed with the rules, or with the tests when a Test or Run table is copied.
+
+Properties follow the destination. The source table's kind selects the properties applicable to that kind at the
+Table inheritance level, so a Rules table and a Spreadsheet can offer different sets. Properties belonging to a
+Properties table's contents, such as `scope`, are not offered here; Table-level properties, such as `version`, are.
+Each applicable property keeps its value from the raw source.
+
+The value editor follows the property definition: text input for text, a date picker for a date, a check box for a
+boolean, and a dropdown for an enum. An enum dropdown shows its display value and writes its code into the workbook;
+an enum accepting several values uses a multi-select. Completing the last row adds another; rows can be inserted and
+deleted with the same controls as Spreadsheet arguments. The date picker displays a date in the user's locale and
+writes it to the workbook in the ISO 8601 `yyyy-MM-dd` form. A partially filled row or repeated property name makes
+the form invalid.
+
+The source table is the authority for the cell content. The browser reads `RawSource`, replaces the technical name
+in its header, rebuilds the raw property section, and keeps the body cell values and merges. It then submits a
+normal `CreateNewTableRequest`; there is no separate copy operation on the server.
+
 ## The grid
 
 The grid opens filled in. A first row of example data says more about the shape of a row than an empty grid does,
@@ -131,8 +163,11 @@ One question per resource, each asked of the thing that owns the answer:
 
 - **The project's modules** — so the destination can be chosen.
 - **The project's types** — its Datatype tables, which is what a vocabulary is written as too.
-- **The properties a table may declare** — each with the shape of a value: text, a date, a boolean, or one of a
-  list of names.
+- **The properties applicable to the requested place** — without a table kind,
+  `/projects/{projectId}/properties` describes what may appear in the contents of a Properties table. With a table
+  kind, it describes the properties the table itself may carry, filtered by kind and Table inheritance level. Each
+  definition carries the shape of its value: text, a date, a boolean, or enum codes paired with their display values.
+  Date formatting is a client concern and is not part of property metadata.
 - **The tables a test can call** — the same tables list, narrowed to the kinds OpenL compiles into a method.
 - **A module's worksheets** — the only one of these that belongs to a module rather than to the project.
 - **The fields of one datatype** — read when an author picks it, or when a tested argument opens up into it,
@@ -155,6 +190,10 @@ table, whose skeleton is built from the signature the list carries.
 Two of them are not resources of their own: a project's types and its callable tables are both **tables**, and the
 tables list already filters by kind.
 
+Copying uses the same resources and adds one read:
+
+- **The source table as `RawSource`** — its header, explicit property rows, body values and merges.
+
 Everything else the dialog needs is fixed by the OpenL language rather than by the project — the table types, the
 scalar types, the Environment keywords — and is held in the client. Asking the server for a constant costs a
 round trip behind a module compilation and answers a question that has only one answer.
@@ -173,10 +212,15 @@ The behaviour that looks arbitrary is not; each rule is the compiler's:
 - A Properties table compiles only when it declares `scope`, so that row is there from the start.
 - A Spreadsheet needs at least one step, a lookup at least one row to look up.
 - A table name becomes an identifier, so it is validated as one.
+- A table name does not have to be project-wide unique. OpenL distinguishes overloads and versions using their
+  signatures and properties, including properties supplied by the file name, a Properties table, or the table's own
+  properties section.
 - A worksheet name cannot contain `/ \ * ? [ ] :`, because Excel does not allow it.
+- Every property row has both a name and a value, and one property name appears at most once.
 
 ## Non-goals
 
-The dialog does not merge cells beyond the corner a lookup needs, does not format, and does not validate against
-the compiler — a table that OpenL rejects for a reason the dialog does not know about is rejected on save, and
-the dialog stays open with the message. Editing a table after it exists is the table editor's job.
+The creation dialog does not merge cells beyond the corner a lookup needs, does not format, and does not validate
+against the compiler — a table that OpenL rejects for a reason the dialog does not know about is rejected on save,
+and the dialog stays open with the message. The copy dialog does not edit body cells and does not carry Excel
+formatting or comments through the raw write. Editing a table after it exists is the table editor's job.

@@ -1,11 +1,58 @@
 import { notification } from 'antd'
 import i18n from '../i18n'
-import type { CreateTableRequest, ProjectDatatype, ProjectTable, SummaryTable } from 'types/tables'
+import type {
+    CreateTableRequest,
+    ProjectDatatype,
+    ProjectTable,
+    RawTable,
+    SummaryTable,
+} from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
 import apiCall, { asArray } from './apiCall'
 import { toUrlSafeId } from './projectId'
 
 const TABLE_API_OPTIONS = { throwError: true, suppressErrorPages: true }
+
+interface TableWriteMessages {
+    successTitle: string
+    successDescription: (tableName: string) => string
+    failureTitle: string
+    missingTable: string
+}
+
+const writeTable = async (
+    projectId: string,
+    request: CreateTableRequest,
+    messages: TableWriteMessages
+): Promise<SummaryTable | null> => {
+    try {
+        const table = await apiCall(
+            `/projects/${toUrlSafeId(projectId)}/tables`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request),
+            },
+            TABLE_API_OPTIONS
+        ) as SummaryTable | null
+        // An empty 201 body means the compiled table could not be found again; apiCall turns that into the `true`
+        // sentinel, so a plain falsy check would let it through as a success.
+        if (!table || typeof table !== 'object') {
+            throw new Error(messages.missingTable)
+        }
+        notification.success({
+            title: messages.successTitle,
+            description: messages.successDescription(table.name),
+        })
+        return table
+    } catch (error) {
+        notification.error({
+            title: messages.failureTitle,
+            description: errorMessage(error),
+        })
+        return null
+    }
+}
 
 /**
  * Tables of the given kinds, from anywhere in the project.
@@ -54,32 +101,30 @@ export const getDatatype = async (projectId: string, tableId: string): Promise<P
 export const createTable = async (
     projectId: string,
     request: CreateTableRequest
-): Promise<SummaryTable | null> => {
-    try {
-        const table = await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/tables`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(request),
-            },
-            TABLE_API_OPTIONS
-        ) as SummaryTable | null
-        // An empty 201 body means the compiled table could not be found again; apiCall turns that into the `true`
-        // sentinel, so a plain falsy check would let it through as a success.
-        if (!table || typeof table !== 'object') {
-            throw new Error(i18n.t('project:create_table_modal.created_table_not_found'))
-        }
-        notification.success({
-            title: i18n.t('project:create_table_modal.created'),
-            description: i18n.t('project:create_table_modal.created_description', { table: table.name }),
-        })
-        return table
-    } catch (error) {
-        notification.error({
-            title: i18n.t('project:create_table_modal.create_failed'),
-            description: errorMessage(error),
-        })
-        return null
-    }
-}
+): Promise<SummaryTable | null> => writeTable(projectId, request, {
+    successTitle: i18n.t('project:create_table_modal.created'),
+    successDescription: table => i18n.t('project:create_table_modal.created_description', { table }),
+    failureTitle: i18n.t('project:create_table_modal.create_failed'),
+    missingTable: i18n.t('project:create_table_modal.created_table_not_found'),
+})
+
+/** Read the exact cell matrix that the browser uses to create a copy. */
+export const getTableRaw = async (
+    projectId: string,
+    tableId: string
+): Promise<RawTable> => apiCall(
+    `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}?raw=true`,
+    undefined,
+    TABLE_API_OPTIONS
+) as Promise<RawTable>
+
+/** Write a browser-built copy through the ordinary Create Table endpoint. */
+export const createTableCopy = async (
+    projectId: string,
+    request: CreateTableRequest
+): Promise<SummaryTable | null> => writeTable(projectId, request, {
+    successTitle: i18n.t('project:copy_table_modal.copied'),
+    successDescription: table => i18n.t('project:copy_table_modal.copied_description', { table }),
+    failureTitle: i18n.t('project:copy_table_modal.copy_failed'),
+    missingTable: i18n.t('project:copy_table_modal.copied_table_not_found'),
+})

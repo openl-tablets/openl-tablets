@@ -22,6 +22,7 @@ import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.PropertyDefinitionView;
+import org.openl.studio.projects.model.PropertyValueView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
@@ -109,11 +110,12 @@ class ProjectsControllerTest {
         var metadataService = mock(ProjectMetadataService.class);
         var controller = controller(mock(WorkspaceProjectService.class), mock(ProjectStatusMapper.class),
                 metadataService);
-        var expected = List.of(new PropertyDefinitionView("scope", "enum", false, List.of("Module")));
-        when(metadataService.getProperties()).thenReturn(expected);
+        var expected = List.of(new PropertyDefinitionView(
+                "state", "enum", true, List.of(new PropertyValueView("AL", "Alabama"))));
+        when(metadataService.getProperties("Rules")).thenReturn(expected);
 
-        assertEquals(expected, controller.getProperties(mock(RulesProject.class)));
-        verify(metadataService).getProperties();
+        assertEquals(expected, controller.getProperties(mock(RulesProject.class), "Rules"));
+        verify(metadataService).getProperties("Rules");
     }
 
     @Test

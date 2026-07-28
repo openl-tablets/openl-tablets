@@ -33,13 +33,14 @@ The following table types support versioning by Business Dimension properties:
 
 **Note:** Test, Datatype, and Data table types cannot be versioned.
 
-When dealing with almost equal rules of the same structure but with slight differences, for example, with changes in any specific date or state, there is a very simple way to version rule tables by Business Dimension properties. Proceed as follows:
+When dealing with almost equal rules of the same structure but with slight differences, for example, with changes in any specific date or state, version the rule tables by Business Dimension properties as follows:
 
 1.  Take the original rule table and set Business Dimension properties that indicate by which property the rules must be versioned.
 
     Multiple Business Dimension properties can be set.
 
-1.  Copy the original rule table, set new dimension properties for this table, and make changes in the table data as appropriate.
+1.  Create another rule table with the same header and structure, set new dimension properties for it, and make
+    changes in the table data as appropriate.
 2.  Repeat steps 1 and 2 if more rule versions are required.
 
 Now the rule can be called by its name from any place in the project or application. If there are multiple rules with the same name but different Business Dimension properties, OpenL Tablets reviews all rules and selects the corresponding one according to the specified context variables or, in developers’ language, by runtime context values.
@@ -109,7 +110,8 @@ The rule names and their structure are the same but with the factor values diffe
 
 To create the rule for the year 2012, proceed as follows:
 
-1.  To copy the rule table, use the **Copy as New Business Dimension** feature in OpenL Studio as described in [OpenL Studio Guide, Creating Tables by Copying section](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#creating-tables-by-copying).
+1.  Create another rule table with the same header and structure, and set its business dimension properties for the
+    new period.
 2.  Change effective and expiration dates to 1/1/2012 and 12/31/2012 appropriately.
 3.  Replace the factors as appropriate for the year 2012.
 

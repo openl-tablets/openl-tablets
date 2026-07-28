@@ -1,0 +1,1 @@
+export { CopyTableModal } from './CopyTableModal'

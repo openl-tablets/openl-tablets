@@ -152,11 +152,13 @@ describe('projects service', () => {
 
             await getProjectModules('project/id')
             await getProjectProperties('project-id')
+            await getProjectProperties('project-id', 'Column Match')
             await getModuleSheets('project-id', 'Main Rules')
 
             expect(mockApiCall.mock.calls.map(call => call[0])).toEqual([
                 '/projects/project_id/modules',
                 '/projects/project-id/properties',
+                '/projects/project-id/properties?tableType=Column%20Match',
                 '/projects/project-id/modules/Main%20Rules/sheets',
             ])
         })

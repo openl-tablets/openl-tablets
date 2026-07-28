@@ -54,11 +54,18 @@ export interface ProjectDatatype {
 }
 
 /** A property a table may declare, and what a value for it looks like. */
+export interface ProjectPropertyValue {
+    /** Value written to the table. */
+    code: string
+    /** Value shown to the author. */
+    value: string
+}
+
 export interface ProjectProperty {
     name: string
     type: 'text' | 'date' | 'boolean' | 'enum'
     /** Several values, written separated by commas. */
     multiple: boolean
     /** Values the property accepts, empty unless the type is an enum. */
-    values: string[]
+    values: ProjectPropertyValue[]
 }

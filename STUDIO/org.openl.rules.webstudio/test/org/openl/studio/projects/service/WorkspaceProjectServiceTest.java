@@ -598,6 +598,7 @@ class WorkspaceProjectServiceTest {
         service.createNewTable(project, request);
 
         verify(project).tryLockOrThrow();
+        verify(tableCreatorService).requireTableName("NewTable");
         verify(tableCreatorService).createModuleWithTable(project, descriptor, request, table);
     }
 
@@ -786,7 +787,7 @@ class WorkspaceProjectServiceTest {
                 .name(longName)
                 .build();
         when(handle.awaitCompiled()).thenReturn(projectModel);
-        when(projectModel.search(any(), eq(SearchScope.CURRENT_PROJECT))).thenReturn(List.of(openLTable));
+        when(projectModel.search(any(), eq(SearchScope.CURRENT_MODULE))).thenReturn(List.of(openLTable));
         when(summaryTableReader.read(openLTable)).thenReturn(expected);
         doReturn(handle).when(service).openProject(project, "Main");
 
@@ -797,7 +798,7 @@ class WorkspaceProjectServiceTest {
         // carries, so searching for the shortened form would find nothing and answer a successful create with no
         // table at all.
         ArgumentCaptor<Predicate<TableSyntaxNode>> selector = forClass(Predicate.class);
-        verify(projectModel).search(selector.capture(), eq(SearchScope.CURRENT_PROJECT));
+        verify(projectModel).search(selector.capture(), eq(SearchScope.CURRENT_MODULE));
         assertTrue(selector.getValue().test(datatypeNode("Datatype " + longName)));
     }
 

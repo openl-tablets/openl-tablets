@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
@@ -33,7 +31,6 @@ import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
-import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableView;
@@ -68,7 +65,7 @@ public class TableCreatorService {
      */
     public String createTable(CreateNewTableRequest createTableRequest, ProjectModel projectModel) {
         var table = (TableView) createTableRequest.table();
-        requireUniqueTable(projectModel, table.name);
+        requireTableName(table.name);
 
         var gridModel = getXlsSheetGridModel(createTableRequest, projectModel);
         var tableWriter = tableWritersFactory.getNewTableWriter(table, gridModel);
@@ -110,18 +107,6 @@ public class TableCreatorService {
     public void requireTableName(@Nullable String tableName) {
         if (StringUtils.isBlank(tableName)) {
             throw new BadRequestException("table.name.required.message");
-        }
-    }
-
-    /** Rejects a table with no name, or one whose name another table in the project already holds. */
-    public void requireUniqueTable(ProjectModel model, @Nullable String tableName) {
-        requireTableName(tableName);
-        var taken = model.getAllTableSyntaxNodes().stream()
-                .map(TableSyntaxNode::getMember)
-                .filter(Objects::nonNull)
-                .anyMatch(member -> tableName.equalsIgnoreCase(member.getName()));
-        if (taken) {
-            throw new ConflictException("table.exists.message", tableName);
         }
     }
 

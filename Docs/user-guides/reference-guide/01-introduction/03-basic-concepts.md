@@ -16,7 +16,9 @@ Instead of executing actions, rules can also return data values to the calling p
 
 #### Tables
 
-Basic information OpenL Tablets deals with, such as rules and data, is presented in **tables**. Tables within one project must be unique and it is denoted by table name and input parameters. Nevertheless, different versions of the same table can have the same name and input parameters.
+Basic information OpenL Tablets deals with, such as rules and data, is presented in **tables**. A table is identified
+by its name together with its signature and properties. The properties can come from the file name, a Properties
+table, or the properties section of the table itself. As a result, overloads and versions can share a table name.
 
 Tables are referenced by calling their names.
 

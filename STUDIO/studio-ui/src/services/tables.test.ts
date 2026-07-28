@@ -2,7 +2,7 @@ import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
 import type { CreateTableRequest } from 'types/tables'
 import apiCall from './apiCall'
-import { createTable, getDatatype, getProjectTables } from './tables'
+import { createTable, createTableCopy, getDatatype, getProjectTables, getTableRaw } from './tables'
 
 vi.mock('./apiCall', () => ({
     default: vi.fn(),
@@ -16,6 +16,11 @@ vi.mock('../i18n', () => ({
                 `The "${options?.table}" table was created successfully.`,
             'project:create_table_modal.create_failed': 'Failed to create the table',
             'project:create_table_modal.created_table_not_found': 'The created table could not be loaded.',
+            'project:copy_table_modal.copied': 'Table copied',
+            'project:copy_table_modal.copied_description':
+                `The "${options?.table}" table was copied successfully.`,
+            'project:copy_table_modal.copy_failed': 'Failed to copy the table',
+            'project:copy_table_modal.copied_table_not_found': 'The copied table could not be loaded.',
         })[key] ?? key,
     },
 }))
@@ -30,6 +35,17 @@ const request: CreateTableRequest = {
         kind: 'Rules',
         name: 'Eligibility',
         source: [[{ value: 'Rules Boolean Eligibility()' }]],
+    },
+}
+
+const copyRequest: CreateTableRequest = {
+    moduleName: 'Main',
+    sheetName: 'Rules',
+    table: {
+        tableType: 'RawSource',
+        kind: 'Rules',
+        name: 'EligibilityCopy',
+        source: [[{ value: 'Rules Boolean EligibilityCopy()' }]],
     },
 }
 
@@ -117,6 +133,69 @@ describe('getProjectTables', () => {
         await expect(getProjectTables('project-id', ['Datatype'])).resolves.toEqual([])
     })
 
+})
+
+describe('createTableCopy', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.spyOn(notification, 'success').mockImplementation(() => {})
+        vi.spyOn(notification, 'error').mockImplementation(() => {})
+    })
+
+    it('reads raw source for an encoded table identifier', async () => {
+        mockApiCall.mockResolvedValueOnce({
+            tableType: 'RawSource',
+            kind: 'Rules',
+            name: 'Eligibility',
+            source: [[{ value: 'Rules Boolean Eligibility()' }]],
+        })
+
+        await expect(getTableRaw('project-id', 'source id')).resolves.toMatchObject({
+            name: 'Eligibility',
+        })
+
+        expect(mockApiCall).toHaveBeenCalledWith(
+            '/projects/project-id/tables/source%20id?raw=true',
+            undefined,
+            { throwError: true, suppressErrorPages: true }
+        )
+    })
+
+    it('posts the browser-built copy to the ordinary table collection', async () => {
+        mockApiCall.mockResolvedValueOnce({
+            id: 'copy-id',
+            tableType: 'SimpleRules',
+            kind: 'Rules',
+            name: 'EligibilityCopy',
+        })
+
+        await expect(createTableCopy('project-id', copyRequest)).resolves.toMatchObject({ id: 'copy-id' })
+
+        expect(mockApiCall).toHaveBeenCalledWith(
+            '/projects/project-id/tables',
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(copyRequest),
+            },
+            { throwError: true, suppressErrorPages: true }
+        )
+        expect(notification.success).toHaveBeenCalledWith({
+            title: 'Table copied',
+            description: 'The "EligibilityCopy" table was copied successfully.',
+        })
+    })
+
+    it('reports a copy failure without closing its caller', async () => {
+        mockApiCall.mockRejectedValueOnce(new Error('Version already exists'))
+
+        await expect(createTableCopy('project-id', copyRequest)).resolves.toBeNull()
+
+        expect(notification.error).toHaveBeenCalledWith({
+            title: 'Failed to copy the table',
+            description: 'Version already exists',
+        })
+    })
 })
 
 describe('getDatatype', () => {

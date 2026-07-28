@@ -9162,6 +9162,14 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "tableType",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -22807,8 +22815,22 @@ Content-Type: application/json
             "type": "array",
             "description": "***",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/PropertyValueView"
             }
+          }
+        }
+      },
+      "PropertyValueView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "***"
+          },
+          "value": {
+            "type": "string",
+            "description": "***"
           }
         }
       },
