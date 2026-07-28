@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.studio.projects.model.trace.DebugStatus;
 import org.openl.studio.projects.model.trace.FrameKind;
@@ -174,6 +175,11 @@ final class DebugHookImpl implements DebugHook {
         long wall = elapsed(stepEnter, parkedAtStepEnter);
         top.recordExecutedStep(executor, ref, location.label(), result,
                 Math.max(0, wall - (nestedStepNanos - nestedAtStepEnter)));
+        // A fired decision-table rule: remember which rule(s) fired, so the returned rule and its result stay
+        // highlightable after this step's current-line marker is restored below.
+        if (executor instanceof ActionInvoker invoker) {
+            top.recordFiredRules(invoker.getRules());
+        }
         if (!watches.isEmpty()) {
             captureWatch(top, location, ref, result);
         }

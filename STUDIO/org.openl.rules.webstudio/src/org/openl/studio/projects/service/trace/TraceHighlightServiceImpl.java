@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.table.GridTableUtils;
@@ -37,9 +36,9 @@ public class TraceHighlightServiceImpl implements TraceHighlightService {
     }
 
     /**
-     * Highlights for a decision-table frame: matched (green) and unmatched (red) condition cells and the
-     * fired rule's result (blue). Precedence is result over matched over unmatched, so a cell in more than
-     * one region keeps the strongest state.
+     * Highlights for a decision-table frame: matched (green) and unmatched (red) condition cells, and the
+     * fired rule — its whole row, result cell included — accented as the returned rule. Precedence is fired
+     * rule over matched over unmatched, so a cell in more than one region keeps the strongest state.
      */
     private static List<CellHighlight> dtHighlights(DebugFrame frame) {
         var byCell = new LinkedHashMap<String, HighlightState>();
@@ -52,13 +51,29 @@ public class TraceHighlightServiceImpl implements TraceHighlightService {
 
     private static void putAll(Map<String, HighlightState> byCell, List<IGridRegion> regions, HighlightState state) {
         for (IGridRegion region : regions) {
-            byCell.put(cellAddress(region), state);
+            for (String address : cellAddresses(region)) {
+                byCell.put(address, state);
+            }
         }
     }
 
     /** The A1 address of a region's top-left cell, matching the raw table's cell addresses. */
     private static String cellAddress(IGridRegion region) {
         return XlsUtil.xlsCellPresentation(region.getLeft(), region.getTop());
+    }
+
+    /**
+     * Every A1 cell address a region spans. A decision-table condition can cover several cells and a rule is a
+     * whole row (or column), so the highlight paints the entire region, not just its corner — for any orientation.
+     */
+    private static List<String> cellAddresses(IGridRegion region) {
+        List<String> addresses = new ArrayList<>();
+        for (int column = region.getLeft(); column <= region.getRight(); column++) {
+            for (int row = region.getTop(); row <= region.getBottom(); row++) {
+                addresses.add(XlsUtil.xlsCellPresentation(column, row));
+            }
+        }
+        return addresses;
     }
 
     private static List<IGridRegion> currentStepRegions(DebugFrame frame) {
@@ -109,10 +124,9 @@ public class TraceHighlightServiceImpl implements TraceHighlightService {
     }
 
     private static List<IGridRegion> firedRuleResultRegions(DebugFrame frame) {
-        if (frame.getCurrentStep() instanceof ActionInvoker invoker
-                && frame.getSource() instanceof IDecisionTable decisionTable) {
+        if (frame.getSource() instanceof IDecisionTable decisionTable) {
             var regions = new ArrayList<IGridRegion>();
-            for (int rule : invoker.getRules()) {
+            for (int rule : frame.getFiredRules()) {
                 regions.addAll(GridTableUtils.getGridRegions(decisionTable.getRuleTable(rule)));
             }
             return regions;
