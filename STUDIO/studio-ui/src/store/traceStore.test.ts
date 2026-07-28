@@ -663,6 +663,18 @@ describe('traceStore simple mode', () => {
         expect(state.simpleFocus).toBeNull() // a call keeps the plain frame view
     })
 
+    it('does nothing when the clicked row is already the one on screen', async () => {
+        primeSimpleReady({ status: 'suspended', simpleSelectedKey: 'uA@1', simpleLastInspected: { pre: 0, end: 0 } })
+
+        await useTraceStore.getState().simpleInspect(
+            { key: 'uA@1', frameUri: 'uA', frameInstance: 1, stepType: 'out', label: 'uA' })
+
+        // Re-clicking the selected row must not re-run: its inputs and result are already shown.
+        expect(cancelTrace).not.toHaveBeenCalled()
+        expect(resume).not.toHaveBeenCalled()
+        expect(step).not.toHaveBeenCalled()
+    })
+
     it('executes the very next step in place — its line is already current, so no breakpoint can reach it', async () => {
         primeSimpleReady({ status: 'suspended', simpleLastInspected: { pre: 0, end: 0 } })
         step.mockResolvedValue(suspended([
@@ -752,16 +764,45 @@ describe('traceStore simple mode', () => {
         expect(useTraceStore.getState().simpleLastInspected).toBeNull() // the next click restarts
     })
 
-    it('clears breakpoints when switching back to the simple view', () => {
+    it('clears breakpoints and restarts the trace when switching back to the simple view', async () => {
         setBreakpoints.mockResolvedValue(undefined)
-        useTraceStore.setState({ advanced: true, breakpoints: ['uA'], breakpointLabels: { uA: 'A' } })
+        cancelTrace.mockResolvedValue(undefined)
+        getStack.mockRejectedValue(new Error('no session'))
+        startTrace.mockResolvedValue(suspended())
+        useTraceStore.setState({ advanced: true, breakpoints: ['uA'], breakpointLabels: { uA: 'A' },
+            simpleReady: true, simpleTree: sampleRoot() })
 
-        useTraceStore.getState().setAdvanced(false)
+        await useTraceStore.getState().setAdvanced(false)
 
         const state = useTraceStore.getState()
         expect(state.advanced).toBe(false)
-        expect(state.breakpoints).toEqual([])
+        expect(state.breakpoints).toEqual([]) // the business view debugs with none
         expect(setBreakpoints).toHaveBeenCalledWith('p1', [])
+        expect(cancelTrace).toHaveBeenCalledWith('p1') // the trace restarts from the top, like a profiling toggle
+        expect(startTrace).toHaveBeenCalled()
+        expect(state.simpleReady).toBe(false) // the business snapshot resets to its Run prompt
+        expect(state.simpleTree).toBeNull()
+    })
+
+    it('restarts the trace from the top when switching into the advanced view', async () => {
+        cancelTrace.mockResolvedValue(undefined)
+        getStack.mockRejectedValue(new Error('no session'))
+        startTrace.mockResolvedValue(suspended())
+        useTraceStore.setState({ advanced: false })
+
+        await useTraceStore.getState().setAdvanced(true)
+
+        expect(useTraceStore.getState().advanced).toBe(true)
+        expect(cancelTrace).toHaveBeenCalledWith('p1')
+        expect(startTrace).toHaveBeenCalled()
+    })
+
+    it('ignores a mode switch that does not change the value', async () => {
+        useTraceStore.setState({ advanced: false })
+
+        await useTraceStore.getState().setAdvanced(false)
+
+        expect(cancelTrace).not.toHaveBeenCalled()
     })
 
     it('keeps the snapshot tree untouched while an inspection re-runs the trace', async () => {

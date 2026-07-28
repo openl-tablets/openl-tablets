@@ -193,8 +193,11 @@ interface DebugState {
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
     /** Fetch the next page of a tree step's executed sub-calls (lazy executed-tree loading). */
     fetchTreeChildren: (uri: string, instance: number, step: string) => Promise<void>
-    /** Switch between the simple business view and the advanced debugger; entering simple clears breakpoints. */
-    setAdvanced: (value: boolean) => void
+    /**
+     * Switch between the simple business view and the advanced debugger. Entering simple clears breakpoints,
+     * and either direction restarts the trace from the top so neither view inherits the other's position.
+     */
+    setAdvanced: (value: boolean) => Promise<void>
     /** Toggle the decision-table condition breakdown shown in both trees (business and advanced). */
     setShowDetailed: (value: boolean) => void
     /** Simple mode Run: execute the whole trace recording its tree, then download the tree for offline browsing. */
@@ -282,6 +285,20 @@ const initialState = {
     error: null,
 }
 
+/** The business-mode snapshot fields at rest, so a fresh run or a view switch returns the view to its Run prompt. */
+const SIMPLE_SNAPSHOT_RESET = {
+    simpleTree: null,
+    simpleChildren: {},
+    simpleOrder: {},
+    simpleReady: false,
+    simpleLoading: false,
+    simpleLoadedCount: 0,
+    simpleTotalCount: null,
+    simpleSelectedKey: null,
+    simpleLastInspected: null,
+    simpleFocus: null,
+}
+
 // A settled run whose frames can still be inspected: paused at a step, or finished (completed/failed) with
 // the root frame still published — so the final result is readable after a run to completion, not only at a stop.
 const isInspectable = (status: DebugStatus | null): boolean =>
@@ -297,6 +314,10 @@ const SIMPLE_FETCH_PAGE = 500
 const SIMPLE_FETCH_CONCURRENCY = 4
 
 export const useTraceStore = create<DebugState>((set, get) => {
+    // True only while a quiet inspect restart cancels the old session and starts a fresh one, so the old
+    // session's 'terminated' socket echo can be ignored instead of blanking the panel mid-restart.
+    let restarting = false
+
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
     const applyStack = (stack: DebugStackView): void => {
         const topIndex = stack.frames.length > 0 ? stack.frames.length - 1 : null
@@ -429,6 +450,28 @@ export const useTraceStore = create<DebugState>((set, get) => {
             } catch {
                 // best-effort: the user can re-add them
             }
+        }
+    }
+
+    /**
+     * Restart the session for a business-mode inspect WITHOUT blanking the panel. The backend session is
+     * cancelled and a fresh one started, but the last frame and its table stay on screen until the new stack
+     * settles — so navigating within one table just moves the highlight instead of tearing the table down and
+     * rebuilding it. Unlike {@link restart} it never routes through {@code terminate}, which clears the stack.
+     */
+    const restartQuietly = async (): Promise<void> => {
+        const { projectId } = get()
+        if (!projectId) return
+        restarting = true
+        try {
+            try {
+                await traceService.cancelTrace(projectId)
+            } catch {
+                // The fresh session started next supersedes it.
+            }
+            await get().start()
+        } finally {
+            restarting = false
         }
     }
 
@@ -682,6 +725,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 if (get().loading) return
                 set({ status: 'running' })
             } else if (isTraceExecutionTerminal(status)) {
+                // A quiet inspect restart cancels the previous session; ignore its 'terminated' echo so the
+                // panel keeps the last table on screen between the cancel and the fresh stack.
+                if (restarting) return
                 // Show an immediate summary from the socket (if any); the full error is fetched below.
                 set({
                     status,
@@ -740,18 +786,26 @@ export const useTraceStore = create<DebugState>((set, get) => {
             return result
         },
 
-        setAdvanced: (value) => {
+        setAdvanced: async (value) => {
             if (get().advanced === value) return
             set({ advanced: value })
-            if (!value) {
+            const { projectId, breakpoints } = get()
+            if (!value && breakpoints.length > 0) {
                 // The business view debugs with no breakpoints — drop any set while in the advanced mode.
-                const { projectId, breakpoints } = get()
                 set({ breakpoints: [], breakpointLabels: {}, transientBreakpoint: null })
-                if (projectId && breakpoints.length > 0) {
-                    traceService.setBreakpoints(projectId, []).catch(() => {
-                        // Best effort: the next simple run starts a fresh session with none anyway.
-                    })
+                if (projectId) {
+                    try {
+                        await traceService.setBreakpoints(projectId, [])
+                    } catch {
+                        // Best effort: the restart below starts a fresh session with none anyway.
+                    }
                 }
+            }
+            // Switching views restarts the trace from the top (like toggling profiling), so neither view
+            // inherits the other's mid-run position; the business snapshot resets to its Run prompt.
+            set({ ...SIMPLE_SNAPSHOT_RESET })
+            if (projectId) {
+                await restart()
             }
         },
 
@@ -760,18 +814,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         simpleRun: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId || get().simpleLoading) return
-            beginRun({
-                simpleLoading: true,
-                simpleReady: false,
-                simpleTree: null,
-                simpleChildren: {},
-                simpleOrder: {},
-                simpleLoadedCount: 0,
-                simpleTotalCount: null,
-                simpleSelectedKey: null,
-                simpleLastInspected: null,
-                simpleFocus: null,
-            })
+            beginRun({ ...SIMPLE_SNAPSHOT_RESET, simpleLoading: true })
             const token = get().runId
             try {
                 // The simple run debugs with no breakpoints, so it always reaches the end in one go.
@@ -819,17 +862,19 @@ export const useTraceStore = create<DebugState>((set, get) => {
         simpleInspect: async ({ key, frameUri, frameInstance, stepType, label, focus, selectionKey }) => {
             const { projectId, simpleReady, simpleLoading, loading, status } = get()
             if (!projectId || !simpleReady || simpleLoading || loading || status === 'running') return
+            // Clicking the row already on screen is a no-op — its inputs and result are shown, nothing to re-run.
+            const clickedKey = selectionKey ?? key
+            if (get().simpleSelectedKey === clickedKey) return
             const order = get().simpleOrder[key] ?? null
             const last = get().simpleLastInspected
             // The highlight follows the clicked row (selectionKey); the run follows the target (key).
-            set({ simpleSelectedKey: selectionKey ?? key, simpleLastInspected: order, simpleFocus: focus ?? null })
+            set({ simpleSelectedKey: clickedKey, simpleLastInspected: order, simpleFocus: focus ?? null })
             // Execution can only move forward: a row is still reachable by resuming when it starts after
             // everything the previous inspection already ran — its own subtree included. Anything else
             // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.
             const canResume = status === 'suspended' && last !== null && order !== null && order.pre > last.end
             if (!canResume) {
-                await get().terminate()
-                await get().start()
+                await restartQuietly()
                 if (get().status !== 'suspended') return
             }
             // Execute in place only when paused exactly at the target: a call at its fresh entry (the
