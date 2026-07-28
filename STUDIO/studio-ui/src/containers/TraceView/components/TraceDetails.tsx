@@ -173,8 +173,11 @@ const TraceDetails: React.FC = () => {
     const stepValue = stepView ? variables?.steps.find(s => s.ref === stepView.ref)?.value : undefined
     const title = stepView ? stepView.label : frame?.name
     const tableIndex = stepView ? ownerIndex : selectedFrameIndex
+    // The cell address comes from the owner's step outline; a static cell is absent there, so fall
+    // back to the frozen steps, which list every cell of the table.
     const highlightCell = stepView
         ? frames[ownerIndex]?.steps?.find(s => s.ref === stepView.ref)?.cell
+            ?? variables?.steps.find(s => s.ref === stepView.ref)?.cell
         : undefined
     const shownParameters = stepView ? stepInputs ?? undefined : allParameters
     const shownResult = stepView

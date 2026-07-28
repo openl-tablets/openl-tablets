@@ -25063,6 +25063,10 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
+          "constant": {
+            "type": "boolean",
+            "description": "***"
+          },
           "durationMillis": {
             "type": "number",
             "format": "double",

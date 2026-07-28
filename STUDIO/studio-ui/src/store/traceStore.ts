@@ -72,6 +72,12 @@ export interface SimpleInspectTarget {
     label?: string
     /** Set when the clicked row is a step, so Details shows the step rather than the paused frame. */
     focus?: SimpleStepFocus
+    /**
+     * Unique identity of the clicked tree row, for the selection highlight. Distinct from {@link key}:
+     * several rows can share one run key — every static cell of a table runs the same table through — so
+     * the highlight must key off the row itself, not the run target, or all of them would light up.
+     */
+    selectionKey?: string
 }
 
 interface DebugState {
@@ -802,12 +808,13 @@ export const useTraceStore = create<DebugState>((set, get) => {
             }
         },
 
-        simpleInspect: async ({ key, frameUri, frameInstance, stepType, label, focus }) => {
+        simpleInspect: async ({ key, frameUri, frameInstance, stepType, label, focus, selectionKey }) => {
             const { projectId, simpleReady, simpleLoading, loading, status } = get()
             if (!projectId || !simpleReady || simpleLoading || loading || status === 'running') return
             const order = get().simpleOrder[key] ?? null
             const last = get().simpleLastInspected
-            set({ simpleSelectedKey: key, simpleLastInspected: order, simpleFocus: focus ?? null })
+            // The highlight follows the clicked row (selectionKey); the run follows the target (key).
+            set({ simpleSelectedKey: selectionKey ?? key, simpleLastInspected: order, simpleFocus: focus ?? null })
             // Execution can only move forward: a row is still reachable by resuming when it starts after
             // everything the previous inspection already ran — its own subtree included. Anything else
             // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.

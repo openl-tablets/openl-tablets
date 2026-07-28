@@ -32,6 +32,7 @@ interface SimpleRow {
 
 const nodeTarget = (node: CallNodeView): SimpleInspectTarget => ({
     key: `${node.uri}@${node.instance}`,
+    selectionKey: `${node.uri}@${node.instance}`,
     frameUri: node.uri,
     frameInstance: node.instance,
     stepType: 'out',
@@ -50,8 +51,25 @@ const stepTarget = (owner: CallNodeView, step: StepValueView): SimpleInspectTarg
         ownerUri: owner.uri,
         ownerInstance: owner.instance,
     }
+    // The step's own key identifies its row for the selection highlight — unique even for a static cell,
+    // whose run key below is the shared owning table.
+    const selectionKey = `${owner.uri}#${step.ref}@${owner.instance}`
+    if (step.constant) {
+        // Static content never executes, so there is no line to run to — run the owning table through
+        // instead: its frozen steps then carry this cell's value for the Details panel.
+        return {
+            key: `${owner.uri}@${owner.instance}`,
+            selectionKey,
+            frameUri: owner.uri,
+            frameInstance: owner.instance,
+            stepType: 'out',
+            label: focus.label,
+            focus,
+        }
+    }
     return {
-        key: `${owner.uri}#${step.ref}@${owner.instance}`,
+        key: selectionKey,
+        selectionKey,
         frameUri: owner.uri,
         frameInstance: owner.instance,
         stepType: 'over',
@@ -197,7 +215,7 @@ const SimpleTraceTree: React.FC = () => {
                     style={indent(row.depth)}
                     tabIndex={0}
                     className={cx(styles.row, styles.frame, styles.runnable,
-                        selectedKey === target.key && styles.selected)}
+                        selectedKey === (target.selectionKey ?? target.key) && styles.selected)}
                 >
                     {twisty(row.expandKey)}
                     {kindIcon(node.kind)}
@@ -229,7 +247,7 @@ const SimpleTraceTree: React.FC = () => {
                     style={indent(row.depth)}
                     tabIndex={0}
                     className={cx(styles.row, styles.runnable,
-                        selectedKey === target.key && styles.selected,
+                        selectedKey === (target.selectionKey ?? target.key) && styles.selected,
                         flashKey === row.key && styles.flashed)}
                 >
                     {twisty(row.expandKey)}

@@ -36,6 +36,7 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
+import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.calc.element.SpreadsheetRangeField;
 import org.openl.rules.cloner.Cloner;
 import org.openl.rules.constants.ConstantOpenField;
@@ -368,7 +369,7 @@ public class TraceDebugMapper {
         }
         String currentRef = currentRef(frame);
         var steps = new ArrayList<StepValueView>();
-        forEachCell(spreadsheet, cell -> {
+        forEachDisplayCell(spreadsheet, cell -> {
             String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
             var builder = StepValueView.builder()
                     .ref(ref)
@@ -377,8 +378,13 @@ public class TraceDebugMapper {
             if (executed.containsKey(ref)) {
                 var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones, !frame.isCompleted()), cell.getType());
                 steps.add(builder.status(StepStatus.EXECUTED).value(buildParameterValue(param, true, includeSchema)).build());
-            } else {
+            } else if (cell.isMethodCell()) {
                 steps.add(builder.status(stepStatus(ref, Set.of(), currentRef)).build());
+            } else {
+                // A plain value or constant cell never runs — its static content is its value, so the
+                // grid shows the whole table (descriptions included), like the legacy trace did.
+                var param = new ParameterWithValueDeclaration(ref, cell.getValue(), cell.getType());
+                steps.add(builder.status(StepStatus.EXECUTED).value(buildParameterValue(param, true, includeSchema)).build());
             }
         });
         return steps;
@@ -521,8 +527,12 @@ public class TraceDebugMapper {
                 .ref(step.ref())
                 .label(step.label())
                 .status(StepStatus.EXECUTED)
-                .durationMillis(toMillis(step.durationNanos()))
-                .selfMillis(selfMillis(step.durationNanos(), sumDurations(step.children().stream())));
+                // Static content has no execution of its own: no timings, and the flag lets a client
+                // read the cell instead of trying to run to it.
+                .constant(step.constant() ? Boolean.TRUE : null)
+                .durationMillis(step.constant() ? null : toMillis(step.durationNanos()))
+                .selfMillis(step.constant() ? null
+                        : selfMillis(step.durationNanos(), sumDurations(step.children().stream())));
         if (shallow) {
             // Children are fetched on demand; report only the count, so the client shows the step as
             // expandable and knows how many executions to page through.
@@ -844,6 +854,25 @@ public class TraceDebugMapper {
         for (SpreadsheetCell[] row : spreadsheet.getCells()) {
             for (SpreadsheetCell cell : row) {
                 if (isStepCell(cell)) {
+                    action.accept(cell);
+                }
+            }
+        }
+    }
+
+    /**
+     * Apply an action to every displayable cell, in grid order: the executable steps plus the plain
+     * value and constant cells, so a rendered grid shows the whole table, not only what can run.
+     */
+    private static void forEachDisplayCell(Spreadsheet spreadsheet, Consumer<SpreadsheetCell> action) {
+        for (SpreadsheetCell[] row : spreadsheet.getCells()) {
+            for (SpreadsheetCell cell : row) {
+                if (cell == null) {
+                    continue;
+                }
+                SpreadsheetCellType type = cell.getSpreadsheetCellType();
+                if (type == SpreadsheetCellType.METHOD || type == SpreadsheetCellType.VALUE
+                        || type == SpreadsheetCellType.CONSTANT) {
                     action.accept(cell);
                 }
             }
