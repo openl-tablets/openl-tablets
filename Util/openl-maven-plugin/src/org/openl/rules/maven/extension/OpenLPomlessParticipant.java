@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.versioning.ComparableVersion;
@@ -32,8 +33,6 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.maven.OpenLPackagings;
 import org.openl.rules.maven.PrepareDeploymentBomMojo;
@@ -61,6 +60,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
  *
  * @author Yury Molchan
  */
+@Slf4j
 public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
 
     private static final String POM_XML = "pom.xml";
@@ -73,8 +73,6 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
      * {@code DuplicateProjectException} on the second add.
      */
     private static final String SESSION_DONE_KEY = OpenLPomlessParticipant.class.getName() + ".done";
-
-    private static final Logger LOG = LoggerFactory.getLogger(OpenLPomlessParticipant.class);
 
     /** Injected by Plexus via {@code components.xml}. */
     private ProjectBuilder projectBuilder;
@@ -139,7 +137,7 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
                     throw new MavenExecutionException(
                             "Failed to build pom-less OpenL project at '" + s.folder() + "'.", e);
                 }
-                LOG.info("Discovered pom-less OpenL project '{}:{}' at '{}'.",
+                log.info("Discovered pom-less OpenL project '{}:{}' at '{}'.",
                         s.coordinates().groupId(), s.coordinates().artifactId(), s.folder());
                 if (existing.add(gav(built.getGroupId(), built.getArtifactId(), built.getVersion()))) {
                     added.add(built);
@@ -225,7 +223,7 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
         for (var folder : folders) {
             var descriptor = ProjectDescriptor.read(folder);
             if (descriptor == null) {
-                LOG.warn("Skipping pom-less OpenL project '{}': unable to read rules.xml.", folder);
+                log.warn("Skipping pom-less OpenL project '{}': unable to read rules.xml.", folder);
                 continue;
             }
             var coords = OpenLCoordinates.of(anchorDir, folder, baseGroupId, flattenGroupId);
