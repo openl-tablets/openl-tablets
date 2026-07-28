@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,16 +15,12 @@ import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.studio.tags.model.TagDTO;
 import org.openl.studio.tags.model.TagTypeDTO;
 
+@RequiredArgsConstructor
 @Service
 public class TagTypeService {
 
     private final TagTypeDao tagTypeDao;
     private final TagDao tagDao;
-
-    public TagTypeService(TagTypeDao tagTypeDao, TagDao tagDao) {
-        this.tagTypeDao = tagTypeDao;
-        this.tagDao = tagDao;
-    }
 
     /**
      * TODO: Should we replace TagType with non-hibernate-dependent class?

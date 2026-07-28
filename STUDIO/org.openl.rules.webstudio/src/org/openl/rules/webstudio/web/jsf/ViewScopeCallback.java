@@ -1,16 +1,15 @@
 package org.openl.rules.webstudio.web.jsf;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class ViewScopeCallback {
     private final String name;
 
     private final Runnable callback;
 
     private boolean called = false;
-
-    ViewScopeCallback(String name, Runnable callback) {
-        this.name = name;
-        this.callback = callback;
-    }
 
     public String getName() {
         return name;

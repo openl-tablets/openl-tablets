@@ -4,19 +4,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.util.IOUtils;
 
 /**
  * The purpose of this class, is to drain S3 input stream before closing it. It's required, because not all bytes are
  * read by {@link java.util.zip.ZipInputStream} which leads abnormal connection aborting and logs spamming
  */
+@RequiredArgsConstructor
 class DrainableInputStream extends InputStream {
 
     private final InputStream delegate;
-
-    public DrainableInputStream(InputStream delegate) {
-        this.delegate = delegate;
-    }
 
     @Override
     public int read() throws IOException {

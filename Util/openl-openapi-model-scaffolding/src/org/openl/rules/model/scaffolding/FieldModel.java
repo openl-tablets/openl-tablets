@@ -2,16 +2,14 @@ package org.openl.rules.model.scaffolding;
 
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class FieldModel {
 
     private final String name;
     private final String type;
     private Object defaultValue;
-
-    public FieldModel(String name, String type) {
-        this.name = name;
-        this.type = type;
-    }
 
     public FieldModel(String name, String type, Object defaultValue) {
         this.name = name;

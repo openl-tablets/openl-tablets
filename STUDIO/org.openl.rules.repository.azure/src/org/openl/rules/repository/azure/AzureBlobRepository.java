@@ -31,6 +31,8 @@ import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 
@@ -799,14 +801,10 @@ public class AzureBlobRepository implements Repository {
         this.blobContainerClient = client;
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class CacheKey {
         final String name;
         final String version;
-
-        private CacheKey(String name, String version) {
-            this.name = name;
-            this.version = version;
-        }
 
         @Override
         public boolean equals(Object o) {

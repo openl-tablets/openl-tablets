@@ -1,18 +1,15 @@
 package org.openl.rules.webstudio.mail.config;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 public class MailSenderProperties {
 
     private final String url;
     private final String user;
     private final String password;
-
-    public MailSenderProperties(String url, String user, String password) {
-        this.url = url;
-        this.user = user;
-        this.password = password;
-    }
 
     public String getUrl() {
         return url;

@@ -1,13 +1,12 @@
 package org.openl.rules.lang.xls.load;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.source.IOpenSourceCodeModule;
 
+@RequiredArgsConstructor
 public class LazyWorkbookLoaderFactory implements WorkbookLoaderFactory {
     private final boolean canUnload;
-
-    public LazyWorkbookLoaderFactory(boolean canUnload) {
-        this.canUnload = canUnload;
-    }
 
     @Override
     public WorkbookLoader createWorkbookLoader(IOpenSourceCodeModule fileSource) {

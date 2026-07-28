@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -451,24 +452,13 @@ public final class OpenLFuzzyUtils {
                 .collect(Collectors.toList());
     }
 
+    @RequiredArgsConstructor
     public static final class FuzzyResult implements Comparable<FuzzyResult> {
         final Token token;
         final int foundTokensCount;
         final int missedTokensCount;
         final int unmatchedTokensCount;
         final double acceptableSimilarity;
-
-        public FuzzyResult(Token token,
-                           int foundTokensCount,
-                           int missedTokensCount,
-                           int unmatchedTokensCount,
-                           double acceptableSimilarity) {
-            this.token = token;
-            this.foundTokensCount = foundTokensCount;
-            this.missedTokensCount = missedTokensCount;
-            this.unmatchedTokensCount = unmatchedTokensCount;
-            this.acceptableSimilarity = acceptableSimilarity;
-        }
 
         @Override
         public int compareTo(FuzzyResult o) {

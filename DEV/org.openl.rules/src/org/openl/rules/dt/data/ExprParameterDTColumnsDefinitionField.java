@@ -1,5 +1,7 @@
 package org.openl.rules.dt.data;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.dt.DTColumnsDefinitionField;
 import org.openl.rules.dt.Expr;
 import org.openl.types.IMemberMetaInfo;
@@ -7,12 +9,9 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class ExprParameterDTColumnsDefinitionField implements IOpenField {
     private final DTColumnsDefinitionField dtColumnsDefinitionField;
-
-    public ExprParameterDTColumnsDefinitionField(DTColumnsDefinitionField dtColumnsDefinitionField) {
-        this.dtColumnsDefinitionField = dtColumnsDefinitionField;
-    }
 
     @Override
     public String getDisplayName(int mode) {

@@ -1,6 +1,7 @@
 package org.openl.rules.spring.openapi.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -15,14 +16,11 @@ import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReaderImpl;
  */
 @Controller
 @Hidden
+@RequiredArgsConstructor
 public class OpenApiController {
 
     private final OpenApiSpringMvcReaderImpl openApiSpringMvcReader;
     private volatile String openApi;
-
-    public OpenApiController(OpenApiSpringMvcReaderImpl openApiSpringMvcReader) {
-        this.openApiSpringMvcReader = openApiSpringMvcReader;
-    }
 
     /**
      * Gets generated OpenAPI schema as JSON string

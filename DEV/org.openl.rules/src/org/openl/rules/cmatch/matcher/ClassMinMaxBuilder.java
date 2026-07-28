@@ -1,15 +1,14 @@
 package org.openl.rules.cmatch.matcher;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 
+@RequiredArgsConstructor
 public class ClassMinMaxBuilder implements IMatcherBuilder {
 
     private final boolean isMaxMode;
-
-    public ClassMinMaxBuilder(boolean isMaxMode) {
-        this.isMaxMode = isMaxMode;
-    }
 
     @Override
     public IMatcher getInstanceIfSupports(IOpenClass type) {

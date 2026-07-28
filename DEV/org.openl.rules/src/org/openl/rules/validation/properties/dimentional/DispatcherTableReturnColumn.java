@@ -1,5 +1,8 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 
@@ -9,6 +12,7 @@ import org.openl.types.IOpenClass;
  *
  * @author DLiauchuk
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class DispatcherTableReturnColumn {
 
     private static final String RESULT_VAR = "result";
@@ -24,12 +28,6 @@ public class DispatcherTableReturnColumn {
      * Signature of the member of overloaded tables group.
      */
     private final IMethodSignature originalSignature;
-
-    DispatcherTableReturnColumn(IOpenClass originalReturnType, String methodName, IMethodSignature originalSignature) {
-        this.originalReturnType = originalReturnType;
-        this.methodName = methodName;
-        this.originalSignature = originalSignature;
-    }
 
     public String getParameterDeclaration() {
         return "%s %s".formatted(getReturnType().getDisplayName(0), getCodeExpression());

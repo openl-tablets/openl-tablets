@@ -1,18 +1,16 @@
 package org.openl.binding.impl;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 
+@RequiredArgsConstructor
 public class MethodBasedIndex implements IOpenIndex {
 
     private final IMethodCaller reader;
     private final IMethodCaller writer;
-
-    public MethodBasedIndex(IMethodCaller reader, IMethodCaller writer) {
-        this.reader = reader;
-        this.writer = writer;
-    }
 
     /*
      * (non-Javadoc)

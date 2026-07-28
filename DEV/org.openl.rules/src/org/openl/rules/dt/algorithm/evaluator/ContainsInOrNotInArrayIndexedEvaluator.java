@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
@@ -28,13 +30,10 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluator {
 
     private final BooleanTypeAdaptor adaptor;
-
-    public ContainsInOrNotInArrayIndexedEvaluator(BooleanTypeAdaptor adaptor) {
-        this.adaptor = adaptor;
-    }
 
     // TODO fix
     @Override

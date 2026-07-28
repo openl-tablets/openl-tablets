@@ -6,6 +6,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author Andrei Astrouski
  */
+@RequiredArgsConstructor
 @Slf4j
 public class NumberFormatter implements IFormatter {
 
@@ -25,10 +27,6 @@ public class NumberFormatter implements IFormatter {
 
     public NumberFormatter(Locale locale) {
         this(NumberFormat.getInstance(locale == null ? Locale.getDefault() : locale));
-    }
-
-    public NumberFormatter(NumberFormat format) {
-        this.format = format;
     }
 
     public NumberFormatter(String format) {

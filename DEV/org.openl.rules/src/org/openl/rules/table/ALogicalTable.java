@@ -1,17 +1,16 @@
 package org.openl.rules.table;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Default implementation for logical tables.
  *
  * @author Andrei Astrouski
  */
+@RequiredArgsConstructor
 public abstract class ALogicalTable implements ILogicalTable {
 
     private final IGridTable table;
-
-    public ALogicalTable(IGridTable table) {
-        this.table = table;
-    }
 
     @Override
     public IGridTable getSource() {

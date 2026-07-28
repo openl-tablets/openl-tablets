@@ -1,7 +1,11 @@
 package org.openl.excel.parser.event;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.excel.parser.SheetDescriptor;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class EventSheetDescriptor implements SheetDescriptor {
     private final String name;
     private final int index;
@@ -9,12 +13,6 @@ public class EventSheetDescriptor implements SheetDescriptor {
 
     private int firstRowNum;
     private int firstColNum;
-
-    EventSheetDescriptor(String name, int index, int offset) {
-        this.name = name;
-        this.index = index;
-        this.offset = offset;
-    }
 
     @Override
     public String getName() {

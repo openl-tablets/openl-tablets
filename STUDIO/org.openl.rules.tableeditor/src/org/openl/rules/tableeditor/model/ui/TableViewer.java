@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.impl.NodeType;
@@ -23,6 +24,7 @@ import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 @Slf4j
 public class TableViewer {
 
@@ -68,22 +70,6 @@ public class TableViewer {
         cm.setRgbBackground(rgb);
 
         cm.setFont(cell.getFont());
-    }
-
-    public TableViewer(IGrid grid,
-                       IGridRegion reg,
-                       LinkBuilder linkBuilder,
-                       String mode,
-                       String view,
-                       MetaInfoReader metaInfoReader,
-                       boolean smartNumbers) {
-        this.grid = grid;
-        this.reg = reg;
-        this.linkBuilder = linkBuilder;
-        this.mode = mode;
-        this.view = view;
-        this.metaInfoReader = metaInfoReader;
-        this.smartNumbers = smartNumbers;
     }
 
     CellModel buildCell(ICell cell, CellModel cm, CellMetaInfo metaInfo) {

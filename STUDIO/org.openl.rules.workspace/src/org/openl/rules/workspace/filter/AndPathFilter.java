@@ -2,6 +2,8 @@ package org.openl.rules.workspace.filter;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * A {@link org.openl.rules.workspace.filter.PathFilter} providing conditional AND logic across a list of file filters.
  * This filter returns <code>true</code> if all filters in the list return <code>true</code>. Otherwise, it returns
@@ -10,12 +12,9 @@ import java.util.List;
  * @author Aliaksandr Antonik
  * @author Andrey Naumenko
  */
+@RequiredArgsConstructor
 public class AndPathFilter implements PathFilter {
     private final List<PathFilter> filters;
-
-    public AndPathFilter(List<PathFilter> filters) {
-        this.filters = filters;
-    }
 
     /**
      * The filter method. Checks a filename in form of: <i>root_folder/sub_folder/.../[file_name]</i>. Returns

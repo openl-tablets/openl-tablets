@@ -1,5 +1,9 @@
 package org.openl.rules.enumeration;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum RecalculateEnum {
 
     ALWAYS("Always"),
@@ -7,10 +11,6 @@ public enum RecalculateEnum {
     ANALYZE("Analyze");
 
     private final String displayName;
-
-    RecalculateEnum(String displayName) {
-        this.displayName = displayName;
-    }
 
     @Override
     public String toString() {

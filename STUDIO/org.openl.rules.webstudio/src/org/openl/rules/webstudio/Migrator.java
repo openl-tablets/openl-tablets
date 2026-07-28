@@ -19,6 +19,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
@@ -709,17 +710,11 @@ public class Migrator {
 
     }
 
+    @RequiredArgsConstructor
     private static class OpenLProjectWithTags {
         private final String repositoryId;
         private final String projectPath;
         private final Long id;
         private final Map<String, String> tags;
-
-        public OpenLProjectWithTags(String repositoryId, String projectPath, Long id, Map<String, String> tags) {
-            this.repositoryId = repositoryId;
-            this.projectPath = projectPath;
-            this.id = id;
-            this.tags = tags;
-        }
     }
 }

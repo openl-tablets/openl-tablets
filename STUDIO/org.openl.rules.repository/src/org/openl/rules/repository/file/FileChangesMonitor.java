@@ -5,16 +5,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.repository.common.RevisionGetter;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class FileChangesMonitor implements RevisionGetter {
     private final Path baseDir;
     private ArrayList<FileTimeStamp> timestamps = new ArrayList<>(0);
     private int revision;
-
-    FileChangesMonitor(Path baseDir) {
-        this.baseDir = baseDir;
-    }
 
     @Override
     public Object getRevision() {

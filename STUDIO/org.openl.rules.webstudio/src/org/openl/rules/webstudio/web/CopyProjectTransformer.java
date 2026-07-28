@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
@@ -22,15 +23,11 @@ import org.openl.util.IOUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 @Slf4j
 public class CopyProjectTransformer implements ResourceTransformer {
     private final String newProjectName;
     private final Map<String, String> tags;
-
-    public CopyProjectTransformer(String newProjectName, Map<String, String> tags) {
-        this.newProjectName = newProjectName;
-        this.tags = tags;
-    }
 
     @Override
     public InputStream transform(AProjectResource resource) throws ProjectException {

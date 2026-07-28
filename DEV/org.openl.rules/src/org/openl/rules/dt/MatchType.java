@@ -1,5 +1,9 @@
 package org.openl.rules.dt;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 enum MatchType {
     STRICT(0),
     STRICT_PARAMS_RENAMED(1),
@@ -12,10 +16,6 @@ enum MatchType {
     METHOD_ARGS_AND_PARAMS_RENAMED_CASTED(8);
 
     final int priority;
-
-    MatchType(int priority) {
-        this.priority = priority;
-    }
 
     public int getPriority() {
         return priority;

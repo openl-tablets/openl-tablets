@@ -2,6 +2,8 @@ package org.openl.binding.exception;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
 
@@ -10,13 +12,10 @@ import org.openl.types.IOpenClass;
  *
  * @author Marat Kamalov
  */
+@RequiredArgsConstructor
 public class TypesCombinationNotSupportedException extends OpenlNotCheckedException {
 
     private final List<IOpenClass> type;
-
-    public TypesCombinationNotSupportedException(List<IOpenClass> type) {
-        this.type = type;
-    }
 
     @Override
     public String getMessage() {

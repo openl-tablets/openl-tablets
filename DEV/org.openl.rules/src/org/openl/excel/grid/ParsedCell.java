@@ -2,6 +2,8 @@ package org.openl.excel.grid;
 
 import java.util.Date;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.DateUtil;
 
 import org.openl.excel.parser.TableStyles;
@@ -15,6 +17,7 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class ParsedCell implements ICell {
     private static final Object NOT_DEFINED = new Object();
     private final int row;
@@ -24,12 +27,6 @@ public class ParsedCell implements ICell {
     private IGridRegion region;
 
     private transient TableStyles tableStyles;
-
-    ParsedCell(int row, int column, ParsedGrid grid) {
-        this.row = row;
-        this.column = column;
-        this.grid = grid;
-    }
 
     @Override
     public int getRow() {

@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
 
@@ -17,15 +19,12 @@ import org.openl.source.IOpenSourceCodeModule;
  * @author snshor
  */
 @Deprecated
+@RequiredArgsConstructor
 public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
 
     private final IGridTable table;
 
     private Map<String, Object> params;
-
-    public GridTableSourceCodeModule(IGridTable table) {
-        this.table = table;
-    }
 
     @Override
     public InputStream getByteStream() {

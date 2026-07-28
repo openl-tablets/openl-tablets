@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
@@ -16,13 +18,10 @@ import org.openl.studio.projects.service.tables.OpenLTableUtils;
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor
 public abstract class TableReader<T extends TableView, R extends TableView.Builder<?>> {
 
     private final Supplier<R> builderCreator;
-
-    public TableReader(Supplier<R> builderCreator) {
-        this.builderCreator = builderCreator;
-    }
 
     @SuppressWarnings("unchecked")
     public T read(IOpenLTable openLTable) {

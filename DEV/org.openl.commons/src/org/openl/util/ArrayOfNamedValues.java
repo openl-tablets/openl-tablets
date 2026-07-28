@@ -6,18 +6,16 @@ package org.openl.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class ArrayOfNamedValues {
 
     private final String[] names;
     private final Object[] values;
-
-    public ArrayOfNamedValues(String[] names, Object[] values) {
-        this.names = names;
-        this.values = values;
-    }
 
     public String getName(int i) {
         return names[i];

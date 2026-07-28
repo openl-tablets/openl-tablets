@@ -3,20 +3,19 @@ package org.openl.rules.table.formatters;
 import java.math.BigDecimal;
 import java.util.Locale;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.formatters.NumberFormatter;
 
+@RequiredArgsConstructor
 public class SmartNumberFormatter implements IFormatter {
 
     private final Locale locale;
 
     public SmartNumberFormatter() {
         locale = Locale.US;
-    }
-
-    public SmartNumberFormatter(Locale locale) {
-        this.locale = locale;
     }
 
     @Override

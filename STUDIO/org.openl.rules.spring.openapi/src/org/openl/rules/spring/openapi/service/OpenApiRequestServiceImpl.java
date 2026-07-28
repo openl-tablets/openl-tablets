@@ -28,6 +28,7 @@ import io.swagger.v3.oas.models.media.Encoding;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Component;
@@ -48,16 +49,11 @@ import org.openl.util.StringUtils;
  * @author Vladyslav Pikus
  */
 @Component
+@RequiredArgsConstructor
 public class OpenApiRequestServiceImpl implements OpenApiRequestService {
 
     private final OpenApiParameterService apiParameterService;
     private final OpenApiPropertyResolver propertyResolver;
-
-    public OpenApiRequestServiceImpl(OpenApiParameterService apiParameterService,
-                                     OpenApiPropertyResolver propertyResolver) {
-        this.apiParameterService = apiParameterService;
-        this.propertyResolver = propertyResolver;
-    }
 
     @Override
     public RequestBody generateRequestBody(OpenApiContext apiContext,

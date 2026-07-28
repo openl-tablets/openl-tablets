@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -286,18 +287,11 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         return new ComponentBindingContext(bindingContext, decisionTableDataType);
     }
 
+    @RequiredArgsConstructor
     private static class PreBindDetails {
         private final GridCellSourceCodeModule expressionCellSourceCodeModule;
         private final ICell expressionCell;
         private final IOpenMethodHeader header;
-
-        public PreBindDetails(GridCellSourceCodeModule expressionCellSourceCodeModule,
-                              ICell expressionCell,
-                              IOpenMethodHeader header) {
-            this.expressionCellSourceCodeModule = expressionCellSourceCodeModule;
-            this.expressionCell = expressionCell;
-            this.header = header;
-        }
     }
 
     public OpenL getOpenl() {

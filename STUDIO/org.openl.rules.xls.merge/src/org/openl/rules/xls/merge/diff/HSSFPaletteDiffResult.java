@@ -3,12 +3,15 @@ package org.openl.rules.xls.merge.diff;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Difference result of the same workbook by HSSF Palette between three revisions. {@code base revision} to
  * {@code our revision}, {@code base revision} to {@code their revision}
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor
 public class HSSFPaletteDiffResult {
 
     /**
@@ -19,11 +22,6 @@ public class HSSFPaletteDiffResult {
      * Colors matching results between {@code base revision} and {@code their revision}
      */
     private final Map<Short, XlsMatch> theirToBase;
-
-    public HSSFPaletteDiffResult(Map<DiffStatus, Set<Short>> diffResults, Map<Short, XlsMatch> theirToBase) {
-        this.diffResults = diffResults;
-        this.theirToBase = theirToBase;
-    }
 
     public boolean hasConflicts() {
         return hasResults(DiffStatus.CONFLICT);

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -20,16 +23,11 @@ import org.openl.util.IOUtils;
 /**
  * Treat zip files as separate repositories
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class ZipFolderRepository implements Repository {
     private final Repository delegate;
     private final String zipPath;
     private final String version;
-
-    ZipFolderRepository(Repository delegate, String zipPath, String version) {
-        this.delegate = delegate;
-        this.zipPath = zipPath;
-        this.version = version;
-    }
 
     @Override
     public String getId() {

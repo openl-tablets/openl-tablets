@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Regions pool that gives region containing some cell quickly.
  *
@@ -14,14 +16,10 @@ public class RegionsPool {
     /**
      * Two intervals that intersects are equal.
      */
+    @RequiredArgsConstructor
     private static class DisjointInterval implements Comparable<DisjointInterval> {
         private final int left;
         private final int right;
-
-        public DisjointInterval(int left, int right) {
-            this.left = left;
-            this.right = right;
-        }
 
         @Override
         public int compareTo(DisjointInterval o) {

@@ -3,6 +3,9 @@ package org.openl.ie.constrainer.impl;
 import java.util.Collection;
 import java.util.HashSet;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
@@ -319,12 +322,9 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
     @Override
     public void trace(int event_type) {
+        @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
         class ObserverTrace extends Observer {
             private final int _event_type;
-
-            ObserverTrace(int event_type) {
-                _event_type = event_type;
-            }
 
             @Override
             public Object master() {

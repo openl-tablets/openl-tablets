@@ -1,15 +1,14 @@
 package org.openl.rules.dt.type.domains;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.domain.IntRangeDomain;
 import org.openl.ie.constrainer.IntVar;
 
+@RequiredArgsConstructor
 public class IntRangeDomainAdaptor implements IDomainAdaptor {
 
     private final IntRangeDomain irange;
-
-    public IntRangeDomainAdaptor(IntRangeDomain irange) {
-        this.irange = irange;
-    }
 
     @Override
     public int getIndex(Object value) {

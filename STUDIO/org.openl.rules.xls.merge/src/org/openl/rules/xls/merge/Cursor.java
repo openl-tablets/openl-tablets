@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Comment;
@@ -19,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFShape;
 /**
  * Internal cursor, that points to current iteration state
  */
+@RequiredArgsConstructor
 class Cursor {
 
     /**
@@ -56,12 +58,6 @@ class Cursor {
         this.workbook = workbook;
         this.sheet = sheet;
         formulas = null;
-    }
-
-    public Cursor(Workbook workbook, Sheet sheet, Collection<Cell> formulas) {
-        this.workbook = workbook;
-        this.sheet = sheet;
-        this.formulas = formulas;
     }
 
     /**

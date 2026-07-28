@@ -1,14 +1,12 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class PropertyRow {
 
     private final PropertyRowType type;
     private final Object data;
-
-    public PropertyRow(PropertyRowType type, Object data) {
-        this.type = type;
-        this.data = data;
-    }
 
     public PropertyRowType getType() {
         return type;

@@ -4,9 +4,12 @@
  */
 package org.openl.rules.table.ui.filters;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class TransparentColorFilter implements IColorFilter {
 
     private final short[] filter;
@@ -18,11 +21,6 @@ public class TransparentColorFilter implements IColorFilter {
         filter[0] = (short) (color >> 16 & 0xff);
         filter[1] = (short) (color >> 8 & 0xff);
         filter[2] = (short) (color & 0xff);
-    }
-
-    public TransparentColorFilter(short[] filter, double transparency) {
-        this.filter = filter;
-        this.transparency = transparency;
     }
 
     @Override

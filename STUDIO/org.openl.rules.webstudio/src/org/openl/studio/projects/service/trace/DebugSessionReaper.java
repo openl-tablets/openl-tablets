@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class DebugSessionReaper {
 
     private static final long IDLE_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(10);
@@ -46,12 +49,6 @@ public class DebugSessionReaper {
 
     public DebugSessionReaper() {
         this(IDLE_TIMEOUT_MILLIS, SWEEP_INTERVAL_MILLIS, MAX_ACTIVE_SESSIONS);
-    }
-
-    DebugSessionReaper(long idleTimeoutMillis, long sweepIntervalMillis, int maxActiveSessions) {
-        this.idleTimeoutMillis = idleTimeoutMillis;
-        this.sweepIntervalMillis = sweepIntervalMillis;
-        this.maxActiveSessions = maxActiveSessions;
     }
 
     @PostConstruct

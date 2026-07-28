@@ -6,18 +6,17 @@ package org.openl.rules.table.actions;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.IGridTable;
 
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class UndoableCompositeAction implements IUndoableGridTableAction {
 
     final List<IUndoableGridTableAction> actions;
-
-    public UndoableCompositeAction(List<IUndoableGridTableAction> actions) {
-        this.actions = actions;
-    }
 
     public UndoableCompositeAction(IUndoableGridTableAction... gridActions) {
         this.actions = Arrays.asList(gridActions);

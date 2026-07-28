@@ -2,6 +2,7 @@ package org.openl.rules.rest.acl.resolver;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 
 import org.openl.rules.rest.acl.model.AclRepositoryId;
@@ -11,16 +12,11 @@ import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.studio.common.exception.NotFoundException;
 
 @ParametersAreNonnullByDefault
+@RequiredArgsConstructor
 public class AclRepositoryIdConverter implements Converter<String, AclRepositoryId> {
 
     private final SecureDesignTimeRepository designTimeRepository;
     private final DeploymentManager deploymentManager;
-
-    public AclRepositoryIdConverter(SecureDesignTimeRepository designTimeRepository,
-                                    DeploymentManager deploymentManager) {
-        this.designTimeRepository = designTimeRepository;
-        this.deploymentManager = deploymentManager;
-    }
 
     @Override
     public AclRepositoryId convert(String source) {

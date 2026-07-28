@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.tableeditor;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.env.PropertyResolver;
@@ -333,16 +334,11 @@ public class TableBean {
         return null;
     }
 
+    @RequiredArgsConstructor
     public static class TableDescription {
         private final String uri;
         private final String id;
         private final String name;
-
-        public TableDescription(String uri, String id, String name) {
-            this.uri = uri;
-            this.id = id;
-            this.name = name;
-        }
 
         public String getUri() {
             return uri;

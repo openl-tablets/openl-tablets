@@ -1,19 +1,16 @@
 package org.openl.rules.webstudio.web.repository;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.repository.api.Repository;
 import org.openl.security.acl.repository.SecuredRepositoryFactory;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 
+@RequiredArgsConstructor
 public class SecuredRepositoryFactoryProxy implements RepositoryFactoryProxy {
 
     private final DefaultRepositoryFactoryProxy delegate;
     private final SimpleRepositoryAclService simpleRepositoryAclService;
-
-    public SecuredRepositoryFactoryProxy(DefaultRepositoryFactoryProxy delegate,
-                                         SimpleRepositoryAclService simpleRepositoryAclService) {
-        this.delegate = delegate;
-        this.simpleRepositoryAclService = simpleRepositoryAclService;
-    }
 
     @Override
     public String getRepoListConfig() {

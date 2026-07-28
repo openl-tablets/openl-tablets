@@ -3,6 +3,9 @@ package org.openl.rules.util.dates;
 import java.util.Calendar;
 import java.util.Date;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Abstract class for calculation of difference between two dates in days, weeks, years
  *
@@ -107,6 +110,7 @@ public abstract class DateInterval {
         return new DateIntervalImpl(start, end);
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum Unit {
         YEARS("Y"),
         MONTHS("M"),
@@ -133,10 +137,6 @@ public abstract class DateInterval {
         }
 
         private final String unitName;
-
-        Unit(String unitName) {
-            this.unitName = unitName;
-        }
     }
 
     public enum Scale {

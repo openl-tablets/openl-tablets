@@ -3,6 +3,7 @@ package org.openl.studio.projects.validator;
 import java.util.function.Function;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -16,13 +17,10 @@ import org.openl.rules.repository.api.BranchRepository;
  */
 @Component
 @ParametersAreNonnullByDefault
+@RequiredArgsConstructor
 public class NewBranchValidatorFactory implements Function<BranchRepository, NewBranchValidator> {
 
     private final Environment environment;
-
-    public NewBranchValidatorFactory(Environment environment) {
-        this.environment = environment;
-    }
 
     @Override
     public NewBranchValidator apply(BranchRepository branchRepository) {

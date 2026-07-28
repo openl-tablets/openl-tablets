@@ -2,18 +2,18 @@ package org.openl.rules.lang.xls;
 
 import java.util.Stack;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 class BracketMatcher {
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     enum Brackets {
         ROUND("()"),
         CURLY("{}"),
         SQUARE("[]");
 
         private final String brackets;
-
-        Brackets(String brackets) {
-            this.brackets = brackets;
-        }
 
         boolean isOpen(char c) {
             return c == brackets.charAt(0);

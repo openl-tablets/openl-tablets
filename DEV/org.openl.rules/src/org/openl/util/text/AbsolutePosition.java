@@ -6,15 +6,14 @@
 
 package org.openl.util.text;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class AbsolutePosition implements IPosition {
     private final int pos;
-
-    public AbsolutePosition(int pos) {
-        this.pos = pos;
-    }
 
     /*
      * (non-Javadoc)

@@ -2,7 +2,10 @@ package org.openl.rules.webstudio.web.admin;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum RepositoryType {
     DB("repo-jdbc"),
     JNDI("repo-jndi"),
@@ -27,9 +30,5 @@ public enum RepositoryType {
     @JsonValue
     public String getFactoryId() {
         return factoryId;
-    }
-
-    RepositoryType(String factoryId) {
-        this.factoryId = factoryId;
     }
 }

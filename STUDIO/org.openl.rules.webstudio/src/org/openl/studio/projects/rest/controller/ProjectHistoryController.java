@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpSession;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,14 +22,11 @@ import org.openl.studio.projects.service.history.ProjectHistoryService;
 
 @RestController
 @RequestMapping("/history")
+@RequiredArgsConstructor
 @Tag(name = "History")
 public class ProjectHistoryController {
 
     private final ProjectHistoryService projectHistoryService;
-
-    public ProjectHistoryController(ProjectHistoryService projectHistoryService) {
-        this.projectHistoryService = projectHistoryService;
-    }
 
     @Operation(summary = "history.get-project-history.summary", description = "history.get-project-history.desc")
     @GetMapping(value = "/project", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -6,6 +6,8 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,13 +40,10 @@ public class DisabledAclConfiguration {
                 new DisabledAclServiceHandler(serviceClass.getSimpleName()));
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class DisabledAclServiceHandler implements InvocationHandler {
 
         private final String typeName;
-
-        private DisabledAclServiceHandler(String typeName) {
-            this.typeName = typeName;
-        }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) {

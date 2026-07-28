@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.runtime.IOpenLMethodHandler;
@@ -14,6 +16,7 @@ import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 
+@RequiredArgsConstructor
 public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpenMember> {
 
     private static final Object[] NO_PARAMS = new Object[0];
@@ -21,14 +24,6 @@ public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpe
     private final Object openlInstance;
     private final Map<Method, IOpenMember> methodMap;
     private final IRuntimeEnvBuilder runtimeEnvBuilder;
-
-    public OpenLRulesMethodHandler(Object openlInstance,
-                                   Map<Method, IOpenMember> methodMap,
-                                   IRuntimeEnvBuilder runtimeEnvBuilder) {
-        this.openlInstance = openlInstance;
-        this.methodMap = methodMap;
-        this.runtimeEnvBuilder = runtimeEnvBuilder;
-    }
 
     @Override
     public Object invoke(Method method, Object[] args) throws Exception {

@@ -20,6 +20,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.gen.AnnotationDescriptionBuilder;
 import org.openl.gen.InterfaceByteCodeBuilder;
 import org.openl.gen.InterfaceImplBuilder;
@@ -39,6 +41,7 @@ import org.openl.rules.ruleservice.core.interceptors.RulesType;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 public class OpenAPIJavaClassGenerator {
 
     private static final String DEFAULT_JSON_TYPE = "application/json";
@@ -49,10 +52,6 @@ public class OpenAPIJavaClassGenerator {
     public static final String DEFAULT_RUNTIME_CTX_PARAM_NAME = "runtimeContext";
 
     private final ProjectModel projectModel;
-
-    public OpenAPIJavaClassGenerator(ProjectModel projectModel) {
-        this.projectModel = projectModel;
-    }
 
     /**
      * Make decision whatever if we need to decorate this method or not

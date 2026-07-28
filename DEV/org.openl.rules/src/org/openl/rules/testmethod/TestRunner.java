@@ -1,14 +1,13 @@
 package org.openl.rules.testmethod;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class TestRunner {
 
     private final ITestResultBuilder resultBuilder;
-
-    public TestRunner(ITestResultBuilder resultBuilder) {
-        this.resultBuilder = resultBuilder;
-    }
 
     @SuppressWarnings("unchecked")
     public ITestUnit runTest(TestDescription test,

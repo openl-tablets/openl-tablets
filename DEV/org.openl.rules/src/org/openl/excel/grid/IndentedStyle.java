@@ -1,5 +1,7 @@
 package org.openl.excel.grid;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -8,6 +10,7 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 import org.openl.rules.table.ui.ICellStyle;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class IndentedStyle implements ICellStyle {
     private final short indent;
 
@@ -16,13 +19,6 @@ class IndentedStyle implements ICellStyle {
     private final int column;
 
     private transient ICellStyle delegate;
-
-    IndentedStyle(short indent, ParsedGrid parsedGrid, int row, int column) {
-        this.indent = indent;
-        this.parsedGrid = parsedGrid;
-        this.row = row;
-        this.column = column;
-    }
 
     @Override
     public short[][] getBorderRGB() {

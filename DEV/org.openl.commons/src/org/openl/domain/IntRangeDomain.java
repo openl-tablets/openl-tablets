@@ -8,9 +8,12 @@ package org.openl.domain;
 import java.util.Iterator;
 import jakarta.xml.bind.annotation.XmlTransient;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
     private class RangeIterator extends AIntIterator {
         private int current;
@@ -51,11 +54,6 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
 
     protected final int min;
     protected final int max;
-
-    public IntRangeDomain(int min, int max) {
-        this.min = min;
-        this.max = max;
-    }
 
     @Override
     public boolean contains(int value) {

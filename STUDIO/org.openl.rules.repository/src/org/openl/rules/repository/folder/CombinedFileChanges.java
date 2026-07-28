@@ -3,6 +3,8 @@ package org.openl.rules.repository.folder;
 import java.util.Collection;
 import java.util.Iterator;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.repository.api.FileItem;
 import org.openl.util.IOUtils;
 
@@ -11,12 +13,9 @@ import org.openl.util.IOUtils;
  * and we want save them in one transaction, we can combine them with this class and pass the result into the method
  * save(fileData, iterable, changesetType).
  */
+@RequiredArgsConstructor
 public class CombinedFileChanges implements Iterable<FileItem> {
     private final Collection<Iterable<FileItem>> multipleIterables;
-
-    public CombinedFileChanges(Collection<Iterable<FileItem>> multipleIterables) {
-        this.multipleIterables = multipleIterables;
-    }
 
     @Override
     public Iterator<FileItem> iterator() {

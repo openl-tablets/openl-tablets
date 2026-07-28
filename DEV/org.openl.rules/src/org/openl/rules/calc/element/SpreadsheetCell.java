@@ -1,5 +1,7 @@
 package org.openl.rules.calc.element;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -9,6 +11,7 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class SpreadsheetCell implements Invokable {
 
     private final int rowIndex;
@@ -22,13 +25,6 @@ public class SpreadsheetCell implements Invokable {
     private IOpenMethod method;
 
     private boolean returnCell;
-
-    public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell, SpreadsheetCellType spreadsheetCellType) {
-        this.rowIndex = rowIndex;
-        this.columnIndex = columnIndex;
-        this.sourceCell = sourceCell;
-        this.spreadsheetCellType = spreadsheetCellType;
-    }
 
     public ICell getSourceCell() {
         return sourceCell;

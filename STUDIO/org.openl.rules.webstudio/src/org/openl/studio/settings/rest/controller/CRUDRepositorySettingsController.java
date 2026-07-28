@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,16 +23,11 @@ import org.openl.studio.settings.model.repositories.CreateRepositoryTemplateMode
 import org.openl.studio.settings.service.repositories.RepositorySettingsService;
 
 @AdminPrivilege
+@RequiredArgsConstructor
 public abstract class CRUDRepositorySettingsController {
 
     protected final SettingsService settingsService;
     protected final RepositorySettingsService repositoryConfigurationService;
-
-    public CRUDRepositorySettingsController(SettingsService settingsService,
-                                            RepositorySettingsService repositoryConfigurationService) {
-        this.settingsService = settingsService;
-        this.repositoryConfigurationService = repositoryConfigurationService;
-    }
 
     @Operation(description = "msg.repository-settings.get-all.desc", summary = "msg.repository-settings.get-all.summary")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)

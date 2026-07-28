@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
  * Vite dev server), returns the Vite client + TypeScript entry for HMR.
  */
 @Component("viteAssets")
+@RequiredArgsConstructor
 public class ViteAssetsBean {
 
     private static final String VITE_MANIFEST_RESOURCE = "/META-INF/resources/.vite/manifest.json";
@@ -33,11 +35,6 @@ public class ViteAssetsBean {
     private final ObjectMapper objectMapper;
 
     private String html;
-
-    public ViteAssetsBean(Environment environment, ObjectMapper objectMapper) {
-        this.environment = environment;
-        this.objectMapper = objectMapper;
-    }
 
     @PostConstruct
     void init() {

@@ -1,5 +1,8 @@
 package org.openl.rules.table;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Handles two coordinates: column number and row number.
  */
@@ -82,13 +85,9 @@ public abstract class Point {
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class BigPoint extends Point {
         final int column, row;
-
-        private BigPoint(int column, int row) {
-            this.column = column;
-            this.row = row;
-        }
 
         @Override
         public int getColumn() {

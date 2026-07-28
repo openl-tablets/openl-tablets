@@ -1,13 +1,11 @@
 package org.openl.rules.cmatch.algorithm;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ColumnDefinition {
     private final String name;
     private final boolean isMultipleValueAllowed;
-
-    public ColumnDefinition(String name, boolean isMultipleValueAllowed) {
-        this.name = name;
-        this.isMultipleValueAllowed = isMultipleValueAllowed;
-    }
 
     public String getName() {
         return name;

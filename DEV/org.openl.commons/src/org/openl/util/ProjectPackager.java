@@ -10,22 +10,21 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Pack an OpenL project using {@linkplain ZipArchiver}.
  *
  * @author Yury Molchan
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProjectPackager implements FileVisitor<Path> {
     private static final List<String> systems = Arrays.asList("rules.xml", "rules-deploy.xml");
 
     private final Path dir;
     private final ZipArchiver arch;
     private boolean emptyDir;
-
-    private ProjectPackager(Path dir, ZipArchiver arch) {
-        this.dir = dir;
-        this.arch = arch;
-    }
 
     /**
      * Pack provided files in a source directory.

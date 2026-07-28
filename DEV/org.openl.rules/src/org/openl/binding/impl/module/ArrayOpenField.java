@@ -2,21 +2,19 @@ package org.openl.binding.impl.module;
 
 import java.lang.reflect.Array;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class ArrayOpenField implements IOpenField {
 
     private final IOpenField field;
     private IOpenClass type;
     private final int dimension;
-
-    public ArrayOpenField(IOpenField field, int dimension) {
-        this.field = field;
-        this.dimension = dimension;
-    }
 
     @Override
     public String getDisplayName(int mode) {

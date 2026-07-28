@@ -2,6 +2,7 @@ package org.openl.studio.projects.messaging;
 
 import java.util.function.Function;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.CommonUser;
@@ -12,13 +13,10 @@ import org.openl.studio.projects.service.tests.ProjectTestsExecutionProgressList
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 
 @Component
+@RequiredArgsConstructor
 public class SocketProjectAllTestsExecutionProgressListenerFactory {
 
     private final ProjectSocketNotificationService socketNotificationService;
-
-    public SocketProjectAllTestsExecutionProgressListenerFactory(ProjectSocketNotificationService socketNotificationService) {
-        this.socketNotificationService = socketNotificationService;
-    }
 
     /**
      * Creates a ProjectTestsExecutionProgressListener that notifies the user via WebSocket about test execution progress.

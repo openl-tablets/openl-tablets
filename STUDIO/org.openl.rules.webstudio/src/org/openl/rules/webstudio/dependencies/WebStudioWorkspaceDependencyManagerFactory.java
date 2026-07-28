@@ -5,20 +5,18 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
 
+@RequiredArgsConstructor
 @Slf4j
 public class WebStudioWorkspaceDependencyManagerFactory {
 
     private final WebStudio studio;
-
-    public WebStudioWorkspaceDependencyManagerFactory(WebStudio studio) {
-        this.studio = studio;
-    }
 
     public WebStudioWorkspaceRelatedDependencyManager buildDependencyManager(ProjectDescriptor project) {
         var workspaceProjectsToResolveDependencies = resolveWorkspace(project);

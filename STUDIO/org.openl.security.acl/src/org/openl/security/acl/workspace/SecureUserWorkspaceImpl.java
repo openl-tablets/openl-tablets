@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.acls.domain.BasePermission;
 
@@ -19,20 +20,13 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.security.acl.repository.RepositoryAclService;
 
+@RequiredArgsConstructor
 @Slf4j
 public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     private final UserWorkspace userWorkspace;
     private final RepositoryAclService designRepositoryAclService;
     private final boolean allowProjectCreateDelete;
-
-    public SecureUserWorkspaceImpl(UserWorkspace userWorkspace,
-                                   RepositoryAclService designRepositoryAclService,
-                                   boolean allowProjectCreateDelete) {
-        this.userWorkspace = userWorkspace;
-        this.designRepositoryAclService = designRepositoryAclService;
-        this.allowProjectCreateDelete = allowProjectCreateDelete;
-    }
 
     @Override
     public boolean hasProject(String repositoryId, String name) {

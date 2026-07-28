@@ -1,15 +1,14 @@
 package org.openl.rules.dt.type.domains;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.IntVar;
 import org.openl.types.java.JavaEnumDomain;
 
+@RequiredArgsConstructor
 public class JavaEnumDomainAdaptor implements IDomainAdaptor {
 
     private final JavaEnumDomain domain;
-
-    public JavaEnumDomainAdaptor(JavaEnumDomain domain) {
-        this.domain = domain;
-    }
 
     @Override
     public int getIndex(Object value) {

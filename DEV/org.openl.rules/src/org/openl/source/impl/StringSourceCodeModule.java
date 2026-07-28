@@ -11,23 +11,21 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.fast.FastStringReader;
 
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class StringSourceCodeModule implements IOpenSourceCodeModule {
 
     private final String code;
     private final String uri;
 
     private Map<String, Object> params;
-
-    public StringSourceCodeModule(String code, String uri) {
-        this.code = code;
-        this.uri = uri;
-    }
 
     @Override
     public InputStream getByteStream() {

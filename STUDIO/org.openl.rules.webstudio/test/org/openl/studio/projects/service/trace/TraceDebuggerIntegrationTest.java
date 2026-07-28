@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 
 import org.openl.studio.projects.model.trace.DebugStatus;
@@ -32,13 +34,10 @@ class TraceDebuggerIntegrationTest {
     private static final long TIMEOUT = 5_000;
 
     /** A synthetic table: entering it is a frame, its body runs nested steps. */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class FakeTable implements Invokable<Object, IRuntimeEnv> {
         private final String uri;
         private final List<Consumer<IRuntimeEnv>> body = new ArrayList<>();
-
-        FakeTable(String uri) {
-            this.uri = uri;
-        }
 
         FakeTable cell(int row, int col) {
             body.add(env -> env.getTracer().invoke(new FakeCell(row, col, null), null, NO_PARAMS, env,

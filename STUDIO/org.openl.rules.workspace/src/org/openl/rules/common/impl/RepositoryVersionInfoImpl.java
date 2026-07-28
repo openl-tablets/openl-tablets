@@ -3,8 +3,11 @@ package org.openl.rules.common.impl;
 import java.io.Serial;
 import java.util.Date;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.common.VersionInfo;
 
+@RequiredArgsConstructor
 public class RepositoryVersionInfoImpl implements VersionInfo {
     @Serial
     private static final long serialVersionUID = 5338481693656986251L;
@@ -12,12 +15,6 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
     private final Date createdAt;
     private final String createdBy;
     private final String emailCreatedBy;
-
-    public RepositoryVersionInfoImpl(Date createdAt, String createdBy, String emailCreatedBy) {
-        this.createdAt = createdAt;
-        this.createdBy = createdBy;
-        this.emailCreatedBy = emailCreatedBy;
-    }
 
     @Override
     public Date getCreatedAt() {

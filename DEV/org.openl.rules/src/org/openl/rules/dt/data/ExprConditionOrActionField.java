@@ -1,17 +1,17 @@
 package org.openl.rules.dt.data;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.dt.Expr;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class ExprConditionOrActionField implements IOpenField {
     private final DecisionRowField decisionRowField;
-
-    ExprConditionOrActionField(DecisionRowField decisionRowField) {
-        this.decisionRowField = decisionRowField;
-    }
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {

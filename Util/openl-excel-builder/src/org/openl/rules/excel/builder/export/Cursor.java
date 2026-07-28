@@ -2,15 +2,13 @@ package org.openl.rules.excel.builder.export;
 
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class Cursor {
 
     private final int column;
     private final int row;
-
-    public Cursor(int column, int row) {
-        this.column = column;
-        this.row = row;
-    }
 
     public Cursor moveLeft(int x) {
         return new Cursor(column - x, row);

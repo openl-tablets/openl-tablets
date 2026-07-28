@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.impl;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntBoolExp;
@@ -25,12 +27,9 @@ import org.openl.ie.constrainer.Subject;
  * An implementation of the expression: <code>(IntBoolExp1 || IntBoolExp2)</code>.
  */
 final class IntBoolExpOr extends IntBoolExpForSubject {
+    @RequiredArgsConstructor
     class ObserverBoolExpOr extends Observer {
         final IntBoolExp _exp2;
-
-        public ObserverBoolExpOr(IntBoolExp exp2) {
-            _exp2 = exp2;
-        }
 
         @Override
         public Object master() {

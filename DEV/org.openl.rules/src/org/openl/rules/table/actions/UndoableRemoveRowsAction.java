@@ -1,5 +1,7 @@
 package org.openl.rules.table.actions;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
@@ -9,17 +11,12 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
 /**
  * @author Andrei Astrouski
  */
+@RequiredArgsConstructor
 public class UndoableRemoveRowsAction extends UndoableRemoveAction {
 
     final int nRows;
     final int startRow;
     private final MetaInfoWriter metaInfoWriter;
-
-    public UndoableRemoveRowsAction(int nRows, int startRow, MetaInfoWriter metaInfoWriter) {
-        this.nRows = nRows;
-        this.startRow = startRow;
-        this.metaInfoWriter = metaInfoWriter;
-    }
 
     @Override
     protected boolean canPerformAction(IGridRegion gridRegion) {

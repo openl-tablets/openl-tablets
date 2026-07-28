@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.ChangesetType;
@@ -29,13 +32,10 @@ import org.openl.rules.repository.api.UserInfo;
  *
  * @author Yury Molchan
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class PathCheckedRepository implements BranchRepository, RepositorySettingsAware {
 
     private final Repository delegate;
-
-    PathCheckedRepository(Repository delegate) {
-        this.delegate = delegate;
-    }
 
     @Override
     public String getId() {

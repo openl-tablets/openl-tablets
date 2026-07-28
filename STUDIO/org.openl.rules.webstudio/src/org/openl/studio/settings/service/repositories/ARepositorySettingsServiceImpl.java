@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryEditor;
@@ -14,19 +16,12 @@ import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.settings.model.repositories.CURepositoryConfigurationModel;
 
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class ARepositorySettingsServiceImpl implements RepositorySettingsService {
 
     protected final RepositoryEditor repositoryEditor;
     protected final ObjectMapper objectMapper;
     protected final BeanValidationProvider beanValidationProvider;
-
-    protected ARepositorySettingsServiceImpl(RepositoryEditor repositoryEditor,
-                                             ObjectMapper objectMapper,
-                                             BeanValidationProvider beanValidationProvider) {
-        this.repositoryEditor = repositoryEditor;
-        this.objectMapper = objectMapper;
-        this.beanValidationProvider = beanValidationProvider;
-    }
 
     @Override
     public RepositoryConfiguration transform(CURepositoryConfigurationModel request) throws IOException {

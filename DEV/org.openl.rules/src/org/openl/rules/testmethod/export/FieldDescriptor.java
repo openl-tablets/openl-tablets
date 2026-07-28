@@ -12,12 +12,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
 import org.openl.util.OpenClassUtils;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 class FieldDescriptor {
     private final IOpenField field;
     private final List<FieldDescriptor> children;
@@ -84,11 +88,6 @@ class FieldDescriptor {
         result.sort(Comparator.comparing(FieldDescriptor::isArray));
 
         return result;
-    }
-
-    private FieldDescriptor(IOpenField field, List<FieldDescriptor> children) {
-        this.field = field;
-        this.children = children;
     }
 
     public IOpenField getField() {

@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls.load;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -8,13 +9,10 @@ import org.openl.rules.table.xls.PoiExcelHelper;
 /**
  * Stores the strong reference to previously loaded Sheet instance and is not unloaded.
  */
+@RequiredArgsConstructor
 public class SimpleSheetLoader implements SheetLoader {
     private final Sheet sheet;
     private String sheetName;
-
-    public SimpleSheetLoader(Sheet sheet) {
-        this.sheet = sheet;
-    }
 
     /**
      * Get the sheet. When this method is repeatedly called, always returns the same instance of Sheet java object.

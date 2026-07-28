@@ -26,6 +26,9 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.base.INamedThing;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.gen.InterfaceImplBuilder;
@@ -43,6 +46,7 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * @author snshor
  */
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JavaOpenClass extends AOpenClass {
 
     public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, 0);
@@ -74,11 +78,6 @@ public class JavaOpenClass extends AOpenClass {
 
     public JavaOpenClass(Class<?> instanceClass) {
         this(instanceClass, false);
-    }
-
-    protected JavaOpenClass(Class<?> instanceClass, boolean simple) {
-        this.instanceClass = instanceClass;
-        this.simple = simple;
     }
 
     public static JavaOpenClass getOpenClass(Class<?> c) {

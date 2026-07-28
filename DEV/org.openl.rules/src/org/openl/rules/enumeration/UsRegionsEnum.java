@@ -1,5 +1,9 @@
 package org.openl.rules.enumeration;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum UsRegionsEnum {
 
     MW("Midwest"),
@@ -9,10 +13,6 @@ public enum UsRegionsEnum {
     W("West");
 
     private final String displayName;
-
-    UsRegionsEnum(String displayName) {
-        this.displayName = displayName;
-    }
 
     @Override
     public String toString() {

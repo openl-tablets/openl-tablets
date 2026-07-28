@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -647,6 +649,7 @@ class DependentParametersOptimizedAlgorithm {
         UPPER
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     enum RelationType {
 
         LT("<", ">", true, null),
@@ -660,13 +663,6 @@ class DependentParametersOptimizedAlgorithm {
         final String opposite;
         final boolean lessThan;
         final Bound incBound;
-
-        RelationType(String func, String opposite, boolean lessThan, Bound incBound) {
-            this.func = func;
-            this.opposite = opposite;
-            this.lessThan = lessThan;
-            this.incBound = incBound;
-        }
 
         public Bound getIncBound() {
             return incBound;

@@ -1,15 +1,12 @@
 package org.openl.security.acl.repository;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class RepositoryAclServiceProviderImpl implements RepositoryAclServiceProvider {
 
     private final RepositoryAclService designRepositoryAclService;
     private final SimpleRepositoryAclService productionRepositoryAclService;
-
-    public RepositoryAclServiceProviderImpl(RepositoryAclService designRepositoryAclService,
-                                            SimpleRepositoryAclService productionRepositoryAclService) {
-        this.designRepositoryAclService = designRepositoryAclService;
-        this.productionRepositoryAclService = productionRepositoryAclService;
-    }
 
     @Override
     public SimpleRepositoryAclService getAclService(String repositoryType) {

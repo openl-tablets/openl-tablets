@@ -1,17 +1,16 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.IWritableGrid;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
 
     private final IDecisionTableColumn condition;
 
     private final int conditionNumber;
-
-    AConditionBuilder(IDecisionTableColumn condition, int conditionNumber) {
-        this.condition = condition;
-        this.conditionNumber = conditionNumber;
-    }
 
     @Override
     public final int build(IWritableGrid gridModel, int numberOfRules, int columnStartIndex, int rowStartIndex) {

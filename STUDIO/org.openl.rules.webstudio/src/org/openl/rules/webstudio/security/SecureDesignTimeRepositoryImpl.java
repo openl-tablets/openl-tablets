@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 
@@ -18,16 +19,11 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SecuredRepositoryFactory;
 
+@RequiredArgsConstructor
 public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepository {
 
     private final DesignTimeRepository designTimeRepository;
     private final RepositoryAclService designRepositoryAclService;
-
-    public SecureDesignTimeRepositoryImpl(DesignTimeRepository designTimeRepository,
-                                          RepositoryAclService designRepositoryAclService) {
-        this.designTimeRepository = designTimeRepository;
-        this.designRepositoryAclService = designRepositoryAclService;
-    }
 
     @Override
     public List<Repository> getRepositories() {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.time.DateUtils;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -14,13 +15,10 @@ import org.openl.util.StringUtils;
 /**
  * @author Andrei Astrouski
  */
+@RequiredArgsConstructor
 public class TablePropertiesSelector implements Predicate<TableSyntaxNode> {
 
     private final Map<String, Object> properties;
-
-    public TablePropertiesSelector(Map<String, Object> properties) {
-        this.properties = properties;
-    }
 
     /**
      * Check if table properties consists all the values for properties from defined properties.

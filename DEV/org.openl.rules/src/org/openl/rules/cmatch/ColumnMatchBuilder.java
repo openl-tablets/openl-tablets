@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.IBindingContext;
 import org.openl.meta.StringValue;
 import org.openl.rules.cmatch.algorithm.IMatchAlgorithmCompiler;
@@ -16,18 +18,13 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
+@RequiredArgsConstructor
 public class ColumnMatchBuilder {
     private final IBindingContext bindingContext;
     private final ColumnMatch columnMatch;
     private final TableSyntaxNode tsn;
 
     private List<TableColumn> columns;
-
-    public ColumnMatchBuilder(IBindingContext ctx, ColumnMatch columnMatch, TableSyntaxNode tsn) {
-        bindingContext = ctx;
-        this.columnMatch = columnMatch;
-        this.tsn = tsn;
-    }
 
     public void build(ILogicalTable tableBody) throws SyntaxNodeException {
         if (tableBody.getHeight() < 4) {

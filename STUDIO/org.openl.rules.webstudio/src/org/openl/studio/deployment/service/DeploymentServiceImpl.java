@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.acls.domain.BasePermission;
@@ -30,6 +31,7 @@ import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 @Slf4j
 public class DeploymentServiceImpl implements DeploymentService {
 
@@ -41,20 +43,6 @@ public class DeploymentServiceImpl implements DeploymentService {
     private final ObjectProvider<UserWorkspace> userWorkspaceProvider;
     private final ProjectStateValidator projectStateValidator;
     private final AclProjectsHelper aclProjectsHelper;
-
-    public DeploymentServiceImpl(ProjectDependencyResolver projectDependencyResolver,
-                                 SecureDeploymentRepositoryService deploymentRepositoryService,
-                                 DeploymentManager deploymentManager,
-                                 ObjectProvider<UserWorkspace> userWorkspaceProvider,
-                                 ProjectStateValidator projectStateValidator,
-                                 AclProjectsHelper aclProjectsHelper) {
-        this.projectDependencyResolver = projectDependencyResolver;
-        this.deploymentRepositoryService = deploymentRepositoryService;
-        this.deploymentManager = deploymentManager;
-        this.userWorkspaceProvider = userWorkspaceProvider;
-        this.projectStateValidator = projectStateValidator;
-        this.aclProjectsHelper = aclProjectsHelper;
-    }
 
     @Override
     public List<Deployment> getDeployments(DeploymentCriteriaQuery query) {

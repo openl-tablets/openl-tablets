@@ -1,5 +1,7 @@
 package org.openl.rules;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
@@ -15,18 +17,13 @@ import org.openl.types.impl.CompositeMethod;
  *
  * @author snshor
  */
+@RequiredArgsConstructor
 public class OpenlToolAdaptor {
 
     private final OpenL openl;
     private IOpenMethodHeader header;
     private final IBindingContext bindingContext;
     private final TableSyntaxNode tableSyntaxNode;
-
-    public OpenlToolAdaptor(OpenL openl, IBindingContext bindingContext, TableSyntaxNode tableSyntaxNode) {
-        this.openl = openl;
-        this.bindingContext = bindingContext;
-        this.tableSyntaxNode = tableSyntaxNode;
-    }
 
     public IBindingContext getBindingContext() {
         return bindingContext;

@@ -1,5 +1,6 @@
 package org.openl.studio.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.aop.framework.AbstractAdvisingBeanPostProcessor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
@@ -11,13 +12,10 @@ import org.springframework.stereotype.Component;
  * annotated with {@link CommitInfoRequired}.
  */
 @Component
+@RequiredArgsConstructor
 public class CommitInfoPostProcessor extends AbstractAdvisingBeanPostProcessor implements InitializingBean {
 
     private final CommitInfoInterceptor commitInfoInterceptor;
-
-    public CommitInfoPostProcessor(CommitInfoInterceptor commitInfoInterceptor) {
-        this.commitInfoInterceptor = commitInfoInterceptor;
-    }
 
     @Override
     public void afterPropertiesSet() {

@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
@@ -38,6 +39,7 @@ import org.openl.util.CollectionUtils;
 @Validated
 @RestController
 @RequestMapping("/acls")
+@RequiredArgsConstructor
 @Tag(name = "ACL Management", description = "ACL Management Bulk API")
 @ConditionalOnExpression("'${user.mode}' != 'single'")
 @AdminPrivilege
@@ -47,16 +49,6 @@ public class AclController {
     private final SecureDesignTimeRepository designTimeRepository;
     private final SecureDeploymentRepositoryService deploymentRepositoryService;
     private final BulkAclOverwriteService bulkAclOverwriteService;
-
-    public AclController(RepositoryAclServiceProvider aclServiceProvider,
-                         SecureDesignTimeRepository designTimeRepository,
-                         SecureDeploymentRepositoryService deploymentRepositoryService,
-                         BulkAclOverwriteService bulkAclOverwriteService) {
-        this.aclServiceProvider = aclServiceProvider;
-        this.designTimeRepository = designTimeRepository;
-        this.deploymentRepositoryService = deploymentRepositoryService;
-        this.bulkAclOverwriteService = bulkAclOverwriteService;
-    }
 
     @GetMapping
     @Operation(summary = "Get ACL configuration for all resources")

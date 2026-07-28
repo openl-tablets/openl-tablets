@@ -2,6 +2,8 @@ package org.openl.rules.lang.xls.types;
 
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.meta.IMetaInfo;
 
 /**
@@ -10,15 +12,11 @@ import org.openl.meta.IMetaInfo;
  *
  * @author DLiauchuk TODO: Replace with org.openl.meta.TableMetaInfo
  */
+@RequiredArgsConstructor
 public class DatatypeMetaInfo implements IMetaInfo {
 
     private final String displayName;
     private final String sourceUrl;
-
-    public DatatypeMetaInfo(String displayName, String sourceUrl) {
-        this.displayName = displayName;
-        this.sourceUrl = sourceUrl;
-    }
 
     @Override
     public String getDisplayName(int mode) {

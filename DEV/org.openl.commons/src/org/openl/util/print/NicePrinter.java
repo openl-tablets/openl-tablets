@@ -11,9 +11,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class NicePrinter {
 
     private static final int DEF_IDENT_STEP = 2;
@@ -39,10 +42,6 @@ public class NicePrinter {
 
     public NicePrinter() {
         this(new StringBuilder(100));
-    }
-
-    public NicePrinter(StringBuilder buf) {
-        buffer = buf;
     }
 
     public void decIdent() {

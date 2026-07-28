@@ -1,6 +1,8 @@
 package org.openl.rules.security;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 /**
  * This class handles flags of user external feature. Here can be added as many flags as they can fit in {@code int}.
@@ -8,13 +10,10 @@ import io.swagger.v3.oas.annotations.Parameter;
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserExternalFlags {
 
     private final int features;
-
-    private UserExternalFlags(int features) {
-        this.features = features;
-    }
 
     @Parameter(description = "Is first name pooled from external authentication system")
     public boolean isFirstNameExternal() {

@@ -1,18 +1,17 @@
 package org.openl.excel.parser.dom;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.excel.parser.SheetDescriptor;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class DOMSheetDescriptor implements SheetDescriptor {
     private final String name;
     private final int index;
 
     private int firstRowNum;
     private int firstColNum;
-
-    DOMSheetDescriptor(String name, int index) {
-        this.name = name;
-        this.index = index;
-    }
 
     @Override
     public String getName() {

@@ -1,19 +1,17 @@
 package org.openl.types.java;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class OpenFieldCombiner implements IOpenField {
 
     private final IOpenField origReadField;
     private final IOpenField origWriteField;
-
-    public OpenFieldCombiner(IOpenField origReadField, IOpenField origWriteField) {
-        this.origReadField = origReadField;
-        this.origWriteField = origWriteField;
-    }
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {

@@ -3,6 +3,8 @@ package org.openl.ie.constrainer.impl;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.Observer;
@@ -37,18 +39,12 @@ public class TestUtils {
         return false;
     }
 
+    @RequiredArgsConstructor
     static public class Finder {
         private final int[] _array;
         private final int _start;
         private final int _end;
         private final IntFindPredicate _predicate;
-
-        public Finder(int[] array, int start, int end, IntFindPredicate predicate) {
-            _array = array;
-            _start = start;
-            _end = end;
-            _predicate = predicate;
-        }
 
         public Finder(int[] array, int start, IntFindPredicate predicate) {
             _array = array;
@@ -99,12 +95,9 @@ public class TestUtils {
         }
     } // end of Fider
 
+    @RequiredArgsConstructor
     static public class IntEqualsTo implements IntFindPredicate {
         private final int _value;
-
-        public IntEqualsTo(int value) {
-            _value = value;
-        }
 
         @Override
         public boolean isTrue(int i) {
@@ -116,12 +109,9 @@ public class TestUtils {
         boolean isTrue(int i);
     }
 
+    @RequiredArgsConstructor
     static public class IntGreaterThan implements IntFindPredicate {
         private final int _value;
-
-        public IntGreaterThan(int value) {
-            _value = value;
-        }
 
         @Override
         public boolean isTrue(int i) {

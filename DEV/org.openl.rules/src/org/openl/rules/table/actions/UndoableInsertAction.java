@@ -2,6 +2,9 @@ package org.openl.rules.table.actions;
 
 import java.util.ArrayList;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -11,14 +14,11 @@ import org.openl.rules.table.IGridTable;
  *
  * @author DLiauchuk
  */
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class UndoableInsertAction extends UndoableEditTableAction {
 
     private IUndoableGridTableAction action;
     protected final MetaInfoWriter metaInfoWriter;
-
-    protected UndoableInsertAction(MetaInfoWriter metaInfoWriter) {
-        this.metaInfoWriter = metaInfoWriter;
-    }
 
     @Override
     public void doAction(IGridTable table) {

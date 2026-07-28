@@ -3,6 +3,8 @@ package org.openl.binding.impl.component;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.OpenL;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -136,13 +138,10 @@ public class ComponentOpenClass extends ADynamicClass {
         }
     }
 
+    @RequiredArgsConstructor
     public class GetOpenClass implements IOpenMethod {
 
         private final IOpenClass openClass;
-
-        public GetOpenClass(IOpenClass openClass) {
-            this.openClass = openClass;
-        }
 
         @Override
         public IOpenClass getDeclaringClass() {

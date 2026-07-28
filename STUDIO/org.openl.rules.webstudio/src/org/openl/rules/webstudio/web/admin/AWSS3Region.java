@@ -2,18 +2,16 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.util.Optional;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.RegionMetadata;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class AWSS3Region {
 
     private final String id;
     private final String description;
-
-    private AWSS3Region(String id, String description) {
-        this.id = id;
-        this.description = description;
-    }
 
     public String getId() {
         return id;

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.SheetDescriptor;
@@ -13,14 +15,11 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 
+@RequiredArgsConstructor
 public class EventReader implements ExcelReader {
     private final String fileName;
     private File tempFile;
     private WorkbookListener listener;
-
-    public EventReader(String fileName) {
-        this.fileName = fileName;
-    }
 
     public EventReader(InputStream is) {
         // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI

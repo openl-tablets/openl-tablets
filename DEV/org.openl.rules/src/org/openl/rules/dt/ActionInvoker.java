@@ -15,6 +15,9 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.domain.IIntIterator;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
@@ -25,17 +28,12 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * Created by ymolchan on 05.02.2016.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class ActionInvoker implements Invokable {
     private final List<Integer> firedRules = new ArrayList<>();
     private final IIntIterator rulesIntIterator;
     private final IBaseAction[] actions;
     private final boolean returnEmptyResult;
-
-    ActionInvoker(IIntIterator rulesIntIterator, IBaseAction[] actions, boolean returnEmptyResult) {
-        this.rulesIntIterator = rulesIntIterator;
-        this.actions = actions;
-        this.returnEmptyResult = returnEmptyResult;
-    }
 
     private static Object addReturnValues(Collection<Object> returnValue, Object returnValues, boolean[] f) {
         var returnValuesLength = Array.getLength(returnValues);

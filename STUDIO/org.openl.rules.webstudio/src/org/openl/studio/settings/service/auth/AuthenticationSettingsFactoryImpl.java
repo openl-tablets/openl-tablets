@@ -1,5 +1,7 @@
 package org.openl.studio.settings.service.auth;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.config.InMemoryProperties;
 import org.openl.rules.webstudio.web.admin.security.ADAuthenticationSettings;
 import org.openl.rules.webstudio.web.admin.security.AuthenticationSettings;
@@ -9,13 +11,10 @@ import org.openl.rules.webstudio.web.admin.security.OAuth2AuthenticationSettings
 import org.openl.rules.webstudio.web.admin.security.SAMLAuthenticationSettings;
 import org.openl.rules.webstudio.web.admin.security.UserMode;
 
+@RequiredArgsConstructor
 public class AuthenticationSettingsFactoryImpl implements AuthenticationSettingsFactory {
 
     private final InMemoryProperties properties;
-
-    public AuthenticationSettingsFactoryImpl(InMemoryProperties properties) {
-        this.properties = properties;
-    }
 
     @Override
     public AuthenticationSettings initialize() {

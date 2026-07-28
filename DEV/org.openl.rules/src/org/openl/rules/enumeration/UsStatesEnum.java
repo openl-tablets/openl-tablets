@@ -1,5 +1,9 @@
 package org.openl.rules.enumeration;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum UsStatesEnum {
 
     AL("Alabama"),
@@ -60,10 +64,6 @@ public enum UsStatesEnum {
     WY("Wyoming");
 
     private final String displayName;
-
-    UsStatesEnum(String displayName) {
-        this.displayName = displayName;
-    }
 
     @Override
     public String toString() {

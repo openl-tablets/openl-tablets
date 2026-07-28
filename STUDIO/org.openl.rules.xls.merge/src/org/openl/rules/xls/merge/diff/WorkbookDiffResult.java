@@ -1,19 +1,17 @@
 package org.openl.rules.xls.merge.diff;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Difference result of the same workbook
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor
 public class WorkbookDiffResult {
 
     private final SheetDiffResult sheetDiffResult;
     private final HSSFPaletteDiffResult paletteDiffResult;
-
-    public WorkbookDiffResult(SheetDiffResult sheetDiffResult, HSSFPaletteDiffResult paletteDiffResult) {
-        this.sheetDiffResult = sheetDiffResult;
-        this.paletteDiffResult = paletteDiffResult;
-    }
 
     public boolean hasConflicts() {
         return sheetDiffResult.hasConflicts() || paletteDiffResult.hasConflicts();

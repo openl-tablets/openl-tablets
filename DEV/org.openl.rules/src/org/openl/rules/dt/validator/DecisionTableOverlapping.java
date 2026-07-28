@@ -3,12 +3,15 @@
  */
 package org.openl.rules.dt.validator;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.consistencyChecking.Overlapping;
 import org.openl.util.ArrayOfNamedValues;
 
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class DecisionTableOverlapping {
 
     private final int[] rulesIndexes;
@@ -17,14 +20,6 @@ public class DecisionTableOverlapping {
 
     public Overlapping.OverlappingStatus getStatus() {
         return status;
-    }
-
-    public DecisionTableOverlapping(int[] rulesIndexes,
-                                    ArrayOfNamedValues value,
-                                    Overlapping.OverlappingStatus status) {
-        this.rulesIndexes = rulesIndexes;
-        this.value = value;
-        this.status = status;
     }
 
     public int[] getRulesIndexes() {

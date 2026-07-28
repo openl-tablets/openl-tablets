@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
@@ -132,12 +135,9 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         return IConditionEvaluator.RANGE_CONDITION_PRIORITY;
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     protected static class RangeIndexNodeAdaptor implements IRangeAdaptor<IndexNode, Comparable<?>> {
         private final IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
-
-        RangeIndexNodeAdaptor(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor) {
-            this.rangeAdaptor = rangeAdaptor;
-        }
 
         @SuppressWarnings("unchecked")
         @Override
@@ -168,6 +168,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public static class IndexNode implements Comparable<IndexNode> {
         private final Comparable<Object> value;
         private int[] rules;
@@ -181,10 +182,6 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         IndexNode(Comparable<Object> value, int[] rules) {
             this.value = value;
             this.rules = rules;
-        }
-
-        IndexNode(Comparable<Object> value) {
-            this.value = value;
         }
 
         public Comparable<Object> getValue() {

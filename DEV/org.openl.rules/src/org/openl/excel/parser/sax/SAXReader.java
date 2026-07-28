@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -212,16 +214,13 @@ public class SAXReader implements ExcelReader {
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class ReadOnlyOPCPackage implements AutoCloseable {
         final OPCPackage pck;
 
         static ReadOnlyOPCPackage open(String fileName) throws InvalidFormatException {
             OPCPackage pck = OPCPackage.open(fileName, PackageAccess.READ);
             return new ReadOnlyOPCPackage(pck);
-        }
-
-        private ReadOnlyOPCPackage(OPCPackage pck) {
-            this.pck = pck;
         }
 
         @Override

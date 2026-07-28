@@ -4,10 +4,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Difference result of the same workbook by sheet between three revisions. {@code base revision} to
  * {@code our revision}, {@code base revision} to {@code their revision}
  */
+@RequiredArgsConstructor
 public class SheetDiffResult {
 
     /**
@@ -18,11 +21,6 @@ public class SheetDiffResult {
      * Sheets matching results between {@code base revision} and {@code their revision}
      */
     private final Map<String, XlsMatch> theirToBase;
-
-    public SheetDiffResult(Map<DiffStatus, Set<String>> diffResults, Map<String, XlsMatch> theirToBase) {
-        this.diffResults = diffResults;
-        this.theirToBase = theirToBase;
-    }
 
     /**
      * Check ff any conflicted changes in sheets is detected between three revision

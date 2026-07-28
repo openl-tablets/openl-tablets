@@ -10,6 +10,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.IBindingContext;
@@ -27,6 +29,7 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 @Slf4j
 public class AlgorithmBuilder {
 
@@ -236,14 +239,10 @@ public class AlgorithmBuilder {
     };
 
     // Section Description Operation Condition Action Before After
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class AlgorithmColumn {
         private final String id;
         private final int columnIndex;
-
-        private AlgorithmColumn(String id, int columnIndex) {
-            this.id = id;
-            this.columnIndex = columnIndex;
-        }
     }
 
     private static final String OPERATION = "Operation";
@@ -278,12 +277,6 @@ public class AlgorithmBuilder {
     private final TableSyntaxNode tsn;
 
     private Map<String, AlgorithmColumn> columns;
-
-    public AlgorithmBuilder(IBindingContext ctx, Algorithm algorithm, TableSyntaxNode tsn) {
-        bindingContext = ctx;
-        this.algorithm = algorithm;
-        this.tsn = tsn;
-    }
 
     public void build(IBindingContext cxt, ILogicalTable tableBody) throws Exception {
 

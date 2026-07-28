@@ -7,6 +7,9 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.util.StringUtils;
 
 @XmlRootElement
@@ -17,16 +20,13 @@ public final class OpenAPI {
         GENERATION
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum Type {
         YAML("openapi.yaml"),
         YML("openapi.yml"),
         JSON("openapi.json");
 
         private final String defaultFileName;
-
-        Type(String defaultFileName) {
-            this.defaultFileName = defaultFileName;
-        }
 
         public String getDefaultFileName() {
             return defaultFileName;

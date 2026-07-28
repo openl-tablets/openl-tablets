@@ -1,5 +1,8 @@
 package org.openl.ie.constrainer.impl;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
@@ -15,12 +18,9 @@ import org.openl.ie.tools.ReusableFactory;
  * An implementation of the expression: <code>(IntExp + value)</code>.
  */
 public final class IntExpAddValue extends IntExpImpl {
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     class ExpAddValueObserver extends ExpressionObserver {
         final IntExp _exp_this;
-
-        ExpAddValueObserver(IntExp exp_this) {
-            _exp_this = exp_this;
-        }
 
         @Override
         public Object master() {

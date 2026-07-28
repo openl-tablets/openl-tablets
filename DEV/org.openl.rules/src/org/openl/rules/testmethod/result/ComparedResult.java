@@ -1,20 +1,16 @@
 package org.openl.rules.testmethod.result;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.testmethod.TestStatus;
 
+@RequiredArgsConstructor
 public class ComparedResult {
 
     private final String fieldName;
     private final Object expectedValue;
     private final Object actualValue;
     private final TestStatus status;
-
-    public ComparedResult(String fieldName, Object expectedValue, Object actualValue, TestStatus status) {
-        this.fieldName = fieldName;
-        this.expectedValue = expectedValue;
-        this.actualValue = actualValue;
-        this.status = status;
-    }
 
     public String getFieldName() {
         return fieldName;

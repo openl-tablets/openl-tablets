@@ -8,6 +8,8 @@ package org.openl.types.java;
 
 import java.lang.reflect.Constructor;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.MethodUtil;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -19,15 +21,12 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
 
     private final Constructor<?> constructor;
 
     private IOpenClass[] parameterTypes;
-
-    public JavaOpenConstructor(Constructor<?> constructor) {
-        this.constructor = constructor;
-    }
 
     /*
      * (non-Javadoc)
