@@ -53,7 +53,7 @@ class CrossStepCallTreeTest {
         // Value_Premiums computed $Term on the way and then called SubPremium: both belong to it.
         CallNode.Step valuePremiums = step(tree, "$Value_Premiums");
         assertEquals(List.of(FrameKind.STEP_REF, FrameKind.SPREADSHEET), kinds(valuePremiums));
-        assertEquals("$Term", valuePremiums.children().get(0).name());
+        assertEquals("$Term", valuePremiums.children().getFirst().name());
         assertEquals("SubPremium", valuePremiums.children().get(1).name());
 
         // The step computed on the way carries no children: the call was made by the referring formula.
@@ -63,18 +63,18 @@ class CrossStepCallTreeTest {
         // GetContext resolved $RatingDate first, then called SetCtx with it.
         CallNode.Step getContext = step(tree, "$GetContext");
         assertEquals(List.of(FrameKind.STEP_REF, FrameKind.SPREADSHEET), kinds(getContext));
-        assertEquals("$RatingDate", getContext.children().get(0).name());
+        assertEquals("$RatingDate", getContext.children().getFirst().name());
         assertEquals("SetCtx", getContext.children().get(1).name());
 
         // RatingDate triggered the Value_Premiums computation from its own formula.
         CallNode.Step ratingDate = step(tree, "$RatingDate");
         assertEquals(List.of(FrameKind.STEP_REF), kinds(ratingDate));
-        assertEquals("$Value_Premiums", ratingDate.children().get(0).name());
+        assertEquals("$Value_Premiums", ratingDate.children().getFirst().name());
 
         // Re-reads of already-computed steps are references pointing at the original, never new branches.
         CallNode.Step total = step(tree, "$Total");
         assertEquals(List.of(FrameKind.STEP_REF, FrameKind.STEP_REF), kinds(total));
-        assertEquals("$RatingDate", total.children().get(0).name());
+        assertEquals("$RatingDate", total.children().getFirst().name());
         assertEquals("$Term", total.children().get(1).name());
         total.children().forEach(reference -> {
             assertNotNull(reference.refStep(), "a reference carries the ref of the original step");

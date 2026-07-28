@@ -150,7 +150,7 @@ public class TraceDebugMapper {
             var clones = new IdentityHashMap<Object, Object>();
             var series = new ArrayList<WatchSeriesView>(byKey.size());
             byKey.forEach((key, group) -> {
-                var first = group.get(0);
+                var first = group.getFirst();
                 List<WatchPointView> points = group.stream()
                         .limit(MAX_POINTS_PER_SERIES)
                         .map(capture -> toWatchPoint(capture, clones, includeSchema))
@@ -234,7 +234,7 @@ public class TraceDebugMapper {
             }
         }
         if (failing == null && !frames.isEmpty()) {
-            failing = frames.get(frames.size() - 1);
+            failing = frames.getLast();
         }
         return failing;
     }

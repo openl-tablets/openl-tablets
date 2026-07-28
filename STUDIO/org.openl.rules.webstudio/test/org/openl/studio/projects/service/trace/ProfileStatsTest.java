@@ -70,9 +70,9 @@ class ProfileStatsTest {
         assertEquals(3, subCalls.size(), "SubCalc runs three times");
         // The step refs are rebuilt on every execution, so three invocations would keep three copies of each.
         // Interning collapses them to one shared instance — the memory win, since a table can run thousands of times.
-        var ref0 = subCalls.get(0).steps().get(0).ref();
-        assertSame(ref0, subCalls.get(1).steps().get(0).ref(), "repeated invocations share one step-ref instance");
-        assertSame(ref0, subCalls.get(2).steps().get(0).ref());
+        var ref0 = subCalls.getFirst().steps().getFirst().ref();
+        assertSame(ref0, subCalls.get(1).steps().getFirst().ref(), "repeated invocations share one step-ref instance");
+        assertSame(ref0, subCalls.get(2).steps().getFirst().ref());
     }
 
     private TraceDebugger trace(int cap) {

@@ -69,7 +69,7 @@ class DetailedMessageDescriptionMapperImplTest {
         var result = mapper.mapSorted(List.of(message("uri")), model);
 
         assertEquals(1, result.size());
-        var location = assertInstanceOf(ModuleMessageSource.class, result.get(0).location());
+        var location = assertInstanceOf(ModuleMessageSource.class, result.getFirst().location());
         assertEquals("Rating", location.name());
     }
 
@@ -83,7 +83,7 @@ class DetailedMessageDescriptionMapperImplTest {
 
         var result = mapper.mapSorted(List.of(message("uri")), model);
 
-        assertNull(result.get(0).location());
+        assertNull(result.getFirst().location());
         verify(projectLoader, times(0)).getModule();
     }
 
@@ -96,7 +96,7 @@ class DetailedMessageDescriptionMapperImplTest {
 
         var result = mapper.mapSorted(List.of(message("file:/wb.xlsx?sheet=Sheet1&range=A1:B2")), model);
 
-        var location = assertInstanceOf(TableMessageSource.class, result.get(0).location());
+        var location = assertInstanceOf(TableMessageSource.class, result.getFirst().location());
         assertEquals("n1", location.id());
         assertEquals("A1", location.cell());
     }
@@ -109,7 +109,7 @@ class DetailedMessageDescriptionMapperImplTest {
 
         var result = mapper.mapSorted(List.of(message("file:/wb.xlsx?sheet=Sheet1&range=A1:B2")), model);
 
-        assertNull(result.get(0).location());
+        assertNull(result.getFirst().location());
     }
 
     @Test
@@ -117,7 +117,7 @@ class DetailedMessageDescriptionMapperImplTest {
         var result = mapper.mapSorted(List.of(message("uri")), model);
 
         assertEquals(1, result.size());
-        assertNull(result.get(0).location());
+        assertNull(result.getFirst().location());
     }
 
     @Test
@@ -125,6 +125,6 @@ class DetailedMessageDescriptionMapperImplTest {
         var result = mapper.mapSorted(List.of(message(null)), model);
 
         assertEquals(1, result.size());
-        assertNull(result.get(0).location());
+        assertNull(result.getFirst().location());
     }
 }

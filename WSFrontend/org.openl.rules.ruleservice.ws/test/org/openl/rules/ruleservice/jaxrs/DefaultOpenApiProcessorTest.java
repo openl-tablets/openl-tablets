@@ -27,7 +27,7 @@ class DefaultOpenApiProcessorTest {
         assertEquals("myService", result.getInfo().getTitle());
         assertNotNull(result.getServers());
         assertEquals(1, result.getServers().size());
-        assertEquals("http://example.com/api/myService", result.getServers().get(0).getUrl());
+        assertEquals("http://example.com/api/myService", result.getServers().getFirst().getUrl());
     }
 
     @Test
@@ -39,6 +39,6 @@ class DefaultOpenApiProcessorTest {
         var result = processor.apply(uriInfo);
 
         assertEquals("svc", result.getInfo().getTitle());
-        assertEquals("http://h/x", result.getServers().get(0).getUrl());
+        assertEquals("http://h/x", result.getServers().getFirst().getUrl());
     }
 }

@@ -84,8 +84,8 @@ class ProjectDependencyResolverImplTest {
         var dependencies = resolver(descriptorResolver, workspace).getDependencies(source);
 
         assertEquals(1, dependencies.size());
-        assertEquals("Ghost", dependencies.get(0).name());
-        assertNull(dependencies.get(0).project());
+        assertEquals("Ghost", dependencies.getFirst().name());
+        assertNull(dependencies.getFirst().project());
         // The projects a caller can work with are still only the ones that resolved.
         assertEquals(List.of(), resolver(descriptorResolver, workspace).getProjectDependencies(source));
     }

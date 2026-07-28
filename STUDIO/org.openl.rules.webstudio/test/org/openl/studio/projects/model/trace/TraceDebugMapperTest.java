@@ -70,7 +70,7 @@ class TraceDebugMapperTest {
             assertEquals("MyRule", top.name());
             assertTrue(top.active(), "the deepest frame is the active one");
 
-            var variables = mapper.freezeVariables(stack.get(stack.size() - 1), compiled.getClassLoader(), true);
+            var variables = mapper.freezeVariables(stack.getLast(), compiled.getClassLoader(), true);
             assertNotNull(variables);
             assertTrue(variables.parameters().isEmpty(), "MyRule takes no parameters");
             assertNotNull(variables.context(), "the runtime context is frozen");
@@ -197,7 +197,7 @@ class TraceDebugMapperTest {
 
         assertEquals(List.of("R1", "R2", "R3"), steps.stream().map(StepValueView::ref).toList());
         // The fired rule is current so a sub-table called from its action nests under it, not the last rule.
-        assertEquals(StepStatus.CURRENT, steps.get(0).status(), "the firing rule is the current one");
+        assertEquals(StepStatus.CURRENT, steps.getFirst().status(), "the firing rule is the current one");
         assertEquals(StepStatus.PENDING, steps.get(1).status(), "rules that did not fire are pending");
         assertEquals(StepStatus.PENDING, steps.get(2).status(), "rules that did not fire are pending");
         assertTrue(steps.stream().allMatch(s -> s.value() == null), "the outline carries no values");
@@ -235,7 +235,7 @@ class TraceDebugMapperTest {
 
         // Sorted by own time: B (50), C (30), A (20).
         assertEquals(List.of("uB", "uC", "uA"), summary.hotspots().stream().map(ProfileHotspotView::uri).toList());
-        var b = summary.hotspots().get(0);
+        var b = summary.hotspots().getFirst();
         assertEquals(2, b.count(), "both B invocations are one hotspot row");
         assertEquals(50.0, b.selfMillis());
         assertEquals(50.0, b.totalMillis());
@@ -294,7 +294,7 @@ class TraceDebugMapperTest {
 
         assertNotNull(tree);
         assertEquals("A", tree.name());
-        var step = tree.steps().get(0);
+        var step = tree.steps().getFirst();
         assertNull(step.children(), "children are lazy — not serialized with the root");
         assertEquals(2, step.childrenTotal(), "the child count is reported so the client shows the step as expandable");
     }
@@ -307,8 +307,8 @@ class TraceDebugMapperTest {
         var top = TraceDebugMapper.toChildrenView(root, "uA", 0, "R0C0", 0, 100);
         assertEquals(2, top.total());
         assertEquals(List.of("B", "C"), top.children().stream().map(CallNodeView::name).toList());
-        assertNull(top.children().get(0).steps().get(0).children(), "B's grandchildren stay lazy");
-        assertEquals(3, top.children().get(0).steps().get(0).childrenTotal(), "B's loop count is reported");
+        assertNull(top.children().getFirst().steps().getFirst().children(), "B's grandchildren stay lazy");
+        assertEquals(3, top.children().getFirst().steps().getFirst().childrenTotal(), "B's loop count is reported");
 
         // Expand B's loop step by its (uri, instance): returns its three iterations.
         var loop = TraceDebugMapper.toChildrenView(root, "uB", 0, "R1C1", 0, 100);
@@ -340,8 +340,8 @@ class TraceDebugMapperTest {
                 StackRenderOptions.FULL, false).tree().steps();
 
         // A step that made a call: children are lazy, but its count is reported so it shows as expandable.
-        assertNull(steps.get(0).children(), "children are lazy — fetched on expand");
-        assertEquals(1, steps.get(0).childrenTotal());
+        assertNull(steps.getFirst().children(), "children are lazy — fetched on expand");
+        assertEquals(1, steps.getFirst().childrenTotal());
         // A step that called nothing: no count, so no expand affordance.
         assertNull(steps.get(1).children());
         assertNull(steps.get(1).childrenTotal(), "a step that called nothing carries no child count");
@@ -380,12 +380,12 @@ class TraceDebugMapperTest {
 
         var full = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null, List.of(),
                 StackRenderOptions.FULL, false);
-        assertNotNull(full.frames().get(0).steps(), "full view keeps every frame's steps");
+        assertNotNull(full.frames().getFirst().steps(), "full view keeps every frame's steps");
         assertNotNull(full.frames().get(1).steps());
 
         var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null, List.of(),
                 new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true), false);
-        assertNull(compact.frames().get(0).steps(), "compact drops the non-active frame's steps");
+        assertNull(compact.frames().getFirst().steps(), "compact drops the non-active frame's steps");
         assertTrue(compact.frames().get(1).active(), "the top frame is the active one");
         assertNotNull(compact.frames().get(1).steps(), "the active frame keeps its steps");
     }
@@ -400,14 +400,14 @@ class TraceDebugMapperTest {
         var view = mapper().toWatchView(captures, false, null, true);
 
         assertEquals(2, view.series().size(), "two distinct cells → two series");
-        var factor = view.series().get(0);
+        var factor = view.series().getFirst();
         assertEquals("$Factor", factor.name());
         assertEquals("uCov", factor.tableUri());
         assertEquals(List.of(1.0, 83.372),
                 factor.points().stream().map(p -> p.value().value().asDouble()).toList(),
                 "the factor's values across both executions, in order");
         assertEquals("Cov #2", factor.points().get(1).label(), "instance 1 reads as the 2nd execution");
-        assertEquals("uCov#R2C0", factor.points().get(0).ref());
+        assertEquals("uCov#R2C0", factor.points().getFirst().ref());
         assertEquals(2, factor.total(), "both executions counted in the total");
         assertFalse(view.truncated());
     }
@@ -419,11 +419,11 @@ class TraceDebugMapperTest {
             captures.add(new WatchCapture("$Loop", "T", "uT", i, List.of("T"), "uT#R0C0", i));
         }
 
-        var series = mapper().toWatchView(captures, false, null, true).series().get(0);
+        var series = mapper().toWatchView(captures, false, null, true).series().getFirst();
 
         assertEquals(100, series.points().size(), "a factor looped 150 times returns only the first 100 points");
         assertEquals(150, series.total(), "the full execution count is still reported");
-        assertEquals(0.0, series.points().get(0).value().value().asDouble(), "points keep execution order from the start");
+        assertEquals(0.0, series.points().getFirst().value().value().asDouble(), "points keep execution order from the start");
     }
 
     @Test

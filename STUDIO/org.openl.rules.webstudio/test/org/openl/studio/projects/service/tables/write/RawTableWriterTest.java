@@ -202,8 +202,8 @@ class RawTableWriterTest {
 
         var source = reload(mainProject);
         assertEquals(2, source.size());
-        assertNull(source.get(1).get(0).rowspan(), "a fully-contained merge must be removed, not left stale");
-        assertNull(source.get(1).get(0).covered());
+        assertNull(source.get(1).getFirst().rowspan(), "a fully-contained merge must be removed, not left stale");
+        assertNull(source.get(1).getFirst().covered());
         assertEquals("int", value(source, 1, 0));
     }
 
@@ -297,8 +297,8 @@ class RawTableWriterTest {
         apply(updateRange(1, 0, List.of(row("p"), row("q"))));
 
         var source = reload(mainProject);
-        assertNull(source.get(1).get(0).rowspan(), "stale merge must be cleared on a range update");
-        assertNull(source.get(2).get(0).covered());
+        assertNull(source.get(1).getFirst().rowspan(), "stale merge must be cleared on a range update");
+        assertNull(source.get(2).getFirst().covered());
         assertEquals("p", value(source, 1, 0));
         assertEquals("q", value(source, 2, 0));
     }
@@ -313,7 +313,7 @@ class RawTableWriterTest {
         var source = reload(mainProject);
         var last = source.size() - 1;
         assertEquals("MERGED", value(source, last, 0));
-        assertEquals(Integer.valueOf(2), source.get(last).get(0).colspan());
+        assertEquals(Integer.valueOf(2), source.get(last).getFirst().colspan());
         assertEquals(Boolean.TRUE, source.get(last).get(1).covered());
         assertEquals("tail", value(source, last, 2));
     }
@@ -324,8 +324,8 @@ class RawTableWriterTest {
         apply(merge(0, 0, 1, 2));
 
         var source = reload(mainProject);
-        assertEquals(Integer.valueOf(2), source.get(0).get(0).colspan());
-        assertEquals(Boolean.TRUE, source.get(0).get(1).covered());
+        assertEquals(Integer.valueOf(2), source.getFirst().getFirst().colspan());
+        assertEquals(Boolean.TRUE, source.getFirst().get(1).covered());
     }
 
     @Test
@@ -348,8 +348,8 @@ class RawTableWriterTest {
         apply(merge(1, 0, 2, 1));
 
         var source = reload(mainProject);
-        assertEquals(Integer.valueOf(2), source.get(1).get(0).rowspan());
-        assertEquals(Boolean.TRUE, source.get(2).get(0).covered());
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(2).getFirst().covered());
     }
 
     @Test
@@ -360,7 +360,7 @@ class RawTableWriterTest {
 
         var source = reload(mainProject);
         assertEquals("String", value(source, 1, 0));
-        assertNull(source.get(2).get(0).value(), "the covered cell's orphan value must be cleared by the merge");
+        assertNull(source.get(2).getFirst().value(), "the covered cell's orphan value must be cleared by the merge");
     }
 
     @Test
@@ -370,8 +370,8 @@ class RawTableWriterTest {
         apply(unmerge(0, 1));
 
         var source = reload(mainProject);
-        assertNull(source.get(0).get(0).colspan());
-        assertNull(source.get(0).get(1).covered());
+        assertNull(source.getFirst().getFirst().colspan());
+        assertNull(source.getFirst().get(1).covered());
     }
 
     @Test
@@ -388,8 +388,8 @@ class RawTableWriterTest {
 
         var source = reload(mainProject);
         // the merge dropped from the new cells must not linger, and the row holds the new values
-        assertNull(source.get(0).get(0).colspan(), "stale merge must be cleared on update");
-        assertNull(source.get(0).get(1).covered());
+        assertNull(source.getFirst().getFirst().colspan(), "stale merge must be cleared on update");
+        assertNull(source.getFirst().get(1).covered());
         assertEquals("Datatype", value(source, 0, 0));
         assertEquals("q", value(source, 0, 1));
         assertEquals("r", value(source, 0, 2));

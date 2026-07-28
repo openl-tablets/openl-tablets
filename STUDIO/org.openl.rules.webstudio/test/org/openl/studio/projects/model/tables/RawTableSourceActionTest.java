@@ -25,9 +25,9 @@ class RawTableSourceActionTest {
         var append = assertInstanceOf(RawTableSourceAction.Append.class, action);
         var rows = assertInstanceOf(AppendTarget.Rows.class, append.target());
         assertEquals(1, rows.cells().size());
-        assertEquals(2, rows.cells().get(0).size());
-        assertEquals("x", rows.cells().get(0).get(0).value());
-        assertEquals(2, rows.cells().get(0).get(1).colspan());
+        assertEquals(2, rows.cells().getFirst().size());
+        assertEquals("x", rows.cells().getFirst().getFirst().value());
+        assertEquals(2, rows.cells().getFirst().get(1).colspan());
     }
 
     @Test
@@ -52,7 +52,7 @@ class RawTableSourceActionTest {
         var rows = assertInstanceOf(InsertTarget.Rows.class, insert.target());
         assertEquals(2, rows.position());
         assertEquals(2, rows.cells().size());
-        assertEquals("a", rows.cells().get(0).get(0).value());
+        assertEquals("a", rows.cells().getFirst().getFirst().value());
     }
 
     @Test
@@ -103,7 +103,7 @@ class RawTableSourceActionTest {
         assertEquals(1, range.row());
         assertEquals(2, range.column());
         assertEquals(2, range.cells().size());
-        assertEquals("a", range.cells().get(0).get(0).value());
+        assertEquals("a", range.cells().getFirst().getFirst().value());
         assertEquals("d", range.cells().get(1).get(1).value());
     }
 

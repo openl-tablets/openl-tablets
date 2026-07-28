@@ -63,7 +63,7 @@ public abstract class AbstractFilesController {
             } else if (files == null || files.isEmpty()) {
                 throw new BadRequestException("file.path.requires.content.message");
             } else {
-                filesService.createResource(root, stripLeadingSlash(path), files.get(0).getInputStream(), createFolders);
+                filesService.createResource(root, stripLeadingSlash(path), files.getFirst().getInputStream(), createFolders);
             }
         } finally {
             postWrite();

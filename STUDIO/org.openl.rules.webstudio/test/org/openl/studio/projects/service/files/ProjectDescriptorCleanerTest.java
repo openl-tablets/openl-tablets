@@ -64,7 +64,7 @@ class ProjectDescriptorCleanerTest {
 
         var updated = writtenDescriptor();
         assertEquals(1, updated.getModules().size());
-        assertEquals("Other", updated.getModules().get(0).getName());
+        assertEquals("Other", updated.getModules().getFirst().getName());
     }
 
     @Test

@@ -68,7 +68,7 @@ public record CurrentLocation(LocationKind kind, int row, int column, @Nullable 
         }
         // A single rule is its own breakpoint key; a collect that fired many rules uses the any-rule key so
         // the step stays a single valid target (uri#rule) instead of an un-targetable comma-joined list.
-        return ruleNames.size() == 1 ? ruleNames.get(0) : RULE_FIRED_REF;
+        return ruleNames.size() == 1 ? ruleNames.getFirst() : RULE_FIRED_REF;
     }
 
     /** Compact label for the fired rules: the names, or the first few with a {@code +N more} for a big collect. */

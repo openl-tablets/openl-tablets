@@ -85,7 +85,7 @@ class ProjectFileLookupServiceImplTest {
         var files = service.lookup(repository, "a/AGENTS.md", true);
 
         assertEquals(List.of("a/AGENTS.md", "AGENTS.md"), paths(files));
-        assertEquals("nearest", content(files.get(0)));
+        assertEquals("nearest", content(files.getFirst()));
         assertEquals("root", content(files.get(1)));
     }
 

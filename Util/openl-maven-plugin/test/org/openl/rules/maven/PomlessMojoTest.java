@@ -343,7 +343,7 @@ class PomlessMojoTest {
                 openLDep("Other Domain", null));
 
         var match = PomlessMojo.findMatchingNameEntry(entries, "DocGen Mapping Common");
-        assertSame(entries.get(0), match,
+        assertSame(entries.getFirst(), match,
                 "the merge target is the entry whose <name> matches the sibling's logical name verbatim");
     }
 

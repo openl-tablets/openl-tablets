@@ -102,8 +102,8 @@ class ProjectFileLookupServiceImplGitTest {
         // Walk up from services/rating: the file itself (d0), the intermediate ancestor (d1), the
         // repository root (d2). The nested config/ file is a descendant and is not visited.
         assertEquals(3, files.size());
-        assertEquals("services/rating/AGENTS.md", files.get(0).getPath());
-        assertEquals("# project agents", content(files.get(0)));
+        assertEquals("services/rating/AGENTS.md", files.getFirst().getPath());
+        assertEquals("# project agents", content(files.getFirst()));
         assertEquals("services/AGENTS.md", files.get(1).getPath());
         assertEquals("# services agents", content(files.get(1)));
         assertEquals("AGENTS.md", files.get(2).getPath());
@@ -124,7 +124,7 @@ class ProjectFileLookupServiceImplGitTest {
 
         // There is nothing above the repository root, and descendants are not visited.
         assertEquals(1, files.size());
-        assertEquals("AGENTS.md", files.get(0).getPath());
+        assertEquals("AGENTS.md", files.getFirst().getPath());
     }
 
     @Test
@@ -133,7 +133,7 @@ class ProjectFileLookupServiceImplGitTest {
 
         // The deepest anchor reaches every level above it, up to the repository root.
         assertEquals(4, files.size());
-        assertEquals("services/rating/config/AGENTS.md", files.get(0).getPath());
+        assertEquals("services/rating/config/AGENTS.md", files.getFirst().getPath());
         assertEquals("services/rating/AGENTS.md", files.get(1).getPath());
         assertEquals("services/AGENTS.md", files.get(2).getPath());
         assertEquals("AGENTS.md", files.get(3).getPath());
@@ -159,8 +159,8 @@ class ProjectFileLookupServiceImplGitTest {
         var files = service.lookup(project, repository, "services/rating/AGENTS.md", true);
 
         assertEquals(3, files.size());
-        assertEquals("services/rating/AGENTS.md", files.get(0).getPath());
-        assertEquals("# project agents", content(files.get(0)));
+        assertEquals("services/rating/AGENTS.md", files.getFirst().getPath());
+        assertEquals("# project agents", content(files.getFirst()));
         assertEquals("services/AGENTS.md", files.get(1).getPath());
         assertEquals("AGENTS.md", files.get(2).getPath());
     }
@@ -174,7 +174,7 @@ class ProjectFileLookupServiceImplGitTest {
         var files = service.lookup(project, null, "services/rating/config/AGENTS.md", true);
 
         assertEquals(2, files.size());
-        assertEquals("services/rating/config/AGENTS.md", files.get(0).getPath());
+        assertEquals("services/rating/config/AGENTS.md", files.getFirst().getPath());
         assertEquals("services/rating/AGENTS.md", files.get(1).getPath());
     }
 

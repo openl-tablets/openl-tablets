@@ -765,7 +765,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (cells.stream().anyMatch(Objects::isNull)) {
             throw new BadRequestException("table.action.cells.required.message");
         }
-        var rangeWidth = cells.get(0).size();
+        var rangeWidth = cells.getFirst().size();
         var uneven = cells.stream().anyMatch(rowCells -> rowCells.size() != rangeWidth);
         if (uneven || rangeWidth == 0) {
             throw new BadRequestException("table.action.range.not-rectangular.message");
