@@ -303,6 +303,11 @@ export const useTraceStore = create<DebugState>((set, get) => {
     // session's 'terminated' socket echo can be ignored instead of blanking the panel mid-restart.
     let restarting = false
 
+    // True while a business-view inspect is mid-flight. Its run-to branch raises no `loading` flag and only
+    // flips status to 'running' after an awaited breakpoint round-trip, so without this guard a second row
+    // click in that window would start an overlapping inspect that cancels the first one's session.
+    let inspecting = false
+
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
     const applyStack = (stack: DebugStackView): void => {
         const topIndex = stack.frames.length > 0 ? stack.frames.length - 1 : null
@@ -446,6 +451,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId) return
             beginRun({ status: 'pending' })
+            const token = get().runId
             try {
                 // Attach to a session already created by the launcher; otherwise start a new one.
                 let stack: DebugStackView
@@ -457,6 +463,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                         { stopAtEntry: true, ...(get().profiling ? { profiling: true } : {}) }
                     ))
                 }
+                // A Run (simpleRun) or another start may have superseded this attach while it was in flight;
+                // applying this now-stale entry stack would overwrite the fresh run's frames and session id.
+                if (get().runId !== token) return
                 applyStack(stack)
             } catch (error: any) {
                 set({ status: 'error', error: error?.message || 'Failed to start trace' })
@@ -701,8 +710,12 @@ export const useTraceStore = create<DebugState>((set, get) => {
                     variablesLoading: false,
                     debugError: status === 'error' && message ? { summary: message } : null,
                     // Nothing is paused any more (e.g. an inspected row was conditionally skipped and the
-                    // run finished), so the next click cannot resume from here.
+                    // run finished), so the next click cannot resume from here. Drop the focus and selection
+                    // too: otherwise the settled root frame renders as a focused step (blank Details), and the
+                    // still-selected row cannot be re-inspected (a re-click is a no-op on the selected key).
                     simpleLastInspected: null,
+                    simpleFocus: null,
+                    simpleSelectedKey: null,
                 })
                 if (status === 'error') {
                     void get().fetchTerminalError()
@@ -822,38 +835,45 @@ export const useTraceStore = create<DebugState>((set, get) => {
 
         simpleInspect: async ({ key, frameUri, frameInstance, stepType, label, focus, selectionKey }) => {
             const { projectId, simpleReady, simpleLoading, loading, status } = get()
-            if (!projectId || !simpleReady || simpleLoading || loading || status === 'running') return
+            if (!projectId || !simpleReady || simpleLoading || loading || status === 'running' || inspecting) return
             // Clicking the row already on screen is a no-op — its inputs and result are shown, nothing to re-run.
             const clickedKey = selectionKey ?? key
             if (get().simpleSelectedKey === clickedKey) return
-            const order = get().simpleOrder[key] ?? null
-            const last = get().simpleLastInspected
-            // The highlight follows the clicked row (selectionKey); the run follows the target (key).
-            set({ simpleSelectedKey: clickedKey, simpleLastInspected: order?.end ?? null, simpleFocus: focus ?? null })
-            // Execution can only move forward: a row is still reachable by resuming when it starts after
-            // everything the previous inspection already ran — its own subtree included. Anything else
-            // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.
-            const canResume = status === 'suspended' && last !== null && order !== null && order.pre > last
-            let freshStack: DebugStackView | null = null
-            if (!canResume) {
-                freshStack = await restartQuietly()
-                if (!freshStack || freshStack.status !== 'suspended') return
-            }
-            // Execute in place only when paused exactly at the target: a call at its fresh entry (the
-            // root right after a restart), or the owning frame already ON the clicked step's line (the
-            // very next step after the previously inspected one). There the target's own entry point is
-            // already behind us, so an inclusive breakpoint would never fire — one step finishes it.
-            // A quiet restart leaves the previous table on the panel, so read the fresh root from the
-            // returned stack rather than the (still previous) displayed frames.
-            const top = (freshStack?.frames ?? get().frames).at(-1)
-            const atTarget = top && top.uri === frameUri && top.instance === frameInstance && !top.completed
-                && (stepType === 'over' ? top.location?.ref === focus?.ref : !top.location)
-            if (atTarget) {
-                await (stepType === 'over' ? get().stepOver() : get().stepOut())
-            } else {
-                // An inclusive one-shot breakpoint: the engine runs the target and suspends right after
-                // it executed, its inputs and result on the stack — a single stop, no follow-up steps.
-                await get().runTo(`after:${key}`, label)
+            // Single-flight: hold the guard across the whole inspect (its run-to branch neither raises
+            // `loading` nor flips status to 'running' until after an awaited round-trip).
+            inspecting = true
+            try {
+                const order = get().simpleOrder[key] ?? null
+                const last = get().simpleLastInspected
+                // The highlight follows the clicked row (selectionKey); the run follows the target (key).
+                set({ simpleSelectedKey: clickedKey, simpleLastInspected: order?.end ?? null, simpleFocus: focus ?? null })
+                // Execution can only move forward: a row is still reachable by resuming when it starts after
+                // everything the previous inspection already ran — its own subtree included. Anything else
+                // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.
+                const canResume = status === 'suspended' && last !== null && order !== null && order.pre > last
+                let freshStack: DebugStackView | null = null
+                if (!canResume) {
+                    freshStack = await restartQuietly()
+                    if (!freshStack || freshStack.status !== 'suspended') return
+                }
+                // Execute in place only when paused exactly at the target: a call at its fresh entry (the
+                // root right after a restart), or the owning frame already ON the clicked step's line (the
+                // very next step after the previously inspected one). There the target's own entry point is
+                // already behind us, so an inclusive breakpoint would never fire — one step finishes it.
+                // A quiet restart leaves the previous table on the panel, so read the fresh root from the
+                // returned stack rather than the (still previous) displayed frames.
+                const top = (freshStack?.frames ?? get().frames).at(-1)
+                const atTarget = top && top.uri === frameUri && top.instance === frameInstance && !top.completed
+                    && (stepType === 'over' ? top.location?.ref === focus?.ref : !top.location)
+                if (atTarget) {
+                    await (stepType === 'over' ? get().stepOver() : get().stepOut())
+                } else {
+                    // An inclusive one-shot breakpoint: the engine runs the target and suspends right after
+                    // it executed, its inputs and result on the stack — a single stop, no follow-up steps.
+                    await get().runTo(`after:${key}`, label)
+                }
+            } finally {
+                inspecting = false
             }
         },
 

@@ -242,23 +242,9 @@ public final class DebugFrame {
         return value == null ? intern.apply(name) : name + " = " + value;
     }
 
-    /** The row and column of an {@code RnCm} reference, or {@code null} when it is not a grid cell reference. */
-    private static int @Nullable [] parseRowCol(String ref) {
-        int c = ref.indexOf('C');
-        if (ref.isEmpty() || ref.charAt(0) != 'R' || c < 0) {
-            return null;
-        }
-        try {
-            return new int[]{Integer.parseInt(ref.substring(1, c)), Integer.parseInt(ref.substring(c + 1))};
-        } catch (NumberFormatException ignored) {
-            // A non-numeric reference is not a grid cell.
-            return null;
-        }
-    }
-
     /** The spreadsheet cell for a step's {@code RnCm} reference, or {@code null} when it is not a grid cell. */
     private static @Nullable SpreadsheetCell cellAt(Spreadsheet spreadsheet, String ref) {
-        int[] rowCol = parseRowCol(ref);
+        int[] rowCol = CurrentLocation.parseCellRef(ref);
         if (rowCol == null) {
             return null;
         }
@@ -283,15 +269,39 @@ public final class DebugFrame {
             steps.add(new CallNode.Step(intern.apply("c" + index++), intern.apply(label), 0, List.of(), false,
                     check.successful() ? DecisionRow.MATCHED : DecisionRow.UNMATCHED));
         }
-        // The returned rule is the fired-rule step; relabel it and let it keep the sub-calls its action made.
+        // A table called from a CONDITION carries no caller-ref (a decision table records a location only for
+        // the fired action), so it is recorded under a key no fired rule owns. Collect those sub-calls so a
+        // table reached from a condition is not silently dropped from the tree.
+        Set<String> firedRefs = new HashSet<>();
+        for (ExecutedStep step : executedSteps) {
+            firedRefs.add(step.ref());
+        }
+        List<CallNode> conditionCalls = new ArrayList<>();
+        executedChildren.forEach((ref, children) -> {
+            if (!firedRefs.contains(ref)) {
+                conditionCalls.addAll(children);
+            }
+        });
+        // The returned rule is the fired-rule step; relabel it and let it keep the sub-calls its action made,
+        // plus the condition sub-calls (which have no rule of their own to hang under).
         Set<String> covered = new HashSet<>();
+        boolean attachedConditionCalls = false;
         for (ExecutedStep step : executedSteps) {
             if (covered.add(step.ref())) {
+                List<CallNode> children = new ArrayList<>(childrenOf(step.ref()));
+                if (!attachedConditionCalls) {
+                    children.addAll(conditionCalls);
+                    attachedConditionCalls = true;
+                }
                 String rules = step.label() == null ? step.ref() : step.label();
                 steps.add(new CallNode.Step(intern.apply(step.ref()),
                         intern.apply(TraceTextFormatter.returnedRuleLine(List.of(rules))),
-                        step.durationNanos(), List.copyOf(childrenOf(step.ref())), false, DecisionRow.RETURNED));
+                        step.durationNanos(), List.copyOf(children), false, DecisionRow.RETURNED));
             }
+        }
+        // No rule fired, yet a condition still called out — keep those calls under the table so nothing is lost.
+        if (!attachedConditionCalls && !conditionCalls.isEmpty()) {
+            steps.add(new CallNode.Step(intern.apply("calls"), null, 0, List.copyOf(conditionCalls)));
         }
         return steps;
     }
@@ -306,7 +316,7 @@ public final class DebugFrame {
 
     /** Grid position of a spreadsheet step by its {@code RnCm} reference, for a table-shaped ordering. */
     private static long gridOrder(CallNode.Step step) {
-        int[] rowCol = parseRowCol(step.ref());
+        int[] rowCol = CurrentLocation.parseCellRef(step.ref());
         return rowCol == null ? Long.MAX_VALUE : (long) rowCol[0] * 10_000 + rowCol[1];
     }
 
