@@ -105,6 +105,16 @@ describe('SimpleTraceTree', () => {
         expect(screen.getByTestId('simple-node-tree/S1#1')).toHaveTextContent('uA')
     })
 
+    it('does not badge a looped call with its execution pass — that is an advanced-mode detail', async () => {
+        setStore()
+        render(<SimpleTraceTree />)
+
+        await userEvent.click(screen.getByTestId('simple-toggle-tree/S1'))
+
+        // uA runs twice; the advanced tree marks the 2nd pass "#2", but the business view stays plain.
+        expect(screen.getByTestId('simple-node-tree/S1#1')).not.toHaveTextContent('#2')
+    })
+
     const decisionTree = () => {
         const dt = callNode('uDT', 0, [
             { ref: 'c0', label: 'Condition: MC1, Rules: [R1]', status: 'executed', decision: 'unmatched' },

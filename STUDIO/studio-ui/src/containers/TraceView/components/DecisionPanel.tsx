@@ -66,6 +66,7 @@ interface DecisionPanelProps {
 const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, frameUri, frameName }) => {
     const { t } = useTranslation('trace')
     const { styles, cx } = useStyles()
+    const advanced = useTraceStore(s => s.advanced)
     const breakpoints = useTraceStore(s => s.breakpoints)
     const toggleBreakpoint = useTraceStore(s => s.toggleBreakpoint)
     const [showAllRules, setShowAllRules] = useState(false)
@@ -98,11 +99,11 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, fram
         <Card
             className={styles.card}
             data-testid="decision-panel"
-            extra={ruleFireToggle}
+            extra={advanced ? ruleFireToggle : undefined}
             size="small"
             title={t('details.decision')}
         >
-            {ruleNames && ruleNames.length > 0 && (
+            {advanced && ruleNames && ruleNames.length > 0 && (
                 <div className={styles.rulePicker}>
                     <span className={styles.rulePickerLabel}>{t('decision.breakOnRule')}</span>
                     <Select
@@ -127,17 +128,20 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, fram
                         const bpTooltip = hasRuleBreakpoint ? t('debug.removeBreakpoint') : t('debug.addBreakpoint')
                         return (
                             <div key={rule} className={cx(styles.rule, fired.has(rule) && styles.firedRule)}>
-                                <Tooltip title={bpTooltip}>
-                                    <span
-                                        aria-label={bpTooltip}
-                                        className={cx(styles.gutter, hasRuleBreakpoint && styles.gutterActive)}
-                                        data-testid={`decision-rule-bp-${rule}`}
-                                        onClick={() => toggleBreakpoint(ruleKey, ruleLabel(rule))}
-                                        onKeyDown={onActivate(() => toggleBreakpoint(ruleKey, ruleLabel(rule)))}
-                                        role="button"
-                                        tabIndex={0}
-                                    />
-                                </Tooltip>
+                                {/* The rule-breakpoint gutter is a debugger feature; the business view omits it. */}
+                                {advanced && (
+                                    <Tooltip title={bpTooltip}>
+                                        <span
+                                            aria-label={bpTooltip}
+                                            className={cx(styles.gutter, hasRuleBreakpoint && styles.gutterActive)}
+                                            data-testid={`decision-rule-bp-${rule}`}
+                                            onClick={() => toggleBreakpoint(ruleKey, ruleLabel(rule))}
+                                            onKeyDown={onActivate(() => toggleBreakpoint(ruleKey, ruleLabel(rule)))}
+                                            role="button"
+                                            tabIndex={0}
+                                        />
+                                    </Tooltip>
+                                )}
                                 <span className={styles.ruleName}>{rule}</span>
                                 <span className={styles.conditions}>
                                     {conditions.map(c => (
