@@ -135,6 +135,21 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCe
     // highlights stays fully readable.
     const dim = !!dimOthers && Object.keys(highlights).length > 0
 
+    // The effective highlight of a cell: the dimmed business view suppresses the 'current' colour (the clicked
+    // cell already stands out undimmed), so the legend below keys only the colours actually painted.
+    const paintedState = (state: HighlightState | undefined): HighlightState | undefined =>
+        dim && state === 'current' ? undefined : state
+    const paintedStates = new Set(
+        Object.values(highlights).map(paintedState).filter((state): state is HighlightState => state !== undefined)
+    )
+    const legend: { state: HighlightState; swatch: string; label: string }[] = [
+        { state: 'current', swatch: styles.swatchCurrent, label: 'legend.current' },
+        { state: 'result', swatch: styles.swatchResult, label: 'legend.result' },
+        { state: 'conditionTrue', swatch: styles.swatchMet, label: 'legend.conditionMet' },
+        { state: 'conditionFalse', swatch: styles.swatchNotMet, label: 'legend.conditionNotMet' },
+    ]
+    const shownLegend = legend.filter(item => paintedStates.has(item.state))
+
     return (
         <Card className={styles.card} size="small" title={t('details.table')}>
             <div className={styles.content}>
@@ -149,7 +164,7 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCe
                                     // own — it is the only cell left uncoloured, so it already stands out;
                                     // keep it exactly as the table draws it. A decision table's matched
                                     // conditions and result still carry meaning and keep their highlight.
-                                    const painted = dim && state === 'current' ? undefined : state
+                                    const painted = paintedState(state)
                                     return (
                                         <td
                                             key={cell.cell ?? `c${c}`}
@@ -169,6 +184,16 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCe
                     </tbody>
                 </table>
             </div>
+            {shownLegend.length > 0 && (
+                <div className={styles.legend} data-testid="trace-legend">
+                    {shownLegend.map(item => (
+                        <span key={item.state} className={styles.legendItem}>
+                            <span className={cx(styles.swatch, item.swatch)} />
+                            {t(item.label)}
+                        </span>
+                    ))}
+                </div>
+            )}
             {table.totalRows != null && (
                 <div className={styles.truncated}>
                     {t('table.truncated', { count: rows.length, total: table.totalRows })}

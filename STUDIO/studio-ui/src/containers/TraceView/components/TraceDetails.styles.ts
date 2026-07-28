@@ -42,35 +42,4 @@ export const useStyles = createStyles(({ css, token }) => ({
         color: ${token.colorTextTertiary};
         font-family: ${token.fontFamilyCode};
     `,
-    legend: css`
-        display: flex;
-        flex-wrap: wrap;
-        gap: ${token.marginSM}px;
-        font-size: ${token.fontSizeSM}px;
-        color: ${token.colorTextTertiary};
-    `,
-    legendItem: css`
-        display: inline-flex;
-        align-items: center;
-        gap: ${token.marginXXS}px;
-    `,
-    swatch: css`
-        width: 12px;
-        height: 12px;
-        border-radius: ${token.borderRadiusSM}px;
-        border: 1px solid ${token.colorBorderSecondary};
-    `,
-    swatchCurrent: css`
-        background: ${token.colorWarningBg};
-    `,
-    swatchResult: css`
-        background: ${token.colorSuccessBg};
-        box-shadow: inset 0 0 0 1px ${token.colorSuccess};
-    `,
-    swatchMet: css`
-        background: ${token.colorSuccessBg};
-    `,
-    swatchNotMet: css`
-        background: ${token.colorErrorBg};
-    `,
 }))

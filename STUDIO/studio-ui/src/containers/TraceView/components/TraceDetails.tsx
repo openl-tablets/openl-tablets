@@ -60,35 +60,6 @@ const TraceErrors: React.FC<{ errors?: MessageDescription[] | undefined }> = ({ 
 }
 
 /**
- * Compact key to the execution-state colours shared by the traced table, the spreadsheet grid and the
- * decision panel, so a reader can tell at a glance what each highlight means.
- */
-const TraceLegend: React.FC = () => {
-    const { t } = useTranslation('trace')
-    const { styles, cx } = useStyles()
-    return (
-        <div className={styles.legend} data-testid="trace-legend">
-            <span className={styles.legendItem}>
-                <span className={cx(styles.swatch, styles.swatchCurrent)} />
-                {t('legend.current')}
-            </span>
-            <span className={styles.legendItem}>
-                <span className={cx(styles.swatch, styles.swatchResult)} />
-                {t('legend.result')}
-            </span>
-            <span className={styles.legendItem}>
-                <span className={cx(styles.swatch, styles.swatchMet)} />
-                {t('legend.conditionMet')}
-            </span>
-            <span className={styles.legendItem}>
-                <span className={cx(styles.swatch, styles.swatchNotMet)} />
-                {t('legend.conditionNotMet')}
-            </span>
-        </div>
-    )
-}
-
-/**
  * Right panel: the selected stack frame's table and frozen variables.
  *
  * In the simple mode a clicked step keeps its own identity here: the panel is titled by the step, shows
@@ -212,7 +183,6 @@ const TraceDetails: React.FC = () => {
             {/* Source table: the owning table of a focused step (its cell highlighted), else the frame's. */}
             {/* The business view mutes everything but the highlighted calculation, like the legacy trace. */}
             <TraceTableView dimOthers={!advanced} frameIndex={tableIndex} highlightCell={highlightCell} />
-            <TraceLegend />
             {!variablesLoading && (
                 <>
                     {/* The frame-level panels belong to the frame view; a focused step keeps its own

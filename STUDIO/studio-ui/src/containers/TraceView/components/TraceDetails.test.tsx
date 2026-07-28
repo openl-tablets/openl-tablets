@@ -91,8 +91,6 @@ describe('TraceDetails', () => {
         expect(screen.getByText('1.5')).toBeInTheDocument()
         // The traced source table is rendered for the selected frame index.
         expect(screen.getByTestId('stub-table')).toHaveTextContent('table:0')
-        // The colour legend is present.
-        expect(screen.getByTestId('trace-legend')).toBeInTheDocument()
     })
 
     it('adds the context to the parameter list when present', () => {
