@@ -10,8 +10,8 @@ over the same `production-repository.*` settings described in
 
 -   `deploy(Path path, boolean ignoreIfExists)` — deploy a project ZIP from a file path.
 -   `deploy(InputStream in, boolean ignoreIfExists)` or `deploy(String name, InputStream in, boolean ignoreIfExists)` —
-    deploy from a ZIP input stream, where `name` supplies the original ZIP file name (the deployment name is
-    resolved from the ZIP contents).
+    deploy from a ZIP input stream, where `name` supplies the original ZIP file name. For a single-project archive,
+    the project name from `rules.xml` is used as the deployment name if present; otherwise this file name is used.
 
 The `ignoreIfExists` flag controls redeployment: when `true`, an existing deployment with the same name is overridden;
 when `false`, it is left unchanged.
