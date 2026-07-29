@@ -194,8 +194,10 @@ const TraceDetails: React.FC = () => {
             {!loadingDetails && (
                 <>
                     {/* The frame-level panels belong to the frame view; a focused step keeps its own
-                        identity and shows only its inputs, result, and owning table. */}
-                    {!stepView && frame?.kind === 'spreadsheet' && (
+                        identity and shows only its inputs, result, and owning table. They are an advanced
+                        detail: the business view already shows the steps and the decision breakdown in the
+                        tree, so the extra grid/decision table below the traced table would just duplicate it. */}
+                    {advanced && !stepView && frame?.kind === 'spreadsheet' && (
                         <SpreadsheetGrid
                             columns={variables?.gridColumns}
                             frameUri={frame.uri}
@@ -205,7 +207,7 @@ const TraceDetails: React.FC = () => {
                     )}
                     {/* For decision tables, always offer the rule-fired breakpoint; the firing is
                         explained once a rule fires. */}
-                    {!stepView && frame?.kind === 'decisionTable' && (
+                    {advanced && !stepView && frame?.kind === 'decisionTable' && (
                         <DecisionPanel
                             decision={variables?.decision ?? null}
                             frameName={frame.name}
