@@ -920,6 +920,20 @@ public class TraceDebugMapper {
     }
 
     /**
+     * The index of the first table parameter whose type the given class can be read from, or {@code -1}.
+     * Both parameter-field resolvers pair a field with the parameter of its declaring type this way.
+     */
+    private static int matchingParameterIndex(IOpenClass declaring, IMethodSignature signature, int paramsLength) {
+        int count = Math.min(paramsLength, signature.getNumberOfParameters());
+        for (int i = 0; i < count; i++) {
+            if (declaring.isAssignableFrom(signature.getParameterType(i))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * A field of a parameter opened into the table's scope (e.g. {@code currentFinancialData} resolved
      * as a field of the {@code bank} parameter): read it from that parameter's recorded value.
      */
@@ -929,20 +943,17 @@ public class TraceDebugMapper {
         if (declaring == null) {
             return null;
         }
-        IMethodSignature signature = spreadsheet.getSignature();
         Object[] params = frame.getParams();
-        int count = Math.min(params.length, signature.getNumberOfParameters());
-        for (int i = 0; i < count; i++) {
-            if (declaring.isAssignableFrom(signature.getParameterType(i))) {
-                try {
-                    Object value = params[i] == null ? null : field.getDelegate().get(params[i], null);
-                    return new StepInput(2, i, field.getName(), value, field.getType());
-                } catch (Exception e) {
-                    return null;
-                }
-            }
+        int i = matchingParameterIndex(declaring, spreadsheet.getSignature(), params.length);
+        if (i < 0) {
+            return null;
         }
-        return null;
+        try {
+            Object value = params[i] == null ? null : field.getDelegate().get(params[i], null);
+            return new StepInput(2, i, field.getName(), value, field.getType());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -960,23 +971,20 @@ public class TraceDebugMapper {
         }
         IMethodSignature signature = spreadsheet.getSignature();
         Object[] params = frame.getParams();
-        int count = Math.min(params.length, signature.getNumberOfParameters());
-        for (int i = 0; i < count; i++) {
-            if (!declaring.isAssignableFrom(signature.getParameterType(i))) {
-                continue;
-            }
-            String parameter = signature.getParameterName(i);
-            fields.stream()
-                    .filter(candidate -> candidate instanceof ILocalVar && parameter.equals(candidate.getName()))
-                    .forEach(narrowed::add);
-            try {
-                Object value = params[i] == null ? null : field.get(params[i], null);
-                return new StepInput(2, i, parameter + "." + field.getName(), value, field.getType());
-            } catch (Exception e) {
-                return null;
-            }
+        int i = matchingParameterIndex(declaring, signature, params.length);
+        if (i < 0) {
+            return null;
         }
-        return null;
+        String parameter = signature.getParameterName(i);
+        fields.stream()
+                .filter(candidate -> candidate instanceof ILocalVar && parameter.equals(candidate.getName()))
+                .forEach(narrowed::add);
+        try {
+            Object value = params[i] == null ? null : field.get(params[i], null);
+            return new StepInput(2, i, parameter + "." + field.getName(), value, field.getType());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
