@@ -82,4 +82,12 @@ ${idleControls(token.motionDurationMid)}
     fullWidth: css`
         width: 100%;
     `,
+    /** Aligns a check box with the content inset and control height used by the other table cell editors. */
+    checkboxEditor: css`
+        display: flex;
+        width: 100%;
+        min-height: ${token.controlHeight}px;
+        align-items: center;
+        padding: 0 ${token.paddingXS}px;
+    `,
 }))

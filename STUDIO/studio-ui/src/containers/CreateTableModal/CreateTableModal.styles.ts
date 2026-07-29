@@ -41,13 +41,17 @@ export const useStyles = createStyles(({ css, token }) => ({
          * .ant-select-content in Ant Design v6, renamed from the v5 .ant-select-selector.
          */
         .ant-select,
-        .ant-input {
+        .ant-input,
+        .ant-input-number,
+        .ant-picker {
             width: 100%;
             height: 32px;
         }
 
         .ant-input,
-        .ant-select.ant-select-outlined {
+        .ant-select.ant-select-outlined,
+        .ant-input-number.ant-input-number-outlined,
+        .ant-picker.ant-picker-outlined {
             border: 0;
             border-radius: 0;
             background: transparent;
@@ -55,12 +59,15 @@ export const useStyles = createStyles(({ css, token }) => ({
         }
 
         .ant-input,
-        .ant-select .ant-select-content {
+        .ant-select .ant-select-content,
+        .ant-picker {
             padding: 0 ${token.paddingXS}px;
         }
 
         .ant-input:focus,
-        .ant-select-focused.ant-select-outlined {
+        .ant-select-focused.ant-select-outlined,
+        .ant-input-number-focused.ant-input-number-outlined,
+        .ant-picker-focused.ant-picker-outlined {
             box-shadow: inset 0 0 0 2px ${token.colorPrimary};
         }
     `,
@@ -137,12 +144,37 @@ ${idleControls(token.motionDurationMid)}
         min-width: 150px;
         padding: 0;
     `,
-    /** A checkbox needs a cell the width of a checkbox, not the width of a text column. */
-    narrowCell: css`
-        width: 84px;
-        min-width: 84px;
+    /**
+     * Multiple property values need room for several tags, but must wrap instead of making the sheet as wide as
+     * every selected value combined.
+     */
+    propertyValueCell: css`
+        width: clamp(320px, 40vw, 480px);
+        min-width: 320px;
+        max-width: 480px;
+        padding: 0;
+
+        .ant-select-multiple {
+            height: auto;
+            min-height: ${token.controlHeight}px;
+        }
+    `,
+    /** Short Datatype metadata values need less room than names, types, and descriptions. */
+    compactCell: css`
+        width: 110px;
+        min-width: 110px;
+        padding: 0;
+    `,
+    /** Technical and business field names in the fixed part of a transposed table. */
+    structureCell: css`
+        min-width: 120px;
         padding: 0 ${token.paddingXS}px;
-        text-align: center;
+        font-size: ${token.fontSizeSM}px;
+        font-weight: 500;
+        color: ${token.colorTextSecondary};
+        text-align: left;
+        white-space: nowrap;
+        background: ${token.colorFillQuaternary};
     `,
     /** Row number at rest; the anchor the reader counts rows by, and what OpenL errors refer to. */
     gutter: css`

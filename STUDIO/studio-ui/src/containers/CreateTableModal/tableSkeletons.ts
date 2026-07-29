@@ -28,7 +28,8 @@ export interface TableArgument {
     name: string
 }
 
-export type TableCellEditor = 'text' | 'type' | 'simpleType' | 'checkbox' | 'environment' | 'property'
+export type TableCellEditor =
+    'text' | 'type' | 'simpleType' | 'value' | 'checkbox' | 'environment' | 'property'
 
 export interface TableColumn {
     key: string
@@ -50,12 +51,13 @@ export interface TableBuildContext {
     resultFields: DatatypeField[]
     arguments: TableArgument[]
     vocabularyType: string
+    extendsType: string
     datatypeName: string
     dataFields: DatatypeField[]
     targetName: string
     targetColumns: TargetColumn[]
-    /** The first value each vocabulary offers, by vocabulary name — what an example cell of that type holds. */
-    vocabularyValues: Record<string, string>
+    /** Every value each vocabulary offers, by vocabulary name. The first one seeds an example cell. */
+    vocabularyValues: Record<string, string[]>
 }
 
 /**
@@ -135,6 +137,10 @@ export const hasTableName = (preset: TablePreset): boolean =>
  */
 export const isTargeted = (preset: TablePreset): preset is 'test' | 'run' => preset === 'test' || preset === 'run'
 
+/** Test, Run, and Data tables may put their declared fields down rows instead of across columns. */
+export const isTransposable = (preset: TablePreset): preset is 'test' | 'run' | 'data' =>
+    preset === 'test' || preset === 'run' || preset === 'data'
+
 /**
  * Tells whether the table opens with an OpenL header cell of its own.
  *
@@ -208,7 +214,7 @@ export const buildTableHeader = (
 ): string => {
     switch (preset) {
         case 'datatype':
-            return `Datatype ${name}`
+            return `Datatype ${name}${context.extendsType.trim() ? ` extends ${context.extendsType.trim()}` : ''}`
         case 'vocabulary':
             return `Datatype ${name} <${context.vocabularyType || 'String'}>`
         case 'constants':
@@ -257,6 +263,7 @@ export const deriveTableName = (preset: TablePreset, header: string): string => 
 }
 
 const textColumn = (key: string, label: string): TableColumn => ({ key, label, editor: 'text' })
+const valueColumn = (key: string, label: string): TableColumn => ({ key, label, editor: 'value' })
 
 /** Spreadsheet column name for a zero-based index: A, B, ... Z, AA. The only title a plain grid can carry. */
 const columnLetter = (index: number): string => {
@@ -277,17 +284,18 @@ export const buildTableColumns = (
             return [
                 { key: 'type', label: 'Type', editor: 'type' },
                 textColumn('name', 'Name'),
-                textColumn('default', 'Default Value'),
-                { key: 'required', label: 'Required', editor: 'checkbox' },
+                valueColumn('default', 'Default Value'),
+                { key: 'mandatory', label: 'Mandatory', editor: 'checkbox' },
                 textColumn('description', 'Description'),
+                valueColumn('example', 'Examples'),
             ]
         case 'vocabulary':
-            return [textColumn('value', 'Value')]
+            return [valueColumn('value', 'Value')]
         case 'constants':
             return [
                 { key: 'type', label: 'Type', editor: 'simpleType' },
                 textColumn('name', 'Name'),
-                textColumn('default', 'Default Value'),
+                valueColumn('default', 'Default Value'),
             ]
         case 'spreadsheet':
             // The author names a Spreadsheet's columns in the first row of the body, so the grid titles none of them.
@@ -298,10 +306,10 @@ export const buildTableColumns = (
             // An input column is matched to a parameter by name; with no parameters declared there is nothing to
             // match, and a placeholder column would silently bind as a second return instead.
             const inputColumns = completeArguments(context.arguments)
-                .map((argument, index) => textColumn(`input-${index}`, argument.name))
+                .map((argument, index) => valueColumn(`input-${index}`, argument.name))
             const outputColumns = context.resultFields.length
-                ? context.resultFields.map((field, index) => textColumn(`output-${index}`, field.name))
-                : [textColumn('output', 'Output')]
+                ? context.resultFields.map((field, index) => valueColumn(`output-${index}`, field.name))
+                : [valueColumn('output', 'Output')]
             return [...inputColumns, ...outputColumns]
         }
         case 'smartLookup':
@@ -311,20 +319,20 @@ export const buildTableColumns = (
             const { keys, titles } = headerBand(preset, context)
             const width = Math.max(minimumColumns(preset, context), gridWidth)
             return [
-                ...titles.map((name, index) => textColumn(`key-${index}`, name)),
-                ...Array.from({ length: width - keys }, (_, index) => textColumn(`value-${index}`, '')),
+                ...titles.map((name, index) => valueColumn(`key-${index}`, name)),
+                ...Array.from({ length: width - keys }, (_, index) => valueColumn(`value-${index}`, '')),
             ]
         }
         case 'rules':
-            return [textColumn('condition', 'Condition'), textColumn('output', 'Output')]
+            return [valueColumn('condition', 'Condition'), valueColumn('output', 'Output')]
         case 'test':
         case 'run':
-            return context.targetColumns.map((column, index) => textColumn(
+            return context.targetColumns.map((column, index) => valueColumn(
                 `target-${index}`,
                 column.title || column.name
             ))
         case 'data':
-            return context.dataFields.map((field, index) => textColumn(`field-${index}`, field.name))
+            return context.dataFields.map((field, index) => valueColumn(`field-${index}`, title(field.name)))
         case 'environment':
             return [
                 { key: 'key', label: 'Key', editor: 'environment' },
@@ -339,6 +347,59 @@ export const buildTableColumns = (
             // Nothing in a free-form table is generated, so its columns are named the way a sheet names them.
             return Array.from({ length: gridWidth }, (_, index) =>
                 textColumn(`column-${index}`, columnLetter(index)))
+    }
+}
+
+/**
+ * The OpenL type a value cell must accept.
+ *
+ * <p>Most generated tables declare one type per column. A lookup also declares types down its top band: each band
+ * row belongs to one horizontal argument, the leading cells below it belong to the vertical arguments, and the
+ * remaining matrix holds the result type.
+ */
+export const cellValueType = (
+    preset: TablePreset,
+    context: TableBuildContext,
+    rows: TableCellValue[][],
+    row: number,
+    column: number
+): string | undefined => {
+    switch (preset) {
+        case 'datatype':
+            return column === 2 || column === 5 ? String(rows[row]?.[0] ?? '') : undefined
+        case 'vocabulary':
+            return context.vocabularyType
+        case 'constants':
+            return column === 2 ? String(rows[row]?.[0] ?? '') : undefined
+        case 'smartRules':
+        case 'simpleRules': {
+            const argumentsValue = completeArguments(context.arguments)
+            if (column < argumentsValue.length) {
+                return argumentsValue[column]?.type
+            }
+            const resultColumn = column - argumentsValue.length
+            return context.resultFields.length
+                ? context.resultFields[resultColumn]?.type
+                : context.resultType
+        }
+        case 'smartLookup':
+        case 'simpleLookup': {
+            const argumentsValue = completeArguments(context.arguments)
+            const band = headerBand(preset, context)
+            if (row < band.rows) {
+                return column < band.keys ? undefined : argumentsValue[band.keys + row]?.type
+            }
+            return column < band.keys ? argumentsValue[column]?.type : context.resultType
+        }
+        case 'rules':
+            return column === 0 ? 'Boolean' : context.resultType
+        case 'test':
+        case 'run':
+            return context.targetColumns[column]?.type
+        case 'data':
+            return context.dataFields[column]?.type
+        default:
+            return undefined
     }
 }
 
@@ -359,8 +420,8 @@ export const ownValue = <T>(map: Readonly<Record<string, T>>, key: string): T | 
 /**
  * What an example value of each scalar type looks like, written the way OpenL reads a cell of text.
  *
- * <p>A date is written in the format OpenL parses by default, `MM/dd/yyyy`, and a boolean as the keyword rather
- * than as a tick — a value cell holds text whatever its type.
+ * <p>A date is written in ISO 8601 `yyyy-MM-dd` format and a boolean as the keyword rather than as a tick — a value
+ * cell holds text whatever its type.
  */
 const EXAMPLE_VALUES: Readonly<Record<string, string>> = {
     String: 'Text1',
@@ -374,7 +435,7 @@ const EXAMPLE_VALUES: Readonly<Record<string, string>> = {
     Float: '1.0',
     BigDecimal: '1.0',
     Character: 'A',
-    Date: '06/15/2026',
+    Date: '2026-06-15',
     IntRange: '1-10',
     DoubleRange: '1.0-10.0',
 }
@@ -397,10 +458,10 @@ const placeholderName = (path: string): string =>
 const exampleValue = (
     type: string,
     path: string,
-    vocabularies: Record<string, string> = {}
+    vocabularies: Record<string, string[]> = {}
 ): string => {
     const declared = type.trim()
-    return ownValue(EXAMPLE_VALUES, declared) ?? ownValue(vocabularies, declared)
+    return ownValue(EXAMPLE_VALUES, declared) ?? ownValue(vocabularies, declared)?.[0]
         ?? `${placeholderName(path)}_id_1`
 }
 
@@ -556,8 +617,8 @@ export const bodyIsValid = (
 export const dropEmptyRows = (rows: TableCellValue[][]): TableCellValue[][] => rows.filter(row => !isEmptyRow(row))
 
 /**
- * Drops the trailing blank columns the Free Form editor keeps for input. A blank column ends the table the same way a
- * blank row does.
+ * Drops the trailing blank columns a growing grid keeps for input. A blank column ends the table the same way a blank
+ * row does.
  */
 export const dropEmptyTrailingColumns = (rows: TableCellValue[][]): TableCellValue[][] => {
     const width = Math.max(0, ...rows.map(row => row.length))
@@ -606,27 +667,30 @@ export const normalizeFreeFormColumns = (
 /**
  * The heading a generated column carries, read as one phrase rather than as a list of identifiers.
  *
- * <p>Underscores and camel humps open a new word, and only the first of them is capitalized: `policy mainDriver
- * age` reads as `Policy main driver age`. A word already written in capitals keeps them.
+ * <p>Underscores and camel humps open a new word. Every word is capitalized: `policy mainDriver age` reads as
+ * `Policy Main Driver Age`. A word already written in capitals keeps them.
  */
 export const title = (name: string): string => name
     .replaceAll(/[_-]+/g, ' ')
+    .replaceAll(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
     .replaceAll(/([a-z\d])([A-Z])/g, '$1 $2')
     .trim()
     .split(/\s+/)
-    .map((word, index) => index && !/^[A-Z\d]+$/.test(word) ? word.toLowerCase() : word)
+    .map(word => /^[A-Z\d]+$/.test(word)
+        ? word
+        : word.toLowerCase().replace(/^./, first => first.toUpperCase()))
     .join(' ')
-    .replace(/^./, first => first.toUpperCase())
 
 /**
  * The complete matrix written to the sheet: the header cell, the structural rows the table type requires, then the
- * rows the author filled in. The header is passed in rather than rebuilt, because the author may have edited it.
+ * rows the author filled in. The generated header is passed in so the preview and submitted source share one value.
  */
 export const buildTableSource = (
     preset: TablePreset,
     headerText: string,
     context: TableBuildContext,
-    rows: TableCellValue[][]
+    rows: TableCellValue[][],
+    transposed = false
 ): TableCellValue[][] => {
     if (!hasTableHeader(preset)) {
         return rows
@@ -634,7 +698,7 @@ export const buildTableSource = (
     const header = [headerText]
     switch (preset) {
         case 'datatype':
-            return [header, ['Type', 'Name', 'Default', 'Mandatory', 'Description'], ...rows]
+            return [header, ['Type', 'Name', 'Default', 'Mandatory', 'Description', 'Example'], ...rows]
         case 'smartRules':
         case 'simpleRules':
             return [header, buildTableColumns(preset, context).map(column => column.label), ...rows]
@@ -660,23 +724,31 @@ export const buildTableSource = (
             return [header, [...titles, ...band.slice(keys)], ...body]
         }
         case 'test':
-        case 'run':
-            return [
-                header,
+        case 'run': {
+            const body = [
                 context.targetColumns.map(column => column.name),
                 context.targetColumns.map(column => column.title),
                 ...rows,
             ]
-        case 'data':
-            return [
-                header,
+            return [header, ...(transposed ? transpose(body) : body)]
+        }
+        case 'data': {
+            const body = [
                 context.dataFields.map(field => field.name),
                 context.dataFields.map(field => title(field.name)),
                 ...rows,
             ]
+            return [header, ...(transposed ? transpose(body) : body)]
+        }
         default:
             return [header, ...rows]
     }
+}
+
+/** Turns rows into columns, padding short rows so the result stays rectangular. */
+const transpose = (rows: TableCellValue[][]): TableCellValue[][] => {
+    const width = Math.max(0, ...rows.map(row => row.length))
+    return Array.from({ length: width }, (_, column) => rows.map(row => row[column] ?? ''))
 }
 
 const TABLE_KINDS = {

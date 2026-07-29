@@ -3,6 +3,7 @@ import {
     buildTableColumns,
     buildTableHeader,
     buildTableSource,
+    cellValueType,
     defaultResultType,
     deriveTableName,
     dropEmptyRows,
@@ -12,6 +13,7 @@ import {
     headerBand,
     initialRows,
     isTargeted,
+    isTransposable,
     minimumRows,
     normalizeFreeFormColumns,
     normalizeRows,
@@ -30,6 +32,7 @@ const context = (overrides: Partial<TableBuildContext> = {}): TableBuildContext 
     resultFields: [],
     arguments: [],
     vocabularyType: 'String',
+    extendsType: '',
     datatypeName: 'Customer',
     dataFields: [{ name: 'name', type: 'String' }, { name: 'age', type: 'Integer' }],
     targetName: 'Eligibility',
@@ -37,7 +40,7 @@ const context = (overrides: Partial<TableBuildContext> = {}): TableBuildContext 
         { name: 'age', title: 'Age', type: 'Integer' },
         { name: '_res_', title: 'Result', type: 'Boolean' },
     ],
-    vocabularyValues: { Country: 'USA' },
+    vocabularyValues: { Country: ['USA', 'Canada']},
     ...overrides,
 })
 
@@ -73,6 +76,8 @@ describe('tableSkeletons', () => {
 
         expect(buildTableHeader('vocabulary', 'Status', context({ vocabularyType: 'Integer' })))
             .toBe('Datatype Status <Integer>')
+        expect(buildTableHeader('datatype', 'Driver', context({ extendsType: 'Person' })))
+            .toBe('Datatype Driver extends Person')
         expect(buildTableHeader('spreadsheet', 'Premium', signature))
             .toBe('Spreadsheet Integer Premium(String country, Customer customer)')
         expect(buildTableHeader('test', 'Regression', context())).toBe('Test Eligibility Regression')
@@ -82,7 +87,7 @@ describe('tableSkeletons', () => {
 
     it('uses the requested fixed columns and datatype metadata columns', () => {
         expect(buildTableColumns('datatype', context()).map(column => column.label))
-            .toEqual(['Type', 'Name', 'Default Value', 'Required', 'Description'])
+            .toEqual(['Type', 'Name', 'Default Value', 'Mandatory', 'Description', 'Examples'])
         expect(buildTableColumns('constants', context()).map(column => column.label))
             .toEqual(['Type', 'Name', 'Default Value'])
         expect(buildTableColumns('rules', context()).map(column => column.label))
@@ -120,7 +125,10 @@ describe('tableSkeletons', () => {
         expect(buildTableColumns('run', context()).map(column => column.label)).toEqual(['Age', 'Result'])
         // The column names themselves are what the table is written with, titles only what the editor shows.
         expect(buildTableSource('run', 'Run Eligibility', context(), [])[1]).toEqual(['age', '_res_'])
-        expect(buildTableColumns('data', context()).map(column => column.label)).toEqual(['name', 'age'])
+        expect(buildTableColumns('data', context()).map(column => column.label)).toEqual(['Name', 'Age'])
+        expect(buildTableColumns('data', context({
+            dataFields: [{ name: 'mainDriverAge', type: 'Integer' }],
+        })).map(column => column.label)).toEqual(['Main Driver Age'])
     })
 
     it('keys columns by position, so two same-named arguments cannot collide', () => {
@@ -291,11 +299,11 @@ describe('tableSkeletons', () => {
 
     it('creates the raw structural rows required by OpenL', () => {
         expect(buildTableSource('datatype', 'Datatype Customer', context(), [
-            ['String', 'name', 'Unknown', true, 'Customer name'],
+            ['String', 'name', 'Unknown', 'TRUE', 'Customer name', 'John Doe'],
         ])).toEqual([
             ['Datatype Customer'],
-            ['Type', 'Name', 'Default', 'Mandatory', 'Description'],
-            ['String', 'name', 'Unknown', true, 'Customer name'],
+            ['Type', 'Name', 'Default', 'Mandatory', 'Description', 'Example'],
+            ['String', 'name', 'Unknown', 'TRUE', 'Customer name', 'John Doe'],
         ])
         expect(buildTableSource('test', 'Test Eligibility Regression', context(), [['18', 'true']])).toEqual([
             ['Test Eligibility Regression'],
@@ -303,6 +311,50 @@ describe('tableSkeletons', () => {
             ['Age', 'Result'],
             ['18', 'true'],
         ])
+    })
+
+    it('transposes the structural rows and records of Test, Run, and Data tables', () => {
+        expect(TABLE_PRESETS.filter(isTransposable)).toEqual(['test', 'run', 'data'])
+        expect(buildTableSource(
+            'test',
+            'Test Eligibility Regression',
+            context(),
+            [['18', 'TRUE'], ['21', 'FALSE']],
+            true
+        )).toEqual([
+            ['Test Eligibility Regression'],
+            ['age', 'Age', '18', '21'],
+            ['_res_', 'Result', 'TRUE', 'FALSE'],
+        ])
+        expect(buildTableSource('data', 'Data Customer Customers', context(), [['Ann', '30']], true)).toEqual([
+            ['Data Customer Customers'],
+            ['name', 'Name', 'Ann'],
+            ['age', 'Age', '30'],
+        ])
+    })
+
+    it('resolves the declared type for every value-bearing table shape', () => {
+        expect(cellValueType('datatype', context(), [['Country', 'origin']], 0, 2)).toBe('Country')
+        expect(cellValueType('datatype', context(), [['Country', 'origin']], 0, 5)).toBe('Country')
+        expect(cellValueType('constants', context(), [['Integer', 'LIMIT']], 0, 2)).toBe('Integer')
+        expect(cellValueType('vocabulary', context({ vocabularyType: 'Boolean' }), [[]], 0, 0)).toBe('Boolean')
+        expect(cellValueType('data', context(), [[]], 0, 1)).toBe('Integer')
+        expect(cellValueType('test', context(), [[]], 0, 1)).toBe('Boolean')
+        expect(cellValueType('rules', context({ resultType: 'String' }), [[]], 0, 0)).toBe('Boolean')
+        expect(cellValueType('rules', context({ resultType: 'String' }), [[]], 0, 1)).toBe('String')
+
+        const lookup = context({
+            resultType: 'Double',
+            arguments: [
+                { type: 'String', name: 'make' },
+                { type: 'Integer', name: 'year' },
+                { type: 'Country', name: 'country' },
+            ],
+        })
+        expect(cellValueType('simpleLookup', lookup, [[], [], []], 0, 1)).toBe('Integer')
+        expect(cellValueType('simpleLookup', lookup, [[], [], []], 1, 1)).toBe('Country')
+        expect(cellValueType('simpleLookup', lookup, [[], [], []], 2, 0)).toBe('String')
+        expect(cellValueType('simpleLookup', lookup, [[], [], []], 2, 1)).toBe('Double')
     })
 
     it('maps every preset to a table kind and reserves Other for Free Form', () => {
@@ -342,7 +394,7 @@ describe('tableSkeletons', () => {
 
         expect(initialRows('smartLookup', context({ arguments: arguments3 }))).toEqual([
             ['', '1'],
-            ['', '06/15/2026'],
+            ['', '2026-06-15'],
             ['Text1', 'TRUE'],
         ])
     })
@@ -371,12 +423,13 @@ describe('tableSkeletons', () => {
         }))).toEqual([['result_id_1']])
     })
 
-    it('titles a generated column as one phrase rather than as a list of identifiers', () => {
+    it('capitalizes every word in a generated Test, Run, or Data title', () => {
         expect(buildTableSource('test', 'Test Premium', context({
             targetColumns: [{ name: 'policy.mainDriver.age', title: title('policy mainDriver age'), type: 'Integer' }],
-        }), [])[2]).toEqual(['Policy main driver age'])
+        }), [])[2]).toEqual(['Policy Main Driver Age'])
         // A word already written in capitals keeps them.
         expect(title('vehicle VIN')).toBe('Vehicle VIN')
+        expect(title('vehicleUSAState')).toBe('Vehicle USA State')
     })
 
     it('drops every blank row, which OpenL reads as the end of the table', () => {

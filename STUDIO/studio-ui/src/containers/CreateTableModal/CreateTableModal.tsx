@@ -39,6 +39,7 @@ import {
     buildTableColumns,
     buildTableHeader,
     buildTableSource,
+    cellValueType,
     columnsGrow,
     defaultResultType,
     deriveTableName,
@@ -51,6 +52,7 @@ import {
     initialRows,
     isLookup,
     isTargeted,
+    isTransposable,
     minimumColumns,
     minimumRows,
     normalizeFreeFormColumns,
@@ -60,6 +62,7 @@ import {
     SIMPLE_TYPES,
     TABLE_PRESETS,
     tableKind,
+    title,
     type TableArgument,
     type TableBuildContext,
     type TableCellEditor,
@@ -74,6 +77,7 @@ import {
     targetTableName,
     type TargetStructure,
 } from './testSkeleton'
+import { tableValueIsValid, TypedTableValueInput } from './TypedTableValueInput'
 import {
     asOptions,
     defaultModulePath,
@@ -92,7 +96,7 @@ import { useSheetLoader } from '../tableModals/useSheetLoader'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
 import { useStyles } from './CreateTableModal.styles'
 
-const DEFAULT_TABLE_NAME = 'NewTable'
+const COMPACT_DATATYPE_COLUMNS = new Set(['default', 'mandatory', 'example'])
 const DEFAULT_VOCABULARY_TYPE = 'String'
 /** The type a Spreadsheet returns. Offered in a signature only, never as a cell type. */
 const SPREADSHEET_RESULT = 'SpreadsheetResult'
@@ -179,18 +183,17 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     const [loadingSkeleton, setLoadingSkeleton] = useState(false)
     const [creating, setCreating] = useState(false)
     const [selectedModule, setSelectedModule] = useState('')
-    const [tableName, setTableName] = useState(DEFAULT_TABLE_NAME)
+    const [tableName, setTableName] = useState('')
     const [preset, setPreset] = useState<TablePreset>('datatype')
     const [resultType, setResultType] = useState(defaultResultType('datatype'))
     const [argumentsValue, setArgumentsValue] = useState<TableArgument[]>([blankArgument()])
     const [vocabularyType, setVocabularyType] = useState(DEFAULT_VOCABULARY_TYPE)
+    const [extendsType, setExtendsType] = useState('')
     const [datatypeName, setDatatypeName] = useState('')
     const [target, setTarget] = useState<TargetStructure | null>(null)
+    const [transposed, setTransposed] = useState(false)
     const [rows, setRows] = useState<TableCellValue[][]>(() => normalizeRows([], 5))
-    // The header is generated from the type, the name and the signature until the author edits the cell; from then
-    // on their text wins, until the table type changes and the skeleton is rebuilt.
-    const [headerOverride, setHeaderOverride] = useState<string | null>(null)
-    const sheetLoader = useSheetLoader(t('project:create_table_modal.options_load_failed'), DEFAULT_TABLE_NAME)
+    const sheetLoader = useSheetLoader(t('project:create_table_modal.options_load_failed'))
     const { sheets, sheetName, setSheetName } = sheetLoader
     // Identifies the latest skeleton load; a response from an older one must not overwrite the current selection.
     const skeletonToken = useRef(0)
@@ -203,10 +206,10 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     // Datatypes are cached as the requests themselves: expanding a tested argument walks the datatypes it nests
     // within one turn, long before a state update could be seen by the walk that follows it.
     const datatypeCache = useRef(new Map<string, Promise<ProjectDatatype>>())
-    // The first value each vocabulary offers, by name. A cache rather than state: it is read when an example row is
-    // built and never rendered on its own, and the context hands out this very object, so a value learned after the
-    // context was memoized is still there when the next example is written.
-    const vocabularyValues = useRef<Record<string, string>>({})
+    // Every value each vocabulary offers, by name. A cache rather than state: reads are followed by a skeleton
+    // update, and the context hands out this very object, so values learned after it was memoized are visible then.
+    // Type names are project data, so the cache has no prototype for names such as `constructor` to collide with.
+    const vocabularyValues = useRef<Record<string, string[]>>(Object.create(null) as Record<string, string[]>)
     // The request for the callable tables rather than its answer, so two quick switches between Test and Run, or a
     // switch and an opened list, share the one that is already on its way.
     const executablesRequest = useRef<Promise<ProjectTable[]> | null>(null)
@@ -223,12 +226,13 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         resultFields: ownValue(datatypeFields, resultType) ?? [],
         arguments: argumentsValue,
         vocabularyType,
+        extendsType,
         datatypeName,
         dataFields: ownValue(datatypeFields, datatypeName) ?? [],
         targetName: target?.table.name ?? '',
         targetColumns: target?.columns ?? [],
         vocabularyValues: vocabularyValues.current,
-    }), [argumentsValue, datatypeFields, datatypeName, resultType, target, vocabularyType])
+    }), [argumentsValue, datatypeFields, datatypeName, extendsType, resultType, target, vocabularyType])
 
     const gridWidth = rows[0]?.length ?? 1
     const columns = useMemo(
@@ -263,7 +267,6 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         () => buildTableHeader(preset, tableName.trim(), context),
         [context, preset, tableName]
     )
-    const header = headerOverride ?? generatedHeader
 
     /**
      * Measures a grid against the columns the table type describes, and keeps a spare row — and, where the type
@@ -309,6 +312,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             resultFields: [],
             arguments: [{ ...EMPTY_ARGUMENT }],
             vocabularyType: DEFAULT_VOCABULARY_TYPE,
+            extendsType: '',
             datatypeName: nextDatatypeName,
             dataFields: ownValue(knownFields, nextDatatypeName) ?? [],
             targetName: '',
@@ -346,10 +350,10 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     /**
      * Reads one type the project declares: the fields of a datatype, or the values of a vocabulary.
      *
-     * <p>Inherited fields come first, and a vocabulary's first value is remembered as the example an author writing
-     * a value of that type starts from. A name the project does not declare has neither: a value of it is written
-     * as one cell rather than opened up. A type already being read is not read again — one extending itself,
-     * directly or through another, describes an endless chain of fields.
+     * <p>Inherited fields come first, and a vocabulary's values are remembered so its editor can offer them. A name
+     * the project does not declare has neither: a value of it is written as one cell rather than opened up. A type
+     * already being read is not read again — one extending itself, directly or through another, describes an endless
+     * chain of fields.
      */
     const typeReader = (known: ProjectTable[]) => {
         // Declared types are indexed once per reader: expanding a tested argument looks up every field's type, and a
@@ -357,7 +361,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         const declaredByName = new Map(known.map(table => [table.name, table]))
         const read = async (typeName: string, reading: Set<string>): Promise<ProjectDatatype | null> => {
             const declared = declaredByName.get(typeName)
-            if (!declared || !detail || reading.has(typeName)) {
+            if (!declared || reading.has(typeName)) {
                 return null
             }
             reading.add(typeName)
@@ -368,9 +372,8 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                 datatypeCache.current.set(typeName, request)
             }
             const structure = await request
-            const [first] = structure.values
-            if (first !== undefined) {
-                vocabularyValues.current[typeName] = first
+            if (declared.tableType === 'Vocabulary') {
+                vocabularyValues.current[typeName] = structure.values
             }
             const parent = structure.extends ? await read(structure.extends, reading) : null
             return { ...structure, fields: [...parent?.fields ?? [], ...structure.fields]}
@@ -384,15 +387,28 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     }
 
     /**
-     * Learns the example value of every vocabulary among these types, so an example cell can hold one it accepts.
+     * Learns every value of each vocabulary among these types.
      *
-     * <p>Only vocabularies are read: a datatype names no value a single cell could hold, and reading one to find
-     * that out would cost a request per column.
+     * <p>The first value seeds an example cell and the complete set restricts its editor. Only vocabularies are read:
+     * a datatype names no value a single cell could hold, and reading one to find that out would cost a request per
+     * column.
      */
     const readVocabularies = async (types: string[], known = datatypes): Promise<void> => {
         const read = typeReader(known)
         const vocabularies = new Set(known.filter(table => table.tableType === 'Vocabulary').map(table => table.name))
-        await Promise.all([...new Set(types)].filter(type => vocabularies.has(type)).map(read))
+        const declaredTypes = new Set(types.map(type => type.trim()))
+        const requested = [...declaredTypes].filter(type => vocabularies.has(type))
+        // Mark each declared vocabulary before its values arrive. Its cell becomes a restricted empty selection
+        // immediately, so Create cannot submit the previous type's value while the request is still in flight.
+        requested.forEach(type => {
+            vocabularyValues.current[type] ??= []
+        })
+        await Promise.all(requested.map(read))
+    }
+
+    /** Re-renders value cells after a vocabulary's finite choices arrive without changing the grid's shape. */
+    const refreshVocabularyEditors = (types: string[]) => {
+        void readVocabularies(types).then(() => setRows(current => [...current]))
     }
 
     /**
@@ -597,23 +613,36 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     const tableNameValid = !hasTableName(preset) || IDENTIFIER.test(tableName.trim())
     // Blank rows are stripped before the table is written, so a preset that needs a body needs a filled row.
     const bodyValid = useMemo(() => bodyIsValid(preset, context, rows), [context, preset, rows])
+    const typedValuesValid = useMemo(() => rows.every((row, rowIndex) =>
+        columns.every((column, columnIndex) => {
+            if (column.editor !== 'value') {
+                return true
+            }
+            const declaredType = cellValueType(preset, context, rows, rowIndex, columnIndex)
+            return tableValueIsValid(declaredType, row[columnIndex] ?? '', context.vocabularyValues)
+        })), [columns, context, preset, rows])
     // The table exactly as it will be written: the editor always keeps a blank row (and a blank Free Form column)
     // for input, and OpenL reads a blank line as a table boundary, so none of them may be submitted.
-    const submittedBody = useMemo(() => columnsGrow(preset)
-        ? dropEmptyTrailingColumns(dropEmptyRows(rows))
-        : dropEmptyRows(rows), [preset, rows])
-    // The name OpenL will compile, read back from the header the author is free to edit rather than from the Name
-    // field. A header they emptied of it leaves the table nameless: it would be written and never found again.
+    const submittedBody = useMemo(() => {
+        if (columnsGrow(preset)) {
+            return dropEmptyTrailingColumns(dropEmptyRows(rows))
+        }
+        // A free-text type can temporarily narrow the rendered columns without resizing the rows. Only cells the
+        // current table shape exposes belong to the submitted table; stale hidden cells must not reach the workbook.
+        return dropEmptyRows(rows.map(row => row.slice(0, columns.length)))
+    }, [columns.length, preset, rows])
+    // The name OpenL will compile, read from the generated header the same way the compiler reads it. A Free Form
+    // table has no header of its own, so OpenL names it after the first cell instead.
     const submittedName = deriveTableName(preset,
-        hasTableHeader(preset) ? header : String(submittedBody[0]?.[0] ?? ''))
+        hasTableHeader(preset) ? generatedHeader : String(submittedBody[0]?.[0] ?? ''))
     const valid = Boolean(
         moduleName
         && tableNameValid
         && isValidSheetName(sheetName)
-        && (!hasTableHeader(preset) || header.trim())
         && submittedName
         && typeSpecificValid
         && bodyValid
+        && typedValuesValid
     )
 
     const moduleOptions = useMemo(() => toSortedOptions(modules), [modules])
@@ -643,7 +672,6 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     const handleModuleChange = (value: string) => {
         setSelectedModule(value)
         moduleRead.current = sheetLoader.load(detail.projectId, value, modules)
-        void moduleRead.current
     }
 
     const handlePresetChange = (value: TablePreset) => {
@@ -657,10 +685,11 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         skeletonToken.current++
         setLoadingSkeleton(false)
         setPreset(value)
-        setHeaderOverride(null)
         setResultType(defaultResultType(value))
         setArgumentsValue([blankArgument()])
         setVocabularyType(DEFAULT_VOCABULARY_TYPE)
+        setExtendsType('')
+        setTransposed(false)
         // A Test and a Run table are written against the same tested table, so switching between the two keeps the
         // one already chosen; every other type is not written against a table at all.
         const keptTarget = isTargeted(value) && isTargeted(preset) ? target : null
@@ -699,13 +728,14 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             return
         }
         const nextContext = { ...context, arguments: nextArguments, vocabularyValues: vocabularyValues.current }
+        const currentArguments = argumentsValue.filter(isCompleteArgument)
+        const completeNextArguments = nextArguments.filter(isCompleteArgument)
         // Declaring or dropping an argument moves a column: it is inserted among the inputs, ahead of the outputs.
         // Re-measuring only pads or truncates at the right edge, which would leave every value one column from
         // where it was typed — an output read as an input. So the example is rebuilt instead. Renaming an argument
         // changes nothing about the shape, and rebuilding then would throw away everything typed so far, one
         // keystroke at a time.
-        const shapeChanged = nextArguments.filter(isCompleteArgument).length
-            !== argumentsValue.filter(isCompleteArgument).length
+        const shapeChanged = completeNextArguments.length !== currentArguments.length
         if (shapeChanged) {
             // Each column of the rebuilt example holds a value of its argument's type, a vocabulary's among them.
             // Guarded like every other rebuild: leaving the table type, or moving the signature again, must not let
@@ -716,6 +746,15 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                     resizeRows(preset, nextContext, initialRows(preset, nextContext))
                 }
             })
+            return
+        }
+        const typesChanged = completeNextArguments.some((argument, index) =>
+            argument.type.trim() !== currentArguments[index]?.type.trim())
+        if (typesChanged) {
+            // The columns stay in place, but a newly declared vocabulary needs its finite choices before the cell can
+            // switch to the restricted editor. Keep the values already entered; invalid ones remain visible as empty
+            // selections and keep Create disabled until the author replaces them.
+            refreshVocabularyEditors(completeNextArguments.map(argument => argument.type))
             return
         }
         resizeRows(preset, nextContext)
@@ -746,6 +785,10 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
 
     const handleResultTypeChange = (value: string) => {
         setResultType(value)
+        if (preset === 'rules') {
+            refreshVocabularyEditors([value])
+            return
+        }
         if (!columnsFollowSignature) {
             return
         }
@@ -805,6 +848,28 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         })))
     }
 
+    const updateCellForEditor = (row: number, column: number, value: TableCellValue) => {
+        if ((preset !== 'datatype' && preset !== 'constants') || column !== 0) {
+            updateCell(row, column, value)
+            return
+        }
+        const dependentColumns = preset === 'datatype' ? new Set([2, 5]) : new Set([2])
+        setRows(current => normalizeEditorRows(current.map((currentRow, rowIndex) => {
+            if (rowIndex !== row) {
+                return currentRow
+            }
+            return Array.from({ length: Math.max(currentRow.length, columns.length) }, (_, columnIndex) => {
+                if (columnIndex === column) {
+                    return value
+                }
+                return dependentColumns.has(columnIndex) ? '' : currentRow[columnIndex] ?? ''
+            })
+        })))
+        if (preset === 'datatype') {
+            void readVocabularies([String(value)]).then(() => setRows(current => [...current]))
+        }
+    }
+
     const insertRow = (index: number) => {
         setRows(current => normalizeEditorRows(insertAt(
             current,
@@ -836,12 +901,15 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         })
     }
 
+    const handleVocabularyTypeChange = (value: string) => {
+        setVocabularyType(value)
+        const nextContext = { ...context, vocabularyType: value }
+        resizeRows('vocabulary', nextContext, initialRows('vocabulary', nextContext))
+    }
+
     const handleTargetChange = (tableId: string) => {
         // The author has named the table they want, which cancels the default still being chosen for them.
         targetToken.current++
-        // The header names the table being tested, so an edited one belongs to the table it was edited for. Kept,
-        // it would declare a test of the previous table over the new one's argument columns.
-        setHeaderOverride(null)
         const table = executables.find(candidate => candidate.id === tableId)
         if (table && isTargeted(preset)) {
             void loadTarget(table, preset)
@@ -892,12 +960,14 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                 column: columnIndex + 1,
             }),
         }
-        if (column.editor === 'checkbox') {
+        if (column.editor === 'value') {
             return (
-                <Checkbox
+                <TypedTableValueInput
                     {...common}
-                    checked={Boolean(value)}
-                    onChange={event => updateCell(rowIndex, columnIndex, event.target.checked)}
+                    onChange={next => updateCellForEditor(rowIndex, columnIndex, next)}
+                    type={cellValueType(preset, context, rows, rowIndex, columnIndex)}
+                    value={value}
+                    vocabularyValues={context.vocabularyValues}
                 />
             )
         }
@@ -917,9 +987,24 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             return (
                 <Input
                     {...common}
-                    onChange={event => updateCell(rowIndex, columnIndex, event.target.value)}
+                    onChange={event => updateCellForEditor(rowIndex, columnIndex, event.target.value)}
                     value={String(value)}
                 />
+            )
+        }
+        if (column.editor === 'checkbox') {
+            return (
+                <div className={shared.checkboxEditor} data-testid={`${common['data-testid']}-wrapper`}>
+                    <Checkbox
+                        {...common}
+                        checked={value === true}
+                        onChange={event => updateCell(
+                            rowIndex,
+                            columnIndex,
+                            event.target.checked ? true : ''
+                        )}
+                    />
+                </div>
             )
         }
         // Every remaining editor suggests values without restricting them: a cell may hold a type, key or property
@@ -930,7 +1015,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                 options={suggestionsFor(column.editor)}
                 value={String(value)}
                 onChange={next => {
-                    updateCell(rowIndex, columnIndex, next)
+                    updateCellForEditor(rowIndex, columnIndex, next)
                     if (preset === 'properties' && columnIndex === 0) {
                         const definition = properties.find(property => property.name === next)
                         updateCell(rowIndex, 1, initialPropertyValue(definition))
@@ -939,6 +1024,21 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             />
         )
     }
+
+    const cellClassName = (column: TableColumn, columnIndex: number) => cx(
+        preset === 'datatype' && COMPACT_DATATYPE_COLUMNS.has(column.key)
+            ? styles.compactCell
+            : styles.cell,
+        preset === 'properties' && columnIndex === 1 ? styles.propertyValueCell : undefined
+    )
+
+    const renderTableHeader = (colSpan: number) => hasTableHeader(preset) ? (
+        <tr className={styles.headerBand}>
+            <th colSpan={colSpan}>
+                <span data-testid="create-table-header">{generatedHeader}</span>
+            </th>
+        </tr>
+    ) : null
 
     /**
      * The rows a table type opens its body with: a lookup's arguments, titled down the left and merged over the
@@ -958,7 +1058,10 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                 ))
                 : null}
             {columns.slice(band.keys).map((column, valueIndex) => (
-                <td key={column.key} className={styles.cell}>
+                <td
+                    key={column.key}
+                    className={cellClassName(column, band.keys + valueIndex)}
+                >
                     {renderCellEditor(
                         column,
                         rows[bandIndex]?.[band.keys + valueIndex] ?? '',
@@ -978,7 +1081,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             {columns.map((column, columnIndex) => (
                 <td
                     key={`${column.key}-${columnIndex}`}
-                    className={column.editor === 'checkbox' ? styles.narrowCell : styles.cell}
+                    className={cellClassName(column, columnIndex)}
                 >
                     {renderCellEditor(column, row[columnIndex] ?? '', rowIndex, columnIndex)}
                 </td>
@@ -1008,13 +1111,83 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         </tr>
     )
 
+    const renderTransposedTable = () => {
+        const fieldNames = preset === 'data'
+            ? context.dataFields.map(field => field.name)
+            : context.targetColumns.map(column => column.name)
+        const fieldTitles = preset === 'data'
+            ? context.dataFields.map(field => title(field.name))
+            : context.targetColumns.map(column => column.title)
+        return (
+            <>
+                <thead>
+                    {renderTableHeader(rows.length + 3)}
+                    <tr className={styles.columnRow}>
+                        <th className={styles.gutter} />
+                        <th>{t('project:create_table_modal.field')}</th>
+                        <th>{t('project:create_table_modal.field_title')}</th>
+                        {rows.map((_row, recordIndex) => (
+                            <th key={`record-${recordIndex}`}>
+                                <div className={styles.columnHeader}>
+                                    <span>{recordIndex + 1}</span>
+                                    <Space.Compact>
+                                        <IconAction
+                                            icon={<InsertRowLeftOutlined />}
+                                            onClick={() => insertRow(recordIndex)}
+                                            size="small"
+                                            title={t('project:create_table_modal.insert_record_before')}
+                                        />
+                                        <IconAction
+                                            icon={<InsertRowRightOutlined />}
+                                            onClick={() => insertRow(recordIndex + 1)}
+                                            size="small"
+                                            title={t('project:create_table_modal.insert_record_after')}
+                                        />
+                                        <IconAction
+                                            icon={<DeleteColumnOutlined />}
+                                            onClick={() => removeRow(recordIndex)}
+                                            size="small"
+                                            title={t('project:create_table_modal.delete_record')}
+                                        />
+                                    </Space.Compact>
+                                </div>
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    {columns.map((column, columnIndex) => (
+                        <tr key={column.key}>
+                            <td className={styles.gutter}>{columnIndex + 1}</td>
+                            <th className={styles.structureCell}>{fieldNames[columnIndex]}</th>
+                            <th className={styles.structureCell}>{fieldTitles[columnIndex]}</th>
+                            {rows.map((row, rowIndex) => (
+                                <td
+                                    key={`record-${rowIndex}`}
+                                    className={cellClassName(column, columnIndex)}
+                                >
+                                    {renderCellEditor(
+                                        column,
+                                        row[columnIndex] ?? '',
+                                        rowIndex,
+                                        columnIndex
+                                    )}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </>
+        )
+    }
+
     const handleCreate = async () => {
         if (!valid || creating) {
             return
         }
         setCreating(true)
         try {
-            const source = buildTableSource(preset, header.trim(), context, submittedBody)
+            const source = buildTableSource(preset, generatedHeader, context, submittedBody, transposed)
             const table = await createTable(detail.projectId, {
                 moduleName,
                 sheetName: sheetName.trim(),
@@ -1022,8 +1195,8 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                 table: {
                     tableType: 'RawSource',
                     kind: tableKind(preset),
-                    // Read from the header, the way OpenL names the table it compiles — the Name field is only a
-                    // way to build that header, and a Constants or Test table may not carry one at all.
+                    // Read from the generated header, the way OpenL names the table it compiles. Constants and
+                    // similar table types carry no author-entered name of their own.
                     name: submittedName,
                     source: toRawSource(source, {
                         header: hasTableHeader(preset),
@@ -1130,17 +1303,32 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                             </FieldRow>
                         </div>
                         <div className={shared.fields}>
+                            {preset === 'datatype' ? (
+                                <FieldRow
+                                    htmlFor="create-table-extends"
+                                    label={t('project:create_table_modal.extends')}
+                                >
+                                    <SuggestInput
+                                        className={shared.fullWidth}
+                                        data-testid="create-table-extends"
+                                        id="create-table-extends"
+                                        onChange={setExtendsType}
+                                        options={datatypeOptions}
+                                        value={extendsType}
+                                    />
+                                </FieldRow>
+                            ) : null}
                             {preset === 'vocabulary' ? (
                                 <FieldRow
                                     required
                                     htmlFor="create-table-vocabulary-type"
                                     label={t('project:create_table_modal.base_type')}
                                 >
-                                    <SuggestInput
+                                    <Select
                                         className={shared.fullWidth}
                                         data-testid="create-table-vocabulary-type"
                                         id="create-table-vocabulary-type"
-                                        onChange={setVocabularyType}
+                                        onChange={handleVocabularyTypeChange}
                                         options={SIMPLE_TYPE_OPTIONS}
                                         value={vocabularyType}
                                     />
@@ -1179,6 +1367,15 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                                         onOpenChange={handleTargetOpen}
                                         options={targetOptions}
                                         value={target?.table.id ?? null}
+                                    />
+                                </FieldRow>
+                            ) : null}
+                            {isTransposable(preset) ? (
+                                <FieldRow label={t('project:create_table_modal.transposed')}>
+                                    <Checkbox
+                                        checked={transposed}
+                                        data-testid="create-table-transposed"
+                                        onChange={event => setTransposed(event.target.checked)}
                                     />
                                 </FieldRow>
                             ) : null}
@@ -1246,60 +1443,53 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                     </div>
                     <div className={styles.sheet}>
                         <table className={styles.grid} data-testid="create-table-skeleton">
-                            <thead>
-                                {hasTableHeader(preset) ? (
-                                    <tr className={styles.headerBand}>
-                                        <th colSpan={columns.length + 2}>
-                                            <Input
-                                                aria-label={t('project:create_table_modal.header_cell')}
-                                                data-testid="create-table-header"
-                                                onChange={event => setHeaderOverride(event.target.value)}
-                                                value={header}
-                                            />
-                                        </th>
-                                    </tr>
-                                ) : null}
-                                {band.rows ? renderHeaderBand() : (
-                                    <tr className={styles.columnRow}>
-                                        <th className={styles.gutter} />
-                                        {columns.map((column, columnIndex) => (
-                                            <th key={column.key}>
-                                                <div className={styles.columnHeader}>
-                                                    <span>{column.label}</span>
-                                                    {preset === 'freeForm' ? (
-                                                        <Space.Compact>
-                                                            <IconAction
-                                                                icon={<InsertRowLeftOutlined />}
-                                                                onClick={() => insertColumn(columnIndex)}
-                                                                size="small"
-                                                                title={insertColumnLeft}
-                                                            />
-                                                            <IconAction
-                                                                icon={<InsertRowRightOutlined />}
-                                                                onClick={() => insertColumn(columnIndex + 1)}
-                                                                size="small"
-                                                                title={insertColumnRight}
-                                                            />
-                                                            <IconAction
-                                                                icon={<DeleteColumnOutlined />}
-                                                                onClick={() => removeColumn(columnIndex)}
-                                                                size="small"
-                                                                title={deleteColumnLabel}
-                                                            />
-                                                        </Space.Compact>
-                                                    ) : null}
-                                                </div>
-                                            </th>
-                                        ))}
-                                        <th className={styles.rowActions} />
-                                    </tr>
-                                )}
-                            </thead>
-                            <tbody>
-                                {/* The band rows are drawn above, by the header; the body starts after them. */}
-                                {rows.slice(band.rows).map((row, bodyIndex) =>
-                                    renderBodyRow(row, bodyIndex + band.rows))}
-                            </tbody>
+                            {transposed && isTransposable(preset) ? renderTransposedTable() : (
+                                <>
+                                    <thead>
+                                        {renderTableHeader(columns.length + 2)}
+                                        {band.rows ? renderHeaderBand() : (
+                                            <tr className={styles.columnRow}>
+                                                <th className={styles.gutter} />
+                                                {columns.map((column, columnIndex) => (
+                                                    <th key={column.key}>
+                                                        <div className={styles.columnHeader}>
+                                                            <span>{column.label}</span>
+                                                            {preset === 'freeForm' ? (
+                                                                <Space.Compact>
+                                                                    <IconAction
+                                                                        icon={<InsertRowLeftOutlined />}
+                                                                        onClick={() => insertColumn(columnIndex)}
+                                                                        size="small"
+                                                                        title={insertColumnLeft}
+                                                                    />
+                                                                    <IconAction
+                                                                        icon={<InsertRowRightOutlined />}
+                                                                        onClick={() => insertColumn(columnIndex + 1)}
+                                                                        size="small"
+                                                                        title={insertColumnRight}
+                                                                    />
+                                                                    <IconAction
+                                                                        icon={<DeleteColumnOutlined />}
+                                                                        onClick={() => removeColumn(columnIndex)}
+                                                                        size="small"
+                                                                        title={deleteColumnLabel}
+                                                                    />
+                                                                </Space.Compact>
+                                                            ) : null}
+                                                        </div>
+                                                    </th>
+                                                ))}
+                                                <th className={styles.rowActions} />
+                                            </tr>
+                                        )}
+                                    </thead>
+                                    <tbody>
+                                        {/* The band rows are drawn above, by the header; the body starts after them. */}
+                                        {rows.slice(band.rows).map((row, bodyIndex) =>
+                                            renderBodyRow(row, bodyIndex + band.rows))}
+                                    </tbody>
+                                </>
+                            )}
                         </table>
                     </div>
                 </div>

@@ -498,7 +498,8 @@ To create a table as a copy of the existing table, proceed as follows:
     - use the row controls to insert or delete a property;
     - select a suggested property name or enter one;
     - enter text directly, select a date in the date picker, select or clear a Boolean check box, or select an enum
-      display value from the dropdown, according to the property type.
+      display value from the dropdown, according to the property type. A single-value enum is selected from a closed
+      dropdown and does not accept typed text.
       The date picker follows the user's locale; OpenL Studio writes the selected date as ISO 8601 `yyyy-MM-dd`.
 5.  Click **Copy** to save your changes.
 
@@ -587,12 +588,14 @@ To create a table:
 
    *Selecting the table type*
 
-   - **Datatype** — Type, Name, Default Value, Required, and Description. Type accepts a value directly or a value
-     selected from simple types, vocabularies, and datatypes visible to the module.
-   - **Vocabulary** — one value column and a simple base type. The base type is written in angle brackets in the
-     Datatype header.
-   - **Constants** — Type, Name, and Default Value. Type is selected from simple types. A Constants table
-     carries no name of its own, so the **Table Name** field is not shown.
+   - **Datatype** — Type, Name, Default Value, Mandatory, Description, and Examples. Type accepts a value directly or
+     a value selected from simple types, vocabularies, and datatypes visible to the module. **Extends** suggests only
+     the project's complex datatypes and writes the selected parent into the header; it does not offer
+     `SpreadsheetResult`. Select the **Mandatory** check box to write `true`; clear it to leave the cell empty.
+   - **Vocabulary** — one value column and a simple **Base Type**, written in angle brackets in the Datatype header.
+     The value cells use that type's editor.
+   - **Constants** — Type, Name, and Default Value. Type is selected from simple types, and Default Value uses the
+     selected type's editor. A Constants table carries no name of its own, so the **Table Name** field is not shown.
    - **Spreadsheet** — Steps and Formula, returning `SpreadsheetResult` unless another type is chosen. A
      Spreadsheet names its own columns in the first row of the table, so those names are cells to edit and more
      columns can be added beside them.
@@ -619,20 +622,24 @@ To create a table:
      table opens named after the table it exercises — `PremiumTest`, `PremiumRun` — and can be renamed. A Test or Run
      table is placed with the project's tests: selecting the type moves the destination to a module under `tests/`,
      and a module created for it goes under `tests/` too.
-   - **Data** — columns generated from the selected Datatype.
+     Select **Transposed** to put the generated fields down rows and test or run cases across columns.
+   - **Data** — columns generated from the selected Datatype. Select **Transposed** to put fields down rows and data
+     records across columns. Test, Run and Data display every word in generated titles in Title Case, such as
+     **Main Driver Age**.
    - **Environment** — Key and Value. Key is suggested from the three keywords OpenL acts on — `dependency`,
      `import` and `include`. An Environment table carries no name of its own.
    - **Properties** — Property and Value. Property is suggested from the properties that may appear in a Properties
      table. Its value uses the editor declared for that property: text, date picker, Boolean check box, or enum
-     dropdown. Enum lists show display values and write their codes. Dates follow the user's locale in the date picker
-     and are written as ISO 8601 `yyyy-MM-dd`. The skeleton starts with the mandatory `scope` property set to `Module`;
-     change it to `Global` or to `Category` — adding a `category` row to name the category — as required. A Properties
-     table carries no name of its own.
+     dropdown. Single-value enum dropdowns do not accept typed text. Enum lists show display values and write their
+     codes. Multiple selected values wrap onto additional lines within the value column. Dates follow the user's
+     locale in the date picker and are written as ISO 8601 `yyyy-MM-dd`. The skeleton starts with the mandatory
+     `scope` property set to `Module`; change it to `Global` or to `Category` — adding a `category` row to name the
+     category — as required. A Properties table carries no name of its own.
    - **Free Form Table** — a plain grid, with the sheet's own column letters over it and nothing else. It has no
      header cell and no name: OpenL does not recognize such a table, and names it after whatever its first cell
      says. It is written exactly as it stands. Only that first cell is required — OpenL reads a table from it.
 
-3. Enter the table name, where the table type has one. It is required wherever it is shown.
+3. Enter the table name, where the table type has one. The field opens empty and is required wherever it is shown.
 
    The name must be a valid identifier — letters, digits, `_` and `$`, not starting with a digit — because it
    becomes the name OpenL compiles. It may match an existing table name: signatures and properties supplied by the
@@ -668,14 +675,19 @@ To create a table:
 
 6. Edit the skeleton cells.
 
-   - Every cell can be edited, the header cell at the top of the sheet included. Editing the header directly is
-     how a table gets anything the fields above do not build — a parent datatype, for instance:
-     `Datatype Policy extends Base`. Changing the table type rebuilds the header and discards that edit.
+   - Every body cell can be edited. The header cell at the top is a read-only preview generated from the settings.
+     A Datatype parent is set with **Extends**, which builds a header such as `Datatype Policy extends Base`.
    - The first row opens filled in as an example. It is a placeholder to write over: every cell holds a value of
-     the type its column declares — `1` for an Integer, `TRUE` for a Boolean, `06/15/2026` for a Date, `1-10` for
+     the type its column declares — `1` for an Integer, `TRUE` for a Boolean, `2026-06-15` for a Date, `1-10` for
      an IntRange, and for a vocabulary the first value that vocabulary offers — so a table created untouched is a
      table that works. A cell whose value no single cell can spell out, such as another datatype or a collection,
      opens on `<field>_id_1`, the way a Data table row holding that value is referenced.
+   - A value cell uses the editor for the type its table definition gives it. Boolean cells offer `TRUE`, `FALSE`
+     and an empty value. Vocabulary cells use a closed dropdown that offers their declared values and empty, without
+     accepting typed text. Numeric cells use a number input, Date cells a date picker that displays the user's locale
+     and stores ISO 8601 `yyyy-MM-dd`, and Character cells accept one character. Byte, Short, Integer and Long values
+     must stay within the range of the selected type. This applies to Datatype defaults and examples, Constants and
+     Vocabulary values, and generated Rules, lookup, Test, Run and Data cells.
    - Filling the last row automatically adds an empty row below it.
    - Point at a row to reveal its actions: insert a row above or below it, or delete it. A Free Form Table reveals
      the same actions for its columns, above the grid.

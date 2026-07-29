@@ -76,15 +76,18 @@ vi.mock('antd', async () => {
         options,
         mode,
         onChange,
+        showSearch,
         ...props
     }: {
         value?: string | string[]
         options?: { label: React.ReactNode, value: string }[]
         mode?: 'multiple'
         onChange?: (value: string | string[]) => void
+        showSearch?: boolean
         'data-testid'?: string
     }) => (
         <select
+            data-searchable={String(Boolean(showSearch))}
             data-testid={props['data-testid']}
             multiple={mode === 'multiple'}
             value={value ?? (mode === 'multiple' ? [] : '')}
@@ -263,6 +266,7 @@ describe('CopyTableModal', () => {
 
         await user.type(screen.getByTestId('copy-table-property-name-2'), 'state')
         const value = screen.getByTestId('copy-table-property-value-2')
+        expect(value).toHaveAttribute('data-searchable', 'true')
         expect(within(value).getByRole('option', { name: 'Alabama' })).toHaveValue('AL')
         await user.selectOptions(value, 'AL')
         await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))

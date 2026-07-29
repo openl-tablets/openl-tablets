@@ -19,39 +19,45 @@ so the dialog can be read as the finished table rather than as a form that descr
 
 ## The header cell is the authority
 
-The header text is generated from the type, the name and the signature, and it is generated only until the author
-edits it. From then on the typed text wins, up to the next change of table type, which rebuilds the skeleton and
-discards the edit.
+The header text is generated from the type, the name, the signature and the settings specific to that type. It is a
+read-only preview of the exact header OpenL Studio will write. A Datatype's optional **Extends** setting, for example,
+writes `extends <parentType>`.
 
 The name OpenL will compile is read back out of that header, the same way the compiler reads it — never from the
-Name field. The field is one way to write the header, not the record of what the table is called. This is what
-lets the header carry anything the strip cannot express, a parent datatype for instance, without the dialog
-knowing that such a thing exists.
+Name field. The field is one way to generate the header, not the record of what the table is called.
 
 ## Table types
 
 Fifteen types, each one a keyword, a body the dialog knows how to lay out, and an example of a row.
 
-| Type                            | Body the dialog builds                                    | Named  |
-|---------------------------------|-----------------------------------------------------------|--------|
-| Datatype                        | Type, Name, Default Value, Required, Description           | yes    |
-| Vocabulary                      | one value column under a simple base type in `< >`         | yes    |
-| Constants                       | Type, Name, Default Value                                  | no     |
-| Spreadsheet                     | columns the author names, starting at Steps and Formula    | yes    |
-| Smart Rules, Simple Rules       | one column per argument, then the result                   | yes    |
-| Smart Lookup, Simple Lookup     | a two-dimensional matrix (see below)                       | yes    |
-| Rules                           | Condition and Output over the declarations OpenL needs     | yes    |
-| Test, Run                       | a column per value a call supplies, plus the result         | yes    |
-| Data                            | columns generated from a datatype                          | yes    |
-| Environment                     | Key and Value                                              | no     |
-| Properties                      | Property and Value                                         | no     |
-| Free Form                       | a plain grid, and nothing else                              | no     |
+| Type                        | Body the dialog builds                                      | Named |
+|-----------------------------|-------------------------------------------------------------|-------|
+| Datatype                    | Type, Name, Default Value, Mandatory, Description, Examples | yes   |
+| Vocabulary                  | one value column under a simple base type in `< >`          | yes   |
+| Constants                   | Type, Name, Default Value                                   | no    |
+| Spreadsheet                 | columns the author names, starting at Steps and Formula     | yes   |
+| Smart Rules, Simple Rules   | one column per argument, then the result                    | yes   |
+| Smart Lookup, Simple Lookup | a two-dimensional matrix (see below)                        | yes   |
+| Rules                       | Condition and Output over the declarations OpenL needs      | yes   |
+| Test, Run                   | a column per value a call supplies, plus the result         | yes   |
+| Data                        | columns generated from a datatype                           | yes   |
+| Environment                 | Key and Value                                               | no    |
+| Properties                  | Property and Value                                          | no    |
+| Free Form                   | a plain grid, and nothing else                              | no    |
 
 A type that is not named is identified by its keyword alone, and the dialog does not offer the field. Everywhere
-the field is offered it is required, and the value must be a legal OpenL identifier, because it becomes one.
+the field is offered it opens empty and is required. The author must enter a legal OpenL identifier, because it
+becomes the table's name.
 
 Three types take their shape from something outside the signature: Test and Run from the table under test, Data
 from a datatype. Their columns change when that definition changes.
+
+Test, Run and Data also offer **Transposed**. Clear, the structural rows run across the sheet and every record is a
+row. Selected, each declared field becomes a row and every record becomes a column. The grid changes orientation
+immediately and the submitted cell matrix has the same vertical shape.
+
+Their generated business titles use Title Case for every word. `mainDriverAge`, for example, is displayed as
+`Main Driver Age`, while the technical field or path keeps its original spelling.
 
 A Test or Run table is built in the dialog, out of the signature the tested table declares. It opens a datatype
 argument up the way a Data table does: one column per field, named by the path OpenL reads it back with, as deep as
@@ -101,11 +107,12 @@ Properties table's contents, such as `scope`, are not offered here; Table-level 
 Each applicable property keeps its value from the raw source.
 
 The value editor follows the property definition: text input for text, a date picker for a date, a check box for a
-boolean, and a dropdown for an enum. An enum dropdown shows its display value and writes its code into the workbook;
-an enum accepting several values uses a multi-select. Completing the last row adds another; rows can be inserted and
-deleted with the same controls as Spreadsheet arguments. The date picker displays a date in the user's locale and
-writes it to the workbook in the ISO 8601 `yyyy-MM-dd` form. A partially filled row or repeated property name makes
-the form invalid.
+boolean, and a dropdown for an enum. An enum dropdown shows its display value and writes its code into the workbook.
+A single-value enum exposes no text input; an enum accepting several values uses a multi-select. Completing the last
+row adds another; rows can be inserted and deleted with the same controls as Spreadsheet arguments. Multiple selected
+values wrap across lines in a bounded value column instead of widening the table. The date picker displays a date in
+the user's locale and writes it to the workbook in the ISO 8601 `yyyy-MM-dd` form. A partially filled row or repeated
+property name makes the form invalid.
 
 The source table is the authority for the cell content. The browser reads `RawSource`, replaces the technical name
 in its header, rebuilds the raw property section, and keeps the body cell values and merges. It then submits a
@@ -117,13 +124,20 @@ The grid opens filled in. A first row of example data says more about the shape 
 and every cell holds a value of the type its own column declares — so a table created untouched is a table that
 works. The example is a placeholder to write over, not a suggestion.
 
-A type the dialog knows how to spell out gets a value of it: `1`, `1.0`, `TRUE`, `Text1`, `A`, a date in the format
-OpenL parses by default, a range written as one. A vocabulary gets the first value it offers, which is a value the
-type actually accepts and worth the one read it costs. Everything else is a value no single cell can hold — another
-datatype, a collection, a type this project does not declare — and is written the way such a value is referenced
-in OpenL: `<field>_id_1`, the row of a Data table that holds it. Which of the three applies is decided per column,
-from the type that column declares, so the same rule covers a Test table's arguments, a Data table's fields, a
-lookup's axes and a signature's result.
+A type the dialog knows how to spell out gets a value of it: `1`, `1.0`, `TRUE`, `Text1`, `A`, a date stored as
+ISO 8601 `yyyy-MM-dd`, a range written as one. A vocabulary gets the first value it offers. Everything else is a
+value no single cell can hold — another datatype, a collection, a type this project does not declare — and is
+written the way such a value is referenced in OpenL: `<field>_id_1`, the row of a Data table that holds it. Which of
+the three applies is decided per cell, so the same rule covers Datatype defaults and examples, Constants,
+Vocabulary values, a Test table's arguments, a Data table's fields, a lookup's axes and a signature's result.
+
+The editor follows that declared type too. Boolean cells are a three-state selection — `TRUE`, `FALSE`, or empty —
+and vocabularies use a dropdown that allows only their declared values or empty, without a text input. Numeric values
+use a numeric input; Byte, Short, Integer and Long values stay within the range of their declared Java type. Dates use
+a date picker, and Character values accept one UTF-16 character, matching OpenL's Character converter. String values
+and types represented by a Data-row reference remain text. Changing a Datatype or Constants field type clears its old
+default and example instead of carrying a value into a type that may reject it. A Datatype's Mandatory cell is a check
+box: checked writes `true`, while unchecked leaves the cell empty.
 
 Rows and columns follow the author rather than the other way round: filling the last row adds another below it,
 and where the type has no fixed set of columns — Free Form, Spreadsheet, lookups — filling the last column adds
@@ -170,8 +184,9 @@ One question per resource, each asked of the thing that owns the answer:
   Date formatting is a client concern and is not part of property metadata.
 - **The tables a test can call** — the same tables list, narrowed to the kinds OpenL compiles into a method.
 - **A module's worksheets** — the only one of these that belongs to a module rather than to the project.
-- **The fields of one datatype** — read when an author picks it, or when a tested argument opens up into it,
-  because the list names tables, not their contents.
+- **The fields of one datatype or the values of one vocabulary** — read when an author picks it, when a tested
+  argument opens up into it, or when a typed value needs its finite choices, because the list names tables, not their
+  contents.
 
 Nothing else. No table is generated on the server: every skeleton, the generated ones included, is laid out in the
 dialog, out of what these answers say the project holds. A server that lays a table out is a second place where

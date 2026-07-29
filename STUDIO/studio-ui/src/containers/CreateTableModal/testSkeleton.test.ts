@@ -50,9 +50,9 @@ describe('expandArguments', () => {
         // One column per value the call needs, addressed by the path OpenL reads it back with. A datatype already
         // on the path is not opened again: it would describe an endless chain of columns.
         await expect(expandArguments(parseArguments('Premium(Policy policy)'), fieldsOf)).resolves.toEqual([
-            { name: 'policy.number', title: 'Policy number', type: 'String' },
-            { name: 'policy.mainDriver.age', title: 'Policy main driver age', type: 'Integer' },
-            { name: 'policy.mainDriver.policy', title: 'Policy main driver policy', type: 'Policy' },
+            { name: 'policy.number', title: 'Policy Number', type: 'String' },
+            { name: 'policy.mainDriver.age', title: 'Policy Main Driver Age', type: 'Integer' },
+            { name: 'policy.mainDriver.policy', title: 'Policy Main Driver Policy', type: 'Policy' },
         ])
     })
 

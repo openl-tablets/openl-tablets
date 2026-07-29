@@ -1,6 +1,6 @@
 import React from 'react'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import userEvent, { type UserEvent } from '@testing-library/user-event'
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
 import { getModuleSheets, getProjectModules, getProjectProperties } from 'services/projects'
@@ -8,6 +8,7 @@ import { createTable, getDatatype, getProjectTables } from 'services/tables'
 import type { CreateTableRequest, ProjectDatatype, ProjectProperty, ProjectTable } from 'types/tables'
 import { defaultModulePath } from '../tableModals/shared'
 import { CreateTableModal, type CreateTableModalDetail } from './CreateTableModal'
+import { SIMPLE_TYPES } from './tableSkeletons'
 
 vi.mock('services/projects', () => ({
     getProjectModules: vi.fn(),
@@ -55,24 +56,38 @@ vi.mock('antd', async () => {
         options,
         onChange,
         onOpenChange,
+        allowClear,
+        mode,
+        showSearch,
         ...props
     }: {
         id?: string
-        value?: string | null
+        value?: string | string[] | null
         options?: { label: React.ReactNode, value: string }[]
-        onChange?: (value: string) => void
+        onChange?: (value: string | string[]) => void
         onOpenChange?: (open: boolean) => void
+        allowClear?: boolean
+        mode?: 'multiple'
+        showSearch?: boolean
+        'aria-label'?: string
         'data-testid'?: string
     }) => (
         <select
+            aria-label={props['aria-label']}
+            className={mode === 'multiple' ? 'ant-select ant-select-multiple' : 'ant-select'}
+            data-mode={mode ?? 'single'}
+            data-searchable={String(Boolean(showSearch))}
             data-testid={props['data-testid']}
             id={id}
-            onChange={event => onChange?.(event.target.value)}
+            multiple={mode === 'multiple'}
             // A native select shows its options as soon as it is reached, which is what the real one reports here.
             onFocus={() => onOpenChange?.(true)}
             value={value ?? ''}
+            onChange={event => onChange?.(mode === 'multiple'
+                ? Array.from(event.target.selectedOptions, option => option.value)
+                : event.target.value)}
         >
-            {!value ? <option value="" /> : null}
+            {allowClear || !value ? <option value="" /> : null}
             {options?.map(option => (
                 <option key={option.value} value={option.value}>{option.label}</option>
             ))}
@@ -124,14 +139,42 @@ vi.mock('antd', async () => {
             data-testid={props['data-testid']}
             type="date"
             onChange={event => onChange?.({
-                format: pattern => pattern === 'YYYY-MM-DD' ? event.target.value : `unexpected:${pattern}`,
+                format: pattern => {
+                    if (pattern === 'YYYY-MM-DD') {
+                        return event.target.value
+                    }
+                    if (pattern === 'MM/DD/YYYY') {
+                        const [year, month, day] = event.target.value.split('-')
+                        return `${month}/${day}/${year}`
+                    }
+                    return `unexpected:${pattern}`
+                },
             })}
+        />
+    )
+    const MockInputNumber = ({
+        onChange,
+        value,
+        ...props
+    }: {
+        onChange?: (value: string | null) => void
+        value?: string | null
+        'data-testid'?: string
+        'aria-label'?: string
+    }) => (
+        <input
+            aria-label={props['aria-label']}
+            data-testid={props['data-testid']}
+            onChange={event => onChange?.(event.target.value || null)}
+            type="number"
+            value={value ?? ''}
         />
     )
     return {
         ...actual,
         AutoComplete: MockAutoComplete,
         DatePicker: MockDatePicker,
+        InputNumber: MockInputNumber,
         Modal: MockModal,
         Select: MockSelect,
         Spin: MockSpin,
@@ -176,6 +219,16 @@ const projectProperties: ProjectProperty[] = [
         multiple: false,
         values: [],
     },
+    {
+        name: 'country',
+        type: 'enum',
+        multiple: true,
+        values: [
+            { code: 'AE', value: 'United Arab Emirates' },
+            { code: 'AL', value: 'Albania' },
+            { code: 'AR', value: 'Argentina' },
+        ],
+    },
 ]
 
 const mockGetModules = getProjectModules as MockedFunction<typeof getProjectModules>
@@ -202,6 +255,8 @@ const openModal = async (detail: Partial<CreateTableModalDetail> = {}) => {
 }
 
 const createButton = () => screen.getByRole('button', { name: 'project:create_table_modal.create' })
+const enterTableName = (user: UserEvent, name = 'NewTable') =>
+    user.type(screen.getByTestId('create-table-name'), name)
 
 describe('CreateTableModal', () => {
     beforeEach(() => {
@@ -251,9 +306,18 @@ describe('CreateTableModal', () => {
             'properties',
             'freeForm',
         ])
-        expect(screen.getByTestId('create-table-header')).toHaveValue('Datatype NewTable')
+        expect(screen.getByTestId('create-table-name')).toHaveValue('')
+        expect(screen.getByTestId('create-table-header')).toHaveTextContent('Datatype')
+        expect(screen.getByTestId('create-table-header')).not.toHaveTextContent('NewTable')
+        expect(createButton()).toBeDisabled()
+        expect(screen.getByTestId('create-table-extends')).toHaveValue('')
         expect(screen.getByTestId('create-table-skeleton'))
-            .toHaveTextContent('TypeNameDefault ValueRequiredDescription')
+            .toHaveTextContent('TypeNameDefault ValueMandatoryDescriptionExamples')
+        expect(getComputedStyle(screen.getByTestId('create-table-cell-0-1').closest('td')!).minWidth).toBe('150px')
+        expect(getComputedStyle(screen.getByTestId('create-table-cell-0-2').closest('td')!).minWidth).toBe('110px')
+        expect(screen.getByTestId('create-table-cell-0-3')).toHaveAttribute('type', 'checkbox')
+        expect(screen.getByTestId('create-table-cell-0-3')).not.toBeChecked()
+        expect(getComputedStyle(screen.getByTestId('create-table-cell-0-5').closest('td')!).minWidth).toBe('110px')
     })
 
     it('adds an empty row automatically and creates the edited Datatype', async () => {
@@ -268,6 +332,8 @@ describe('CreateTableModal', () => {
         await user.clear(screen.getByTestId('create-table-cell-0-1'))
         await user.type(screen.getByTestId('create-table-cell-0-1'), 'customerName')
         await user.click(screen.getByTestId('create-table-cell-0-3'))
+        await user.type(screen.getByTestId('create-table-cell-1-0'), 'String')
+        await user.type(screen.getByTestId('create-table-cell-1-1'), 'optionalName')
         await user.clear(screen.getByTestId('create-table-name'))
         await user.type(screen.getByTestId('create-table-name'), 'Customer')
         await user.click(createButton())
@@ -286,17 +352,88 @@ describe('CreateTableModal', () => {
         })
         expect(request).not.toHaveProperty('modulePath')
         expect(request.table.source[0]).toEqual([
-            { value: 'Datatype Customer', colspan: 5 },
+            { value: 'Datatype Customer', colspan: 6 },
+            { value: null, covered: true },
             { value: null, covered: true },
             { value: null, covered: true },
             { value: null, covered: true },
             { value: null, covered: true },
         ])
         expect(request.table.source[1]?.map(cell => cell.value))
-            .toEqual(['Type', 'Name', 'Default', 'Mandatory', 'Description'])
-        expect(request.table.source[2]?.slice(0, 4).map(cell => cell.value))
-            .toEqual(['String', 'customerName', null, true])
+            .toEqual(['Type', 'Name', 'Default', 'Mandatory', 'Description', 'Example'])
+        expect(request.table.source[2]?.map(cell => cell.value))
+            .toEqual(['String', 'customerName', null, true, null, null])
+        expect(request.table.source[3]?.map(cell => cell.value))
+            .toEqual(['String', 'optionalName', null, null, null, null])
         expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ id: 'table-id' }), 'Main')
+    })
+
+    it('extends a Datatype from a suggested complex type only', async () => {
+        const user = userEvent.setup()
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
+
+        const options = within(screen.getByTestId('create-table-extends-options'))
+            .getAllByRole('option', { hidden: true })
+            .map(option => option.getAttribute('value'))
+        expect(options).toEqual(['Customer'])
+        expect(options).not.toContain('Country')
+        expect(options).not.toContain('SpreadsheetResult')
+
+        await enterTableName(user)
+        await user.type(screen.getByTestId('create-table-extends'), 'Customer')
+        expect(screen.getByTestId('create-table-header')).toHaveTextContent('Datatype NewTable extends Customer')
+        await user.click(createButton())
+
+        await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
+        expect(mockCreateTable.mock.calls[0]![1].table.source[0]?.[0]?.value)
+            .toBe('Datatype NewTable extends Customer')
+    })
+
+    it('offers an empty, TRUE, or FALSE default for Boolean Datatype and Constants fields', async () => {
+        const user = userEvent.setup()
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
+
+        await user.clear(screen.getByTestId('create-table-cell-0-0'))
+        await user.type(screen.getByTestId('create-table-cell-0-0'), 'Boolean')
+        expect(within(screen.getByTestId('create-table-cell-0-2')).getAllByRole('option')
+            .map(option => option.getAttribute('value'))).toEqual(['', 'TRUE', 'FALSE'])
+        await user.selectOptions(screen.getByTestId('create-table-cell-0-2'), 'FALSE')
+
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'constants')
+        await user.clear(screen.getByTestId('create-table-cell-0-0'))
+        await user.type(screen.getByTestId('create-table-cell-0-0'), 'Boolean')
+        expect(within(screen.getByTestId('create-table-cell-0-2')).getAllByRole('option')
+            .map(option => option.getAttribute('value'))).toEqual(['', 'TRUE', 'FALSE'])
+        await user.selectOptions(screen.getByTestId('create-table-cell-0-2'), 'FALSE')
+        await user.click(createButton())
+
+        await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
+        expect(mockCreateTable.mock.calls[0]![1].table.source.map(row => row.map(cell => cell.value))).toEqual([
+            ['Constants', null, null],
+            ['Boolean', 'CONSTANT1', 'FALSE'],
+        ])
+    })
+
+    it('restricts Vocabulary values to the selected Base Type', async () => {
+        const user = userEvent.setup()
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
+
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'vocabulary')
+        const baseType = screen.getByTestId('create-table-vocabulary-type')
+        expect(within(baseType).getAllByRole('option').map(option => option.getAttribute('value')))
+            .toEqual(SIMPLE_TYPES)
+        await user.selectOptions(baseType, 'Boolean')
+
+        const value = screen.getByTestId('create-table-cell-0-0')
+        expect(value).toHaveValue('TRUE')
+        expect(within(value).getAllByRole('option').map(option => option.getAttribute('value')))
+            .toEqual(['', 'TRUE', 'FALSE'])
     })
 
     it('builds Smart Rules columns from input arguments and result type', async () => {
@@ -305,6 +442,7 @@ describe('CreateTableModal', () => {
         await openModal()
         await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
 
+        await enterTableName(user)
         await user.selectOptions(screen.getByTestId('create-table-type'), 'smartRules')
         expect(getComputedStyle(screen.getByTestId('create-table-result-type-row')).gridTemplateColumns)
             .toBe(getComputedStyle(screen.getByTestId('create-table-argument-row-0')).gridTemplateColumns)
@@ -314,7 +452,8 @@ describe('CreateTableModal', () => {
         await user.type(screen.getByTestId('create-table-argument-name-0'), 'age')
 
         expect(screen.getByTestId('create-table-argument-type-1')).toBeInTheDocument()
-        expect(screen.getByTestId('create-table-header')).toHaveValue('SmartRules Integer NewTable(Integer age)')
+        expect(screen.getByTestId('create-table-header'))
+            .toHaveTextContent('SmartRules Integer NewTable(Integer age)')
         expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('ageOutput')
 
         await user.clear(screen.getByTestId('create-table-result-type'))
@@ -325,13 +464,90 @@ describe('CreateTableModal', () => {
         expect(screen.getByTestId('create-table-cell-1-0')).toBeInTheDocument()
     })
 
+    it('loads a vocabulary when a complete Smart Rules argument changes type', async () => {
+        const user = userEvent.setup()
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
+
+        await enterTableName(user)
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'smartRules')
+        await user.type(screen.getByTestId('create-table-argument-type-0'), 'String')
+        await user.type(screen.getByTestId('create-table-argument-name-0'), 'country')
+        await user.clear(screen.getByTestId('create-table-argument-type-0'))
+        await user.type(screen.getByTestId('create-table-argument-type-0'), 'Country')
+
+        await waitFor(() => expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'country-id'))
+        const country = screen.getByTestId('create-table-cell-0-0')
+        expect(within(country).getAllByRole('option').map(option => option.getAttribute('value')))
+            .toEqual(['', 'USA', 'Canada'])
+        expect(createButton()).toBeDisabled()
+    })
+
+    it('loads a vocabulary selected as the Rules result type', async () => {
+        let resolveCountry: ((value: ProjectDatatype) => void) | undefined
+        mockGetDatatype.mockImplementationOnce(() => new Promise<ProjectDatatype>(resolve => {
+            resolveCountry = resolve
+        }))
+        const user = userEvent.setup()
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
+
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'rules')
+        await user.clear(screen.getByTestId('create-table-result-type'))
+        await user.type(screen.getByTestId('create-table-result-type'), 'Country')
+
+        await waitFor(() => expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'country-id'))
+        expect(within(screen.getByTestId('create-table-cell-0-1')).getAllByRole('option')
+            .map(option => option.getAttribute('value'))).toEqual([''])
+        expect(createButton()).toBeDisabled()
+
+        await act(async () => {
+            resolveCountry?.({ fields: [], values: ['USA', 'Canada']})
+        })
+
+        expect(within(screen.getByTestId('create-table-cell-0-1')).getAllByRole('option')
+            .map(option => option.getAttribute('value')))
+            .toEqual(['', 'USA', 'Canada'])
+        expect(createButton()).toBeDisabled()
+    })
+
+    it('does not submit stale cells hidden by a free-text result type', async () => {
+        const user = userEvent.setup()
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
+
+        await enterTableName(user)
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'smartRules')
+        await user.clear(screen.getByTestId('create-table-result-type'))
+        await user.type(screen.getByTestId('create-table-result-type'), 'Customer')
+        await waitFor(() => expect(screen.getByTestId('create-table-cell-0-1')).toBeInTheDocument())
+
+        await user.clear(screen.getByTestId('create-table-result-type'))
+        await user.type(screen.getByTestId('create-table-result-type'), 'ExternalResult')
+        expect(screen.queryByTestId('create-table-cell-0-1')).not.toBeInTheDocument()
+        await user.click(createButton())
+
+        await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
+        expect(mockCreateTable.mock.calls[0]![1].table.source.map(row => row.map(cell => cell.value))).toEqual([
+            ['SmartRules ExternalResult NewTable()'],
+            ['Output'],
+            ['TRUE'],
+        ])
+    })
+
     it('spreads Lookup arguments over both axes and merges the corner they meet in', async () => {
         const user = userEvent.setup()
         render(<CreateTableModal />)
         await openModal()
         await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
 
+        await enterTableName(user)
         await user.selectOptions(screen.getByTestId('create-table-type'), 'simpleLookup')
+        await user.clear(screen.getByTestId('create-table-result-type'))
+        await user.type(screen.getByTestId('create-table-result-type'), 'Integer')
         for (const [index, name] of ['make', 'year', 'area'].entries()) {
             await user.type(screen.getByTestId(`create-table-argument-type-${index}`), 'String')
             await user.type(screen.getByTestId(`create-table-argument-name-${index}`), name)
@@ -355,7 +571,7 @@ describe('CreateTableModal', () => {
 
         await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
         expect(mockCreateTable.mock.calls[0]![1].table.source).toEqual([
-            [{ value: 'SimpleLookup Boolean NewTable(String make, String year, String area)', colspan: 2 },
+            [{ value: 'SimpleLookup Integer NewTable(String make, String year, String area)', colspan: 2 },
                 { value: null, covered: true }],
             // The title is merged down the whole band, which is how OpenL counts the arguments across the top.
             [{ value: 'make', rowspan: 2 }, { value: '2024' }],
@@ -370,6 +586,7 @@ describe('CreateTableModal', () => {
         await openModal()
         await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
 
+        await enterTableName(user)
         await user.selectOptions(screen.getByTestId('create-table-type'), 'simpleLookup')
         // One argument cannot span two axes.
         await user.type(screen.getByTestId('create-table-argument-type-0'), 'String')
@@ -388,7 +605,7 @@ describe('CreateTableModal', () => {
 
         // Values across the top, but nothing to look them up by.
         await user.clear(screen.getByTestId('create-table-cell-1-0'))
-        await user.clear(screen.getByTestId('create-table-cell-1-1'))
+        await user.selectOptions(screen.getByTestId('create-table-cell-1-1'), '')
         expect(createButton()).toBeDisabled()
     })
 
@@ -401,7 +618,7 @@ describe('CreateTableModal', () => {
         await user.selectOptions(screen.getByTestId('create-table-type'), 'data')
 
         // The tables list names the project's datatypes; the fields come from the datatype itself.
-        await waitFor(() => expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('nameage'))
+        await waitFor(() => expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('NameAge'))
         expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'customer-id')
 
         await user.selectOptions(screen.getByTestId('create-table-datatype'), 'Customer')
@@ -468,8 +685,8 @@ describe('CreateTableModal', () => {
                 values: [],
             })
         })
-        await waitFor(() => expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('approved'))
-        await user.type(screen.getByTestId('create-table-cell-0-0'), 'kept')
+        await waitFor(() => expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('Approved'))
+        await user.selectOptions(screen.getByTestId('create-table-cell-0-0'), 'FALSE')
 
         await act(async () => {
             resolveCustomer?.({
@@ -479,7 +696,7 @@ describe('CreateTableModal', () => {
         })
 
         expect(screen.getByTestId('create-table-datatype')).toHaveValue('Policy')
-        expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue('kept')
+        expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue('FALSE')
     })
 
     it('lets a Spreadsheet name its own columns and add more of them', async () => {
@@ -488,6 +705,7 @@ describe('CreateTableModal', () => {
         await openModal()
         await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
 
+        await enterTableName(user)
         await user.selectOptions(screen.getByTestId('create-table-type'), 'spreadsheet')
 
         // The column names are the first row of the table, so they are cells the author writes, not fixed titles.
@@ -573,16 +791,39 @@ describe('CreateTableModal', () => {
 
         // A Test table opens named the way OpenL would name it, and the author is free to rename it.
         await waitFor(() => expect(screen.getByTestId('create-table-header'))
-            .toHaveValue('Test Eligibility EligibilityTest'))
+            .toHaveTextContent('Test Eligibility EligibilityTest'))
         expect(screen.getByTestId('create-table-name')).toHaveValue('EligibilityTest')
         expect(screen.getByTestId('create-table-type')).toHaveValue('test')
         // One column per argument the tested table declares, then the one its result is compared against.
         expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('AgeCountryResult')
         expect(screen.getByTestId('create-table-cell-0-2')).toBeInTheDocument()
         // Each of them opens on a value of its own type, the result included.
-        expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue('1')
+        expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue(1)
         expect(screen.getByTestId('create-table-cell-0-1')).toHaveValue('Text1')
         expect(screen.getByTestId('create-table-cell-0-2')).toHaveValue('TRUE')
+    })
+
+    it('renders and writes Test tables in vertical format when Transposed is selected', async () => {
+        const user = userEvent.setup()
+        render(<CreateTableModal />)
+        await openModal({ sourceTableId: 'source-table-id' })
+        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('test'))
+
+        await user.click(screen.getByTestId('create-table-transposed'))
+
+        const skeleton = screen.getByTestId('create-table-skeleton')
+        expect(skeleton).toHaveTextContent('project:create_table_modal.field')
+        expect(skeleton).toHaveTextContent('ageAge')
+        expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue(1)
+        await user.click(createButton())
+
+        await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
+        expect(mockCreateTable.mock.calls[0]![1].table.source.map(row => row.map(cell => cell.value))).toEqual([
+            ['Test Eligibility EligibilityTest', null, null],
+            ['age', 'Age', '1'],
+            ['country', 'Country', 'Text1'],
+            ['_res_', 'Result', 'TRUE'],
+        ])
     })
 
     it('opens a vocabulary column on a value that vocabulary accepts', async () => {
@@ -621,11 +862,11 @@ describe('CreateTableModal', () => {
 
         // A datatype argument is opened into one column per field, addressed by the path OpenL reads it back with.
         await waitFor(() => expect(screen.getByTestId('create-table-skeleton'))
-            .toHaveTextContent('Customer nameCustomer ageResult'))
+            .toHaveTextContent('Customer NameCustomer AgeResult'))
         expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'customer-id')
         expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue('Text1')
-        expect(screen.getByTestId('create-table-cell-0-1')).toHaveValue('1')
-        expect(screen.getByTestId('create-table-cell-0-2')).toHaveValue('1.0')
+        expect(screen.getByTestId('create-table-cell-0-1')).toHaveValue(1)
+        expect(screen.getByTestId('create-table-cell-0-2')).toHaveValue(1)
     })
 
     it('creates the first module when the project has no modules', async () => {
@@ -635,6 +876,7 @@ describe('CreateTableModal', () => {
         await openModal()
 
         await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue(''))
+        await enterTableName(user)
         await user.type(screen.getByTestId('create-table-module'), 'Pricing')
 
         await user.click(createButton())
@@ -651,6 +893,7 @@ describe('CreateTableModal', () => {
         const user = userEvent.setup()
         render(<CreateTableModal />)
         const onSuccess = await openModal()
+        await enterTableName(user)
         await waitFor(() => expect(createButton()).toBeEnabled())
 
         await user.click(createButton())
@@ -666,6 +909,7 @@ describe('CreateTableModal', () => {
         await openModal()
         await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
 
+        await enterTableName(user)
         await user.type(screen.getByTestId('create-table-cell-0-0'), 'String')
         await user.type(screen.getByTestId('create-table-cell-0-1'), 'name')
         // The editor keeps an empty row below the last filled one; it must not reach the server.
@@ -723,6 +967,7 @@ describe('CreateTableModal', () => {
         await user.selectOptions(screen.getByTestId('create-table-type'), 'properties')
         await user.type(screen.getByTestId('create-table-cell-1-0'), 'state')
         const enumValue = screen.getByTestId('create-table-cell-1-1')
+        expect(enumValue).toHaveAttribute('data-searchable', 'false')
         expect(within(enumValue).getByRole('option', { name: 'Alabama' })).toHaveValue('AL')
         await user.selectOptions(enumValue, 'AL')
         await user.type(screen.getByTestId('create-table-cell-2-0'), 'effectiveDate')
@@ -730,13 +975,35 @@ describe('CreateTableModal', () => {
         expect(dateValue).toHaveAttribute('type', 'date')
         await user.type(dateValue, '2026-01-02')
         await user.type(screen.getByTestId('create-table-cell-3-0'), 'active')
-        expect(screen.getByTestId('create-table-cell-3-1')).toHaveAttribute('type', 'checkbox')
+        const checkbox = screen.getByTestId('create-table-cell-3-1')
+        expect(checkbox).toHaveAttribute('type', 'checkbox')
+        expect(getComputedStyle(screen.getByTestId('create-table-cell-3-1-wrapper')).paddingLeft).toBe('8px')
         await user.click(createButton())
 
         await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
         expect(mockCreateTable.mock.calls[0]![1].table.source[2]?.map(cell => cell.value)).toEqual(['state', 'AL'])
         expect(mockCreateTable.mock.calls[0]![1].table.source[3]?.map(cell => cell.value))
             .toEqual(['effectiveDate', '2026-01-02'])
+    })
+
+    it('wraps multiple property values in a bounded column', async () => {
+        const user = userEvent.setup()
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
+
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'properties')
+        await user.type(screen.getByTestId('create-table-cell-1-0'), 'country')
+
+        const value = screen.getByTestId('create-table-cell-1-1')
+        const valueCell = value.closest('td')
+        expect(value).toHaveAccessibleName('project:create_table_modal.cell')
+        expect(value).toHaveAttribute('data-mode', 'multiple')
+        expect(getComputedStyle(valueCell!)).toMatchObject({
+            minWidth: '320px',
+            maxWidth: '480px',
+        })
+        expect(getComputedStyle(value).height).toBe('auto')
     })
 
     it('omits a named wildcard declaration, which resolves to no module', async () => {
@@ -819,6 +1086,7 @@ describe('CreateTableModal', () => {
         await openModal()
         await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
 
+        await enterTableName(user)
         await user.clear(screen.getByTestId('create-table-sheet'))
         await user.type(screen.getByTestId('create-table-sheet'), 'Rates')
         expect(screen.getByTestId('create-table-sheet')).toHaveValue('Rates')
@@ -851,7 +1119,7 @@ describe('CreateTableModal', () => {
 
         await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Other'))
         expect(screen.getByTestId('create-table-target')).toHaveValue('source-table-id')
-        expect(screen.getByTestId('create-table-header')).toHaveValue('Test Eligibility EligibilityTest')
+        expect(screen.getByTestId('create-table-header')).toHaveTextContent('Test Eligibility EligibilityTest')
     })
 
     it('refuses a table name that is not a legal OpenL identifier', async () => {
@@ -886,6 +1154,7 @@ describe('CreateTableModal', () => {
         await openModal()
         await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
 
+        await enterTableName(user)
         await user.selectOptions(screen.getByTestId('create-table-type'), 'smartRules')
         await user.type(screen.getByTestId('create-table-argument-type-0'), 'Integer')
         await user.type(screen.getByTestId('create-table-argument-name-0'), '9 age')
@@ -920,6 +1189,8 @@ describe('CreateTableModal', () => {
         await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
 
         await user.selectOptions(screen.getByTestId('create-table-type'), 'simpleLookup')
+        await user.clear(screen.getByTestId('create-table-result-type'))
+        await user.type(screen.getByTestId('create-table-result-type'), 'String')
         for (const [index, name] of ['make', 'year'].entries()) {
             await user.type(screen.getByTestId(`create-table-argument-type-${index}`), 'String')
             await user.type(screen.getByTestId(`create-table-argument-name-${index}`), name)
@@ -1027,7 +1298,7 @@ describe('CreateTableModal', () => {
         expect(within(targetSelect).getByRole('option', { name: 'Audit' })).toBeInTheDocument()
         await user.selectOptions(targetSelect, 'void-table-id')
 
-        await waitFor(() => expect(screen.getByTestId('create-table-header')).toHaveValue('Run Audit AuditRun'))
+        await waitFor(() => expect(screen.getByTestId('create-table-header')).toHaveTextContent('Run Audit AuditRun'))
         expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('Message')
     })
 
@@ -1046,13 +1317,13 @@ describe('CreateTableModal', () => {
         await waitFor(() => expect(screen.getByTestId('create-table-target')).toHaveValue('other-table-id'))
         await user.selectOptions(screen.getByTestId('create-table-target'), 'source-table-id')
         await waitFor(() => expect(screen.getByTestId('create-table-header'))
-            .toHaveValue('Test Eligibility EligibilityTest'))
+            .toHaveTextContent('Test Eligibility EligibilityTest'))
 
         // Both types are written against the same tested table, so switching must not fall back to the first one.
         await user.selectOptions(screen.getByTestId('create-table-type'), 'run')
 
         await waitFor(() => expect(screen.getByTestId('create-table-target')).toHaveValue('source-table-id'))
-        expect(screen.getByTestId('create-table-header')).toHaveValue('Run Eligibility EligibilityTest')
+        expect(screen.getByTestId('create-table-header')).toHaveTextContent('Run Eligibility EligibilityTest')
         // One list for both types: the datatypes at opening, the callable tables when Test was chosen.
         expect(mockGetTables).toHaveBeenCalledTimes(2)
     })
@@ -1070,19 +1341,6 @@ describe('CreateTableModal', () => {
         expect(createButton()).toBeDisabled()
     })
 
-    it('refuses a header the author emptied of the table name', async () => {
-        const user = userEvent.setup()
-        render(<CreateTableModal />)
-        await openModal()
-        await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
-
-        // The header names the compiled table. Without a name it is written and then never found again.
-        await user.clear(screen.getByTestId('create-table-header'))
-        await user.type(screen.getByTestId('create-table-header'), 'Datatype')
-
-        expect(createButton()).toBeDisabled()
-    })
-
     it('opens on its own default when the table offered is no longer one a test can call', async () => {
         render(<CreateTableModal />)
 
@@ -1091,7 +1349,8 @@ describe('CreateTableModal', () => {
         // One unusable table must not cost the author every other type the modal offers.
         await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
         expect(screen.getByTestId('create-table-module')).toHaveValue('Main')
-        expect(createButton()).toBeEnabled()
+        expect(screen.getByTestId('create-table-name')).toHaveValue('')
+        expect(createButton()).toBeDisabled()
         expect(mockNotifyError).toHaveBeenCalledWith(expect.objectContaining({
             title: 'project:create_table_modal.tested_table_load_failed',
         }))
