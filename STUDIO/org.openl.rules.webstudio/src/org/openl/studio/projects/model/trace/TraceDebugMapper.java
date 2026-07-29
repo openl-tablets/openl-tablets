@@ -706,6 +706,22 @@ public class TraceDebugMapper {
     }
 
     /**
+     * Accumulates a step's inputs as they are resolved: unique by name, and tracking which bare fields were
+     * narrowed into a dotted access ({@code $Cell.$Field}, {@code policy.census}) so a later pass skips them.
+     */
+    private static final class InputCollector {
+        private final List<StepInput> inputs = new ArrayList<>();
+        private final Set<String> seen = new HashSet<>();
+        private final Set<IOpenField> narrowed = new HashSet<>();
+
+        void add(@Nullable StepInput input) {
+            if (input != null && seen.add(input.name())) {
+                inputs.add(input);
+            }
+        }
+    }
+
+    /**
      * A focused spreadsheet step, self-contained: the values its formula consumed, the step's own returned
      * value, and the A1 address of its cell.
      *
@@ -762,47 +778,50 @@ public class TraceDebugMapper {
         var dependencies = new RulesBindingDependencies();
         composite.updateDependency(dependencies);
         List<IOpenField> fields = new ArrayList<>(dependencies.getFieldsMap().values());
-        List<StepInput> inputs = new ArrayList<>();
-        Set<String> seen = new HashSet<>();
-        // A field picked from another step's result ($Cell.$Field) is the precise input: list it as
-        // the dotted name with the field's value, and drop the bare result the formula only reached
-        // through.
-        Set<IOpenField> narrowed = new HashSet<>();
-        for (IOpenField field : fields) {
-            if (field instanceof CustomSpreadsheetResultField resultField) {
-                StepInput input = resultFieldInput(resultField, fields, executed, narrowed);
-                if (input != null && seen.add(input.name())) {
-                    inputs.add(input);
-                }
-            }
-        }
-        // A field read explicitly off a parameter (policy.census) is the precise input: list it as the dotted
-        // name with the field's value, and drop the bare parameter the formula only reached through.
-        for (IOpenField field : fields) {
-            if (field instanceof DatatypeOpenField datatypeField) {
-                StepInput input = parameterFieldInput(datatypeField, fields, frame, spreadsheet, narrowed);
-                if (input != null && seen.add(input.name())) {
-                    inputs.add(input);
-                }
-            }
-        }
-        for (IOpenField field : fields) {
-            if (field instanceof CustomSpreadsheetResultField || narrowed.contains(field)) {
-                continue;
-            }
-            for (StepInput input : resolveStepInputs(field, frame, spreadsheet, executed)) {
-                if (seen.add(input.name())) {
-                    inputs.add(input);
-                }
-            }
-        }
-        return inputs.stream()
+        var collector = new InputCollector();
+        collectResultFieldInputs(fields, executed, collector);
+        collectParameterFieldInputs(fields, frame, spreadsheet, collector);
+        collectOtherInputs(fields, frame, spreadsheet, executed, collector);
+        return collector.inputs.stream()
                 .sorted(Comparator.comparingInt(StepInput::rank)
                         .thenComparingInt(StepInput::order)
                         .thenComparing(StepInput::name))
                 .map(input -> buildParameterValue(new ParameterWithValueDeclaration(input.name(),
                         safeClone(input.value(), clones, !frame.isCompleted()), input.type()), true, includeSchema))
                 .toList();
+    }
+
+    /** A field picked from another step's result ({@code $Cell.$Field}): listed as the dotted name with the
+     * field's value; the bare result the formula only reached through is narrowed away. */
+    private void collectResultFieldInputs(List<IOpenField> fields, Map<String, Object> executed,
+                                          InputCollector collector) {
+        for (IOpenField field : fields) {
+            if (field instanceof CustomSpreadsheetResultField resultField) {
+                collector.add(resultFieldInput(resultField, fields, executed, collector.narrowed));
+            }
+        }
+    }
+
+    /** A field read explicitly off a parameter ({@code policy.census}): listed as the dotted name with the
+     * field's value; the bare parameter the formula only reached through is narrowed away. */
+    private void collectParameterFieldInputs(List<IOpenField> fields, DebugFrame frame, Spreadsheet spreadsheet,
+                                             InputCollector collector) {
+        for (IOpenField field : fields) {
+            if (field instanceof DatatypeOpenField datatypeField) {
+                collector.add(parameterFieldInput(datatypeField, fields, frame, spreadsheet, collector.narrowed));
+            }
+        }
+    }
+
+    /** Everything else the formula consumed — sibling steps, whole parameters, constants — skipping fields
+     * already narrowed into a dotted access above. */
+    private void collectOtherInputs(List<IOpenField> fields, DebugFrame frame, Spreadsheet spreadsheet,
+                                    Map<String, Object> executed, InputCollector collector) {
+        for (IOpenField field : fields) {
+            if (!(field instanceof CustomSpreadsheetResultField) && !collector.narrowed.contains(field)) {
+                resolveStepInputs(field, frame, spreadsheet, executed).forEach(collector::add);
+            }
+        }
     }
 
     /**

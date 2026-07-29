@@ -171,10 +171,16 @@ public final class DebugFrame {
                 : intern.apply(name);
         // A decision table breaks down into its evaluated conditions (matched/unmatched, like the legacy
         // detailed trace) plus the rule it returned, instead of a bare fired-rule step.
-        if (source instanceof IDecisionTable decisionTable) {
-            return new CallNode(intern.apply(uri), displayName, invocationIndex, kind, durationNanos,
-                    decisionSteps(decisionTable, intern), dispatch, null, notRetained, childNanos);
-        }
+        var steps = source instanceof IDecisionTable decisionTable
+                ? decisionSteps(decisionTable, intern)
+                : cellSteps(intern, detailedTitles);
+        return new CallNode(intern.apply(uri), displayName, invocationIndex, kind, durationNanos,
+                steps, dispatch, null, notRetained, childNanos);
+    }
+
+    /** The tree steps of a non-decision table: its executed steps, any interrupted step present only through
+     * its sub-call, and a spreadsheet's static value/constant cells, all in grid order. */
+    private List<CallNode.Step> cellSteps(UnaryOperator<String> intern, boolean detailedTitles) {
         var steps = new ArrayList<CallNode.Step>();
         var covered = new HashSet<String>();
         for (ExecutedStep step : executedSteps) {
@@ -190,29 +196,40 @@ public final class DebugFrame {
                         List.copyOf(children)));
             }
         });
-        // A spreadsheet's plain value and constant cells never execute (cells evaluate lazily and these
-        // are read, not run), yet they are table content — list them so the tree shows the whole table,
-        // in grid order so a static line sits where the table puts it.
         if (source instanceof Spreadsheet spreadsheet) {
-            for (SpreadsheetCell[] row : spreadsheet.getCells()) {
-                for (SpreadsheetCell cell : row) {
-                    if (cell == null) {
-                        continue;
-                    }
-                    SpreadsheetCellType type = cell.getSpreadsheetCellType();
-                    if (type == SpreadsheetCellType.VALUE || type == SpreadsheetCellType.CONSTANT) {
-                        String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
-                        if (!covered.contains(ref)) {
-                            steps.add(new CallNode.Step(intern.apply(ref),
-                                    staticCellLabel(spreadsheet, cell, intern, detailedTitles), 0, List.of(), true, null));
-                        }
-                    }
-                }
-            }
+            appendStaticCells(spreadsheet, covered, steps, intern, detailedTitles);
             steps.sort(Comparator.comparingLong(DebugFrame::gridOrder));
         }
-        return new CallNode(intern.apply(uri), displayName, invocationIndex, kind, durationNanos,
-                steps, dispatch, null, notRetained, childNanos);
+        return steps;
+    }
+
+    /**
+     * A spreadsheet's plain value and constant cells never execute (cells evaluate lazily and these are read,
+     * not run), yet they are table content — list any not already covered so the tree shows the whole table.
+     */
+    private void appendStaticCells(Spreadsheet spreadsheet, Set<String> covered, List<CallNode.Step> steps,
+                                   UnaryOperator<String> intern, boolean detailedTitles) {
+        for (SpreadsheetCell[] row : spreadsheet.getCells()) {
+            for (SpreadsheetCell cell : row) {
+                appendStaticCell(cell, spreadsheet, covered, steps, intern, detailedTitles);
+            }
+        }
+    }
+
+    private void appendStaticCell(@Nullable SpreadsheetCell cell, Spreadsheet spreadsheet, Set<String> covered,
+                                  List<CallNode.Step> steps, UnaryOperator<String> intern, boolean detailedTitles) {
+        if (cell == null) {
+            return;
+        }
+        SpreadsheetCellType type = cell.getSpreadsheetCellType();
+        if (type != SpreadsheetCellType.VALUE && type != SpreadsheetCellType.CONSTANT) {
+            return;
+        }
+        String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
+        if (!covered.contains(ref)) {
+            steps.add(new CallNode.Step(intern.apply(ref),
+                    staticCellLabel(spreadsheet, cell, intern, detailedTitles), 0, List.of(), true, null));
+        }
     }
 
     /**
@@ -281,6 +298,13 @@ public final class DebugFrame {
      * matched or not), then the rule the table returned. Reproduces the legacy detailed-trace breakdown.
      */
     private List<CallNode.Step> decisionSteps(IDecisionTable decisionTable, UnaryOperator<String> intern) {
+        List<CallNode.Step> steps = new ArrayList<>(conditionSteps(decisionTable, intern));
+        appendReturnedRules(steps, conditionSubCalls(), intern);
+        return steps;
+    }
+
+    /** One row per evaluated condition, in evaluation order, marked matched or not. */
+    private List<CallNode.Step> conditionSteps(IDecisionTable decisionTable, UnaryOperator<String> intern) {
         List<CallNode.Step> steps = new ArrayList<>();
         int index = 0;
         for (ConditionCheck check : new LinkedHashSet<>(conditionChecks)) {
@@ -288,9 +312,15 @@ public final class DebugFrame {
             steps.add(new CallNode.Step(intern.apply("c" + index++), intern.apply(label), 0, List.of(), false,
                     check.successful() ? DecisionRow.MATCHED : DecisionRow.UNMATCHED));
         }
-        // A table called from a CONDITION carries no caller-ref (a decision table records a location only for
-        // the fired action), so it is recorded under a key no fired rule owns. Collect those sub-calls so a
-        // table reached from a condition is not silently dropped from the tree.
+        return steps;
+    }
+
+    /**
+     * Sub-calls a table made from a CONDITION. A decision table records a location only for the fired action,
+     * so a table called from a condition is recorded under a key no fired rule owns; collect those so it is
+     * not silently dropped from the tree.
+     */
+    private List<CallNode> conditionSubCalls() {
         Set<String> firedRefs = new HashSet<>();
         for (ExecutedStep step : executedSteps) {
             firedRefs.add(step.ref());
@@ -301,8 +331,16 @@ public final class DebugFrame {
                 conditionCalls.addAll(children);
             }
         });
-        // The returned rule is the fired-rule step; relabel it and let it keep the sub-calls its action made,
-        // plus the condition sub-calls (which have no rule of their own to hang under).
+        return conditionCalls;
+    }
+
+    /**
+     * The rule the table returned, as the fired-rule step relabelled and keeping the sub-calls its action
+     * made plus the condition sub-calls (which have no rule of their own to hang under). If no rule fired yet
+     * a condition still called out, a bare node keeps those calls so nothing is lost.
+     */
+    private void appendReturnedRules(List<CallNode.Step> steps, List<CallNode> conditionCalls,
+                                     UnaryOperator<String> intern) {
         Set<String> covered = new HashSet<>();
         boolean attachedConditionCalls = false;
         for (ExecutedStep step : executedSteps) {
@@ -318,11 +356,9 @@ public final class DebugFrame {
                         step.durationNanos(), List.copyOf(children), false, DecisionRow.RETURNED));
             }
         }
-        // No rule fired, yet a condition still called out — keep those calls under the table so nothing is lost.
         if (!attachedConditionCalls && !conditionCalls.isEmpty()) {
             steps.add(new CallNode.Step(intern.apply("calls"), null, 0, List.copyOf(conditionCalls)));
         }
-        return steps;
     }
 
     /**
