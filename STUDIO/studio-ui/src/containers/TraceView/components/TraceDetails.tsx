@@ -114,6 +114,9 @@ const TraceDetails: React.FC = () => {
             return undefined
         }
         let cancelled = false
+        // Drop the previous step's payload before the new fetch: during the loading window its cell would
+        // otherwise still drive highlightCell (a wrong cell briefly lit), and its inputs/result stay stale.
+        setStepInputs(null)
         setStepInputsLoading(true)
         traceService.getStepInputs(projectId, ownerIndex, focus.ref)
             .then(step => {
