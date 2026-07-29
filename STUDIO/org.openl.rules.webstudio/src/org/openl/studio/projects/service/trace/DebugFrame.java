@@ -186,7 +186,8 @@ public final class DebugFrame {
         }
         executedChildren.forEach((ref, children) -> {
             if (!covered.contains(ref)) {
-                steps.add(new CallNode.Step(intern.apply(ref), null, 0, List.copyOf(children)));
+                steps.add(new CallNode.Step(intern.apply(ref), interruptedStepLabel(ref, intern), 0,
+                        List.copyOf(children)));
             }
         });
         // A spreadsheet's plain value and constant cells never execute (cells evaluate lazily and these
@@ -229,6 +230,21 @@ public final class DebugFrame {
             return value == null ? intern.apply(label) : label + " = " + value;
         }
         return intern.apply(label);
+    }
+
+    /**
+     * Label for a step present only through its sub-call: it began a call but never returned — interrupted by
+     * an error in the table it invoked — so it has no completed value. Falls back to the cell's own name, so a
+     * failed branch reads with real step names ({@code $ManualRates}) instead of raw {@code RnCm} references.
+     */
+    private @Nullable String interruptedStepLabel(String ref, UnaryOperator<String> intern) {
+        if (source instanceof Spreadsheet spreadsheet) {
+            SpreadsheetCell cell = cellAt(spreadsheet, ref);
+            if (cell != null) {
+                return intern.apply(SpreadsheetCellNames.of(spreadsheet, cell));
+            }
+        }
+        return null;
     }
 
     /** A static (value/constant) cell's tree label, with its value appended when detailed titles are on. */

@@ -320,6 +320,28 @@ class TraceDebuggerIntegrationTest {
     }
 
     @Test
+    void runningThroughErrorsKeepsTheExecutedTreeWithTheFailedBranch() {
+        FakeTable t1 = new FakeTable("T1").boom();
+        FakeTable t0 = new FakeTable("T0").call(t1);
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        DebugBody program = () -> run(debugger, t0);
+
+        // The business full run opts out of break-on-exception: instead of parking on the throwing frame, the
+        // error terminates the run, so the executed tree — with the failed branch — is kept for offline browsing.
+        debugger.setBreakOnErrors(false);
+        debugger.start("run-through-worker", null, false, true, false, program);
+
+        assertEquals(DebugStatus.ERROR, debugger.awaitInitialHalt(TIMEOUT),
+                "the error ends the run instead of suspending on it");
+        CallNode tree = debugger.completedTree();
+        assertNotNull(tree, "the executed tree outlives the failed run");
+        assertEquals("T0", tree.name());
+        List<String> children = tree.steps().stream()
+                .flatMap(step -> step.children().stream()).map(CallNode::name).toList();
+        assertEquals(List.of("T1"), children, "the branch that failed is retained in the tree");
+    }
+
+    @Test
     void ruleFiredBreakpointSuspendsWhenARuleFires() {
         FakeTable dt = new FakeTable("DT").rule("R3");
         TraceDebugger debugger = new TraceDebugger(CLASSIFIER);

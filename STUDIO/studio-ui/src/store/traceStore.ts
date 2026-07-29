@@ -140,6 +140,12 @@ interface DebugState {
     simpleLastInspected: number | null
     /** The clicked step when the last inspection was a step, so Details presents the step, not the frame. */
     simpleFocus: SimpleStepFocus | null
+    /**
+     * The table a business-view click is inspecting. When running to it stops on a deeper frame — an error
+     * parked the run inside a table it called — the clicked table is still on the stack as an ancestor, so it
+     * stays selected instead of the unrelated frame the suspend landed on. Null for a step inspection.
+     */
+    simpleInspectFrame: { uri: string; instance: number } | null
 
     /** Show the decision-table per-condition breakdown in both trees; off shows only the returned rule. */
     showDetailed: boolean
@@ -273,6 +279,7 @@ const initialState = {
     simpleSelectedKey: null,
     simpleLastInspected: null,
     simpleFocus: null,
+    simpleInspectFrame: null,
     showDetailed: false,
     loading: false,
     error: null,
@@ -288,6 +295,7 @@ const SIMPLE_SNAPSHOT_RESET = {
     simpleSelectedKey: null,
     simpleLastInspected: null,
     simpleFocus: null,
+    simpleInspectFrame: null,
 }
 
 // A settled run whose frames can still be inspected: paused at a step, or finished (completed/failed) with
@@ -314,9 +322,20 @@ export const useTraceStore = create<DebugState>((set, get) => {
         // While suspended (or stopped at an error) the frame of interest is the current/failing one at the top;
         // once the run completes, the result to surface is the root call at index 0 — not whichever deep frame
         // the last suspend happened to leave published.
-        const focusIndex = !isInspectable(stack.status) || topIndex === null ? null
+        let focusIndex = !isInspectable(stack.status) || topIndex === null ? null
             : stack.status === 'completed' ? 0
                 : topIndex
+        // In the business view a click inspects one table. If running to it stopped on a deeper frame — an
+        // error parked the run inside a table it called — keep the clicked table selected (still on the stack
+        // as an ancestor) so its own table and inputs show, not the unrelated frame the suspend landed on.
+        const inspecting = get().simpleInspectFrame
+        if (inspecting && !get().advanced && focusIndex !== null) {
+            const index = stack.frames.findLastIndex(
+                frame => frame.uri === inspecting.uri && frame.instance === inspecting.instance)
+            if (index >= 0) {
+                focusIndex = index
+            }
+        }
         const transient = get().transientBreakpoint
         set({
             status: stack.status,
@@ -812,7 +831,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 // keeping its tree shallow and lazily paged.
                 const stack = await traceService.startTrace(projectId, launchOptions(
                     { tableId, fromModule, testRanges, inputJson },
-                    { stopAtEntry: false, profiling: true, detailedTitles: true, fullTree: true }
+                    // Run through a rule error instead of parking on it, so a failed run still returns the whole
+                    // executed tree (with the failed branch marked `= ERROR`) rather than showing nothing.
+                    { stopAtEntry: false, profiling: true, detailedTitles: true, fullTree: true, breakOnErrors: false }
                 ))
                 if (get().runId !== token) return
                 applyStack(stack)
@@ -845,8 +866,11 @@ export const useTraceStore = create<DebugState>((set, get) => {
             try {
                 const order = get().simpleOrder[key] ?? null
                 const last = get().simpleLastInspected
-                // The highlight follows the clicked row (selectionKey); the run follows the target (key).
-                set({ simpleSelectedKey: clickedKey, simpleLastInspected: order?.end ?? null, simpleFocus: focus ?? null })
+                // The highlight follows the clicked row (selectionKey); the run follows the target (key). A
+                // table row also records its frame, so an error deep in the table it called keeps the clicked
+                // table selected rather than the throwing frame; a focused step tracks its owner instead.
+                set({ simpleSelectedKey: clickedKey, simpleLastInspected: order?.end ?? null, simpleFocus: focus ?? null,
+                    simpleInspectFrame: focus ? null : { uri: frameUri, instance: frameInstance } })
                 // Execution can only move forward: a row is still reachable by resuming when it starts after
                 // everything the previous inspection already ran — its own subtree included. Anything else
                 // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.

@@ -11576,6 +11576,15 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "breakOnErrors",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "includeTree",
             "schema": {
               "type": "boolean",
