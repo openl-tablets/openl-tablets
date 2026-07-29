@@ -138,6 +138,11 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     }
 
     @Override
+    public boolean hasProjectInAnyBranch(String repositoryId, String name) {
+        return designTimeRepository.hasProjectInAnyBranch(repositoryId, name);
+    }
+
+    @Override
     public Optional<BranchedProject> getBranchedProject(String repositoryId, String name) {
         return getBranchedProject(repositoryId, name, List.of(BasePermission.READ));
     }
@@ -170,6 +175,11 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     }
 
     @Override
+    public CompletionStage<Void> refreshRepository(String repositoryId) {
+        return designTimeRepository.refreshRepository(repositoryId);
+    }
+
+    @Override
     public void addListener(DesignTimeRepositoryListener listener) {
         designTimeRepository.addListener(listener);
     }
@@ -194,7 +204,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     }
 
     private Optional<AProject> secureVisibleProject(AProject project, List<Permission> permissions) {
-        var branched = getBranchedProject(project.getRepository().getId(), project.getBusinessName(), permissions);
+        var branched = getBranchedProject(project.getRepository().getId(), project.getName(), permissions);
         if (branched.isPresent()) {
             return Optional.of(branched.get().homeEntry().project());
         }

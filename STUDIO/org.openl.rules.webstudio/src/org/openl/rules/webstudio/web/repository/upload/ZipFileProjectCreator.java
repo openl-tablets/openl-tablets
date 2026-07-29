@@ -18,6 +18,7 @@ import java.util.zip.ZipInputStream;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromFile;
@@ -35,7 +36,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
     private final File uploadedFile;
     private final Charset charset;
     private final String comment;
-    private final String repositoryId;
+    private final Repository repository;
 
     public ZipFileProjectCreator(String repositoryId,
                                  String uploadedFileName,
@@ -47,8 +48,30 @@ public class ZipFileProjectCreator extends AProjectCreator {
                                  PathFilter zipFilter,
                                  ZipCharsetDetector zipCharsetDetector,
                                  Map<String, String> tags) throws IOException {
+        this(userWorkspace.getDesignTimeRepository().getRepository(repositoryId),
+                uploadedFileName,
+                uploadedFileStream,
+                projectName,
+                projectFolder,
+                userWorkspace,
+                comment,
+                zipFilter,
+                zipCharsetDetector,
+                tags);
+    }
+
+    public ZipFileProjectCreator(Repository repository,
+                                 String uploadedFileName,
+                                 InputStream uploadedFileStream,
+                                 String projectName,
+                                 String projectFolder,
+                                 UserWorkspace userWorkspace,
+                                 String comment,
+                                 PathFilter zipFilter,
+                                 ZipCharsetDetector zipCharsetDetector,
+                                 Map<String, String> tags) throws IOException {
         super(projectName, projectFolder, userWorkspace, tags);
-        this.repositoryId = repositoryId;
+        this.repository = repository;
         this.comment = comment;
 
         uploadedFile = FileTool.toTempFile(uploadedFileStream, uploadedFileName);
@@ -86,7 +109,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames, PathFilter zipFilter) {
         var folderExtractor = new RootFolderExtractor(sortedNames, zipFilter);
-        return new ZipRulesProjectBuilder(getUserWorkspace(), repositoryId, getProjectName(),
+        return new ZipRulesProjectBuilder(getUserWorkspace(), repository, getProjectName(),
                 getProjectFolder(),
                 zipFilter,
                 folderExtractor,

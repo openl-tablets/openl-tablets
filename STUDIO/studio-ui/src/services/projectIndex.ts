@@ -1,6 +1,6 @@
 import { WORKSPACE_CHANGED_EVENT } from './apiCall'
 import { getProjects } from './repositories'
-import type { Project } from '../types/projects'
+import type { Project, ProjectIndexHealth } from '../types/projects'
 import type { ProjectStatusUpdate } from './projectStatus'
 
 /**
@@ -15,6 +15,8 @@ export interface ProjectIndex {
     projects: Project[]
     /** The compile state of the projects the workspace has a live one for. */
     statuses: ProjectStatusUpdate[]
+    /** Cross-branch index health keyed by readable design-repository id. */
+    projectIndexHealth: Record<string, ProjectIndexHealth>
 }
 
 let pending: Promise<ProjectIndex> | undefined
@@ -51,6 +53,7 @@ export const getProjectIndex = (): Promise<ProjectIndex> => {
     ).then(page => ({
         projects: page.content,
         statuses: page.statuses ?? [],
+        projectIndexHealth: page.projectIndexHealth ?? {},
     })).catch(error => {
         // A failed read must not be remembered as the answer: the next open tries again.
         pending = undefined
@@ -71,7 +74,14 @@ export const invalidateProjectIndex = (): void => {
 export const projectSignature = (project: Project | null): string =>
     project === null
         ? ''
-        : JSON.stringify([project.id, project.revision, project.status, project.branch, project.modifiedAt])
+        : JSON.stringify([
+            project.id,
+            project.revision,
+            project.status,
+            project.branch,
+            project.selectedBranches,
+            project.modifiedAt,
+        ])
 
 /**
  * True when a snapshot (or a read already underway) exists, so the next read is answered from

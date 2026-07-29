@@ -25,9 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
@@ -119,10 +117,6 @@ class ProtectedBranchTest {
         newRepo.setId(REPO_ID);
         newRepo.setUri(remoteUri);
         newRepo.setLocalRepositoriesFolder(repositoriesFolder);
-        var settingsRepository = new FileSystemRepository();
-        settingsRepository.setUri(local.getParent() + "/git-settings");
-        var locksRoot = new File(root, "locks").getAbsolutePath();
-        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, remoteUri, local, repositoriesFolder, true, empty));
 
         return newRepo;

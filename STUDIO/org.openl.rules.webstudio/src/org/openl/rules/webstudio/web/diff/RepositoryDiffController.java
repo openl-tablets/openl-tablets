@@ -37,7 +37,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.util.Utils;
@@ -89,7 +88,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     @Setter
     private String selectedExcelFileRepo;
 
-    private UserWorkspaceProject projectUW; // User Workspace project
+    private RulesProject projectUW; // User Workspace project
     private List<AProjectArtefact> excelArtefactsUW = Collections.emptyList();
     private List<AProjectArtefact> excelArtefactsRepo = Collections.emptyList();
 
@@ -141,7 +140,7 @@ public class RepositoryDiffController extends AbstractDiffController {
      * Finds the project by the name the projects UI shows, which is its business name, in the repository
      * the caller came from. A repository is given only to tell apart projects sharing a business name.
      */
-    private UserWorkspaceProject lookupProject() {
+    private RulesProject lookupProject() {
         if (StringUtils.isBlank(projectName)) {
             return null;
         }
@@ -176,8 +175,11 @@ public class RepositoryDiffController extends AbstractDiffController {
             return Collections.emptyList();
         }
         try {
-            BranchRepository designRepository = (BranchRepository) projectUW.getDesignRepository();
-            List<String> branches = new ArrayList<>(designRepository.getBranches(designFolderName()));
+            var designTimeRepository = getUserWorkspace().getDesignTimeRepository();
+            List<String> branches = designTimeRepository
+                    .getBranchedProject(projectUW.getDesignRepository().getId(), projectUW.getDesignProjectName())
+                    .map(project -> new ArrayList<>(project.entries().keySet()))
+                    .orElseGet(ArrayList::new);
             String projectBranch = projectUW.getBranch();
             if (projectBranch != null && !branches.contains(projectBranch)) {
                 branches.add(projectBranch);

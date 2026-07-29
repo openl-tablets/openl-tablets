@@ -16,6 +16,8 @@ Content-Type: application/json
       "comment": "Save changes",
       "selectedBranches": [
         "EPBDS-13931_1",
+        "EPBDS-14376_1",
+        "EPBDS-15409_1",
         "master"
       ],
       "repositoryInfo": {
@@ -30,6 +32,7 @@ Content-Type: application/json
       },
       "capabilities": {
         "canWrite": true,
+        "canDelete": true,
         "canClose": true,
         "canDeploy": true,
         "canCompare": true,
@@ -87,6 +90,7 @@ Content-Type: application/json
       "comment": "Project EPBDS-14376 is created.",
       "selectedBranches": [
         "EPBDS-14376_1",
+        "EPBDS-15409_1",
         "master"
       ],
       "repositoryInfo": {
@@ -101,6 +105,7 @@ Content-Type: application/json
       },
       "capabilities": {
         "canWrite": true,
+        "canDelete": true,
         "canClose": true,
         "canSave": true,
         "canCompare": true,
@@ -131,8 +136,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -168,6 +173,7 @@ Content-Type: application/json
       },
       "capabilities": {
         "canWrite": true,
+        "canDelete": true,
         "canClose": true,
         "canSave": true,
         "canCompare": true,
@@ -214,8 +220,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -251,8 +257,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -282,8 +288,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -304,6 +310,10 @@ Content-Type: application/json
       "path": "Project",
       "comment": "Project Project is created.",
       "selectedBranches": [
+        "EPBDS-13930_Project2",
+        "EPBDS-13931_1",
+        "EPBDS-14376_1",
+        "EPBDS-15409_1",
         "master"
       ],
       "branchDefault": true,
@@ -318,8 +328,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -355,8 +365,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -386,8 +396,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -409,6 +419,9 @@ Content-Type: application/json
       "comment": "Project is created.",
       "selectedBranches": [
         "EPBDS-13930_Project2",
+        "EPBDS-13931_1",
+        "EPBDS-14376_1",
+        "EPBDS-15409_1",
         "master"
       ],
       "branchDefault": true,
@@ -423,8 +436,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -460,8 +473,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -497,8 +510,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -534,8 +547,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,

@@ -1,7 +1,10 @@
-HTTP/1.1 404
+HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "code": "openl.error.404.project.identifier.message",
-  "message": "***"
+  "status": "OPENED",
+  "branch": "EPBDS-16253-copy",
+  "selectedBranches": [
+    "EPBDS-16253-copy"
+  ]
 }

@@ -16319,6 +16319,10 @@ Content-Type: application/json
                     "default": "rules/Algorithms.xlsx",
                     "description": "***"
                   },
+                  "branch": {
+                    "type": "string",
+                    "description": "***"
+                  },
                   "comment": {
                     "type": "string",
                     "description": "***"
@@ -19883,6 +19887,10 @@ Content-Type: application/json
       "CreateFromProjectModel": {
         "type": "object",
         "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
           "comment": {
             "type": "string",
             "description": "***"
@@ -19914,6 +19922,10 @@ Content-Type: application/json
       "CreateFromWorkspaceModel": {
         "type": "object",
         "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
           "comment": {
             "type": "string",
             "description": "***"
@@ -21363,6 +21375,32 @@ Content-Type: application/json
           }
         }
       },
+      "IndexHealth_Full": {
+        "type": "object",
+        "properties": {
+          "failedBranches": {
+            "type": "array",
+            "description": "Branches whose latest content could not be indexed",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "lastError": {
+            "type": "string",
+            "description": "Safe summary of the latest indexing failure"
+          },
+          "state": {
+            "type": "string",
+            "description": "Current state of the cross-branch project index",
+            "enum": [
+              "indexing",
+              "ready",
+              "degraded"
+            ]
+          }
+        }
+      },
       "InheritedAuthenticationSettings": {
         "type": "object",
         "allOf": [
@@ -22582,6 +22620,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "containsProject": {
+            "type": "boolean",
+            "description": "***"
+          },
           "name": {
             "type": "string",
             "description": "***"
@@ -23674,6 +23716,13 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
+          "projectIndexHealth": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/IndexHealth_Full"
+            },
+            "description": "***"
+          },
           "repositoryCounts": {
             "type": "array",
             "description": "***",
@@ -24123,6 +24172,10 @@ Content-Type: application/json
       "RepositoryConfigModel": {
         "type": "object",
         "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
           "comment": {
             "$ref": "#/components/schemas/Comment"
           },

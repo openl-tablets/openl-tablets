@@ -1,0 +1,14 @@
+PUT /rest/users HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "displayName": "EPBDS 8537 Creator",
+  "username": "EPBDS_8537_creator",
+  "internalPassword": {
+    "password": "EPBDS_8537_creator"
+  },
+  "firstName": "EPBDS",
+  "lastName": "8537 Creator",
+  "email": "EPBDS_8537_creator@email"
+}

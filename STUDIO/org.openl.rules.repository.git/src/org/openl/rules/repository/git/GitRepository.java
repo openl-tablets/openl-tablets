@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -18,12 +17,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -34,9 +33,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.CommitCommand;
@@ -103,7 +100,6 @@ import org.eclipse.jgit.util.RawCharSequence;
 import org.eclipse.jgit.util.io.NullOutputStream;
 import org.jspecify.annotations.Nullable;
 
-import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.BranchTreeRevision;
@@ -115,13 +111,9 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Pageable;
-import org.openl.rules.repository.api.RepositorySettings;
-import org.openl.rules.repository.api.RepositorySettingsAware;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
-import org.openl.rules.repository.git.branch.BranchDescription;
-import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.rules.xls.merge.XlsWorkbookMerger;
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
@@ -131,7 +123,7 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
 @Slf4j
-public class GitRepository implements BranchRepository, RepositorySettingsAware, Closeable {
+public class GitRepository implements BranchRepository, Closeable {
     private String id;
     private String name;
     private String uri;
@@ -143,8 +135,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private String tagPrefix = StringUtils.EMPTY;
     private int listenerTimerPeriod = 10;
     private int connectionTimeout = 60;
-    private RepositorySettings repositorySettings;
-    private Date settingsSyncDate = new Date();
     private volatile boolean noVerify;
     private Boolean gcAutoDetach;
     private int failedAuthenticationSeconds;
@@ -163,17 +153,10 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private ReadWriteLock repositoryLock = new ReentrantReadWriteLock();
     private ReentrantLock remoteRepoLock = new ReentrantLock();
 
-    private BranchesData branches = new BranchesData();
-
     private boolean closed;
-    private String branchesConfigFile = "design/branches.yaml";
-    private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
 
     public void setId(String id) {
         this.id = id;
-        if (id != null) {
-            branchesConfigFile = id + "/branches.yaml";
-        }
     }
 
     @Override
@@ -652,8 +635,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 }
             }
 
-            readBranchesWithLock();
-
             if (credentialsProvider != null) {
                 credentialsProvider.successAuthentication(GitActionType.INIT);
             }
@@ -892,11 +873,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 
-    @Override
-    public void setRepositorySettings(RepositorySettings repositorySettings) {
-        this.repositorySettings = repositorySettings;
-    }
-
     public void setProtectedBranches(String... patterns) {
         this.protectedBranchFilter = WildcardBranchNameFilter.create(patterns);
     }
@@ -1022,33 +998,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 fastForwardNotMergedCommits(fetchResult);
             }
 
-            TreeSet<String> availableBranches = getAvailableBranches();
-
-            var branches = getBranches(true);
-            var projectBranches = branches.getDescriptions()
-                    .stream()
-                    .map(BranchDescription::getName)
-                    .collect(Collectors.toCollection(HashSet::new));
-            branches.getProjectBranches().values().forEach(projectBranches::addAll);
-
-            var branchesToRemove = new ArrayList<String>();
-            projectBranches.forEach(projectBranch -> {
-                if (!availableBranches.contains(projectBranch)) {
-                    branchesToRemove.add(projectBranch);
-                }
-            });
-
-            if (!branchesToRemove.isEmpty()) {
-                lockSettings();
-                try {
-                    for (String projectBranch : branchesToRemove) {
-                        branches.removeBranch(null, projectBranch);
-                    }
-                    saveBranches();
-                } finally {
-                    unlockSettings();
-                }
-            }
         } finally {
             resetLfsCredentials();
             writeLock.unlock();
@@ -1067,24 +1016,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             readLock.unlock();
             log.debug("getLastRevision(): unlock");
         }
-    }
-
-    private BranchesData getBranches(boolean withLock) throws IOException {
-        if (repositorySettings != null) {
-            var modified = !repositorySettings.getSyncDate().equals(settingsSyncDate);
-            if (!modified) {
-                var fileData = repositorySettings.getRepository().check(branchesConfigFile);
-                modified = fileData != null && settingsSyncDate.before(fileData.getModifiedAt());
-            }
-            if (modified) {
-                if (withLock) {
-                    readBranchesWithLock();
-                } else {
-                    readBranches();
-                }
-            }
-        }
-        return branches;
     }
 
     /**
@@ -1819,11 +1750,29 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private void checkoutForcedOrReset(String branch) throws IOException, GitAPIException {
-        if (isEmpty()) {
+        if (git.getRepository().resolve(branch) == null && branch.equals(this.branch)) {
+            checkoutUnbornBranch(branch);
+        } else if (isEmpty()) {
             reset();
         } else {
             checkoutForced(branch);
         }
+    }
+
+    private void checkoutUnbornBranch(String branch) throws GitAPIException, IOException {
+        var repository = git.getRepository();
+        if (!branch.equals(repository.getBranch())) {
+            git.checkout().setName(branch).setOrphan(true).call();
+        }
+
+        var dirCache = repository.lockDirCache();
+        dirCache.clear();
+        dirCache.write();
+        if (!dirCache.commit()) {
+            dirCache.unlock();
+            throw new IOException("Cannot clear the index before creating branch '%s'.".formatted(branch));
+        }
+        git.clean().setCleanDirectories(true).setForce(true).setIgnore(false).call();
     }
 
     private void checkoutForced(String branch) throws GitAPIException {
@@ -2433,56 +2382,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     @Override
-    public void createBranch(String projectPath, String branch) throws IOException {
-        createBranch(projectPath, branch, null);
-    }
-
-    @Override
-    public void createBranch(String projectPath, String newBranch, String startPoint) throws IOException {
-        initializeGit(true);
-
-        var branchAbsentBefore = false;
-        var writeLock = repositoryLock.writeLock();
-        try {
-            log.debug("createBranch(): lock");
-            writeLock.lock();
-            initLfsCredentials();
-
-            reset();
-
-            // If newBranch does not exist, create it.
-            var branchRef = git.getRepository().findRef(newBranch);
-            branchAbsentBefore = branchRef == null;
-            if (branchAbsentBefore) {
-                branchRef = createGitBranch(newBranch, startPoint);
-            }
-
-            lockSettings();
-            try {
-                var branches = getBranches(false);
-                branches.addBranch(projectPath, branch, null);
-                branches.addBranch(projectPath, newBranch, branchRef.getObjectId().getName());
-
-                saveBranches();
-            } finally {
-                unlockSettings();
-            }
-        } catch (IOException e) {
-            reset();
-            rollbackBranchCreation(newBranch, branchAbsentBefore);
-            throw e;
-        } catch (Exception e) {
-            reset();
-            rollbackBranchCreation(newBranch, branchAbsentBefore);
-            throw new IOException(e.getMessage(), e);
-        } finally {
-            resetLfsCredentials();
-            writeLock.unlock();
-            log.debug("createBranch(): unlock");
-        }
-    }
-
-    @Override
     public void createRepositoryBranch(String newBranch, @Nullable String startPoint) throws IOException {
         initializeGit(true);
 
@@ -2514,11 +2413,11 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private Ref createGitBranch(String newBranch, @Nullable String startPoint) throws IOException, GitAPIException {
-        if (startPoint != null && git.getRepository().resolve(startPoint) == null) {
-            throw new IOException("Cannot resolve " + startPoint);
-        }
         if (isEmpty()) {
             throw new IOException("Cannot create a branch on the empty repository.");
+        }
+        if (startPoint != null && git.getRepository().resolve(startPoint) == null) {
+            throw new IOException("Cannot resolve " + startPoint);
         }
 
         checkoutForced(branch);
@@ -2539,56 +2438,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             git.branchDelete().setBranchNames(branch).call();
         } catch (Exception ignored) {
             // safe to ignore: rollback is best-effort and the original exception is rethrown
-        }
-    }
-
-    @Override
-    public void deleteBranch(String projectPath, String branch) throws IOException {
-        initializeGit(true);
-
-        var writeLock = repositoryLock.writeLock();
-        try {
-            log.debug("deleteBranch(): lock");
-            writeLock.lock();
-            initLfsCredentials();
-
-            reset();
-
-            if (projectPath == null) {
-                lockSettings();
-                try {
-                    var branches = getBranches(false);
-                    // Remove the branch from all mappings.
-                    if (branches.removeBranch(null, branch)) {
-                        saveBranches();
-                    }
-                } finally {
-                    unlockSettings();
-                }
-
-                deleteGitBranch(branch);
-            } else {
-                lockSettings();
-                try {
-                    var branches = getBranches(false);
-                    // Remove branch mapping for specific project only.
-                    if (branches.removeBranch(projectPath, branch)) {
-                        saveBranches();
-                    }
-                } finally {
-                    unlockSettings();
-                }
-            }
-        } catch (IOException e) {
-            reset();
-            throw e;
-        } catch (Exception e) {
-            reset();
-            throw new IOException(e.getMessage(), e);
-        } finally {
-            resetLfsCredentials();
-            writeLock.unlock();
-            log.debug("deleteBranch(): unlock");
         }
     }
 
@@ -2650,48 +2499,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             throw new IOException(e);
         } finally {
             readLock.unlock();
-        }
-    }
-
-    @Override
-    public List<String> getBranches(String projectPath) throws IOException {
-        initializeGit(true);
-
-        var readLock = repositoryLock.readLock();
-        try {
-            log.debug("getBranches(): lock");
-            readLock.lock();
-            initLfsCredentials();
-
-            var branches = getBranches(true);
-            if (projectPath == null) {
-                // Return all available branches
-                TreeSet<String> branchNames = getAvailableBranches();
-
-                // Local branches absent in repository may be needed to uncheck them in UI.
-                for (List<String> projectBranches : branches.getProjectBranches().values()) {
-                    branchNames.addAll(projectBranches);
-                }
-
-                return new ArrayList<>(branchNames);
-            } else {
-                // Return branches mapped to a specific project
-                List<String> projectBranches = branches.getProjectBranches().get(projectPath);
-                List<String> result;
-                if (projectBranches == null) {
-                    result = new ArrayList<>(List.of(branch));
-                } else {
-                    result = new ArrayList<>(projectBranches);
-                    result.sort(String.CASE_INSENSITIVE_ORDER);
-                }
-                return result;
-            }
-        } catch (GitAPIException e) {
-            throw new IOException(e);
-        } finally {
-            resetLfsCredentials();
-            readLock.unlock();
-            log.debug("getBranches(): unlock");
         }
     }
 
@@ -2816,7 +2623,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             log.debug("forBranch(): read: lock");
             initLfsCredentials();
 
-            if (git.getRepository().findRef(branch) == null) {
+            if (git.getRepository().findRef(branch) == null && !isEmpty()) {
                 List<Ref> refs = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
 
                 var branchExist = false;
@@ -2857,7 +2664,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private GitRepository createRepository(String branch) throws IOException, GitAPIException {
-        if (git.getRepository().findRef(branch) == null) {
+        if (git.getRepository().findRef(branch) == null && !isEmpty()) {
             createRemoteTrackingBranch(git, branch);
         }
 
@@ -2879,13 +2686,11 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         repo.setTagPrefix(tagPrefix);
         repo.setListenerTimerPeriod(listenerTimerPeriod);
         repo.setConnectionTimeout(connectionTimeout);
-        repo.setRepositorySettings(repositorySettings);
         repo.git = git;
         repo.repositoryLock = repositoryLock; // must be common for all instances because git
         // repository is same
         repo.remoteRepoLock = remoteRepoLock; // must be common for all instances because git
         // repository is same
-        repo.branches = branches; // Can be shared between instances
         repo.monitor = monitor;
         repo.useLFS = useLFS;
         return repo;
@@ -2934,44 +2739,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         validatePushResults(results);
     }
 
-    private void readBranchesWithLock() throws IOException {
-        lockSettings();
-        try {
-            readBranches();
-        } finally {
-            unlockSettings();
-        }
-    }
-
-    private void readBranches() throws IOException {
-        if (repositorySettings == null) {
-            return;
-        }
-
-        settingsSyncDate = repositorySettings.getSyncDate();
-        var fileItem = repositorySettings.getRepository().read(branchesConfigFile);
-        if (fileItem != null) {
-            if (settingsSyncDate.before(fileItem.getData().getModifiedAt())) {
-                settingsSyncDate = fileItem.getData().getModifiedAt();
-            }
-            try (var in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
-                branches.copyFrom(mapper.readValue(in, BranchesData.class));
-            }
-        }
-    }
-
-    private void saveBranches() throws IOException {
-        if (repositorySettings == null) {
-            return;
-        }
-        var data = new FileData();
-        data.setName(branchesConfigFile);
-        data.setAuthor(new UserInfo(getClass().getName()));
-        data.setComment("Update branches info");
-        var bytes = mapper.writeValueAsBytes(branches);
-        repositorySettings.getRepository().save(data, new ByteArrayInputStream(bytes));
-    }
-
     private void removeAbsentFiles(String baseAbsolutePath,
                                    File directory,
                                    Collection<File> toSave) throws GitAPIException {
@@ -3009,18 +2776,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     private String getMergeMessage(Ref r) throws IOException {
         return new MergeMessageFormatter().format(List.of(r), git.getRepository().exactRef(Constants.HEAD));
-    }
-
-    private void unlockSettings() {
-        if (repositorySettings != null) {
-            repositorySettings.unlock(branchesConfigFile);
-        }
-    }
-
-    private void lockSettings() throws IOException {
-        if (repositorySettings != null) {
-            repositorySettings.lock(branchesConfigFile);
-        }
     }
 
     boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {

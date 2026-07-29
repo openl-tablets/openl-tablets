@@ -39,8 +39,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -76,8 +76,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -107,8 +107,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -129,6 +129,10 @@ Content-Type: application/json
       "path": "Project",
       "comment": "Project Project is created.",
       "selectedBranches": [
+        "EPBDS-13930_Project2",
+        "EPBDS-13931_1",
+        "EPBDS-14376_1",
+        "EPBDS-15409_1",
         "master"
       ],
       "branchDefault": true,
@@ -143,8 +147,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -180,8 +184,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,

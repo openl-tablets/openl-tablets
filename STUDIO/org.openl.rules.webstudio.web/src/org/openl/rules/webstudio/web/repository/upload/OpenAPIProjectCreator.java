@@ -23,6 +23,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -43,7 +44,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private final ProjectFile uploadedOpenAPIFile;
     private final String comment;
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
-    private final String repositoryId;
+    private final Repository repository;
     private final String projectName;
     private final String modelsPath;
     private final String algorithmsPath;
@@ -61,8 +62,32 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                                  String modelsModuleName,
                                  String algorithmsModuleName,
                                  Map<String, String> tags) throws ProjectException {
+        this(userWorkspace.getDesignTimeRepository().getRepository(repositoryId),
+                projectFile,
+                projectName,
+                projectFolder,
+                userWorkspace,
+                comment,
+                modelsPath,
+                algorithmsPath,
+                modelsModuleName,
+                algorithmsModuleName,
+                tags);
+    }
+
+    public OpenAPIProjectCreator(Repository repository,
+                                 ProjectFile projectFile,
+                                 String projectName,
+                                 String projectFolder,
+                                 UserWorkspace userWorkspace,
+                                 String comment,
+                                 String modelsPath,
+                                 String algorithmsPath,
+                                 String modelsModuleName,
+                                 String algorithmsModuleName,
+                                 Map<String, String> tags) throws ProjectException {
         super(projectName, projectFolder, userWorkspace, tags);
-        this.repositoryId = repositoryId;
+        this.repository = repository;
         // Save a streamed upload to disk first, so the size check below sees the real size and the spec
         // can be parsed from a file path later.
         try {
@@ -136,7 +161,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
         var projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
-                repositoryId,
+                repository,
                 getProjectName(),
                 getProjectFolder(),
                 comment);

@@ -30,6 +30,7 @@ Content-Type: application/json
       },
       "capabilities": {
         "canWrite": true,
+        "canDelete": true,
         "canClose": true,
         "canDeploy": true,
         "canCompare": true,

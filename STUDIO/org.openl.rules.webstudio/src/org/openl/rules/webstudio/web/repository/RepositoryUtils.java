@@ -18,6 +18,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentOutputStream;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.util.IOUtils;
@@ -36,7 +37,8 @@ public final class RepositoryUtils {
     private RepositoryUtils() {
     }
 
-    public static void archive(Repository folderRepository,
+    public static void archive(DesignTimeRepository designTimeRepository,
+                               Repository folderRepository,
                                String rulesPath,
                                String projectName,
                                String version,
@@ -47,7 +49,8 @@ public final class RepositoryUtils {
             zipOutputStream = new DeploymentOutputStream(out, manifest);
 
             var projectPath = rulesPath + projectName + "/";
-            folderRepository = getRepositoryForVersion(folderRepository, rulesPath, projectName, version);
+            folderRepository = getRepositoryForVersion(
+                    designTimeRepository, folderRepository, rulesPath, projectName, version);
             var files = folderRepository.listFiles(projectPath, version);
 
             for (FileData file : files) {
@@ -103,7 +106,8 @@ public final class RepositoryUtils {
         }
     }
 
-    static Repository getRepositoryForVersion(Repository folderRepo,
+    static Repository getRepositoryForVersion(DesignTimeRepository designTimeRepository,
+                                              Repository folderRepo,
                                               String rulesPath,
                                               String projectName,
                                               String version) throws IOException {
@@ -117,12 +121,14 @@ public final class RepositoryUtils {
                 // Use main branch
                 return folderRepo;
             } else {
-                // Use secondary branch
-                var branches = branchRepository.getBranches(srcProjectPath);
-                for (String branch : branches) {
-                    var secondaryBranch = branchRepository.forBranch(branch);
-                    if (secondaryBranch.checkHistory(srcProjectPath + "/", version) != null) {
-                        return secondaryBranch;
+                var branchedProject = designTimeRepository.getBranchedProject(folderRepo.getId(), projectName);
+                if (branchedProject.isPresent()) {
+                    for (var entry : branchedProject.orElseThrow().entries().values()) {
+                        var branchProject = entry.project();
+                        var secondaryBranch = branchProject.getRepository();
+                        if (secondaryBranch.checkHistory(branchProject.getFolderPath() + "/", version) != null) {
+                            return secondaryBranch;
+                        }
                     }
                 }
 

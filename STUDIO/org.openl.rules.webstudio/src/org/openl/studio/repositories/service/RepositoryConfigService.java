@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.webstudio.web.admin.GitRepositorySettings;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositorySettings;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.repositories.model.RepositoryConfigModel;
 import org.openl.util.StringUtils;
 
@@ -24,6 +26,7 @@ import org.openl.util.StringUtils;
 public class RepositoryConfigService {
 
     private final PropertyResolver propertyResolver;
+    private final DesignTimeRepository designTimeRepository;
 
     /**
      * Public configuration of the given repository.
@@ -35,7 +38,11 @@ public class RepositoryConfigService {
      */
     public RepositoryConfigModel getConfig(String repositoryId) {
         var settings = new RepositoryConfiguration(repositoryId, propertyResolver).getSettings();
-        return new RepositoryConfigModel(newBranch(settings), comment(settings));
+        var repository = designTimeRepository.getRepository(repositoryId);
+        var branch = repository != null && repository.supports().branches()
+                ? ((BranchRepository) repository).getBranch()
+                : null;
+        return new RepositoryConfigModel(branch, newBranch(settings), comment(settings));
     }
 
     private static RepositoryConfigModel.NewBranch newBranch(RepositorySettings settings) {

@@ -52,6 +52,7 @@ class SecureDesignTimeRepositoryImplTest {
         when(delegate.getRepositories()).thenReturn(List.of(main.getRepository()));
         when(delegate.getBranchedProject("design", "Rates")).thenReturn(Optional.of(branched));
         when(delegate.hasProject("design", "Rates")).thenReturn(true);
+        when(delegate.hasProjectInAnyBranch("design", "DeniedOnly")).thenReturn(true);
         var version = mock(CommonVersion.class);
         when(delegate.getProject("design", "Rates", version)).thenReturn(feature);
         when(delegate.getProjectByPath("design", "feature/rates", "DESIGN/Readable/Rates", "revision"))
@@ -91,6 +92,8 @@ class SecureDesignTimeRepositoryImplTest {
         assertSame(refresh, secured.refreshBranch("design", "feature/rates"));
         assertTrue(secured.hasProject("design", "Rates"));
         assertFalse(secured.hasProject("design", "Missing"));
+        assertFalse(secured.hasProject("design", "DeniedOnly"));
+        assertTrue(secured.hasProjectInAnyBranch("design", "DeniedOnly"));
     }
 
     @Test

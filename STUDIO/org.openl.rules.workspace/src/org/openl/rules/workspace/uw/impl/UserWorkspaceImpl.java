@@ -135,7 +135,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void setProjectBranch(RulesProject project, String branch) throws ProjectException {
         var repositoryId = project.getDesignRepository().getId();
-        var projectName = project.getBusinessName();
+        var projectName = getDesignProjectName(project);
         var designProject = designTimeRepository.getBranchedProject(repositoryId, projectName)
                 .flatMap(branchedProject -> branchedProject.entry(branch))
                 .map(BranchedProject.BranchEntry::project)
@@ -319,7 +319,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     private void putRulesProject(RulesProject project) {
         var repoId = project.getRepository().getId();
-        var key = projectKey(repoId, project.getBusinessName());
+        var key = projectKey(repoId, project.getName());
         userRulesProjects.put(key, project);
         var businessNameKey = project.getBusinessName().toLowerCase(Locale.ROOT);
         rulesProjectKeysByName.computeIfAbsent(businessNameKey, k -> new ArrayList<>()).add(key);
@@ -352,7 +352,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             for (RulesProject project : userRulesProjects.values()) {
                 if (!project.isOpened() && project.isSupportsBranches()) {
                     branchPreferences.put(project.getDesignRepository().getId(),
-                            project.getBusinessName(),
+                            getDesignProjectName(project),
                             project.getBranch());
                 }
             }
@@ -363,11 +363,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
             for (AProject rp : designTimeRepository.getProjects()) {
                 var repoId = rp.getRepository().getId();
                 var localRepository = localWorkspace.getRepository(repoId);
-                var name = rp.getBusinessName();
+                var name = rp.getName();
                 var branchedProject = designTimeRepository.getBranchedProject(repoId, name);
-                var lp = branchedProject.isPresent()
-                        ? localWorkspace.getProjectForName(repoId, name)
-                        : localWorkspace.getProjectForPath(repoId, rp.getRealPath());
+                var lp = findLocalProject(repoId, rp, branchedProject);
 
                 FileData local = lp == null ? null : lp.getFileData();
 
@@ -447,6 +445,26 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 doSyncProjects();
             }
         }
+    }
+
+    private AProject findLocalProject(String repositoryId,
+                                      AProject project,
+                                      Optional<BranchedProject> branchedProject) {
+        var localProject = localWorkspace.getProjectForPath(repositoryId, project.getRealPath());
+        if (localProject != null || branchedProject.isEmpty()) {
+            return localProject;
+        }
+        for (var entry : branchedProject.get().entries().values()) {
+            localProject = localWorkspace.getProjectForPath(repositoryId, entry.project().getRealPath());
+            if (localProject != null) {
+                return localProject;
+            }
+        }
+        return localWorkspace.getProjectForName(repositoryId, project.getBusinessName());
+    }
+
+    private static String getDesignProjectName(RulesProject project) {
+        return project.getDesignProjectName();
     }
 
     /**
@@ -617,19 +635,20 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public RulesProject uploadLocalProject(String repositoryId,
+    public RulesProject uploadLocalProject(Repository designRepository,
                                            String name,
                                            String projectFolder,
                                            String comment) throws ProjectException {
+        var repositoryId = designRepository.getId();
         try {
             var designPath = designTimeRepository.getRulesLocation() + name;
             var designData = new FileData();
             designData.setName(designPath);
 
-            var createdProject = new AProject(designTimeRepository.getRepository(repositoryId), designData);
+            var createdProject = new AProject(designRepository, designData);
             var project = localWorkspace.getProject(null, name);
             project.refresh();
-            if (designTimeRepository.getRepository(repositoryId).supports().mappedFolders()) {
+            if (designRepository.supports().mappedFolders()) {
                 var fileData = createdProject.getFileData();
                 fileData.addAdditionalData(FileMappingData.forProject(designPath, projectFolder, name));
             }
@@ -640,7 +659,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             var rulesProject = new RulesProject(getUser(),
                     localWorkspace.getRepository(repositoryId),
                     project.getFileData(),
-                    designTimeRepository.getRepository(repositoryId),
+                    designRepository,
                     designData,
                     projectsLockEngine);
             rulesProject.open();

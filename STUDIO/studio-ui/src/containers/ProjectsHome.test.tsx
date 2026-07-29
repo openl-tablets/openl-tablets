@@ -715,6 +715,19 @@ describe('ProjectsHome', () => {
         expect(screen.getByTestId('projects-empty')).toBeTruthy()
     })
 
+    it('distinguishes an empty branch index that is still being built', async () => {
+        vi.mocked(getProjects).mockResolvedValue({
+            ...projectsPage([]),
+            projectIndexHealth: {
+                design: { state: 'indexing', failedBranches: []},
+            },
+        })
+        await renderHome()
+
+        expect(screen.getByTestId('projects-indexing')).toHaveTextContent('home.indexing')
+        expect(screen.queryByTestId('projects-empty')).toBeNull()
+    })
+
     it('shows an error state when loading fails', async () => {
         vi.mocked(getProjects).mockRejectedValue(new Error('boom'))
         await renderHome()

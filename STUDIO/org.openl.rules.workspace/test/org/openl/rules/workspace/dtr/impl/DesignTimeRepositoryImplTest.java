@@ -177,7 +177,7 @@ class DesignTimeRepositoryImplTest {
         private TestDesignTimeRepository(PropertyResolver properties,
                                          BranchedProjectIndexService index,
                                          Repository repository) {
-            super(properties, null, index);
+            super(properties, index);
             this.repository = repository;
         }
 

@@ -348,7 +348,7 @@ export const ProjectWorkspace = () => {
             unlock: () => runAction('unlock', () => unlockProject(project.id), 'browser.unlock_failed'),
             deploy: () => {
                 window.dispatchEvent(new CustomEvent('openDeployModal', {
-                    detail: { ...project, selectedBranches: project.selectedBranches ?? []},
+                    detail: project,
                 }))
             },
             compare: () => openCompareWindow(project),

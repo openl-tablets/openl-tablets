@@ -122,16 +122,14 @@ Exported project is downloaded as a `.zip` archive.
 To create a copy of a project, proceed as follows:
 
 1.  In the top line menu, click **Copy**.
-2.  In the window that appears, enter the new project name.
-3.  Modify **Comment** if needed.
-4.  When you need to copy a project with revisions, select the **Copy old revisions** check box and provide the necessary number of revisions in the **Revisions to copy** field.
-5.  Click **Copy.**
+2.  Select **Create a New Project** if the dialog initially offers to create a project branch.
+3.  Enter the new project name and select the target repository.
+4.  In **Branch**, select an existing target-repository branch or enter a valid new branch name.
+5.  Modify **Path** and **Comment** if needed.
+6.  To copy an earlier state, select **Copy an Old Revision** and choose the revision.
+7.  Click **Copy**.
 
-The new project appears in the project list.
-
-![](images/copy-project-dialog.jpeg)
-
-*Copying a project*
+The new project appears in the project list with the selected branch as its home branch.
 
 #### Exporting, Updating, and Editing a Module
 

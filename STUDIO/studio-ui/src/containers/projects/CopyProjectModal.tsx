@@ -5,11 +5,13 @@ import { Alert, Checkbox, Input, Modal, notification, Select } from 'antd'
 import {
     copyProject,
     createProjectBranch,
+    getDesignRepositoryBranches,
     isProjectModifiedConflict,
     switchProjectBranch,
 } from '../../services/repositories'
 import { FieldError } from '../../components/FieldError'
 import { FieldRow } from '../../components/FieldRow'
+import { SuggestInput } from '../../components/SuggestInput'
 import { RepoFolderInput } from './RepoFolderInput'
 import { useProjectRevisions } from './revisions'
 import type { Project } from '../../types/projects'
@@ -17,7 +19,7 @@ import type { Repository } from '../../types/repositories'
 import { suggestBranchName, suggestComment, validateBranchName } from '../../utils/repositoryConfig'
 import { CommentField, useCommentError } from './CommentField'
 import { useUserStore } from '../../store'
-import { supportsMappedFolders } from '../../utils/repositoryFeatures'
+import { supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
 import { useCommitInfoGuard, useRepositoryConfig } from '../../hooks'
 import { DiscardChangesModal } from '../DiscardChangesModal'
 import { ProjectStatus } from '../../constants/project'
@@ -49,6 +51,9 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     const [asNewProject, setAsNewProject] = useState(false)
     const [branch, setBranch] = useState('')
     const [targetRepositoryId, setTargetRepositoryId] = useState('')
+    const [targetBranch, setTargetBranch] = useState('')
+    const [targetBranchOptions, setTargetBranchOptions] = useState<string[]>([])
+    const [targetBranchTouched, setTargetBranchTouched] = useState(false)
     const [name, setName] = useState('')
     const [comment, setComment] = useState('')
     const [path, setPath] = useState('')
@@ -59,10 +64,9 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     const [error, setError] = useState<string | null>(null)
     const [discardBranch, setDiscardBranch] = useState<string | null>(null)
 
-    const config = useRepositoryConfig(open && project ? { projectId: project.id } : null)
-    const commentError = useCommentError(comment, config)
+    const sourceConfig = useRepositoryConfig(open && project ? { projectId: project.id } : null)
     // The repository configures how a branch may be named, so a wrong name never reaches the server.
-    const branchError = validateBranchName(branch, config, t('browser.copy_dialog.branch_required'),
+    const branchError = validateBranchName(branch, sourceConfig, t('browser.copy_dialog.branch_required'),
         t('browser.copy_dialog.branch_invalid'))
 
     const canBranch = !!project?.capabilities?.canManageBranches && !!project.branch
@@ -71,6 +75,22 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     const canCopyProject = !!project?.capabilities?.canCopy && repositories.length > 0
     // Without the right to create a project the dialog can only branch, and the other way round.
     const newProjectMode = canCopyProject && (asNewProject || !canBranch)
+    const targetRepository = repositories.find(repo => repo.id === targetRepositoryId)
+    const targetSupportsBranches = supportsBranches(targetRepository)
+    const targetConfig = useRepositoryConfig(
+        open && newProjectMode && targetRepositoryId ? { repositoryId: targetRepositoryId } : null
+    )
+    const writeConfig = newProjectMode ? targetConfig : sourceConfig
+    const commentError = useCommentError(comment, writeConfig)
+    const availableTargetBranches = targetConfig?.branch && !targetBranchOptions.includes(targetConfig.branch)
+        ? [targetConfig.branch, ...targetBranchOptions]
+        : targetBranchOptions
+    const targetBranchError = targetSupportsBranches
+        ? availableTargetBranches.includes(targetBranch.trim())
+            ? null
+            : validateBranchName(targetBranch, targetConfig, t('browser.create.branch_required'),
+                t('browser.create.branch_invalid'))
+        : null
 
     useEffect(() => {
         if (!open || !project) {
@@ -81,6 +101,9 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         setTargetRepositoryId(repositories.some(repo => repo.id === project.repository)
             ? project.repository
             : repositories[0]?.id ?? '')
+        setTargetBranch('')
+        setTargetBranchOptions([])
+        setTargetBranchTouched(false)
         setName('')
         setPath('')
         setFromOldRevision(false)
@@ -89,15 +112,33 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         setDiscardBranch(null)
     }, [open, project, repositories])
 
+    useEffect(() => {
+        setTargetBranch('')
+        setTargetBranchOptions([])
+        setTargetBranchTouched(false)
+        if (!open || !newProjectMode || !targetSupportsBranches || !targetRepositoryId) {
+            return
+        }
+        getDesignRepositoryBranches(targetRepositoryId)
+            .then(setTargetBranchOptions)
+            .catch(() => setTargetBranchOptions([]))
+    }, [newProjectMode, open, targetRepositoryId, targetSupportsBranches])
+
+    useEffect(() => {
+        if (open && newProjectMode && targetSupportsBranches && !targetBranchTouched && targetConfig?.branch) {
+            setTargetBranch(targetConfig.branch)
+        }
+    }, [newProjectMode, open, targetBranchTouched, targetConfig, targetSupportsBranches])
+
     // The repository suggests the branch name and the comment; both stay editable, and a suggestion that
     // arrives after the user has typed never replaces what they wrote.
     useEffect(() => {
         if (!open || !project || touched) {
             return
         }
-        setBranch(suggestBranchName(config, { projectName: project.name, username }))
-        setComment(suggestComment(config, 'copy', project.name))
-    }, [config, open, project, touched, username])
+        setBranch(suggestBranchName(sourceConfig, { projectName: project.name, username }))
+        setComment(suggestComment(writeConfig, 'copy', project.name))
+    }, [open, project, sourceConfig, touched, username, writeConfig])
 
     // The revisions to copy from are only listed once the user asks for an older one.
     const { revisions, options: revisionOptions } = useProjectRevisions(project, open && fromOldRevision)
@@ -196,6 +237,9 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         if (commentError) {
             throw new Error(commentError)
         }
+        if (targetBranchError) {
+            throw new Error(targetBranchError)
+        }
         await copyProject(
             source.repository,
             source.name,
@@ -203,7 +247,8 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
             trimmed,
             comment.trim() || undefined,
             targetSupportsFolders ? path : undefined,
-            fromOldRevision ? revision : undefined
+            fromOldRevision ? revision : undefined,
+            targetSupportsBranches ? targetBranch.trim() : undefined
         )
         notification.success({ title: t('browser.copy_dialog.success', { name: trimmed }) })
         return true
@@ -281,6 +326,25 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
                                 value={targetRepositoryId}
                             />
                         </FieldRow>
+                        {targetSupportsBranches && (
+                            <FieldRow required label={t('browser.create.branch')} labelWidth={LABEL_WIDTH}>
+                                <SuggestInput
+                                    data-testid="copy-project-target-branch"
+                                    options={availableTargetBranches.map(value => ({ label: value, value }))}
+                                    placeholder={t('browser.create.branch')}
+                                    style={{ width: '100%' }}
+                                    value={targetBranch}
+                                    onChange={value => {
+                                        setTargetBranchTouched(true)
+                                        setTargetBranch(value)
+                                    }}
+                                />
+                                <FieldError
+                                    message={targetBranchTouched ? targetBranchError : null}
+                                    testId="copy-project-target-branch-error"
+                                />
+                            </FieldRow>
+                        )}
                         {targetSupportsFolders && (
                             <FieldRow label={t('browser.copy_dialog.path')} labelWidth={LABEL_WIDTH}>
                                 <RepoFolderInput
@@ -293,7 +357,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
                             </FieldRow>
                         )}
                         <CommentField
-                            config={config}
+                            config={writeConfig}
                             labelWidth={LABEL_WIDTH}
                             testId="copy-project-comment"
                             value={comment}

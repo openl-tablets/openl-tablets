@@ -41,17 +41,13 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Page;
-import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.file.FileSystemRepository;
-import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
@@ -423,7 +419,7 @@ class GitRepositoryTest {
     @Test
     @Timeout(value = 10_000, unit = TimeUnit.MILLISECONDS)
     void deleteAndSwitchBranches() throws IOException, GitAPIException {
-        repo.createBranch(FOLDER_IN_REPOSITORY, "test1");
+        repo.createRepositoryBranch("test1", repo.getBranch());
         var repo2 = repo.forBranch("test1");
 
         final var name = FOLDER_IN_REPOSITORY;
@@ -442,9 +438,8 @@ class GitRepositoryTest {
         var deletedOnBaseBranch = repo.listHistory(name).getLast();
         assertTrue(deletedOnBaseBranch.isDeleted());
 
-        // Check that the project is deleted in secondary branch too
-        assertTrue(repo2.check(name).isDeleted(),
-                "In repository with flat folder structure deleted status should be gotten from main branch");
+        // Presence in the selected branch tree is authoritative.
+        assertFalse(repo2.check(name).isDeleted());
 
         // Check that the deleted version is available in history and has no files.
         assertEquals(0, repo.listFiles(name, deletedOnBaseBranch.getVersion()).size());
@@ -1073,10 +1068,10 @@ class GitRepositoryTest {
 
     @Test
     void testBranches() throws IOException {
-        repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
-        repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test2");
-        assertListEquals(Arrays.asList("test", "project1/test1", "project1/test2"),
-                repo.getBranches(FOLDER_IN_REPOSITORY));
+        repo.createRepositoryBranch("project1/test1", repo.getBranch());
+        repo.createRepositoryBranch("project1/test2", repo.getBranch());
+        assertListEquals(Arrays.asList(Constants.MASTER, BRANCH, "project1/test1", "project1/test2"),
+                repo.listBranches());
 
         // Don't close "project1/test1" and "project1/test2" repositories explicitly.
         // Secondary repositories should be closed by parent repository automatically.
@@ -1087,8 +1082,8 @@ class GitRepositoryTest {
         assertEquals("project1/test1", repoTest1.getBranch());
         assertEquals("project1/test2", repoTest2.getBranch());
 
-        repoTest1.deleteBranch(FOLDER_IN_REPOSITORY, "project1/test1");
-        assertListEquals(Arrays.asList("test", "project1/test2"), repo.getBranches(FOLDER_IN_REPOSITORY));
+        repoTest1.deleteRepositoryBranch("project1/test1");
+        assertListEquals(Arrays.asList(Constants.MASTER, BRANCH, "project1/test2"), repo.listBranches());
 
         // Test that forBranch() fetches new branch if it has not been cloned before
         var temp = new File(root, "temp");
@@ -1099,19 +1094,19 @@ class GitRepositoryTest {
     }
 
     @Test
-    void listBranchesUsesGitRefsInsteadOfProjectSelections() throws Exception {
-        var registryOnlyBranch = "registry-only";
+    void branchListsUseOnlyGitRefs() throws Exception {
+        var deletedBranch = "deleted";
         var remoteOnlyBranch = "remote-only";
-        repo.createBranch(FOLDER_IN_REPOSITORY, registryOnlyBranch);
+        repo.createRepositoryBranch(deletedBranch, BRANCH);
 
         try (var git = repo.getClosableGit()) {
-            git.branchDelete().setBranchNames(registryOnlyBranch).setForce(true).call();
+            git.branchDelete().setBranchNames(deletedBranch).setForce(true).call();
 
             var repository = git.getRepository();
-            var registryOnlyRemoteRef = repository.updateRef(
-                    Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + registryOnlyBranch);
-            registryOnlyRemoteRef.setForceUpdate(true);
-            registryOnlyRemoteRef.delete();
+            var deletedRemoteRef = repository.updateRef(
+                    Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + deletedBranch);
+            deletedRemoteRef.setForceUpdate(true);
+            deletedRemoteRef.delete();
 
             var remoteOnlyRef = repository.updateRef(
                     Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + remoteOnlyBranch);
@@ -1119,19 +1114,19 @@ class GitRepositoryTest {
             remoteOnlyRef.forceUpdate();
         }
 
-        assertTrue(repo.getBranches(FOLDER_IN_REPOSITORY).contains(registryOnlyBranch));
         var branches = repo.listBranches();
         assertEquals(List.of(Constants.MASTER, remoteOnlyBranch, BRANCH), branches);
-        assertFalse(branches.contains(registryOnlyBranch));
+        assertEquals(branches, repo.listBranches());
+        assertFalse(branches.contains(deletedBranch));
         assertTrue(repo.branchExists(remoteOnlyBranch));
-        assertFalse(repo.branchExists(registryOnlyBranch));
+        assertFalse(repo.branchExists(deletedBranch));
     }
 
     @Test
     void branchOnlyFolderIsPresentInItsBranch() throws IOException {
         var branch = "feature/branch-only-folder";
         var folder = "branch-only-project";
-        repo.createBranch(FOLDER_IN_REPOSITORY, branch);
+        repo.createRepositoryBranch(branch, repo.getBranch());
 
         try (var branchRepository = repo.forBranch(branch)) {
             var content = "branch-only";
@@ -1239,7 +1234,7 @@ class GitRepositoryTest {
     @Test
     void testPullDoesntAutoMerge() throws IOException {
         final var newBranch = "new-branch";
-        repo.createBranch(FOLDER_IN_REPOSITORY, newBranch);
+        repo.createRepositoryBranch(newBranch, repo.getBranch());
         var newBranchRepo = repo.forBranch(newBranch);
 
         // Add a new commit in the new branch.
@@ -1265,11 +1260,11 @@ class GitRepositoryTest {
     @Test
     void testOnlySpecifiedBranchesAreMerged() throws IOException {
         final var branch1 = "branch1";
-        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
+        repo.createRepositoryBranch(branch1, repo.getBranch());
         var branch1Repo = repo.forBranch(branch1);
 
         final var branch2 = "branch2";
-        repo.createBranch(FOLDER_IN_REPOSITORY, branch2);
+        repo.createRepositoryBranch(branch2, repo.getBranch());
         var branch2Repo = repo.forBranch(branch2);
 
         // Add commits in the new branches.
@@ -1344,11 +1339,6 @@ class GitRepositoryTest {
         newRepo.setLocalRepositoriesFolder(repositoriesFolder);
         newRepo.setBranch(branch);
         newRepo.setTagPrefix(TAG_PREFIX);
-        var settingsPath = local.getParent() + "/git-settings";
-        var settingsRepository = new FileSystemRepository();
-        settingsRepository.setUri(settingsPath);
-        var locksRoot = new File(root, "locks").getAbsolutePath();
-        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.setGcAutoDetach(false);
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, remoteUri, local, repositoriesFolder, true, empty));
 
@@ -1402,25 +1392,4 @@ class GitRepositoryTest {
         }
     }
 
-    @Test
-    void testBranchDataSerialization() throws IOException {
-        var mapper = YamlMapperFactory.getYamlMapper();
-        BranchesData branches = null;
-        try (var stream = getClass().getResourceAsStream("/BranchesDataOldStyle.yaml")) {
-            branches = mapper.readValue(stream, BranchesData.class);
-            assertTheSame(branches);
-        }
-        assertNotNull(branches);
-        assertTheSame(mapper.readValue(mapper.writeValueAsBytes(branches), BranchesData.class));
-    }
-
-    private static void assertTheSame(BranchesData branches) {
-        assertEquals(1, branches.getDescriptions().size());
-        assertEquals("branch2", branches.getDescriptions().getFirst().getName());
-        assertEquals("1deabde8a096756681a08c4552597ef8850963f7", branches.getDescriptions().getFirst().getCommit());
-        assertEquals(1, branches.getProjectBranches().size());
-        assertEquals(2, branches.getProjectBranches().get("rules/project_2").size());
-        assertEquals("master", branches.getProjectBranches().get("rules/project_2").getFirst());
-        assertEquals("branch2", branches.getProjectBranches().get("rules/project_2").get(1));
-    }
 }

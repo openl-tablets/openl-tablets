@@ -68,7 +68,8 @@ Content-Type: application/json
       "comment": "Admin saved the project",
       "selectedBranches": [
         "admin/feature-1",
-        "master"
+        "master",
+        "user1/feature-1"
       ],
       "repositoryInfo": {
         "id": "design-flat",

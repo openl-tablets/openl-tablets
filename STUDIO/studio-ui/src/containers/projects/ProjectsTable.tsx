@@ -234,13 +234,13 @@ export const ProjectsTable = ({
                                 <td className={cx(styles.fit, styles.branchCell)} onClick={event => event.stopPropagation()}>
                                     {showsBranch(project, supportsBranches) && (
                                         <BranchSwitcher
+                                            branches={project.selectedBranches ?? []}
                                             currentBranch={project.branch}
                                             currentBranchDefault={project.branchDefault}
                                             currentBranchProtected={project.branchProtected}
                                             data-testid={`row-branch-${project.id}`}
                                             onSwitched={onChanged}
                                             projectId={project.id}
-                                            selectedBranches={project.selectedBranches ?? []}
                                         />
                                     )}
                                 </td>

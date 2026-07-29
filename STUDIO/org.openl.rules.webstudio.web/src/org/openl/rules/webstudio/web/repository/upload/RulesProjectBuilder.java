@@ -39,8 +39,21 @@ public class RulesProjectBuilder {
                                String projectName,
                                String projectFolder,
                                String comment) {
+        this(workspace,
+                workspace.getDesignTimeRepository().getRepository(repositoryId),
+                projectName,
+                projectFolder,
+                comment);
+    }
+
+    public RulesProjectBuilder(UserWorkspace workspace,
+                               Repository designRepository,
+                               String projectName,
+                               String projectFolder,
+                               String comment) {
         this.workspace = workspace;
         this.comment = comment;
+        var repositoryId = designRepository.getId();
         String internalPath = FileMappingData.internalPath(projectFolder, projectName);
         synchronized (this.workspace) {
             FileData localData = new FileData();
@@ -49,7 +62,6 @@ public class RulesProjectBuilder {
             FileData designData = new FileData();
             designData.setName(workspace.getDesignTimeRepository().getRulesLocation() + projectName);
 
-            Repository designRepository = workspace.getDesignTimeRepository().getRepository(repositoryId);
             if (designRepository.supports().mappedFolders()) {
                 FileMappingData mappingData = new FileMappingData(designData.getName(), internalPath);
                 designData.addAdditionalData(mappingData);

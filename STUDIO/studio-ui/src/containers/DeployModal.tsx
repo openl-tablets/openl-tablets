@@ -20,7 +20,6 @@ interface DeployModalDetail {
     name: string
     repository: string
     revision: string
-    selectedBranches: string[]
     status: string
 }
 

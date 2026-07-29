@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository.cache;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -81,35 +82,41 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     }
 
     private void cacheDesignProject(AProject project) throws IOException, InterruptedException {
-        var repository = designRepository.getRepository(project.getRepository().getId());
-        List<ProjectVersion> versions = project.getVersions();
+        var repositoryId = project.getRepository().getId();
+        var repository = designRepository.getRepository(repositoryId);
+        var versions = new ArrayList<ProjectVersionSource>();
         if (repository.supports().branches()) {
-            for (String branch : ((BranchRepository) repository).getBranches(project.getFolderPath())) {
-                versions.addAll(new AProject(((BranchRepository) repository).forBranch(branch), project.getFolderPath())
-                        .getVersions());
-            }
+            designRepository.getBranchedProject(repositoryId, project.getName())
+                    .stream()
+                    .flatMap(branchedProject -> branchedProject.entries().values().stream())
+                    .map(entry -> entry.project())
+                    .forEach(branchProject -> branchProject.getVersions()
+                            .forEach(version -> versions.add(new ProjectVersionSource(branchProject, version))));
         } else {
-            versions.addAll(project.getVersions());
+            project.getVersions().forEach(version -> versions.add(new ProjectVersionSource(project, version)));
         }
-        versions.sort(Comparator.comparing(p -> p.getVersionInfo().getCreatedAt(), Comparator.reverseOrder()));
-        for (ProjectVersion projectVersion : versions) {
+        versions.sort(Comparator.comparing(source -> source.version().getVersionInfo().getCreatedAt(),
+                Comparator.reverseOrder()));
+        for (ProjectVersionSource source : versions) {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException("Project monitor cache task is interrupted.");
             }
+            var branchProject = source.project();
+            var projectVersion = source.version();
             if (projectVersion.isDeleted()) {
                 continue;
             }
 
-            var hash = projectVersionCacheDB.getHash(project.getBusinessName(),
+            var hash = projectVersionCacheDB.getHash(branchProject.getBusinessName(),
                     projectVersion.getVersionName(),
                     projectVersion.getVersionInfo().getCreatedAt(),
                     ProjectVersionH2CacheDB.RepoType.DESIGN);
             if (StringUtils.isEmpty(hash)) {
-                var repo = project.getRepository();
+                var repo = branchProject.getRepository();
                 String branch = repo.supports().branches() ? ((BranchRepository) repo).getBranch() : null;
-                var designProject = designRepository.getProjectByPath(project.getRepository().getId(),
+                var designProject = designRepository.getProjectByPath(repo.getId(),
                         branch,
-                        project.getRealPath(),
+                        branchProject.getRealPath(),
                         projectVersion.getVersionName());
                 if (designProject.isDeleted()) {
                     continue;
@@ -117,6 +124,9 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
                 cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
             }
         }
+    }
+
+    private record ProjectVersionSource(AProject project, ProjectVersion version) {
     }
 
     void cacheProjectVersion(AProject project, ProjectVersionH2CacheDB.RepoType repoType) throws IOException {

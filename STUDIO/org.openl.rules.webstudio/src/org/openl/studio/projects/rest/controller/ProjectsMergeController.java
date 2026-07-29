@@ -219,6 +219,9 @@ public class ProjectsMergeController {
         var model = projectService.openProject(project).awaitCompiled();
         var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
         var wasOpened = project.isOpened();
+        var repositoryId = project.getDesignRepository().getId();
+        var realPath = project.getRealPath();
+        var currentBranch = project.getBranch();
         if (dependencyManager != null) {
             dependencyManager.pause();
         }
@@ -235,15 +238,24 @@ public class ProjectsMergeController {
                 var projectId = projectIdentifierMapper.map(project);
                 conflictsSessionHolder.remove(projectId);
                 var workspace = projectService.getUserWorkspace();
-                project = workspace.getProject(project.getRepository().getId(), project.getName());
+                if (wasOpened && mergeOperation) {
+                    project.close();
+                }
+                workspace.refresh();
+                var refreshedProject = workspace.getProjectByPath(repositoryId, realPath);
+                project = refreshedProject.isPresent()
+                        ? refreshedProject.orElseThrow()
+                        : workspace.getProject(repositoryId, project.getName());
                 if (wasOpened) {
+                    if (mergeOperation && currentBranch != null) {
+                        workspace.setProjectBranch(project, currentBranch);
+                    }
                     if (project.isDeleted()) {
                         project.close();
                     } else {
                         project.open();
                     }
                 }
-                workspace.refresh();
                 studio.reset();
                 model.clearModuleInfo();
             } else {

@@ -8,10 +8,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,10 @@ import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
@@ -43,6 +50,7 @@ class ProjectsMergeServiceCheckTest {
     private BranchRepository repository;
     private LockEngine lockEngine;
     private ProtectedBranchBypassService bypassService;
+    private UserWorkspace userWorkspace;
     private ProjectsMergeServiceImpl service;
 
     @BeforeEach
@@ -67,7 +75,7 @@ class ProjectsMergeServiceCheckTest {
         lockEngine = mock(LockEngine.class);
         lenient().when(lockEngine.getLockInfo("design", CURRENT, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
         lenient().when(lockEngine.getLockInfo("design", OTHER, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
-        var userWorkspace = mock(UserWorkspace.class);
+        userWorkspace = mock(UserWorkspace.class);
         lenient().when(userWorkspace.getProjectsLockEngine()).thenReturn(lockEngine);
 
         bypassService = mock(ProtectedBranchBypassService.class);
@@ -139,5 +147,36 @@ class ProjectsMergeServiceCheckTest {
 
         assertEquals(MergeBlockedBy.LOCKED, result.blockedBy());
         assertFalse(result.canMerge());
+    }
+
+    @Test
+    void aProjectScopedUserChecksTheRawBranchRepositoryAfterAclValidation() throws IOException {
+        var securedRepository = mock(BranchRepository.class, withSettings().extraInterfaces(RepositoryDelegate.class));
+        when(((RepositoryDelegate) securedRepository).getOriginal()).thenReturn(repository);
+        when(project.getDesignRepository()).thenReturn(securedRepository);
+        when(repository.isMergedInto(CURRENT, OTHER)).thenReturn(false);
+
+        var result = service.checkMerge(project, OTHER, MergeOpMode.SEND);
+
+        assertEquals(CheckMergeStatus.MERGEABLE, result.status());
+        verify(repository).isMergedInto(CURRENT, OTHER);
+    }
+
+    @Test
+    void aSuccessfulMergeWaitsUntilTheTargetBranchIsPublished() throws IOException {
+        var targetRepository = mock(BranchRepository.class);
+        when(repository.forBranch(OTHER)).thenReturn(targetRepository);
+        when(repository.isMergedInto(CURRENT, OTHER)).thenReturn(false);
+        var user = mock(WorkspaceUser.class);
+        when(user.getUserInfo()).thenReturn(mock(UserInfo.class));
+        when(userWorkspace.getUser()).thenReturn(user);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        when(designTimeRepository.refreshBranch("design", OTHER))
+                .thenReturn(CompletableFuture.completedFuture(null));
+
+        service.merge(project, OTHER, MergeOpMode.SEND, false);
+
+        verify(designTimeRepository).refreshBranch("design", OTHER);
     }
 }

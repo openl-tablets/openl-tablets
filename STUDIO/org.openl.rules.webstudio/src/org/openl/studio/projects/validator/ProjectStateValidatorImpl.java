@@ -1,14 +1,16 @@
 package org.openl.studio.projects.validator;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 
 /**
@@ -16,6 +18,7 @@ import org.openl.studio.projects.service.protection.ProtectedBranchBypassService
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
     private final ProtectedBranchBypassService bypassService;
@@ -96,8 +99,7 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
         if (isCurrentBranchProtectionEnforced(project)) {
             return false;
         }
-        var branchRepository = (BranchRepository) repo;
-        return Objects.equals(branchRepository.getBaseBranch(), project.getBranch()) && project.getVersion() != null;
+        return project.getVersion() != null;
     }
 
     @Override
@@ -106,14 +108,24 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
             return false;
         }
 
+        return !project.isModified() && hasMergeTarget(project);
+    }
+
+    private boolean hasMergeTarget(RulesProject project) {
+        var repository = unwrap((BranchRepository) project.getDesignRepository());
         try {
-            if (project.isModified()) {
-                return false;
-            }
-            var branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getDesignFolderName());
-            return branches.size() >= 2;
+            return repository.listBranches().stream().anyMatch(branch -> !branch.equals(project.getBranch()));
         } catch (IOException e) {
+            log.debug("Cannot list merge targets for project '{}'.", project.getName(), e);
             return false;
         }
+    }
+
+    private static BranchRepository unwrap(BranchRepository repository) {
+        Repository current = repository;
+        while (current instanceof RepositoryDelegate delegate) {
+            current = delegate.getOriginal();
+        }
+        return (BranchRepository) current;
     }
 }

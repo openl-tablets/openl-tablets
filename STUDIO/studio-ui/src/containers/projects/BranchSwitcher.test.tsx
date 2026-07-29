@@ -71,7 +71,7 @@ vi.mock('antd', () => {
 const props = {
     projectId: 'p1',
     currentBranch: 'main',
-    selectedBranches: ['main', 'dev'],
+    branches: ['main', 'dev'],
     onSwitched: vi.fn(),
 }
 
@@ -79,9 +79,9 @@ describe('BranchSwitcher', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.mocked(getProjectBranches).mockResolvedValue([
-            { name: 'main', protected: true, base: true },
-            { name: 'dev', protected: false, base: false },
-            { name: 'other', protected: false, base: false },
+            { name: 'main', protected: true, base: true, containsProject: true },
+            { name: 'dev', protected: false, base: false, containsProject: true },
+            { name: 'other', protected: false, base: false, containsProject: false },
         ])
         vi.mocked(switchProjectBranch).mockResolvedValue()
     })
@@ -95,15 +95,15 @@ describe('BranchSwitcher', () => {
     })
 
     it('stays a switcher when the project takes part in a single branch', () => {
-        render(<BranchSwitcher {...props} selectedBranches={['main']} />)
+        render(<BranchSwitcher {...props} branches={['main']} />)
 
         expect(screen.getByTestId('branch-switcher')).toHaveTextContent('main')
         expect(screen.getByTestId('option-main')).toBeInTheDocument()
         expect(screen.queryByTestId('option-dev')).not.toBeInTheDocument()
     })
 
-    it('offers the current branch when the project has no selected branches yet', () => {
-        render(<BranchSwitcher {...props} selectedBranches={[]} />)
+    it('offers the current branch while actual membership is not available yet', () => {
+        render(<BranchSwitcher {...props} branches={[]} />)
 
         expect(screen.getByTestId('option-main')).toBeInTheDocument()
     })

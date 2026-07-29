@@ -1,10 +1,7 @@
 # Repository & Workspace Layer Overview
 
-**Module Group**: STUDIO (Repository & Workspace modules)
-**Location**: `/home/user/openl-tablets/STUDIO/`
-**Last Updated**: 2025-11-05
-
----
+- **Module group** — `STUDIO` repository and workspace modules
+- **Location** — `STUDIO/`
 
 ## Executive Summary
 
@@ -22,72 +19,55 @@ The Repository & Workspace layer provides a comprehensive abstraction for managi
 
 ## Modules Overview
 
-| Module | Files | Purpose | Complexity |
-|--------|-------|---------|------------|
-| `org.openl.rules.repository` | 55 | Core repository API + implementations | 🟡 Medium |
-| `org.openl.rules.repository.git` | 26 | Git backend (JGit) | 🔴 High |
-| `org.openl.rules.repository.aws` | 4 | AWS S3 backend | 🟢 Low |
-| `org.openl.rules.repository.azure` | 4 | Azure Blob backend | 🟢 Low |
-| `org.openl.rules.workspace` | Multiple | Workspace management | 🟡 Medium |
-| `org.openl.rules.diff` | Multiple | Table/rule comparison | 🟡 Medium |
-| `org.openl.rules.jackson` | 25 | JSON serialization | 🟡 Medium |
-| `org.openl.rules.jackson.configuration` | 2 | Jackson annotations | 🟢 Low |
-| `org.openl.rules.xls.merge` | Multiple | Excel 3-way merge | 🔴 High |
+| Module | Purpose | Complexity |
+|--------|---------|------------|
+| `org.openl.rules.repository` | Core repository API and implementations | Medium |
+| `org.openl.rules.repository.git` | Git backend using JGit | High |
+| `org.openl.rules.repository.aws` | AWS S3 backend | Low |
+| `org.openl.rules.repository.azure` | Azure Blob backend | Low |
+| `org.openl.rules.workspace` | Workspace and cross-branch project index | Medium |
+| `org.openl.rules.diff` | Table and rule comparison | Medium |
+| `org.openl.rules.jackson` | JSON serialization | Medium |
+| `org.openl.rules.xls.merge` | Excel three-way merge | High |
 
 ---
 
 ## 1. Core Repository Module
 
-**Location**: `/home/user/openl-tablets/STUDIO/org.openl.rules.repository/`
+**Location**: `STUDIO/org.openl.rules.repository/`
 **Purpose**: Foundation abstraction for all storage backends
 
 ### Architecture
 
-```
-┌─────────────────────────────────────┐
-│     Repository (API)                │
-├─────────────────────────────────────┤
-│  - list(), check(), read()          │
-│  - save(), delete()                 │
-│  - listHistory(), copyHistory()     │
-│  - Features, Listener               │
-└─────────────────────────────────────┘
-         ↑                  ↑
-         │                  │
-┌────────┴────────┐  ┌──────┴──────────┐
-│ BranchRepository│  │SearchableRepo   │
-└─────────────────┘  └─────────────────┘
-         ↑                  ↑
-         │                  │
-    ┌────┴──────────────────┴────┐
-    │   GitRepository            │
-    └────────────────────────────┘
+```mermaid
+classDiagram
+    class Repository
+    class SearchableRepository
+    class BranchRepository
+    class GitRepository
+    Repository <|-- BranchRepository
+    SearchableRepository <|-- BranchRepository
+    BranchRepository <|.. GitRepository
 ```
 
 ### Core Interface: `Repository`
 
-**Location**: `org.openl.rules.repository.api.Repository` (261 lines)
+**Location**: `org.openl.rules.repository.api.Repository`
 
 ```java
 public interface Repository {
-    // File operations
-    List<FileData> list(String path);
-    FileData check(String name);
-    FileItem read(String name);
-    FileData save(FileData data, InputStream stream);
-    boolean delete(FileData data);
-
-    // History
-    List<FileData> listHistory(String name);
-    FileData copyHistory(String name, FileData data, String version);
-
-    // Metadata
+    String getId();
     Features supports();
     String getName();
+    List<FileData> list(String path) throws IOException;
+    FileData check(String name) throws IOException;
+    FileItem read(String name) throws IOException;
+    FileData save(FileData data, InputStream stream) throws IOException;
+    boolean delete(FileData data) throws IOException;
+    List<FileData> listHistory(String name) throws IOException;
+    FileData copyHistory(String name, FileData data, String version) throws IOException;
     void setListener(Listener callback);
-
-    // Lifecycle
-    void close();
+    void close() throws Exception;
 }
 ```
 
@@ -103,20 +83,25 @@ public interface Repository {
 **`BranchRepository`** - Adds branching support:
 ```java
 public interface BranchRepository extends Repository, SearchableRepository {
-    // Branch management
     String getBranch();
-    List<String> getBranches(String path);
-    void createBranch(String projectPath, String branch);
-    void deleteBranch(String projectPath, String branch);
-    BranchRepository forBranch(String branch);
+    String getBaseBranch();
+    List<String> listBranches() throws IOException;
+    Map<String, BranchStatus> getBranchStatuses(Collection<String> branches) throws IOException;
+    Map<String, BranchTreeRevision> getBranchTreeRevisions(Collection<String> branches, String path)
+            throws IOException;
+    void createRepositoryBranch(String branch, String startPoint) throws IOException;
+    void deleteRepositoryBranch(String branch) throws IOException;
+    BranchRepository forBranch(String branch) throws IOException;
+    boolean branchExists(String branch) throws IOException;
     boolean isBranchProtected(String branch);
-
-    // Merge operations
-    void merge(String branchFrom, UserInfo author, ConflictResolveData data);
-    void pull(UserInfo author);
-    boolean isMergedInto(String from, String to);
+    void merge(String branchFrom, UserInfo author, ConflictResolveData data) throws IOException;
+    void pull(UserInfo author) throws IOException;
+    boolean isMergedInto(String from, String to) throws IOException;
 }
 ```
+
+The deprecated project-path overloads are compatibility shims only. Project membership is derived by
+`BranchedProjectIndexService` from branch trees and is not repository metadata.
 
 **`SearchableRepository`** - Adds advanced search:
 ```java
@@ -293,7 +278,7 @@ Repository safeRepo = new PathCheckedRepository(unsafeRepo);
 **`LockManager`** - Filesystem-based distributed locking:
 ```java
 LockManager lockManager = new LockManager(lockDir);
-Lock lock = lockManager.lock("project-name");
+Lock lock = lockManager.getLock("project-name");
 try {
     // Protected operations
 } finally {
@@ -305,13 +290,12 @@ try {
 
 ## 2. Git Repository Module
 
-**Location**: `/home/user/openl-tablets/STUDIO/org.openl.rules.repository.git/`
+**Location**: `STUDIO/org.openl.rules.repository.git/`
 **Purpose**: Production-grade Git backend with full version control
-**Size**: 26 Java files, main class 3,526 lines
 
 ### Main Class: `GitRepository`
 
-**Implements**: `BranchRepository`, `RepositorySettingsAware`, `Closeable`
+**Implements**: `BranchRepository`, `Closeable`
 
 **Key Features**:
 - Full Git operations via JGit
@@ -324,13 +308,13 @@ try {
 
 ### Architecture
 
-```
-GitRepository
-  ├─ ReadWriteLock repositoryLock      # Concurrent access control
-  ├─ ReentrantLock remoteRepoLock      # Remote operation serialization
-  ├─ org.eclipse.jgit.api.Git          # JGit API
-  ├─ WildcardBranchNameFilter          # Protected branch patterns
-  └─ NotResettableCredentialsProvider  # Brute-force prevention
+```mermaid
+flowchart TD
+    G["GitRepository"] --> L["ReadWriteLock: local operations"]
+    G --> R["ReentrantLock: remote operations"]
+    G --> J["JGit API"]
+    G --> P["WildcardBranchNameFilter"]
+    G --> C["NotResettableCredentialsProvider"]
 ```
 
 ### File Operations
@@ -370,14 +354,20 @@ boolean deleted = gitRepo.delete(fileData);
 
 **List branches**:
 ```java
-List<String> branches = gitRepo.getBranches("rules/");
+List<String> branches = gitRepo.listBranches();
 // Returns: [main, feature/new-rules, hotfix/bug-123]
 ```
 
 **Create branch**:
 ```java
-gitRepo.createBranch("rules/", "feature/new-feature", "main");
-// Creates new branch from main
+gitRepo.createRepositoryBranch("feature/new-feature", "main");
+// Creates a whole repository branch from main
+```
+
+**Delete branch**:
+
+```java
+gitRepo.deleteRepositoryBranch("feature/new-feature");
 ```
 
 **Switch branch**:
@@ -486,13 +476,14 @@ repo-git.listener-timer-period = 10
 
 ### Key Classes
 
-1. **`GitRepository`** (3,526 lines) - Main implementation
+1. **`GitRepository`** - Main implementation
 2. **`GitRepositoryFactory`** - Factory (ID: `"repo-git"`)
 3. **`MergeConflictException`** - Conflict information carrier
-4. **`BranchDescription`** & `BranchesData`** - Branch metadata
+4. **`MergeConflictDetails`** - Resolved merge conflict details
 5. **`WildcardBranchNameFilter`** - Protected branch matching
 6. **`NotResettableCredentialsProvider`** - Brute-force prevention
 7. **`LazyFileData`** - Deferred Git object loading
+8. **`JGitCleanup`** - JGit resource cleanup
 
 ### JGit Integration
 
@@ -529,7 +520,7 @@ org.eclipse.jgit.diff.*
 
 ## 3. AWS S3 Repository Module
 
-**Location**: `/home/user/openl-tablets/STUDIO/org.openl.rules.repository.aws/`
+**Location**: `STUDIO/org.openl.rules.repository.aws/`
 **Purpose**: Cloud storage backend using Amazon S3
 
 ### Main Class: `S3Repository`
@@ -626,7 +617,7 @@ BucketVersioningStatus
 
 ## 4. Azure Blob Storage Module
 
-**Location**: `/home/user/openl-tablets/STUDIO/org.openl.rules.repository.azure/`
+**Location**: `STUDIO/org.openl.rules.repository.azure/`
 **Purpose**: Microsoft Azure cloud storage backend
 
 ### Main Class: `AzureBlobRepository`
@@ -757,7 +748,7 @@ StorageSharedKeyCredential
 
 ## 5. Workspace Management Module
 
-**Location**: `/home/user/openl-tablets/STUDIO/org.openl.rules.workspace/`
+**Location**: `STUDIO/org.openl.rules.workspace/`
 **Purpose**: Organizes projects across repositories and manages user workspaces
 
 ### Architecture
@@ -920,7 +911,7 @@ if (lockEngine.tryLock(projectDescriptor)) {
 
 ## 6. Diff Module
 
-**Location**: `/home/user/openl-tablets/STUDIO/org.openl.rules.diff/`
+**Location**: `STUDIO/org.openl.rules.diff/`
 **Purpose**: Advanced table/rule comparison and change detection
 
 ### Architecture
@@ -1030,9 +1021,8 @@ MergeResult result = differ.diff(projection1, projection2);
 
 ## 7. Jackson Serialization Module
 
-**Location**: `/home/user/openl-tablets/STUDIO/org.openl.rules.jackson/`
+**Location**: `STUDIO/org.openl.rules.jackson/`
 **Purpose**: Type-safe JSON serialization for OpenL types
-**Size**: 25 Java files
 
 ### Main Factory: `JacksonObjectMapperFactoryBean`
 
@@ -1183,7 +1173,6 @@ String json = mapper.writeValueAsString(ruleResult);
 <dependency>
     <groupId>com.fasterxml.jackson.core</groupId>
     <artifactId>jackson-databind</artifactId>
-    <version>2.20.0</version>
 </dependency>
 <dependency>
     <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -1195,9 +1184,8 @@ String json = mapper.writeValueAsString(ruleResult);
 
 ## 8. Jackson Configuration Module
 
-**Location**: `/home/user/openl-tablets/STUDIO/org.openl.rules.jackson.configuration/`
+**Location**: `STUDIO/org.openl.rules.jackson.configuration/`
 **Purpose**: Minimal annotation-based configuration
-**Size**: 2 Java files
 
 ### Key Classes
 
@@ -1230,7 +1218,7 @@ public abstract class MyTypeMixIn {
 
 ## 9. Excel Merge Module
 
-**Location**: `/home/user/openl-tablets/STUDIO/org.openl.rules.xls.merge/`
+**Location**: `STUDIO/org.openl.rules.xls.merge/`
 **Purpose**: Three-way Excel file merge with conflict detection
 
 ### Main Class: `XlsWorkbookMerger`
@@ -1362,7 +1350,6 @@ DiffStatus cellStatus = sheetResult.getCellStatus(new CellAddress("A1"));
 <dependency>
     <groupId>org.apache.poi</groupId>
     <artifactId>poi-ooxml</artifactId>
-    <version>5.4.1</version>
 </dependency>
 <dependency>
     <groupId>org.openl</groupId>
@@ -1404,7 +1391,7 @@ backup.secret-key = ${aws.secretKey}
 **Feature branch workflow**:
 ```java
 // 1. Create feature branch
-gitRepo.createBranch("rules/", "feature/new-pricing", "main");
+gitRepo.createRepositoryBranch("feature/new-pricing", "main");
 
 // 2. Switch to feature branch
 BranchRepository featureBranch = gitRepo.forBranch("feature/new-pricing");
@@ -1419,8 +1406,7 @@ featureBranch.save(metadata, inputStream);
 // 4. Merge back to main
 gitRepo.merge("feature/new-pricing", author, null);
 
-// 5. Push to remote
-gitRepo.push(author);
+// Repository writes and merges push through the configured Git repository.
 ```
 
 ### Excel Conflict Resolution
@@ -1578,9 +1564,3 @@ Repository safeRepo = new PathCheckedRepository(unsafeRepo);
 - [DEV Module Overview](/docs/analysis/dev-module-overview.md) - Core engine details
 - [Technology Stack](/docs/architecture/technology-stack.md) - Technology overview
 - [Development Setup](/docs/onboarding/development-setup.md) - Getting started
-
----
-
-**Module Group Documentation Complete**
-**Batch**: 2 of 10
-**Last Updated**: 2025-11-05

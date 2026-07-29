@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -70,8 +72,12 @@ class WorkspaceProjectServiceDeleteBranchTest {
 
         repository = mock(BranchRepository.class);
         when(repository.getBaseBranch()).thenReturn("main");
-        when(repository.branchExists(BRANCH)).thenReturn(true);
+        when(repository.listBranches()).thenReturn(List.of("main", BRANCH));
         when(repository.getId()).thenReturn("design");
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(designTimeRepository.refreshRepository("design"))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
 
         project = mock(RulesProject.class);
         when(project.isSupportsBranches()).thenReturn(true);
@@ -118,7 +124,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
 
         assertThrows(ConflictException.class, () -> service.deleteBranch(project, BRANCH, false));
 
-        verify(repository, never()).deleteBranch(any(), anyString());
+        verify(repository, never()).deleteRepositoryBranch(anyString());
     }
 
     @Test
@@ -127,7 +133,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
 
         assertDoesNotThrow(() -> service.deleteBranch(project, BRANCH, false));
 
-        verify(repository).deleteBranch(null, BRANCH);
+        verify(repository).deleteRepositoryBranch(BRANCH);
     }
 
     @Test
@@ -136,7 +142,14 @@ class WorkspaceProjectServiceDeleteBranchTest {
 
         assertDoesNotThrow(() -> service.deleteBranch(project, BRANCH, false));
 
-        verify(repository).deleteBranch(null, BRANCH);
+        verify(repository).deleteRepositoryBranch(BRANCH);
+    }
+
+    @Test
+    void baseBranchCannotBeDeletedWithDifferentCasing() throws IOException {
+        assertThrows(ConflictException.class, () -> service.deleteBranch(project, "MAIN", false));
+
+        verify(repository, never()).deleteRepositoryBranch(anyString());
     }
 
     private void lockedBy(String userName) {

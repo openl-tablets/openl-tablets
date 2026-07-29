@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
@@ -20,13 +21,13 @@ public class ZipRulesProjectBuilder extends RulesProjectBuilder {
     private final RootFolderExtractor folderExtractor;
 
     ZipRulesProjectBuilder(UserWorkspace workspace,
-                           String repositoryId,
+                           Repository repository,
                            String projectName,
                            String projectFolder,
                            PathFilter filter,
                            RootFolderExtractor folderExtractor,
                            String comment) {
-        super(workspace, repositoryId, projectName, projectFolder, comment);
+        super(workspace, repository, projectName, projectFolder, comment);
         this.filter = filter;
         this.folderExtractor = folderExtractor;
     }

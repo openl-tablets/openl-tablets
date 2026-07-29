@@ -9,6 +9,8 @@ import type { Repository } from '../../types/repositories'
 import {
     copyProject,
     createProjectBranch,
+    getDesignRepositoryBranches,
+    getDesignRepositoryConfig,
     getProjectRevisions,
     getRepositoryConfig,
     isProjectModifiedConflict,
@@ -18,6 +20,8 @@ import {
 vi.mock('../../services/repositories', () => ({
     copyProject: vi.fn(),
     createProjectBranch: vi.fn(),
+    getDesignRepositoryBranches: vi.fn(),
+    getDesignRepositoryConfig: vi.fn(),
     getProjectRevisions: vi.fn(),
     getRepositoryConfig: vi.fn(),
     isProjectModifiedConflict: vi.fn(() => false),
@@ -28,6 +32,18 @@ vi.mock('../../services/repositories', () => ({
 vi.mock('../../store', async importOriginal => ({
     ...await importOriginal<object>(),
     useUserStore: () => 'jdoe',
+}))
+
+vi.mock('../../components/SuggestInput', () => ({
+    SuggestInput: ({ onChange, options, value, ...rest }: {
+        onChange: (value: string) => void
+        options: unknown[]
+        value: string
+        'data-testid'?: string
+    }) => {
+        void options
+        return <input {...rest} onChange={event => onChange(event.target.value)} value={value} />
+    },
 }))
 
 vi.mock('react-i18next', () => {
@@ -105,7 +121,10 @@ const project = {
     branch: 'master',
     capabilities: { canCopy: true, canManageBranches: true },
 } as unknown as Project
-const repositories = [{ id: 'design', name: 'Design' }, { id: 'prod', name: 'Prod' }] as unknown as Repository[]
+const repositories = [
+    { id: 'design', name: 'Design', features: { branches: true } },
+    { id: 'prod', name: 'Prod', features: { branches: true } },
+] as unknown as Repository[]
 const mappedRepositories = [
     {
         id: 'design',
@@ -134,6 +153,12 @@ describe('CopyProjectModal', () => {
         vi.mocked(switchProjectBranch).mockResolvedValue()
         vi.mocked(getRepositoryConfig).mockResolvedValue({
             newBranch: { pattern: '{project-name}/{username}', namePattern: '[A-Za-z0-9/-]+' },
+            comment: { templates: { copy: 'Copied from: {project-name}.' } },
+        })
+        vi.mocked(getDesignRepositoryBranches).mockResolvedValue(['master', 'feature/rates'])
+        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
+            branch: 'master',
+            newBranch: { namePattern: '[A-Za-z0-9/-]+' },
             comment: { templates: { copy: 'Copied from: {project-name}.' } },
         })
         vi.mocked(getProjectRevisions).mockResolvedValue({
@@ -166,8 +191,8 @@ describe('CopyProjectModal', () => {
     })
 
     it('rejects a comment the repository pattern forbids, without calling the API', async () => {
-        vi.mocked(getRepositoryConfig).mockResolvedValue({
-            newBranch: { pattern: '{project-name}' },
+        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
+            branch: 'master',
             comment: {
                 userMessagePattern: 'EPBDS-\\d+.*',
                 invalidUserMessageHint: 'Start with a ticket',
@@ -210,6 +235,8 @@ describe('CopyProjectModal', () => {
     it('copies into a new project with the suggested comment when asked', async () => {
         await renderModal()
         await asNewProject()
+        await waitFor(() => expect((screen.getByTestId('copy-project-target-branch') as HTMLInputElement).value)
+            .toBe('master'))
 
         fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
         await userEvent.click(screen.getByTestId('copy-project-submit'))
@@ -221,9 +248,56 @@ describe('CopyProjectModal', () => {
             'Beta',
             'Copied from: Alpha.',
             undefined,
-            undefined
+            undefined,
+            'master'
         ))
         expect(createProjectBranch).not.toHaveBeenCalled()
+    })
+
+    it('copies into a valid free-form target branch', async () => {
+        await renderModal()
+        await asNewProject()
+        await screen.findByTestId('copy-project-target-branch')
+
+        expect(screen.getByTestId('copy-project-target-branch')).toHaveStyle({ width: '100%' })
+        fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
+        fireEvent.change(screen.getByTestId('copy-project-target-branch'), { target: { value: 'release/rates' } })
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
+
+        await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
+            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', undefined, undefined, 'release/rates'
+        ))
+    })
+
+    it('copies to the configured target branch when branch enumeration fails', async () => {
+        vi.mocked(getDesignRepositoryBranches).mockRejectedValue(new Error('unavailable'))
+        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
+            branch: 'master',
+            newBranch: { namePattern: 'release/.+' },
+            comment: { templates: { copy: 'Copied from: {project-name}.' } },
+        })
+        await renderModal()
+        await asNewProject()
+        await waitFor(() => expect(screen.getByTestId('copy-project-target-branch')).toHaveValue('master'))
+
+        fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
+
+        await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
+            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', undefined, undefined, 'master'
+        ))
+    })
+
+    it('shows an invalid target branch as a field error', async () => {
+        await renderModal()
+        await asNewProject()
+        await screen.findByTestId('copy-project-target-branch')
+
+        fireEvent.change(screen.getByTestId('copy-project-target-branch'), { target: { value: 'feature bad' } })
+
+        expect(screen.getByTestId('copy-project-target-branch-error'))
+            .toHaveTextContent('browser.create.branch_invalid')
+        expect(copyProject).not.toHaveBeenCalled()
     })
 
     it('copies from a chosen older revision', async () => {
@@ -239,7 +313,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', undefined, 'rev-1'
+            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', undefined, 'rev-1', 'master'
         ))
     })
 
@@ -267,7 +341,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', 'folder', undefined
+            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', 'folder', undefined, undefined
         ))
     })
 

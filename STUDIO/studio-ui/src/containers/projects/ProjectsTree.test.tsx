@@ -170,7 +170,7 @@ describe('ProjectsTree', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         stubStorage()
-        vi.mocked(getProjectIndex).mockResolvedValue({ projects, statuses: []})
+        vi.mocked(getProjectIndex).mockResolvedValue({ projects, statuses: [], projectIndexHealth: {} })
     })
 
     it('reads the projects once and groups them by repository by default', async () => {
@@ -204,6 +204,7 @@ describe('ProjectsTree', () => {
                 },
             ] as unknown as Project[],
             statuses: [],
+            projectIndexHealth: {},
         })
 
         await renderTree({ repositories: undefined })

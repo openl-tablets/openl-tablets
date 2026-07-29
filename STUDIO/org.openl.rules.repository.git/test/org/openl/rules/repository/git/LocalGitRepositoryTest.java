@@ -33,9 +33,7 @@ import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 
 class LocalGitRepositoryTest {
@@ -130,7 +128,7 @@ class LocalGitRepositoryTest {
     @Test
     void testBranches() throws IOException {
         try {
-            repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
+            repo.createRepositoryBranch("project1/test1", repo.getBranch());
             fail("Must fail when create a branch on empty repository");
         } catch (IOException e) {
             assertEquals("Cannot create a branch on the empty repository.", e.getMessage());
@@ -139,13 +137,40 @@ class LocalGitRepositoryTest {
         var text = "Some text";
         repo.save(createFileData("initial.txt", text), IOUtils.toInputStream(text));
 
-        repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
-        repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test2");
-        var branches = repo.getBranches(FOLDER_IN_REPOSITORY);
+        repo.createRepositoryBranch("project1/test1", repo.getBranch());
+        repo.createRepositoryBranch("project1/test2", repo.getBranch());
+        var branches = repo.listBranches();
         assertTrue(branches.contains(Constants.MASTER));
         assertTrue(branches.contains("project1/test1"));
         assertTrue(branches.contains("project1/test2"));
         assertEquals(3, branches.size());
+    }
+
+    @Test
+    void firstCommitCanCreateANonBaseBranchInAnEmptyRepository() throws IOException {
+        var feature = repo.forBranch("feature/first-project");
+        var featureText = "Feature project";
+
+        feature.save(createFileData("rules/feature/project.xlsx", featureText),
+                IOUtils.toInputStream(featureText));
+
+        assertEquals("master", feature.getBaseBranch());
+        assertEquals(List.of("feature/first-project"), repo.listBranches());
+        assertNull(repo.check("rules/feature/project.xlsx"));
+        assertEquals(featureText, GitRepositoryTest.readText(feature.read("rules/feature/project.xlsx")));
+
+        var mainText = "Main project";
+        repo.save(createFileData("rules/main/project.xlsx", mainText), IOUtils.toInputStream(mainText));
+
+        assertTrue(repo.listBranches().containsAll(List.of("master", "feature/first-project")));
+        assertEquals(mainText, GitRepositoryTest.readText(repo.read("rules/main/project.xlsx")));
+        assertNull(repo.check("rules/feature/project.xlsx"));
+        assertNull(feature.check("rules/main/project.xlsx"));
+        assertEquals(featureText, GitRepositoryTest.readText(feature.read("rules/feature/project.xlsx")));
+
+        repo.merge("feature/first-project", new UserInfo("admin", "admin@email", "Admin"), null);
+
+        assertEquals(featureText, GitRepositoryTest.readText(repo.read("rules/feature/project.xlsx")));
     }
 
     @Test
@@ -181,7 +206,7 @@ class LocalGitRepositoryTest {
         assertEquals(1, repo.listHistory("rules/project11").size());
         assertEquals(1, repo.listHistory("rules/project2").size());
 
-        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
+        repo.createRepositoryBranch("branch1", repo.getBranch());
 
         writeSampleFile(repo, "rules/project1/file2", "'file2' in the branch 'master' was added");
         writeSampleFile(repo.forBranch("branch1"), "rules/project1/file3", "'file3' in the branch 'branch1' was added");
@@ -206,7 +231,7 @@ class LocalGitRepositoryTest {
         final var textInBranch1 = "In branch1";
 
         writeSampleFile(repo, file, "Project1 was created");
-        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
+        repo.createRepositoryBranch("branch1", repo.getBranch());
 
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
@@ -243,7 +268,7 @@ class LocalGitRepositoryTest {
         final var textInBranch1 = "In branch1";
 
         writeSampleFile(repo, file, "Project(1) was created");
-        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
+        repo.createRepositoryBranch("branch1", repo.getBranch());
 
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
@@ -267,10 +292,13 @@ class LocalGitRepositoryTest {
         final var textInBranch1 = "In branch1";
 
         writeSampleFile(repo, file, "Project1 was created");
-        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
+        repo.createRepositoryBranch("branch1", repo.getBranch());
 
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
+        var treeBeforeMerge = repo.getBranchTreeRevisions(List.of(repo.getBranch()), project1)
+                .get(repo.getBranch())
+                .treeRevision();
         try {
             repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
             fail("MergeConflictException is expected");
@@ -293,6 +321,11 @@ class LocalGitRepositoryTest {
             var lastVersion = repo.listHistory(project1).get(3).getVersion();
             assertFalse(repo.isCheckoutOldVersion(project1, lastVersion),
                     "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
+            var mergeRevision = repo.getBranchTreeRevisions(List.of(repo.getBranch()), project1)
+                    .get(repo.getBranch());
+            assertEquals(treeBeforeMerge, mergeRevision.treeRevision());
+            assertTrue(mergeRevision.tipAffectsPath(),
+                    "An ours merge must refresh project metadata even when its final tree is unchanged.");
         }
     }
 
@@ -304,7 +337,7 @@ class LocalGitRepositoryTest {
         assertEquals(1, repo.listHistory("rules/project2").size());
 
         var branch1 = "branch1";
-        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
+        repo.createRepositoryBranch(branch1, repo.getBranch());
         var repoForBranch1 = repo.forBranch(branch1);
 
         modifyFile(repo, "rules/project2/file1", "Modify project2 in 'master'");
@@ -330,7 +363,7 @@ class LocalGitRepositoryTest {
         writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
         writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
 
-        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
+        repo.createRepositoryBranch(branch1, repo.getBranch());
 
         var repoBranch1 = repo.forBranch(branch1);
         assertTrue(repo.isMergedInto(branch1, mainBranch));
@@ -374,8 +407,8 @@ class LocalGitRepositoryTest {
         writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
         writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
 
-        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
-        repo.createBranch(FOLDER_IN_REPOSITORY, branch2);
+        repo.createRepositoryBranch(branch1, repo.getBranch());
+        repo.createRepositoryBranch(branch2, repo.getBranch());
 
         var repoBranch1 = repo.forBranch(branch1);
         var repoBranch2 = repo.forBranch(branch2);
@@ -441,10 +474,6 @@ class LocalGitRepositoryTest {
         newRepo.setUri(uri);
         var repositoriesFolder = localRepositoriesFolder.toFile().getAbsolutePath();
         newRepo.setLocalRepositoriesFolder(repositoriesFolder);
-        var settingsRepository = new FileSystemRepository();
-        settingsRepository.setUri(local.getParent() + "/git-settings");
-        var locksRoot = new File(root, "locks").getAbsolutePath();
-        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.setGcAutoDetach(false);
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local, repositoriesFolder, false, true));
 

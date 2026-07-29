@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -165,6 +166,26 @@ class AbstractProjectServiceTest {
 
         var byBranch = service.getProjects(ProjectCriteriaQuery.builder().branch("main").build(), Pageable.unpaged());
         assertEquals(List.of("Beta"), byBranch.getContent().stream().map(project -> project.name).toList());
+    }
+
+    @Test
+    void getProjectsUsesLocaleIndependentCaseFolding() {
+        var previousLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr"));
+            var project = rulesProject("Title", "design", "Design", Map.of());
+            service.projects = List.of(project);
+            grantRead(project);
+            stubProjectId(project);
+
+            var response = service.getProjects(
+                    ProjectCriteriaQuery.builder().name("TITLE").build(),
+                    Pageable.unpaged());
+
+            assertEquals(List.of("Title"), response.getContent().stream().map(view -> view.name).toList());
+        } finally {
+            Locale.setDefault(previousLocale);
+        }
     }
 
     @Test

@@ -47,7 +47,7 @@ interface BranchSwitcherProps {
     projectId: string
     currentBranch: string
     /** Branches the project takes part in — the only branches offered as switch targets. */
-    selectedBranches: string[]
+    branches: string[]
     /** Marks of the current branch, known from the project itself without listing the branches. */
     currentBranchProtected?: boolean | undefined
     currentBranchDefault?: boolean | undefined
@@ -62,14 +62,14 @@ interface BranchSwitcherProps {
  * The branch reads as plain text with a caret rather than as a form input, so it stays unobtrusive
  * wherever it is placed — the breadcrumb and the Overview tab render the very same control.
  *
- * The switch targets are the project's selected branches — the ones it takes part in — and nothing else.
+ * The switch targets are the branches whose current Git trees contain the project, and nothing else.
  * Their marks are fetched the first time the menu opens, so simply showing the current branch costs no
  * request.
  */
 export const BranchSwitcher = ({
     projectId,
     currentBranch,
-    selectedBranches,
+    branches: projectBranches,
     currentBranchProtected,
     currentBranchDefault,
     onSwitched,
@@ -77,23 +77,25 @@ export const BranchSwitcher = ({
 }: BranchSwitcherProps) => {
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
-    const [branches, setBranches] = useState<ProjectBranch[] | null>(null)
+    const [branchInfo, setBranchInfo] = useState<ProjectBranch[] | null>(null)
     const [loading, setLoading] = useState(false)
     const [switching, setSwitching] = useState(false)
     const [discardSwitchBranch, setDiscardSwitchBranch] = useState<string | null>(null)
 
-    const targets = selectedBranches.includes(currentBranch) ? selectedBranches : [currentBranch, ...selectedBranches]
+    const targets = projectBranches.includes(currentBranch)
+        ? projectBranches
+        : [currentBranch, ...projectBranches]
 
     const loadBranches = async () => {
-        if (branches !== null || loading) {
+        if (branchInfo !== null || loading) {
             return
         }
         setLoading(true)
         try {
-            setBranches(await getProjectBranches(projectId))
+            setBranchInfo(await getProjectBranches(projectId))
         } catch {
             // The marks are decoration: without them the branch names are still switchable.
-            setBranches([])
+            setBranchInfo([])
         } finally {
             setLoading(false)
         }
@@ -120,7 +122,7 @@ export const BranchSwitcher = ({
 
     // The current branch carries its marks from the project; the others only once the list is loaded.
     const marksOf = (branch: string) => {
-        const loaded = branches?.find(item => item.name === branch)
+        const loaded = branchInfo?.find(item => item.name === branch)
         if (loaded) {
             return { isDefault: loaded.base, isProtected: loaded.protected }
         }

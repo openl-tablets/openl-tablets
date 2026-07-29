@@ -26,9 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 
 class GitRepositoryForcePullTest {
@@ -88,11 +86,6 @@ class GitRepositoryForcePullTest {
         newRepo.setUri(uri);
         newRepo.setLocalRepositoriesFolder(repositoriesFolder);
         newRepo.setBranch("master");
-        var settingsPath = local.getParent() + "/git-settings";
-        var settingsRepository = new FileSystemRepository();
-        settingsRepository.setUri(settingsPath);
-        var locksRoot = new File(local.getParent(), "locks").getAbsolutePath();
-        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.setGcAutoDetach(false);
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local, repositoriesFolder, true, true));
 

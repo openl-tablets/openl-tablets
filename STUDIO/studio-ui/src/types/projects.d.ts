@@ -30,6 +30,7 @@ export interface Project {
     revision: string
     status: ProjectStatus
     tags?: Record<string, string>
+    /** Branches whose current Git trees contain the project. */
     selectedBranches?: string[]
     /** Whether the project's current branch is protected. */
     branchProtected?: boolean
@@ -146,4 +147,12 @@ export interface ProjectsPage {
     repositoryCounts?: FacetCount[]
     tagCounts?: TagFacetSummary[]
     statuses?: ProjectStatusUpdate[]
+    /** Cross-branch index health keyed by readable design-repository id. */
+    projectIndexHealth?: Record<string, ProjectIndexHealth>
+}
+
+export interface ProjectIndexHealth {
+    state: 'indexing' | 'ready' | 'degraded'
+    failedBranches: string[]
+    lastError?: string
 }

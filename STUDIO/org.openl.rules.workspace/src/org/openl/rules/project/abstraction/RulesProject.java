@@ -1,7 +1,6 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +26,7 @@ import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.util.FileUtils;
 
 @Slf4j
 public class RulesProject extends UserWorkspaceProject {
@@ -599,38 +599,14 @@ public class RulesProject extends UserWorkspaceProject {
         return folderPath.substring(folderPath.lastIndexOf('/') + 1);
     }
 
-    public List<String> getSelectedBranches() throws ProjectException {
-        if (isSupportsBranches()) {
-            try {
-                return ((BranchRepository) getDesignRepository()).getBranches(designFolderName);
-            } catch (IOException e) {
-                throw new ProjectException(e.getMessage(), e);
-            }
-        }
-        return List.of();
-    }
-
-    public void setSelectedBranches(Collection<String> branches) throws ProjectException {
-        if (!isSupportsBranches()) {
-            return;
-        }
-        try {
-            var branchRepository = (BranchRepository) getDesignRepository();
-            var selectedBranches = getSelectedBranches();
-            for (String branch : branches) {
-                if (!selectedBranches.contains(branch)) {
-                    branchRepository.createBranch(designFolderName, branch);
-                }
-            }
-
-            for (String branch : selectedBranches) {
-                if (!branches.contains(branch)) {
-                    branchRepository.deleteBranch(designFolderName, branch);
-                }
-            }
-        } catch (IOException e) {
-            throw new ProjectException("Failed to update branches for project", e);
-        }
+    /**
+     * Returns the external design-repository identity used by the project index.
+     *
+     * <p>This can differ from {@link #getName()} for an opened project because its local workspace folder uses the
+     * business name. Mapped design repositories include a path-derived suffix in the external folder name.
+     */
+    public String getDesignProjectName() {
+        return FileUtils.getName(getDesignFolderName());
     }
 
     public Map<String, String> getLocalTags() {

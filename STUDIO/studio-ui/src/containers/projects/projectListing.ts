@@ -32,7 +32,7 @@ export const searchProjects = (projects: Project[], query: string): Project[] =>
     return projects.filter(project =>
         contains(project.name, needle)
         || contains(project.modifiedBy, needle)
-        || contains(project.branch, needle)
+        || (project.selectedBranches ?? [project.branch]).some(branch => contains(branch, needle))
         || Object.entries(project.tags ?? {})
             .some(([type, value]) => contains(type, needle) || contains(value, needle)))
 }

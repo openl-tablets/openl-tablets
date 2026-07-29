@@ -30,6 +30,7 @@ Content-Type: application/json
     "id": "design-protected-flat",
     "type": "repo-git",
     "capabilities": {
+      "canCreateProject": true,
       "canManage": true
     }
   },
