@@ -194,9 +194,9 @@ The following table contains a list of the constants and their descriptions:
 | 6        | HALF_EVEN   | Rounding mode to round towards the nearest neighbor unless both neighbors are equidistant, in which case, <br/>round towards the even neighbor. |
 | 7        | UNNECESSARY | Rounding mode to assert that the requested operation has an exact result, hence no rounding is necessary.                                  |
 
-For more information on the constants representing rounding modes, see [https://docs.oracle.com/en/java/javase/11/docs/api/constant-values.html\#java.math.BigDecimal.ROUND_HALF_DOWN](https://docs.oracle.com/en/java/javase/11/docs/api/constant-values.html#java.math.BigDecimal.ROUND_HALF_DOWN).
+For more information on the constants representing rounding modes, see [https://docs.oracle.com/en/java/javase/21/docs/api/constant-values.html\#java.math.BigDecimal.ROUND_HALF_DOWN](https://docs.oracle.com/en/java/javase/21/docs/api/constant-values.html#java.math.BigDecimal.ROUND_HALF_DOWN).
 
-For more information on the constants with examples, see <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/math/class-use/RoundingMode.html>, *Enum Constant Details* section.
+For more information on the constants with examples, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/class-use/RoundingMode.html>, *Enum Constant Details* section.
 
 The following example demonstrates how the rounding works with the DOWN constant.
 
