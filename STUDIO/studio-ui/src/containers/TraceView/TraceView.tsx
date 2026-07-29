@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, Collapse, Segmented, Space, Spin, Tag } from 'antd'
-import { SyncOutlined } from '@ant-design/icons'
+import { Alert, Collapse, Segmented, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
-import type { DebugError, DebugStatus } from 'types/trace'
-import DebugToolbar from './components/DebugToolbar'
+import type { DebugError } from 'types/trace'
+import TraceToolbar from './components/TraceToolbar'
 import DebugCallStack from './components/DebugCallStack'
 import TraceTree from './components/TraceTree'
 import SimpleTraceTree from './components/SimpleTraceTree'
@@ -25,17 +24,6 @@ import { useStyles } from './TraceView.styles'
 interface TraceViewParams {
     projectId: string
 }
-
-// Distinct semantics per state: suspended (paused — your turn) reads as a calm amber, while running
-// (busy — please wait) is the only animated, blue "calculating" badge. No two states share a colour.
-const STATUS_STYLE = {
-    pending: 'statusNeutral',
-    running: 'statusRunning',
-    suspended: 'statusPaused',
-    completed: 'statusFinished',
-    error: 'statusFailed',
-    terminated: 'statusNeutral',
-} as const satisfies Record<DebugStatus, string>
 
 // Left-panel tabs of the advanced debugger: the call tree, the stepwise execution path, and the profiler
 // hot-spots overview that appears as a third tab only while profiling.
@@ -211,33 +199,9 @@ const TraceView: React.FC = () => {
     const isError = isTraceExecutionError(status)
     const ActiveView = VIEW_COMPONENTS[viewMode]
     const bannerType = isError ? 'error' : 'warning'
-    // The business view shows no status pills — its states (Finished, Paused, …) are stepping mechanics that
-    // only add noise there; a real failure still surfaces through the error banner below. The debugger keeps them.
-    const statusVisible = status && advanced
 
     return (
         <div className={styles.debugView} id="trace-view">
-            {/* The mode is fixed at launch (the Advanced tracer checkbox on the JSF page): the advanced
-                debugger keeps its toolbar and status, while the business view runs straight away and has no
-                toolbar of its own — its only control, Show detailed view, sits in the tree panel. */}
-            {advanced && (
-                <div className={styles.toolbar} data-testid="debug-header">
-                    <div>
-                        <DebugToolbar />
-                    </div>
-                    <Space size="middle">
-                        {statusVisible && (
-                            <Tag
-                                className={cx(styles.statusTag, styles[STATUS_STYLE[status]])}
-                                data-testid="debug-status"
-                                icon={status === 'running' ? <SyncOutlined spin /> : undefined}
-                            >
-                                {t(`debug.status.${status}`)}
-                            </Tag>
-                        )}
-                    </Space>
-                </div>
-            )}
             {showTerminalBanner && (
                 <Alert
                     className={styles.errorBanner}
@@ -272,7 +236,10 @@ const TraceView: React.FC = () => {
                     className={cx(styles.leftPanel, isResizing && styles.panelDisabled)}
                     style={{ width: `${leftPanelWidth}%` }}
                 >
-                    {/* The business view is one tree: no view tabs, breakpoints, watches, or execution path. */}
+                    {/* The toolbar heads the left column and stays put in both modes, so its controls are
+                        always reachable. The business view is otherwise one tree; the debugger adds the view
+                        tabs, breakpoints, watches, and execution path. */}
+                    <TraceToolbar />
                     {advanced ? (
                         <>
                             <Segmented

@@ -413,8 +413,7 @@ The trace window opens in the mode you chose at launch. By default it is the **b
 
 *The trace window*
 
--   **Controls** — the business view runs on its own and needs none; its only control, **Show detailed view**, sits above the tree. (The advanced debugger has its own toolbar.)
--   **Left panel** — the calculation tree: every rule that executed, in the order it was called. Each rule reads with its signature and result, and each spreadsheet cell with its value — a decision table as `DT Double NonZeroValues(Double value) = 754299` — the way the classic trace showed it. (The advanced debugger keeps the tree lean, without these values.)
+-   **Left panel** — a toolbar at the top, always in view, and the calculation tree below it: every rule that executed, in the order it was called. Each rule reads with its signature and result, and each spreadsheet cell with its value — a decision table as `DT Double NonZeroValues(Double value) = 754299` — the way the classic trace showed it. (The advanced debugger keeps the tree lean, without these values.) The business view's toolbar holds a single control, the **Show detailed view** toggle; the advanced debugger's toolbar holds its buttons and the run status, with a gear on the right for its settings — see [The Advanced Mode](#the-advanced-mode).
 -   **Right panel**, also called **Details** — everything about the selected rule: its inputs, its result, the table itself, and any errors.
 
 While the calculation runs, a progress note counts the rules as the tree is prepared. The business view shows no status pill of its own — the finished tree is the answer. If the calculation fails, a banner reports what went wrong, and **Show technical details** reveals the underlying error for developers; the tree still shows every rule that ran up to the failure, with the failing rule — and each rule that called it — marked `= ERROR`. The trace opens that path for you, so the failing rule is in view at once, and clicking it shows the error in the **Details** panel — you land on exactly where the calculation broke. (The advanced debugger adds the full **Running**, **Paused**, **Finished**, and **Stopped** status.)
@@ -446,7 +445,7 @@ Here is a typical trace — for example, to understand why a premium came out hi
 1.  Reach the rule you want to inspect and pause on it — either set a **breakpoint** on it and click **Resume** to run straight there, or click **Step over** to move through the calculation and **Step into** to go inside a rule it called.
 1.  While the calculation is paused on the rule, the right **Details** panel shows the inputs it received (**Parameters**), the value it produced (**Result**), and the table with the relevant cells highlighted.
 1.  For a decision table, step forward until a rule fires; the **Decision** panel then highlights the rule that fired and shows, for each condition, a green check if it matched or a red cross if it did not — so you can see exactly why that row was chosen. (Right after you stop at the table it shows *No rule has fired yet* until you step on.)
-1.  To measure where the time goes rather than read values, turn on **Profiling** and run to the end; the **Tree** and **Hot Spots** then show how long each rule took (see [Measuring Performance](#measuring-performance-hot-spots)).
+1.  To measure where the time goes rather than read values, turn on **Profiling** — in the toolbar's settings, behind the gear on its right, together with **Show detailed view** — and run to the end; the **Tree** and **Hot Spots** then show how long each rule took (see [Measuring Performance](#measuring-performance-hot-spots)).
 
 #### Running and Stepping
 
@@ -482,7 +481,7 @@ In a profiled run's Tree, a step marked **ref** points to a value that was alrea
 
 #### Breakpoints
 
-A **breakpoint** tells the trace to pause when a chosen table is about to run, so you do not have to step through everything to get there. When you press **Resume**, the calculation runs until it reaches a breakpoint and then pauses, ready to inspect.
+A **breakpoint** tells the trace to pause when a chosen table is about to run, so you do not have to step through everything to get there. When you press **Resume**, the calculation runs until it reaches a breakpoint and then pauses, ready to inspect. The **Breakpoints** panel (and the **Watch** panel below it) collapses from its title, to give the tree more room when you are not using it.
 
 ![Breakpoints panel](images/trace-breakpoints.png "Managing breakpoints")
 

@@ -51,6 +51,11 @@ const setStore = (status: DebugStatus, extra: Record<string, unknown> = {}): voi
         simpleRun: vi.fn(),
         simpleLoading: false,
         simpleReady: false,
+        // Read by the real TraceToolbar rendered in the left column.
+        loading: false,
+        showDetailed: false,
+        setShowDetailed: vi.fn(),
+        setProfiling: vi.fn(),
         ...extra,
     }
 }

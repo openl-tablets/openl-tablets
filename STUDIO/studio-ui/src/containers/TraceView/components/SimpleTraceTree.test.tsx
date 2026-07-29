@@ -64,7 +64,7 @@ describe('SimpleTraceTree', () => {
         setStore({ simpleTree: null, simpleReady: false })
         render(<SimpleTraceTree />)
 
-        expect(screen.getByText('simple.pressRun')).toBeInTheDocument()
+        expect(screen.getByText('simple.preparing')).toBeInTheDocument()
     })
 
     it('shows a single calculation progress while the one request runs — no per-page count', () => {
@@ -217,16 +217,6 @@ describe('SimpleTraceTree', () => {
         expect(condition.querySelector('[data-icon="close"]')).toBeInTheDocument()
         expect(screen.queryByTestId('simple-step-tree/S1#0/c0')).not.toBeInTheDocument()
         expect(screen.getByText('Returned rule: [R2]')).toBeInTheDocument()
-    })
-
-    it('toggles the detailed view from the header checkbox', async () => {
-        const setShowDetailed = vi.fn()
-        setStore({ setShowDetailed })
-        render(<SimpleTraceTree />)
-
-        await userEvent.click(screen.getByTestId('simple-detailed'))
-
-        expect(setShowDetailed).toHaveBeenCalledWith(true)
     })
 
     it('inspects a call on click: runs it and reads its inputs and result', async () => {

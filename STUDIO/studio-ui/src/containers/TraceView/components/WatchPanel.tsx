@@ -3,6 +3,7 @@ import { Button, Input, Tag, Tooltip } from 'antd'
 import { AimOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
+import CollapsibleSection from './CollapsibleSection'
 import { ParameterTree } from './TraceParameters'
 import { useStyles } from './WatchPanel.styles'
 
@@ -36,29 +37,35 @@ const WatchPanel: React.FC = () => {
         void setWatchCells(watches.filter(w => w !== cell))
     }
 
+    // Collect stays in the header whether the panel is open or collapsed, so a run can be kicked off either way.
+    const collect = (
+        <Tooltip title={t('watch.collectHint')}>
+            {/* Span wrapper so the tooltip still shows on hover while the button is disabled
+                (a disabled button has pointer-events: none and receives no hover events). */}
+            <span>
+                <Button
+                    data-testid="watch-collect"
+                    disabled={watches.length === 0 || loading}
+                    loading={loading}
+                    onClick={() => void collectWatch()}
+                    size="small"
+                    type="primary"
+                >
+                    {t('watch.collect')}
+                </Button>
+            </span>
+        </Tooltip>
+    )
+
     return (
-        <div className={styles.panel} data-testid="watch-panel">
-            <div className={styles.header}>
-                <Tooltip title={t('watch.titleHint')}>
-                    <span>{t('watch.title')}</span>
-                </Tooltip>
-                <Tooltip title={t('watch.collectHint')}>
-                    {/* Span wrapper so the tooltip still shows on hover while the button is disabled
-                        (a disabled button has pointer-events: none and receives no hover events). */}
-                    <span>
-                        <Button
-                            data-testid="watch-collect"
-                            disabled={watches.length === 0 || loading}
-                            loading={loading}
-                            onClick={() => void collectWatch()}
-                            size="small"
-                            type="primary"
-                        >
-                            {t('watch.collect')}
-                        </Button>
-                    </span>
-                </Tooltip>
-            </div>
+        <CollapsibleSection
+            className={styles.panel}
+            extra={collect}
+            hint={t('watch.titleHint')}
+            panelTestId="watch-panel"
+            title={t('watch.title')}
+            toggleTestId="watch-toggle"
+        >
             <div className={styles.addRow}>
                 <Input
                     data-testid="watch-add"
@@ -127,7 +134,7 @@ const WatchPanel: React.FC = () => {
                     </div>
                 ))}
             </div>
-        </div>
+        </CollapsibleSection>
     )
 }
 
