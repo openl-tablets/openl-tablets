@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Alert, Collapse, Segmented, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
@@ -121,7 +121,10 @@ const TraceView: React.FC = () => {
     // There is no Stop button — closing the debugger window terminates the session instead.
     useTerminateOnClose(projectId)
 
-    useEffect(() => {
+    // Layout effect so the launch mode reaches the store before the first paint: otherwise the toolbar and
+    // other advanced-gated components would flash the business UI (the store default `advanced` is false)
+    // even when this window was opened as the advanced tracer.
+    useLayoutEffect(() => {
         if (projectId && tableId) {
             setRouteParams({ projectId, tableId, fromModule, testRanges, advanced: advancedLaunch })
             if (advancedLaunch) {
