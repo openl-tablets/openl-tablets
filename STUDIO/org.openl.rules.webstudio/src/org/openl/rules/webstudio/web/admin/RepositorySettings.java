@@ -13,7 +13,6 @@ import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.rest.validation.PathConstraint;
 import org.openl.studio.settings.converter.SettingPropertyName;
-import org.openl.studio.settings.model.constraint.CommentMessageTemplateConstraint;
 import org.openl.studio.settings.model.constraint.RegexpConstraint;
 import org.openl.util.StringUtils;
 
@@ -36,8 +35,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     private static final String USE_CUSTOM_COMMENTS_SUFFIX = ".comment-template.use-custom-comments";
     private static final String COMMENT_VALIDATION_PATTERN_SUFFIX = ".comment-template.comment-validation-pattern";
     private static final String INVALID_COMMENT_MESSAGE_SUFFIX = ".comment-template.invalid-comment-message";
-    private static final String COMMENT_TEMPLATE_SUFFIX = ".comment-template";
-    private static final String COMMENT_TEMPLATE_OLD_SUFFIX = ".comment-template-old";
     private static final String DEFAULT_COMMENT_SAVE_SUFFIX = ".comment-template.user-message.default.save";
     private static final String DEFAULT_COMMENT_CREATE_SUFFIX = ".comment-template.user-message.default.create";
     private static final String DEFAULT_COMMENT_COPIED_FROM_SUFFIX = ".comment-template.user-message.default.copied-from";
@@ -49,8 +46,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     private final String USE_CUSTOM_COMMENTS;
     private final String COMMENT_VALIDATION_PATTERN;
     private final String INVALID_COMMENT_MESSAGE;
-    private final String COMMENT_TEMPLATE;
-    private final String COMMENT_TEMPLATE_OLD;
     private final String DEFAULT_COMMENT_SAVE;
     private final String DEFAULT_COMMENT_CREATE;
     private final String DEFAULT_COMMENT_COPIED_FROM;
@@ -74,18 +69,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     @SettingPropertyName(suffix = INVALID_COMMENT_MESSAGE_SUFFIX)
     @JsonView(Views.Design.class)
     private String invalidCommentMessage;
-
-    @Parameter(description = "Comment message template for commits.")
-    @SettingPropertyName(suffix = COMMENT_TEMPLATE_SUFFIX)
-    @NotBlank(message = "Comment message template cannot be empty.", groups = Validation.Design.class)
-    @CommentMessageTemplateConstraint(groups = Validation.Design.class)
-    @JsonView(Views.Design.class)
-    private String commentTemplate;
-
-    @Parameter(description = "Comment message template for commits from old version.")
-    @SettingPropertyName(suffix = COMMENT_TEMPLATE_OLD_SUFFIX)
-    @JsonView(Views.Design.class)
-    private String commentTemplateOld;
 
     @Parameter(description = "Default message for 'Save project'.")
     @SettingPropertyName(suffix = DEFAULT_COMMENT_SAVE_SUFFIX)
@@ -130,8 +113,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         USE_CUSTOM_COMMENTS = configPrefix + USE_CUSTOM_COMMENTS_SUFFIX;
         COMMENT_VALIDATION_PATTERN = configPrefix + COMMENT_VALIDATION_PATTERN_SUFFIX;
         INVALID_COMMENT_MESSAGE = configPrefix + INVALID_COMMENT_MESSAGE_SUFFIX;
-        COMMENT_TEMPLATE = configPrefix + COMMENT_TEMPLATE_SUFFIX;
-        COMMENT_TEMPLATE_OLD = configPrefix + COMMENT_TEMPLATE_OLD_SUFFIX;
         DEFAULT_COMMENT_SAVE = configPrefix + DEFAULT_COMMENT_SAVE_SUFFIX;
         DEFAULT_COMMENT_CREATE = configPrefix + DEFAULT_COMMENT_CREATE_SUFFIX;
         DEFAULT_COMMENT_COPIED_FROM = configPrefix + DEFAULT_COMMENT_COPIED_FROM_SUFFIX;
@@ -156,23 +137,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
 
     public void setInvalidCommentMessage(String invalidCommentMessage) {
         this.invalidCommentMessage = invalidCommentMessage;
-    }
-
-    public String getCommentTemplate() {
-        return commentTemplate;
-    }
-
-    public void setCommentTemplate(String commentTemplate) {
-        this.commentTemplate = commentTemplate;
-    }
-
-    public String getCommentTemplateOld() {
-        return commentTemplateOld;
-    }
-
-    public RepositorySettings setCommentTemplateOld(String commentTemplateOld) {
-        this.commentTemplateOld = commentTemplateOld;
-        return this;
     }
 
     public String getDefaultCommentSave() {
@@ -235,8 +199,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         useCustomComments = Boolean.parseBoolean(properties.getProperty(USE_CUSTOM_COMMENTS));
         commentValidationPattern = properties.getProperty(COMMENT_VALIDATION_PATTERN);
         invalidCommentMessage = properties.getProperty(INVALID_COMMENT_MESSAGE);
-        commentTemplate = properties.getProperty(COMMENT_TEMPLATE);
-        commentTemplateOld = properties.getProperty(COMMENT_TEMPLATE_OLD);
         defaultCommentSave = properties.getProperty(DEFAULT_COMMENT_SAVE);
         defaultCommentCreate = properties.getProperty(DEFAULT_COMMENT_CREATE);
         defaultCommentCopiedFrom = properties.getProperty(DEFAULT_COMMENT_COPIED_FROM);
@@ -258,8 +220,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         propertiesHolder.setProperty(COMMENT_VALIDATION_PATTERN, commentValidationPattern);
         propertiesHolder.setProperty(INVALID_COMMENT_MESSAGE, invalidCommentMessage);
 
-        propertiesHolder.setProperty(COMMENT_TEMPLATE, commentTemplate);
-        propertiesHolder.setProperty(COMMENT_TEMPLATE_OLD, commentTemplateOld);
         propertiesHolder.setProperty(DEFAULT_COMMENT_SAVE, defaultCommentSave);
         propertiesHolder.setProperty(DEFAULT_COMMENT_CREATE, defaultCommentCreate);
         propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
@@ -272,8 +232,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         properties.revertProperties(USE_CUSTOM_COMMENTS,
                 COMMENT_VALIDATION_PATTERN,
                 INVALID_COMMENT_MESSAGE,
-                COMMENT_TEMPLATE,
-                COMMENT_TEMPLATE_OLD,
                 DEFAULT_COMMENT_SAVE,
                 DEFAULT_COMMENT_CREATE,
                 DEFAULT_COMMENT_COPIED_FROM,

@@ -88,7 +88,6 @@ class GitRepositoryForcePullTest {
         newRepo.setUri(uri);
         newRepo.setLocalRepositoriesFolder(repositoriesFolder);
         newRepo.setBranch("master");
-        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         var settingsPath = local.getParent() + "/git-settings";
         var settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);

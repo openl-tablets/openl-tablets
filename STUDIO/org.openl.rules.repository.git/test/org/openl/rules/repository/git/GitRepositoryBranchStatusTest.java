@@ -92,7 +92,6 @@ class GitRepositoryBranchStatusTest {
         settingsRepository.setUri(local.getParent() + "/git-settings");
         var locksRoot = new File(root, "locks").getAbsolutePath();
         newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, remoteUri, local, repositoriesFolder, true, true));
         return newRepo;
     }

@@ -329,7 +329,6 @@ GitRepository
   ├─ ReadWriteLock repositoryLock      # Concurrent access control
   ├─ ReentrantLock remoteRepoLock      # Remote operation serialization
   ├─ org.eclipse.jgit.api.Git          # JGit API
-  ├─ CommitMessageParser               # Parses commit messages
   ├─ WildcardBranchNameFilter          # Protected branch patterns
   └─ NotResettableCredentialsProvider  # Brute-force prevention
 ```
@@ -448,38 +447,11 @@ gitRepo.pull(author);
 
 **Integration**: Uses `XlsWorkbookMerger` (see section 9)
 
-### Commit Message Parsing
+### Commit Metadata
 
-**`CommitMessageParser`** parses structured commit messages:
-
-**Template**:
-```properties
-repo-git.comment-template = {user-message} Type: {commit-type}.
-```
-
-**Example commit message**:
-```
-Update premium calculation rules Type: SAVE.
-```
-
-**Parsed data**:
-```java
-CommitMessageParser parser = new CommitMessageParser(template);
-CommitMessageParser.CommitMessage message = parser.parse(commitMsg);
-
-String userMessage = message.getUserMessage(); // "Update premium calculation rules"
-CommitType type = message.getCommitType();     // CommitType.SAVE
-String username = message.getUsername();       // (if included)
-```
-
-**Commit types**:
-```java
-enum CommitType {
-    SAVE,       // Normal save
-    DELETE,     // Path removal
-    MERGE       // Merge commit
-}
-```
+`GitRepository` stores the resolved comment directly as the Git commit message. It reads the author name and email
+from the Git committer and determines deletions from repository history. Commit message text, including legacy
+structured messages, is not parsed as repository metadata.
 
 ### Configuration
 
@@ -505,9 +477,6 @@ repo-git.protected-branches = main,master,release/*
 # Tags
 repo-git.tag-prefix = v
 
-# Commit message
-repo-git.comment-template = {user-message} Type: {commit-type}.
-
 # GC
 repo-git.gc-auto-detach = true
 
@@ -519,12 +488,11 @@ repo-git.listener-timer-period = 10
 
 1. **`GitRepository`** (3,526 lines) - Main implementation
 2. **`GitRepositoryFactory`** - Factory (ID: `"repo-git"`)
-3. **`CommitMessageParser`** - Message parsing
-4. **`MergeConflictException`** - Conflict information carrier
-5. **`BranchDescription`** & `BranchesData`** - Branch metadata
-6. **`WildcardBranchNameFilter`** - Protected branch matching
-7. **`NotResettableCredentialsProvider`** - Brute-force prevention
-8. **`LazyFileData`** - Deferred Git object loading
+3. **`MergeConflictException`** - Conflict information carrier
+4. **`BranchDescription`** & `BranchesData`** - Branch metadata
+5. **`WildcardBranchNameFilter`** - Protected branch matching
+6. **`NotResettableCredentialsProvider`** - Brute-force prevention
+7. **`LazyFileData`** - Deferred Git object loading
 
 ### JGit Integration
 

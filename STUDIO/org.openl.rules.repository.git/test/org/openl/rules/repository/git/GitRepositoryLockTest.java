@@ -98,7 +98,6 @@ class GitRepositoryLockTest {
         settingsRepository.setUri(local.getParent() + "/git-settings");
         String locksRoot = root.resolve("locks").toAbsolutePath().toString();
         newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         newRepo.setGcAutoDetach(false);
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local.toFile(), localRepositoriesFolderString, false, true));
 

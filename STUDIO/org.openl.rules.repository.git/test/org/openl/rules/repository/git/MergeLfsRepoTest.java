@@ -60,7 +60,6 @@ class MergeLfsRepoTest {
         newRepo.setUri(repoPath);
         var localRepositoriesFolderString = localRepositoriesFolder.getAbsolutePath();
         newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
-        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         newRepo.setGcAutoDetach(false);
         newRepo.setBranch("main");
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, repoPath, gitRepo, localRepositoriesFolderString, false, false));

@@ -4,8 +4,6 @@ import { InputTextField } from '../../global'
 
 export interface DefaultSettings {
     basePath?: string
-    commentTemplate: string
-    commentTemplateOld?: string
     commentValidationPattern?: string
     defaultCommentCopiedFrom?: string
     defaultCommentCreate?: string

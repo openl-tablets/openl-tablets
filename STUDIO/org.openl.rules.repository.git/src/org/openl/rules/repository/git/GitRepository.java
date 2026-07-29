@@ -14,7 +14,6 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -142,11 +141,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     private String tagPrefix = StringUtils.EMPTY;
     private int listenerTimerPeriod = 10;
     private int connectionTimeout = 60;
-    private String commentTemplate;
-    private String escapedCommentTemplate;
-    private CommitMessageParser commitMessageParser;
-    private String commentTemplateOld;
-    private CommitMessageParser commitMessageParserOld;
     private RepositorySettings repositorySettings;
     private Date settingsSyncDate = new Date();
     private volatile boolean noVerify;
@@ -330,7 +324,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
         git.add().addFilepattern(fileInRepository).call();
         return git.commit()
-                .setMessage(formatComment(CommitType.SAVE, data))
+                .setMessage(getCommitMessage(data))
                 .setOnly(fileInRepository)
                 .setNoVerify(noVerify)
                 .setCommitter(committerName(data.getAuthor()), committerEmail(data.getAuthor()))
@@ -367,7 +361,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             git.rm().addFilepattern(name).call();
             var commit = git.commit()
-                    .setMessage(formatComment(CommitType.DELETE, data))
+                    .setMessage(getCommitMessage(data))
                     .setOnly(name)
                     .setNoVerify(noVerify)
                     .setCommitter(committerName(data.getAuthor()), committerEmail(data.getAuthor()))
@@ -427,7 +421,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             git.add().addFilepattern(destData.getName()).call();
             var commit = git.commit()
-                    .setMessage(formatComment(CommitType.SAVE, destData))
+                    .setMessage(getCommitMessage(destData))
                     .setNoVerify(noVerify)
                     .setCommitter(committerName(destData.getAuthor()), committerEmail(destData.getAuthor()))
                     .call();
@@ -896,18 +890,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 
-    public void setCommentTemplate(String commentTemplate) {
-        this.commentTemplate = commentTemplate;
-        var ct = commentTemplate.replace("{commit-type}", "{0}").replace("{user-message}", "{1}");
-        this.escapedCommentTemplate = escapeCurlyBrackets(ct);
-        this.commitMessageParser = new CommitMessageParser(commentTemplate);
-    }
-
-    public void setCommentTemplateOld(String commentTemplateOld) {
-        this.commentTemplateOld = commentTemplateOld;
-        this.commitMessageParserOld = new CommitMessageParser(commentTemplateOld);
-    }
-
     @Override
     public void setRepositorySettings(RepositorySettings repositorySettings) {
         this.repositorySettings = repositorySettings;
@@ -966,9 +948,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 fullPath,
                 this,
                 start,
-                getFileId(dirWalk),
-                commitMessageParser,
-                commitMessageParserOld);
+                getFileId(dirWalk));
     }
 
     private boolean isEmpty() throws IOException {
@@ -990,9 +970,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 fullPath,
                 this,
                 fileCommit,
-                getFileId(dirWalk),
-                commitMessageParser,
-                commitMessageParserOld);
+                getFileId(dirWalk));
     }
 
     private ObjectId getFileId(TreeWalk dirWalk) {
@@ -1247,18 +1225,16 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 return;
             }
 
-            var mergeMessage = getMergeMessage(r);
             var mergeResult = git.merge()
                     .include(r.getObjectId())
                     .setStrategy(MergeStrategy.RECURSIVE)
-                    .setMessage(mergeMessage)
                     .setCommit(false)
                     .call();
 
             validateNonConflictingMerge(mergeResult);
             validateMergeConflict(mergeResult, true, branch, mergeAuthor);
 
-            applyMergeCommit(mergeResult, mergeMessage, mergeAuthor);
+            applyMergeCommit(mergeResult, getMergeMessage(r), mergeAuthor);
 
         } catch (GitAPIException | IOException e) {
             reset(commitToRevert);
@@ -2139,11 +2115,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             refToResetTo = git.getRepository().findRef(branch).getObjectId().getName();
 
             var branchRef = git.getRepository().findRef(branchFrom);
-            var mergeMessage = getMergeMessage(branchRef);
             var mergeResult = git.merge()
                     .include(branchRef)
                     .setCommit(false)
-                    .setMessage(mergeMessage)
                     .setFastForward(MergeCommand.FastForwardMode.NO_FF)
                     .call();
 
@@ -2153,7 +2127,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 resolveConflict(mergeResult, conflictResolveData, author);
             } else {
                 validateMergeConflict(mergeResult, true, branchFrom, author);
-                applyMergeCommit(mergeResult, mergeMessage, author);
+                applyMergeCommit(mergeResult, getMergeMessage(branchRef), author);
             }
 
             pull(null, author);
@@ -2311,7 +2285,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
         var commitCommand = git.commit()
                 .setNoVerify(noVerify)
-                .setMessage(formatComment(CommitType.SAVE, folderData))
+                .setMessage(getCommitMessage(folderData))
                 .setCommitter(committerName(folderData.getAuthor()), committerEmail(folderData.getAuthor()));
 
         return commitChangedFiles(commitCommand);
@@ -2369,11 +2343,10 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             checkoutForced(branch);
             var commitId = lastCommit.getId();
             var ref = new ObjectIdRef.Unpeeled(Ref.Storage.LOOSE, commitId.name(), commitId.copy());
-            var mergeMessage = getMergeMessage(ref);
-            var mergeDetached = git.merge().include(commitId).setMessage(mergeMessage).setCommit(false).call();
+            var mergeDetached = git.merge().include(commitId).setCommit(false).call();
             validateNonConflictingMerge(mergeDetached);
             validateMergeConflict(mergeDetached, false, folderData.getBranch(), folderData.getAuthor());
-            applyMergeCommit(mergeDetached, mergeMessage, folderData.getAuthor());
+            applyMergeCommit(mergeDetached, getMergeMessage(ref), folderData.getAuthor());
         }
     }
 
@@ -2749,8 +2722,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         repo.setTagPrefix(tagPrefix);
         repo.setListenerTimerPeriod(listenerTimerPeriod);
         repo.setConnectionTimeout(connectionTimeout);
-        repo.setCommentTemplate(commentTemplate);
-        repo.setCommentTemplateOld(commentTemplateOld);
         repo.setRepositorySettings(repositorySettings);
         repo.git = git;
         repo.repositoryLock = repositoryLock; // must be common for all instances because git
@@ -2875,26 +2846,12 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
     }
 
-    private String escapeCurlyBrackets(String value) {
-        var ret = value.replaceAll("\\{(?![012]})", "'{'");
-        return ret.replaceAll("(?<!\\{[012])}", "'}'");
-    }
-
-    private String formatComment(CommitType commitType, FileData data) {
-        String comment = StringUtils.trimToEmpty(data.getComment());
-        if (escapedCommentTemplate == null) {
-            return comment;
-        }
-        return MessageFormat.format(escapedCommentTemplate, commitType, comment);
+    private static String getCommitMessage(FileData data) {
+        return StringUtils.trimToEmpty(data.getComment());
     }
 
     private String getMergeMessage(Ref r) throws IOException {
-        var userMessage = new MergeMessageFormatter().format(List.of(r),
-                git.getRepository().exactRef(Constants.HEAD));
-        if (escapedCommentTemplate == null) {
-            return userMessage;
-        }
-        return MessageFormat.format(escapedCommentTemplate, CommitType.MERGE, userMessage);
+        return new MergeMessageFormatter().format(List.of(r), git.getRepository().exactRef(Constants.HEAD));
     }
 
     private void unlockSettings() {
@@ -3133,9 +3090,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                                             baseFolder + dirWalk.getPathString(),
                                             GitRepository.this,
                                             revCommit,
-                                            getFileId(dirWalk),
-                                            commitMessageParser,
-                                            commitMessageParserOld));
+                                            getFileId(dirWalk)));
                                 } else {
                                     files.add(createFileData(dirWalk, baseFolder, start));
                                 }
@@ -3236,9 +3191,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                         fullPath,
                         GitRepository.this,
                         commit,
-                        null,
-                        commitMessageParser,
-                        commitMessageParserOld);
+                        null);
                 // Must mark it as deleted explicitly because the file can be erased outside OpenL Studio.
                 data.setDeleted(true);
             }
