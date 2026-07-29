@@ -18,6 +18,15 @@ vi.mock('services/traceLaunchToken', () => ({
 
 vi.mock('services/config', () => ({ default: { CONTEXT: '/webstudio' } }))
 
+// The failed-launch path shows an antd notification. The static `notification` renders into a global holder
+// outside the component tree (RTL cleanup never unmounts it) and schedules a 4.5s auto-close timer; left
+// real, that timer fires long after the file finishes and re-renders after jsdom is gone ("window is not
+// defined"). Stub it — the test asserts on the launch behaviour, not the toast.
+vi.mock('antd', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('antd')>()
+    return { ...actual, notification: { ...actual.notification, error: vi.fn() } }
+})
+
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
     return { useTranslation: () => ({ t }) }
