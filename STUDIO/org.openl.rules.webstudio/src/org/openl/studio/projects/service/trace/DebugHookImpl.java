@@ -64,6 +64,12 @@ final class DebugHookImpl implements DebugHook {
     private boolean profiling;
     /** Build the classic detailed titles (signature, result, cell values) into the tree — the business view only. */
     private boolean detailedTitles;
+    /**
+     * Suspend the worker at an uncaught rule error so it can be inspected. Default {@code true} — the interactive
+     * debugger pauses on the throwing frame. A run-through (business) session sets it {@code false} so the error
+     * terminates the run and the executed tree, with the failed branch, is delivered whole instead of parking on it.
+     */
+    private boolean breakOnErrors = true;
     /** Cell names or refs whose value is captured on every execution of their table. May be updated mid-run. */
     private volatile Set<String> watches = Set.of();
     /** Captured watched values, appended on the worker thread as cells compute. */
@@ -101,6 +107,10 @@ final class DebugHookImpl implements DebugHook {
 
     void setDetailedTitles(boolean detailedTitles) {
         this.detailedTitles = detailedTitles;
+    }
+
+    void setBreakOnErrors(boolean breakOnErrors) {
+        this.breakOnErrors = breakOnErrors;
     }
 
     /** Watch a set of cells by name ({@code $...} label) or ref, capturing their value on every execution. */
@@ -427,7 +437,7 @@ final class DebugHookImpl implements DebugHook {
      * is recognised and not re-broken.
      */
     private void breakOnException(int depth, Throwable ex) {
-        if (ex == brokenException || channel.isTerminateRequested()) {
+        if (!breakOnErrors || ex == brokenException || channel.isTerminateRequested()) {
             return;
         }
         brokenException = ex;

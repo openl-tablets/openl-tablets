@@ -65,6 +65,15 @@ public final class TraceDebugger {
         hook.setWatches(watches);
     }
 
+    /**
+     * Choose how an uncaught rule error is handled. When {@code true} (default) the worker suspends on the
+     * throwing frame so it can be inspected. When {@code false} the error terminates the run instead, so a
+     * run-through (business) session gets the executed tree with the failed branch rather than parking on it.
+     */
+    public void setBreakOnErrors(boolean breakOnErrors) {
+        hook.setBreakOnErrors(breakOnErrors);
+    }
+
     public Set<String> getWatches() {
         return hook.getWatches();
     }

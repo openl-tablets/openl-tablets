@@ -640,7 +640,7 @@ describe('traceStore simple mode', () => {
 
         const state = useTraceStore.getState()
         expect(startTrace).toHaveBeenCalledWith('p1', expect.objectContaining(
-            { stopAtEntry: false, profiling: true, detailedTitles: true, fullTree: true }))
+            { stopAtEntry: false, profiling: true, detailedTitles: true, fullTree: true, breakOnErrors: false }))
         // No per-branch paging: the one request carries the whole tree.
         expect(getTreeChildren).not.toHaveBeenCalled()
         expect(state.simpleTree?.uri).toBe('uR')
@@ -648,6 +648,27 @@ describe('traceStore simple mode', () => {
         expect(state.simpleLoading).toBe(false)
         // The order is built straight from the inline tree.
         expect(state.simpleOrder['uA@1']).toEqual({ pre: 4, end: 5 })
+    })
+
+    it('shows the executed tree when a rule error ends the run, so a failed trace is still browsable', async () => {
+        cancelTrace.mockResolvedValue(undefined)
+        // Running through the error (breakOnErrors:false) terminates the run yet still returns the executed
+        // tree — with the failed branch — so the business view opens the failed run instead of showing nothing.
+        startTrace.mockResolvedValue({ status: 'error', error: { summary: 'rule boom' }, frames: [],
+            tree: callNode('uR', 0, [{ ref: 'S1', status: 'executed', children: sampleChildrenPage().children }]),
+            profile: { nodeCount: 3 } } as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+
+        await useTraceStore.getState().simpleRun()
+
+        const state = useTraceStore.getState()
+        expect(startTrace).toHaveBeenCalledWith('p1', expect.objectContaining({ breakOnErrors: false }))
+        expect(state.status).toBe('error')
+        expect(state.debugError?.summary).toBe('rule boom')
+        // The tree is still there and browsable — that is the whole point of running through the error.
+        expect(state.simpleTree?.uri).toBe('uR')
+        expect(state.simpleReady).toBe(true)
+        expect(state.simpleLoading).toBe(false)
     })
 
     it('clears breakpoints left over from the advanced mode before the simple run', async () => {
@@ -707,6 +728,31 @@ describe('traceStore simple mode', () => {
         expect(resume).toHaveBeenCalled()
         expect(state.simpleSelectedKey).toBe('uA@1')
         expect(state.simpleFocus).toBeNull() // a call keeps the plain frame view
+    })
+
+    it('keeps the clicked table selected when running to it hits an error deeper down', async () => {
+        primeSimpleReady({ status: 'error' })
+        cancelTrace.mockResolvedValue(undefined)
+        getStack.mockRejectedValue(new Error('no session'))
+        // The quiet restart lands suspended at the root entry, so stepping it out runs the whole table.
+        startTrace.mockResolvedValue(suspended([
+            { index: 0, uri: 'uR', instance: 0, completed: false } as any]))
+        // A rule error parks the run three frames deep, inside a table the root called.
+        step.mockResolvedValue(suspended([
+            { index: 0, uri: 'uR', instance: 0, completed: false } as any,
+            { index: 1, uri: 'uChild', instance: 0, completed: false } as any,
+            { index: 2, uri: 'uBoom', instance: 0, completed: false, error: { summary: 'boom' } } as any]))
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+
+        await useTraceStore.getState().simpleInspect(
+            { key: 'uR@0', frameUri: 'uR', frameInstance: 0, stepType: 'out', label: 'uR' })
+
+        const state = useTraceStore.getState()
+        expect(step).toHaveBeenCalledWith('p1', 'out')
+        // The run parked on the throwing frame (index 2), but the clicked root (index 0, still on the stack
+        // as an ancestor) stays selected — the business view shows the clicked table, not the error frame.
+        expect(state.selectedFrameIndex).toBe(0)
+        expect(getVariables).toHaveBeenCalledWith('p1', 0)
     })
 
     it('does nothing when the clicked row is already the one on screen', async () => {

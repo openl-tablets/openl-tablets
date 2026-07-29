@@ -132,6 +132,7 @@ export const traceService = {
             stopAtEntry?: boolean
             profiling?: boolean
             detailedTitles?: boolean
+            breakOnErrors?: boolean
             includeTree?: boolean
             fullTree?: boolean
             inputJson?: string
@@ -144,6 +145,9 @@ export const traceService = {
         params.set('stopAtEntry', String(options.stopAtEntry ?? true))
         if (options.profiling) params.set('profiling', 'true')
         if (options.detailedTitles) params.set('detailedTitles', 'true')
+        // The business view runs straight through a rule error so it still gets the whole executed tree with
+        // the failed branch, instead of the debugger parking on the throwing frame.
+        if (options.breakOnErrors === false) params.set('breakOnErrors', 'false')
         if (options.includeTree === false) params.set('includeTree', 'false')
         // The business view downloads the whole executed tree once, deep, instead of paging every branch.
         if (options.fullTree) params.set('fullTree', 'true')

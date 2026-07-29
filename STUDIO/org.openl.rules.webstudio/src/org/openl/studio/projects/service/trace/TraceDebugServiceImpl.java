@@ -34,6 +34,7 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
         var debugger = new TraceDebugger(request.listener());
         debugger.setBreakpoints(request.breakpoints());
         debugger.setWatches(request.watches());
+        debugger.setBreakOnErrors(request.breakOnErrors());
         // Build the export replay's suite lazily, only if "Trace into File" is actually used. Building it
         // eagerly held a full second copy of the parsed input for the whole session — large for a big request,
         // and wasted whenever the run is never exported. Building it on demand also gives a distinct suite, so

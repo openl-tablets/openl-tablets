@@ -120,6 +120,7 @@ public class ProjectsTraceDebugController {
             @RequestParam(value = "stopAtEntry", defaultValue = "true") @Parameter(description = "trace.param.stop-at-entry.desc") boolean stopAtEntry,
             @RequestParam(value = "profiling", defaultValue = "false") @Parameter(description = "trace.param.profiling.desc") boolean profiling,
             @RequestParam(value = "detailedTitles", defaultValue = "false") @Parameter(description = "trace.param.detailed-titles.desc") boolean detailedTitles,
+            @RequestParam(value = "breakOnErrors", defaultValue = "true") @Parameter(description = "trace.param.break-on-errors.desc") boolean breakOnErrors,
             @RequestParam(value = "includeTree", defaultValue = "true") @Parameter(description = "trace.param.include-tree.desc") boolean includeTree,
             @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop,
             @RequestParam(value = "view", defaultValue = "full") @Parameter(description = "trace.param.view.desc") StackViewMode view,
@@ -161,7 +162,7 @@ public class ProjectsTraceDebugController {
         }
         var request = new TraceDebugStartRequest(projectModel, table, method, projectId, tableId, testRanges,
                 currentOpenedModule, effectiveInputJson, objectMapper, sessionRegistry.breakpoints(),
-                sessionRegistry.watches(), stopAtEntry, profiling, detailedTitles, listener, sessionId);
+                sessionRegistry.watches(), stopAtEntry, profiling, detailedTitles, breakOnErrors, listener, sessionId);
 
         var session = sessionRegistry.start(traceDebugService.startSession(request));
         // Build the inspection mapper now, while the traced module is the current module, so the session
