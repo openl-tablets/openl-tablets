@@ -1569,7 +1569,6 @@
                 <artifactId>spotless-maven-plugin</artifactId>
                 <version>3.9.0</version>
                 <inherited>false</inherited>
-                
                 <configuration>
                     <upToDateChecking>
                         <enabled>true</enabled>
