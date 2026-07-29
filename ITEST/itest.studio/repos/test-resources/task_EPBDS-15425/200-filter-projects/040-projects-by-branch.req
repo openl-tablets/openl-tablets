@@ -1,3 +1,3 @@
-GET /rest/projects?branch=EPBDS-13931_1&size=100&fields=name HTTP/1.1
+GET /rest/projects?branch=master&name=EPBDS-13931&size=100&fields=name HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 

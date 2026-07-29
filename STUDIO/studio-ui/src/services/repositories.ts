@@ -91,6 +91,7 @@ export async function getProjects(
         repositoryCounts: response?.repositoryCounts,
         tagCounts: response?.tagCounts,
         statuses: response?.statuses,
+        projectIndexHealth: response?.projectIndexHealth,
     }
 }
 
@@ -201,7 +202,8 @@ export async function copyProject(
     newName: string,
     comment?: string,
     path?: string,
-    revision?: string
+    revision?: string,
+    branch?: string
 ): Promise<void> {
     await apiCall(
         `/repos/${encodeURIComponent(targetRepositoryId)}/projects/${encodeURIComponent(newName)}/from-project`,
@@ -214,6 +216,7 @@ export async function copyProject(
                 ...(comment?.trim() ? { comment: comment.trim() } : {}),
                 ...(path?.trim() ? { path: path.trim() } : {}),
                 ...(revision?.trim() ? { revision: revision.trim() } : {}),
+                ...(branch?.trim() ? { branch: branch.trim() } : {}),
             }),
         },
         { throwError: true }
@@ -239,6 +242,8 @@ export interface CreateProjectOptions {
     overwrite?: boolean
     /** Status the created project should have in the workspace. Left unset, the backend keeps its default. */
     status?: 'OPENED' | 'CLOSED'
+    /** Existing target branch or a new branch name to create from the repository base branch. */
+    branch?: string
 }
 
 /**
@@ -278,6 +283,9 @@ export async function createProject(
     if (options.status) {
         params.set('status', options.status)
     }
+    if (options.branch?.trim()) {
+        params.set('branch', options.branch.trim())
+    }
     const query = params.toString() ? `?${params.toString()}` : ''
     await apiCall(
         `/repos/${encodeURIComponent(repositoryId)}/projects/${encodeURIComponent(projectName)}${query}`,
@@ -301,13 +309,23 @@ export async function getProjectTemplates(): Promise<ProjectTemplateGroup[]> {
 /** Publish one or more local workspace projects to a design repository, keeping their names. */
 export async function createProjectsFromWorkspace(
     repositoryId: string,
-    body: { names: string[], path?: string | undefined, comment?: string | undefined }
+    body: { names: string[], path?: string | undefined, comment?: string | undefined, branch?: string | undefined }
 ): Promise<void> {
     await apiCall(
         `/repos/${encodeURIComponent(repositoryId)}/projects/from-workspace`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
         { throwError: true }
     )
+}
+
+/** List the actual Git branches of a design repository. */
+export async function getDesignRepositoryBranches(repositoryId: string): Promise<string[]> {
+    const response = await apiCall(
+        `/repos/${encodeURIComponent(repositoryId)}/branches`,
+        undefined,
+        THROW_API_OPTIONS
+    )
+    return asArray(response)
 }
 
 /**
@@ -407,6 +425,8 @@ export interface ProjectBranch {
     protected: boolean
     /** The repository base branch; it can never be deleted. */
     base: boolean
+    /** Whether this branch's current Git tree contains the project. */
+    containsProject: boolean
 }
 
 /** Create a new branch for a project, optionally from a specific revision (defaults to HEAD). */
@@ -514,14 +534,6 @@ export async function switchProjectBranch(
         branch,
         ...(options.discardChanges ? { discardChanges: true } : {}),
     })
-}
-
-/**
- * Set the branches this project participates in. The backend adds the project to newly-selected branches
- * and removes it from de-selected ones, so the Current-branch dropdown reflects exactly this set.
- */
-export async function setSelectedBranches(projectId: string, branches: string[]): Promise<void> {
-    await patchProject(projectId, { selectedBranches: branches })
 }
 
 export interface TagType {

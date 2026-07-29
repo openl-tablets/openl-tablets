@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexHealth;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.model.Capabilities;
 import org.openl.studio.common.utils.AuditFields;
@@ -123,7 +125,8 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
                 statusCounts,
                 repositoryCounts,
                 tagCounts,
-                projectStatuses);
+                projectStatuses,
+                projectIndexHealth());
     }
 
     private List<T> projectScope(ProjectCriteriaQuery query, boolean includeTagFilters) {
@@ -206,18 +209,29 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     protected Predicate<AProject> buildFilterCriteria(ProjectCriteriaQuery query) {
         Predicate<AProject> filter = ALL_PROJECTS;
         if (StringUtils.isNotBlank(query.name())) {
-            var nameLower = query.name().toLowerCase();
-            filter = filter.and(project -> project.getBusinessName().toLowerCase().contains(nameLower));
+            var nameLower = query.name().toLowerCase(Locale.ROOT);
+            filter = filter.and(project -> project.getBusinessName().toLowerCase(Locale.ROOT).contains(nameLower));
         }
         if (StringUtils.isNotBlank(query.author())) {
-            var authorLower = query.author().toLowerCase();
-            filter = filter.and(project -> authorOf(project).toLowerCase().contains(authorLower));
+            var authorLower = query.author().toLowerCase(Locale.ROOT);
+            filter = filter.and(project -> authorOf(project).toLowerCase(Locale.ROOT).contains(authorLower));
         }
         if (StringUtils.isNotBlank(query.branch())) {
-            var branchLower = query.branch().toLowerCase();
-            filter = filter.and(project -> branchOf(project).toLowerCase().contains(branchLower));
+            var branchLower = query.branch().toLowerCase(Locale.ROOT);
+            filter = filter.and(project -> branchNamesOf(project)
+                    .anyMatch(branch -> branch.toLowerCase(Locale.ROOT).contains(branchLower)));
         }
         return filter;
+    }
+
+    /** Branch names which contain a project. A non-branch-aware service exposes only the current branch. */
+    protected Stream<String> branchNamesOf(AProject project) {
+        return Stream.of(branchOf(project));
+    }
+
+    /** Cross-branch index health to include in the project-list response. */
+    protected Map<String, IndexHealth> projectIndexHealth() {
+        return Map.of();
     }
 
     /** Last modifier's name, or empty when the project's file data cannot be read. */

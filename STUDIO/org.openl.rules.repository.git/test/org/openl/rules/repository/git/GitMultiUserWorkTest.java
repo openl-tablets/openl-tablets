@@ -17,9 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 
 class GitMultiUserWorkTest {
@@ -52,7 +50,7 @@ class GitMultiUserWorkTest {
                 try {
                     var branchName = "branch" + idx;
                     var projectPath = FOLDER_IN_REPOSITORY + "_" + idx;
-                    repo.createBranch(projectPath, branchName);
+                    repo.createRepositoryBranch(branchName, repo.getBranch());
                     branchRepo = repo.forBranch(branchName);
                     for (var commitNo = 0; commitNo < 30; commitNo++) {
                         var path = projectPath + "/folder/file" + idx;
@@ -64,8 +62,8 @@ class GitMultiUserWorkTest {
                                     "Branch must be merged to the master");
                         }
                     }
-                    repo.deleteBranch(projectPath, branchName);
-                    assertFalse(repo.getBranches(projectPath).contains(branchName), "Branch must be removed");
+                    repo.deleteRepositoryBranch(branchName);
+                    assertFalse(repo.listBranches().contains(branchName), "Branch must be removed");
                 } catch (Error | Exception e) {
                     passedStatus.set(false);
                     e.printStackTrace();
@@ -99,10 +97,6 @@ class GitMultiUserWorkTest {
         newRepo.setUri(uri);
         var localRepositoriesFolderString = this.localRepositoriesFolder.toFile().getAbsolutePath();
         newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
-        var settingsRepository = new FileSystemRepository();
-        settingsRepository.setUri(local.getParent() + "/git-settings");
-        var locksRoot = root.resolve("locks").toAbsolutePath().toString();
-        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.setGcAutoDetach(false);
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local.toFile(), localRepositoriesFolderString, false, true));
 

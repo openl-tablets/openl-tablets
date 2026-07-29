@@ -13,7 +13,13 @@ import {
 import { ProjectStatus } from '../constants/project'
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
 import type { Repository, RepositoryInfo } from '../types/repositories'
-import type { FacetCount, Project, ProjectStatusSummary, TagFacetSummary } from '../types/projects'
+import type {
+    FacetCount,
+    Project,
+    ProjectIndexHealth,
+    ProjectStatusSummary,
+    TagFacetSummary,
+} from '../types/projects'
 import { ProjectsFilterRail } from './projects/ProjectsFilterRail'
 import { ProjectsRail } from './projects/ProjectsRail'
 import type { NodeFilters } from './projects/projectGrouping'
@@ -191,6 +197,7 @@ export const ProjectsHome = () => {
     const [repositories, setRepositories] = useState<Repository[]>([])
     const [allProjects, setAllProjects] = useState<Project[]>([])
     const [compileStatuses, setCompileStatuses] = useState<ProjectStatusUpdate[]>([])
+    const [projectIndexHealth, setProjectIndexHealth] = useState<Record<string, ProjectIndexHealth>>({})
     // Bumped whenever the screen changed the workspace, so the tree beside it reads it again too.
     const [reloadToken, setReloadToken] = useState(0)
     const [loading, setLoading] = useState(true)
@@ -310,6 +317,7 @@ export const ProjectsHome = () => {
                 }
                 setRepositories(repos_)
                 setAllProjects(index.projects)
+                setProjectIndexHealth(index.projectIndexHealth)
                 setCompileStatuses(previous => overlayFreshStatuses(index.statuses, previous, statusPushedAt.current, startedAt))
                 setError(null)
                 return index.projects
@@ -538,7 +546,7 @@ export const ProjectsHome = () => {
         onCompare: project => openCompareWindow(project),
         onExport: project => setExportSource(project),
         onDeploy: project => window.dispatchEvent(new CustomEvent('openDeployModal', {
-            detail: { ...project, selectedBranches: project.selectedBranches ?? []},
+            detail: project,
         })),
         onDelete: project => window.dispatchEvent(new CustomEvent('openDeleteProjectModal', {
             detail: {
@@ -571,6 +579,14 @@ export const ProjectsHome = () => {
             )
         }
         if (totalProjects === 0) {
+            if (Object.values(projectIndexHealth).some(health => health.state === 'indexing')) {
+                return (
+                    <div className={shared.stateBox} data-testid="projects-indexing">
+                        <Spin />
+                        <span>{t('home.indexing')}</span>
+                    </div>
+                )
+            }
             // Nothing matched. When the workspace still holds projects, filters (or search) hid them all,
             // so offer a prominent one-click reset; with no projects at all there is nothing to reveal.
             if (allProjects.length > 0) {

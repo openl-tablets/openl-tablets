@@ -2,6 +2,8 @@ package org.openl.rules.workspace.dtr.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchTreeRevision;
+import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -73,6 +76,29 @@ class MappedRepositoryTest {
             } finally {
                 featureMapped.close();
             }
+        } finally {
+            mapped.close();
+        }
+    }
+
+    @Test
+    void nonBaseBranchUsesRequestedMappedFolderForANewProject() throws Exception {
+        var feature = branchRepository("feature", "existing/project", "Existing");
+        var mapped = MappedRepository.create(feature, "DESIGN/");
+        try {
+            var project = fileData("DESIGN/NewProject");
+            project.addAdditionalData(FileMappingData.forProject(
+                    "DESIGN/NewProject", "custom/path", "NewProject"));
+            var descriptor = new FileItem(
+                    "DESIGN/NewProject/rules.xml",
+                    new ByteArrayInputStream("<project><name>NewProject</name></project>"
+                            .getBytes(StandardCharsets.UTF_8)));
+
+            mapped.save(project, List.of(descriptor), ChangesetType.FULL);
+
+            var folderCaptor = org.mockito.ArgumentCaptor.forClass(FileData.class);
+            verify(feature).save(folderCaptor.capture(), any(), eq(ChangesetType.FULL));
+            assertEquals("custom/path/NewProject", folderCaptor.getValue().getName());
         } finally {
             mapped.close();
         }

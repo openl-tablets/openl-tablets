@@ -39,6 +39,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.ConflictException;
@@ -51,6 +52,7 @@ class ProjectCreationServiceTest {
     private AclProjectsHelper aclProjectsHelper;
     private RepositoryAclServiceProvider aclServiceProvider;
     private Comments comments;
+    private TagAssignmentValidator tagAssignmentValidator;
     private ProjectCreationService service;
 
     @BeforeEach
@@ -58,8 +60,9 @@ class ProjectCreationServiceTest {
         aclProjectsHelper = mock(AclProjectsHelper.class);
         aclServiceProvider = mock(RepositoryAclServiceProvider.class);
         comments = mock(Comments.class);
+        tagAssignmentValidator = mock(TagAssignmentValidator.class);
         service = new ProjectCreationService(aclProjectsHelper, aclServiceProvider,
-                mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "");
+                tagAssignmentValidator, mock(PathFilter.class), mock(ZipCharsetDetector.class), "");
     }
 
     @Test
@@ -98,21 +101,53 @@ class ProjectCreationServiceTest {
         when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
         when(comments.createProject("First")).thenReturn("Create First");
         when(comments.createProject("Second")).thenReturn("Create Second");
+        var targetRepository = mock(Repository.class);
+        when(targetRepository.getId()).thenReturn("design");
+        when(targetRepository.supports()).thenReturn(new FeaturesBuilder(targetRepository).build());
 
         var first = publishedProject("First");
-        when(workspace.uploadLocalProject("design", "First", "target/", "Create First")).thenReturn(first);
-        when(workspace.uploadLocalProject("design", "Second", "target/", "Create Second"))
+        when(workspace.uploadLocalProject(targetRepository, "First", "target/", "Create First")).thenReturn(first);
+        when(workspace.uploadLocalProject(targetRepository, "Second", "target/", "Create Second"))
                 .thenThrow(new ProjectException("failed"));
 
         service = serviceWithWorkspace(workspace);
 
         var names = List.of("First", "Second");
         assertThrows(ConflictException.class,
-                () -> service.uploadLocalProjects("design", names, "target/", null));
+                () -> service.uploadLocalProjects(targetRepository, names, "target/", null));
 
         verify(first).delete(user, "Rollback project upload.");
         verify(acl).deleteAcl(first);
-        verify(workspace).refresh();
+        verify(workspace, never()).refresh();
+    }
+
+    @Test
+    void upload_local_projects_does_not_roll_back_a_finalized_write_when_indexing_fails() throws Exception {
+        when(aclProjectsHelper.hasCreateProjectPermission("design")).thenReturn(true);
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getBranch()).thenReturn("feature");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(designTimeRepository.refreshBranch("design", "feature"))
+                .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("failed")));
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var user = mock(WorkspaceUser.class);
+        when(workspace.getUser()).thenReturn(user);
+        var acl = mock(RepositoryAclService.class);
+        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
+        var project = publishedProject("First");
+        when(workspace.uploadLocalProject(repository, "First", "", "comment")).thenReturn(project);
+
+        assertThrows(ConflictException.class,
+                () -> serviceWithWorkspace(workspace).uploadLocalProjects(repository, List.of("First"), null, "comment"));
+
+        verify(acl).createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true);
+        verify(tagAssignmentValidator).applicable(Map.of());
+        verify(project, never()).delete(any(), any());
+        verify(acl, never()).deleteAcl(project);
+        verify(workspace, never()).refresh();
     }
 
     @Test
@@ -142,8 +177,11 @@ class ProjectCreationServiceTest {
         var workspace = mock(UserWorkspace.class);
         when(workspace.getProject("design", "Source", true)).thenReturn(source);
         service = serviceWithWorkspace(workspace);
+        var targetRepository = mock(Repository.class);
+        when(targetRepository.getId()).thenReturn("design");
+        when(targetRepository.supports()).thenReturn(new FeaturesBuilder(targetRepository).build());
 
-        assertThrows(NotFoundException.class, () -> service.copyProject("design", "Copy", null, "design",
+        assertThrows(NotFoundException.class, () -> service.copyProject(targetRepository, "Copy", null, "design",
                 "Source", "comment", "does-not-exist"));
     }
 
@@ -165,9 +203,12 @@ class ProjectCreationServiceTest {
         var workspace = mock(UserWorkspace.class);
         when(workspace.getProject("design", "Source", true)).thenReturn(source);
         service = serviceWithWorkspace(workspace);
+        var targetRepository = mock(Repository.class);
+        when(targetRepository.getId()).thenReturn("design");
+        when(targetRepository.supports()).thenReturn(new FeaturesBuilder(targetRepository).build());
 
         // The target repository is not configured here, so the copy fails right after the source is read.
-        assertThrows(RuntimeException.class, () -> service.copyProject("design", "Copy", null, "design",
+        assertThrows(RuntimeException.class, () -> service.copyProject(targetRepository, "Copy", null, "design",
                 "Source", "comment", "5"));
 
         verify(repository).checkHistory("DESIGN/Source", "5");
@@ -214,6 +255,30 @@ class ProjectCreationServiceTest {
         verify(designTimeRepository).refresh();
         verify(project).open();
         verify(workspace).refresh();
+    }
+
+    @Test
+    void apply_status_resolves_the_created_project_in_its_target_branch() throws Exception {
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getBranch()).thenReturn("feature");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var workspace = mock(UserWorkspace.class);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var designProject = mock(AProject.class);
+        when(designTimeRepository.getProject("design", "Alpha", "feature")).thenReturn(designProject);
+        var project = mock(RulesProject.class);
+        var testService = new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
+                mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
+                workspace, comments);
+        testService.designWorkspaceProject = project;
+
+        testService.applyStatusAfterCreate(repository, "Alpha", ProjectStatus.VIEWING);
+
+        verify(designTimeRepository).getProject("design", "Alpha", "feature");
+        verify(workspace, never()).getProject("design", "Alpha");
+        verify(project).open();
     }
 
     @Test
@@ -319,6 +384,15 @@ class ProjectCreationServiceTest {
     }
 
     @Test
+    void workspace_refresh_failure_does_not_fail_a_finalized_design_change() {
+        var workspace = mock(UserWorkspace.class);
+        doThrow(new IllegalStateException("stale branch selection")).when(workspace).refresh();
+        service = serviceWithWorkspace(workspace);
+
+        assertDoesNotThrow(service::refreshWorkspaceAfterDesignChange);
+    }
+
+    @Test
     void waits_until_a_branch_write_is_published() {
         var repository = mock(BranchRepository.class);
         when(repository.getId()).thenReturn("design");
@@ -353,7 +427,7 @@ class ProjectCreationServiceTest {
 
     private ProjectCreationService serviceWithWorkspace(UserWorkspace workspace) {
         return new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
-                mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
+                tagAssignmentValidator, mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
                 workspace, comments);
     }
 

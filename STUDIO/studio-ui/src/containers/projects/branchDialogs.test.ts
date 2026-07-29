@@ -21,8 +21,8 @@ describe('branch dialogs', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.mocked(getProjectBranches).mockResolvedValue([
-            { name: 'main', protected: false, base: true },
-            { name: 'feature', protected: false, base: false },
+            { name: 'main', protected: false, base: true, containsProject: true },
+            { name: 'feature', protected: false, base: false, containsProject: true },
         ])
         merge = captureEvent('openMergeModal')
         remove = captureEvent('openDeleteBranchModal')

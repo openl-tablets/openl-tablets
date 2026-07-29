@@ -514,13 +514,13 @@ export const ProjectDetail = ({
                         <>
                             <span aria-hidden>/</span>
                             <BranchSwitcher
+                                branches={project.selectedBranches ?? []}
                                 currentBranch={project.branch}
                                 currentBranchDefault={project.branchDefault}
                                 currentBranchProtected={project.branchProtected}
                                 data-testid="crumb-branch"
                                 onSwitched={() => onChanged?.()}
                                 projectId={project.id}
-                                selectedBranches={project.selectedBranches ?? []}
                             />
                         </>
                     )}

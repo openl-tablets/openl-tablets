@@ -53,6 +53,7 @@ Content-Type: application/json
     "name": "Git Protected Branch Flat",
     "type": "repo-git",
     "capabilities": {
+      "canCreateProject": true,
       "canManage": true
     },
     "features": {

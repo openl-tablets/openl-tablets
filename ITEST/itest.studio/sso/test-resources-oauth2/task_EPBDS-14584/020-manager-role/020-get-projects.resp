@@ -74,7 +74,8 @@ Content-Type: application/json
       "comment": "Project Project is created.",
       "selectedBranches": [
         "admin/feature-1",
-        "master"
+        "master",
+        "user1/feature-1"
       ],
       "branchDefault": true,
       "repositoryInfo": {

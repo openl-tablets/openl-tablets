@@ -125,7 +125,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         // Project in design repository is stored as a folder
                         var srcProjectPath = rulesPath + projectName;
                         Repository repository = RepositoryUtils
-                                .getRepositoryForVersion(baseRepo, rulesPath, projectName, version);
+                                .getRepositoryForVersion(designRepo, baseRepo, rulesPath, projectName, version);
                         if (repository.supports().mappedFolders()) {
                             srcProjectPath = ((FolderMapper) repository).getRealPath(srcProjectPath);
                         }

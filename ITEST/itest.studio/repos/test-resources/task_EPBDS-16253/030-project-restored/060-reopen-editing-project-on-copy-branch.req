@@ -1,8 +1,0 @@
-PATCH /rest/projects/{EDITING_PROJECT} HTTP/1.1
-Authorization: ${ADMIN_AUTH_TOCKEN}
-Content-Type: application/json
-
-{
-  "status": "OPENED",
-  "branch": "EPBDS-16253-copy"
-}

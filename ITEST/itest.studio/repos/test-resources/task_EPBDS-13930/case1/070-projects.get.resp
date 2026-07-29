@@ -30,8 +30,8 @@ Content-Type: application/json
       },
       "capabilities": {
         "canWrite": true,
-        "canClose": true,
         "canDelete": true,
+        "canClose": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -68,6 +68,7 @@ Content-Type: application/json
       },
       "capabilities": {
         "canWrite": true,
+        "canDelete": true,
         "canClose": true,
         "canDeploy": true,
         "canCompare": true,

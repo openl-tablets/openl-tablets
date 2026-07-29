@@ -26,6 +26,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -151,17 +153,24 @@ public final class BranchedProjectIndexService implements AutoCloseable {
     }
 
     public enum IndexState {
+        @JsonProperty("indexing")
         INDEXING,
+        @JsonProperty("ready")
         READY,
+        @JsonProperty("degraded")
         DEGRADED
     }
 
     /**
      * Safe index diagnostics. Error values never contain repository URLs, credentials, or exception messages.
      */
-    public record IndexHealth(@NonNull IndexState state,
-                              @NonNull Set<@NonNull String> failedBranches,
-                              @Nullable String lastError) {
+    public record IndexHealth(
+            @Parameter(description = "Current state of the cross-branch project index")
+            @NonNull IndexState state,
+            @Parameter(description = "Branches whose latest content could not be indexed")
+            @NonNull Set<@NonNull String> failedBranches,
+            @Parameter(description = "Safe summary of the latest indexing failure")
+            @Nullable String lastError) {
         public IndexHealth {
             state = Objects.requireNonNull(state);
             failedBranches = Collections.unmodifiableSet(new LinkedHashSet<>(Objects.requireNonNull(failedBranches)));
@@ -480,7 +489,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
             var projects = new LinkedHashMap<String, BranchProject>();
             for (FileData fileData : sortedFiles) {
                 var externalPath = fileData.getName();
-                var externalName = getExternalName(branchRepository, externalPath);
+                var externalName = getExternalName(externalPath);
                 var internalPath = branchRepository instanceof FolderMapper mapper
                         ? mapper.getRealPath(externalPath)
                         : externalPath;
@@ -553,12 +562,9 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         }
     }
 
-    private static String getExternalName(BranchRepository repository, String externalPath) {
-        var businessPath = repository instanceof FolderMapper mapper
-                ? mapper.getBusinessName(externalPath)
-                : externalPath;
-        var slash = businessPath.lastIndexOf('/');
-        return slash < 0 ? businessPath : businessPath.substring(slash + 1);
+    private static String getExternalName(String externalPath) {
+        var slash = externalPath.lastIndexOf('/');
+        return slash < 0 ? externalPath : externalPath.substring(slash + 1);
     }
 
     private static String getRevisionPath(BranchRepository repository, String discoveryPath) {

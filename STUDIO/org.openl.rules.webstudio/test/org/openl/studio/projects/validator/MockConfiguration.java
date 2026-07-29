@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
 import org.openl.rules.webstudio.web.Props;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.config.ValidationConfiguration;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 
@@ -31,5 +32,10 @@ public class MockConfiguration {
     @Bean
     public ProtectedBranchBypassService protectedBranchBypassService() {
         return mock(ProtectedBranchBypassService.class);
+    }
+
+    @Bean
+    public DesignTimeRepository designTimeRepository() {
+        return mock(DesignTimeRepository.class);
     }
 }

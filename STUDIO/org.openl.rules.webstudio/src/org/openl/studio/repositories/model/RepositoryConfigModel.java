@@ -12,14 +12,20 @@ import io.swagger.v3.oas.annotations.Parameter;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record RepositoryConfigModel(
+        @Parameter(description = "Configured branch. Absent when the repository has no branches")
+        String branch,
         @Parameter(description = "New branch rules. Absent when the repository has no branches")
         NewBranch newBranch,
         @Parameter(description = "Commit comment rules")
         Comment comment) {
 
+    public RepositoryConfigModel(NewBranch newBranch, Comment comment) {
+        this(null, newBranch, comment);
+    }
+
     /** The configuration of a project that lives only in the workspace: nothing is suggested or required. */
     public static RepositoryConfigModel none() {
-        return new RepositoryConfigModel(null, new Comment(null, null, new Templates(null, null, null, null)));
+        return new RepositoryConfigModel(null, null, new Comment(null, null, new Templates(null, null, null, null)));
     }
 
     /**

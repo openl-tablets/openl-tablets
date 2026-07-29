@@ -403,6 +403,30 @@ class UserWorkspaceRefreshTest {
     }
 
     @Test
+    void openedCopyIsMatchedByEveryBranchPathBeforeItsLocalFolderName() throws ProjectException {
+        var main = mappedBranchProjectRepository("main", "physical/main/P1");
+        var feature = mappedBranchProjectRepository("feature/rates", DESIGN_PATH);
+        var mainData = new FileData();
+        mainData.setName("DESIGN/P1");
+        var featureData = new FileData();
+        featureData.setName("DESIGN/P1");
+        var mainProject = new AProject(main, mainData);
+        var featureProject = new AProject(feature, featureData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
+        when(designTimeRepository.getBranchedProject("design", PROJECT))
+                .thenReturn(java.util.Optional.of(
+                        branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
+        when(localWorkspace.getProjectForName("design", PROJECT)).thenReturn(null);
+        seedOpenedCopy("design", "feature/rates", false);
+
+        var project = userWorkspace.getProject("design", PROJECT);
+
+        assertEquals("feature/rates", project.getBranch());
+        assertTrue(project.isOpened());
+    }
+
+    @Test
     void preferenceForMissingBranchIsDiscarded() throws ProjectException {
         var main = branchProjectRepository("main");
         var mainData = new FileData();

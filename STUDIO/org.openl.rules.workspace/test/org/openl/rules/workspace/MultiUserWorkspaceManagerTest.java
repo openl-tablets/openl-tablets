@@ -26,7 +26,7 @@ class MultiUserWorkspaceManagerTest {
 
         manager = new MultiUserWorkspaceManager();
         manager.setLocalWorkspaceManager(localWorkspaceManager);
-        manager.setDesignTimeRepository(new DesignTimeRepositoryImpl(null, null));
+        manager.setDesignTimeRepository(new DesignTimeRepositoryImpl(null));
     }
 
     @Test

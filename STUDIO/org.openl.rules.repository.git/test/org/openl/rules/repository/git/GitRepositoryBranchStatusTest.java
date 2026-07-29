@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -26,8 +27,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.repository.api.RepositorySettings;
-import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
@@ -75,7 +74,7 @@ class GitRepositoryBranchStatusTest {
         branch.save(createFileData("rules/project1/file1", "one"), IOUtils.toInputStream("one"));
         branch.save(createFileData("rules/project1/file2", "two"), IOUtils.toInputStream("two"));
         repo.save(createFileData("rules/project1/file3", "three"), IOUtils.toInputStream("three"));
-        repo.createBranch("rules/project1", SAME_TIP_BRANCH, BASE);
+        repo.createRepositoryBranch(SAME_TIP_BRANCH, BASE);
 
         var statuses = repo.getBranchStatuses(List.of(BRANCH, SAME_TIP_BRANCH, BASE, "missing"));
         // The unresolvable "missing" branch is omitted, the rest carry tip metadata.
@@ -127,7 +126,7 @@ class GitRepositoryBranchStatusTest {
         repo.createRepositoryBranch(newBranch, BASE);
 
         assertTrue(repo.listBranches().contains(newBranch));
-        assertEquals(List.of(BASE), repo.getBranches("rules/project1"));
+        assertEquals(Set.of(BASE, BRANCH, newBranch), Set.copyOf(repo.listBranches()));
         repo.deleteRepositoryBranch(newBranch);
         assertFalse(repo.listBranches().contains(newBranch));
     }
@@ -142,10 +141,6 @@ class GitRepositoryBranchStatusTest {
         newRepo.setId(REPO_ID);
         newRepo.setUri(remoteUri);
         newRepo.setLocalRepositoriesFolder(repositoriesFolder);
-        var settingsRepository = new FileSystemRepository();
-        settingsRepository.setUri(local.getParent() + "/git-settings");
-        var locksRoot = new File(root, "locks").getAbsolutePath();
-        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, remoteUri, local, repositoriesFolder, true, true));
         return newRepo;
     }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.upload.AProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.RulesProjectBuilder;
 import org.openl.rules.workspace.filter.PathFilter;
@@ -13,7 +14,7 @@ import org.openl.util.IOUtils;
 public class ExcelFilesProjectCreator extends AProjectCreator {
 
     private final ProjectFile[] files;
-    private final String repositoryId;
+    private final Repository repository;
     private final PathFilter pathFilter;
     private final String comment;
 
@@ -25,8 +26,26 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
                                     PathFilter pathFilter,
                                     Map<String, String> tags,
                                     ProjectFile... files) {
+        this(userWorkspace.getDesignTimeRepository().getRepository(repositoryId),
+                projectName,
+                projectFolder,
+                userWorkspace,
+                comment,
+                pathFilter,
+                tags,
+                files);
+    }
+
+    public ExcelFilesProjectCreator(Repository repository,
+                                    String projectName,
+                                    String projectFolder,
+                                    UserWorkspace userWorkspace,
+                                    String comment,
+                                    PathFilter pathFilter,
+                                    Map<String, String> tags,
+                                    ProjectFile... files) {
         super(projectName, projectFolder, userWorkspace, tags);
-        this.repositoryId = repositoryId;
+        this.repository = repository;
         this.comment = comment;
         this.pathFilter = pathFilter;
         this.files = files;
@@ -34,7 +53,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
 
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
-        var projectBuilder = new RulesProjectBuilder(getUserWorkspace(), repositoryId,
+        var projectBuilder = new RulesProjectBuilder(getUserWorkspace(), repository,
                 getProjectName(),
                 getProjectFolder(),
                 comment);

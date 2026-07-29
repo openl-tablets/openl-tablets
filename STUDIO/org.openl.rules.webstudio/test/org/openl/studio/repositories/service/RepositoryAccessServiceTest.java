@@ -17,7 +17,6 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
-import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 
 class RepositoryAccessServiceTest {
 
@@ -26,7 +25,6 @@ class RepositoryAccessServiceTest {
 
     private SimpleRepositoryAclService aclService;
     private AclProjectsHelper aclProjectsHelper;
-    private ProtectedBranchBypassService bypassService;
     private RepositoryAccessService service;
 
     @BeforeEach
@@ -34,10 +32,9 @@ class RepositoryAccessServiceTest {
         aclService = mock(SimpleRepositoryAclService.class);
         var aclServiceProvider = mock(RepositoryAclServiceProvider.class);
         aclProjectsHelper = mock(AclProjectsHelper.class);
-        bypassService = mock(ProtectedBranchBypassService.class);
         when(aclServiceProvider.getAclService(AclRepositoryType.DESIGN.getType())).thenReturn(aclService);
         when(aclServiceProvider.getAclService(AclRepositoryType.PROD.getType())).thenReturn(aclService);
-        service = new RepositoryAccessService(aclServiceProvider, aclProjectsHelper, bypassService);
+        service = new RepositoryAccessService(aclServiceProvider, aclProjectsHelper);
     }
 
     @Test
@@ -60,7 +57,7 @@ class RepositoryAccessServiceTest {
     }
 
     @Test
-    void design_branch_repo_reports_create_project_when_branch_protection_is_not_enforced() {
+    void design_branch_repo_reports_create_project() {
         var repository = branchRepository();
         when(aclProjectsHelper.hasCreateProjectPermission(REPO)).thenReturn(true);
 
@@ -70,14 +67,13 @@ class RepositoryAccessServiceTest {
     }
 
     @Test
-    void design_branch_repo_omits_create_project_when_branch_protection_is_enforced() {
+    void create_capability_is_independent_of_the_configured_branch_protection() {
         var repository = branchRepository();
         when(aclProjectsHelper.hasCreateProjectPermission(REPO)).thenReturn(true);
-        when(bypassService.isProtectionEnforced(repository, BRANCH, REPO)).thenReturn(true);
 
         var caps = service.computeCapabilities(repository, AclRepositoryType.DESIGN);
 
-        assertNull(caps.canCreateProject());
+        assertEquals(Boolean.TRUE, caps.canCreateProject());
     }
 
     private static BranchRepository branchRepository() {

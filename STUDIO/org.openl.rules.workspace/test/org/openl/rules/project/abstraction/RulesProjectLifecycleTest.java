@@ -128,6 +128,24 @@ class RulesProjectLifecycleTest {
                 "The project edit history must leave the workspace together with the project.");
     }
 
+    @Test
+    void designProjectNameDoesNotUseTheOpenedLocalFolderName() {
+        var localData = new FileData();
+        localData.setName("Pricing");
+        var designData = new FileData();
+        designData.setName("DESIGN/Pricing:0123456789");
+        var project = new RulesProject(
+                new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),
+                localRepository,
+                localData,
+                designRepository,
+                designData,
+                new DummyLockEngine());
+
+        assertEquals("Pricing", project.getName());
+        assertEquals("Pricing:0123456789", project.getDesignProjectName());
+    }
+
     private RulesProject createProject() throws IOException {
         var designData = designRepository.check(PROJECT);
         return new RulesProject(new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),

@@ -67,8 +67,18 @@ OpenL Studio allows users to create new rule projects in the Design repository i
 | Create a rule project from an OpenAPI file | [Creating a Project from OpenAPI file](#creating-a-project-from-openapi-file) |
 | Create a rule project from a zip archive   | [Creating a Project from ZIP Archive](#creating-a-project-from-zip-archive) |
 | Import a rule project from workspace       | [Importing a Project from Workspace](#importing-a-project-from-workspace)                   |
+| Copy an existing rule project              | [Copying a Project](#copying-a-project)                                   |
 
 Whatever the way used, new projects are created in the **No Changes** status that means they are open and can be modified.
+
+For a Git Design repository that supports branches, every creation method displays one **Branch** field after a
+repository is selected. Select an existing branch from the suggestions, or type a valid new branch name in the same
+field. When the name does not exist, OpenL Studio creates the branch from the repository default branch and then
+creates the project there. The project is immediately visible to other authorized users, and its **Branch** value is
+the branch where it was created. In an empty repository, the first project creates the selected valid branch,
+including a non-default branch.
+Names that violate Git naming rules or the repository branch-name pattern are shown as errors below the field and
+are not submitted.
 
 Projects with the same name can be created in different repositories. These projects cannot be in the same status. If the first project is in the **No Changes** status, the second one is assigned the **Closed** status. After closing the first project, the second can be opened.
 
@@ -109,7 +119,7 @@ To create a new project from template, proceed as follows:
 
     The name appears in the **Project Name** field. The following example demonstrates creating a project based on the example.
 
-    ![](images/create-project-from-template-dialog.jpeg)
+    ![Configuring a template project and its target branch](images/create-project-from-template-dialog.png "Creating a project from a template")
 
     *Creating a simple project from a template*
 
@@ -118,6 +128,7 @@ To create a new project from template, proceed as follows:
     If there is only one repository, it is selected by default. Otherwise, a list of repositories is displayed.
     If a Git repository with non-flat structure is selected, the **Path** field with the / default value is displayed and can be modified as required. The path is defined inside the repository and can start with or without /.
 
+1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create**.
 
     If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
@@ -161,7 +172,7 @@ Proceed as follows:
 
     All files are listed in the **File** area.
 
-    ![](images/create-project-from-excel-files.jpeg)
+    ![Configuring an Excel project and its target branch](images/create-project-from-excel-files.png "Creating a project from Excel files")
 
     *Creating a project from Excel files*
 
@@ -172,6 +183,7 @@ Proceed as follows:
 
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
 
+1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create** to complete.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
@@ -193,7 +205,7 @@ To create a project from the OpenAPI file, proceed as follows:
 3.  Click **Add**, select the required OpenAPI file in a file system, and double click it or click **Open**.
 4.  To remove an uploaded file, click **Clear**.
 
-    ![](images/create-project-from-openapi-dialog.png)
+    ![Configuring an OpenAPI project and its target branch](images/create-project-from-openapi-dialog.png "Creating a project from an OpenAPI file")
 
     *Creating a project from an OpenAPI file*
 
@@ -203,6 +215,7 @@ To create a project from the OpenAPI file, proceed as follows:
 
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
 
+1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create**.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
@@ -217,7 +230,7 @@ ZIP is the only supported archive format — `.rar` or `.7z` archives cannot be 
 1.  In the **Create Project from** dialog, click the **Zip Archive** tab.
 1.  Choose **Archive** or **Folder**, click the **Add** button, locate the necessary zip archive or project folder, and click **Open**.
 
-    ![](images/create-project-from-zip-dialog.jpeg)
+    ![Configuring an archive project and its target branch](images/create-project-from-zip-dialog.png "Creating a project from a ZIP file")
 
     *Creating a project from ZIP file*
 
@@ -231,6 +244,7 @@ ZIP is the only supported archive format — `.rar` or `.7z` archives cannot be 
 
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
 
+1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create** to complete.
 
     The new project opens in the workspace right away, the same as a project created from a template or Excel files.
@@ -246,12 +260,14 @@ A new project can be created in Design repository by loading a project with the 
 
     The system displays rule projects available in the workspace:
 
-    ![](images/create-project-from-workspace.jpeg)
+    ![Selecting workspace projects to publish](images/create-project-from-workspace.png "Creating projects from the workspace")
 
     *Creating a project from Workspace*
 
 1.  Select check boxes for projects to be uploaded.
-2.  To complete creation, click **Create**.
+1.  Select a Design repository.
+1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
+1.  To complete creation, click **Create**.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
@@ -477,27 +493,35 @@ The newly created file appears in the file tree.
 
 ### Copying a Project
 
-Copying a project creates a new project with identical contents and a different name in Design repository. This function can be used for copying local projects to Design repository with a different name.
+Copying a project creates a new project with identical contents and a different name in Design repository. A copy can
+be created from the **Create Project** wizard or from the selected project's **Copy** action.
 
-To copy a project, proceed as follows:
+To copy a project from the **Create Project** wizard, proceed as follows:
 
-1.  Perform one of the following steps as required:
-    -   In the **Projects** tree, select the required project and, in the right pane, click the **Copy** button.
-    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to copy and click the corresponding **Copy** item **![](images/copy-project-item-icon.png)** on the right.
-1.  In the **Copy Project** window, enter the new project name.
-2.  Select whether a new project must be linked to the origin project.
+1.  Click **Create Project** and select **Copy project**.
+2.  Select the source project and enter the new project name.
+3.  Select the target repository.
+4.  For a branch-capable repository, select an existing branch or enter a new branch name in the single **Branch**
+    field.
+5.  If necessary, specify a path and modify the commit comment.
+6.  Click **Create**.
 
-    In case of linked projects, a new project branch is created. For more information on branches, see [Working with Project Branches](project-branches.md#working-with-project-branches). For unlinked projects, if there are mandatory tag types, tags must be defined for a new project.
+![Configuring a project copy and its target branch](images/copy-project-dialog.png "Copying a project")
 
-1.  Specify whether old revisions must be copied to the newly created project.
-2.  If necessary, select a repository and specify the path to the destination project.
+*Copying a project in the Create Project wizard*
 
-    A project can be copied to another repository with the same or a new name.
+To copy the selected project, proceed as follows:
 
-1.  Optionally, provide comments.
-2.  Click **Copy**.
+1.  In the **Projects** tree or list, select the project and click **Copy**.
+2.  Select **Create a New Project** if the dialog initially offers to create a project branch.
+3.  Enter the new project name and select the target repository.
+4.  For a branch-capable target repository, select an existing branch or enter a new branch name in **Branch**.
+5.  If necessary, specify the target path and modify the commit comment.
+6.  To copy an earlier state, select **Copy an Old Revision** and choose the revision.
+7.  Click **Copy**.
 
-The new project appears in the list of projects.
+The new project appears immediately in the project list. The selected branch is its home branch when no other branch
+contains the project.
 
 ### Removing a Project
 

@@ -96,6 +96,26 @@ class BranchedProjectIndexServiceTest {
     }
 
     @Test
+    void preservesPathQualifiedExternalProjectIdentity() throws Exception {
+        var repository = new TestBranchRepository();
+        repository.put("main",
+                "main-1",
+                "tree-main",
+                NOW,
+                "DESIGN/Rates:path-one",
+                "DESIGN/Rates:path-two");
+        repository.put("feature", "feature-1", "tree-feature", NOW, "DESIGN/Rates:path-one");
+
+        try (var service = new BranchedProjectIndexService()) {
+            var snapshot = await(service.register(repository.repository(), "DESIGN/"));
+
+            assertEquals(Set.of("main", "feature"), snapshot.project("Rates:path-one").orElseThrow().branches());
+            assertEquals(Set.of("main"), snapshot.project("Rates:path-two").orElseThrow().branches());
+            assertEquals(2, snapshot.projects().size());
+        }
+    }
+
+    @Test
     void reusesUnchangedBranchesAndRemovesDeletedRefs() throws Exception {
         var repository = new TestBranchRepository();
         repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Main");

@@ -1093,8 +1093,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return Collections.emptyList();
             }
             RulesProject project = getCurrentProject();
-            return ((BranchRepository) getCurrentProject().getDesignRepository())
-                    .getBranches(project.getDesignFolderName());
+            return rulesUserSession.getUserWorkspace()
+                    .getDesignTimeRepository()
+                    .getBranchedProject(project.getDesignRepository().getId(), project.getDesignProjectName())
+                    .map(branchedProject -> List.copyOf(branchedProject.entries().keySet()))
+                    .orElseGet(Collections::emptyList);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
@@ -1112,9 +1115,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (project.isModified()) {
                 return false;
             }
-            List<String> branches = ((BranchRepository) project.getDesignRepository())
-                    .getBranches(project.getDesignFolderName());
-            if (branches.size() < 2) {
+            var branchCount = rulesUserSession.getUserWorkspace()
+                    .getDesignTimeRepository()
+                    .getBranchedProject(project.getDesignRepository().getId(), project.getDesignProjectName())
+                    .map(branchedProject -> branchedProject.entries().size())
+                    .orElse(0);
+            if (branchCount < 2) {
                 return false;
             }
             // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
@@ -1125,7 +1131,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 }
             }
             return false;
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             return false;
         }
     }

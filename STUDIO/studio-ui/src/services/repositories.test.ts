@@ -7,6 +7,7 @@ import {
     createProjectsFromWorkspace,
     deleteProject,
     downloadProject,
+    getDesignRepositoryBranches,
     getDesignRepositories,
     getProject,
     getProjectBranches,
@@ -19,7 +20,6 @@ import {
     openProjectRevision,
     saveProject,
     setProjectStatus,
-    setSelectedBranches,
     switchProjectBranch,
     unlockProject,
 } from './repositories'
@@ -233,7 +233,7 @@ describe('getProjects', () => {
     it('copies projects into another repository', async () => {
         vi.mocked(apiCall).mockResolvedValue(undefined)
 
-        await copyProject('source', 'Alpha', 'target', 'Beta', '  copied  ', ' folder ')
+        await copyProject('source', 'Alpha', 'target', 'Beta', '  copied  ', ' folder ', undefined, 'feature/rates')
 
         expect(apiCall).toHaveBeenCalledWith(
             '/repos/target/projects/Beta/from-project',
@@ -245,6 +245,7 @@ describe('getProjects', () => {
                     sourceProjectName: 'Alpha',
                     comment: 'copied',
                     path: 'folder',
+                    branch: 'feature/rates',
                 }),
             },
             { throwError: true }
@@ -260,6 +261,7 @@ describe('getProjects', () => {
             comment: 'Create Rules',
             path: 'folder',
             overwrite: true,
+            branch: 'feature/rates',
             openApi: { modelsPath: 'rules/Models.xlsx' },
         })
 
@@ -268,6 +270,7 @@ describe('getProjects', () => {
         expect(url).toContain('comment=Create+Rules')
         expect(url).toContain('path=folder')
         expect(url).toContain('overwrite=true')
+        expect(url).toContain('branch=feature%2Frates')
         expect(request?.method).toBe('PUT')
         expect(request?.body).toBeInstanceOf(FormData)
     })
@@ -278,13 +281,23 @@ describe('getProjects', () => {
         await getProjectTemplates()
         expect(apiCall).toHaveBeenCalledWith('/repos/project-templates', undefined, { throwError: true })
 
-        await createProjectsFromWorkspace('design', { names: ['Local'], path: 'folder', comment: 'Publish' })
+        await createProjectsFromWorkspace('design', {
+            names: ['Local'],
+            path: 'folder',
+            comment: 'Publish',
+            branch: 'feature/rates',
+        })
         expect(apiCall).toHaveBeenCalledWith(
             '/repos/design/projects/from-workspace',
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ names: ['Local'], path: 'folder', comment: 'Publish' }),
+                body: JSON.stringify({
+                    names: ['Local'],
+                    path: 'folder',
+                    comment: 'Publish',
+                    branch: 'feature/rates',
+                }),
             },
             { throwError: true }
         )
@@ -297,7 +310,7 @@ describe('getProjects', () => {
         expect(triggerDownload).toHaveBeenCalledWith('/studio/web/projects/abc/files/?download=true')
     })
 
-    it('loads branches, revisions, tags and selected branches', async () => {
+    it('loads branches, revisions and tags', async () => {
         vi.mocked(apiCall)
             .mockResolvedValueOnce([{ name: 'main', selected: true }])
             .mockResolvedValueOnce({
@@ -324,15 +337,20 @@ describe('getProjects', () => {
             total: 1,
         })
 
-        await setSelectedBranches('abc', ['main', 'hotfix'])
-        expect(apiCall).toHaveBeenLastCalledWith('/projects/abc', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ selectedBranches: ['main', 'hotfix']}),
-        }, { throwError: true })
-
         vi.mocked(apiCall).mockResolvedValue([{ name: 'Team', extensible: true, nullable: false, values: []}])
         await expect(getTagTypes()).resolves.toEqual([{ name: 'Team', extensible: true, nullable: false, values: []}])
+    })
+
+    it('lists actual design-repository branches', async () => {
+        vi.mocked(apiCall).mockResolvedValue(['main', 'feature/rates'])
+
+        await expect(getDesignRepositoryBranches('design repo')).resolves.toEqual(['main', 'feature/rates'])
+
+        expect(apiCall).toHaveBeenCalledWith(
+            '/repos/design%20repo/branches',
+            undefined,
+            { throwError: true }
+        )
     })
 
     it('creates branches with optional revision pins', async () => {

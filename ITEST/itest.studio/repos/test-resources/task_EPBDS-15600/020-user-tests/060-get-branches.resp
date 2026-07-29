@@ -5,96 +5,37 @@ Content-Type: application/json
   {
     "name": "EPBDS-13930_Project2",
     "protected": false,
-    "base": false
+    "base": false,
+    "containsProject": false
   },
   {
     "name": "EPBDS-13931_1",
     "protected": false,
-    "base": false
+    "base": false,
+    "containsProject": false
   },
   {
     "name": "EPBDS-14376_1",
     "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-14905",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15381_1",
-    "protected": false,
-    "base": false
+    "base": false,
+    "containsProject": false
   },
   {
     "name": "EPBDS-15409_1",
     "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithAutoConflictResolving_one",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithAutoConflictResolving_two",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithManualConflictResolving_one",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithManualConflictResolving_two",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithManualConflictResolvingCancel_two",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithManualConflictResolvingUseBase_two",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithManualConflictResolvingUseCustom_two",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithManualConflictResolvingUseOurs_two",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithManualConflictResolvingUseTheirs_two",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithoutConflicts_one",
-    "protected": false,
-    "base": false
-  },
-  {
-    "name": "EPBDS-15439_MergeWithoutConflicts_two",
-    "protected": false,
-    "base": false
+    "base": false,
+    "containsProject": false
   },
   {
     "name": "EPBDS-15600",
     "protected": false,
-    "base": false
+    "base": false,
+    "containsProject": true
   },
   {
     "name": "master",
     "protected": false,
-    "base": true
+    "base": true,
+    "containsProject": true
   }
 ]

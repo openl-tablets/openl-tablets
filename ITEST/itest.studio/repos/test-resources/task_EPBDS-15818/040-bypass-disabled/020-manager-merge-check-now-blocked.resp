@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "sourceBranch": "master",
+  "sourceBranch": "EPBDS-15818_dev",
   "targetBranch": "release-EPBDS-15818",
   "status": "up-to-date",
   "canMerge": false,

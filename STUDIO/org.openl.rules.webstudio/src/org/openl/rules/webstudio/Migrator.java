@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,7 +33,6 @@ import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.webstudio.migration.ProjectTagsMigrator;
@@ -276,35 +274,8 @@ public class Migrator {
                     props.put(propertyToRemove, null);
                 });
 
-        // remove all openl-projects.yaml files from locks root folder
-        removeProjectIndexFiles(settings);
-
         // Migrate '.local-repository-path' property to '.uri' if '.uri' is empty
         migrateLocalRepositoryPath(settings, props);
-    }
-
-    private static void removeProjectIndexFiles(DynamicPropertySource settings) {
-        var locksRoot = settings.getProperty("repository.settings.locks.root");
-        if (locksRoot == null || StringUtils.isBlank(locksRoot)) {
-            return;
-        }
-
-        Path locksPath = Path.of(locksRoot);
-        if (!Files.exists(locksPath)) {
-            return;
-        }
-
-        BiPredicate<Path, BasicFileAttributes> matcher = (path, attrs) -> {
-            if (!attrs.isRegularFile()) {
-                return false;
-            }
-            return path.getFileName().toString().equals("openl-projects.yaml");
-        };
-        try (var paths = Files.find(locksPath, Integer.MAX_VALUE, matcher)) {
-            paths.forEach(FileUtils::deleteQuietly);
-        } catch (IOException e) {
-            log.error("Error while removing openl-projects.yaml files from locks folder: {}", locksPath, e);
-        }
     }
 
     private static void migrateLocalRepositoryPath(DynamicPropertySource settings, HashMap<String, String> props) {
@@ -440,13 +411,11 @@ public class Migrator {
 
         migratePropsTo5_24(settings, props);
 
-        // migrate branches and project properties to branches.yaml if repoType is Git
+        // migrate project paths and properties if repoType is Git
         var designRepo = settings.getProperty("repository.design.local-repository-path");
         var designRepoPath = designRepo != null ? designRepo : Props.text("openl.home") + "/design-repository";
         var nonFlatProjectPaths = loadProjectsPathes(designRepoPath);
         writeProjectPathesToYAML(nonFlatProjectPaths);
-        migrateBranchesProps(nonFlatProjectPaths);
-
         // migrate NonFlat project settings
         migrateNonFlatProjectSettings(nonFlatProjectPaths);
 
@@ -553,36 +522,6 @@ public class Migrator {
             });
         } catch (IOException e) {
             log.error("Migration of locks failed.", e);
-        }
-    }
-
-    private static void migrateBranchesProps(Map<String, String> projectPathMap) {
-        Path branchesProperties = Path.of(Props.text("openl.home") + "/git-settings/branches.properties");
-        if (Files.isRegularFile(branchesProperties)) {
-            try {
-                var branchProps = new HashMap<String, String>();
-                PropertiesUtils.load(branchesProperties, branchProps::put);
-                var numStr = branchProps.get("projects.number");
-                var branches = new BranchesData();
-                if (numStr != null) {
-                    var num = Integer.parseInt(numStr);
-                    for (var i = 1; i <= num; i++) {
-                        var name = branchProps.get("project." + i + ".name");
-                        var branchesStr = branchProps.get("project." + i + ".branches");
-                        if (StringUtils.isBlank(name) || StringUtils.isBlank(branchesStr)) {
-                            continue;
-                        }
-                        var namePath = projectPathMap.getOrDefault(name, "DESIGN/rules/" + name);
-                        for (String branch : branchesStr.split(",")) {
-                            branches.addBranch(namePath, branch, null);
-                        }
-                    }
-                    Path config = Path.of(Props.text("openl.home"), "repositories/settings/design/branches.yaml");
-                    createYaml(branches, config);
-                }
-            } catch (IOException e) {
-                log.error("Migration of branches.properties has been failed.", e);
-            }
         }
     }
 

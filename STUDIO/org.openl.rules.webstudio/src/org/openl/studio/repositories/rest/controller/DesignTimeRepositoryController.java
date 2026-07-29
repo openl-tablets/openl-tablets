@@ -38,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lock.Lock;
 import org.openl.rules.lock.LockManager;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.repository.api.BranchRepository;
@@ -68,6 +69,7 @@ import org.openl.studio.repositories.model.RepositoryViewModel;
 import org.openl.studio.repositories.rest.resolver.DesignRepository;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
 import org.openl.studio.repositories.service.ProjectCreationService;
+import org.openl.studio.repositories.service.ProjectCreationTargetResolver;
 import org.openl.studio.repositories.service.ProjectRevisionService;
 import org.openl.studio.repositories.service.RepositoryConfigService;
 import org.openl.studio.repositories.service.ZipProjectSaveStrategy;
@@ -96,6 +98,7 @@ public class DesignTimeRepositoryController {
     private final ProjectRevisionService projectRevisionService;
     private final ProtectedBranchBypassService bypassService;
     private final ProjectCreationService projectCreationService;
+    private final ProjectCreationTargetResolver projectCreationTargetResolver;
     private final RepositoryConfigService repositoryConfigService;
 
     @Autowired
@@ -111,6 +114,7 @@ public class DesignTimeRepositoryController {
                                           ProjectRevisionService projectRevisionService,
                                           ProtectedBranchBypassService bypassService,
                                           ProjectCreationService projectCreationService,
+                                          ProjectCreationTargetResolver projectCreationTargetResolver,
                                           RepositoryConfigService repositoryConfigService) {
         this.designTimeRepository = designTimeRepository;
         this.designRepositoryAclService = designRepositoryAclService;
@@ -124,6 +128,7 @@ public class DesignTimeRepositoryController {
         this.projectRevisionService = projectRevisionService;
         this.bypassService = bypassService;
         this.projectCreationService = projectCreationService;
+        this.projectCreationTargetResolver = projectCreationTargetResolver;
         this.repositoryConfigService = repositoryConfigService;
     }
 
@@ -191,6 +196,7 @@ public class DesignTimeRepositoryController {
                                           @Parameter(description = "repos.create-project.param.algorithms-path.desc") @RequestParam(value = "algorithmsPath", defaultValue = "rules/Algorithms.xlsx") String algorithmsPath,
                                           @Parameter(description = "repos.create-project.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite,
                                           @Parameter(description = "repos.create-project.param.status.desc", schema = @Schema(allowableValues = {"OPENED", "CLOSED"})) @RequestParam(value = "status", required = false) @Nullable ProjectStatus status,
+                                          @Parameter(description = "repos.create-project.param.branch.desc") @RequestParam(value = "branch", required = false) @Nullable String branch,
                                           @Parameter(description = "repos.create-project.param.force.desc") @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) throws IOException,
             ProjectException {
         var hasFiles = files != null && !files.isEmpty();
@@ -199,43 +205,45 @@ public class DesignTimeRepositoryController {
             throw new BadRequestException("repos.create-project.no-source.message");
         }
 
-        // Overwrite only applies to re-uploading a project archive; otherwise a create grant is required.
-        if (overwrite && archiveUpload) {
-            String pathInRepo = repository.supports().mappedFolders() ? AclPathUtils.concatPaths(path, projectName) : projectName;
-            if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(BasePermission.WRITE))) {
-                throw new ForbiddenException();
-            }
-        } else if (!aclProjectsHelper.hasCreateProjectPermission(repository.getId())) {
-            throw new ForbiddenException();
-        }
-
-        allowedToPush(repository, force);
-
         String resolvedComment = StringUtils.isNotBlank(comment) ? comment
                 : getCommentsService(repository.getId()).createProject(projectName);
-
-        // Validate the project name and comment for EVERY create mode (archive, excel, openapi, template).
         var model = new CreateUpdateProjectModel(repository.getId(), getUserName(),
-                StringUtils.trimToNull(projectName), StringUtils.trimToNull(path), resolvedComment, overwrite);
+                StringUtils.trimToNull(projectName), StringUtils.trimToNull(path), resolvedComment, overwrite, branch);
         validationProvider.validate(model);
+        validationProvider.validate(model, createUpdateProjectModelValidator);
+
+        // Overwrite only applies to re-uploading a project archive; otherwise a create grant is required.
+        var archiveOverwrite = overwrite && archiveUpload;
+        if (!archiveOverwrite && !aclProjectsHelper.hasCreateProjectPermission(repository.getId())) {
+            throw new ForbiddenException();
+        }
+        var targetRepository = projectCreationTargetResolver.resolve(repository, branch, !archiveOverwrite);
+        if (archiveOverwrite) {
+            String pathInRepo = targetRepository.supports().mappedFolders()
+                    ? AclPathUtils.concatPaths(path, projectName)
+                    : projectName;
+            if (!designRepositoryAclService
+                    .isGranted(targetRepository.getId(), pathInRepo, List.of(BasePermission.WRITE))) {
+                throw new ForbiddenException();
+            }
+        }
+
+        allowedToPush(targetRepository, force);
 
         ProjectViewModel result;
         // An uploaded archive keeps the robust create/overwrite path (locking, overwrite).
         if (archiveUpload) {
-            result = createFromArchive(repository, projectName, files.getFirst(), model);
+            result = createFromArchive(targetRepository, projectName, files.getFirst(), model);
         } else {
-            // Excel/OpenAPI uploads and templates: reject duplicate names and comment violations up front,
-            // matching the archive path and the legacy tab (the content dispatcher has no such guard).
-            validationProvider.validate(model, createUpdateProjectModelValidator);
-            var data = createFromContent(repository, projectName, path, resolvedComment, files,
+            var data = createFromContent(targetRepository, projectName, path, resolvedComment, files,
                     templateType, templateCategory, templateName, modelsPath, algorithmsPath, modelsModuleName,
                     algorithmsModuleName);
-            result = mapFileDataResponse(data, repository.supports());
+            result = mapFileDataResponse(data, targetRepository.supports());
         }
         // A caller may ask for the created project to be opened (or closed); left alone every source keeps
         // its own default, so existing callers are unaffected. The lookup uses the canonical (trimmed)
         // name the project was actually created under.
-        projectCreationService.applyStatusAfterCreate(repository.getId(), model.getProjectName(), status);
+        projectCreationService.applyStatusAfterCreate(targetRepository, model.getProjectName(), status);
         return result;
     }
 
@@ -250,11 +258,12 @@ public class DesignTimeRepositoryController {
             }
             validationProvider.validate(model, createUpdateProjectModelValidator);
             validationProvider.validate(archiveTmp, zipArchiveValidator);
-            var data = zipProjectSaveStrategy.save(model, archiveTmp);
-            projectCreationService.awaitProjectVisibility(repository);
-            var project = designTimeRepository.getProject(repository.getId(), projectName);
+            var data = zipProjectSaveStrategy.save(repository, model, archiveTmp);
+            var project = new AProject(repository, data);
             ProjectCreationService.grantContributorAclIfAbsent(designRepositoryAclService, project);
-            projectCreationService.registerExtensibleTagsAfterDesignChange(project);
+            projectCreationService.registerExtensibleTags(project);
+            projectCreationService.awaitProjectVisibility(repository);
+            projectCreationService.refreshWorkspaceAfterDesignChange();
             return mapFileDataResponse(data, repository.supports());
         } finally {
             FileUtils.deleteQuietly(archiveTmp);
@@ -267,7 +276,7 @@ public class DesignTimeRepositoryController {
                                        String templateName, String modelsPath, String algorithmsPath,
                                        String modelsModuleName, String algorithmsModuleName) throws IOException {
         if (files == null || files.isEmpty()) {
-            return projectCreationService.createFromTemplate(repository.getId(), StringUtils.trimToNull(projectName),
+            return projectCreationService.createFromTemplate(repository, StringUtils.trimToNull(projectName),
                     path, templateType, templateCategory, templateName, comment, null);
         }
         var projectFiles = new ArrayList<ProjectFile>();
@@ -275,7 +284,7 @@ public class DesignTimeRepositoryController {
             for (MultipartFile file : files) {
                 projectFiles.add(new ProjectFile(file.getOriginalFilename(), file.getInputStream()));
             }
-            return projectCreationService.createFromFiles(repository.getId(), StringUtils.trimToNull(projectName), path,
+            return projectCreationService.createFromFiles(repository, StringUtils.trimToNull(projectName), path,
                     projectFiles, comment, modelsPath, algorithmsPath, modelsModuleName, algorithmsModuleName, null);
         } finally {
             projectFiles.forEach(ProjectFile::destroy);
@@ -295,12 +304,17 @@ public class DesignTimeRepositoryController {
         if (request.names() == null || request.names().isEmpty()) {
             throw new BadRequestException("repos.create-project.no-source.message");
         }
-        allowedToPush(repository, false);
+        requireCreatePermission(repository);
         // Reject a duplicate name or an invalid comment before publishing.
         for (String name : request.names()) {
-            validatedCreateModel(repository, name, request.path(), request.comment());
+            validatedCreateModel(repository, name, request.path(), request.comment(), request.branch());
         }
-        projectCreationService.uploadLocalProjects(repository.getId(), request.names(), request.path(), request.comment());
+        var targetRepository = projectCreationTargetResolver.resolve(repository, request.branch());
+        allowedToPush(targetRepository, false);
+        projectCreationService.uploadLocalProjects(targetRepository,
+                request.names(),
+                request.path(),
+                request.comment());
     }
 
     @PostMapping(value = "/{repo-name}/projects/{project-name}/from-project", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -308,16 +322,24 @@ public class DesignTimeRepositoryController {
     public ProjectViewModel createProjectFromProject(@DesignRepository("repo-name") Repository repository,
                                                      @Parameter(description = "repos.create-from-project.param.project-name.desc") @PathVariable("project-name") String projectName,
                                                      @Valid @RequestBody CreateFromProjectModel request) {
-        allowedToPush(repository, false);
+        requireCreatePermission(repository);
         // Validate the target name, comment and path before copying. An omitted comment falls back to the
         // repository "copied from" template rather than to the create-project one.
         String comment = StringUtils.isNotBlank(request.comment()) ? request.comment()
                 : getCommentsService(repository.getId()).copiedFrom(request.sourceProjectName());
-        var model = validatedCreateModel(repository, projectName, request.path(), comment);
-        var data = projectCreationService.copyProject(repository.getId(), model.getProjectName(),
+        var model = validatedCreateModel(repository, projectName, request.path(), comment, request.branch());
+        var targetRepository = projectCreationTargetResolver.resolve(repository, request.branch());
+        allowedToPush(targetRepository, false);
+        var data = projectCreationService.copyProject(targetRepository, model.getProjectName(),
                 request.path(), request.sourceRepositoryId(), request.sourceProjectName(), model.getComment(),
                 request.revision());
         return mapFileDataResponse(data, repository.supports());
+    }
+
+    private void requireCreatePermission(Repository repository) {
+        if (!aclProjectsHelper.hasCreateProjectPermission(repository.getId())) {
+            throw new ForbiddenException();
+        }
     }
 
     /**
@@ -325,12 +347,15 @@ public class DesignTimeRepositoryController {
      * duplicate/path-conflict check — reused by the copy and publish flows so they match the archive path
      * and the legacy repository tab. Never allows overwrite.
      */
-    private CreateUpdateProjectModel validatedCreateModel(Repository repository, String projectName, String path,
-                                                          String comment) {
+    private CreateUpdateProjectModel validatedCreateModel(Repository repository,
+                                                          String projectName,
+                                                          String path,
+                                                          String comment,
+                                                          @Nullable String branch) {
         String resolved = StringUtils.isNotBlank(comment) ? comment
                 : getCommentsService(repository.getId()).createProject(projectName);
         var model = new CreateUpdateProjectModel(repository.getId(), getUserName(),
-                StringUtils.trimToNull(projectName), StringUtils.trimToNull(path), resolved, false);
+                StringUtils.trimToNull(projectName), StringUtils.trimToNull(path), resolved, false, branch);
         validationProvider.validate(model);
         validationProvider.validate(model, createUpdateProjectModelValidator);
         return model;
@@ -339,7 +364,7 @@ public class DesignTimeRepositoryController {
     private Lock getLock(Repository repository, CreateUpdateProjectModel model) {
         var lockId = new StringBuilder(model.getRepoName());
         if (repository.supports().branches()) {
-            lockId.append("/[branches]/").append(((BranchRepository) repository).getBaseBranch()).append('/');
+            lockId.append("/[branches]/").append(((BranchRepository) repository).getBranch()).append('/');
         }
         if (repository.supports().mappedFolders() && StringUtils.isNotEmpty(model.getPath())) {
             lockId.append(model.getPath());

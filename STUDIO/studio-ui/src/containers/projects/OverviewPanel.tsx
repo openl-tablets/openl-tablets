@@ -1313,13 +1313,13 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canManageB
                 {project.path && metaRow(t('browser.overview.path'), <ValueText>{project.path}</ValueText>)}
                 {supportsBranches && project.branch && metaRow(t('browser.overview.branch'), (
                     <BranchSwitcher
+                        branches={project.selectedBranches ?? []}
                         currentBranch={project.branch}
                         currentBranchDefault={project.branchDefault}
                         currentBranchProtected={project.branchProtected}
                         data-testid="overview-branch"
                         onSwitched={onChanged}
                         projectId={project.id}
-                        selectedBranches={project.selectedBranches ?? []}
                     />
                 ), canManageBranches && (
                     <Tooltip title={t('browser.branch.manage')}>
@@ -1473,12 +1473,9 @@ export const OverviewPanel = ({
             />
             {supportsBranches && project.branch && (
                 <ManageBranchesModal
-                    currentBranch={project.branch}
                     onClose={() => setManagingBranches(false)}
-                    onSaved={() => onChanged?.()}
                     open={managingBranches}
                     projectId={project.id}
-                    selectedBranches={project.selectedBranches ?? []}
                 />
             )}
             <PropertiesPatternHelpModal onClose={() => setPatternHelpOpen(false)} open={patternHelpOpen} />

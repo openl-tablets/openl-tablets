@@ -24,6 +24,16 @@ import org.openl.rules.workspace.abstracts.ProjectsContainer;
 public interface DesignTimeRepository extends ProjectsContainer {
 
     /**
+     * Returns whether a logical project exists, including entries hidden from the current security view.
+     *
+     * <p>This method is intended for name-collision checks. Callers must report only a generic conflict and must not
+     * expose the hidden branch or path.
+     */
+    default boolean hasProjectInAnyBranch(String repositoryId, String name) {
+        return hasProject(repositoryId, name);
+    }
+
+    /**
      * Gets particular version of a rules project.
      *
      * @param name    name of rules project
@@ -74,6 +84,16 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * <p>Repositories without branches use their normal synchronous refresh.
      */
     default CompletionStage<Void> refreshBranch(String repositoryId, String branch) {
+        refresh();
+        return CompletableFuture.completedFuture(null);
+    }
+
+    /**
+     * Refreshes one repository and completes after its branch-wide project membership is published.
+     *
+     * <p>Repositories without branches use their normal synchronous refresh.
+     */
+    default CompletionStage<Void> refreshRepository(String repositoryId) {
         refresh();
         return CompletableFuture.completedFuture(null);
     }

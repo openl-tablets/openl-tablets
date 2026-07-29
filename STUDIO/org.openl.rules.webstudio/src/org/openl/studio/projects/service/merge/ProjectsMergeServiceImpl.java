@@ -3,6 +3,9 @@ package org.openl.studio.projects.service.merge;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -16,6 +19,8 @@ import org.springframework.validation.annotation.Validated;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -35,6 +40,8 @@ import org.openl.studio.projects.validator.ProjectStateValidator;
 @Slf4j
 @RequiredArgsConstructor
 public class ProjectsMergeServiceImpl implements ProjectsMergeService {
+
+    private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
 
     private final ProjectStateValidator projectStateValidator;
     private final RepositoryAclService designRepositoryAclService;
@@ -121,9 +128,12 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
     }
 
     private BranchRepository getBranchRepository(RulesProject project) {
-        var repo = project.getDesignRepository();
-        if (repo.supports().branches()) {
-            return (BranchRepository) repo;
+        Repository repository = project.getDesignRepository();
+        while (repository instanceof RepositoryDelegate delegate) {
+            repository = delegate.getOriginal();
+        }
+        if (repository.supports().branches()) {
+            return (BranchRepository) repository;
         }
         throw new ConflictException("project.merge.repository.unsupported.message");
     }
@@ -149,6 +159,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         var mergeResultBuilder = MergeResult.builder();
         try {
             branchRepository.forBranch(branchPair.target()).merge(branchPair.source(), currentUser.getUserInfo(), null);
+            awaitProjectIndex(branchRepository.getId(), branchPair.target());
         } catch (MergeConflictException conflictEx) {
             log.warn("Merge conflict occurred while merging branch '{}' into branch '{}' for project '{}'",
                     branchPair.source(),
@@ -164,6 +175,20 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
                     .build());
         }
         return mergeResultBuilder.build();
+    }
+
+    private void awaitProjectIndex(String repositoryId, String branch) throws IOException {
+        try {
+            getUserWorkspace().getDesignTimeRepository()
+                    .refreshBranch(repositoryId, branch)
+                    .toCompletableFuture()
+                    .get(PROJECT_INDEX_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Interrupted while publishing the merged branch.", e);
+        } catch (ExecutionException | TimeoutException e) {
+            throw new IOException("The merged branch was not published by the project index.", e);
+        }
     }
 
     @Lookup

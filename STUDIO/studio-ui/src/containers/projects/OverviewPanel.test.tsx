@@ -36,7 +36,11 @@ vi.mock('../../services/repositories', () => ({
 }))
 
 vi.mock('../../services/projectIndex', () => ({
-    getProjectIndex: vi.fn().mockResolvedValue({ projects: [{ name: 'Common Datatypes' }, { name: 'Rates' }], statuses: []}),
+    getProjectIndex: vi.fn().mockResolvedValue({
+        projects: [{ name: 'Common Datatypes' }, { name: 'Rates' }],
+        statuses: [],
+        projectIndexHealth: {},
+    }),
 }))
 
 vi.mock('./ManageBranchesModal', () => ({

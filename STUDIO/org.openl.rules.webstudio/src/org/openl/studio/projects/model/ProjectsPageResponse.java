@@ -2,12 +2,14 @@ package org.openl.studio.projects.model;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
 
 import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexHealth;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 
@@ -39,18 +41,24 @@ public class ProjectsPageResponse extends PageResponse<ProjectViewModel> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<ProjectStatusViewModel> statuses;
 
+    @Parameter(description = "Cross-branch project-index health by readable design repository.")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private final Map<String, IndexHealth> projectIndexHealth;
+
     private ProjectsPageResponse(Collection<ProjectViewModel> content,
                                  Pageable page,
                                  Long total,
                                  ProjectStatusSummary statusCounts,
                                  List<FacetCount> repositoryCounts,
                                  List<TagFacetSummary> tagCounts,
-                                 List<ProjectStatusViewModel> statuses) {
+                                 List<ProjectStatusViewModel> statuses,
+                                 Map<String, IndexHealth> projectIndexHealth) {
         super(content, page, total);
         this.statusCounts = statusCounts;
         this.repositoryCounts = repositoryCounts;
         this.tagCounts = tagCounts;
         this.statuses = statuses;
+        this.projectIndexHealth = Map.copyOf(projectIndexHealth);
     }
 
     public static ProjectsPageResponse of(Collection<ProjectViewModel> content,
@@ -59,7 +67,16 @@ public class ProjectsPageResponse extends PageResponse<ProjectViewModel> {
                                           ProjectStatusSummary statusCounts,
                                           List<FacetCount> repositoryCounts,
                                           List<TagFacetSummary> tagCounts,
-                                          List<ProjectStatusViewModel> statuses) {
-        return new ProjectsPageResponse(content, page, total, statusCounts, repositoryCounts, tagCounts, statuses);
+                                          List<ProjectStatusViewModel> statuses,
+                                          Map<String, IndexHealth> projectIndexHealth) {
+        return new ProjectsPageResponse(
+                content,
+                page,
+                total,
+                statusCounts,
+                repositoryCounts,
+                tagCounts,
+                statuses,
+                projectIndexHealth);
     }
 }

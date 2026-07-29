@@ -26,6 +26,7 @@ import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromFolder;
 import org.openl.rules.webstudio.service.UserManagementService;
@@ -57,8 +58,7 @@ public class ZipProjectSaveStrategy {
         this.userManagementService = userManagementService;
     }
 
-    public FileData save(CreateUpdateProjectModel model, Path zipArchive) throws IOException {
-        var repository = designTimeRepository.getRepository(model.getRepoName());
+    public FileData save(Repository repository, CreateUpdateProjectModel model, Path zipArchive) throws IOException {
         var author = Optional.ofNullable(userManagementService.getUser(model.getAuthor()))
                 .map(user -> new UserInfo(user.getUsername(), user.getEmail(), user.getDisplayName()))
                 .orElse(new UserInfo(model.getAuthor()));

@@ -214,7 +214,7 @@ public class DeploymentManager implements InitializingBean {
                                 Manifest manifest) throws ProjectException {
         var out = new ByteArrayOutputStream();
         try {
-            RepositoryUtils.archive(designRepo, rulesPath, projectName, version, out, manifest);
+            RepositoryUtils.archive(designRepository, designRepo, rulesPath, projectName, version, out, manifest);
             dest.setSize(out.size());
             deployRepo.save(dest, new ByteArrayInputStream(out.toByteArray()));
         } catch (IOException e) {

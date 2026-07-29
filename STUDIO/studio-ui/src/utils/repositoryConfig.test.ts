@@ -70,8 +70,21 @@ describe('validateBranchName', () => {
         expect(validateBranchName('release/2026', restricted, 'Name is required', 'Name is invalid')).toBeNull()
     })
 
-    it('accepts any name when the repository configures no expression', () => {
-        expect(validateBranchName('anything goes', config(), 'Name is required', 'Name is invalid')).toBeNull()
+    it.each([
+        'anything goes',
+        'feature[1]',
+        '.feature',
+        'feature/.rates',
+        'feature..rates',
+        'feature@{rates',
+        'feature.lock/rates',
+        'feature/',
+    ])('rejects the invalid Git branch name %s', name => {
+        expect(validateBranchName(name, config(), 'Name is required', 'Name is invalid')).toBe('Name is invalid')
+    })
+
+    it('accepts a valid Git branch name when the repository configures no expression', () => {
+        expect(validateBranchName('feature/rates', config(), 'Name is required', 'Name is invalid')).toBeNull()
     })
 })
 

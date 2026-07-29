@@ -33,15 +33,12 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.RepositorySettings;
-import org.openl.rules.repository.api.RepositorySettingsAware;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
-import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -72,21 +69,18 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
     private final PropertyResolver propertyResolver;
-    private final RepositorySettings repositorySettings;
     private final BranchedProjectIndexService indexService;
 
     @Getter
     private final List<String> exceptions = new ArrayList<>();
 
-    public DesignTimeRepositoryImpl(PropertyResolver propertyResolver, RepositorySettings repositorySettings) {
-        this(propertyResolver, repositorySettings, new BranchedProjectIndexService());
+    public DesignTimeRepositoryImpl(PropertyResolver propertyResolver) {
+        this(propertyResolver, new BranchedProjectIndexService());
     }
 
     public DesignTimeRepositoryImpl(PropertyResolver propertyResolver,
-                                    RepositorySettings repositorySettings,
                                     BranchedProjectIndexService indexService) {
         this.propertyResolver = propertyResolver;
-        this.repositorySettings = repositorySettings;
         this.indexService = indexService;
     }
 
@@ -140,9 +134,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         try {
             var repoPrefix = Comments.REPOSITORY_PREFIX + configName;
             repo = RepositoryInstatiator.newRepository(repoPrefix, propertyResolver::getProperty);
-            if (repo instanceof RepositorySettingsAware aware) {
-                aware.setRepositorySettings(repositorySettings);
-            }
 
             if (repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
@@ -250,36 +241,21 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             if (repository.supports().branches()) {
                 try {
-                    if (repository.supports().mappedFolders()) {
-                        Optional<AProject> projectOptional = projects.values()
-                                .stream()
-                                .filter(
-                                        p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
-                                .findFirst();
-                        if (projectOptional.isPresent()) {
-                            var realPath = projectOptional.get().getRealPath();
-                            projectPath = ((FolderMapper) repository).findMappedName(realPath);
-                        }
-                    }
-                    var fileData = repository.checkHistory(projectPath, repoVersion);
-                    if (fileData != null) {
-                        project = new AProject(repository, fileData);
-                    } else {
-                        var branchRepository = (BranchRepository) repository;
-                        var branches = branchRepository.getBranches(projectPath);
-                        for (String branch : branches) {
-                            var secondaryBranch = branchRepository.forBranch(branch);
-                            fileData = secondaryBranch.checkHistory(projectPath, repoVersion);
+                    var branchedProject = getBranchedProject(repositoryId, name);
+                    if (branchedProject.isPresent()) {
+                        for (var entry : branchedProject.orElseThrow().entries().values()) {
+                            var branchProject = entry.project();
+                            var fileData = branchProject.getRepository()
+                                    .checkHistory(branchProject.getFolderPath(), repoVersion);
                             if (fileData != null) {
-                                project = new AProject(secondaryBranch, fileData);
+                                project = new AProject(branchProject.getRepository(), fileData);
                                 break;
                             }
                         }
-
-                        if (project == null) {
-                            log.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
-                            project = new AProject(repository, projectPath, repoVersion);
-                        }
+                    }
+                    if (project == null) {
+                        log.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
+                        project = new AProject(repository, projectPath, repoVersion);
                     }
                 } catch (IOException e) {
                     log.error(e.getMessage(), e);
@@ -361,6 +337,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return CompletableFuture.completedFuture(null);
         }
         return indexService.invalidateBranch(repositoryId, branch).thenAccept(snapshot -> indexPublished());
+    }
+
+    @Override
+    public CompletionStage<Void> refreshRepository(String repositoryId) {
+        var repository = getRepository(repositoryId);
+        if (!isBranchRepository(repository)) {
+            refresh();
+            return CompletableFuture.completedFuture(null);
+        }
+        return indexService.invalidateRepository(repositoryId).thenAccept(snapshot -> indexPublished());
     }
 
     @Override
@@ -456,7 +442,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         var result = new LinkedHashMap<ProjectKey, AProject>();
         for (FileData fileData : fileDatas) {
             var project = new AProject(repository, fileData);
-            result.putIfAbsent(projectKey(repository.getId(), project.getBusinessName()), project);
+            if (!project.isDeleted()) {
+                result.putIfAbsent(projectKey(repository.getId(), project.getName()), project);
+            }
         }
         return result;
     }

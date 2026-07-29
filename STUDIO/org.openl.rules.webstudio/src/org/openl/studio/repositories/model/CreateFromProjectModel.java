@@ -12,5 +12,16 @@ public record CreateFromProjectModel(
         @Parameter(description = "Name of the source project to copy") @NotBlank String sourceProjectName,
         @Parameter(description = "Path within the repository (non-flat repositories only)") String path,
         @Parameter(description = "Commit comment") String comment,
-        @Parameter(description = "Revision of the source project to copy. The latest revision is copied when omitted") String revision) {
+        @Parameter(description = "Revision of the source project to copy. The latest revision is copied when omitted")
+        String revision,
+        @Parameter(description = "Target branch. An absent branch is created from the repository base branch")
+        String branch) {
+
+    public CreateFromProjectModel(String sourceRepositoryId,
+                                  String sourceProjectName,
+                                  String path,
+                                  String comment,
+                                  String revision) {
+        this(sourceRepositoryId, sourceProjectName, path, comment, revision, null);
+    }
 }

@@ -17,16 +17,21 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
@@ -36,6 +41,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -48,6 +54,7 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.table.IOpenLTable;
@@ -57,6 +64,10 @@ import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.dtr.BranchedProject;
+import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexHealth;
+import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexState;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -64,6 +75,7 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectInclude;
@@ -110,6 +122,7 @@ class WorkspaceProjectServiceTest {
         assertEquals(List.of("feature", "main"), result.stream().map(ProjectBranchInfo::name).toList());
         assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::base).toList());
         assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::protectedFlag).toList());
+        assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::containsProject).toList());
         // The branch list feeds pickers only, so it never pays for the tip commits.
         verify(repository, never()).getBranchStatuses(any());
     }
@@ -130,14 +143,36 @@ class WorkspaceProjectServiceTest {
     void get_project_keeps_branch_metadata_without_modules() throws Exception {
         var project = projectWithSimpleExcelModule();
         when(project.isSupportsBranches()).thenReturn(true);
-        when(project.getSelectedBranches()).thenReturn(new ArrayList<>(List.of("release", "master")));
+        var workspace = workspaceFor(project);
+        mockMembership(workspace, project, "release", "master");
         var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
-                workspaceFor(project));
+                workspace);
 
         var result = service.getProject(project);
 
         assertEquals(List.of("master", "release"), result.selectedBranches);
         assertNull(result.descriptor);
+    }
+
+    @Test
+    void branch_filter_matches_every_actual_project_branch() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var project = projectWithSimpleExcelModule();
+        when(project.isSupportsBranches()).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
+        var workspace = workspaceFor(project);
+        mockMembership(workspace, project, "main", "feature/rates");
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), workspace);
+
+        var matching = service.getProjects(
+                ProjectCriteriaQuery.builder().branch("rates").build(),
+                Pageable.unpaged());
+        var missing = service.getProjects(
+                ProjectCriteriaQuery.builder().branch("other").build(),
+                Pageable.unpaged());
+
+        assertEquals(1, matching.getNumberOfElements());
+        assertEquals(0, missing.getNumberOfElements());
     }
 
     @Test
@@ -169,6 +204,37 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void create_branch_waits_until_its_project_membership_is_published() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        var workspace = workspaceFor();
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), workspace);
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.supports())
+                .thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var project = mock(RulesProject.class);
+        var artefact = mock(AProjectArtefact.class);
+        fillProject(project, repository, "PricingProject", "PricingProject");
+        when(project.isSupportsBranches()).thenReturn(true);
+        when(project.getArtefacts()).thenReturn(List.of(artefact));
+        when(acl.isGranted(
+                artefact,
+                List.of(BasePermission.WRITE, BasePermission.DELETE, BasePermission.CREATE))).thenReturn(true);
+        when(designTimeRepository.refreshBranch("design", "feature/rates"))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        var model = new CreateBranchModel();
+        model.setBranch("feature/rates");
+        model.setRevision("main");
+
+        service.createBranch(project, model);
+
+        verify(repository).createRepositoryBranch("feature/rates", "main");
+        verify(designTimeRepository).refreshBranch("design", "feature/rates");
+    }
+
+    @Test
     void get_project_resolves_modules_from_workspace_folder_when_requested() throws Exception {
         var project = projectWithSimpleExcelModule();
         var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
@@ -191,6 +257,40 @@ class WorkspaceProjectServiceTest {
 
         var result = response.getContent().iterator().next();
         assertNull(result.descriptor);
+    }
+
+    @Test
+    void get_projects_reports_cross_branch_index_health() throws Exception {
+        var workspace = workspaceFor();
+        var repository = repository();
+        var health = new IndexHealth(IndexState.INDEXING, Set.of(), null);
+        when(workspace.getDesignTimeRepository().getRepositories()).thenReturn(List.of(repository));
+        when(workspace.getDesignTimeRepository().getProjectIndexHealth("design")).thenReturn(Optional.of(health));
+        var service = newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                workspace);
+
+        var response = service.getProjects(ProjectCriteriaQuery.builder().build(), Pageable.unpaged());
+
+        assertEquals(Map.of("design", health), response.getProjectIndexHealth());
+    }
+
+    @Test
+    void get_projects_omits_ready_cross_branch_indexes() throws Exception {
+        var workspace = workspaceFor();
+        var repository = repository();
+        var health = new IndexHealth(IndexState.READY, Set.of(), null);
+        when(workspace.getDesignTimeRepository().getRepositories()).thenReturn(List.of(repository));
+        when(workspace.getDesignTimeRepository().getProjectIndexHealth("design")).thenReturn(Optional.of(health));
+        var service = newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                workspace);
+
+        var response = service.getProjects(ProjectCriteriaQuery.builder().build(), Pageable.unpaged());
+
+        assertEquals(Map.of(), response.getProjectIndexHealth());
     }
 
     @Test
@@ -378,6 +478,28 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void update_project_status_rejects_selected_branches_before_mutating_the_project() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio);
+        var project = mock(RulesProject.class);
+        when(project.isModified()).thenReturn(true);
+        var model = ProjectStatusUpdateModel.builder()
+                .save(true)
+                .selectedBranches(Set.of("feature/rates"))
+                .build();
+
+        var exception = assertThrows(BadRequestException.class, () -> service.updateProjectStatus(project, model));
+
+        assertEquals("openl.error.400.project.branches.read-only.message", exception.getErrorCode());
+        verify(webStudio, never()).saveProject(project);
+    }
+
+    @Test
     void delete_project_does_not_generate_comment_when_missing() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var aclProjectsHelper = mock(AclProjectsHelper.class);
@@ -395,6 +517,45 @@ class WorkspaceProjectServiceTest {
         service.delete(project, " ");
 
         verify(project).delete(null);
+    }
+
+    @Test
+    void delete_project_uses_original_repository_after_project_permission_check() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var userWorkspace = userWorkspaceWithNonDirectoryParent();
+        var user = mock(WorkspaceUser.class);
+        when(userWorkspace.getUser()).thenReturn(user);
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace, projectStateValidator,
+                webStudio, aclProjectsHelper);
+        var originalRepository = repository();
+        var decoratedRepository =
+                mock(Repository.class, withSettings().extraInterfaces(RepositoryDelegate.class));
+        when(((RepositoryDelegate) decoratedRepository).getOriginal()).thenReturn(originalRepository);
+        when(decoratedRepository.getId()).thenReturn("design");
+        when(decoratedRepository.getName()).thenReturn("Design");
+        when(decoratedRepository.supports())
+                .thenReturn(new FeaturesBuilder(decoratedRepository).build());
+        var project = mock(RulesProject.class);
+        var fileData = new FileData();
+        fileData.setName("PricingProject");
+        fillProject(project, decoratedRepository, "PricingProject", "PricingProject");
+        when(project.getFileData()).thenReturn(fileData);
+        when(acl.getPath(project)).thenReturn("PricingProject");
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(projectStateValidator.canDelete(project)).thenReturn(true);
+
+        service.delete(project, "Delete PricingProject");
+
+        var deletedData = forClass(FileData.class);
+        verify(originalRepository).delete(deletedData.capture());
+        assertEquals("PricingProject", deletedData.getValue().getName());
+        assertEquals("Delete PricingProject", deletedData.getValue().getComment());
+        verify(decoratedRepository, never()).delete(any(FileData.class));
+        verify(project, never()).delete(any());
     }
 
     @Test
@@ -416,6 +577,141 @@ class WorkspaceProjectServiceTest {
 
         assertEquals("openl.error.400.repo.invalid.comment.message", exception.getErrorCode());
         verify(project, never()).delete(any());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "PricingProject, true",
+            "PricingProject/module, true",
+            "OtherProject, false"
+    })
+    void delete_project_cleans_acl_only_when_no_surviving_branch_uses_covered_path(String survivingAclPath,
+                                                                                  boolean keepAcl) throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var workspaceManager = mock(MultiUserWorkspaceManager.class);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        var userWorkspace = userWorkspaceWithNonDirectoryParent();
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var service = newDeleteService(
+                acl,
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                workspaceManager);
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getBranch()).thenReturn("feature/rates");
+        when(repository.supports())
+                .thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var project = mock(RulesProject.class);
+        fillProject(project, repository, "PricingProject", "PricingProject");
+        when(project.getDesignProjectName()).thenReturn("PricingProject:8f31");
+        when(project.getBranch()).thenReturn("feature/rates");
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(projectStateValidator.canDelete(project)).thenReturn(true);
+        when(designTimeRepository.refreshBranch("design", "feature/rates"))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        var surviving = mock(BranchedProject.class);
+        var survivingProject = mock(org.openl.rules.project.abstraction.AProject.class);
+        var survivingEntry = mock(BranchedProject.BranchEntry.class);
+        when(survivingEntry.project()).thenReturn(survivingProject);
+        when(surviving.entries()).thenReturn(Map.of("main", survivingEntry));
+        when(designTimeRepository.getBranchedProject("design", "PricingProject:8f31"))
+                .thenReturn(Optional.of(surviving));
+        when(acl.getPath(project)).thenReturn("PricingProject");
+        when(acl.getPath(survivingProject)).thenReturn(survivingAclPath);
+
+        service.delete(project, null);
+
+        verify(designTimeRepository).refreshBranch("design", "feature/rates");
+        verify(designTimeRepository).getBranchedProject("design", "PricingProject:8f31");
+        if (keepAcl) {
+            verify(acl, never()).deleteAcl("design", "PricingProject");
+        } else {
+            verify(acl).deleteAcl("design", "PricingProject");
+        }
+        verify(workspaceManager).refreshWorkspaces();
+    }
+
+    @Test
+    void delete_project_removes_acl_after_the_last_branch_entry_disappears() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        var userWorkspace = userWorkspaceWithNonDirectoryParent();
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var service = newDeleteService(
+                acl,
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                mock(MultiUserWorkspaceManager.class));
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getBranch()).thenReturn("feature/rates");
+        when(repository.supports())
+                .thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var project = mock(RulesProject.class);
+        fillProject(project, repository, "PricingProject", "PricingProject");
+        when(project.getBranch()).thenReturn("feature/rates");
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(projectStateValidator.canDelete(project)).thenReturn(true);
+        when(designTimeRepository.refreshBranch("design", "feature/rates"))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        when(designTimeRepository.getBranchedProject("design", "PricingProject")).thenReturn(Optional.empty());
+        when(acl.getPath(project)).thenReturn("PricingProject");
+
+        service.delete(project, null);
+
+        verify(acl).deleteAcl("design", "PricingProject");
+    }
+
+    @Test
+    void delete_project_keeps_acl_and_reports_an_incomplete_failed_branch_refresh() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var workspaceManager = mock(MultiUserWorkspaceManager.class);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        var userWorkspace = userWorkspaceWithNonDirectoryParent();
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var service = newDeleteService(
+                acl,
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                workspaceManager);
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getBranch()).thenReturn("feature/rates");
+        when(repository.supports())
+                .thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var project = mock(RulesProject.class);
+        fillProject(project, repository, "PricingProject", "PricingProject");
+        when(project.getBranch()).thenReturn("feature/rates");
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(projectStateValidator.canDelete(project)).thenReturn(true);
+        when(designTimeRepository.refreshBranch("design", "feature/rates"))
+                .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("index unavailable")));
+        when(acl.getPath(project)).thenReturn("PricingProject");
+
+        var exception = assertThrows(ConflictException.class, () -> service.delete(project, null));
+
+        assertEquals("openl.error.409.project.delete.indexing.incomplete.message", exception.getErrorCode());
+        verify(acl, never()).deleteAcl("design", "PricingProject");
+        verify(workspaceManager).refreshWorkspaces();
     }
 
     @Test
@@ -914,6 +1210,30 @@ class WorkspaceProjectServiceTest {
                                                       TableCreatorService tableCreatorService,
                                                       SummaryTableReader summaryTableReader,
                                                       ApplicationEventPublisher eventPublisher) throws ProjectException {
+        return newService(
+                acl,
+                bypassService,
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                tableCreatorService,
+                summaryTableReader,
+                eventPublisher,
+                mock(MultiUserWorkspaceManager.class));
+    }
+
+    private static WorkspaceProjectService newService(RepositoryAclService acl,
+                                                      ProtectedBranchBypassService bypassService,
+                                                      UserWorkspace userWorkspace,
+                                                      ProjectStateValidator projectStateValidator,
+                                                      WebStudio webStudio,
+                                                      AclProjectsHelper aclProjectsHelper,
+                                                      TableCreatorService tableCreatorService,
+                                                      SummaryTableReader summaryTableReader,
+                                                      ApplicationEventPublisher eventPublisher,
+                                                      MultiUserWorkspaceManager workspaceManager)
+            throws ProjectException {
         var dependencyResolver = mock(ProjectDependencyResolver.class);
         when(dependencyResolver.getProjectDependencies(any(RulesProject.class))).thenReturn(List.of());
         doReturn(List.of()).when(dependencyResolver).getDependsOnProject(any(RulesProject.class));
@@ -936,7 +1256,7 @@ class WorkspaceProjectServiceTest {
                 mock(ProjectIdentifierMapper.class),
                 mock(DetailedMessageDescriptionMapper.class),
                 mock(LocalWorkspaceManager.class),
-                mock(MultiUserWorkspaceManager.class),
+                workspaceManager,
                 aclProjectsHelper,
                 mock(ProjectAccessService.class),
                 mock(ProjectStatusMapper.class),
@@ -954,6 +1274,26 @@ class WorkspaceProjectServiceTest {
                 return webStudio;
             }
         };
+    }
+
+    private static WorkspaceProjectService newDeleteService(RepositoryAclService acl,
+                                                            UserWorkspace userWorkspace,
+                                                            ProjectStateValidator projectStateValidator,
+                                                            WebStudio webStudio,
+                                                            AclProjectsHelper aclProjectsHelper,
+                                                            MultiUserWorkspaceManager workspaceManager)
+            throws ProjectException {
+        return newService(
+                acl,
+                mock(ProtectedBranchBypassService.class),
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class),
+                mock(ApplicationEventPublisher.class),
+                workspaceManager);
     }
 
     private static RawTableView rawTable(String name) {
@@ -1036,6 +1376,7 @@ class WorkspaceProjectServiceTest {
         when(project.getDesignRepository()).thenReturn(repository);
         when(project.getBusinessName()).thenReturn(name);
         when(project.getName()).thenReturn(name);
+        when(project.getDesignProjectName()).thenReturn(name);
         when(project.getDesignFolderName()).thenReturn(folderPath);
         when(project.getFolderPath()).thenReturn(folderPath);
         when(project.getLocalTags()).thenReturn(Map.of());
@@ -1059,7 +1400,20 @@ class WorkspaceProjectServiceTest {
         var userWorkspace = mock(UserWorkspace.class);
         when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
         when(userWorkspace.getProjects()).thenReturn(List.of(projects));
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(mock(DesignTimeRepository.class));
         return userWorkspace;
+    }
+
+    private static void mockMembership(UserWorkspace workspace, RulesProject project, String... branches) {
+        var entries = new java.util.LinkedHashMap<String, BranchedProject.BranchEntry>();
+        for (String branch : branches) {
+            entries.put(branch, mock(BranchedProject.BranchEntry.class));
+        }
+        var branchedProject = mock(BranchedProject.class);
+        when(branchedProject.entries()).thenReturn(entries);
+        when(workspace.getDesignTimeRepository()
+                .getBranchedProject(project.getDesignRepository().getId(), project.getDesignProjectName()))
+                .thenReturn(Optional.of(branchedProject));
     }
 
     private UserWorkspace userWorkspaceWithNonDirectoryParent() throws Exception {
@@ -1070,6 +1424,7 @@ class WorkspaceProjectServiceTest {
 
         var userWorkspace = mock(UserWorkspace.class);
         when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(mock(DesignTimeRepository.class));
         return userWorkspace;
     }
 

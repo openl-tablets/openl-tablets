@@ -29,6 +29,8 @@ public class CreateUpdateProjectModel {
     private final String comment;
     @Getter
     private final boolean overwrite;
+    @Getter
+    private final String branch;
 
     public CreateUpdateProjectModel(String repoName,
                                     String author,
@@ -36,12 +38,23 @@ public class CreateUpdateProjectModel {
                                     String path,
                                     String comment,
                                     boolean overwrite) {
+        this(repoName, author, projectName, path, comment, overwrite, null);
+    }
+
+    public CreateUpdateProjectModel(String repoName,
+                                    String author,
+                                    String projectName,
+                                    String path,
+                                    String comment,
+                                    boolean overwrite,
+                                    String branch) {
         this.repoName = repoName;
         this.author = author;
         this.projectName = projectName;
         this.path = normalizePath(path);
         this.comment = comment;
         this.overwrite = overwrite;
+        this.branch = StringUtils.trimToNull(branch);
     }
 
     private static String normalizePath(String path) {

@@ -19,6 +19,7 @@ import {
     copyProject,
     createProject,
     createProjectsFromWorkspace,
+    getDesignRepositoryBranches,
     getProjects,
     getProjectTemplates,
     type ProjectInclude,
@@ -26,14 +27,16 @@ import {
 } from '../../services/repositories'
 import type { Repository } from '../../types/repositories'
 import type { Project } from '../../types/projects'
+import { FieldError } from '../../components/FieldError'
 import { FieldRow } from '../../components/FieldRow'
+import { SuggestInput } from '../../components/SuggestInput'
 import { RepoFolderInput } from './RepoFolderInput'
 import { ProjectStatus } from '../../constants/project'
 import { useSharedStyles } from './sharedStyles'
-import { supportsMappedFolders } from '../../utils/repositoryFeatures'
+import { supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
 import { inspectOpenLArchive, zipProjectFolder, type OpenLArchiveInfo } from '../../utils/openlArchive'
 import { useCommitInfoGuard, useRepositoryConfig } from '../../hooks'
-import { suggestComment } from '../../utils/repositoryConfig'
+import { suggestComment, validateBranchName } from '../../utils/repositoryConfig'
 import { CommentField, useCommentError } from './CommentField'
 import { trimTrailingSlashes } from './projectPaths'
 
@@ -262,6 +265,9 @@ export const NewProjectModal = ({
     const [step, setStep] = useState<'method' | 'config'>('method')
     const [mode, setMode] = useState<CreateMode>('template')
     const [repoId, setRepoId] = useState('')
+    const [branch, setBranch] = useState('')
+    const [branchOptions, setBranchOptions] = useState<string[]>([])
+    const [branchTouched, setBranchTouched] = useState(false)
     const [copySource, setCopySource] = useState<string | null>(null)
     const [name, setName] = useState('')
     const [comment, setComment] = useState('')
@@ -298,6 +304,7 @@ export const NewProjectModal = ({
     const repoOptions = creatableRepos
     const repository = useMemo(() => creatableRepos.find(repo => repo.id === repoId) ?? null, [creatableRepos, repoId])
     const repositorySupportsFolders = supportsMappedFolders(repository)
+    const repositorySupportsBranches = supportsBranches(repository)
     const projectSources = copyProjects ?? initialProjects
     const copyableProjectSources = useMemo(
         () => projectSources.filter(project => project.capabilities?.canCopy),
@@ -361,6 +368,15 @@ export const NewProjectModal = ({
     // The target repository suggests the comment of the commit the wizard is about to make, following the
     // project the comment is about: the copied one, or the one being created.
     const config = useRepositoryConfig(open && repoId ? { repositoryId: repoId } : null)
+    const availableBranches = config?.branch && !branchOptions.includes(config.branch)
+        ? [config.branch, ...branchOptions]
+        : branchOptions
+    const branchError = repositorySupportsBranches
+        ? availableBranches.includes(branch.trim())
+            ? null
+            : validateBranchName(branch, config, t('browser.create.branch_required'),
+                t('browser.create.branch_invalid'))
+        : null
     const commentError = useCommentError(comment, config)
     const commentSubject = mode === 'copy'
         ? copyableProjectSources.find(candidate => candidate.id === copySource)?.name
@@ -371,6 +387,22 @@ export const NewProjectModal = ({
             setComment(suggestComment(config, mode === 'copy' ? 'copy' : 'create', commentSubject))
         }
     }, [commentSubject, commentTouched, config, mode, open])
+
+    useEffect(() => {
+        setBranch('')
+        setBranchOptions([])
+        setBranchTouched(false)
+        if (!open || !repositorySupportsBranches || !repoId) {
+            return
+        }
+        getDesignRepositoryBranches(repoId).then(setBranchOptions).catch(() => setBranchOptions([]))
+    }, [open, repoId, repositorySupportsBranches])
+
+    useEffect(() => {
+        if (open && repositorySupportsBranches && !branchTouched && config?.branch) {
+            setBranch(config.branch)
+        }
+    }, [branchTouched, config, open, repositorySupportsBranches])
 
     // Applies an inspection result: fill in the suggested name and flag non-OpenL content.
     const applyInspection = useCallback((info: OpenLArchiveInfo) => {
@@ -554,6 +586,10 @@ export const NewProjectModal = ({
             setError(commentError)
             return
         }
+        if (branchError) {
+            setError(branchError)
+            return
+        }
         if (!repository) {
             return
         }
@@ -569,13 +605,16 @@ export const NewProjectModal = ({
                         repository.id,
                         trimmedName,
                         comment.trim() || undefined,
-                        repositoryPath()
+                        repositoryPath(),
+                        undefined,
+                        repositorySupportsBranches ? branch.trim() : undefined
                     )
                 } else if (mode === 'workspace') {
                     await createProjectsFromWorkspace(repository.id, {
                         names: workspaceProjects,
                         path: repositoryPath(),
                         comment: comment.trim() || undefined,
+                        ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
                     })
                 } else if (mode === 'template') {
                     const [type, category, name_] = JSON.parse(template!) as [string, string, string]
@@ -584,6 +623,7 @@ export const NewProjectModal = ({
                         path: repositoryPath(),
                         comment: comment.trim() || undefined,
                         status: 'OPENED',
+                        ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
                     })
                 } else {
                     await createProject(repository.id, trimmedName, {
@@ -594,6 +634,7 @@ export const NewProjectModal = ({
                         // Every source opens the new project, so an uploaded archive is no longer the odd
                         // one out that lands closed.
                         status: 'OPENED',
+                        ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
                     })
                 }
                 // Publishing the workspace creates several projects at once, so there is no single one
@@ -892,6 +933,25 @@ export const NewProjectModal = ({
             <FieldRow required label={t('browser.create.repository_label')}>
                 {repoSelectInput}
             </FieldRow>
+            {repositorySupportsBranches && (
+                <FieldRow required label={t('browser.create.branch')}>
+                    <SuggestInput
+                        data-testid="new-project-branch"
+                        options={availableBranches.map(value => ({ label: value, value }))}
+                        placeholder={t('browser.create.branch')}
+                        style={{ width: '100%' }}
+                        value={branch}
+                        onChange={value => {
+                            setBranchTouched(true)
+                            setBranch(value)
+                        }}
+                    />
+                    <FieldError
+                        message={branchTouched ? branchError : null}
+                        testId="new-project-branch-error"
+                    />
+                </FieldRow>
+            )}
             {repositorySupportsFolders && repository && (
                 <FieldRow label={t('browser.create.path')}>
                     <RepoFolderInput

@@ -46,29 +46,6 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     }
 
     @Override
-    public void createBranch(String projectPath, String branch) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.WRITE))) {
-            branchRepository.createBranch(projectPath, branch);
-        } else {
-            throw new AccessDeniedException("There is no permission for creating a branch.");
-        }
-    }
-
-    @Override
-    public void createBranch(String projectPath, String branch, String startPoint) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.WRITE))) {
-            branchRepository.createBranch(projectPath, branch, startPoint);
-        } else {
-            throw new AccessDeniedException("There is no permission for creating a branch.");
-        }
-    }
-
-    @Override
-    public void deleteBranch(String projectPath, String branch) throws IOException {
-        branchRepository.deleteBranch(projectPath, branch);
-    }
-
-    @Override
     public void createRepositoryBranch(String branch, @Nullable String startPoint) throws IOException {
         if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.WRITE))) {
             branchRepository.createRepositoryBranch(branch, startPoint);
@@ -90,14 +67,6 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     public List<String> listBranches() throws IOException {
         if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.READ))) {
             return branchRepository.listBranches();
-        }
-        return List.of();
-    }
-
-    @Override
-    public List<String> getBranches(String projectPath) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), projectPath, List.of(BasePermission.READ))) {
-            return branchRepository.getBranches(projectPath);
         }
         return List.of();
     }

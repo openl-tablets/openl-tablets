@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { AutoComplete } from 'antd'
 
@@ -17,6 +18,7 @@ interface SuggestInputProps {
     options: (Option | OptionGroup)[]
     id?: string
     className?: string
+    style?: CSSProperties
     placeholder?: string
     'data-testid'?: string
     'aria-label'?: string

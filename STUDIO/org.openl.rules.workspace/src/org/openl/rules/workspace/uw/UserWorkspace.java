@@ -8,6 +8,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -34,7 +35,17 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void removeWorkspaceListener(UserWorkspaceListener listener);
 
-    RulesProject uploadLocalProject(String repositoryId, String name, String projectFolder, String comment) throws ProjectException;
+    default RulesProject uploadLocalProject(String repositoryId,
+                                            String name,
+                                            String projectFolder,
+                                            String comment) throws ProjectException {
+        return uploadLocalProject(getDesignTimeRepository().getRepository(repositoryId), name, projectFolder, comment);
+    }
+
+    RulesProject uploadLocalProject(Repository repository,
+                                    String name,
+                                    String projectFolder,
+                                    String comment) throws ProjectException;
 
     Optional<RulesProject> getProjectByPath(String repositoryId, String realPath);
 

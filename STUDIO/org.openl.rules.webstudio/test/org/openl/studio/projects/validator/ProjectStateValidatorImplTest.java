@@ -258,9 +258,9 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
-    void canDelete_onNonMainBranch_returnsFalse() {
+    void canDelete_onNonMainBranch_returnsTrue() {
         var project = projectWith().branch("feature").build();
-        assertFalse(validator.canDelete(project));
+        assertTrue(validator.canDelete(project));
     }
 
     @Test
@@ -338,41 +338,48 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
-    void canMerge_singleBranch_returnsFalse() throws IOException {
+    void canMerge_singleBranch_returnsFalse() {
         var project = mock(RulesProject.class);
         var repo = mock(BranchRepository.class);
         when(repo.supports()).thenReturn(BRANCH_FEATURES);
         when(project.getDesignRepository()).thenReturn(repo);
         when(project.isLocalOnly()).thenReturn(false);
         when(project.isModified()).thenReturn(false);
-        when(project.getDesignFolderName()).thenReturn("project");
-        when(repo.getBranches("project")).thenReturn(List.of("main"));
+        when(project.getBranch()).thenReturn("feature");
+        try {
+            when(repo.listBranches()).thenReturn(List.of("feature"));
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
         assertFalse(validator.canMerge(project));
     }
 
     @Test
-    void canMerge_twoBranches_returnsTrue() throws IOException {
+    void canMerge_whenAnotherRepositoryBranchDoesNotContainProject_returnsTrue() throws Exception {
         var project = mock(RulesProject.class);
         var repo = mock(BranchRepository.class);
         when(repo.supports()).thenReturn(BRANCH_FEATURES);
         when(project.getDesignRepository()).thenReturn(repo);
         when(project.isLocalOnly()).thenReturn(false);
         when(project.isModified()).thenReturn(false);
-        when(project.getDesignFolderName()).thenReturn("project");
-        when(repo.getBranches("project")).thenReturn(List.of("main", "feature"));
+        when(project.getBranch()).thenReturn("feature");
+        when(repo.listBranches()).thenReturn(List.of("main", "feature"));
+
         assertTrue(validator.canMerge(project));
     }
 
     @Test
-    void canMerge_ioException_returnsFalse() throws IOException {
+    void canMerge_whenBranchesCannotBeRead_returnsFalse() throws Exception {
         var project = mock(RulesProject.class);
         var repo = mock(BranchRepository.class);
         when(repo.supports()).thenReturn(BRANCH_FEATURES);
         when(project.getDesignRepository()).thenReturn(repo);
         when(project.isLocalOnly()).thenReturn(false);
         when(project.isModified()).thenReturn(false);
-        when(project.getDesignFolderName()).thenReturn("project");
-        when(repo.getBranches("project")).thenThrow(new IOException("connection failed"));
+        when(project.getBranch()).thenReturn("feature");
+        when(project.getName()).thenReturn("project");
+        when(repo.listBranches()).thenThrow(new IOException("unavailable"));
+
         assertFalse(validator.canMerge(project));
     }
 

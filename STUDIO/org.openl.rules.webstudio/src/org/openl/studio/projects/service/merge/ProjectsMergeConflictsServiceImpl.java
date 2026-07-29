@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +55,8 @@ import org.openl.util.StringUtils;
 @Service
 @Slf4j
 public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflictsService {
+
+    private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
@@ -346,6 +351,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
             String branch = isMerging ? mergeConflictInfo.mergeBranchTo() : project.getBranch();
             updateRulesXmlFiles(repositoryId, modulesToAppend, branch, mergeMessage);
+            awaitProjectIndex(designRepository, repositoryId, branch);
 
             // Return success
             List<String> resolvedFilePaths = resolutions.stream()
@@ -359,6 +365,23 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             for (FileItem file : resolvedFiles) {
                 IOUtils.closeQuietly(file.getStream());
             }
+        }
+    }
+
+    private void awaitProjectIndex(Repository repository, String repositoryId, String branch) throws IOException {
+        if (!repository.supports().branches() || branch == null) {
+            return;
+        }
+        try {
+            getUserWorkspace().getDesignTimeRepository()
+                    .refreshBranch(repositoryId, branch)
+                    .toCompletableFuture()
+                    .get(PROJECT_INDEX_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Interrupted while publishing the resolved branch.", e);
+        } catch (ExecutionException | TimeoutException e) {
+            throw new IOException("The resolved branch was not published by the project index.", e);
         }
     }
 

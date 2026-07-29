@@ -10,6 +10,9 @@ const MAX_COMMENT_LENGTH = 255
  */
 const BRANCH_NAME_RESTRICTED = /[^\p{L}\p{Nd}\-$]/gu
 
+/** Characters forbidden by Git refs and by the server's `NewBranchValidator`. */
+const INVALID_BRANCH_CHARACTERS = /[\u0000-\u0020\u007F\\~^:?*[\]{}]/u
+
 interface TemplateValues {
     projectName?: string | undefined
     username?: string | undefined
@@ -59,8 +62,8 @@ export const suggestComment = (
 )
 
 /**
- * Checks a branch name against the expression the repository configures, so an obviously wrong name never
- * reaches the server. The server still applies the Git naming rules on top of this.
+ * Checks a branch name against the Git naming rules and the expression the repository configures, so an
+ * obviously wrong name never reaches the server. The server repeats both checks before creating a ref.
  *
  * @returns the message to show, or null when the name is acceptable
  */
@@ -74,10 +77,27 @@ export const validateBranchName = (
     if (!trimmed) {
         return emptyMessage
     }
+    if (!isValidGitBranchName(trimmed)) {
+        return invalidMessage
+    }
     // The repository may word the rejection itself; that message is the one the server would show.
     return matches(trimmed, config?.newBranch?.namePattern)
         ? null
         : config?.newBranch?.invalidNameHint ?? invalidMessage
+}
+
+/** Mirrors the ref-format and structural checks applied by the server's `NewBranchValidator`. */
+const isValidGitBranchName = (name: string): boolean => {
+    if (name.length < 2 || name === '@' || INVALID_BRANCH_CHARACTERS.test(name) ||
+        name.includes('..') || name.includes('@{')) {
+        return false
+    }
+    return name.split('/').every(part =>
+        part.length > 0 &&
+        !part.startsWith('.') &&
+        !part.endsWith('.') &&
+        !part.endsWith('.lock')
+    )
 }
 
 /**

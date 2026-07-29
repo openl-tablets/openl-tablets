@@ -9,11 +9,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -57,6 +61,8 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
@@ -68,6 +74,8 @@ import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexHealth;
+import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexState;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -129,6 +137,7 @@ import org.openl.util.StringUtils;
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
+    private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
     /** The mark {@link TableSyntaxNodeUtils} appends to a display name it had to shorten. */
     private static final String SHORTENED_NAME_MARK = "...";
     private static final Comparator<ProjectDependency> DEPENDENCY_NAME_ORDER = Comparator
@@ -595,13 +604,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         builder.branchDefault(src.isBranchDefault());
         builder.repositoryInfo(mapRepositoryInfo(src));
         if (src.isSupportsBranches()) {
-            try {
-                var selectedBranches = src.getSelectedBranches();
-                selectedBranches.sort(String.CASE_INSENSITIVE_ORDER);
-                builder.selectedBranches(selectedBranches);
-            } catch (ProjectException e) {
-                log.warn("Failed to retrieve project branches", e);
-            }
+            builder.selectedBranches(projectBranches(src));
         }
         projectDependencyResolver.getDependencies(src).stream()
                 .sorted(DEPENDENCY_NAME_ORDER)
@@ -713,9 +716,39 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return filter;
     }
 
+    @Override
+    protected Stream<String> branchNamesOf(AProject project) {
+        return project instanceof RulesProject rulesProject && rulesProject.isSupportsBranches()
+                ? projectBranches(rulesProject).stream()
+                : super.branchNamesOf(project);
+    }
+
+    @Override
+    protected Map<String, IndexHealth> projectIndexHealth() {
+        var workspace = getUserWorkspace();
+        if (workspace == null) {
+            return Map.of();
+        }
+        var designRepository = workspace.getDesignTimeRepository();
+        return designRepository.getRepositories()
+                .stream()
+                .flatMap(repository -> designRepository.getProjectIndexHealth(repository.getId())
+                        .stream()
+                        .filter(health -> health.state() != IndexState.READY)
+                        .map(health -> Map.entry(repository.getId(), health)))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (left, right) -> left,
+                        LinkedHashMap::new));
+    }
+
     public void updateProjectStatus(RulesProject project, ProjectStatusUpdateModel model) throws ProjectException {
         if (model.status() != null && !ALLOWED_STATUSES.contains(model.status())) {
             throw new BadRequestException("invalid.project.status.message");
+        }
+        if (model.selectedBranches() != null) {
+            throw new BadRequestException("project.branches.read-only.message");
         }
         if (project.isModified() && shouldSave(model)) {
             save(project, model);
@@ -735,9 +768,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             if (!closeRequested && StringUtils.isNotBlank(model.branch())) {
                 switchToBranch(project, model.branch(), Boolean.TRUE.equals(model.discardChanges()));
             }
-        }
-        if (CollectionUtils.isNotEmpty(model.selectedBranches())) {
-            project.setSelectedBranches(model.selectedBranches());
         }
     }
 
@@ -897,21 +927,97 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
         var normalizedComment = StringUtils.trimToNull(comment);
         validateComment(project, normalizedComment);
+        var localOnly = project.isLocalOnly();
+        var repository = project.getDesignRepository();
+        var projectName = project.getDesignProjectName();
+        var branch = project.getBranch();
+        var aclPath = localOnly ? null : designRepositoryAclService.getPath(project);
 
         getWebStudio().getModel().clearModuleInfo();
         closeProjectForAllUsers(project);
         try {
-            project.delete(normalizedComment);
+            deleteAuthorizedProject(project, normalizedComment);
         } catch (ProjectException e) {
             log.warn("Failed to delete project '{}'", project.getBusinessName(), e);
             throw new ConflictException("project.delete.message");
         }
-        if (!project.isLocalOnly()) {
-            designRepositoryAclService.deleteAcl(project);
+        var indexPublished = localOnly || refreshProjectIndex(repository, branch);
+        if (!localOnly && indexPublished && !isAclPathStillUsed(repository, projectName, aclPath)) {
+            designRepositoryAclService.deleteAcl(repository.getId(), aclPath);
         }
         workspaceManager.refreshWorkspaces();
         getWebStudio().reset();
         publishStateChanged(project);
+        if (!indexPublished) {
+            throw new ConflictException("project.delete.indexing.incomplete.message");
+        }
+    }
+
+    /**
+     * Deletes a project after {@link #delete(RulesProject, String)} has verified its project-level permission.
+     *
+     * <p>Readable cross-branch snapshots use ACL-decorated repositories. Their generic delete check targets the
+     * parent repository path, which is correct for an arbitrary child but would replace the project-level permission
+     * already verified by this service. The original repository keeps the same branch and performs the authorized
+     * project write.
+     */
+    private void deleteAuthorizedProject(RulesProject project, @Nullable String comment) throws ProjectException {
+        var repository = project.getRepository();
+        var originalRepository = unwrapRepository(repository);
+        if (originalRepository == repository) {
+            project.delete(comment);
+            return;
+        }
+
+        var designProject = new AProject(originalRepository, project.getFileData());
+        designProject.delete(getUserWorkspace().getUser(), comment);
+    }
+
+    private boolean refreshProjectIndex(Repository repository, @Nullable String branch) {
+        var designTimeRepository = getUserWorkspace().getDesignTimeRepository();
+        if (!(repository instanceof BranchRepository) || !repository.supports().branches()) {
+            designTimeRepository.refresh();
+            return true;
+        }
+        try {
+            designTimeRepository.refreshBranch(repository.getId(), Objects.requireNonNull(branch))
+                    .toCompletableFuture()
+                    .get(PROJECT_INDEX_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            return true;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException | TimeoutException e) {
+            log.warn("Project index did not publish branch '{}' in repository '{}'.",
+                    branch, repository.getId(), e);
+        }
+        return false;
+    }
+
+    private boolean refreshRepositoryIndex(Repository repository) {
+        try {
+            getUserWorkspace().getDesignTimeRepository()
+                    .refreshRepository(repository.getId())
+                    .toCompletableFuture()
+                    .get(PROJECT_INDEX_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            return true;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException | TimeoutException e) {
+            log.warn("Project index did not publish repository '{}'.", repository.getId(), e);
+        }
+        return false;
+    }
+
+    private boolean isAclPathStillUsed(Repository repository, String projectName, String aclPath) {
+        if (!repository.supports().branches()) {
+            return false;
+        }
+        return getUserWorkspace().getDesignTimeRepository()
+                .getBranchedProject(repository.getId(), projectName)
+                .stream()
+                .flatMap(project -> project.entries().values().stream())
+                .map(entry -> designRepositoryAclService.getPath(entry.project()))
+                .anyMatch(path -> path.equals(aclPath) || path.startsWith(aclPath + '/'));
     }
 
     /**
@@ -1108,13 +1214,17 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!hasManageBranchPermissions(project)) {
             throw new ForbiddenException("default.message");
         }
-        var repository = (BranchRepository) project.getDesignRepository();
+        var repository = unwrapBranchRepository(project.getDesignRepository());
         var validator = newBranchValidatorFactory.apply(repository);
         validationProvider.validate(model.getBranch(), validator);
         try {
-            repository.createBranch(project.getDesignFolderName(), model.getBranch(), model.getRevision());
+            var startPoint = StringUtils.isNotBlank(model.getRevision()) ? model.getRevision() : project.getBranch();
+            repository.createRepositoryBranch(model.getBranch(), startPoint);
         } catch (IOException e) {
             throw new ProjectException("Failed to create branch", e);
+        }
+        if (!refreshProjectIndex(repository, model.getBranch())) {
+            throw new ConflictException("project.indexing.incomplete.message");
         }
         publishStateChanged(project);
     }
@@ -1147,8 +1257,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ConflictException("project.branch.unsupported.message");
         }
         requireGranted(project, BasePermission.READ);
-        var repository = (BranchRepository) project.getDesignRepository();
+        var repository = unwrapBranchRepository(project.getDesignRepository());
         var baseBranch = repository.getBaseBranch();
+        var projectBranches = Set.copyOf(projectBranches(project));
         try {
             var branches = repository.listBranches();
             return branches.stream()
@@ -1156,12 +1267,28 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                             .name(branch)
                             .protectedFlag(repository.isBranchProtected(branch))
                             .base(branch.equals(baseBranch))
+                            .containsProject(projectBranches.contains(branch))
                             .build())
                     .sorted(Comparator.comparing(ProjectBranchInfo::name, String.CASE_INSENSITIVE_ORDER))
                     .toList();
         } catch (IOException e) {
             throw new ProjectException("Failed to retrieve branches", e);
         }
+    }
+
+    private List<String> projectBranches(RulesProject project) {
+        var workspace = getUserWorkspace();
+        if (workspace != null) {
+            var entries = workspace.getDesignTimeRepository()
+                    .getBranchedProject(project.getDesignRepository().getId(),
+                            project.getDesignProjectName())
+                    .map(branchedProject -> branchedProject.entries().keySet())
+                    .orElse(Set.of());
+            if (!entries.isEmpty()) {
+                return entries.stream().sorted(String.CASE_INSENSITIVE_ORDER).toList();
+            }
+        }
+        return StringUtils.isBlank(project.getBranch()) ? List.of() : List.of(project.getBranch());
     }
 
     /**
@@ -1185,24 +1312,35 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!hasManageBranchPermissions(project)) {
             throw new ForbiddenException("default.message");
         }
-        var repository = (BranchRepository) project.getDesignRepository();
-        if (Objects.equals(repository.getBaseBranch(), branchName)) {
-            throw new ConflictException("project.branch.delete.base.message");
-        }
+        var repository = unwrapBranchRepository(project.getDesignRepository());
         var repositoryId = repository.getId();
         var projectName = project.getBusinessName();
         try {
-            if (!repository.branchExists(branchName)) {
-                throw new NotFoundException("repository.branch.message");
+            var branch = repository.listBranches()
+                    .stream()
+                    .filter(candidate -> candidate.equalsIgnoreCase(branchName))
+                    .findFirst()
+                    .orElseThrow(() -> new NotFoundException("repository.branch.message"));
+            if (repository.getBaseBranch().equalsIgnoreCase(branch)) {
+                throw new ConflictException("project.branch.delete.base.message");
             }
-            requireNotLockedByAnotherUser(project, repository, branchName);
-            bypassService.requireBypassOrThrow(repository, branchName, project, force);
-            var restoreOpenedState = releaseProjectOnBranch(project, branchName);
-            repository.deleteBranch(null, branchName);
+            requireNotLockedByAnotherUser(project, repository, branch);
+            bypassService.requireBypassOrThrow(repository, branch, project, force);
+            var restoreOpenedState = releaseProjectOnBranch(project, branch);
+            repository.deleteRepositoryBranch(branch);
+            if (!refreshRepositoryIndex(repository)) {
+                throw new ProjectException("The deleted branch was not published by the project index.");
+            }
             var workspace = getUserWorkspace();
             workspace.refresh();
             if (restoreOpenedState) {
-                open(findWorkspaceProject(workspace, repositoryId, projectName), false);
+                findWorkspaceProject(workspace, repositoryId, projectName).ifPresent(remainingProject -> {
+                    try {
+                        open(remainingProject, false);
+                    } catch (ProjectException e) {
+                        throw new ConflictException("project.branch.delete.failed.message");
+                    }
+                });
             }
         } catch (IOException | ProjectException e) {
             log.warn("Failed to delete branch '{}' from project '{}'", branchName, project.getBusinessName(), e);
@@ -1211,17 +1349,24 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         publishStateChanged(project);
     }
 
-    private RulesProject findWorkspaceProject(UserWorkspace workspace,
-                                              String repositoryId,
-                                              String projectName) throws ProjectException {
+    private static BranchRepository unwrapBranchRepository(Repository repository) {
+        return (BranchRepository) unwrapRepository(repository);
+    }
+
+    private static Repository unwrapRepository(Repository repository) {
+        while (repository instanceof RepositoryDelegate delegate) {
+            repository = delegate.getOriginal();
+        }
+        return repository;
+    }
+
+    private Optional<RulesProject> findWorkspaceProject(UserWorkspace workspace,
+                                                        String repositoryId,
+                                                        String projectName) {
         return workspace.getProjectsByName(projectName, false)
                 .stream()
                 .filter(project -> repositoryId.equals(project.getDesignRepository().getId()))
-                .findFirst()
-                .orElseThrow(() -> new ProjectException(
-                        "Cannot find project ''{0}'' or access to the project is not permitted.",
-                        null,
-                        projectName));
+                .findFirst();
     }
 
     /**

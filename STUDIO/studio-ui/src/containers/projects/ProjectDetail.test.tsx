@@ -704,7 +704,7 @@ describe('ProjectDetail', () => {
             currentBranch: 'main',
             currentBranchDefault: true,
             projectId: 'p1',
-            selectedBranches: ['main', 'dev'],
+            branches: ['main', 'dev'],
         }))
     })
 

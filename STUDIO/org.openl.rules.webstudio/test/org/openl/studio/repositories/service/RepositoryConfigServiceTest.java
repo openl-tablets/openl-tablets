@@ -2,14 +2,21 @@ package org.openl.studio.repositories.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
+
 class RepositoryConfigServiceTest {
 
     private final MockEnvironment environment = new MockEnvironment();
-    private final RepositoryConfigService service = new RepositoryConfigService(environment);
+    private final DesignTimeRepository designTimeRepository = mock(DesignTimeRepository.class);
+    private final RepositoryConfigService service = new RepositoryConfigService(environment, designTimeRepository);
 
     @Test
     void gitRepositoryExposesItsBranchRules() {
@@ -23,6 +30,17 @@ class RepositoryConfigServiceTest {
         assertEquals("{project-name}/{username}/{current-date}", newBranch.pattern());
         assertEquals("[A-Za-z0-9/-]+", newBranch.namePattern());
         assertEquals("Letters, digits and dashes only", newBranch.invalidNameHint());
+    }
+
+    @Test
+    void gitRepositoryExposesItsConfiguredBranch() {
+        environment.setProperty("repository.design.factory", "repo-git");
+        var repository = mock(BranchRepository.class);
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        when(repository.getBranch()).thenReturn("release/2026");
+        when(designTimeRepository.getRepository("design")).thenReturn(repository);
+
+        assertEquals("release/2026", service.getConfig("design").branch());
     }
 
     @Test

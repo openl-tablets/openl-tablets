@@ -1,10 +1,8 @@
 # Workspace Copy Reconciliation
 
-These scenarios verify the final workspace state for opened and in-editing project copies after their
-source changes outside OpenL Studio:
+These scenarios verify workspace state for opened and editing project copies after their source changes
+outside OpenL Studio:
 
-- When OpenL Studio no longer identifies a project as existing, its copy is removed together with local
-  changes and its edit lock.
-- Restoring the project does not restore the removed copy; the project is listed as closed.
-- When the project still exists but the branch used by its copy no longer contains it, the copy is closed
-  and the project remains listed.
+- Deleting a project from the main branch keeps it listed while the copy branch still contains it.
+- The opened and editing states stay attached to that surviving branch, including unsaved local changes.
+- Deleting the last containing Git branch removes the logical project and its workspace copy.

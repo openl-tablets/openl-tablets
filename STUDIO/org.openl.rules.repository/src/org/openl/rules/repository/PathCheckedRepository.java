@@ -23,8 +23,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.RepositorySettings;
-import org.openl.rules.repository.api.RepositorySettingsAware;
 import org.openl.rules.repository.api.SearchableRepository;
 import org.openl.rules.repository.api.UserInfo;
 
@@ -35,7 +33,7 @@ import org.openl.rules.repository.api.UserInfo;
  * @author Yury Molchan
  */
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public class PathCheckedRepository implements BranchRepository, RepositorySettingsAware {
+public class PathCheckedRepository implements BranchRepository {
 
     private final Repository delegate;
 
@@ -179,27 +177,6 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
     }
 
     @Override
-    public void createBranch(String projectPath, String branch) throws IOException {
-        validatePath(projectPath);
-        validateBranch(branch);
-        ((BranchRepository) delegate).createBranch(projectPath, branch);
-    }
-
-    @Override
-    public void createBranch(String projectPath, String branch, String startPoint) throws IOException {
-        validatePath(projectPath);
-        validateBranch(branch);
-        ((BranchRepository) delegate).createBranch(projectPath, branch, startPoint);
-    }
-
-    @Override
-    public void deleteBranch(String projectPath, String branch) throws IOException {
-        validatePath(projectPath);
-        validateBranch(branch);
-        ((BranchRepository) delegate).deleteBranch(projectPath, branch);
-    }
-
-    @Override
     public void createRepositoryBranch(String branch, @Nullable String startPoint) throws IOException {
         validateBranch(branch);
         ((BranchRepository) delegate).createRepositoryBranch(branch, startPoint);
@@ -214,12 +191,6 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
     @Override
     public List<String> listBranches() throws IOException {
         return ((BranchRepository) delegate).listBranches();
-    }
-
-    @Override
-    public List<String> getBranches(String projectPath) throws IOException {
-        validatePath(projectPath);
-        return ((BranchRepository) delegate).getBranches(projectPath);
     }
 
     @Override
@@ -279,10 +250,4 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
         }
     }
 
-    @Override
-    public void setRepositorySettings(RepositorySettings settings) {
-        if (delegate instanceof RepositorySettingsAware aware) {
-            aware.setRepositorySettings(settings);
-        }
-    }
 }

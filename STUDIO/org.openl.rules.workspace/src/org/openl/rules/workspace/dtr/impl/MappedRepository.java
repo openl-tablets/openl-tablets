@@ -352,24 +352,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     @Override
-    public void createBranch(String projectPath, String branch) throws IOException {
-        var mapping = getUpToDateMapping(true);
-        ((BranchRepository) delegate).createBranch(toInternal(mapping, projectPath), branch);
-    }
-
-    @Override
-    public void createBranch(String projectPath, String branch, String startPoint) throws IOException {
-        var mapping = getUpToDateMapping(true);
-        ((BranchRepository) delegate).createBranch(toInternal(mapping, projectPath), branch, startPoint);
-    }
-
-    @Override
-    public void deleteBranch(String projectPath, String branch) throws IOException {
-        var mapping = getUpToDateMapping(true);
-        ((BranchRepository) delegate).deleteBranch(toInternal(mapping, projectPath), branch);
-    }
-
-    @Override
     public void createRepositoryBranch(String branch, @Nullable String startPoint) throws IOException {
         ((BranchRepository) delegate).createRepositoryBranch(branch, startPoint);
     }
@@ -382,16 +364,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     @Override
     public List<String> listBranches() throws IOException {
         return ((BranchRepository) delegate).listBranches();
-    }
-
-    @Override
-    public List<String> getBranches(String projectPath) throws IOException {
-        String internalPath = null;
-        if (projectPath != null) {
-            var mapping = getUpToDateMapping(true);
-            internalPath = toInternal(mapping, projectPath);
-        }
-        return ((BranchRepository) delegate).getBranches(internalPath);
     }
 
     @Override
@@ -921,12 +893,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     private boolean isUpdateConfigNeeded(FileData folderData) throws IOException {
-        if (supports().branches()) {
-            if (!getBranch().equals(getBaseBranch())) {
-                // Update project name only on base branch.
-                return false;
-            }
-        }
         var mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {
             var internalPath = mappingData.getInternalPath();

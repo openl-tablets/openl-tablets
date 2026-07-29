@@ -24,8 +24,8 @@ Content-Type: application/json
       },
       "capabilities": {
         "canWrite": true,
-        "canClose": true,
         "canDelete": true,
+        "canClose": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -46,6 +46,7 @@ Content-Type: application/json
       "path": "Project",
       "comment": "Project Project is created.",
       "selectedBranches": [
+        "EPBDS-13930_Project2",
         "master"
       ],
       "branchDefault": true,
@@ -60,8 +61,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -97,8 +98,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -128,8 +129,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -165,6 +166,7 @@ Content-Type: application/json
       },
       "capabilities": {
         "canWrite": true,
+        "canDelete": true,
         "canClose": true,
         "canDeploy": true,
         "canCompare": true,
@@ -201,8 +203,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -238,8 +240,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
@@ -275,8 +277,8 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
+        "canOpen": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,

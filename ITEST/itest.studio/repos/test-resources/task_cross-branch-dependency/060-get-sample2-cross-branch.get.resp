@@ -37,6 +37,7 @@ Content-Type: application/json
     }
   },
   "capabilities": {
+    "canDelete": true,
     "canOpen": true,
     "canDeploy": true,
     "canCompare": true,

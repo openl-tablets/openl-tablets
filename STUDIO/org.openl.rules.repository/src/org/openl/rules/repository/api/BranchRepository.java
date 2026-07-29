@@ -15,7 +15,14 @@ public interface BranchRepository extends Repository, SearchableRepository {
 
     boolean isBranchProtected(String branch);
 
-    void createBranch(String projectPath, String branch) throws IOException;
+    /**
+     * @deprecated Project membership is derived from Git trees. Use
+     * {@link #createRepositoryBranch(String, String)}.
+     */
+    @Deprecated
+    default void createBranch(String projectPath, String branch) throws IOException {
+        createRepositoryBranch(branch, getBranch());
+    }
 
     /**
      * @deprecated Project membership is derived from Git trees. Use
@@ -26,9 +33,22 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @param startPoint  existing branch, tag or commit revision
      * @throws IOException if the branch cannot be created
      */
-    void createBranch(String projectPath, String branch, String startPoint) throws IOException;
+    @Deprecated
+    default void createBranch(String projectPath, String branch, String startPoint) throws IOException {
+        createRepositoryBranch(branch, startPoint);
+    }
 
-    void deleteBranch(String projectPath, String branch) throws IOException;
+    /**
+     * @deprecated Project membership cannot be edited as repository metadata. A {@code null} project path
+     * deletes the repository branch; any other value is rejected.
+     */
+    @Deprecated
+    default void deleteBranch(String projectPath, String branch) throws IOException {
+        if (projectPath != null) {
+            throw new UnsupportedOperationException("Project branch membership is derived from Git trees.");
+        }
+        deleteRepositoryBranch(branch);
+    }
 
     /**
      * Creates a repository branch without changing project-to-branch metadata.
@@ -54,7 +74,14 @@ public interface BranchRepository extends Repository, SearchableRepository {
      */
     List<String> listBranches() throws IOException;
 
-    List<String> getBranches(String projectPath) throws IOException;
+    /**
+     * @deprecated Project membership is available from the workspace project index. This compatibility
+     * method returns actual repository branches only.
+     */
+    @Deprecated
+    default List<String> getBranches(String projectPath) throws IOException {
+        return listBranches();
+    }
 
     /**
      * Returns the tip-commit status for the requested branches. Implementations may omit a branch when its
@@ -77,7 +104,17 @@ public interface BranchRepository extends Repository, SearchableRepository {
     Map<String, BranchTreeRevision> getBranchTreeRevisions(@NonNull Collection<@NonNull String> branches,
                                                            @NonNull String path) throws IOException;
 
-    BranchRepository forBranch(String branch) throws IOException;
+    /**
+     * Returns a repository view scoped to the requested branch.
+     *
+     * <p>An empty repository may return a view for a valid branch whose first commit has not been created yet.
+     * Other repositories require the branch to exist.
+     *
+     * @param branch branch to select
+     * @return the branch-scoped repository view
+     * @throws IOException if the branch cannot be selected
+     */
+    BranchRepository forBranch(@NonNull String branch) throws IOException;
 
     boolean isValidBranchName(String branch);
 
