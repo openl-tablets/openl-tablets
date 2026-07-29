@@ -118,6 +118,8 @@ describe('TraceTree', () => {
 
         await userEvent.click(screen.getByTestId('tree-toggle-f0/R0C0'))
         expect(screen.getByText('ChildTable')).toBeInTheDocument()
+        // The toggle carries an accessible name for screen readers, reflecting the action it performs.
+        expect(screen.getByTestId('tree-toggle-f0/R0C0')).toHaveAttribute('aria-label', 'tree.collapse')
 
         // A replay/rerun bumps runId; row keys are positional, so the previous run's expansions must
         // not survive into the new run (pseudo-open chevrons then need two clicks to expand).
@@ -126,6 +128,7 @@ describe('TraceTree', () => {
         })
         expect(screen.queryByText('ChildTable')).toBeNull()
         expect(screen.getByTestId('tree-toggle-f0/R0C0')).toHaveAttribute('aria-expanded', 'false')
+        expect(screen.getByTestId('tree-toggle-f0/R0C0')).toHaveAttribute('aria-label', 'tree.expand')
     })
 
     it('badges a looped frame with its execution pass so stepping through a loop visibly advances', () => {

@@ -21,6 +21,8 @@ i18next.addResourceBundle('en', 'trace', {
     tree: {
         title: 'Call tree',
         showDetailed: 'Show detailed trace',
+        expand: 'Expand',
+        collapse: 'Collapse',
         modeSimple: 'Tree',
         modeCallStack: 'Execution Path',
         runToHint: 'Run execution to here',
