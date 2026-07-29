@@ -33,6 +33,7 @@ interface TwistyProps {
 /** A chevron that expands/collapses a row, or an empty slot when the row has nothing to expand. */
 export const Twisty: React.FC<TwistyProps> = ({ expandKey, expanded, onToggle, testIdPrefix }) => {
     const { styles } = useStyles()
+    const { t } = useTranslation('trace')
     if (!expandKey) {
         return <span className={styles.chevronSlot} />
     }
@@ -41,6 +42,7 @@ export const Twisty: React.FC<TwistyProps> = ({ expandKey, expanded, onToggle, t
     return (
         <span
             aria-expanded={expanded.has(key)}
+            aria-label={expanded.has(key) ? t('tree.collapse') : t('tree.expand')}
             className={styles.chevron}
             data-testid={`${testIdPrefix}-toggle-${key}`}
             onClick={(e) => { e.stopPropagation(); fire() }}
