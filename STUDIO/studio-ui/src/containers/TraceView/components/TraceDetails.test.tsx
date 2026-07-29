@@ -108,13 +108,14 @@ describe('TraceDetails', () => {
         expect(screen.getByText('ctx.currentDate')).toBeInTheDocument()
     })
 
-    it('renders the spreadsheet grid for a spreadsheet frame', () => {
+    it('renders the spreadsheet grid for a spreadsheet frame in the advanced view', () => {
         useTraceStore.setState({
             status: 'suspended',
             frames: [frame({ kind: 'spreadsheet', uri: 'uSpread' })],
             selectedFrameIndex: 0,
             variables: variables({ gridColumns: ['Formula'], gridRows: ['Base']}),
             variablesLoading: false,
+            advanced: true,
         })
         render(<TraceDetails />)
 
@@ -122,18 +123,46 @@ describe('TraceDetails', () => {
         expect(screen.queryByTestId('stub-decision')).toBeNull()
     })
 
-    it('renders the decision panel for a decision-table frame', () => {
+    it('renders the decision panel for a decision-table frame in the advanced view', () => {
         useTraceStore.setState({
             status: 'suspended',
             frames: [frame({ kind: 'decisionTable', name: 'CalcRate' })],
             selectedFrameIndex: 0,
             variables: variables({ decision: { firedRules: ['Standard'], conditions: []} }),
             variablesLoading: false,
+            advanced: true,
         })
         render(<TraceDetails />)
 
         expect(screen.getByTestId('stub-decision')).toHaveTextContent('CalcRate')
         expect(screen.queryByTestId('stub-spreadsheet')).toBeNull()
+    })
+
+    it('hides the grid and decision panels in the business view — the tree already shows them', () => {
+        // The business view shows the steps and the decision breakdown in the tree, so the extra grid /
+        // decision table below the traced table would just duplicate it; they are an advanced detail.
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame({ kind: 'spreadsheet', uri: 'uSpread' })],
+            selectedFrameIndex: 0,
+            variables: variables({ gridColumns: ['Formula'], gridRows: ['Base']}),
+            variablesLoading: false,
+            advanced: false,
+        })
+        const first = render(<TraceDetails />)
+        expect(screen.queryByTestId('stub-spreadsheet')).toBeNull()
+        first.unmount()
+
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame({ kind: 'decisionTable', name: 'CalcRate' })],
+            selectedFrameIndex: 0,
+            variables: variables({ decision: { firedRules: ['Standard'], conditions: []} }),
+            variablesLoading: false,
+            advanced: false,
+        })
+        render(<TraceDetails />)
+        expect(screen.queryByTestId('stub-decision')).toBeNull()
     })
 
     it('shows a spinner and hides the frame panels while variables are loading', () => {
