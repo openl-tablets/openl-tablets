@@ -15,6 +15,7 @@ import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -23,6 +24,7 @@ import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
+import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -176,6 +178,16 @@ class RulesProjectBranchMarksTest {
         }
 
         @Override
+        public void createRepositoryBranch(String branch, @Nullable String startPoint) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteRepositoryBranch(String branch) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public List<String> listBranches() {
             throw new UnsupportedOperationException();
         }
@@ -187,6 +199,11 @@ class RulesProjectBranchMarksTest {
 
         @Override
         public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Map<String, BranchTreeRevision> getBranchTreeRevisions(Collection<String> branches, String path) {
             throw new UnsupportedOperationException();
         }
 

@@ -1,7 +1,12 @@
 package org.openl.rules.repository.git;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
@@ -9,6 +14,8 @@ import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -81,6 +88,52 @@ class GitRepositoryBranchStatusTest {
             assertNotNull(status.lastCommitAuthor());
             assertNotNull(status.lastCommitMessage());
         }
+    }
+
+    @Test
+    void resolvesTreeRevisionsAndPreservesMissingAndUnresolvedStates() throws IOException {
+        var branch = repo.forBranch(BRANCH);
+        branch.save(createFileData("rules/project1/rules.xml", "one"), IOUtils.toInputStream("one"));
+
+        var revisions = repo.getBranchTreeRevisions(List.of(BASE, BRANCH, "missing"), "rules/");
+
+        assertEquals(2, revisions.size());
+        var baseRevision = Objects.requireNonNull(revisions.get(BASE));
+        var branchRevision = Objects.requireNonNull(revisions.get(BRANCH));
+        assertNull(baseRevision.treeRevision(), "The resolved base branch has no rules folder");
+        assertNotNull(branchRevision.treeRevision());
+        assertTrue(branchRevision.tipAffectsPath());
+        assertFalse(revisions.containsKey("missing"), "An unresolved branch must be omitted");
+    }
+
+    @Test
+    void keepsTreeRevisionWhenCommitChangesOutsideDiscoveryPath() throws IOException {
+        var branch = repo.forBranch(BRANCH);
+        branch.save(createFileData("rules/project1/rules.xml", "one"), IOUtils.toInputStream("one"));
+        var before = Objects.requireNonNull(repo.getBranchTreeRevisions(List.of(BRANCH), "rules").get(BRANCH));
+
+        branch.save(createFileData("outside.txt", "two"), IOUtils.toInputStream("two"));
+        var after = Objects.requireNonNull(repo.getBranchTreeRevisions(List.of(BRANCH), "rules").get(BRANCH));
+
+        assertNotEquals(before.branchRevision(), after.branchRevision());
+        assertEquals(before.treeRevision(), after.treeRevision());
+    }
+
+    @Test
+    void createsAndDeletesRepositoryBranchWithoutProjectMetadata() throws IOException {
+        var newBranch = "repository-only";
+
+        repo.createRepositoryBranch(newBranch, BASE);
+
+        assertTrue(repo.listBranches().contains(newBranch));
+        assertEquals(List.of(BASE), repo.getBranches("rules/project1"));
+        repo.deleteRepositoryBranch(newBranch);
+        assertFalse(repo.listBranches().contains(newBranch));
+    }
+
+    @Test
+    void rejectsBaseBranchDeletionRegardlessOfCasing() {
+        assertThrows(IOException.class, () -> repo.deleteRepositoryBranch(BASE.toUpperCase(Locale.ROOT)));
     }
 
     private GitRepository createRepository(String remoteUri, File local, String repositoriesFolder) throws IOException {

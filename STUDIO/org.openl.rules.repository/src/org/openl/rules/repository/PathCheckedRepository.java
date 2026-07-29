@@ -10,9 +10,11 @@ import java.util.Map;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
+import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
@@ -198,6 +200,18 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
     }
 
     @Override
+    public void createRepositoryBranch(String branch, @Nullable String startPoint) throws IOException {
+        validateBranch(branch);
+        ((BranchRepository) delegate).createRepositoryBranch(branch, startPoint);
+    }
+
+    @Override
+    public void deleteRepositoryBranch(String branch) throws IOException {
+        validateBranch(branch);
+        ((BranchRepository) delegate).deleteRepositoryBranch(branch);
+    }
+
+    @Override
     public List<String> listBranches() throws IOException {
         return ((BranchRepository) delegate).listBranches();
     }
@@ -211,6 +225,14 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
     @Override
     public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches) throws IOException {
         return ((BranchRepository) delegate).getBranchStatuses(branches);
+    }
+
+    @Override
+    public Map<String, BranchTreeRevision> getBranchTreeRevisions(Collection<String> branches,
+                                                                  String path) throws IOException {
+        branches.forEach(this::validateBranch);
+        validatePath(path);
+        return ((BranchRepository) delegate).getBranchTreeRevisions(branches, path);
     }
 
     @Override

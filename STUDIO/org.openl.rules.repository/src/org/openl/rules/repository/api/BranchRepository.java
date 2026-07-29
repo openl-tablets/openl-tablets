@@ -5,6 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public interface BranchRepository extends Repository, SearchableRepository {
     boolean isMergedInto(String from, String to) throws IOException;
 
@@ -15,16 +18,34 @@ public interface BranchRepository extends Repository, SearchableRepository {
     void createBranch(String projectPath, String branch) throws IOException;
 
     /**
-     * Create branch from startPoint
+     * @deprecated Project membership is derived from Git trees. Use
+     * {@link #createRepositoryBranch(String, String)}.
      *
-     * @param projectPath path to project
+     * @param projectPath ignored compatibility parameter
      * @param branch      name of branch
-     * @param startPoint  revision or tag
-     * @throws IOException if any
+     * @param startPoint  existing branch, tag or commit revision
+     * @throws IOException if the branch cannot be created
      */
     void createBranch(String projectPath, String branch, String startPoint) throws IOException;
 
     void deleteBranch(String projectPath, String branch) throws IOException;
+
+    /**
+     * Creates a repository branch without changing project-to-branch metadata.
+     *
+     * @param branch     the new branch name
+     * @param startPoint an existing branch, tag, or commit revision; the current branch when {@code null}
+     * @throws IOException if the start point cannot be resolved or the branch cannot be created
+     */
+    void createRepositoryBranch(@NonNull String branch, @Nullable String startPoint) throws IOException;
+
+    /**
+     * Deletes a repository branch without changing project-to-branch metadata.
+     *
+     * @param branch the branch name
+     * @throws IOException if the branch cannot be deleted
+     */
+    void deleteRepositoryBranch(@NonNull String branch) throws IOException;
 
     /**
      * Returns all branches available in the repository.
@@ -40,6 +61,20 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * status cannot be resolved.
      */
     Map<String, BranchStatus> getBranchStatuses(Collection<String> branches) throws IOException;
+
+    /**
+     * Returns branch tip and content revisions for one repository-relative path.
+     *
+     * <p>Every resolved branch has an entry. An entry with a {@code null} tree revision means that the path is absent
+     * from that branch. An unresolved branch is omitted.
+     *
+     * @param branches branches to resolve
+     * @param path     repository-relative file or folder path; an empty path resolves the root tree
+     * @return resolved revisions keyed by branch name
+     * @throws IOException if the repository cannot be read
+     */
+    Map<String, BranchTreeRevision> getBranchTreeRevisions(@NonNull Collection<@NonNull String> branches,
+                                                           @NonNull String path) throws IOException;
 
     BranchRepository forBranch(String branch) throws IOException;
 
