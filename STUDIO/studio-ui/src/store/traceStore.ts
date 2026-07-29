@@ -449,6 +449,35 @@ export const useTraceStore = create<DebugState>((set, get) => {
         }
     }
 
+    // Apply a terminal socket status (completed/error/terminated): clear the live frames, focus and selection,
+    // show an immediate summary from the socket, and fetch the settled stack or the full error. A quiet-restart
+    // 'terminated' echo is ignored so the panel keeps the last table between the cancel and the fresh stack.
+    const applyTerminalSocketStatus = (status: DebugStatus, message?: string): void => {
+        if (restarting) return
+        set({
+            status,
+            frames: [],
+            selectedFrameIndex: null,
+            variables: null,
+            variablesLoading: false,
+            debugError: status === 'error' && message ? { summary: message } : null,
+            // Nothing is paused any more, so the next click cannot resume from here. Drop the focus and
+            // selection too: otherwise the settled root renders as a focused step (blank Details), and the
+            // still-selected row cannot be re-inspected (a re-click is a no-op on the selected key).
+            simpleLastInspected: null,
+            simpleFocus: null,
+            simpleSelectedKey: null,
+        })
+        if (status === 'error') {
+            void get().fetchTerminalError()
+        } else if (status === 'completed') {
+            // A finished run still has a readable stack: the root call with its steps and result — plus, when
+            // profiling, the executed tree and the hot-spots profile. A terminated session is gone (for
+            // example when toggling profiling restarts it), so it is never fetched.
+            void get().refreshStack()
+        }
+    }
+
     return {
         ...initialState,
 
@@ -716,34 +745,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 if (get().loading) return
                 set({ status: 'running' })
             } else if (isTraceExecutionTerminal(status)) {
-                // A quiet inspect restart cancels the previous session; ignore its 'terminated' echo so the
-                // panel keeps the last table on screen between the cancel and the fresh stack.
-                if (restarting) return
-                // Show an immediate summary from the socket (if any); the full error is fetched below.
-                set({
-                    status,
-                    frames: [],
-                    selectedFrameIndex: null,
-                    variables: null,
-                    variablesLoading: false,
-                    debugError: status === 'error' && message ? { summary: message } : null,
-                    // Nothing is paused any more (e.g. an inspected row was conditionally skipped and the
-                    // run finished), so the next click cannot resume from here. Drop the focus and selection
-                    // too: otherwise the settled root frame renders as a focused step (blank Details), and the
-                    // still-selected row cannot be re-inspected (a re-click is a no-op on the selected key).
-                    simpleLastInspected: null,
-                    simpleFocus: null,
-                    simpleSelectedKey: null,
-                })
-                if (status === 'error') {
-                    void get().fetchTerminalError()
-                } else if (status === 'completed') {
-                    // A finished run still has a readable stack: the root call with its steps and result —
-                    // plus, when profiling, the executed tree and the hot-spots profile. The socket only
-                    // reports the status, so fetch the settled stack to show it. A terminated session is
-                    // gone (for example when toggling profiling restarts it), so it is never fetched.
-                    void get().refreshStack()
-                }
+                applyTerminalSocketStatus(status, message)
             }
         },
 

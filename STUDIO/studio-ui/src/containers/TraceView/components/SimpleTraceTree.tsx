@@ -94,66 +94,70 @@ const flattenSimple = (
     showDetailed: boolean
 ): SimpleRow[] => {
     const rows: SimpleRow[] = []
-    const walkNode = (node: CallNodeView, depth: number, path: string, refOwner?: CallNodeView): void => {
-        if (node.kind === 'stepRef') {
-            // The business view renders a referenced step INLINE — its label, icon, click-to-inspect and
-            // its own expandable subtree — right where it is used, so how it was computed is one expand
-            // away instead of a hunt for the original elsewhere in the tree. (The advanced tree jumps.)
-            const original = node.refStep && refOwner
-                ? refOwner.steps.find(s => s.ref === node.refStep)
-                : undefined
-            if (refOwner && original) {
-                const kids = original.children
-                    ?? children[treeChildKey(refOwner.uri, refOwner.instance, original.ref)] ?? []
-                rows.push({ type: 'step', key: path, depth, step: original, owner: refOwner, isRef: true,
-                    // Run to the original step to read its inputs/result; the row's own path keeps the
-                    // highlight here rather than lighting up the original occurrence elsewhere too.
-                    target: { ...stepTarget(refOwner, original), selectionKey: path },
-                    ...(kids.length > 0 ? { expandKey: path } : {}) })
-                if (kids.length > 0 && expanded.has(path)) {
-                    kids.forEach((kid, i) => walkNode(kid, depth + 1, `${path}#${i}`, refOwner))
-                }
-                return
-            }
+    // A referenced step ($…@…) is rendered INLINE in the business view — its label, icon, click-to-inspect
+    // and its own expandable subtree — right where it is used, so how it was computed is one expand away
+    // instead of a hunt for the original elsewhere in the tree. (The advanced tree jumps to it instead.)
+    const walkRef = (node: CallNodeView, depth: number, path: string, refOwner?: CallNodeView): void => {
+        const original = node.refStep && refOwner
+            ? refOwner.steps.find(s => s.ref === node.refStep)
+            : undefined
+        if (!refOwner || !original) {
             // The original is not in the snapshot (should not happen once the tree is downloaded): a marker.
             rows.push({ type: 'ref', key: path, depth, node })
             return
         }
-        const open = expanded.has(path)
+        const kids = original.children
+            ?? children[treeChildKey(refOwner.uri, refOwner.instance, original.ref)] ?? []
+        rows.push({ type: 'step', key: path, depth, step: original, owner: refOwner, isRef: true,
+            // Run to the original step to read its inputs/result; the row's own path keeps the highlight
+            // here rather than lighting up the original occurrence elsewhere too.
+            target: { ...stepTarget(refOwner, original), selectionKey: path },
+            ...(kids.length > 0 ? { expandKey: path } : {}) })
+        if (kids.length > 0 && expanded.has(path)) {
+            kids.forEach((kid, i) => walkNode(kid, depth + 1, `${path}#${i}`, refOwner))
+        }
+    }
+
+    const walkStep = (node: CallNodeView, step: StepValueView, depth: number, path: string): void => {
+        const stepPath = `${path}/${step.ref}`
+        // A decision-table condition is an info row: its synthetic ref runs nothing, so it is not clickable.
+        if (isCondition(step)) {
+            rows.push({ type: 'condition', key: stepPath, depth: depth + 1, step })
+            return
+        }
+        const kids = step.children ?? children[treeChildKey(node.uri, node.instance, step.ref)] ?? []
+        // The one-shot full tree is capped: a step looped past the limit carries its first sub-calls inline
+        // and reports the full count, so the rest read as "omitted" rather than silently missing.
+        const omitted = (step.childrenTotal ?? kids.length) - kids.length
+        // A decision-table breakdown row (the returned rule) is not a spreadsheet cell, so it has no
+        // step-inputs to show — inspect the owning DT frame instead, whose Details carry the rule's result and
+        // the table with the fired rule highlighted. The row keeps its own selection highlight.
+        const target = node.kind === 'decisionTable'
+            ? { ...nodeTarget(node), selectionKey: stepPath }
+            : stepTarget(node, step)
+        rows.push({ type: 'step', key: stepPath, depth: depth + 1, step, owner: node,
+            target, ...(kids.length > 0 || omitted > 0 ? { expandKey: stepPath } : {}) })
+        if (expanded.has(stepPath)) {
+            kids.forEach((kid, i) => walkNode(kid, depth + 2, `${stepPath}#${i}`, node))
+            if (omitted > 0) {
+                rows.push({ type: 'notRetained', key: `${stepPath}/omitted`, depth: depth + 2, count: omitted })
+            }
+        }
+    }
+
+    const walkNode = (node: CallNodeView, depth: number, path: string, refOwner?: CallNodeView): void => {
+        if (node.kind === 'stepRef') {
+            walkRef(node, depth, path, refOwner)
+            return
+        }
         rows.push({ type: 'node', key: path, depth, node, target: nodeTarget(node),
             ...(node.steps.length > 0 ? { expandKey: path } : {}) })
-        if (!open) {
+        if (!expanded.has(path)) {
             return
         }
         // The business view stays plain by default: a decision table shows only its returned rule, unless
         // "Show detailed trace" is on, which reveals the per-condition breakdown like the classic trace.
-        const steps = displaySteps(node.steps, showDetailed)
-        for (const step of steps) {
-            const stepPath = `${path}/${step.ref}`
-            // A decision-table condition is an info row: its synthetic ref runs nothing, so it is not clickable.
-            if (isCondition(step)) {
-                rows.push({ type: 'condition', key: stepPath, depth: depth + 1, step })
-                continue
-            }
-            const kids = step.children ?? children[treeChildKey(node.uri, node.instance, step.ref)] ?? []
-            // The one-shot full tree is capped: a step looped past the limit carries its first sub-calls
-            // inline and reports the full count, so the rest read as "omitted" rather than silently missing.
-            const omitted = (step.childrenTotal ?? kids.length) - kids.length
-            // A decision-table breakdown row (the returned rule) is not a spreadsheet cell, so it has no
-            // step-inputs to show — inspect the owning DT frame instead, whose Details carry the rule's result
-            // and the table with the fired rule highlighted. The row keeps its own selection highlight.
-            const target = node.kind === 'decisionTable'
-                ? { ...nodeTarget(node), selectionKey: stepPath }
-                : stepTarget(node, step)
-            rows.push({ type: 'step', key: stepPath, depth: depth + 1, step, owner: node,
-                target, ...(kids.length > 0 || omitted > 0 ? { expandKey: stepPath } : {}) })
-            if (expanded.has(stepPath)) {
-                kids.forEach((kid, i) => walkNode(kid, depth + 2, `${stepPath}#${i}`, node))
-                if (omitted > 0) {
-                    rows.push({ type: 'notRetained', key: `${stepPath}/omitted`, depth: depth + 2, count: omitted })
-                }
-            }
-        }
+        displaySteps(node.steps, showDetailed).forEach(step => walkStep(node, step, depth, path))
         if ((node.notRetained ?? 0) > 0) {
             rows.push({ type: 'notRetained', key: `${path}/notRetained`, depth: depth + 1,
                 count: node.notRetained ?? 0 })
