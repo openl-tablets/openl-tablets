@@ -683,6 +683,19 @@ describe('traceStore simple mode', () => {
         expect(useTraceStore.getState().breakpoints).toEqual([])
     })
 
+    it('clears server-side breakpoints even when client state has none, so a stale one cannot park the run', async () => {
+        // A launch-based business run never loads breakpoints into client state, so the clear must not be
+        // gated on it — a breakpoint a previous advanced session persisted server-side would otherwise
+        // suspend the run mid-way with no controls to resume. Client breakpoints are already empty here.
+        cancelTrace.mockResolvedValue(undefined)
+        setBreakpoints.mockResolvedValue(undefined)
+        startTrace.mockResolvedValue({ status: 'completed', frames: [], tree: null } as any)
+
+        await useTraceStore.getState().simpleRun()
+
+        expect(setBreakpoints).toHaveBeenCalledWith('p1', [])
+    })
+
     it('surfaces a failed simple run and drops the loading state', async () => {
         cancelTrace.mockResolvedValue(undefined)
         startTrace.mockRejectedValue(new Error('run boom'))
