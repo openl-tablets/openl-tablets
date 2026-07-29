@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model.trace;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -739,12 +740,14 @@ public class TraceDebugMapper {
 
     /**
      * The values a step's formula consumed, named as the formula writes them: sibling steps such as
-     * {@code $LimitIndex}, the table's own parameters, fields of a parameter opened into the table's
-     * scope such as {@code currentFinancialData}, and module constants such as {@code MaxLimit}.
+     * {@code $LimitIndex}, the table's own parameters, fields read off another step's result such as
+     * {@code $Rate.$Value} (element-wise for an array of results), fields read off a parameter such as
+     * {@code policy.census}, fields opened into the table's scope such as {@code currentFinancialData},
+     * and module constants such as {@code MaxLimit}.
      *
      * <p>Resolved from the compiled cell's binding dependencies against the frame's recorded values —
-     * nothing is re-evaluated. A sibling step that has not executed yet is omitted, and so is anything
-     * the recorded data cannot resolve (for example a field of another step's result).
+     * nothing is re-evaluated. A sibling step that has not executed yet is omitted, and so is a dependency
+     * the recorded data cannot resolve.
      */
     private List<ParameterValue> formulaInputs(CompositeMethod composite, DebugFrame frame, Spreadsheet spreadsheet,
                                                Map<String, Object> executed, Map<Object, Object> clones,
@@ -843,8 +846,8 @@ public class TraceDebugMapper {
     private static @Nullable StepInput resultFieldInput(CustomSpreadsheetResultField field, List<IOpenField> fields,
                                                         Map<String, Object> executed, Set<IOpenField> narrowed) {
         for (IOpenField candidate : fields) {
-            if (!(candidate instanceof SpreadsheetCellField cellField)
-                    || !cellField.getType().getName().equals(field.getDeclaringClass().getName())) {
+            SpreadsheetCellField cellField = resultCellOf(candidate, field.getDeclaringClass());
+            if (cellField == null) {
                 continue;
             }
             SpreadsheetCell cell = cellField.getCell();
@@ -854,8 +857,16 @@ public class TraceDebugMapper {
             }
             try {
                 Object result = executed.get(ref);
-                Object value = result == null ? null : field.get(result, null);
+                if (cellField.getType().isArray()) {
+                    // `$Plans.$Lives` over an array of results reads the field off each element into a matrix,
+                    // its type an array of the field's own type. The whole array stays listed too: unlike a
+                    // scalar result reached only through its field, an array is commonly also passed whole.
+                    IOpenClass type = field.getType().getAggregateInfo().getIndexedAggregateType(field.getType());
+                    return new StepInput(0, gridOrder(cell.getRowIndex(), cell.getColumnIndex()),
+                            cellField.getName() + "." + field.getName(), mapResultField(field, result), type);
+                }
                 narrowed.add(cellField);
+                Object value = result == null ? null : field.get(result, null);
                 return new StepInput(0, gridOrder(cell.getRowIndex(), cell.getColumnIndex()),
                         cellField.getName() + "." + field.getName(), value, field.getType());
             } catch (Exception e) {
@@ -863,6 +874,31 @@ public class TraceDebugMapper {
             }
         }
         return null;
+    }
+
+    /** The referenced result cell whose type — or, for an array of results, its element type — is the field's
+     * declaring class; {@code null} for any other dependency. */
+    private static @Nullable SpreadsheetCellField resultCellOf(IOpenField candidate, IOpenClass declaring) {
+        if (!(candidate instanceof SpreadsheetCellField cellField)) {
+            return null;
+        }
+        IOpenClass type = cellField.getType();
+        IOpenClass element = type.isArray() ? type.getComponentClass() : type;
+        return element.getName().equals(declaring.getName()) ? cellField : null;
+    }
+
+    /** Read a field off each element of an array of results, as OpenL's {@code $array.$field} matrix syntax does. */
+    private static @Nullable Object mapResultField(CustomSpreadsheetResultField field, @Nullable Object array) {
+        if (array == null) {
+            return null;
+        }
+        int length = Array.getLength(array);
+        Object values = field.getType().getAggregateInfo().makeIndexedAggregate(field.getType(), length);
+        for (int i = 0; i < length; i++) {
+            Object element = Array.get(array, i);
+            Array.set(values, i, element == null ? null : field.get(element, null));
+        }
+        return values;
     }
 
     /** A cell's position key for a table-shaped ordering: row-major, with room for many columns per row. */
