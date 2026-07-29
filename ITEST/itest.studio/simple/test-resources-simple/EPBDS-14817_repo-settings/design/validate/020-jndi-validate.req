@@ -8,7 +8,6 @@ Content-Type: application/json
     "useCustomComments": false,
     "commentValidationPattern": "",
     "invalidCommentMessage": "",
-    "commentTemplate": "",
     "defaultCommentSave": "",
     "defaultCommentCreate": "",
     "defaultCommentCopiedFrom": "",

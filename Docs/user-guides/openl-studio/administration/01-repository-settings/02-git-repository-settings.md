@@ -50,15 +50,15 @@ the properties file to configure this behavior:
 
 ##### Customizing Git Commit Comments
 
-For **Design Repositories**, a **Comments** section allows configuring the format of Git commit messages.
+For **Design Repositories**, a **Comments** section allows configuring default comments and comment validation.
+Git repositories store the resulting comment directly as the Git commit message.
 
 To enable custom commit messages, select the **Customize comments** check box. The following fields become available:
 
-| Field                         | Description                                                                                                                                                                                                                                                                                                                                                                                                           |
-|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Message template**          | Template for all Git commit messages. Supports the following placeholders: <br/>**{user-message}** — the user-defined commit message, also shown in OpenL Studio history. <br/>**{commit-type}** — identifies the type of operation. <br/>**{project-name}** — replaced by the current project name. <br/>**{revision}** — replaced by the project revision. <br/>Default format: `{user-message} Type: {commit-type}` |
-| **User message pattern**      | Optional regular expression for validating user-entered commit messages.                                                                                                                                                                                                                                                                                                                                              |
-| **Invalid user message hint** | Error message displayed when the user message does not match the validation pattern.                                                                                                                                                                                                                                                                                                                                  |
+| Field                         | Description                                                                    |
+|-------------------------------|--------------------------------------------------------------------------------|
+| **User message pattern**      | Optional regular expression for validating user-entered commit messages.       |
+| **Invalid user message hint** | Error message displayed when the user message does not match the pattern.      |
 
 The following user message templates can be customized for individual operations.
 
@@ -72,6 +72,5 @@ For the **Restore from old version** template, the following additional placehol
 |------------------------------|-------------------------------------------------|
 | **Save project**             | Committing changes to an existing project.      |
 | **Create project**           | Creating a new project.                         |
-| **Delete project**           | Deleting a project.                             |
 | **Copy project**             | Copying a project.                              |
 | **Restore from old version** | Restoring a project to a previous revision.     |

@@ -417,7 +417,6 @@ class LocalGitRepositoryTest {
         settingsRepository.setUri(local.getParent() + "/git-settings");
         var locksRoot = new File(root, "locks").getAbsolutePath();
         newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         newRepo.setGcAutoDetach(false);
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local, repositoriesFolder, false, true));
 

@@ -23,7 +23,6 @@ i18next.addResourceBundle('en', 'repository', {
     path: 'Path',
     comments: 'Comments',
     customize_comments: 'Customize comments',
-    message_template: 'Message template',
     user_message_pattern: 'User message pattern',
     invalid_user_message_hint: 'Invalid user message hint',
     save_project: 'Save project',

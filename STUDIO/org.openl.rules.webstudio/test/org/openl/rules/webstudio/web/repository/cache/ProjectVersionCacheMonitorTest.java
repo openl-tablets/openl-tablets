@@ -70,8 +70,6 @@ class ProjectVersionCacheMonitorTest {
                     return local.toURI().toString();
                 case "local-repositories-folder":
                     return localRepositoriesFolder.getAbsolutePath();
-                case "comment-template":
-                    return "OpenL Studio: {commit-type}. {user-message}";
             }
             return null;
         });

@@ -64,6 +64,8 @@ public class Migrator {
     private static final String DEFAULT_COMMENT_DELETE_SUFFIX = ".comment-template.user-message.default.delete";
     private static final String DEFAULT_COMMENT_RESTORE_SUFFIX = ".comment-template.user-message.default.restore";
     private static final String DEFAULT_COMMENT_ERASE_SUFFIX = ".comment-template.user-message.default.erase";
+    private static final String COMMENT_TEMPLATE_SUFFIX = ".comment-template";
+    private static final String COMMENT_TEMPLATE_OLD_SUFFIX = ".comment-template-old";
     private static final String LOCAL_REPO_PATH_SUFFIX = ".local-repository-path";
 
     private Migrator() {
@@ -259,7 +261,9 @@ public class Migrator {
                         .endsWith(DEFAULT_COMMENT_ARCHIVE_SUFFIX) || propertyName
                         .endsWith(DEFAULT_COMMENT_DELETE_SUFFIX) || propertyName
                         .endsWith(DEFAULT_COMMENT_RESTORE_SUFFIX) || propertyName
-                        .endsWith(DEFAULT_COMMENT_ERASE_SUFFIX)))
+                        .endsWith(DEFAULT_COMMENT_ERASE_SUFFIX) || propertyName
+                        .endsWith(COMMENT_TEMPLATE_SUFFIX) || propertyName
+                        .endsWith(COMMENT_TEMPLATE_OLD_SUFFIX)))
                 .forEach(propertyName -> props.put(propertyName, null));
     }
 
@@ -400,14 +404,6 @@ public class Migrator {
 
     // 5.26.0
     private static void migrateTo5_26_0(DynamicPropertySource settings, HashMap<String, String> props) {
-        Arrays.stream(settings.getPropertyNames())
-                .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && propertyName.endsWith(".comment-template"))
-                .forEach(propertyName -> {
-                    var commentTemplate = settings.getProperty(propertyName);
-                    if (commentTemplate != null && commentTemplate.contains("{username}")) {
-                        props.put(propertyName, commentTemplate.replaceAll("(\\s+Author\\s*:?)?\\s*\\{username}\\.?", ""));
-                    }
-                });
         //removing unnecessary SAML properties
         props.put("security.saml.app-url", null);
         props.put("security.saml.authentication-contexts", null);

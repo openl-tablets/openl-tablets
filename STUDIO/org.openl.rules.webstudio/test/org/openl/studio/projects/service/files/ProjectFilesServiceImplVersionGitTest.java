@@ -135,7 +135,6 @@ class ProjectFilesServiceImplVersionGitTest {
             case "id" -> "design";
             case "uri" -> remoteRoot.toURI().toString();
             case "local-repositories-folder" -> localRepositoriesFolder.getAbsolutePath();
-            case "comment-template" -> "OpenL Studio: {commit-type}. {user-message}";
             default -> null;
         });
     }

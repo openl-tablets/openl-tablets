@@ -23307,14 +23307,6 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "commentTemplate": {
-            "type": "string",
-            "description": "***"
-          },
-          "commentTemplateOld": {
-            "type": "string",
-            "description": "***"
-          },
           "commentValidationPattern": {
             "type": "string",
             "description": "***"

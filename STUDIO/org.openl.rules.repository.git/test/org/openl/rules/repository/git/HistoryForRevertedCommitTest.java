@@ -105,7 +105,6 @@ class HistoryForRevertedCommitTest {
         newRepo.setUri(uri);
         var localRepositoriesFolderString = localRepositoriesFolder.toFile().getAbsolutePath();
         newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
-        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         newRepo.setGcAutoDetach(false);
         newRepo.setBranch("main");
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, localPath, localRepositoriesFolderString, false, false));

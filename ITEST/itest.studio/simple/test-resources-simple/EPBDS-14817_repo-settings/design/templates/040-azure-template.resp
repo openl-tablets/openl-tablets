@@ -7,7 +7,6 @@ Content-Type: application/json
     "useCustomComments": false,
     "commentValidationPattern": "",
     "invalidCommentMessage": "Invalid comment: Comment doesn't match validation pattern",
-    "commentTemplate": "{user-message} Type: {commit-type}.",
     "defaultCommentSave": "Project {project-name} is saved.",
     "defaultCommentCreate": "Project {project-name} is created.",
     "defaultCommentCopiedFrom": "Copied from: {project-name}.",

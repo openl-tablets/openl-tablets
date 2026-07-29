@@ -8,7 +8,6 @@ import {
     MessageCreateProjectModal,
     MessageRestoreFromOldVersionModal,
     MessageSaveProjectModal,
-    MessageTemplateModal,
     UserMessagePatternModal,
 } from './InfoFieldModals'
 
@@ -23,12 +22,6 @@ export const DesignRepositoryCommentsConfiguration = () => {
             <Checkbox label={t('repository:customize_comments')} name={['settings', 'useCustomComments']} />
             {isCustomCommentsEnabled && (
                 <>
-                    <Input
-                        label={t('repository:message_template')}
-                        name={['settings', 'commentTemplate']}
-                        rules={[{ required: true, message: t('common:validation.required') }]}
-                        tooltip={{ icon: MessageTemplateModal }}
-                    />
                     <Input label={t('repository:user_message_pattern')} name={['settings', 'commentValidationPattern']} tooltip={{ icon: UserMessagePatternModal }} />
                     <Input
                         label={t('repository:invalid_user_message_hint')}

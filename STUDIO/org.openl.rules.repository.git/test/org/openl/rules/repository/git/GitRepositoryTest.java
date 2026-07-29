@@ -325,6 +325,24 @@ class GitRepositoryTest {
     }
 
     @Test
+    void commitMetadataIsNotRestoredFromStructuredMessage() throws IOException, GitAPIException {
+        var path = "rules/project1/legacy-message";
+        var message = "OpenL Studio: DELETE. Visible message";
+        try (var git = repo.getClosableGit()) {
+            createNewFile(new File(git.getRepository().getWorkTree(), "rules/project1"), "legacy-message", "Content");
+            git.add().addFilepattern(path).call();
+            git.commit().setMessage(message).setCommitter("Git Committer", "committer@example.org").call();
+        }
+
+        var fileData = repo.check(path);
+
+        assertEquals(message, fileData.getComment());
+        assertFalse(fileData.isDeleted());
+        assertEquals("Git Committer", fileData.getAuthor().getName());
+        assertEquals("committer@example.org", fileData.getAuthor().getEmail());
+    }
+
+    @Test
     void saveFolder() throws IOException {
         var changes = Arrays.asList(
                 new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
@@ -1276,7 +1294,6 @@ class GitRepositoryTest {
         newRepo.setLocalRepositoriesFolder(repositoriesFolder);
         newRepo.setBranch(branch);
         newRepo.setTagPrefix(TAG_PREFIX);
-        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         var settingsPath = local.getParent() + "/git-settings";
         var settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);

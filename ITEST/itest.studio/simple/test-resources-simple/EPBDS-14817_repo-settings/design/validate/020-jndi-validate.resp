@@ -6,10 +6,6 @@ Content-Type: application/json
   "fields": [
     {
       "code": "openl.error.NotBlank",
-      "message": "Comment message template cannot be empty.",
-      "field": "settings.commentTemplate"
-    }, {
-      "code": "openl.error.NotBlank",
       "message": "Invalid user message hint cannot be empty.",
       "field": "settings.invalidCommentMessage"
     }, {
