@@ -117,6 +117,7 @@ class GitRepositoryBranchStatusTest {
 
         assertNotEquals(before.branchRevision(), after.branchRevision());
         assertEquals(before.treeRevision(), after.treeRevision());
+        assertFalse(after.tipAffectsPath());
     }
 
     @Test

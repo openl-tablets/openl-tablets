@@ -2764,13 +2764,26 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
         walk.reset();
         var tip = walk.parseCommit(branchId);
-        if (path.isEmpty()) {
-            return Optional.of(new BranchTreeRevision(tip.getName(), tip.getTree().getName()));
+        var treeRevision = getTreeRevision(repository, tip, path);
+        var tipAffectsPath = tip.getParentCount() == 0;
+        for (var parent : tip.getParents()) {
+            var parentRevision = getTreeRevision(repository, walk.parseCommit(parent), path);
+            if (!Objects.equals(treeRevision, parentRevision)) {
+                tipAffectsPath = true;
+                break;
+            }
         }
+        return Optional.of(new BranchTreeRevision(tip.getName(), treeRevision, tipAffectsPath));
+    }
 
-        try (var treeWalk = TreeWalk.forPath(repository, path, tip.getTree())) {
-            var treeRevision = treeWalk == null ? null : treeWalk.getObjectId(0).getName();
-            return Optional.of(new BranchTreeRevision(tip.getName(), treeRevision));
+    private static @Nullable String getTreeRevision(Repository repository,
+                                                    RevCommit commit,
+                                                    String path) throws IOException {
+        if (path.isEmpty()) {
+            return commit.getTree().getName();
+        }
+        try (var treeWalk = TreeWalk.forPath(repository, path, commit.getTree())) {
+            return treeWalk == null ? null : treeWalk.getObjectId(0).getName();
         }
     }
 
