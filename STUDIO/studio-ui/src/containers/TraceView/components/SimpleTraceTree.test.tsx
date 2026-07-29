@@ -88,6 +88,38 @@ describe('SimpleTraceTree', () => {
         expect(document.querySelector('button')).toBeNull()
     })
 
+    it('opens the whole path to the error on a failed run, so the failing node shows at once', () => {
+        // On a failed run every node and step on the path to the error reads "= ERROR"; the tree opens that
+        // path so the deepest failing node is visible without hunting through collapsed branches.
+        const errorTree = () => callNode('uR', 0, [
+            { ref: 'S0', label: '$Base = 2', status: 'executed' },
+            { ref: 'S1', label: '$ManualRates = ERROR', status: 'executed', children: [
+                callNode('uManual', 0, [
+                    { ref: 'C0', label: '$Validation = ERROR', status: 'executed', children: [
+                        callNode('uValidate', 0, [
+                            { ref: 'L0', label: '$Result = ERROR', status: 'executed' },
+                        ], { name: 'uValidate = ERROR' }),
+                    ]},
+                ], { name: 'uManual = ERROR' }),
+            ]},
+        ], { name: 'uR = ERROR' })
+        setStore({ simpleTree: errorTree(), simpleChildren: {}, status: 'error' })
+        render(<SimpleTraceTree />)
+
+        // The deepest failing table is visible — its whole ancestor path was opened automatically.
+        expect(screen.getByTestId('simple-node-tree/S1#0/C0#0')).toHaveTextContent('uValidate')
+        // The step that finished before the error is still there, at the top, not forced anywhere.
+        expect(screen.getByTestId('simple-step-tree/S0')).toHaveTextContent('$Base')
+    })
+
+    it('leaves a clean run collapsed below the root — nothing to open', () => {
+        setStore()
+        render(<SimpleTraceTree />)
+
+        // No "= ERROR" anywhere, so only the root opens; S1's calls stay collapsed.
+        expect(screen.queryByTestId('simple-node-tree/S1#0')).not.toBeInTheDocument()
+    })
+
     it('expands a step from the downloaded snapshot, with no backend involved', async () => {
         setStore()
         render(<SimpleTraceTree />)

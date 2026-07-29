@@ -162,6 +162,34 @@ const flattenSimple = (
     return rows
 }
 
+/** The detailed-view marker a failed table node and every step on the path to it carry. */
+const ERROR_SUFFIX = ' = ERROR'
+
+/**
+ * Collect the tree paths to open so a failed run's whole error branch shows at once: every node and step on
+ * the path marked "= ERROR". Path keys mirror flattenSimple's. Returns whether this subtree failed, so a
+ * parent opens the step that leads into it.
+ */
+const collectErrorPath = (node: CallNodeView, path: string, open: Set<string>): boolean => {
+    let failed = (node.name ?? '').endsWith(ERROR_SUFFIX)
+    for (const step of node.steps) {
+        const stepPath = `${path}/${step.ref}`
+        let stepFailed = (step.label ?? '').endsWith(ERROR_SUFFIX)
+        const kids = step.children ?? []
+        kids.forEach((child, i) => {
+            if (collectErrorPath(child, `${stepPath}#${i}`, open)) {
+                stepFailed = true
+            }
+        })
+        if (stepFailed) {
+            open.add(path)
+            open.add(stepPath)
+            failed = true
+        }
+    }
+    return failed
+}
+
 /**
  * Business view of a finished trace: the whole executed tree, downloaded once and browsed offline.
  * Expanding a branch renders it from the snapshot; clicking a row silently re-runs execution through
@@ -183,7 +211,13 @@ const SimpleTraceTree: React.FC = () => {
     // Keyed on the snapshot: only a new Run replaces it, while inspect re-runs never touch the expansions.
     const [expanded, setExpanded] = useState<Set<string>>(new Set(['tree']))
     useEffect(() => {
-        setExpanded(new Set(['tree']))
+        const open = new Set(['tree'])
+        // On a failed run the whole path to the error reads "= ERROR"; open it so the failing node shows at
+        // once — like the advanced view opens the frame it stopped on — instead of being lost deep in the tree.
+        if (tree && (tree.name ?? '').endsWith(ERROR_SUFFIX)) {
+            collectErrorPath(tree, 'tree', open)
+        }
+        setExpanded(open)
     }, [tree])
 
     const rows = useMemo(
