@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, Button, Collapse, Segmented, Space, Spin, Switch, Tag } from 'antd'
-import { CaretRightOutlined, SyncOutlined } from '@ant-design/icons'
+import { Alert, Collapse, Segmented, Space, Spin, Tag } from 'antd'
+import { SyncOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { DebugError, DebugStatus } from 'types/trace'
@@ -95,6 +95,8 @@ const TraceView: React.FC = () => {
     const tableId = searchParams.get('tableId')
     const fromModule = searchParams.get('fromModule')
     const testRanges = searchParams.get('testRanges')
+    // The trace mode is chosen at launch (the Advanced tracer checkbox on the JSF page), not in this view.
+    const advancedLaunch = searchParams.get('advanced') === 'true'
 
     const setRouteParams = useTraceStore(s => s.setRouteParams)
     const start = useTraceStore(s => s.start)
@@ -105,10 +107,8 @@ const TraceView: React.FC = () => {
     const error = useTraceStore(s => s.error)
     const profiling = useTraceStore(s => s.profiling)
     const advanced = useTraceStore(s => s.advanced)
-    const setAdvanced = useTraceStore(s => s.setAdvanced)
     const simpleRun = useTraceStore(s => s.simpleRun)
     const simpleLoading = useTraceStore(s => s.simpleLoading)
-    const simpleReady = useTraceStore(s => s.simpleReady)
 
     const [leftPanelWidth, setLeftPanelWidth] = useState(35)
     const [isResizing, setIsResizing] = useState(false)
@@ -135,12 +135,18 @@ const TraceView: React.FC = () => {
 
     useEffect(() => {
         if (projectId && tableId) {
-            setRouteParams({ projectId, tableId, fromModule, testRanges })
-            void loadBreakpoints()
-            void start()
+            setRouteParams({ projectId, tableId, fromModule, testRanges, advanced: advancedLaunch })
+            if (advancedLaunch) {
+                void loadBreakpoints()
+                void start()
+            } else {
+                // Business mode is fixed at launch, so it runs straight away — there is no Run button.
+                void simpleRun()
+            }
         }
         return () => reset()
-    }, [projectId, tableId, fromModule, testRanges, setRouteParams, loadBreakpoints, start, reset])
+    }, [projectId, tableId, fromModule, testRanges, advancedLaunch,
+        setRouteParams, loadBreakpoints, start, simpleRun, reset])
 
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         e.preventDefault()
@@ -175,16 +181,18 @@ const TraceView: React.FC = () => {
         }
     }, [status])
 
-    // A long trace only shows a small "Running" badge. Dim the content with a spinner once a run
-    // lasts a moment, so a heavy request is clearly busy — delayed so quick step-to-step runs do not flash it.
+    // Dim the content with a spinner once a run lasts a moment, so a heavy request is clearly busy — for the
+    // advanced debugger while it runs, and for the business view for its whole auto-run (which has no Run
+    // button to signal it started). Delayed so quick step-to-step or fast runs do not flash it.
+    const running = status === 'running' || simpleLoading
     useEffect(() => {
-        if (status !== 'running') {
+        if (!running) {
             setBusy(false)
             return undefined
         }
         const id = setTimeout(() => setBusy(true), 500)
         return () => clearTimeout(id)
-    }, [status])
+    }, [running])
 
     if (!projectId || !tableId) {
         return (
@@ -209,44 +217,27 @@ const TraceView: React.FC = () => {
 
     return (
         <div className={styles.debugView} id="trace-view">
-            <div className={styles.toolbar} data-testid="debug-header">
-                {/* Run is one-shot: it launches the calculation and disappears; it only comes back when
-                    the run failed to produce a browsable tree, so it can be retried. */}
-                <div>
-                    {advanced && <DebugToolbar />}
-                    {!advanced && !simpleLoading && !simpleReady && (
-                        <Button
-                            data-testid="simple-run"
-                            disabled={status === 'running'}
-                            icon={<CaretRightOutlined />}
-                            onClick={() => void simpleRun()}
-                            type="primary"
-                        >
-                            {t('simple.run')}
-                        </Button>
-                    )}
-                </div>
-                <Space size="middle">
-                    {statusVisible && (
-                        <Tag
-                            className={cx(styles.statusTag, styles[STATUS_STYLE[status]])}
-                            data-testid="debug-status"
-                            icon={status === 'running' ? <SyncOutlined spin /> : undefined}
-                        >
-                            {t(`debug.status.${status}`)}
-                        </Tag>
-                    )}
-                    <Space size={4}>
-                        <Switch
-                            checked={advanced}
-                            data-testid="trace-advanced"
-                            onChange={setAdvanced}
-                            size="small"
-                        />
-                        <span>{t('simple.advanced')}</span>
+            {/* The mode is fixed at launch (the Advanced tracer checkbox on the JSF page): the advanced
+                debugger keeps its toolbar and status, while the business view runs straight away and has no
+                toolbar of its own — its only control, Show detailed view, sits in the tree panel. */}
+            {advanced && (
+                <div className={styles.toolbar} data-testid="debug-header">
+                    <div>
+                        <DebugToolbar />
+                    </div>
+                    <Space size="middle">
+                        {statusVisible && (
+                            <Tag
+                                className={cx(styles.statusTag, styles[STATUS_STYLE[status]])}
+                                data-testid="debug-status"
+                                icon={status === 'running' ? <SyncOutlined spin /> : undefined}
+                            >
+                                {t(`debug.status.${status}`)}
+                            </Tag>
+                        )}
                     </Space>
-                </Space>
-            </div>
+                </div>
+            )}
             {showTerminalBanner && (
                 <Alert
                     className={styles.errorBanner}

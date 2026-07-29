@@ -86,9 +86,7 @@ i18next.addResourceBundle('en', 'trace', {
     },
 
     simple: {
-        run: 'Run',
-        advanced: 'Advanced',
-        pressRun: 'Click Run to calculate and see every rule that executed.',
+        pressRun: 'Preparing the calculation…',
         calculating: 'Calculating…',
     },
 

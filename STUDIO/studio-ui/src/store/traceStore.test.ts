@@ -872,45 +872,15 @@ describe('traceStore simple mode', () => {
         expect(state.simpleSelectedKey).toBeNull()
     })
 
-    it('clears breakpoints and restarts the trace when switching back to the simple view', async () => {
-        setBreakpoints.mockResolvedValue(undefined)
-        cancelTrace.mockResolvedValue(undefined)
-        getStack.mockRejectedValue(new Error('no session'))
-        startTrace.mockResolvedValue(suspended())
-        useTraceStore.setState({ advanced: true, breakpoints: ['uA'], breakpointLabels: { uA: 'A' },
-            simpleReady: true, simpleTree: sampleRoot() })
-
-        await useTraceStore.getState().setAdvanced(false)
-
-        const state = useTraceStore.getState()
-        expect(state.advanced).toBe(false)
-        expect(state.breakpoints).toEqual([]) // the business view debugs with none
-        expect(setBreakpoints).toHaveBeenCalledWith('p1', [])
-        expect(cancelTrace).toHaveBeenCalledWith('p1') // the trace restarts from the top, like a profiling toggle
-        expect(startTrace).toHaveBeenCalled()
-        expect(state.simpleReady).toBe(false) // the business snapshot resets to its Run prompt
-        expect(state.simpleTree).toBeNull()
-    })
-
-    it('restarts the trace from the top when switching into the advanced view', async () => {
-        cancelTrace.mockResolvedValue(undefined)
-        getStack.mockRejectedValue(new Error('no session'))
-        startTrace.mockResolvedValue(suspended())
+    it('takes the trace mode from the launch route params, not a view toggle', () => {
+        // The mode is chosen at launch (the Advanced tracer checkbox on the JSF page) and carried in the URL;
+        // the view applies it and no longer toggles it.
         useTraceStore.setState({ advanced: false })
-
-        await useTraceStore.getState().setAdvanced(true)
-
+        useTraceStore.getState().setRouteParams({ projectId: 'p1', tableId: 't1', advanced: true })
         expect(useTraceStore.getState().advanced).toBe(true)
-        expect(cancelTrace).toHaveBeenCalledWith('p1')
-        expect(startTrace).toHaveBeenCalled()
-    })
 
-    it('ignores a mode switch that does not change the value', async () => {
-        useTraceStore.setState({ advanced: false })
-
-        await useTraceStore.getState().setAdvanced(false)
-
-        expect(cancelTrace).not.toHaveBeenCalled()
+        useTraceStore.getState().setRouteParams({ projectId: 'p1', tableId: 't1', advanced: false })
+        expect(useTraceStore.getState().advanced).toBe(false)
     })
 
     it('keeps the snapshot tree untouched while an inspection re-runs the trace', async () => {

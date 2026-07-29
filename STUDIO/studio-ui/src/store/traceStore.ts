@@ -161,6 +161,7 @@ interface DebugState {
         fromModule?: string | null
         testRanges?: string | null
         inputJson?: string | null
+        advanced?: boolean
     }) => void
     start: () => Promise<void>
     refreshStack: () => Promise<void>
@@ -194,11 +195,6 @@ interface DebugState {
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
     /** Fetch the next page of a tree step's executed sub-calls (lazy executed-tree loading). */
     fetchTreeChildren: (uri: string, instance: number, step: string) => Promise<void>
-    /**
-     * Switch between the simple business view and the advanced debugger. Entering simple clears breakpoints,
-     * and either direction restarts the trace from the top so neither view inherits the other's position.
-     */
-    setAdvanced: (value: boolean) => Promise<void>
     /** Toggle the decision-table condition breakdown shown in both trees (business and advanced). */
     setShowDetailed: (value: boolean) => void
     /** Simple mode Run: execute the whole trace recording its tree, then download the tree for offline browsing. */
@@ -456,13 +452,16 @@ export const useTraceStore = create<DebugState>((set, get) => {
     return {
         ...initialState,
 
-        setRouteParams: ({ projectId, tableId, fromModule, testRanges, inputJson }) => {
+        setRouteParams: ({ projectId, tableId, fromModule, testRanges, inputJson, advanced }) => {
             set({
                 projectId,
                 tableId,
                 fromModule: fromModule ?? null,
                 testRanges: testRanges ?? null,
                 inputJson: inputJson ?? null,
+                // The launch fixes the mode (Advanced tracer checkbox on the JSF page); the view no longer
+                // toggles it. Default off — the business view.
+                ...(advanced !== undefined && { advanced }),
             })
         },
 
@@ -780,29 +779,6 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 })
             }
             return result
-        },
-
-        setAdvanced: async (value) => {
-            if (get().advanced === value) return
-            set({ advanced: value })
-            const { projectId, breakpoints } = get()
-            if (!value && breakpoints.length > 0) {
-                // The business view debugs with no breakpoints — drop any set while in the advanced mode.
-                set({ breakpoints: [], breakpointLabels: {}, transientBreakpoint: null })
-                if (projectId) {
-                    try {
-                        await traceService.setBreakpoints(projectId, [])
-                    } catch {
-                        // Best effort: the restart below starts a fresh session with none anyway.
-                    }
-                }
-            }
-            // Switching views restarts the trace from the top (like toggling profiling), so neither view
-            // inherits the other's mid-run position; the business snapshot resets to its Run prompt.
-            set({ ...SIMPLE_SNAPSHOT_RESET })
-            if (projectId) {
-                await restart()
-            }
         },
 
         setShowDetailed: (value) => set({ showDetailed: value }),

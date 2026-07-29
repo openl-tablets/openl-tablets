@@ -1,21 +1,24 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DebugStatus } from 'types/trace'
 import TraceView from './TraceView'
 
-// A single mutable store snapshot the selector-based useTraceStore reads from.
-const { store } = vi.hoisted(() => ({
-    store: {
-        current: {} as Record<string, unknown>,
-    },
+// A single mutable store snapshot the selector-based useTraceStore reads from, plus the launch URL params
+// (the trace mode is read from `advanced` there, chosen at launch on the JSF page).
+const { store, search } = vi.hoisted(() => ({
+    store: { current: {} as Record<string, unknown> },
+    search: { current: new URLSearchParams({ tableId: 't1' }) },
 }))
+
+const launchWith = (advanced?: boolean): void => {
+    search.current = new URLSearchParams({ tableId: 't1', ...(advanced ? { advanced: 'true' } : {}) })
+}
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
 vi.mock('react-router-dom', () => ({
     useParams: () => ({ projectId: 'p1' }),
-    useSearchParams: () => [new URLSearchParams({ tableId: 't1' })],
+    useSearchParams: () => [search.current],
 }))
 
 vi.mock('store', () => ({
@@ -45,7 +48,6 @@ const setStore = (status: DebugStatus, extra: Record<string, unknown> = {}): voi
         error: null,
         profiling: false,
         advanced: false,
-        setAdvanced: vi.fn(),
         simpleRun: vi.fn(),
         simpleLoading: false,
         simpleReady: false,
@@ -56,6 +58,7 @@ const setStore = (status: DebugStatus, extra: Record<string, unknown> = {}): voi
 describe('TraceView terminal outcome', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        launchWith() // default: launched into the business view
     })
 
     it('shows no status pill and no banner in the business view on a clean finish', () => {
@@ -105,61 +108,35 @@ describe('TraceView terminal outcome', () => {
 describe('TraceView mode gating', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        launchWith() // default: launched into the business view
     })
 
-    it('opens in the simple business view: a Run button and the tree, none of the debugger panels', () => {
-        setStore('suspended')
-        render(<TraceView />)
-
-        expect(screen.getByTestId('simple-run')).toBeInTheDocument()
-        expect(screen.getByTestId('simple-tree')).toBeInTheDocument()
-        expect(screen.queryByTestId('debug-toolbar')).not.toBeInTheDocument()
-        expect(screen.queryByTestId('breakpoints-panel')).not.toBeInTheDocument()
-        expect(screen.queryByTestId('watch-panel')).not.toBeInTheDocument()
-        expect(screen.queryByTestId('trace-view-mode')).not.toBeInTheDocument() // no Execution Path tab
-        // Paused is a stepping detail; the simple view shows no status until the run starts.
-        expect(screen.queryByTestId('debug-status')).not.toBeInTheDocument()
-    })
-
-    it('starts the full run from the Run button', async () => {
-        setStore('suspended')
-        render(<TraceView />)
-
-        await userEvent.click(screen.getByTestId('simple-run'))
-
-        expect(store.current['simpleRun']).toHaveBeenCalled()
-    })
-
-    it('hides the Run button once the calculation has run — Run is one-shot', () => {
-        setStore('completed', { simpleReady: true })
-        render(<TraceView />)
-
-        expect(screen.queryByTestId('simple-run')).not.toBeInTheDocument()
-    })
-
-    it('hides the Run button while the run executes and the tree downloads', () => {
+    it('opens straight into the business view and runs it — no Run button, no Advanced switch', () => {
+        // The mode is fixed at launch, so the business view runs on open: there is no Run button to press
+        // and no switch to change the mode. Its only control, Show detailed view, lives in the tree panel.
         setStore('running', { simpleLoading: true })
         render(<TraceView />)
 
+        expect(store.current['simpleRun']).toHaveBeenCalled()
+        expect(screen.getByTestId('simple-tree')).toBeInTheDocument()
         expect(screen.queryByTestId('simple-run')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('trace-advanced')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('debug-toolbar')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('debug-status')).not.toBeInTheDocument()
     })
 
-    it('switches to the advanced debugger UI with the toggle', async () => {
-        setStore('suspended')
-        render(<TraceView />)
-
-        await userEvent.click(screen.getByTestId('trace-advanced'))
-
-        expect(store.current['setAdvanced']).toHaveBeenCalledWith(true, expect.anything())
-    })
-
-    it('shows the full debugger when the advanced mode is on', () => {
+    it('opens the advanced debugger when launched advanced, attaching to the session — no Advanced switch', () => {
         setStore('suspended', { advanced: true })
+        launchWith(true)
         render(<TraceView />)
 
+        // Advanced attaches to the launch session; it does not auto-run the business tree.
+        expect(store.current['start']).toHaveBeenCalled()
+        expect(store.current['simpleRun']).not.toHaveBeenCalled()
         expect(screen.getByTestId('debug-toolbar')).toBeInTheDocument()
         expect(screen.getByTestId('breakpoints-panel')).toBeInTheDocument()
         expect(screen.getByTestId('watch-panel')).toBeInTheDocument()
+        expect(screen.queryByTestId('trace-advanced')).not.toBeInTheDocument()
         expect(screen.queryByTestId('simple-run')).not.toBeInTheDocument()
         expect(screen.getByTestId('debug-status')).toHaveTextContent('debug.status.suspended')
     })

@@ -21,6 +21,8 @@ export interface TraceExecutionEventDetail {
     fromModule?: string
     inputJson?: string
     downloadMode?: boolean
+    /** Advanced tracer checkbox on the JSF page: true opens the full debugger, false the business view. */
+    advanced?: boolean
 }
 
 /** Save the exported trace text to the user's machine as trace.txt. */
@@ -54,6 +56,8 @@ export const TraceExecutionModal: React.FC = () => {
         params.set('tableId', d.tableId)
         if (d.fromModule) params.set('fromModule', d.fromModule)
         if (d.testRanges) params.set('testRanges', d.testRanges)
+        // Carry the launch-time mode so the trace window opens straight into the business or advanced view.
+        if (d.advanced) params.set('advanced', 'true')
         const url = `${CONFIG.CONTEXT}/trace/${encodeURIComponent(d.projectId)}?${params.toString()}`
         window.open(url, 'trace_win', 'width=1240,height=800,resizable=yes,scrollbars=yes')
     }, [])
