@@ -2,8 +2,12 @@ package org.openl.rules.workspace.dtr;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
@@ -33,7 +37,46 @@ public interface DesignTimeRepository extends ProjectsContainer {
 
     AProject getProjectByPath(String repositoryId, String branch, String path, String version) throws IOException;
 
+    /**
+     * Returns the project entry verified in the requested branch.
+     *
+     * @throws ProjectException when the project does not exist in that branch
+     */
+    default AProject getProject(String repositoryId, String name, String branch) throws ProjectException {
+        return getBranchedProject(repositoryId, name)
+                .flatMap(project -> project.entry(branch))
+                .map(BranchedProject.BranchEntry::project)
+                .orElseThrow(() -> new ProjectException(
+                        "Project ''{0}'' is not found in branch ''{1}''.", null, name, branch));
+    }
+
+    /**
+     * Returns the logical project with every branch entry visible through this repository view.
+     *
+     * <p>A repository without branches returns an empty value.
+     */
+    default Optional<BranchedProject> getBranchedProject(String repositoryId, String name) {
+        return Optional.empty();
+    }
+
+    /**
+     * Returns the current background-index health for a branch-capable repository.
+     */
+    default Optional<BranchedProjectIndexService.IndexHealth> getProjectIndexHealth(String repositoryId) {
+        return Optional.empty();
+    }
+
     void refresh();
+
+    /**
+     * Refreshes one branch and completes after its new project membership is published.
+     *
+     * <p>Repositories without branches use their normal synchronous refresh.
+     */
+    default CompletionStage<Void> refreshBranch(String repositoryId, String branch) {
+        refresh();
+        return CompletableFuture.completedFuture(null);
+    }
 
     void addListener(DesignTimeRepositoryListener listener);
 

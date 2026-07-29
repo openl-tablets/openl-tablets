@@ -59,8 +59,8 @@ This section describes how to view existing branches, switch between them in the
 
 1.  To delete a default branch, in the repository, select the required project branch and click **Delete.**
 
-    The project is deleted from the current state of Design repository and disappears from the list of projects. This
-    change is recorded in repository history.
+    The project is deleted from the current branch of Design repository. It disappears from the project list only when
+    it does not exist in another branch. This change is recorded in repository history.
 
 1.  To merge two branches, click **Sync** and select one of the following options:
 

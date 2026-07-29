@@ -28,6 +28,9 @@
                   destroy-method="destroy">
                 <constructor-arg name="propertyResolver" ref="environment"/>
                 <constructor-arg name="repositorySettings" ref="repositorySettings"/>
+                <constructor-arg name="indexService">
+                    <bean class="org.openl.rules.workspace.dtr.BranchedProjectIndexService"/>
+                </constructor-arg>
             </bean>
         </constructor-arg>
         <constructor-arg name="designRepositoryAclService" ref="designRepositoryAclService"/>

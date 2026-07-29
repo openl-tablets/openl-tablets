@@ -6,16 +6,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.core.env.PropertyResolver;
@@ -35,6 +36,9 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.RepositorySettingsAware;
 import org.openl.rules.workspace.ProjectKey;
+import org.openl.rules.workspace.dtr.BranchedProject;
+import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
+import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.FolderMapper;
@@ -45,7 +49,6 @@ import org.openl.util.StringUtils;
 /**
  * @author Aleh Bykhavets
  */
-@RequiredArgsConstructor
 @Slf4j
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
@@ -56,20 +59,36 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Getter
     private volatile String rulesLocation;
     private volatile boolean projectsRefreshNeeded = true;
+    private volatile boolean destroyed;
 
     /**
      * Project Cache
      */
     private final HashMap<ProjectKey, AProject> projects = new HashMap<>();
     private final HashMap<ProjectKey, AProject> projectsVersions = new HashMap<>();
+    private final HashMap<ProjectKey, BranchedProject> branchedProjects = new HashMap<>();
+    private final Map<String, Map<ProjectKey, AProject>> configuredBranchFallbacks = new HashMap<>();
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
     private final PropertyResolver propertyResolver;
     private final RepositorySettings repositorySettings;
+    private final BranchedProjectIndexService indexService;
 
     @Getter
     private final List<String> exceptions = new ArrayList<>();
+
+    public DesignTimeRepositoryImpl(PropertyResolver propertyResolver, RepositorySettings repositorySettings) {
+        this(propertyResolver, repositorySettings, new BranchedProjectIndexService());
+    }
+
+    public DesignTimeRepositoryImpl(PropertyResolver propertyResolver,
+                                    RepositorySettings repositorySettings,
+                                    BranchedProjectIndexService indexService) {
+        this.propertyResolver = propertyResolver;
+        this.repositorySettings = repositorySettings;
+        this.indexService = indexService;
+    }
 
     public void init() throws RepositoryException {
         synchronized (projects) {
@@ -78,7 +97,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
 
             repositories = new ArrayList<>();
-            var callback = new RepositoryListener(listeners);
 
             rulesLocation = getBasePath();
             var designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES))
@@ -88,18 +106,20 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 var repository = createRepo(repoId, rulesLocation);
 
                 repositories.add(repository);
-
-                addListener(() -> {
-                    synchronized (projects) {
-                        projectsRefreshNeeded = true;
-                    }
-                });
-                repository.setListener(callback);
+                if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
+                    configuredBranchFallbacks.put(repository.getId(), scanProjects(repository));
+                    var initialBuild = indexService.register(branchRepository, rulesLocation);
+                    repository.setListener(new RepositoryListener(() -> repositoryChanged(repository)));
+                    initialBuild.whenComplete((snapshot, error) -> indexPublished());
+                } else {
+                    repository.setListener(new RepositoryListener(() -> repositoryChanged(repository)));
+                }
             }
             repositories = repositories.stream()
                     .filter(r -> Objects.nonNull(r.getName()))
                     .sorted(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER))
                     .collect(Collectors.toList());
+            refreshProjects();
         }
     }
 
@@ -181,7 +201,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
 
-            var projectKey = new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT));
+            var projectKey = projectKey(repositoryId, name);
 
             var cached = projects.get(projectKey);
             if (cached != null) {
@@ -197,6 +217,25 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 throw new ProjectException("Project '{0}' is not found.", null, name);
             }
         }
+    }
+
+    @Override
+    public Optional<BranchedProject> getBranchedProject(String repositoryId, String name) {
+        synchronized (projects) {
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
+            return Optional.ofNullable(branchedProjects.get(projectKey(repositoryId, name)));
+        }
+    }
+
+    @Override
+    public Optional<BranchedProjectIndexService.IndexHealth> getProjectIndexHealth(String repositoryId) {
+        var repository = getRepository(repositoryId);
+        if (!isBranchRepository(repository)) {
+            return Optional.empty();
+        }
+        return Optional.of(indexService.getSnapshot(repositoryId).health());
     }
 
     @Override
@@ -260,34 +299,68 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                                      String branch,
                                      String path,
                                      String version) throws IOException {
-        Collection<AProject> allProjects;
         synchronized (projects) {
             if (projectsRefreshNeeded) {
                 refreshProjects();
             }
 
-            allProjects = new ArrayList<>(projects.values());
-        }
-
-        Optional<AProject> project = allProjects.stream()
-                .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
-                .findFirst();
-        if (project.isPresent()) {
-            var repository = project.get().getRepository();
-            if (branch != null && repository.supports().branches()) {
-                repository = ((BranchRepository) repository).forBranch(branch);
+            if (branch != null) {
+                var branchProject = branchedProjects.values()
+                        .stream()
+                        .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
+                        .map(project -> project.entry(branch).orElse(null))
+                        .filter(Objects::nonNull)
+                        .map(BranchEntry::project)
+                        .filter(project -> project.getRealPath().equals(path))
+                        .findFirst();
+                if (branchProject.isPresent()) {
+                    var project = branchProject.get();
+                    return new AProject(project.getRepository(), project.getFolderPath(), version);
+                }
             }
-            return new AProject(repository, project.get().getFolderPath(), version);
-        } else {
-            return null;
+
+            Optional<AProject> project = projects.values()
+                    .stream()
+                    .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
+                    .findFirst();
+            if (project.isPresent()) {
+                return new AProject(project.get().getRepository(), project.get().getFolderPath(), version);
+            }
         }
+        return null;
     }
 
     @Override
     public void refresh() {
-        synchronized (projects) {
-            projectsRefreshNeeded = true;
+        var hasNonBranchedRepository = false;
+        var currentRepositories = repositories;
+        if (currentRepositories == null) {
+            synchronized (projects) {
+                projectsRefreshNeeded = true;
+            }
+            return;
         }
+        for (Repository repository : currentRepositories) {
+            if (isBranchRepository(repository)) {
+                indexService.invalidateRepository(repository.getId())
+                        .whenComplete((snapshot, error) -> indexPublished());
+            } else {
+                hasNonBranchedRepository = true;
+            }
+        }
+        synchronized (projects) {
+            projectsRefreshNeeded |= hasNonBranchedRepository;
+        }
+    }
+
+    @Override
+    public CompletionStage<Void> refreshBranch(String repositoryId, String branch) {
+        var repository = getRepository(repositoryId);
+        if (!isBranchRepository(repository)) {
+            refresh();
+            return CompletableFuture.completedFuture(null);
+        }
+        return indexService.invalidateBranch(repositoryId, branch).thenAccept(snapshot -> indexPublished());
     }
 
     @Override
@@ -325,31 +398,67 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private void refreshProjects() {
         projects.clear();
         projectsVersions.clear();
+        branchedProjects.clear();
         exceptions.clear();
         for (Repository repository : repositories) {
-            Collection<FileData> fileDatas = List.of();
-            try {
-                var path = rulesLocation;
-                if (repository.supports().folders()) {
-                    fileDatas = repository.listFolders(path);
+            if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
+                var snapshot = indexService.getSnapshot(repository.getId());
+                if (snapshot.health().state() == BranchedProjectIndexService.IndexState.INDEXING) {
+                    projects.putAll(configuredBranchFallbacks.getOrDefault(repository.getId(), Map.of()));
                 } else {
-                    fileDatas = repository.list(path);
+                    addSnapshotProjects(branchRepository, snapshot);
                 }
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-                exceptions.add("Repository '%s' : %s".formatted(repository.getName(), e.getMessage()));
-            }
-            for (FileData fileData : fileDatas) {
-                var project = new AProject(repository, fileData);
-                if (project.isDeleted()) {
-                    continue;
+                var error = snapshot.health().lastError();
+                if (error != null) {
+                    exceptions.add("Repository '%s' : %s".formatted(repository.getName(), error));
                 }
-                // FIXME: use project path, not name
-                projects.put(new ProjectKey(repository.getId(), project.getName().toLowerCase(Locale.ROOT)), project);
+            } else {
+                projects.putAll(scanProjects(repository));
             }
         }
 
         projectsRefreshNeeded = false;
+    }
+
+    private void addSnapshotProjects(BranchRepository repository,
+                                     BranchedProjectIndexService.RepositorySnapshot snapshot) {
+        snapshot.projects().values().forEach(projectSnapshot -> {
+            var entries = new LinkedHashMap<String, BranchEntry>();
+            projectSnapshot.entries().forEach((branch, indexedProject) -> {
+                var branchSnapshot = snapshot.branches().get(branch);
+                if (branchSnapshot != null) {
+                    entries.put(branch,
+                            new BranchEntry(
+                                    new AProject(indexedProject.repository(), indexedProject.fileData()),
+                                    branchSnapshot.status()));
+                }
+            });
+            if (!entries.isEmpty()) {
+                var project = BranchedProject.create(projectSnapshot.name(), repository.getBaseBranch(), entries);
+                var key = projectKey(repository.getId(), project.name());
+                branchedProjects.put(key, project);
+                projects.put(key, project.homeEntry().project());
+            }
+        });
+    }
+
+    private Map<ProjectKey, AProject> scanProjects(Repository repository) {
+        Collection<FileData> fileDatas = List.of();
+        try {
+            fileDatas = repository.supports().folders()
+                    ? repository.listFolders(rulesLocation)
+                    : repository.list(rulesLocation);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            exceptions.add("Repository '%s' : %s".formatted(repository.getName(), e.getMessage()));
+        }
+
+        var result = new LinkedHashMap<ProjectKey, AProject>();
+        for (FileData fileData : fileDatas) {
+            var project = new AProject(repository, fileData);
+            result.putIfAbsent(projectKey(repository.getId(), project.getBusinessName()), project);
+        }
+        return result;
     }
 
     @Override
@@ -359,16 +468,15 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
             // Check full name for mapped repositories
-            var project = projects.get(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)));
-            if (project != null && !project.isDeleted()) {
+            var project = projects.get(projectKey(repositoryId, name));
+            if (project != null) {
                 return true;
             }
 
             // Check business name
             return projects.values()
                     .stream()
-                    .anyMatch(p -> !p.isDeleted()
-                            && p.getRepository().getId().equals(repositoryId)
+                    .anyMatch(p -> p.getRepository().getId().equals(repositoryId)
                             && p.getBusinessName().equals(name));
         }
     }
@@ -393,6 +501,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
      * destroy-method
      */
     public void destroy() throws Exception {
+        destroyed = true;
+        indexService.close();
         synchronized (projects) {
             if (repositories != null) {
                 for (Repository repository : repositories) {
@@ -404,6 +514,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             projects.clear();
             projectsVersions.clear();
+            branchedProjects.clear();
+            configuredBranchFallbacks.clear();
         }
     }
 
@@ -415,19 +527,60 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 .orElse(null);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private void repositoryChanged(Repository repository) {
+        if (destroyed) {
+            return;
+        }
+        if (isBranchRepository(repository)) {
+            indexService.invalidateRepository(repository.getId())
+                    .whenComplete((snapshot, error) -> indexPublished());
+        } else {
+            synchronized (projects) {
+                projectsRefreshNeeded = true;
+            }
+            notifyListeners();
+        }
+    }
+
+    private void indexPublished() {
+        if (destroyed) {
+            return;
+        }
+        synchronized (projects) {
+            projectsRefreshNeeded = true;
+            refreshProjects();
+        }
+        notifyListeners();
+    }
+
+    private void notifyListeners() {
+        List<DesignTimeRepositoryListener> localListeners;
+        synchronized (listeners) {
+            localListeners = new ArrayList<>(listeners);
+        }
+        for (DesignTimeRepositoryListener listener : localListeners) {
+            listener.onRepositoryModified();
+        }
+    }
+
+    private static boolean isBranchRepository(Repository repository) {
+        return repository instanceof BranchRepository && repository.supports().branches();
+    }
+
+    private static ProjectKey projectKey(String repositoryId, String projectName) {
+        return new ProjectKey(repositoryId, projectName.toLowerCase(Locale.ROOT));
+    }
+
     private static class RepositoryListener implements Listener {
-        private final List<DesignTimeRepositoryListener> listeners;
+        private final Runnable callback;
+
+        private RepositoryListener(Runnable callback) {
+            this.callback = callback;
+        }
 
         @Override
         public void onChange() {
-            List<DesignTimeRepositoryListener> localListeners;
-            synchronized (listeners) {
-                localListeners = new ArrayList<>(listeners);
-            }
-            for (DesignTimeRepositoryListener listener : localListeners) {
-                listener.onRepositoryModified();
-            }
+            callback.run();
         }
     }
 }

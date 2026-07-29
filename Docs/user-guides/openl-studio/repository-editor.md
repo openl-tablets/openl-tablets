@@ -504,8 +504,8 @@ The new project appears in the list of projects.
 Deleting a project removes it from the user's workspace and from the current state of Design repository. For Git
 repositories, OpenL Studio stores this change as a regular delete commit, so repository history keeps the deletion
 event. If the project is opened by any user on the deleted branch, OpenL Studio closes it before removal and
-discards unsaved changes. When the project is deleted from the configured main branch, OpenL Studio also removes
-workspace copies opened from other branches on the next workspace refresh.
+discards unsaved changes. If the project also exists in another branch, it remains in the project list and copies
+opened from those other branches are not removed.
 
 **Note:** Projects in the **Local** status that were not uploaded to Design repository will be removed physically and cannot be restored.
 

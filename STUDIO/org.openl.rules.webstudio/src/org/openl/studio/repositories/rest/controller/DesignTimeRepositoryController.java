@@ -251,6 +251,7 @@ public class DesignTimeRepositoryController {
             validationProvider.validate(model, createUpdateProjectModelValidator);
             validationProvider.validate(archiveTmp, zipArchiveValidator);
             var data = zipProjectSaveStrategy.save(model, archiveTmp);
+            projectCreationService.awaitProjectVisibility(repository);
             var project = designTimeRepository.getProject(repository.getId(), projectName);
             ProjectCreationService.grantContributorAclIfAbsent(designRepositoryAclService, project);
             projectCreationService.registerExtensibleTagsAfterDesignChange(project);

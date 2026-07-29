@@ -11,10 +11,12 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.LockEngine;
@@ -32,12 +35,16 @@ import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.BranchedProject;
+import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 
 /**
@@ -58,6 +65,7 @@ class UserWorkspaceRefreshTest {
 
     private MetainfoRegistry registry;
     private LocalRepository localRepository;
+    private LocalWorkspace localWorkspace;
     private DesignTimeRepository designTimeRepository;
     private LockEngine projectsLockEngine;
     private UserWorkspaceImpl userWorkspace;
@@ -75,13 +83,19 @@ class UserWorkspaceRefreshTest {
         lenient().when(projectsLockEngine.getLockInfo(anyString(), any(), anyString()))
                 .thenReturn(LockInfo.NO_LOCK);
 
-        LocalWorkspace localWorkspace = mock(LocalWorkspace.class);
+        localWorkspace = mock(LocalWorkspace.class);
+        lenient().when(localWorkspace.getLocation()).thenReturn(userDir.toFile());
         lenient().when(localWorkspace.getRepository(anyString())).thenReturn(localRepository);
         lenient().when(localWorkspace.getMetainfoRegistry()).thenReturn(registry);
         lenient().when(localWorkspace.getProjects()).thenAnswer(invocation -> workspaceProjects());
         lenient().when(localWorkspace.getProjectForPath(anyString(), any()))
                 .thenAnswer(invocation -> workspaceProjects().stream()
                         .filter(project -> DESIGN_PATH.equals(invocation.getArgument(1)))
+                        .findFirst()
+                        .orElse(null));
+        lenient().when(localWorkspace.getProjectForName(anyString(), anyString()))
+                .thenAnswer(invocation -> workspaceProjects().stream()
+                        .filter(project -> project.getBusinessName().equalsIgnoreCase(invocation.getArgument(1)))
                         .findFirst()
                         .orElse(null));
 
@@ -167,19 +181,21 @@ class UserWorkspaceRefreshTest {
     }
 
     @Test
-    void unchangedCopyExistingOnlyInSecondaryBranchIsClosed() throws IOException {
+    void unchangedCopyExistingOnlyInSecondaryBranchStaysVisible() throws IOException {
         mockDesignWithProjectInBranch("feature");
         seedOpenedCopy("design", "feature", false);
 
         var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
-        assertTrue(projects.isEmpty(), "A secondary branch does not keep a project absent from the main branch.");
-        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The unchanged copy must be deleted.");
-        assertNull(registry.get(PROJECT), "The record must be removed together with the copy.");
+        assertEquals(1, projects.size());
+        assertEquals("feature", projects.getFirst().getBranch());
+        assertTrue(projects.getFirst().isOpened());
+        assertTrue(Files.exists(userDir.resolve(PROJECT)));
+        assertNotNull(registry.get(PROJECT));
     }
 
     @Test
-    void modifiedCopyExistingOnlyInSecondaryBranchIsClosed() throws IOException {
+    void modifiedCopyExistingOnlyInSecondaryBranchStaysVisible() throws IOException {
         mockDesignWithProjectInBranch("feature");
         seedOpenedCopy("design", "feature", true);
         LockInfo lockInfo = mock(LockInfo.class);
@@ -192,12 +208,11 @@ class UserWorkspaceRefreshTest {
 
         var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
 
-        assertTrue(projects.isEmpty(), "Local changes do not keep a project absent from the main branch.");
-        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The modified copy must be deleted.");
-        assertFalse(Files.exists(userDir.resolve(".history").resolve(PROJECT)),
-                "The local edit history must be deleted with the copy.");
-        assertNull(registry.get(PROJECT), "The record must be removed together with the copy.");
-        verify(projectsLockEngine).unlock("design", "feature", DESIGN_PATH);
+        assertEquals(1, projects.size());
+        assertEquals("feature", projects.getFirst().getBranch());
+        assertTrue(projects.getFirst().isModified());
+        assertTrue(Files.exists(userDir.resolve(PROJECT)));
+        assertTrue(Files.exists(userDir.resolve(".history").resolve(PROJECT)));
     }
 
     @Test
@@ -218,14 +233,20 @@ class UserWorkspaceRefreshTest {
      * The main-branch listing misses the project, but a secondary branch still holds it.
      */
     private void mockDesignWithProjectInBranch(String branch) throws IOException {
-        var branched = mockBranchedEmptyDesign();
-        when(branched.branchExists(branch)).thenReturn(true);
+        mockBranchedEmptyDesign();
         BranchRepository forBranch = mock(BranchRepository.class);
+        lenient().when(forBranch.getId()).thenReturn("design");
+        lenient().when(forBranch.getBranch()).thenReturn(branch);
+        lenient().when(forBranch.getBaseBranch()).thenReturn("work");
+        lenient().when(forBranch.supports())
+                .thenReturn(new FeaturesBuilder(forBranch).setVersions(true).setBranches(true).build());
         var existing = new FileData();
         existing.setName(DESIGN_PATH);
         existing.setVersion("rev-1");
-        when(forBranch.check(DESIGN_PATH)).thenReturn(existing);
-        when(branched.forBranch(branch)).thenReturn(forBranch);
+        var project = new AProject(forBranch, existing);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(project));
+        when(designTimeRepository.getBranchedProject("design", PROJECT))
+                .thenReturn(java.util.Optional.of(branchedProject("work", Map.of(branch, project))));
     }
 
     @Test
@@ -324,6 +345,82 @@ class UserWorkspaceRefreshTest {
         assertEquals(1, projects.size());
         assertTrue(projects.getFirst().isLocalOnly());
         assertEquals("local", registry.get(PROJECT).repositoryId());
+    }
+
+    @Test
+    void closedBranchPreferenceSurvivesWorkspaceRecreation() throws IOException, ProjectException {
+        var main = branchProjectRepository("main");
+        var feature = branchProjectRepository("feature/rates");
+        var mainData = new FileData();
+        mainData.setName(DESIGN_PATH);
+        mainData.setVersion("main-revision");
+        var featureData = new FileData();
+        featureData.setName(DESIGN_PATH);
+        featureData.setVersion("feature-revision");
+        when(feature.check(DESIGN_PATH)).thenReturn(featureData);
+        var mainProject = new AProject(main, mainData);
+        var featureProject = new AProject(feature, featureData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
+        when(designTimeRepository.getBranchedProject("design", PROJECT))
+                .thenReturn(java.util.Optional.of(
+                        branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
+
+        var selected = userWorkspace.getProject("design", PROJECT);
+        userWorkspace.setProjectBranch(selected, "feature/rates");
+        assertEquals("feature/rates", selected.getBranch());
+
+        var recreated = new UserWorkspaceImpl(
+                new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),
+                localWorkspace,
+                designTimeRepository,
+                projectsLockEngine);
+
+        assertEquals("feature/rates", recreated.getProject("design", PROJECT).getBranch());
+    }
+
+    @Test
+    void openedCopyUsesTheSelectedBranchesMappedPath() throws ProjectException {
+        var main = mappedBranchProjectRepository("main", "physical/main/P1");
+        var feature = mappedBranchProjectRepository("feature/rates", DESIGN_PATH);
+        var mainData = new FileData();
+        mainData.setName("DESIGN/P1");
+        var featureData = new FileData();
+        featureData.setName("DESIGN/P1");
+        var mainProject = new AProject(main, mainData);
+        var featureProject = new AProject(feature, featureData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
+        when(designTimeRepository.getBranchedProject("design", PROJECT))
+                .thenReturn(java.util.Optional.of(
+                        branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
+        seedOpenedCopy("design", "feature/rates", false);
+
+        var project = userWorkspace.getProject("design", PROJECT);
+
+        assertEquals("feature/rates", project.getBranch());
+        assertEquals(DESIGN_PATH, project.getRealPath());
+    }
+
+    @Test
+    void preferenceForMissingBranchIsDiscarded() throws ProjectException {
+        var main = branchProjectRepository("main");
+        var mainData = new FileData();
+        mainData.setName(DESIGN_PATH);
+        var mainProject = new AProject(main, mainData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
+        when(designTimeRepository.getBranchedProject("design", PROJECT))
+                .thenReturn(java.util.Optional.of(branchedProject("main", Map.of("main", mainProject))));
+        ProjectBranchPreferenceStore.open(userDir).put("design", PROJECT, "removed");
+        var recreated = new UserWorkspaceImpl(
+                new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),
+                localWorkspace,
+                designTimeRepository,
+                projectsLockEngine);
+
+        assertEquals("main", recreated.getProject("design", PROJECT).getBranch());
+        assertTrue(ProjectBranchPreferenceStore.open(userDir).get("design", PROJECT).isEmpty());
     }
 
     @Test
@@ -426,11 +523,7 @@ class UserWorkspaceRefreshTest {
     }
 
     private void mockBranchedDesign(boolean branchExists) throws IOException {
-        BranchRepository branched = mock(BranchRepository.class);
-        lenient().when(branched.getId()).thenReturn("design");
-        lenient().when(branched.supports())
-                .thenReturn(new FeaturesBuilder(branched).setVersions(true).setBranches(true).build());
-        lenient().when(branched.getBranch()).thenReturn("master");
+        BranchRepository branched = branchProjectRepository("master");
         when(branched.branchExists("dead")).thenReturn(branchExists);
 
         if (branchExists) {
@@ -447,7 +540,48 @@ class UserWorkspaceRefreshTest {
         var designFileData = new FileData();
         designFileData.setName(DESIGN_PATH);
         designFileData.setVersion("rev-2");
-        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(new AProject(branched, designFileData)));
+        var project = new AProject(branched, designFileData);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(project));
+        when(designTimeRepository.getBranchedProject("design", PROJECT))
+                .thenReturn(java.util.Optional.of(branchedProject("master", Map.of("master", project))));
+    }
+
+    private static BranchRepository branchProjectRepository(String branch) {
+        BranchRepository repository = mock(BranchRepository.class);
+        lenient().when(repository.getId()).thenReturn("design");
+        lenient().when(repository.supports())
+                .thenReturn(new FeaturesBuilder(repository).setVersions(true).setBranches(true).build());
+        lenient().when(repository.getBranch()).thenReturn(branch);
+        lenient().when(repository.getBaseBranch()).thenReturn("main");
+        return repository;
+    }
+
+    private static BranchRepository mappedBranchProjectRepository(String branch, String internalPath) {
+        BranchRepository repository = mock(BranchRepository.class, withSettings().extraInterfaces(FolderMapper.class));
+        lenient().when(repository.getId()).thenReturn("design");
+        lenient().when(repository.supports()).thenReturn(new FeaturesBuilder(repository)
+                .setVersions(true)
+                .setBranches(true)
+                .setMappedFolders(true)
+                .build());
+        lenient().when(repository.getBranch()).thenReturn(branch);
+        lenient().when(repository.getBaseBranch()).thenReturn("main");
+        var mapper = (FolderMapper) repository;
+        lenient().when(mapper.getBusinessName("DESIGN/P1")).thenReturn("DESIGN/P1");
+        lenient().when(mapper.getRealPath("DESIGN/P1")).thenReturn(internalPath);
+        return repository;
+    }
+
+    private static BranchedProject branchedProject(String baseBranch, Map<String, AProject> projects) {
+        var entries = new java.util.LinkedHashMap<String, BranchEntry>();
+        projects.forEach((branch, project) -> entries.put(branch,
+                new BranchEntry(project,
+                        new BranchStatus(
+                                new UserInfo("author"),
+                                Instant.parse("2026-07-29T10:00:00Z"),
+                                "message",
+                                branch + "-revision"))));
+        return BranchedProject.create(PROJECT, baseBranch, entries);
     }
 
     private void seedOpenedCopy(String repositoryId, String branch, boolean modified) {

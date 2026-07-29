@@ -58,4 +58,9 @@ public interface LocalWorkspace extends ProjectsContainer {
     void removeWorkspaceListener(LocalWorkspaceListener listener);
 
     AProject getProjectForPath(String repositoryId, String path);
+
+    /**
+     * Returns a local copy by its logical external project name.
+     */
+    AProject getProjectForName(String repositoryId, String projectName);
 }

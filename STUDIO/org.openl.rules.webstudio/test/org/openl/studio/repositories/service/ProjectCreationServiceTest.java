@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -314,6 +316,39 @@ class ProjectCreationServiceTest {
         service.refreshWorkspaceAfterDesignChange();
 
         verify(workspace).refresh();
+    }
+
+    @Test
+    void waits_until_a_branch_write_is_published() {
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getBranch()).thenReturn("feature");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(designTimeRepository.refreshBranch("design", "feature"))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+
+        serviceWithWorkspace(workspace).awaitProjectVisibility(repository);
+
+        verify(designTimeRepository).refreshBranch("design", "feature");
+    }
+
+    @Test
+    void reports_a_failed_branch_publication() {
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getBranch()).thenReturn("feature");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(designTimeRepository.refreshBranch("design", "feature"))
+                .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("failed")));
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+
+        assertThrows(ConflictException.class,
+                () -> serviceWithWorkspace(workspace).awaitProjectVisibility(repository));
     }
 
     private ProjectCreationService serviceWithWorkspace(UserWorkspace workspace) {

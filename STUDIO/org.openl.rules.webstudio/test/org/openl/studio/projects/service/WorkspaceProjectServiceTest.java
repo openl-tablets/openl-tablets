@@ -464,7 +464,7 @@ class WorkspaceProjectServiceTest {
                     .build());
         }
 
-        verify(project).setBranch("release");
+        verify(userWorkspace).setProjectBranch(project, "release");
         verify(project).close();
     }
 
@@ -493,7 +493,7 @@ class WorkspaceProjectServiceTest {
         }
 
         verify(project).releaseMyLock();
-        verify(project).setBranch("feature");
+        verify(userWorkspace).setProjectBranch(project, "feature");
         verify(project).open();
     }
 

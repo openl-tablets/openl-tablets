@@ -27,11 +27,11 @@ import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
@@ -52,6 +52,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final LocalWorkspace localWorkspace;
     @Getter
     private final DesignTimeRepository designTimeRepository;
+    private final ProjectBranchPreferenceStore branchPreferences;
 
     private final HashMap<ProjectKey, RulesProject> userRulesProjects;
     private final HashMap<String, List<ProjectKey>> rulesProjectKeysByName;
@@ -63,7 +64,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final List<UserWorkspaceListener> listeners = new ArrayList<>();
     @Getter
     private final LockEngine projectsLockEngine;
-    private final DesignTimeRepositoryListener designRepoListener = this::refresh;
+    private final DesignTimeRepositoryListener designRepoListener = this::designRepositoryRefreshed;
 
     public UserWorkspaceImpl(WorkspaceUser user,
                              LocalWorkspace localWorkspace,
@@ -73,6 +74,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         this.localWorkspace = localWorkspace;
         this.designTimeRepository = designTimeRepository;
         this.projectsLockEngine = projectsLockEngine;
+        branchPreferences = ProjectBranchPreferenceStore.open(localWorkspace.getLocation().toPath());
 
         userRulesProjects = new HashMap<>();
         rulesProjectKeysByName = new HashMap<>();
@@ -128,6 +130,19 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
 
         return uwp;
+    }
+
+    @Override
+    public void setProjectBranch(RulesProject project, String branch) throws ProjectException {
+        var repositoryId = project.getDesignRepository().getId();
+        var projectName = project.getBusinessName();
+        var designProject = designTimeRepository.getBranchedProject(repositoryId, projectName)
+                .flatMap(branchedProject -> branchedProject.entry(branch))
+                .map(BranchedProject.BranchEntry::project)
+                .orElseThrow(() -> new ProjectException(
+                        "Project ''{0}'' is not found in branch ''{1}''.", null, projectName, branch));
+        project.setBranch(designProject.getRepository(), designProject.getFileData());
+        branchPreferences.put(repositoryId, projectName, branch);
     }
 
     @Override
@@ -298,39 +313,32 @@ public class UserWorkspaceImpl implements UserWorkspace {
         rulesProjectKeysByName.clear();
     }
 
-    private static void putClosedProjectBranch(Map<ProjectKey, String> branches,
-                                               ProjectKey projectKey,
-                                               RulesProject project) {
-        var branch = project.getBranch();
-        branches.put(projectKey, branch);
-        branches.put(projectKey(projectKey.repositoryId(), project.getBusinessName()), branch);
-
-        var designFolderName = project.getDesignFolderName();
-        if (designFolderName != null) {
-            branches.put(projectKey(projectKey.repositoryId(), fileName(designFolderName)), branch);
-        }
-    }
-
     private static ProjectKey projectKey(String repositoryId, String projectName) {
         return new ProjectKey(repositoryId, projectName.toLowerCase(Locale.ROOT));
     }
 
-    private static String fileName(String path) {
-        return path.substring(path.lastIndexOf('/') + 1);
-    }
-
     private void putRulesProject(RulesProject project) {
         var repoId = project.getRepository().getId();
-        var key = projectKey(repoId, project.getName());
+        var key = projectKey(repoId, project.getBusinessName());
         userRulesProjects.put(key, project);
         var businessNameKey = project.getBusinessName().toLowerCase(Locale.ROOT);
         rulesProjectKeysByName.computeIfAbsent(businessNameKey, k -> new ArrayList<>()).add(key);
     }
 
     private void scheduleProjectsRefresh() {
+        scheduleProjectsRefresh(true);
+    }
+
+    private void designRepositoryRefreshed() {
+        scheduleProjectsRefresh(false);
+    }
+
+    private void scheduleProjectsRefresh(boolean refreshDesignRepository) {
         synchronized (userRulesProjects) {
             projectsRefreshNeeded = true;
-            designTimeRepository.refresh();
+            if (refreshDesignRepository) {
+                designTimeRepository.refresh();
+            }
         }
         for (UserWorkspaceListener listener : listeners) {
             listener.workspaceRefreshed();
@@ -341,20 +349,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
-
-            var closedProjectBranches = new HashMap<ProjectKey, String>();
-            for (Map.Entry<ProjectKey, RulesProject> entry : userRulesProjects.entrySet()) {
-                var projectKey = entry.getKey();
-                final var designRepository = designTimeRepository.getRepository(projectKey.repositoryId());
-                if (designRepository != null) {
-                    var supportsBranches = designRepository.supports().branches();
-                    if (supportsBranches) {
-                        var project = entry.getValue();
-                        // Deleted projects should be switched to default branch
-                        if (!project.isOpened() && !project.isDeleted()) {
-                            putClosedProjectBranch(closedProjectBranches, projectKey, project);
-                        }
-                    }
+            for (RulesProject project : userRulesProjects.values()) {
+                if (!project.isOpened() && project.isSupportsBranches()) {
+                    branchPreferences.put(project.getDesignRepository().getId(),
+                            project.getBusinessName(),
+                            project.getBranch());
                 }
             }
 
@@ -364,80 +363,41 @@ public class UserWorkspaceImpl implements UserWorkspace {
             for (AProject rp : designTimeRepository.getProjects()) {
                 var repoId = rp.getRepository().getId();
                 var localRepository = localWorkspace.getRepository(repoId);
-                var name = rp.getName();
-
-                var lp = localWorkspace.getProjectForPath(repoId, rp.getRealPath());
+                var name = rp.getBusinessName();
+                var branchedProject = designTimeRepository.getBranchedProject(repoId, name);
+                var lp = branchedProject.isPresent()
+                        ? localWorkspace.getProjectForName(repoId, name)
+                        : localWorkspace.getProjectForPath(repoId, rp.getRealPath());
 
                 FileData local = lp == null ? null : lp.getFileData();
 
-                var desRepo = rp.getRepository();
-                var designFileData = rp.getFileData();
+                var selectedProject = rp;
                 var closeProject = false;
 
-                try {
-                    if (desRepo.supports().branches()) {
-                        var branchRepository = (BranchRepository) desRepo;
-                        var repoBranch = branchRepository.getBranch();
-                        String branch;
-                        if (local != null) {
-                            branch = local.getBranch();
-                            if (branch == null) {
-                                log.warn("Unknown branch in repository supporting branches for project {}.",
-                                        local.getName());
-                            }
+                if (branchedProject.isPresent()) {
+                    var selectedBranch = local == null
+                            ? branchPreferences.get(repoId, name).orElse(null)
+                            : local.getBranch();
+                    if (selectedBranch != null) {
+                        var branchEntry = branchedProject.get().entry(selectedBranch);
+                        if (branchEntry.isPresent()) {
+                            selectedProject = branchEntry.get().project();
+                        } else if (local != null) {
+                            log.info("Close the project '{}' because it does not exist in branch '{}'.",
+                                    name,
+                                    selectedBranch);
+                            closeProject = true;
                         } else {
-                            branch = closedProjectBranches.get(projectKey(repoId, name));
-                        }
-
-                        // If branch is null then keep default branch.
-                        if (branch != null && !branch.equals(repoBranch)) {
-                            if (branchRepository.branchExists(branch)) {
-                                // We are inside alternative branch. Must change design repo info.
-                                final var repo = branchRepository.forBranch(branch);
-                                // Other branch — other version of file data
-                                if (designFileData != null) {
-                                    final var fileData = repo.check(designFileData.getName());
-                                    if (fileData != null) {
-                                        // Switch branch
-                                        desRepo = repo;
-                                        designFileData = fileData;
-                                    } else {
-                                        log.info("Project '{}' does not exist in the branch '{}' anymore",
-                                                name,
-                                                branch);
-                                        if (local != null) {
-                                            // The project is gone from the copy's branch: the copy leaves
-                                            // the workspace regardless of local changes, like on a revoked
-                                            // access — the copied data does not outlive the project.
-                                            log.info(
-                                                    "Close the project '{}' because it does not exist in the branch '{}'",
-                                                    name,
-                                                    branch);
-                                            closeProject = true;
-                                        }
-                                    }
-                                }
-                            } else if (local != null) {
-                                // Same policy when the whole branch was removed.
-                                log.info("Close the project {} because the branch {} was removed", name, branch);
-                                closeProject = true;
-                            }
+                            branchPreferences.remove(repoId, name);
                         }
                     }
-                } catch (IOException e) {
-                    log.warn("Skip workspace changes for project '{}' because of error: {}",
-                            rp.getName(),
-                            e.getMessage(), e);
-                    desRepo = rp.getRepository();
-                    designFileData = rp.getFileData();
-                    local = null;
                 }
 
                 var project = new RulesProject(getUser(),
                         localRepository,
                         local,
-                        desRepo,
-                        designFileData,
+                        selectedProject.getRepository(),
+                        selectedProject.getFileData(),
                         projectsLockEngine);
 
                 if (cleanUpOnActivation) {

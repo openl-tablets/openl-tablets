@@ -874,7 +874,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var supportsBranches = project.isSupportsBranches();
         project.close();
         if (supportsBranches && branch != null && !Objects.equals(branch, project.getBranch())) {
-            project.setBranch(branch);
+            getUserWorkspace().setProjectBranch(project, branch);
         }
         publishStateChanged(project);
     }
@@ -1053,9 +1053,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
 
         var previousBusinessName = project.getBusinessName();
-        project.setBranch(branchName);
+        var workspace = getUserWorkspace();
+        workspace.setProjectBranch(project, branchName);
         if (project.getLastHistoryVersion() == null) {
-            project.setBranch(previousBranch);
+            workspace.setProjectBranch(project, previousBranch);
             throw new ConflictException("project.switch.branch.failed.message", branchName);
         }
         if (wasOpened) {
@@ -1071,7 +1072,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                     }
                     throw new ProjectException("Failed to delete project history", e);
                 }
-                var workspace = getUserWorkspace();
                 if (workspace.isOpenedOtherProject(project)) {
                     throw new ConflictException("open.duplicated.project");
                 } else {

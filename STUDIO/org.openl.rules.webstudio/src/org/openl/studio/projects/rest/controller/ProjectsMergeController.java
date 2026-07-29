@@ -159,7 +159,7 @@ public class ProjectsMergeController {
                         var refreshedProject = workspace.getProjectByPath(repoId, realPath);
                         if (refreshedProject.isPresent()) {
                             var mergedProject = refreshedProject.get();
-                            mergedProject.setBranch(currentBranch);
+                            workspace.setProjectBranch(mergedProject, currentBranch);
                             mergedProject.open();
                             nameAfterMerge = mergedProject.getName();
                         }
