@@ -381,7 +381,7 @@ This section describes how null elements (an element with an empty value) are pr
 
 For adding and subtracting, `null` is interpreted as `0.`
 
-For multiplying and dividing, it is interpreted as `null`. That is, if `a=3` and `b=null`, `a*b=null`. If `null` must be interpreted as `1`, that is, `a*b=3`, `import org.openl.rules.binding.MulDivNullToOneOperators.*` must be added to the Environment table.
+For multiplying and dividing, it is interpreted as `null`. That is, if `a=3` and `b=null`, `a*b=null`.
 
 The following diagrams demonstrate this rule.
 
