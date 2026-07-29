@@ -19,7 +19,7 @@ Examples ordered by descending priority are as follows:
 
 Localization bundles files are key-value plain text files where keys and values are separated with = character, for example, `greetings = Hello`.
 
-For more information on supported locales, see [JDK 11 Supported Locales](https://www.oracle.com/java/technologies/javase/jdk11-suported-locales.html).
+For more information on supported locales, see [JDK 21 Supported Locales](https://www.oracle.com/java/technologies/javase/jdk21-suported-locales.html).
 
 To support the i18n localization, a new **locale** property of the **java.lang.Locale** type is added to IRulesRuntimeContext to support i18n localization. When the **msg(String code, Object... params)** function is invoked, the current locale is retrieved from IRulesRuntimeContext and the list of message bundles is configured based on it.
 

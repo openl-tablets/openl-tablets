@@ -14,7 +14,7 @@ The file name pattern can include the following:
 
 -   wildcards, or characters that may be substituted for any of a defined subset of all possible characters
 
-For more information on wildcards that can be used in a pattern as regular expressions, see <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/SimpleDateFormat.html>.
+For more information on wildcards that can be used in a pattern as regular expressions, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/SimpleDateFormat.html>.
 
 If a table property value is supposed to be a date, the **Date** format must be specified right after the property name and colon as follows:
 
@@ -26,7 +26,7 @@ If a table property value is supposed to be a date, the **Date** format must be 
 
 In this example, the project name or any other text comes instead of .\*. Any part of this pattern can be replaced, removed, or its order can be changed. For more information on properties that can be included, see [Business Dimension Properties](05-rule-versioning.md#business-dimension-properties).
 
-For more information on date formats description and examples, see <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/SimpleDateFormat.html>.
+For more information on date formats description and examples, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/SimpleDateFormat.html>.
 
 The default date format is yyyyMMdd.
 
