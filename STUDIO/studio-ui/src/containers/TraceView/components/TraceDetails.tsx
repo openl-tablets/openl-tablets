@@ -3,13 +3,12 @@ import { Spin, Empty, Alert, Card } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import traceService from 'services/traceService'
-import type { StepInputsView } from 'types/trace'
+import type { MessageDescription, StepInputsView } from 'types/trace'
 import TraceParameters, { SingleParameter } from './TraceParameters'
 import TraceTableView from './TraceTableView'
 import SpreadsheetGrid from './SpreadsheetGrid'
 import DecisionPanel from './DecisionPanel'
 import CopyJsonButton from './CopyJsonButton'
-import type { MessageDescription } from 'types/trace'
 import { useStyles } from './TraceDetails.styles'
 
 /**
@@ -94,7 +93,7 @@ const TraceDetails: React.FC = () => {
         }
         for (let i = frames.length - 1; i >= 0; i -= 1) {
             const candidate = frames[i]
-            if (candidate && candidate.uri === focus.ownerUri && candidate.instance === focus.ownerInstance) {
+            if (candidate?.uri === focus.ownerUri && candidate?.instance === focus.ownerInstance) {
                 return i
             }
         }

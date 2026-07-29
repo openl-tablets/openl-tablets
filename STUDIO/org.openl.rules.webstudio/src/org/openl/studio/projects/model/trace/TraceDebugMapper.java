@@ -141,13 +141,20 @@ public class TraceDebugMapper {
                 .status(status)
                 .frames(views)
                 .error(buildStackError(frames, error))
-                .tree(completedTree == null || !options.includeTree() ? null
-                        : options.fullTree() ? toCappedTree(completedTree)
-                                : toShallowCallNodeView(completedTree))
+                .tree(treeView(completedTree, options))
                 .profile(completedTree == null ? null
                         : buildProfileSummary(profileStats, options.profileTop(), completedTree.durationNanos(),
                                 treeTruncated))
                 .build();
+    }
+
+    /** The tree carried in the stack view: capped for a full-tree request, shallow otherwise, {@code null}
+     * when there is no completed tree or the caller did not ask for one. */
+    private static @Nullable CallNodeView treeView(@Nullable CallNode completedTree, StackRenderOptions options) {
+        if (completedTree == null || !options.includeTree()) {
+            return null;
+        }
+        return options.fullTree() ? toCappedTree(completedTree) : toShallowCallNodeView(completedTree);
     }
 
     /**

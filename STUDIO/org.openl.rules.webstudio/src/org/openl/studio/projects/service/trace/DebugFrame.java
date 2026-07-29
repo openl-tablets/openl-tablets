@@ -241,10 +241,10 @@ public final class DebugFrame {
         if (source instanceof Spreadsheet spreadsheet) {
             SpreadsheetCell cell = cellAt(spreadsheet, ref);
             if (cell != null) {
-                String name = SpreadsheetCellNames.of(spreadsheet, cell);
+                String cellName = SpreadsheetCellNames.of(spreadsheet, cell);
                 // An interrupted step carries no value; in the detailed (business) view mark it "= ERROR" like
                 // its table node, so the failed path reads as an error trail the user can follow in the tree.
-                return detailedTitles && error != null ? name + " = ERROR" : intern.apply(name);
+                return detailedTitles && error != null ? cellName + " = ERROR" : intern.apply(cellName);
             }
         }
         return null;

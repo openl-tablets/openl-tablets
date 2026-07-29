@@ -855,7 +855,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 let freshStack: DebugStackView | null = null
                 if (!canResume) {
                     freshStack = await restartQuietly()
-                    if (!freshStack || freshStack.status !== 'suspended') return
+                    if (freshStack?.status !== 'suspended') return
                 }
                 // Execute in place only when paused exactly at the target: a call at its fresh entry (the
                 // root right after a restart), or the owning frame already ON the clicked step's line (the
@@ -864,8 +864,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 // A quiet restart leaves the previous table on the panel, so read the fresh root from the
                 // returned stack rather than the (still previous) displayed frames.
                 const top = (freshStack?.frames ?? get().frames).at(-1)
-                const atTarget = top && top.uri === frameUri && top.instance === frameInstance && !top.completed
-                    && (stepType === 'over' ? top.location?.ref === focus?.ref : !top.location)
+                const atTarget = top?.uri === frameUri && top?.instance === frameInstance && !top?.completed
+                    && (stepType === 'over' ? top?.location?.ref === focus?.ref : !top?.location)
                 if (atTarget) {
                     await (stepType === 'over' ? get().stepOver() : get().stepOut())
                 } else {

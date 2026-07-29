@@ -68,7 +68,7 @@ class TraceFrameHighlightTest {
     }
 
     @Test
-    void aFiredDecisionTableRuleAccentsItsWholeRowAndItsResult() throws Exception {
+    void aFiredDecisionTableRuleAccentsItsWholeRowAndItsResult() {
         // The bank-rating module calls the NonZeroValues decision table.
         CompiledOpenClass compiled = new RulesEngineFactory<>("test/rules/EPBDS-16292/bankRating.xlsx")
                 .getCompiledOpenClass();

@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import traceService from 'services/traceService'
 import { NotFoundError } from 'services'
 import { useTraceStore } from 'store/traceStore'
@@ -75,9 +75,8 @@ describe('TraceTableView', () => {
             ],
         })
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-        })
+        render(<TraceTableView frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
 
         const table = screen.getByTestId('trace-table')
         expect(screen.getByText('Header')).toBeInTheDocument()
@@ -107,9 +106,8 @@ describe('TraceTableView', () => {
             source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }, { cell: 'C1', value: 'note' }]],
         })
 
-        await act(async () => {
-            render(<TraceTableView dimOthers frameIndex={0} />)
-        })
+        render(<TraceTableView dimOthers frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
 
         const table = screen.getByTestId('trace-table')
         const plainA = table.querySelector('[data-cell="A1"]') as HTMLElement
@@ -128,16 +126,14 @@ describe('TraceTableView', () => {
         })
 
         // Advanced view: the current cell carries the yellow highlight class.
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-        })
+        render(<TraceTableView frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
         const yellow = (screen.getByTestId('trace-table').querySelector('[data-cell="B1"]') as HTMLElement).className
         cleanup()
 
         // Business view: the current cell is left in its original colour (no yellow) while the rest are muted.
-        await act(async () => {
-            render(<TraceTableView dimOthers frameIndex={0} />)
-        })
+        render(<TraceTableView dimOthers frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
         const table = screen.getByTestId('trace-table')
         const original = (table.querySelector('[data-cell="B1"]') as HTMLElement).className
         const muted = (table.querySelector('[data-cell="A1"]') as HTMLElement).className
@@ -152,15 +148,13 @@ describe('TraceTableView', () => {
             name: 'T',
             source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]],
         })
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-        })
+        render(<TraceTableView frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
         const plain = screen.getByTestId('trace-table').querySelector('[data-cell="A1"]') as HTMLElement
 
         cleanup()
-        await act(async () => {
-            render(<TraceTableView dimOthers frameIndex={0} />)
-        })
+        render(<TraceTableView dimOthers frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
         const muted = screen.getByTestId('trace-table').querySelector('[data-cell="A1"]') as HTMLElement
 
         expect(muted.className).not.toBe(plain.className) // dimOthers adds the muting class
@@ -173,9 +167,7 @@ describe('TraceTableView', () => {
             source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]],
         })
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} highlightCell="B1" />)
-        })
+        render(<TraceTableView frameIndex={0} highlightCell="B1" />)
 
         const table = screen.getByTestId('trace-table')
         const pointed = table.querySelector('[data-cell="B1"]') as HTMLElement
@@ -193,9 +185,8 @@ describe('TraceTableView', () => {
             source: [[{ cell: 'A1', value: 'only' }]],
         })
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-        })
+        render(<TraceTableView frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
 
         screen.getByTestId('trace-table')
         // The notice reports the rendered count and the full total.
@@ -245,9 +236,8 @@ describe('TraceTableView', () => {
         getFrameHighlights.mockRejectedValue(new Error('no highlights'))
         cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'v' }]]})
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-        })
+        render(<TraceTableView frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
 
         screen.getByTestId('trace-table') // the grid renders; the highlight overlay is just empty
     })
@@ -256,9 +246,7 @@ describe('TraceTableView', () => {
         cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'v' }]]})
         useTraceStore.setState({ projectId: null })
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-        })
+        render(<TraceTableView frameIndex={0} />)
 
         screen.getByTestId('trace-table')
         expect(getFrameHighlights).not.toHaveBeenCalled()
@@ -275,9 +263,8 @@ describe('TraceTableView', () => {
             source: [[{ cell: 'A1', value: 'c1' }, { cell: 'B1', value: 'r' }], [{ cell: 'A2', value: 'c2' }]],
         })
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-        })
+        render(<TraceTableView frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
 
         expect(screen.getByTestId('trace-legend')).toBeInTheDocument()
         expect(screen.getByText('legend.conditionMet')).toBeInTheDocument()
@@ -290,9 +277,8 @@ describe('TraceTableView', () => {
         getFrameHighlights.mockResolvedValue([])
         cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'v' }]]})
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-        })
+        render(<TraceTableView frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
 
         expect(screen.queryByTestId('trace-legend')).toBeNull()
     })
@@ -301,9 +287,8 @@ describe('TraceTableView', () => {
         getFrameHighlights.mockResolvedValue([{ cell: 'B1', state: 'current' }])
         cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]]})
 
-        await act(async () => {
-            render(<TraceTableView dimOthers frameIndex={0} />)
-        })
+        render(<TraceTableView dimOthers frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
 
         // The current highlight is suppressed in the dimmed view, so neither its entry nor the legend appears.
         expect(screen.queryByTestId('trace-legend')).toBeNull()
@@ -313,9 +298,8 @@ describe('TraceTableView', () => {
         getFrameHighlights.mockResolvedValue([{ cell: 'B1', state: 'current' }])
         cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]]})
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-        })
+        render(<TraceTableView frameIndex={0} />)
+        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
 
         expect(screen.getByTestId('trace-legend')).toBeInTheDocument()
         expect(screen.getByText('legend.current')).toBeInTheDocument()
