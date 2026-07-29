@@ -154,7 +154,7 @@ class TraceStepInputsTest {
                             + statics.stream().map(CallNode.Step::label).toList());
             // Grid ordering: the description cell of a row sits right before that row's value cell.
             List<String> refs = tree.steps().stream().map(CallNode.Step::ref).toList();
-            assertTrue(refs.indexOf("R7C0") == refs.indexOf("R7C1") - 1,
+            assertEquals(refs.indexOf("R7C1") - 1, refs.indexOf("R7C0"),
                     "steps are ordered by grid position: " + refs);
         } finally {
             local.terminate(20_000);

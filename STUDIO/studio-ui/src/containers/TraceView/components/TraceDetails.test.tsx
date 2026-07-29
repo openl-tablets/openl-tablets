@@ -209,7 +209,7 @@ describe('TraceDetails', () => {
         expect(screen.queryByText('$Value$Limit')).toBeNull() // no duplicated title in the business view
         // The step's inputs arrive from the step-inputs endpoint, named as the formula writes them.
         expect(getStepInputs).toHaveBeenCalledWith('p1', 0, 'S9')
-        await waitFor(() => expect(screen.getByText('$LimitIndex')).toBeInTheDocument())
+        expect(await screen.findByText('$LimitIndex')).toBeInTheDocument()
         expect(screen.getByText('0.05')).toBeInTheDocument()
         expect(screen.getByText('MaxLimit')).toBeInTheDocument()
         expect(screen.getByText('5000')).toBeInTheDocument()
@@ -297,7 +297,7 @@ describe('TraceDetails', () => {
         })
         render(<TraceDetails />)
 
-        await waitFor(() => expect(screen.getByText('details.noResult')).toBeInTheDocument())
+        expect(await screen.findByText('details.noResult')).toBeInTheDocument()
     })
 
     it('ignores the step focus in the advanced mode and shows the frame as-is', () => {
@@ -353,7 +353,7 @@ describe('TraceDetails', () => {
         render(<TraceDetails />)
 
         expect(getStepInputs).toHaveBeenCalledWith('p1', 0, 'S3')
-        await waitFor(() => expect(screen.getByText('There are no employee records')).toBeInTheDocument())
+        expect(await screen.findByText('There are no employee records')).toBeInTheDocument()
         expect(screen.getByText('details.errors')).toBeInTheDocument()
     })
 })

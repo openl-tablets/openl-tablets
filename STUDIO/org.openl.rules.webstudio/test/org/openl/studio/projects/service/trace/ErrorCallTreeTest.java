@@ -1,6 +1,6 @@
 package org.openl.studio.projects.service.trace;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -116,7 +116,7 @@ class ErrorCallTreeTest {
     /** No step is labelled as its own {@code RnCm} reference — every one resolved to a real name. */
     private static void assertNoRawRefLabels(CallNode node) {
         for (CallNode.Step step : node.steps()) {
-            assertFalse(step.ref().equals(step.label()),
+            assertNotEquals(step.ref(), step.label(),
                     () -> "step " + step.ref() + " fell back to its raw reference as a label");
             step.children().forEach(ErrorCallTreeTest::assertNoRawRefLabels);
         }
