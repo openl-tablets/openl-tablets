@@ -360,6 +360,11 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     @Override
+    public List<String> listBranches() throws IOException {
+        return ((BranchRepository) delegate).listBranches();
+    }
+
+    @Override
     public List<String> getBranches(String projectPath) throws IOException {
         String internalPath = null;
         if (projectPath != null) {

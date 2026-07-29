@@ -198,6 +198,11 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
     }
 
     @Override
+    public List<String> listBranches() throws IOException {
+        return ((BranchRepository) delegate).listBranches();
+    }
+
+    @Override
     public List<String> getBranches(String projectPath) throws IOException {
         validatePath(projectPath);
         return ((BranchRepository) delegate).getBranches(projectPath);

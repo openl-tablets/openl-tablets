@@ -67,6 +67,14 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     }
 
     @Override
+    public List<String> listBranches() throws IOException {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.READ))) {
+            return branchRepository.listBranches();
+        }
+        return List.of();
+    }
+
+    @Override
     public List<String> getBranches(String projectPath) throws IOException {
         if (simpleRepositoryAclService.isGranted(getId(), projectPath, List.of(BasePermission.READ))) {
             return branchRepository.getBranches(projectPath);

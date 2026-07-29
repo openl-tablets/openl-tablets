@@ -29,7 +29,7 @@ class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
     void setUp() throws IOException {
         branchRepository = mock(BranchRepository.class);
         when(branchRepository.isValidBranchName(any())).thenReturn(true);
-        when(branchRepository.getBranches(null)).thenReturn(List.of());
+        when(branchRepository.listBranches()).thenReturn(List.of());
         validator = new NewBranchValidator(branchRepository, null, null);
     }
 
@@ -84,7 +84,7 @@ class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void test_validate_repository_1() throws IOException {
-        when(branchRepository.getBranches(null)).thenReturn(List.of("FoO"));
+        when(branchRepository.listBranches()).thenReturn(List.of("FoO"));
 
         var result = validateAndGetResult("foo", validator);
         assertEquals(0, result.getFieldErrorCount());
@@ -94,7 +94,7 @@ class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void test_validate_repository_2() throws IOException {
-        when(branchRepository.getBranches(null)).thenReturn(List.of("foo"));
+        when(branchRepository.listBranches()).thenReturn(List.of("foo"));
 
         var result = validateAndGetResult("foo/bar", validator);
         assertEquals(0, result.getFieldErrorCount());

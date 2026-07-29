@@ -66,7 +66,7 @@ public class DesignTimeRepositoryServiceImpl implements DesignTimeRepositoryServ
         if (!repository.supports().branches()) {
             throw new ConflictException("repository.branch.unsupported.message");
         }
-        var branches = ((BranchRepository) repository).getBranches(null);
+        var branches = ((BranchRepository) repository).listBranches();
         branches.sort(String.CASE_INSENSITIVE_ORDER);
         return branches;
     }

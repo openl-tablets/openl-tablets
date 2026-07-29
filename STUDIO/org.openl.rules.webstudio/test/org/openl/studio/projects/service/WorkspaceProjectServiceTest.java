@@ -103,7 +103,7 @@ class WorkspaceProjectServiceTest {
         when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
         when(repository.getBaseBranch()).thenReturn("main");
         when(repository.isBranchProtected("main")).thenReturn(true);
-        when(repository.getBranches(null)).thenReturn(branchNames);
+        when(repository.listBranches()).thenReturn(branchNames);
 
         var result = service.getBranches(project);
 
