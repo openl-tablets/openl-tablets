@@ -112,6 +112,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         justify-content: center;
         width: 14px;
         flex: 0 0 auto;
+        /* Rendered as a <button>, so strip the native chrome and let it read like the plain chevron it was. */
+        border: none;
+        background: none;
+        padding: 0;
+        font: inherit;
         color: ${token.colorTextTertiary};
         cursor: pointer;
         &:hover {

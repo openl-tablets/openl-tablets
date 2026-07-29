@@ -100,8 +100,9 @@ describe('SimpleTraceTree', () => {
         expect(screen.getByTestId('simple-step-tree/S1')).toHaveTextContent('$Value$S1')
         // The calls S1 made stay collapsed until expanded.
         expect(screen.queryByTestId('simple-node-tree/S1#0')).not.toBeInTheDocument()
-        // No replay buttons anywhere — replay is an advanced-mode feature.
-        expect(document.querySelector('button')).toBeNull()
+        // The only buttons are the expand/collapse toggles — no replay controls (an advanced-mode feature).
+        expect(screen.queryAllByRole('button')
+            .every(b => (b.getAttribute('data-testid') ?? '').startsWith('simple-toggle-'))).toBe(true)
     })
 
     it('opens the whole path to the error on a failed run, so the failing node shows at once', () => {

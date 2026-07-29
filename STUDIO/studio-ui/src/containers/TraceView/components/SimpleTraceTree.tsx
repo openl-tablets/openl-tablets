@@ -274,7 +274,7 @@ const SimpleTraceTree: React.FC = () => {
                 data-testid={`simple-node-${row.key}`}
                 onClick={open}
                 onKeyDown={onActivate(open)}
-                role="button"
+                role="treeitem"
                 style={indent(row.depth)}
                 tabIndex={0}
                 className={cx(styles.row, styles.frame, styles.runnable,
@@ -304,7 +304,7 @@ const SimpleTraceTree: React.FC = () => {
                 data-testid={`simple-step-${row.key}`}
                 onClick={open}
                 onKeyDown={onActivate(open)}
-                role="button"
+                role="treeitem"
                 style={indent(row.depth)}
                 tabIndex={0}
                 className={cx(styles.row, styles.runnable,
@@ -362,7 +362,7 @@ const SimpleTraceTree: React.FC = () => {
     }
 
     return (
-        <div className={styles.tree} data-testid="simple-tree">
+        <div className={styles.tree} data-testid="simple-tree" role="tree">
             <div className={styles.header}>
                 <span>{t('tree.title')}</span>
             </div>

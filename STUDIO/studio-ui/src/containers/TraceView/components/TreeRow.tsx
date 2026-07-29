@@ -40,24 +40,16 @@ export const Twisty: React.FC<TwistyProps> = ({ expandKey, expanded, onToggle, t
     const key = expandKey
     const fire = (): void => onToggle(key)
     return (
-        <span
+        <button
             aria-expanded={expanded.has(key)}
             aria-label={expanded.has(key) ? t('tree.collapse') : t('tree.expand')}
             className={styles.chevron}
             data-testid={`${testIdPrefix}-toggle-${key}`}
             onClick={(e) => { e.stopPropagation(); fire() }}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    fire()
-                }
-            }}
+            type="button"
         >
             {expanded.has(key) ? <CaretDownOutlined /> : <CaretRightOutlined />}
-        </span>
+        </button>
     )
 }
 
