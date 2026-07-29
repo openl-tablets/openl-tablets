@@ -12,6 +12,16 @@ import org.jspecify.annotations.Nullable;
  *
  * @param branchRevision the branch tip commit revision
  * @param treeRevision   the object revision at the requested path, or {@code null} when the path is absent
+ * @param tipAffectsPath whether the branch tip changes the requested path relative to at least one parent
  */
-public record BranchTreeRevision(@NonNull String branchRevision, @Nullable String treeRevision) {
+public record BranchTreeRevision(@NonNull String branchRevision,
+                                 @Nullable String treeRevision,
+                                 boolean tipAffectsPath) {
+
+    /**
+     * Creates a conservative revision result for repositories that cannot distinguish a path-neutral tip.
+     */
+    public BranchTreeRevision(@NonNull String branchRevision, @Nullable String treeRevision) {
+        this(branchRevision, treeRevision, true);
+    }
 }

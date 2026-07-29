@@ -66,7 +66,8 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * Returns branch tip and content revisions for one repository-relative path.
      *
      * <p>Every resolved branch has an entry. An entry with a {@code null} tree revision means that the path is absent
-     * from that branch. An unresolved branch is omitted.
+     * from that branch. The entry also reports whether the tip changes the path relative to at least one parent, so a
+     * merge commit that preserves the final tree can still refresh revision metadata. An unresolved branch is omitted.
      *
      * @param branches branches to resolve
      * @param path     repository-relative file or folder path; an empty path resolves the root tree
