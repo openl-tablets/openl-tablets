@@ -789,14 +789,15 @@ export const useTraceStore = create<DebugState>((set, get) => {
             beginRun({ ...SIMPLE_SNAPSHOT_RESET, simpleLoading: true })
             const token = get().runId
             try {
-                // The simple run debugs with no breakpoints, so it always reaches the end in one go.
-                if (get().breakpoints.length > 0) {
-                    set({ breakpoints: [], breakpointLabels: {}, transientBreakpoint: null })
-                    try {
-                        await traceService.setBreakpoints(projectId, [])
-                    } catch {
-                        // Best effort: the fresh session started below has no breakpoints anyway.
-                    }
+                // The simple run debugs with no breakpoints, so it always reaches the end in one go. Clear them
+                // on the server unconditionally — a launch-based business run never loads breakpoints into client
+                // state, so a stale one a previous advanced session left server-side would otherwise park the run
+                // mid-way with no controls to resume.
+                set({ breakpoints: [], breakpointLabels: {}, transientBreakpoint: null })
+                try {
+                    await traceService.setBreakpoints(projectId, [])
+                } catch {
+                    // Best effort: the fresh session started below has no breakpoints anyway.
                 }
                 await get().terminate()
                 set({ status: 'running' })
