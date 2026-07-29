@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import traceService from 'services/traceService'
 import { useTraceStore } from 'store/traceStore'
 import type { DebugFrameVariables, DebugFrameView } from 'types/trace'
@@ -245,6 +245,40 @@ describe('TraceDetails', () => {
         render(<TraceDetails />)
 
         await waitFor(() => expect(screen.getByTestId('stub-table')).toHaveTextContent('table:0:A5'))
+    })
+
+    it('drops the previous step cell while the next step loads, so no wrong cell is highlighted', async () => {
+        // Switching to a second static-cell step: until its fetch resolves there is no live cell to fall back
+        // to, so the previous step's cell must not linger and light the wrong cell in the traced table.
+        const getStepInputs = traceService.getStepInputs as ReturnType<typeof vi.fn>
+        let resolveSecond: (value: unknown) => void = () => {}
+        getStepInputs.mockImplementation((_p: string, _i: number, ref: string) =>
+            ref === 'S7'
+                ? Promise.resolve({ inputs: [], result: null, cell: 'A5' })
+                : new Promise(res => { resolveSecond = res }))
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame({ uri: 'uOwner', steps: [
+                { ref: 'S7', label: '$D1', status: 'executed' },
+                { ref: 'S8', label: '$D2', status: 'executed' },
+            ]})],
+            selectedFrameIndex: 0,
+            variables: null,
+            variablesLoading: false,
+            simpleFocus: { ref: 'S7', label: '$D1', ownerUri: 'uOwner', ownerInstance: 0 },
+        })
+        render(<TraceDetails />)
+        await waitFor(() => expect(screen.getByTestId('stub-table')).toHaveTextContent('table:0:A5'))
+
+        // Focus the second step; its step-inputs fetch is still pending.
+        act(() => useTraceStore.setState({
+            simpleFocus: { ref: 'S8', label: '$D2', ownerUri: 'uOwner', ownerInstance: 0 },
+        }))
+        // During the loading window the traced table highlights nothing — never the previous step's A5.
+        await waitFor(() => expect(screen.getByTestId('stub-table')).toHaveTextContent('table:0:none'))
+
+        await act(async () => { resolveSecond({ inputs: [], result: null, cell: 'B9' }) })
+        await waitFor(() => expect(screen.getByTestId('stub-table')).toHaveTextContent('table:0:B9'))
     })
 
     it('shows no result for a focused step that has not produced a value', async () => {
