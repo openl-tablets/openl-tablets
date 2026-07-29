@@ -920,17 +920,25 @@ public class TraceDebugMapper {
     }
 
     /**
-     * The index of the first table parameter whose type the given class can be read from, or {@code -1}.
+     * The index of the sole table parameter whose type the given class can be read from, or {@code -1}.
      * Both parameter-field resolvers pair a field with the parameter of its declaring type this way.
+     *
+     * <p>Returns {@code -1} when no parameter matches and also when more than one does: the field alone
+     * does not say which same-typed parameter the formula read, so the caller lists the whole parameters
+     * rather than guessing — and mislabelling — the first.
      */
     private static int matchingParameterIndex(IOpenClass declaring, IMethodSignature signature, int paramsLength) {
         int count = Math.min(paramsLength, signature.getNumberOfParameters());
+        int found = -1;
         for (int i = 0; i < count; i++) {
             if (declaring.isAssignableFrom(signature.getParameterType(i))) {
-                return i;
+                if (found >= 0) {
+                    return -1;
+                }
+                found = i;
             }
         }
-        return -1;
+        return found;
     }
 
     /**
@@ -976,11 +984,13 @@ public class TraceDebugMapper {
             return null;
         }
         String parameter = signature.getParameterName(i);
-        fields.stream()
-                .filter(candidate -> candidate instanceof ILocalVar && parameter.equals(candidate.getName()))
-                .forEach(narrowed::add);
         try {
             Object value = params[i] == null ? null : field.get(params[i], null);
+            // Narrow the bare parameter only once the read succeeds, so a throwing getter leaves the whole
+            // parameter listed rather than dropping both it and the field it could not resolve.
+            fields.stream()
+                    .filter(candidate -> candidate instanceof ILocalVar && parameter.equals(candidate.getName()))
+                    .forEach(narrowed::add);
             return new StepInput(2, i, parameter + "." + field.getName(), value, field.getType());
         } catch (Exception e) {
             return null;
