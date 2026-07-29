@@ -101,10 +101,12 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.LfsFactory;
 import org.eclipse.jgit.util.RawCharSequence;
 import org.eclipse.jgit.util.io.NullOutputStream;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
+import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
@@ -2439,6 +2441,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public void createBranch(String projectPath, String newBranch, String startPoint) throws IOException {
         initializeGit(true);
 
+        var branchAbsentBefore = false;
         var writeLock = repositoryLock.writeLock();
         try {
             log.debug("createBranch(): lock");
@@ -2447,30 +2450,11 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             reset();
 
-            if (startPoint != null) {
-                var obj = git.getRepository().resolve(startPoint);
-                if (obj == null) {
-                    throw new IOException("Cannot resolve " + startPoint);
-                }
-            }
-
             // If newBranch does not exist, create it.
             var branchRef = git.getRepository().findRef(newBranch);
-            var branchAbsents = branchRef == null;
-            if (branchAbsents) {
-                // Checkout existing branch
-                if (isEmpty()) {
-                    throw new IOException("Cannot create a branch on the empty repository.");
-                }
-                checkoutForced(branch);
-
-                // Create new branch
-                var createBranchCommand = git.branchCreate().setName(newBranch);
-                if (startPoint != null) {
-                    createBranchCommand.setStartPoint(startPoint);
-                }
-                branchRef = createBranchCommand.call();
-                pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
+            branchAbsentBefore = branchRef == null;
+            if (branchAbsentBefore) {
+                branchRef = createGitBranch(newBranch, startPoint);
             }
 
             lockSettings();
@@ -2485,24 +2469,76 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             }
         } catch (IOException e) {
             reset();
-            try {
-                git.branchDelete().setBranchNames(newBranch).call();
-            } catch (Exception ignored) {
-                // safe to ignore: rollback best-effort; original exception is rethrown
-            }
+            rollbackBranchCreation(newBranch, branchAbsentBefore);
             throw e;
         } catch (Exception e) {
             reset();
-            try {
-                git.branchDelete().setBranchNames(newBranch).call();
-            } catch (Exception ignored) {
-                // safe to ignore: rollback best-effort; original exception is rethrown
-            }
+            rollbackBranchCreation(newBranch, branchAbsentBefore);
             throw new IOException(e.getMessage(), e);
         } finally {
             resetLfsCredentials();
             writeLock.unlock();
             log.debug("createBranch(): unlock");
+        }
+    }
+
+    @Override
+    public void createRepositoryBranch(String newBranch, @Nullable String startPoint) throws IOException {
+        initializeGit(true);
+
+        var branchAbsentBefore = false;
+        var writeLock = repositoryLock.writeLock();
+        try {
+            log.debug("createRepositoryBranch(): lock");
+            writeLock.lock();
+            initLfsCredentials();
+            reset();
+
+            branchAbsentBefore = git.getRepository().findRef(newBranch) == null;
+            if (branchAbsentBefore) {
+                createGitBranch(newBranch, startPoint);
+            }
+        } catch (IOException e) {
+            reset();
+            rollbackBranchCreation(newBranch, branchAbsentBefore);
+            throw e;
+        } catch (Exception e) {
+            reset();
+            rollbackBranchCreation(newBranch, branchAbsentBefore);
+            throw new IOException(e.getMessage(), e);
+        } finally {
+            resetLfsCredentials();
+            writeLock.unlock();
+            log.debug("createRepositoryBranch(): unlock");
+        }
+    }
+
+    private Ref createGitBranch(String newBranch, @Nullable String startPoint) throws IOException, GitAPIException {
+        if (startPoint != null && git.getRepository().resolve(startPoint) == null) {
+            throw new IOException("Cannot resolve " + startPoint);
+        }
+        if (isEmpty()) {
+            throw new IOException("Cannot create a branch on the empty repository.");
+        }
+
+        checkoutForced(branch);
+        var createBranchCommand = git.branchCreate().setName(newBranch);
+        if (startPoint != null) {
+            createBranchCommand.setStartPoint(startPoint);
+        }
+        var branchRef = createBranchCommand.call();
+        pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
+        return branchRef;
+    }
+
+    private void rollbackBranchCreation(String branch, boolean branchAbsentBefore) {
+        if (!branchAbsentBefore) {
+            return;
+        }
+        try {
+            git.branchDelete().setBranchNames(branch).call();
+        } catch (Exception ignored) {
+            // safe to ignore: rollback is best-effort and the original exception is rethrown
         }
     }
 
@@ -2530,11 +2566,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     unlockSettings();
                 }
 
-                // Remove the branch from git itself.
-                // Cannot delete checked out branch. So we check out another branch instead.
-                checkoutForced(baseBranch);
-                git.branchDelete().setBranchNames(branch).setForce(true).call();
-                pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
+                deleteGitBranch(branch);
             } else {
                 lockSettings();
                 try {
@@ -2558,6 +2590,43 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             writeLock.unlock();
             log.debug("deleteBranch(): unlock");
         }
+    }
+
+    @Override
+    public void deleteRepositoryBranch(String branch) throws IOException {
+        initializeGit(true);
+
+        var writeLock = repositoryLock.writeLock();
+        try {
+            log.debug("deleteRepositoryBranch(): lock");
+            writeLock.lock();
+            initLfsCredentials();
+            reset();
+            deleteGitBranch(branch);
+        } catch (IOException e) {
+            reset();
+            throw e;
+        } catch (Exception e) {
+            reset();
+            throw new IOException(e.getMessage(), e);
+        } finally {
+            resetLfsCredentials();
+            writeLock.unlock();
+            log.debug("deleteRepositoryBranch(): unlock");
+        }
+    }
+
+    private void deleteGitBranch(String branch) throws IOException, GitAPIException {
+        if (baseBranch.equalsIgnoreCase(branch)) {
+            throw new IOException("Cannot delete the base branch.");
+        }
+
+        // A checked out branch cannot be deleted, so switch the shared work tree to the base branch first.
+        checkoutForced(baseBranch);
+        if (git.getRepository().exactRef(Constants.R_HEADS + branch) != null) {
+            git.branchDelete().setBranchNames(branch).setForce(true).call();
+        }
+        pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
     }
 
     @Override
@@ -2651,6 +2720,57 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             return result;
         } finally {
             readLock.unlock();
+        }
+    }
+
+    @Override
+    public Map<String, BranchTreeRevision> getBranchTreeRevisions(Collection<String> branchNames,
+                                                                  String path) throws IOException {
+        if (branchNames.isEmpty()) {
+            return Map.of();
+        }
+        initializeGit(true);
+
+        var normalizedPath = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+        var readLock = repositoryLock.readLock();
+        try {
+            readLock.lock();
+            var repository = git.getRepository();
+            var result = new HashMap<String, BranchTreeRevision>();
+            try (var walk = new RevWalk(repository)) {
+                for (String branchName : branchNames) {
+                    try {
+                        getBranchTreeRevision(repository, walk, branchName, normalizedPath)
+                                .ifPresent(revision -> result.put(branchName, revision));
+                    } catch (IOException | RuntimeException e) {
+                        log.warn("Failed to read tree revision for branch '{}'", branchName, e);
+                    }
+                }
+            }
+            return result;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    private static Optional<BranchTreeRevision> getBranchTreeRevision(Repository repository,
+                                                                      RevWalk walk,
+                                                                      String branchName,
+                                                                      String path) throws IOException {
+        var branchId = repository.resolve(branchName);
+        if (branchId == null) {
+            return Optional.empty();
+        }
+
+        walk.reset();
+        var tip = walk.parseCommit(branchId);
+        if (path.isEmpty()) {
+            return Optional.of(new BranchTreeRevision(tip.getName(), tip.getTree().getName()));
+        }
+
+        try (var treeWalk = TreeWalk.forPath(repository, path, tip.getTree())) {
+            var treeRevision = treeWalk == null ? null : treeWalk.getObjectId(0).getName();
+            return Optional.of(new BranchTreeRevision(tip.getName(), treeRevision));
         }
     }
 

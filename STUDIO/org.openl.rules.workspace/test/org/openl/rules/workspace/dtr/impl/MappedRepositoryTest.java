@@ -14,11 +14,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -100,15 +103,89 @@ class MappedRepositoryTest {
         }
     }
 
+    @Test
+    void identicalBranchTreesReuseMapping() throws Exception {
+        var main = branchRepository("main", "rules/project", "Project", "descriptor-1", "tree-1");
+        var feature = branchRepository("feature", "rules/project", "Project", "descriptor-1", "tree-1");
+        when(main.forBranch("feature")).thenReturn(feature);
+
+        var mapped = (BranchRepository) MappedRepository.create(main, "DESIGN/");
+        try {
+            var featureMapped = mapped.forBranch("feature");
+            try {
+                assertEquals(List.of("Project"), businessNames(featureMapped.listFolders("DESIGN/")));
+                verify(feature, never()).listFolders("");
+                verify(feature, never()).read("rules/project/rules.xml");
+            } finally {
+                featureMapped.close();
+            }
+        } finally {
+            mapped.close();
+        }
+    }
+
+    @Test
+    void descriptorRevisionIsParsedOnceAcrossDifferentBranchTrees() throws Exception {
+        var main = branchRepository("main", "rules/project", "Project", "descriptor-1", "tree-1");
+        var feature = branchRepository("feature", "rules/project", "Project", "descriptor-1", "tree-2");
+        when(main.forBranch("feature")).thenReturn(feature);
+
+        var mapped = (BranchRepository) MappedRepository.create(main, "DESIGN/");
+        try {
+            var featureMapped = mapped.forBranch("feature");
+            try {
+                assertEquals(List.of("Project"), businessNames(featureMapped.listFolders("DESIGN/")));
+                verify(feature, never()).read("rules/project/rules.xml");
+            } finally {
+                featureMapped.close();
+            }
+        } finally {
+            mapped.close();
+        }
+    }
+
+    @Test
+    void blankDescriptorNameUsesEachBranchFolderWhenBlobIsReused() throws Exception {
+        var main = branchRepository("main", "rules/project-one", "", "descriptor-1", "tree-1");
+        var feature = branchRepository("feature", "rules/project-two", "", "descriptor-1", "tree-2");
+        when(main.forBranch("feature")).thenReturn(feature);
+
+        var mapped = (BranchRepository) MappedRepository.create(main, "DESIGN/");
+        try {
+            var featureMapped = mapped.forBranch("feature");
+            try {
+                assertEquals(List.of("project-two"), businessNames(featureMapped.listFolders("DESIGN/")));
+                verify(feature, never()).read("rules/project-two/rules.xml");
+            } finally {
+                featureMapped.close();
+            }
+        } finally {
+            mapped.close();
+        }
+    }
+
     private static BranchRepository branchRepository(String branch, String path, String projectName)
             throws IOException {
+        return branchRepository(branch, path, projectName, null, null);
+    }
+
+    private static BranchRepository branchRepository(String branch,
+                                                      String path,
+                                                      String projectName,
+                                                      @Nullable String descriptorRevision,
+                                                      @Nullable String treeRevision) throws IOException {
         var repository = mock(BranchRepository.class);
         var folder = fileData(path);
         var descriptor = fileData(path + "/rules.xml");
+        descriptor.setUniqueId(descriptorRevision);
         when(repository.supports())
                 .thenReturn(new FeaturesBuilder(repository).setFolders(true).setBranches(true).build());
         when(repository.getBranch()).thenReturn(branch);
         when(repository.getBaseBranch()).thenReturn("main");
+        if (treeRevision != null) {
+            when(repository.getBranchTreeRevisions(List.of(branch), ""))
+                    .thenReturn(Map.of(branch, new BranchTreeRevision(branch + "-tip", treeRevision)));
+        }
         when(repository.listFolders("")).thenReturn(List.of(folder));
         when(repository.check(path)).thenReturn(folder);
         when(repository.check(path + "/rules.xml")).thenReturn(descriptor);

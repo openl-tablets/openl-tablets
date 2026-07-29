@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
+import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -67,6 +69,24 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     }
 
     @Override
+    public void createRepositoryBranch(String branch, @Nullable String startPoint) throws IOException {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.WRITE))) {
+            branchRepository.createRepositoryBranch(branch, startPoint);
+        } else {
+            throw new AccessDeniedException("There is no permission for creating a branch.");
+        }
+    }
+
+    @Override
+    public void deleteRepositoryBranch(String branch) throws IOException {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.WRITE))) {
+            branchRepository.deleteRepositoryBranch(branch);
+        } else {
+            throw new AccessDeniedException("There is no permission for deleting a branch.");
+        }
+    }
+
+    @Override
     public List<String> listBranches() throws IOException {
         if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.READ))) {
             return branchRepository.listBranches();
@@ -85,6 +105,15 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     @Override
     public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches) throws IOException {
         return branchRepository.getBranchStatuses(branches);
+    }
+
+    @Override
+    public Map<String, BranchTreeRevision> getBranchTreeRevisions(Collection<String> branches,
+                                                                  String path) throws IOException {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.READ))) {
+            return branchRepository.getBranchTreeRevisions(branches, path);
+        }
+        return Map.of();
     }
 
     @Override

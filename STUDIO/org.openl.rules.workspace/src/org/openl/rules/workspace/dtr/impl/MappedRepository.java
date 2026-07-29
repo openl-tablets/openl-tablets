@@ -21,6 +21,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.xml.sax.InputSource;
 
 import org.openl.rules.project.abstraction.ArtefactProperties;
@@ -28,6 +29,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
+import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
@@ -49,6 +51,8 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class MappedRepository implements BranchRepository, Closeable, FolderMapper {
     private static final String SEPARATOR = ":";
+    private static final int TREE_REVISION_CACHE_CAPACITY = 2_048;
+    private static final int DESCRIPTOR_REVISION_CACHE_CAPACITY = 65_536;
 
     @Getter
     @Setter
@@ -56,6 +60,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     private final AtomicReference<ProjectIndexCache> indexCache = new AtomicReference<>();
     private final ReadWriteLock indexLock = new ReentrantReadWriteLock();
+    private BoundedCache<String, ProjectIndex> indexesByTreeRevision =
+            new BoundedCache<>(TREE_REVISION_CACHE_CAPACITY);
+    private BoundedCache<String, Optional<String>> projectNamesByDescriptorRevision =
+            new BoundedCache<>(DESCRIPTOR_REVISION_CACHE_CAPACITY);
 
     @Setter(AccessLevel.PRIVATE)
     private String baseFolder;
@@ -319,6 +327,16 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     @Override
+    public Map<String, BranchTreeRevision> getBranchTreeRevisions(Collection<String> branches,
+                                                                  String path) throws IOException {
+        var internalPath = path;
+        if (!path.isEmpty()) {
+            internalPath = toInternal(getUpToDateMapping(true), path);
+        }
+        return ((BranchRepository) delegate).getBranchTreeRevisions(branches, internalPath);
+    }
+
+    @Override
     public void pull(UserInfo author) throws IOException {
         ((BranchRepository) delegate).pull(author);
     }
@@ -352,6 +370,16 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     @Override
+    public void createRepositoryBranch(String branch, @Nullable String startPoint) throws IOException {
+        ((BranchRepository) delegate).createRepositoryBranch(branch, startPoint);
+    }
+
+    @Override
+    public void deleteRepositoryBranch(String branch) throws IOException {
+        ((BranchRepository) delegate).deleteRepositoryBranch(branch);
+    }
+
+    @Override
     public List<String> listBranches() throws IOException {
         return ((BranchRepository) delegate).listBranches();
     }
@@ -375,6 +403,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             mappedRepository = new MappedRepository();
             mappedRepository.setDelegate(delegateForBranch);
             mappedRepository.setBaseFolder(baseFolder);
+            mappedRepository.indexesByTreeRevision = indexesByTreeRevision;
+            mappedRepository.projectNamesByDescriptorRevision = projectNamesByDescriptorRevision;
             mappedRepository.initialize();
         } catch (Exception e) {
             // If exception is thrown, we must close repository in this method and rethrow exception.
@@ -639,7 +669,32 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     private ProjectIndex readExternalToInternalMap(Repository delegate,
                                                    String baseFolder) throws IOException {
         baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
-        return generateExternalToInternalMap(delegate, baseFolder);
+        var treeRevisionBefore = getRootTreeRevision(delegate);
+        if (treeRevisionBefore != null) {
+            var cached = indexesByTreeRevision.get(treeRevisionBefore);
+            if (cached != null) {
+                return cached.copy();
+            }
+        }
+
+        var index = generateExternalToInternalMap(delegate, baseFolder);
+        var treeRevisionAfter = getRootTreeRevision(delegate);
+        if (treeRevisionBefore != null && treeRevisionBefore.equals(treeRevisionAfter)) {
+            indexesByTreeRevision.putIfAbsent(treeRevisionBefore, index.copy());
+        }
+        return index;
+    }
+
+    private static @Nullable String getRootTreeRevision(Repository repository) throws IOException {
+        if (!(repository instanceof BranchRepository branchRepository) || !repository.supports().branches()) {
+            return null;
+        }
+        var branch = branchRepository.getBranch();
+        if (StringUtils.isBlank(branch)) {
+            return null;
+        }
+        var revision = branchRepository.getBranchTreeRevisions(List.of(branch), "").get(branch);
+        return revision == null ? null : revision.treeRevision();
     }
 
     private String createUniquePath(ProjectIndex externalToInternal, String externalPath) {
@@ -718,16 +773,22 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             return null;
         }
 
-        var fileItem = delegate.read(descriptorPath);
-        try (var stream = fileItem.getStream()) {
-            var projectName = getProjectName(stream, folderPath);
-            var externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
-            var projectInfo = new ProjectInfo(
-                    externalPath.substring(baseFolder.length()),
-                    folderPath
-            );
-            return projectInfo;
+        var descriptorRevision = rulesDescriptor.getUniqueId();
+        var descriptorName = descriptorRevision == null ? null
+                : projectNamesByDescriptorRevision.get(descriptorRevision);
+        if (descriptorName == null) {
+            var fileItem = delegate.read(descriptorPath);
+            try (var stream = fileItem.getStream()) {
+                descriptorName = Optional.ofNullable(getProjectName(stream));
+            }
+            if (descriptorRevision != null) {
+                projectNamesByDescriptorRevision.putIfAbsent(descriptorRevision, descriptorName);
+            }
         }
+
+        var projectName = ProjectDescriptor.resolveName(descriptorName.orElse(null), FileUtils.getName(folderPath));
+        var externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
+        return new ProjectInfo(externalPath.substring(baseFolder.length()), folderPath);
     }
 
     /**
