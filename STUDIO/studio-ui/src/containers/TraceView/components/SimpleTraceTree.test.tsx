@@ -48,7 +48,9 @@ const setStore = (extra: Record<string, unknown> = {}): void => {
         simpleLoading: false,
         simpleSelectedKey: null,
         simpleInspect: inspect,
+        simpleRun: vi.fn(),
         status: 'completed',
+        error: undefined,
         showDetailed: false,
         setShowDetailed: vi.fn(),
         ...extra,
@@ -65,6 +67,20 @@ describe('SimpleTraceTree', () => {
         render(<SimpleTraceTree />)
 
         expect(screen.getByText('simple.preparing')).toBeInTheDocument()
+    })
+
+    it('offers a retry instead of "Preparing" when a run failed with no tree', async () => {
+        // A transient failure returns no tree; the business view has no toolbar Run button, so the tree
+        // panel must surface the error and an in-place retry rather than an indefinite "Preparing…".
+        const simpleRun = vi.fn()
+        setStore({ simpleTree: null, simpleReady: false, status: 'error', error: 'Boom', simpleRun })
+        render(<SimpleTraceTree />)
+
+        expect(screen.queryByText('simple.preparing')).not.toBeInTheDocument()
+        expect(screen.getByTestId('simple-tree-error')).toHaveTextContent('Boom')
+
+        await userEvent.click(screen.getByTestId('simple-retry'))
+        expect(simpleRun).toHaveBeenCalledTimes(1)
     })
 
     it('shows a single calculation progress while the one request runs — no per-page count', () => {
