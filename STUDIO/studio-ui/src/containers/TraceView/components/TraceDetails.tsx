@@ -160,6 +160,9 @@ const TraceDetails: React.FC = () => {
         : undefined
     const shownParameters = stepView ? stepInputs?.inputs ?? undefined : allParameters
     const shownResult = stepView ? stepInputs?.result ?? undefined : result
+    // A focused step shows its own error — the step the run failed on carries it — so clicking the failing
+    // step explains why it failed, not only the whole table's frame, like the advanced view shows both.
+    const shownErrors = stepView ? stepInputs?.errors ?? undefined : errors
     // A focused step is self-contained from step-inputs; only the frame view waits on the variables payload.
     const loadingDetails = stepView ? stepInputsLoading : variablesLoading
 
@@ -215,7 +218,7 @@ const TraceDetails: React.FC = () => {
                             ruleNames={variables?.ruleNames ?? null}
                         />
                     )}
-                    <TraceErrors errors={errors} />
+                    <TraceErrors errors={shownErrors} />
                 </>
             )}
         </div>

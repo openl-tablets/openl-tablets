@@ -713,11 +713,11 @@ public class TraceDebugMapper {
         }
         try {
             if (!(frame.getSource() instanceof Spreadsheet spreadsheet)) {
-                return new StepInputsView(List.of(), null, null);
+                return new StepInputsView(List.of(), null, null, null);
             }
             SpreadsheetCell cell = displayCell(spreadsheet, stepRef);
             if (cell == null) {
-                return new StepInputsView(List.of(), null, null);
+                return new StepInputsView(List.of(), null, null, null);
             }
             Map<String, Object> executed = new HashMap<>();
             for (DebugFrame.ExecutedStep step : frame.getExecutedSteps()) {
@@ -728,7 +728,10 @@ public class TraceDebugMapper {
                     ? formulaInputs(composite, frame, spreadsheet, executed, clones, includeSchema)
                     : List.of();
             ParameterValue result = stepResult(frame, cell, stepRef, executed, clones, includeSchema);
-            return new StepInputsView(inputs, result, cellAddress(cell));
+            // The step the run failed on carries the error too, so a business click lands on the failing step
+            // and reads why it failed — not only the whole table's node, like the advanced view shows both.
+            List<MessageDescription> errors = isErroringStep(frame, stepRef) ? buildErrors(frame) : null;
+            return new StepInputsView(inputs, result, cellAddress(cell), errors);
         } finally {
             Thread.currentThread().setContextClassLoader(previous);
         }
@@ -1109,6 +1112,15 @@ public class TraceDebugMapper {
             log.debug("Failed to freeze a value, using the live reference", e);
             return value;
         }
+    }
+
+    /** Whether the frame failed on this very step — the cell it was paused on when its error was recorded. */
+    private static boolean isErroringStep(DebugFrame frame, String stepRef) {
+        if (frame.getError() == null) {
+            return false;
+        }
+        CurrentLocation location = frame.getLocation();
+        return location != null && stepRef.equals(location.ref());
     }
 
     private List<MessageDescription> buildErrors(DebugFrame frame) {

@@ -186,7 +186,7 @@ public final class DebugFrame {
         }
         executedChildren.forEach((ref, children) -> {
             if (!covered.contains(ref)) {
-                steps.add(new CallNode.Step(intern.apply(ref), interruptedStepLabel(ref, intern), 0,
+                steps.add(new CallNode.Step(intern.apply(ref), interruptedStepLabel(ref, intern, detailedTitles), 0,
                         List.copyOf(children)));
             }
         });
@@ -237,11 +237,14 @@ public final class DebugFrame {
      * an error in the table it invoked — so it has no completed value. Falls back to the cell's own name, so a
      * failed branch reads with real step names ({@code $ManualRates}) instead of raw {@code RnCm} references.
      */
-    private @Nullable String interruptedStepLabel(String ref, UnaryOperator<String> intern) {
+    private @Nullable String interruptedStepLabel(String ref, UnaryOperator<String> intern, boolean detailedTitles) {
         if (source instanceof Spreadsheet spreadsheet) {
             SpreadsheetCell cell = cellAt(spreadsheet, ref);
             if (cell != null) {
-                return intern.apply(SpreadsheetCellNames.of(spreadsheet, cell));
+                String name = SpreadsheetCellNames.of(spreadsheet, cell);
+                // An interrupted step carries no value; in the detailed (business) view mark it "= ERROR" like
+                // its table node, so the failed path reads as an error trail the user can follow in the tree.
+                return detailedTitles && error != null ? name + " = ERROR" : intern.apply(name);
             }
         }
         return null;
