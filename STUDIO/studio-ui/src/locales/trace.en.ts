@@ -89,6 +89,8 @@ i18next.addResourceBundle('en', 'trace', {
     simple: {
         preparing: 'Preparing the calculation…',
         calculating: 'Calculating…',
+        failed: 'The calculation could not be completed.',
+        retry: 'Try again',
     },
 
     error: {

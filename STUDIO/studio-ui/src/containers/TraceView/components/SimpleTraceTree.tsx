@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Empty, Spin, Typography } from 'antd'
+import { Button, Empty, Spin, Typography } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
+import { isTraceExecutionError } from 'utils/traceExecutionStatus'
 import type { SimpleInspectTarget, SimpleStepFocus } from 'store/traceStore'
 import type { CallNodeView, StepValueView } from 'types/trace'
 import ConditionRow from './ConditionRow'
@@ -202,6 +203,9 @@ const SimpleTraceTree: React.FC = () => {
     const children = useTraceStore(s => s.simpleChildren)
     const ready = useTraceStore(s => s.simpleReady)
     const preparing = useTraceStore(s => s.simpleLoading)
+    const status = useTraceStore(s => s.status)
+    const error = useTraceStore(s => s.error)
+    const simpleRun = useTraceStore(s => s.simpleRun)
     const selectedKey = useTraceStore(s => s.simpleSelectedKey)
     const inspect = useTraceStore(s => s.simpleInspect)
     const showDetailed = useTraceStore(s => s.showDetailed)
@@ -235,6 +239,20 @@ const SimpleTraceTree: React.FC = () => {
         )
     }
     if (!tree || !ready) {
+        // A failed run left no browsable tree. The business view has no toolbar Run button, so offer the
+        // retry here — otherwise the only way back is to reopen the window. A rule error is different: it
+        // returns a tree (marked `= ERROR`) and never reaches this branch.
+        if (isTraceExecutionError(status)) {
+            return (
+                <div className={styles.progress} data-testid="simple-tree-error">
+                    <Empty description={error || t('simple.failed')} image={Empty.PRESENTED_IMAGE_SIMPLE}>
+                        <Button data-testid="simple-retry" onClick={() => void simpleRun()} type="primary">
+                            {t('simple.retry')}
+                        </Button>
+                    </Empty>
+                </div>
+            )
+        }
         return <Empty description={t('simple.preparing')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
     }
 
