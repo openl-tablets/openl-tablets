@@ -179,6 +179,11 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
+    public void setProjectBranch(RulesProject project, String branch) throws ProjectException {
+        userWorkspace.setProjectBranch(project, branch);
+    }
+
+    @Override
     public Collection<RulesProject> getProjects() {
         return userWorkspace.getProjects()
                 .stream()

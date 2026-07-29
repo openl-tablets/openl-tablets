@@ -533,6 +533,22 @@ public class RulesProject extends UserWorkspaceProject {
         }
     }
 
+    /**
+     * Switches to a project entry that was verified in the target branch.
+     *
+     * <p>The entry supplies both the branch-scoped repository and that branch's mapped project path.
+     */
+    public void setBranch(Repository repository, FileData fileData) {
+        setDesignRepository(repository);
+        designFolderName = fileData.getName();
+        if (!isOpened()) {
+            setFolderPath(designFolderName);
+        }
+        setHistoryVersion(null);
+        refresh();
+        getFileData();
+    }
+
     @Override
     public String getRealPath() {
         if (isLocalOnly()) {

@@ -45,6 +45,11 @@ public interface UserWorkspace extends ProjectsContainer {
 
     RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException;
 
+    /**
+     * Switches a project to an indexed branch entry and persists the user's selection.
+     */
+    void setProjectBranch(RulesProject project, String branch) throws ProjectException;
+
     @Override
     Collection<RulesProject> getProjects();
 

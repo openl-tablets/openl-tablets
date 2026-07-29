@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 
@@ -21,7 +24,9 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.web.CopyProjectTransformer;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
@@ -56,6 +61,7 @@ public class ProjectCreationService {
     private static final String CUSTOM_TYPE = "custom";
     private static final String PREDEFINED_TYPE = "predefined";
     private static final String ROLLBACK_UPLOAD_COMMENT = "Rollback project upload.";
+    private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
 
     private final AclProjectsHelper aclProjectsHelper;
     private final RepositoryAclServiceProvider aclServiceProvider;
@@ -107,6 +113,30 @@ public class ProjectCreationService {
      */
     public void refreshWorkspaceAfterDesignChange() {
         getUserWorkspace().refresh();
+    }
+
+    /**
+     * Waits until a branch-scoped design write is visible through the project index.
+     *
+     * <p>A normal response therefore guarantees that subsequent project reads can resolve the new content.
+     */
+    public void awaitProjectVisibility(Repository repository) {
+        if (!(repository instanceof BranchRepository branchRepository) || !repository.supports().branches()) {
+            return;
+        }
+        try {
+            getUserWorkspace().getDesignTimeRepository()
+                    .refreshBranch(repository.getId(), branchRepository.getBranch())
+                    .toCompletableFuture()
+                    .get(PROJECT_INDEX_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ConflictException("project.indexing.incomplete.message");
+        } catch (ExecutionException | TimeoutException e) {
+            log.warn("Project index did not publish branch '{}' in repository '{}'.",
+                    branchRepository.getBranch(), repository.getId(), e);
+            throw new ConflictException("project.indexing.incomplete.message");
+        }
     }
 
     /**

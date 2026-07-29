@@ -140,6 +140,7 @@ class DesignTimeRepositoryControllerTest {
         controller.createProject(repository, "Project", null, "comment", List.of(archive), null, null, null,
                 "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx", false, null, false);
 
+        verify(projectCreationService).awaitProjectVisibility(repository);
         verify(projectCreationService).registerExtensibleTagsAfterDesignChange(project);
         verify(projectCreationService).applyStatusAfterCreate(REPOSITORY_ID, "Project", null);
     }

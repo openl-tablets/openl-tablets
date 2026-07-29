@@ -105,6 +105,18 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     @Override
+    public AProject getProjectForName(String repositoryId, String projectName) {
+        synchronized (localProjects) {
+            return localProjects.values()
+                    .stream()
+                    .filter(project -> Objects.equals(repositoryId, project.getRepository().getId()))
+                    .filter(project -> project.getBusinessName().equalsIgnoreCase(projectName))
+                    .findFirst()
+                    .orElse(null);
+        }
+    }
+
+    @Override
     public Collection<AProject> getProjects() {
         synchronized (localProjects) {
             var projects = new ArrayList<AProject>(localProjects.values());

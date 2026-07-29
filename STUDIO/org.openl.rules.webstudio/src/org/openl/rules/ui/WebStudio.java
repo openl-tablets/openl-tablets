@@ -1056,11 +1056,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 if (!branch.equals(previousBranch)) {
                     getModel().clearModuleInfo();
                     project.releaseMyLock();
-                    project.setBranch(branch);
+                    var workspace = rulesUserSession.getUserWorkspace();
+                    workspace.setProjectBranch(project, branch);
 
                     if (project.getLastHistoryVersion() == null) {
                         // move back to previous branch! Because the project is not present in new branch
-                        project.setBranch(previousBranch);
+                        workspace.setProjectBranch(project, previousBranch);
                         log.warn(
                                 "Current project does not exists in '{}' branch! Project branch was switched to the previous one",
                                 branch);
