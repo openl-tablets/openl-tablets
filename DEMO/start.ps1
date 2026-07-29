@@ -23,14 +23,14 @@ $ErrorActionPreference = 'Stop'
 $SKIP_OS_JAVA = $false # To ignore system Java and use a local JRE
 $MAVEN_URL = "https://repo1.maven.org/maven2"
 
-# JETTY_VERSION, POSTGRES_VERSION and MSSQL_VERSION must match the matching root pom.xml properties.
+# JETTY_VERSION, POSTGRES_VERSION, ORACLE_VERSION and MSSQL_VERSION must match the matching root pom.xml properties.
 # Enforced by `mvn validate -N`.
 $JAVA_MAJOR_VERSION = "25"
 $JETTY_VERSION = "12.1.11"
 
 # JDBC Driver Versions
 $POSTGRES_VERSION = "42.7.13"
-$ORACLE_VERSION = "23.26.2.0.0"
+$ORACLE_VERSION = "23.26.3.0.0"
 $MSSQL_VERSION = "13.4.0.jre11"
 
 
