@@ -358,7 +358,9 @@ Proceed as follows:
 
 ### Tracing Rules
 
-When a rule returns a result you did not expect, tracing lets you see **how** that result was produced. OpenL Studio runs the rule and shows every rule that executed as a tree; click any rule to see the values it received and the result it returned, which rows of a decision table fired, and how one rule passed its result to the next. For deeper investigation, an advanced mode lets you pause the calculation and walk through it step by step.
+When a rule returns a result you did not expect, tracing lets you see **how** that result was produced. OpenL Studio runs the rule and shows every rule that executed as a tree; click any rule to see the values it received and the result it returned, which rows of a decision table fired, and how one rule passed its result to the next.
+
+By default, tracing opens the **business view**, described first below. It runs the calculation for you and shows the whole tree at once — nothing to step through, nothing to configure. For deeper investigation, an **advanced mode** turns the trace into an interactive debugger; it is described separately in [The Advanced Mode](#the-advanced-mode).
 
 Tracing only *reads* the calculation. It does not change your data or your rules, so you can explore freely.
 
@@ -375,11 +377,17 @@ Tracing is available for everything that can be run:
 
 1.  In Rules editor, open the table to trace and click **Trace** in the toolbar above the table.
 
-    ![Trace and Trace into File buttons in the table toolbar](images/trace-start-button.png "Starting a trace")
+    ![Trace button in the table toolbar with the trace options open](images/trace-start-button.png "Starting a trace")
 
     *Starting a trace from the table toolbar*
 
-1.  For a rule or method table, provide the input parameters in the pop-up:
+1.  For a test table, select the test cases to trace. The checkbox in the header selects or clears all cases at once.
+
+    ![Test case selection for tracing a test table](images/trace-test-table-popup.png "Tracing a test table")
+
+    *Selecting test cases to trace*
+
+1.  For a rule or method table, provide the input parameters instead:
 
     -   **Tree Form** — fill in the parameter fields.
 
@@ -393,30 +401,24 @@ Tracing is available for everything that can be run:
 
         *Providing input as JSON*
 
-1.  For a test table, select the test cases to trace in the pop-up. The checkbox next to **Test Parameter(s)** selects or clears all cases at once.
-
-    ![Test case selection pop-up for tracing a test table](images/trace-test-table-popup.png "Tracing a test table")
-
-    *Selecting test cases to trace*
-
 1.  To trace only the rules of the current module and skip the modules it depends on, select **Within Current Module Only**.
-1.  To open the full step debugger instead of the business view, select **Advanced tracer**. Leave it off — the default — for the business view, which runs the calculation and shows the whole tree at once; see [The Advanced Mode](#the-advanced-mode).
+1.  Leave **Advanced tracer** off — the default — to open the business view. Select it only for the full step debugger; see [The Advanced Mode](#the-advanced-mode). The mode is chosen here, before the trace starts, and stays fixed for the trace window.
 1.  Click **Trace**. The trace window opens and runs the calculation.
 
 To save the calculation as a text file instead of opening the trace window, click **Trace into File**. OpenL Studio runs the rule and downloads the result as `trace.txt`.
 
-#### The Trace Window
+#### The Business View
 
-The trace window opens in the mode you chose at launch. By default it is the **business view**: it runs the calculation on its own and shows the tree of every rule that executed on the left, with the details of the selected rule on the right. This view answers the everyday question — what did this rule receive and what did it return — with nothing to configure. Selecting **Advanced tracer** before the trace instead opens the full debugger with stepping, breakpoints, and watches; see [The Advanced Mode](#the-advanced-mode).
+The business view is the default trace. It runs the calculation on its own and shows the tree of every rule that executed on the left, with the details of the selected rule on the right. This view answers the everyday question — what did this rule receive and what did it return — with nothing to configure.
 
-![Trace window overview](images/trace-debugger-overview.png "Trace window")
+![Business trace window with the call tree and a rule's details](images/trace-debugger-overview.png "The business trace window")
 
-*The trace window*
+*The business view: the call tree on the left, the selected rule's details on the right*
 
--   **Left panel** — a toolbar at the top, always in view, and the calculation tree below it: every rule that executed, in the order it was called. Each rule reads with its signature and result, and each spreadsheet cell with its value — a decision table as `DT Double NonZeroValues(Double value) = 754299` — the way the classic trace showed it. (The advanced debugger keeps the tree lean, without these values.) The business view's toolbar holds a single control, the **Show detailed view** toggle; the advanced debugger's toolbar holds its buttons and the run status, with a gear on the right for its settings — see [The Advanced Mode](#the-advanced-mode).
--   **Right panel**, also called **Details** — everything about the selected rule: its inputs, its result, the table itself, and any errors.
+-   **Left panel** — the **Show detailed trace** toggle at the top, always in view, and the calculation tree below it: every rule that executed, in the order it was called. Each rule reads with its signature and result, and each spreadsheet cell with its value — a decision table as `DT RatingGroup BankRatingGroup(Double bankRating)` — the way the classic trace showed it. The toggle adds the description and reference cells that the everyday view hides.
+-   **Right panel**, also called **Details** — everything about the selected rule: the values it received (**Parameters**), the value it produced (**Result**), the table itself, and any errors.
 
-While the calculation runs, a progress note counts the rules as the tree is prepared. The business view shows no status pill of its own — the finished tree is the answer. If the calculation fails, a banner reports what went wrong, and **Show technical details** reveals the underlying error for developers; the tree still shows every rule that ran up to the failure, with the failing rule — and each rule that called it — marked `= ERROR`. The trace opens that path for you, so the failing rule is in view at once, and clicking it shows the error in the **Details** panel — you land on exactly where the calculation broke. (The advanced debugger adds the full **Running**, **Paused**, **Finished**, and **Stopped** status.)
+While the calculation runs, a progress note counts the rules as the tree is prepared; the finished tree is the answer, with no status to watch. If the calculation fails, a banner reports what went wrong, and the tree still shows every rule that ran up to the failure, with the failing rule — and each rule that called it — marked `= ERROR`. The trace opens that path for you, so the failing rule is in view at once, and clicking it shows the error in the **Details** panel — you land on exactly where the calculation broke. If a run cannot produce a tree at all — a dropped connection, say — the panel offers a **Try again** button to run it again in place.
 
 #### Exploring the Calculation
 
@@ -428,16 +430,36 @@ Behind the scenes, clicking a rule quietly re-runs the calculation up to and thr
 
 The business view runs once, on open. To trace the table again — for example after changing the rules or the input — close the trace window and start a new trace from the editor.
 
+#### Reading a Step
+
+Click a rule in the tree to inspect it in the **Details** panel. (In the advanced mode, select a step while the calculation is **paused**; the same panel opens.) It shows the step name, the inputs it received (**Parameters**), the value it produced (**Result**), and any **Errors**. Next to the parameters and the result is a copy icon that copies them as JSON — handy for reusing them as a new test case. Large values are not loaded until you ask — click **Load value** to expand them.
+
+The selected step's table is shown below, with the calculation highlighted.
+
+![Traced decision table with the fired rule highlighted](images/trace-traced-table.png "Reading a traced table")
+
+*A traced decision table: the row that fired is highlighted*
+
+What the table shows depends on its kind:
+
+-   A **decision table** highlights the rule that fired — the row whose conditions all matched, which produced the result.
+-   A **spreadsheet table** shows a **Steps** grid with the value calculated in each cell. Cells that have not run yet appear as pending, and the cell running now as executing.
+
+The colours have a fixed meaning, shown in the legend below the table: **Result** marks the cell or row that produced the step's result. In the advanced mode, while you step through a rule, **Current step** marks the cell being calculated now, and, for a decision table, **Condition met** and **Condition not met** mark for each rule which conditions passed — so you can see exactly why a row was chosen.
+
+> [!Note]
+> Very large tables are shortened in the trace window. To see all rows, open the table in Excel.
+
 #### The Advanced Mode
 
-Selecting **Advanced tracer** before starting the trace opens a full interactive debugger instead of the business view: pause the calculation at any point, step through it rule by rule, set **breakpoints**, watch how a cell's value changes, and measure performance. The rest of this chapter describes this mode. The mode is fixed for the window — to switch, close it and start a new trace with the checkbox set the other way.
+Everything above is the business view. Selecting **Advanced tracer** before starting the trace instead opens a full interactive debugger: pause the calculation at any point, step through it rule by rule, set **breakpoints**, watch how a cell's value changes, and measure performance. Everything from here on describes this mode. The mode is fixed for the window — to switch, close it and start a new trace with the checkbox set the other way.
 
-In the advanced mode the status can also show **Starting** — the run is being prepared — and **Paused** — waiting for you to act; this is your turn to look around or move forward.
+The advanced toolbar stays in view at the top of the left panel: its buttons run and step the calculation, a tag shows the run **status** — **Starting**, **Running**, **Paused**, **Finished**, or **Stopped** — and a gear on its right opens the settings, where **Profiling** and **Show detailed trace** live. The **Breakpoints** and **Watch** panels sit below it, each collapsing from its title to give the tree more room.
 
 > [!Note]
 > In the advanced mode, a **called** rule's values — its inputs, result, and decision — are readable only while the calculation is **paused** on it. After **Finished** the window keeps the top-level rule with its steps, inputs, and result, but the values of the rules it called are gone — inspect a called rule while stopped on it, not after the run ends. (The business view hides this: clicking a rule always re-runs the calculation to it.)
 
-#### Following a Calculation
+##### Following a Calculation
 
 Here is a typical trace — for example, to understand why a premium came out higher than expected.
 
@@ -445,9 +467,9 @@ Here is a typical trace — for example, to understand why a premium came out hi
 1.  Reach the rule you want to inspect and pause on it — either set a **breakpoint** on it and click **Resume** to run straight there, or click **Step over** to move through the calculation and **Step into** to go inside a rule it called.
 1.  While the calculation is paused on the rule, the right **Details** panel shows the inputs it received (**Parameters**), the value it produced (**Result**), and the table with the relevant cells highlighted.
 1.  For a decision table, step forward until a rule fires; the **Decision** panel then highlights the rule that fired and shows, for each condition, a green check if it matched or a red cross if it did not — so you can see exactly why that row was chosen. (Right after you stop at the table it shows *No rule has fired yet* until you step on.)
-1.  To measure where the time goes rather than read values, turn on **Profiling** — in the toolbar's settings, behind the gear on its right, together with **Show detailed view** — and run to the end; the **Tree** and **Hot Spots** then show how long each rule took (see [Measuring Performance](#measuring-performance-hot-spots)).
+1.  To measure where the time goes rather than read values, turn on **Profiling** — in the toolbar's settings, behind the gear on its right, together with **Show detailed trace** — and run to the end; the **Tree** and **Hot Spots** then show how long each rule took (see [Measuring Performance](#measuring-performance-hot-spots)).
 
-#### Running and Stepping
+##### Running and Stepping
 
 You control the calculation from the toolbar, and each button applies in one state: **Resume** and the step buttons — **Step over**, **Step into**, and **Step out** — work only while the calculation is paused (**Paused**), while **Pause** works only while it is running. The first button follows the state: it is **Resume** while the calculation is paused and becomes **Pause** while it is running. A button is greyed out when it does not apply, which is normal.
 
@@ -462,7 +484,7 @@ In everyday use, **Resume** and **Step over** are enough. Reach for **Step into*
 
 To end the trace, simply close the trace window — the calculation is stopped for you.
 
-#### Navigating the Calculation
+##### Navigating the Calculation
 
 As the calculation runs, each rule that is still being worked out is called a **frame**. When one rule uses another, the calculation moves into the second rule while the first one waits for its answer — so several rules can be in progress at once, stacked in the order they were called. The **current frame** is the one at the top: the rule running right now. Its details are shown by default, and, while paused, you can select any other frame to look at it instead.
 
@@ -479,7 +501,7 @@ With **Profiling** on, each line in the Tree also shows how long its rule took t
 
 In a profiled run's Tree, a step marked **ref** points to a value that was already calculated elsewhere in the same table; click it to jump to where it was calculated. When a rule exists in several versions, the trace shows which version was used.
 
-#### Breakpoints
+##### Breakpoints
 
 A **breakpoint** tells the trace to pause when a chosen table is about to run, so you do not have to step through everything to get there. When you press **Resume**, the calculation runs until it reaches a breakpoint and then pauses, ready to inspect. The **Breakpoints** panel (and the **Watch** panel below it) collapses from its title, to give the tree more room when you are not using it.
 
@@ -492,31 +514,7 @@ A **breakpoint** tells the trace to pause when a chosen table is about to run, s
 -   To pause on a decision table's rules, stop on the table and use the **Decision** panel on the right: turn on **Break when a rule fires** to pause whenever the table fires a rule (when all of a rule's conditions match), or use **Break on rule** to pause only on the rules you select.
 -   Remove a breakpoint from the **Breakpoints** panel when you no longer need it.
 
-#### Reading a Step
-
-While the calculation is paused, select a step in the left panel (or a row in the **Execution Path**) to inspect it in the right **Details** panel; in the business view, the same panel opens when you click a rule. It shows the step name, the inputs it received (**Parameters**), the value it produced (**Result**), and any **Errors**. Next to the parameters and the result is a copy icon that copies them as JSON — handy for reusing them as a new test case. Large values are not loaded until you ask — click **Load value** to expand them.
-
-The selected step's table is shown with the calculation highlighted.
-
-![Traced decision table with the colour legend and fired rule](images/trace-traced-table.png "Reading a traced table")
-
-*A traced decision table, highlighted while paused on a step*
-
-The colours have a fixed meaning, shown in the legend below the table:
-
--   **Current step** — the cell being calculated now.
--   **Result** — the cell that produced the step's result.
--   **Condition met** and **Condition not met** — for decision tables, which conditions passed and which did not.
-
-What else the step shows depends on the kind of table:
-
--   A **spreadsheet table** shows a **Steps** grid with the value calculated in each cell. Cells that have not run yet appear as pending, and the cell running now as executing.
--   A **decision table** shows a **Decision** panel that lists every rule the table evaluated. The rule that fired is highlighted; for each rule, a green check marks a condition that matched and a red cross one that did not.
-
-> [!Note]
-> Very large tables are shortened in the trace window. To see all rows, open the table in Excel.
-
-#### Watching Cell Values
+##### Watching Cell Values
 
 The **Watch** panel captures the value of chosen cells every time their table runs. This helps you spot where a value goes wrong — for example, watch a rating factor to see that it is `1.0` for most drivers but `2.5` for one, which explains a high premium.
 
@@ -528,7 +526,7 @@ The **Watch** panel captures the value of chosen cells every time their table ru
 1.  Click **Collect**. OpenL Studio runs the calculation to the end and records the value of each watched cell every time its table runs.
 1.  The panel lists the captured values, grouped by cell and table, in the order they were calculated. If a table runs very many times, the list is capped and shows the first values collected.
 
-#### Measuring Performance (Hot Spots)
+##### Measuring Performance (Hot Spots)
 
 Turn on the **Profiling** switch to keep the whole calculation and measure how long each rule takes. Turning it on restarts the trace at the beginning; press **Resume** to run it. When it finishes, the Tree keeps the shape of the whole calculation with each rule's timing (its values are not kept — use **Replay** to return to a rule and read them).
 
