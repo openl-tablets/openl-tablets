@@ -2,7 +2,7 @@
 
 The following diagram displays how OpenL Tablets is used by different types of users.
 
-![](../ref-guide-images/openlTabletsOverview.png)
+![OpenL Tablets overview](../ref-guide-images/openlTabletsOverview.png)
 
 *OpenL Tablets overview*
 
