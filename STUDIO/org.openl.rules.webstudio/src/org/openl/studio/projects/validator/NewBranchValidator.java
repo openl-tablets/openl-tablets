@@ -51,7 +51,7 @@ public class NewBranchValidator implements Validator {
             return false;
         }
         try {
-            for (String branch : repository.getBranches(null)) {
+            for (String branch : repository.listBranches()) {
                 if (branch.equalsIgnoreCase(newBranchName)) {
                     errors.reject("branch.name.exists.message", new Object[]{newBranchName}, null);
                     return false;

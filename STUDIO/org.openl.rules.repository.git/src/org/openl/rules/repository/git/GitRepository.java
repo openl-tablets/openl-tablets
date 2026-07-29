@@ -2561,6 +2561,30 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     @Override
+    public List<String> listBranches() throws IOException {
+        initializeGit(true);
+
+        var readLock = repositoryLock.readLock();
+        readLock.lock();
+        try {
+            var branchNames = getAvailableBranches();
+            var remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
+            var remoteBranches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
+            remoteBranches.stream()
+                    .filter(ref -> !ref.isSymbolic())
+                    .map(Ref::getName)
+                    .filter(name -> name.startsWith(remotePrefix))
+                    .map(name -> name.substring(remotePrefix.length()))
+                    .forEach(branchNames::add);
+            return new ArrayList<>(branchNames);
+        } catch (GitAPIException e) {
+            throw new IOException(e);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
     public List<String> getBranches(String projectPath) throws IOException {
         initializeGit(true);
 
@@ -2887,7 +2911,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     @Override
     public boolean branchExists(String branch) throws IOException {
-        for (String existedBranch : getBranches(null)) {
+        for (String existedBranch : listBranches()) {
             if (existedBranch.equalsIgnoreCase(branch)) {
                 return true;
             }

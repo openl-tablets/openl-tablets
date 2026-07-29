@@ -1150,8 +1150,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var repository = (BranchRepository) project.getDesignRepository();
         var baseBranch = repository.getBaseBranch();
         try {
-            // projectPath parameter is not required because we need all branches for repository, not only selected project branches
-            var branches = repository.getBranches(null);
+            var branches = repository.listBranches();
             return branches.stream()
                     .map(branch -> ProjectBranchInfo.builder()
                             .name(branch)

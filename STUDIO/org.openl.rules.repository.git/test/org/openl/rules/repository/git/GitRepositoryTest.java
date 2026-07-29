@@ -1099,6 +1099,35 @@ class GitRepositoryTest {
     }
 
     @Test
+    void listBranchesUsesGitRefsInsteadOfProjectSelections() throws Exception {
+        var registryOnlyBranch = "registry-only";
+        var remoteOnlyBranch = "remote-only";
+        repo.createBranch(FOLDER_IN_REPOSITORY, registryOnlyBranch);
+
+        try (var git = repo.getClosableGit()) {
+            git.branchDelete().setBranchNames(registryOnlyBranch).setForce(true).call();
+
+            var repository = git.getRepository();
+            var registryOnlyRemoteRef = repository.updateRef(
+                    Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + registryOnlyBranch);
+            registryOnlyRemoteRef.setForceUpdate(true);
+            registryOnlyRemoteRef.delete();
+
+            var remoteOnlyRef = repository.updateRef(
+                    Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + remoteOnlyBranch);
+            remoteOnlyRef.setNewObjectId(repository.resolve(Constants.R_HEADS + BRANCH));
+            remoteOnlyRef.forceUpdate();
+        }
+
+        assertTrue(repo.getBranches(FOLDER_IN_REPOSITORY).contains(registryOnlyBranch));
+        var branches = repo.listBranches();
+        assertEquals(List.of(Constants.MASTER, remoteOnlyBranch, BRANCH), branches);
+        assertFalse(branches.contains(registryOnlyBranch));
+        assertTrue(repo.branchExists(remoteOnlyBranch));
+        assertFalse(repo.branchExists(registryOnlyBranch));
+    }
+
+    @Test
     void pathToRepoInsteadOfUri() throws IOException {
         // Will use this path instead of uri. Git accepts that.
         var remote = new File(root, "remote").getAbsolutePath();

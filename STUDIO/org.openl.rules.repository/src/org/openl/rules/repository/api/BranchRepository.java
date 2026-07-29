@@ -26,6 +26,13 @@ public interface BranchRepository extends Repository, SearchableRepository {
 
     void deleteBranch(String projectPath, String branch) throws IOException;
 
+    /**
+     * Returns all branches available in the repository.
+     *
+     * <p>Project-specific branch selections are not included.
+     */
+    List<String> listBranches() throws IOException;
+
     List<String> getBranches(String projectPath) throws IOException;
 
     /**

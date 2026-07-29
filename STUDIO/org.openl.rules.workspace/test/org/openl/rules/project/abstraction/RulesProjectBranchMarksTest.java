@@ -176,6 +176,11 @@ class RulesProjectBranchMarksTest {
         }
 
         @Override
+        public List<String> listBranches() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public List<String> getBranches(String projectPath) {
             throw new UnsupportedOperationException();
         }
