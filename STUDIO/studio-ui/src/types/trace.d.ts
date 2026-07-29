@@ -334,6 +334,8 @@ export interface StepInputsView {
     result?: TraceParameterValue | null
     /** A1 address of the step's source cell in the raw table, or null. */
     cell?: string | null
+    /** The errors this step raised, present only when this is the step the run failed on. */
+    errors?: MessageDescription[] | null
 }
 
 /**

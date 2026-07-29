@@ -296,4 +296,30 @@ describe('TraceDetails', () => {
         expect(screen.getByText('details.errors')).toBeInTheDocument()
         expect(screen.getByText('Division by zero')).toBeInTheDocument()
     })
+
+    it('shows the error on the focused step the run failed on, from its step-inputs', async () => {
+        // The failing step carries its own error in the step-inputs payload, so clicking it explains why it
+        // failed — not only the whole table's frame — the way the advanced view shows the error on both.
+        const getStepInputs = traceService.getStepInputs as ReturnType<typeof vi.fn>
+        getStepInputs.mockResolvedValue({
+            inputs: [{ name: '$AllEmployeesWithSelectedClass', description: 'Employee[]', lazy: false, value: []}],
+            result: null,
+            cell: 'C9',
+            errors: [{ severity: 'ERROR', summary: 'There are no employee records' }],
+        })
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame({ uri: 'uOwner', name: 'ValidatePlanNumberForSuppCoverage',
+                steps: [{ ref: 'S3', label: '$Validation', cell: 'C9', status: 'executed' }]})],
+            selectedFrameIndex: 0,
+            variables: variables(),
+            variablesLoading: false,
+            simpleFocus: { ref: 'S3', label: '$Validation', ownerUri: 'uOwner', ownerInstance: 0 },
+        })
+        render(<TraceDetails />)
+
+        expect(getStepInputs).toHaveBeenCalledWith('p1', 0, 'S3')
+        await waitFor(() => expect(screen.getByText('There are no employee records')).toBeInTheDocument())
+        expect(screen.getByText('details.errors')).toBeInTheDocument()
+    })
 })

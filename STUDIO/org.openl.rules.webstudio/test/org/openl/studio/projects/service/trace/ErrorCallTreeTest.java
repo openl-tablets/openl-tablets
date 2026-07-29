@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +29,7 @@ class ErrorCallTreeTest {
     @Test
     @DisplayName("A step interrupted by an error in the table it called keeps its own name, not a raw RnCm ref")
     void keepsRealStepNamesOnTheFailedBranch() {
-        var tree = runToError();
+        var tree = runToError(false);
 
         // The step that called the failing table never returned, so it is recorded only by its sub-call. It
         // must still read with its own name — the tree used to fall back to the raw RnCm ref (e.g. "R1C0").
@@ -43,9 +44,22 @@ class ErrorCallTreeTest {
     }
 
     @Test
+    @DisplayName("The detailed business view marks every step on the failed path = ERROR, like the legacy trace")
+    void marksTheFailedPathInTheDetailedView() {
+        var tree = runToError(true);
+        var labels = new ArrayList<String>();
+        collectStepLabels(tree, labels);
+        // Every step on the failed path — the callers and the cell that raised the error — reads "= ERROR",
+        // so the tree itself is an error trail the user can follow without getting lost, like the legacy trace.
+        assertTrue(labels.contains("$ManualRates = ERROR"), () -> "no marked $ManualRates in " + labels);
+        assertTrue(labels.contains("$Validation = ERROR"), () -> "no marked $Validation in " + labels);
+        assertTrue(labels.contains("$Result = ERROR"), () -> "no marked $Result in " + labels);
+    }
+
+    @Test
     @DisplayName("Running through the error keeps the whole executed tree with the failed branch")
     void keepsTheExecutedTreeOnError() {
-        var tree = runToError();
+        var tree = runToError(false);
         assertEquals("DeterminePolicy", tree.name());
         // Base computed before the error and stays; the failing branch is retained under $ManualRates.
         assertNotNull(step(tree, "$Base"), "steps that finished before the error are kept");
@@ -54,7 +68,7 @@ class ErrorCallTreeTest {
     }
 
     /** Run DeterminePolicy through the error the way the business view does, and return the kept tree. */
-    private static CallNode runToError() {
+    private static CallNode runToError(boolean detailedTitles) {
         var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
         assertTrue(compiled.getAllMessages().isEmpty(), () -> "module must compile: " + compiled.getAllMessages());
         var module = compiled.getOpenClass();
@@ -65,7 +79,7 @@ class ErrorCallTreeTest {
 
         var debugger = new TraceDebugger(DebugListener.NOOP);
         debugger.setBreakOnErrors(false);
-        debugger.start("error-tree", compiled.getClassLoader(), false, true, false, () -> {
+        debugger.start("error-tree", compiled.getClassLoader(), false, true, detailedTitles, () -> {
             var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
             var target = module.newInstance(env);
@@ -89,6 +103,14 @@ class ErrorCallTreeTest {
 
     private static List<String> childNames(CallNode.Step step) {
         return step.children().stream().map(CallNode::name).toList();
+    }
+
+    /** Every step label in the tree, depth-first, for asserting the error marking down the whole path. */
+    private static void collectStepLabels(CallNode node, List<String> out) {
+        for (CallNode.Step step : node.steps()) {
+            out.add(step.label());
+            step.children().forEach(child -> collectStepLabels(child, out));
+        }
     }
 
     /** No step is labelled as its own {@code RnCm} reference — every one resolved to a real name. */

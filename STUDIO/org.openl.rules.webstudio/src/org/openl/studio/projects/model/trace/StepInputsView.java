@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.studio.projects.model.ParameterValue;
 
 /**
@@ -19,6 +20,7 @@ import org.openl.studio.projects.model.ParameterValue;
  * @param inputs the values the step's formula read, named as the formula writes them
  * @param result the step's own returned value, or {@code null} for a formula cell that has not run yet
  * @param cell   A1 address of the step's source cell in the raw table, or {@code null}
+ * @param errors the errors this step raised, present only when this is the step the run failed on
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "trace.type.step-inputs.desc")
@@ -30,6 +32,9 @@ public record StepInputsView(
         @Nullable ParameterValue result,
 
         @Schema(description = "trace.field.step-inputs.cell.desc")
-        @Nullable String cell
+        @Nullable String cell,
+
+        @Schema(description = "trace.field.step-inputs.errors.desc")
+        @Nullable List<MessageDescription> errors
 ) {
 }

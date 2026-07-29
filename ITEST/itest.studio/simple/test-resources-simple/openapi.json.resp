@@ -24315,6 +24315,13 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "errors": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/MessageDescription"
+            }
+          },
           "inputs": {
             "type": "array",
             "description": "***",
