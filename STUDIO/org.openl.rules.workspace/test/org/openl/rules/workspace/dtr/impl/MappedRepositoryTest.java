@@ -2,9 +2,15 @@ package org.openl.rules.workspace.dtr.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -12,7 +18,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 
@@ -43,6 +52,85 @@ class MappedRepositoryTest {
                 "Missing rules.xml name must fall back to the folder name, but was: " + mapped);
         assertTrue(mapped.stream().anyMatch(name -> name.startsWith("DESIGN/RealName:")),
                 "Named project must keep its rules.xml name, but was: " + mapped);
+    }
+
+    @Test
+    void branchViewBuildsMappingFromSelectedBranch() throws Exception {
+        var main = branchRepository("main", "rules/main-project", "MainProject");
+        var feature = branchRepository("feature/rates", "features/rates-project", "RatesProject");
+        when(main.forBranch("feature/rates")).thenReturn(feature);
+
+        var mapped = (BranchRepository) MappedRepository.create(main, "DESIGN/");
+        try {
+            assertEquals(List.of("MainProject"), businessNames(mapped.listFolders("DESIGN/")));
+
+            var featureMapped = mapped.forBranch("feature/rates");
+            try {
+                assertEquals(List.of("RatesProject"), businessNames(featureMapped.listFolders("DESIGN/")));
+            } finally {
+                featureMapped.close();
+            }
+        } finally {
+            mapped.close();
+        }
+    }
+
+    @Test
+    void mappingScanDoesNotLoadDeletionOrAuditMetadata() throws Exception {
+        var repository = mock(BranchRepository.class);
+        var folder = mock(FileData.class);
+        var descriptor = mock(FileData.class);
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setFolders(true).build());
+        when(folder.getName()).thenReturn("project");
+        when(repository.listFolders("")).thenReturn(List.of(folder));
+        when(repository.check("project/rules.xml")).thenReturn(descriptor);
+        when(repository.read("project/rules.xml")).thenReturn(new FileItem(
+                descriptor,
+                new ByteArrayInputStream(
+                        "<project><name>Project</name></project>".getBytes(StandardCharsets.UTF_8))));
+
+        var mapped = MappedRepository.create(repository, "DESIGN/");
+        try {
+            verify(folder, never()).isDeleted();
+            verify(folder, never()).getModifiedAt();
+            verify(descriptor, never()).isDeleted();
+            verify(descriptor, never()).getModifiedAt();
+        } finally {
+            mapped.close();
+        }
+    }
+
+    private static BranchRepository branchRepository(String branch, String path, String projectName)
+            throws IOException {
+        var repository = mock(BranchRepository.class);
+        var folder = fileData(path);
+        var descriptor = fileData(path + "/rules.xml");
+        when(repository.supports())
+                .thenReturn(new FeaturesBuilder(repository).setFolders(true).setBranches(true).build());
+        when(repository.getBranch()).thenReturn(branch);
+        when(repository.getBaseBranch()).thenReturn("main");
+        when(repository.listFolders("")).thenReturn(List.of(folder));
+        when(repository.check(path)).thenReturn(folder);
+        when(repository.check(path + "/rules.xml")).thenReturn(descriptor);
+        when(repository.read(path + "/rules.xml")).thenAnswer(invocation -> new FileItem(
+                descriptor,
+                new ByteArrayInputStream(
+                        "<project><name>%s</name></project>".formatted(projectName)
+                                .getBytes(StandardCharsets.UTF_8))));
+        return repository;
+    }
+
+    private static FileData fileData(String name) {
+        var data = new FileData();
+        data.setName(name);
+        return data;
+    }
+
+    private static List<String> businessNames(List<FileData> folders) {
+        return folders.stream()
+                .map(FileData::getName)
+                .map(name -> name.substring("DESIGN/".length(), name.indexOf(':')))
+                .toList();
     }
 
     private List<String> listMappedFolders(String baseFolder) throws IOException {

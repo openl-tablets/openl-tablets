@@ -190,27 +190,16 @@ class LazyFileData extends FileData {
         }
     }
 
-    /**
-     * For non-flat folder structure this method shouldn't be invoked because in that case another algorithm is used.
-     */
     private void verifyDeleteStatusLoaded() {
         verifyLoaded();
         if (deleteStatusLoaded) {
             return;
         }
 
-        try {
-            if (fileId == null && getSize() == UNDEFINED_SIZE) {
-                // Deleted status for folder is got from main branch.
-                if (!gitRepo.getBranch().equals(gitRepo.getBaseBranch())) {
-                    var data = gitRepo.forBranch(gitRepo.getBaseBranch()).check(fullPath);
-                    super.setDeleted(data == null || data.isDeleted());
-                }
-            }
-            deleteStatusLoaded = true;
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
+        // A data item built from the selected branch tree exists in that branch. Historical deletions are marked
+        // explicitly by the history visitor.
+        super.setDeleted(false);
+        deleteStatusLoaded = true;
     }
 
 }
