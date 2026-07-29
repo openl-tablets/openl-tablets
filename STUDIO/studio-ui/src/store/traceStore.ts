@@ -324,10 +324,10 @@ export const useTraceStore = create<DebugState>((set, get) => {
         // In the business view a click inspects one table. If running to it stopped on a deeper frame — an
         // error parked the run inside a table it called — keep the clicked table selected (still on the stack
         // as an ancestor) so its own table and inputs show, not the unrelated frame the suspend landed on.
-        const inspecting = get().simpleInspectFrame
-        if (inspecting && !get().advanced && focusIndex !== null) {
+        const inspectFrame = get().simpleInspectFrame
+        if (inspectFrame && !get().advanced && focusIndex !== null) {
             const index = stack.frames.findLastIndex(
-                frame => frame.uri === inspecting.uri && frame.instance === inspecting.instance)
+                frame => frame.uri === inspectFrame.uri && frame.instance === inspectFrame.instance)
             if (index >= 0) {
                 focusIndex = index
             }
