@@ -8,7 +8,7 @@ To simplify integration with OpenL rules, customize serialization output of Spre
 
 Consider the following spreadsheets.
 
-![](../../../ref-guide-images/spreadsheetsExample.png)
+![Spreadsheets example](../../../ref-guide-images/spreadsheetsExample.png)
 
 *Spreadsheets example*
 
@@ -62,7 +62,7 @@ For these spreadsheets, output result is as follows.
 
 In the following example, some steps are marked with the asterisk to be included in the output.
 
-![](../../../ref-guide-images/exampleSpreadsheetsMandatorySteps.png)
+![Example of spreadsheets with mandatory steps](../../../ref-guide-images/exampleSpreadsheetsMandatorySteps.png)
 
 *Example of spreadsheets with mandatory steps*
 
@@ -101,7 +101,7 @@ An output for these tables is as follows:
 
 Within a project, different tables can contain ~ or * markings. Using one or another depends on whether a user needs more steps to include or exclude into the final result. An example is as follows.
 
-![](../../../ref-guide-images/exampleSpreadsheetsStepsMarkedIncludedExcluded.png)
+![An example of spreadsheets with steps marked to be included and excluded](../../../ref-guide-images/exampleSpreadsheetsStepsMarkedIncludedExcluded.png)
 
 *An example of spreadsheets with steps marked to be included and excluded*
 
@@ -147,7 +147,7 @@ It is also possible to filter spreadsheet columns identifying the ones to be dis
 
 An example is as follows.
 
-![](../../../ref-guide-images/spreadsheetTableThreeColumns.png)
+![A spreadsheet table with three columns](../../../ref-guide-images/spreadsheetTableThreeColumns.png)
 
 *A spreadsheet table with three columns*
 
@@ -177,7 +177,7 @@ Note that the step names are in the **ColumnName_RowName** format.
 
 An example of the same spreadsheet with one of the columns excluded using the tilda ~ sign is as follows.
 
-![](../../../ref-guide-images/spreadsheetTableExcludedColumn.png)
+![A spreadsheet table with excluded column](../../../ref-guide-images/spreadsheetTableExcludedColumn.png)
 
 *A spreadsheet table with excluded column*
 
@@ -200,7 +200,7 @@ Note that the step names are in the **RowName** format because there is only one
 
 Now consider the following example that illustrates simultaneous usage of asterix in columns and steps.
 
-![](../../../ref-guide-images/spreadsheetTableFilteredColumnsSteps.png)
+![A spreadsheet table with filtered columns and steps](../../../ref-guide-images/spreadsheetTableFilteredColumnsSteps.png)
 
 *A spreadsheet table with filtered columns and steps*
 
@@ -215,17 +215,17 @@ An output result for this spreadsheet is as follows.
 
 If the [description column](01-parsing-a-spreadsheet-table.md#parsing-a-spreadsheet-table) is marked with `//` it is displayed as a field property in the JSON structure. However, the steps listed in this column are excluded from the schema tree representation.
 
-![](../../../ref-guide-images/SpreadsheetWithCommentedValue.png)
+![Spreadsheet with a commented value](../../../ref-guide-images/SpreadsheetWithCommentedValue.png)
 
-![](../../../ref-guide-images/StepsDescriptionInSchema.png)
+![Step descriptions added via //<ColumnName> column](../../../ref-guide-images/StepsDescriptionInSchema.png)
 
 *Step descriptions added via //<ColumnName> column*
 
 **Note:** Rule descriptions included in API-exposed rules will appear in the OpenL Tablets Rule Services. If multiple versions of a rule are available, the selection is made randomly from those that contain non-empty descriptions.
 
-![](../../../ref-guide-images/SRDescriptionInOpenLStudio.png)
+![Spreadsheet result description in OpenL Studio](../../../ref-guide-images/SRDescriptionInOpenLStudio.png)
 
-![](../../../ref-guide-images/SpreadsheetDescriptionInRuleServices.png)
+![Rule description displayed in OpenL Rule Services](../../../ref-guide-images/SpreadsheetDescriptionInRuleServices.png)
 
 *Rule description displayed in OpenL Rule Services*
 
