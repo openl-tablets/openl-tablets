@@ -45,6 +45,7 @@ import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.lang.xls.types.DatatypeOpenField;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.xls.XlsUtil;
@@ -762,6 +763,16 @@ public class TraceDebugMapper {
                 }
             }
         }
+        // A field read explicitly off a parameter (policy.census) is the precise input: list it as the dotted
+        // name with the field's value, and drop the bare parameter the formula only reached through.
+        for (IOpenField field : fields) {
+            if (field instanceof DatatypeOpenField datatypeField) {
+                StepInput input = parameterFieldInput(datatypeField, fields, frame, spreadsheet, narrowed);
+                if (input != null && seen.add(input.name())) {
+                    inputs.add(input);
+                }
+            }
+        }
         for (IOpenField field : fields) {
             if (field instanceof CustomSpreadsheetResultField || narrowed.contains(field)) {
                 continue;
@@ -926,6 +937,40 @@ public class TraceDebugMapper {
                 } catch (Exception e) {
                     return null;
                 }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * A field read explicitly off a parameter, e.g. {@code policy.census}: pair the datatype field with the
+     * parameter of its declaring type, read the field off that parameter's recorded value, and name it with
+     * the dotted path. The bare parameter, present only as the root of the access, is narrowed so it is not
+     * listed on top of its field.
+     */
+    private static @Nullable StepInput parameterFieldInput(DatatypeOpenField field, List<IOpenField> fields,
+                                                           DebugFrame frame, Spreadsheet spreadsheet,
+                                                           Set<IOpenField> narrowed) {
+        IOpenClass declaring = field.getDeclaringClass();
+        if (declaring == null) {
+            return null;
+        }
+        IMethodSignature signature = spreadsheet.getSignature();
+        Object[] params = frame.getParams();
+        int count = Math.min(params.length, signature.getNumberOfParameters());
+        for (int i = 0; i < count; i++) {
+            if (!declaring.isAssignableFrom(signature.getParameterType(i))) {
+                continue;
+            }
+            String parameter = signature.getParameterName(i);
+            fields.stream()
+                    .filter(candidate -> candidate instanceof ILocalVar && parameter.equals(candidate.getName()))
+                    .forEach(narrowed::add);
+            try {
+                Object value = params[i] == null ? null : field.get(params[i], null);
+                return new StepInput(2, i, parameter + "." + field.getName(), value, field.getType());
+            } catch (Exception e) {
+                return null;
             }
         }
         return null;
