@@ -55,13 +55,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         font-weight: normal;
         letter-spacing: normal;
     `,
-    // The "Show detailed trace" checkbox is a control, not a heading — reset the heading typography.
-    detailedToggle: css`
-        text-transform: none;
-        font-weight: normal;
-        letter-spacing: normal;
-        white-space: nowrap;
-    `,
     // Centered progress note while the simple mode runs the calculation and downloads its tree.
     progress: css`
         display: flex;

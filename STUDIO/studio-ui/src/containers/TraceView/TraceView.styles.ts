@@ -8,46 +8,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
         background: ${token.colorBgContainer};
     `,
-    toolbar: css`
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: ${token.marginSM}px;
-        flex: 0 0 auto;
-        padding: ${token.paddingXXS}px ${token.paddingSM}px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
-    `,
-    // A solid, filled status badge: saturated background with white text, so the state is readable
-    // at a glance — the tinted Tag presets blend the text into the background. The fills are deepened
-    // shades (not the raw semantic tokens) chosen so white text clears WCAG AA (≥4.5:1) in either theme;
-    // the default tokens are too light for white text (amber colorWarning is only 1.9:1). Contrast ratios
-    // against white, computed from the hexes, are noted per fill.
-    statusTag: css`
-        flex: 0 0 auto;
-        margin-inline-end: 0;
-        padding-inline: ${token.paddingSM}px;
-        font-size: ${token.fontSize}px;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        line-height: ${token.controlHeightSM}px;
-        border: none;
-        color: ${token.colorWhite};
-    `,
-    statusNeutral: css`
-        background: #595959; /* 7.0:1 */
-    `,
-    statusRunning: css`
-        background: #0958d9; /* 6.2:1 */
-    `,
-    statusPaused: css`
-        background: #8c5a00; /* 5.9:1 */
-    `,
-    statusFinished: css`
-        background: #237804; /* 5.6:1 */
-    `,
-    statusFailed: css`
-        background: #cf1322; /* 5.6:1 */
-    `,
     panels: css`
         flex: 1;
         display: flex;

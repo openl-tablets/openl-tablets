@@ -494,28 +494,14 @@ describe('TraceTree', () => {
         expect(returned.querySelector('svg')).toBeInTheDocument()
     })
 
-    it('hides the per-condition breakdown when Show detailed trace is turned off, keeping the returned rule', async () => {
-        useTraceStore.setState({
-            status: 'completed', profiling: true, showDetailed: true, frames: [], tree: decisionTree(),
-        })
-        render(<TraceTree />)
-
-        await userEvent.click(screen.getByTestId('trace-detailed')) // turn detail off
-
-        expect(screen.queryByTestId('tree-condition-tree/c0')).not.toBeInTheDocument()
-        expect(screen.queryByTestId('tree-condition-tree/c1')).not.toBeInTheDocument()
-        expect(screen.getByText('Returned rule: [R2]')).toBeInTheDocument() // the returned rule stays
-    })
-
-    it('keeps a decision table plain by default, showing only its returned rule until detail is on', () => {
-        // Default off (business-plain): the executed tree carries the conditions, but they stay hidden.
-        useTraceStore.setState({ status: 'completed', profiling: true, frames: [], tree: decisionTree() })
+    it('keeps a decision table plain when Show detailed view is off, showing only its returned rule', () => {
+        // Off (business-plain): the executed tree carries the conditions, but they stay hidden. The toggle
+        // itself now lives in the toolbar's settings, not the tree.
+        useTraceStore.setState({ status: 'completed', profiling: true, showDetailed: false, frames: [], tree: decisionTree() })
         render(<TraceTree />)
 
         expect(screen.queryByTestId('tree-condition-tree/c0')).not.toBeInTheDocument()
         expect(screen.queryByTestId('tree-condition-tree/c1')).not.toBeInTheDocument()
         expect(screen.getByText('Returned rule: [R2]')).toBeInTheDocument()
-        // The toggle is offered so the analyst can reveal the breakdown.
-        expect(screen.getByTestId('trace-detailed')).toBeInTheDocument()
     })
 })

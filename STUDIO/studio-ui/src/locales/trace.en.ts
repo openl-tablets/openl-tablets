@@ -59,6 +59,7 @@ i18next.addResourceBundle('en', 'trace', {
         stepOver: 'Step over — run the next line without going inside',
         stepOut: 'Step out — finish this rule and return to its caller',
         rerun: 'Rerun — restart the trace from the beginning',
+        settings: 'Settings — profiling and detailed view',
         profiling: 'Profiling',
         profilingHint: 'Keep the executed call tree (timings + replay). It uses more memory and runs slower, and switching restarts the trace.',
         profilingNotice: 'Profiling keeps the whole executed tree — it uses more memory and runs slower. Turn it off when you do not need the executed branches.',
@@ -86,7 +87,7 @@ i18next.addResourceBundle('en', 'trace', {
     },
 
     simple: {
-        pressRun: 'Preparing the calculation…',
+        preparing: 'Preparing the calculation…',
         calculating: 'Calculating…',
     },
 

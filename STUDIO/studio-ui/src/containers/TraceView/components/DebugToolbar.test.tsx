@@ -152,16 +152,4 @@ describe('DebugToolbar', () => {
         await userEvent.click(screen.getByTestId('debug-pause'))
         expect(actions.pause).toHaveBeenCalledTimes(1)
     })
-
-    it('reflects profiling state and toggles it through the store', async () => {
-        const actions = stubActions()
-        useTraceStore.setState({ status: 'suspended', loading: false, profiling: false })
-        render(<DebugToolbar />)
-
-        const toggle = screen.getByTestId('debug-profiling')
-        expect(toggle).not.toBeChecked()
-
-        await userEvent.click(toggle)
-        expect(actions.setProfiling).toHaveBeenCalledWith(true)
-    })
 })

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Checkbox, Empty, Segmented, Spin, Tooltip } from 'antd'
+import { Button, Empty, Segmented, Spin, Tooltip } from 'antd'
 import {
     CloseCircleFilled,
     DoubleRightOutlined,
@@ -192,7 +192,6 @@ const TraceTree: React.FC = () => {
     const runId = useTraceStore(s => s.runId)
     const profiling = useTraceStore(s => s.profiling)
     const showDetailed = useTraceStore(s => s.showDetailed)
-    const setShowDetailed = useTraceStore(s => s.setShowDetailed)
     const [expanded, setExpanded] = useState<Set<string>>(new Set())
     const [timeMode, setTimeMode] = useState<TimeMode>('total')
 
@@ -527,17 +526,6 @@ const TraceTree: React.FC = () => {
             <div className={styles.header}>
                 <span>{t('tree.title')}</span>
                 <span className={styles.headerControls}>
-                    {/* The detailed breakdown lives in the executed tree, which exists only while profiling. */}
-                    {profiling && (
-                        <Checkbox
-                            checked={showDetailed}
-                            className={styles.detailedToggle}
-                            data-testid="trace-detailed"
-                            onChange={(e) => setShowDetailed(e.target.checked)}
-                        >
-                            {t('tree.showDetailed')}
-                        </Checkbox>
-                    )}
                     {hasTimings && (
                         <Segmented
                             className={styles.timeToggle}

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import traceService from 'services/traceService'
 import type { BreakpointTableView } from 'types/trace'
+import CollapsibleSection from './CollapsibleSection'
 import { useStyles } from './BreakpointsPanel.styles'
 
 /**
@@ -45,10 +46,13 @@ const BreakpointsPanel: React.FC = () => {
     }
 
     return (
-        <div className={styles.panel} data-testid="breakpoints-panel">
-            <Tooltip title={t('debug.breakpointsHint')}>
-                <div className={styles.header}>{t('debug.breakpoints')}</div>
-            </Tooltip>
+        <CollapsibleSection
+            className={styles.panel}
+            hint={t('debug.breakpointsHint')}
+            panelTestId="breakpoints-panel"
+            title={t('debug.breakpoints')}
+            toggleTestId="breakpoints-toggle"
+        >
             <Select
                 key={selectKey}
                 showSearch
@@ -83,7 +87,7 @@ const BreakpointsPanel: React.FC = () => {
                     ))}
                 </div>
             )}
-        </div>
+        </CollapsibleSection>
     )
 }
 

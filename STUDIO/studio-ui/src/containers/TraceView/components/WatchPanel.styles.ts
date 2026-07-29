@@ -17,16 +17,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         max-height: 40vh;
         overflow-y: auto;
     `,
-    header: css`
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-weight: 600;
-        font-size: 12px;
-        color: ${token.colorTextSecondary};
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    `,
     addRow: css`
         display: flex;
         gap: 6px;

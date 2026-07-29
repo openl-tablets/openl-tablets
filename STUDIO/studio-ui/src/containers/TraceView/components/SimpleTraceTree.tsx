@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Checkbox, Empty, Spin, Typography } from 'antd'
+import { Empty, Spin, Typography } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
@@ -205,7 +205,6 @@ const SimpleTraceTree: React.FC = () => {
     const selectedKey = useTraceStore(s => s.simpleSelectedKey)
     const inspect = useTraceStore(s => s.simpleInspect)
     const showDetailed = useTraceStore(s => s.showDetailed)
-    const setShowDetailed = useTraceStore(s => s.setShowDetailed)
 
     // The root starts open so the run's top-level steps read at a glance; everything deeper is collapsed.
     // Keyed on the snapshot: only a new Run replaces it, while inspect re-runs never touch the expansions.
@@ -236,7 +235,7 @@ const SimpleTraceTree: React.FC = () => {
         )
     }
     if (!tree || !ready) {
-        return <Empty description={t('simple.pressRun')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        return <Empty description={t('simple.preparing')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
     }
 
     const indent = treeIndent
@@ -348,16 +347,6 @@ const SimpleTraceTree: React.FC = () => {
         <div className={styles.tree} data-testid="simple-tree">
             <div className={styles.header}>
                 <span>{t('tree.title')}</span>
-                <span className={styles.headerControls}>
-                    <Checkbox
-                        checked={showDetailed}
-                        className={styles.detailedToggle}
-                        data-testid="simple-detailed"
-                        onChange={(e) => setShowDetailed(e.target.checked)}
-                    >
-                        {t('tree.showDetailed')}
-                    </Checkbox>
-                </span>
             </div>
             {rows.map(render)}
         </div>
