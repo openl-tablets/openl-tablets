@@ -17,8 +17,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.dircache.DirCacheEditor;
+import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.internal.storage.file.ObjectDirectory;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -142,6 +146,30 @@ class LocalGitRepositoryTest {
         assertTrue(branches.contains("project1/test1"));
         assertTrue(branches.contains("project1/test2"));
         assertEquals(3, branches.size());
+    }
+
+    @Test
+    void listFoldersIgnoresGitlinks() throws IOException, GitAPIException {
+        var text = "Some text";
+        repo.save(createFileData("initial.txt", text), IOUtils.toInputStream(text));
+
+        try (var git = repo.getClosableGit()) {
+            var editor = git.getRepository().lockDirCache().editor();
+            editor.add(new DirCacheEditor.PathEdit("tools/cap") {
+                @Override
+                public void apply(DirCacheEntry entry) {
+                    entry.setFileMode(FileMode.GITLINK);
+                    entry.setObjectId(ObjectId.fromString("77e33e152a6a623f13250faf590c2470acdd953f"));
+                }
+            });
+            assertTrue(editor.commit());
+            git.commit()
+                    .setMessage("Add submodule")
+                    .setCommitter("User 1", "user1@email.to")
+                    .call();
+        }
+
+        assertEquals(List.of(), repo.listFolders("tools/"));
     }
 
     @Test

@@ -3156,7 +3156,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             rootWalk.setRecursive(false);
             var start = resolveBranchId();
             while (rootWalk.next()) {
-                if ((rootWalk.getFileMode().getBits() & FileMode.TYPE_TREE) != 0) {
+                if (FileMode.TREE.equals(rootWalk.getFileMode())) {
                     files.add(createFileData(rootWalk, baseFolder, start));
                 }
             }

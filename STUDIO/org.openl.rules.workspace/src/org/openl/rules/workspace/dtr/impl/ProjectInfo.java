@@ -33,8 +33,8 @@ public class ProjectInfo {
     }
 
     public ProjectInfo copy() {
-        var info = new ProjectInfo(getName(), getPath());
-        info.setModifiedAt(getModifiedAt());
-        return info;
+        var copy = new ProjectInfo(getName(), getPath());
+        copy.setModifiedAt(getModifiedAt());
+        return copy;
     }
 }

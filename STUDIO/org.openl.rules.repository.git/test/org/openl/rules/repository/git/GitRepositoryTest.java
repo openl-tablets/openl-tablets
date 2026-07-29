@@ -1128,6 +1128,27 @@ class GitRepositoryTest {
     }
 
     @Test
+    void branchOnlyFolderIsPresentInItsBranch() throws IOException {
+        var branch = "feature/branch-only-folder";
+        var folder = "branch-only-project";
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch);
+
+        try (var branchRepository = repo.forBranch(branch)) {
+            var content = "branch-only";
+            branchRepository.save(
+                    createFileData(folder + "/rules.xlsx", content),
+                    IOUtils.toInputStream(content));
+
+            var folderData = branchRepository.listFolders("")
+                    .stream()
+                    .filter(data -> folder.equals(data.getName()))
+                    .findFirst()
+                    .orElseThrow();
+            assertFalse(folderData.isDeleted());
+        }
+    }
+
+    @Test
     void pathToRepoInsteadOfUri() throws IOException {
         // Will use this path instead of uri. Git accepts that.
         var remote = new File(root, "remote").getAbsolutePath();

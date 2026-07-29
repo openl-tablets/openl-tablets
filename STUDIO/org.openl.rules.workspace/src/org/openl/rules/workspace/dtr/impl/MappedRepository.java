@@ -82,10 +82,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     private MappedRepository() {
     }
 
-    private void setProjectIndex(ProjectIndex projectIndex, long lastUpdateTime) {
-        this.indexCache.set(new ProjectIndexCache(projectIndex, lastUpdateTime));
-    }
-
     @Override
     public void close() throws IOException {
         indexLock.writeLock().lock();
@@ -137,8 +133,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     public FileData check(String name) throws IOException {
         var mapping = getUpToDateMapping(true);
         var check = delegate.check(toInternal(mapping, name));
-        var external = toExternal(mapping, check);
-        return external == null || external.isDeleted() ? null : external;
+        return toExternal(mapping, check);
     }
 
     @Override
@@ -190,11 +185,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             delegate.setListener(() -> {
                 indexLock.writeLock().lock();
                 try {
-                    var working = getUpToDateMapping(false);
-                    var modified = syncProjectIndex(delegate, working);
-                    if (modified) {
-                        indexCache.set(new ProjectIndexCache(working));
-                    }
+                    var updatedIndex = readExternalToInternalMap(delegate, baseFolder);
+                    indexCache.set(new ProjectIndexCache(updatedIndex));
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
                 } finally {
@@ -266,7 +258,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             if (external.startsWith(path) && !external.substring(path.length()).contains("/")) {
                 // "external" is direct child of "path"
                 var data = delegate.check(project.getPath());
-                if (data == null || data.isDeleted()) {
+                if (data == null) {
                     // It can be intermediate state: project is added to index, but not still committed.
                     // Or project could be removed from repository, but index is not updated. Will be updated later.
                     log.debug("Project {} is not found.", project.getPath());
@@ -383,15 +375,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             mappedRepository = new MappedRepository();
             mappedRepository.setDelegate(delegateForBranch);
             mappedRepository.setBaseFolder(baseFolder);
-            indexLock.readLock().lock();
-            try {
-                var projectIndex = indexCache.get();
-                if (projectIndex != null) {
-                    mappedRepository.setProjectIndex(projectIndex.getCopy(), projectIndex.lastUpdateTime());
-                }
-            } finally {
-                indexLock.readLock().unlock();
-            }
             mappedRepository.initialize();
         } catch (Exception e) {
             // If exception is thrown, we must close repository in this method and rethrow exception.
@@ -659,65 +642,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         return generateExternalToInternalMap(delegate, baseFolder);
     }
 
-    private boolean syncProjectIndex(Repository delegate, ProjectIndex projectIndex) throws IOException {
-        var modified = false;
-        for (Iterator<ProjectInfo> iterator = projectIndex.getProjects().iterator(); iterator.hasNext(); ) {
-            var project = iterator.next();
-
-            var projectData = delegate.check(project.getPath());
-            if (projectData == null || projectData.isDeleted()) {
-                // Folder was removed.
-                iterator.remove();
-                modified = true;
-                log.info("Sync project index: remove project '{}' with path '{}'",
-                        project.getName(),
-                        project.getPath());
-            } else {
-                var modifiedAt = project.getModifiedAt();
-                var fullName = project.getPath() + "/rules.xml";
-                var fileData = delegate.check(fullName);
-
-                if (fileData != null) {
-                    if (modifiedAt == null || !modifiedAt.equals(fileData.getModifiedAt())) {
-                        // rules.xml was modified. Need to update modification date and project name.
-                        project.setModifiedAt(fileData.getModifiedAt());
-
-                        var descriptorItem = delegate.read(fullName);
-                        try (var is = descriptorItem.getStream()) {
-                            project.setName(getProjectName(is, project.getPath()));
-                        }
-                        log.info("Sync project index: update name to '{}' the project in path '{}'",
-                                project.getName(),
-                                project.getPath());
-                        modified = true;
-                    }
-                } else {
-                    // If we don't have rules.xml, the project name will be folder name.
-                    var path = project.getPath();
-                    var folderName = path.substring(path.lastIndexOf('/') + 1);
-                    if (modifiedAt != null) {
-                        // rules.xml was exist before but now it's removed
-                        project.setModifiedAt(null);
-                        project.setName(folderName);
-                        modified = true;
-                        log.info("Sync project index: update name to '{}' the project in path '{}'",
-                                project.getName(),
-                                project.getPath());
-                    } else {
-                        if (!project.getName().equals(folderName)) {
-                            project.setName(folderName);
-                            modified = true;
-                            log.info("Sync project index: update name to '{}' the project in path {}",
-                                    project.getName(),
-                                    project.getPath());
-                        }
-                    }
-                }
-            }
-        }
-        return modified;
-    }
-
     private String createUniquePath(ProjectIndex externalToInternal, String externalPath) {
         // If occasionally such project name exists already, add some suffix to it.
         var projectName = externalPath.substring(baseFolder.length());
@@ -756,9 +680,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
         while (!folderQueue.isEmpty()) {
             var folderData = folderQueue.poll();
-            if (folderData.isDeleted()) {
-                continue;
-            }
             var folderPath = folderData.getName();
 
             var projectInfo = tryResolveProjectFromDescriptor(externalToInternal, folderPath, delegate, baseFolder);
@@ -805,7 +726,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                     externalPath.substring(baseFolder.length()),
                     folderPath
             );
-            projectInfo.setModifiedAt(fileItem.getData().getModifiedAt());
             return projectInfo;
         }
     }
@@ -834,7 +754,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                         externalPath.substring(baseFolder.length()),
                         folderPath
                 );
-                projectInfo.setModifiedAt(fileData.getModifiedAt());
                 return projectInfo;
             }
         }
