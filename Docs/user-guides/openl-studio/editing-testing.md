@@ -400,19 +400,20 @@ Tracing is available for everything that can be run:
     *Selecting test cases to trace*
 
 1.  To trace only the rules of the current module and skip the modules it depends on, select **Within Current Module Only**.
-1.  Click **Trace**. The trace window opens, ready to run the calculation.
+1.  To open the full step debugger instead of the business view, select **Advanced tracer**. Leave it off — the default — for the business view, which runs the calculation and shows the whole tree at once; see [The Advanced Mode](#the-advanced-mode).
+1.  Click **Trace**. The trace window opens and runs the calculation.
 
 To save the calculation as a text file instead of opening the trace window, click **Trace into File**. OpenL Studio runs the rule and downloads the result as `trace.txt`.
 
 #### The Trace Window
 
-The trace window opens in the **business view**: one **Run** button, the calculation tree on the left, and the details of the selected rule on the right. This view answers the everyday question — what did this rule receive and what did it return — with nothing to configure. The **Advanced** switch in the top-right corner turns on the full debugger with stepping, breakpoints, and watches; see [The Advanced Mode](#the-advanced-mode).
+The trace window opens in the mode you chose at launch. By default it is the **business view**: it runs the calculation on its own and shows the tree of every rule that executed on the left, with the details of the selected rule on the right. This view answers the everyday question — what did this rule receive and what did it return — with nothing to configure. Selecting **Advanced tracer** before the trace instead opens the full debugger with stepping, breakpoints, and watches; see [The Advanced Mode](#the-advanced-mode).
 
 ![Trace window overview](images/trace-debugger-overview.png "Trace window")
 
 *The trace window*
 
--   **Toolbar** — the **Run** button before the calculation runs and the **Advanced** switch.
+-   **Controls** — the business view runs on its own and needs none; its only control, **Show detailed view**, sits above the tree. (The advanced debugger has its own toolbar.)
 -   **Left panel** — the calculation tree: every rule that executed, in the order it was called. Each rule reads with its signature and result, and each spreadsheet cell with its value — a decision table as `DT Double NonZeroValues(Double value) = 754299` — the way the classic trace showed it. (The advanced debugger keeps the tree lean, without these values.)
 -   **Right panel**, also called **Details** — everything about the selected rule: its inputs, its result, the table itself, and any errors.
 
@@ -420,17 +421,17 @@ While the calculation runs, a progress note counts the rules as the tree is prep
 
 #### Exploring the Calculation
 
-1.  Click **Run**. OpenL Studio executes the whole calculation and builds the complete tree of every rule that ran; for a large calculation, a progress note counts the rules while the tree is prepared.
+1.  Open the trace. The business view runs the whole calculation on its own and builds the complete tree of every rule that ran; for a large calculation, a progress note counts the rules while the tree is prepared.
 1.  Expand any branch. The whole tree is already in the window, so branches open instantly, however deep you go.
 1.  Click a rule to inspect it. The **Details** panel shows the values it received (**Parameters**), the value it produced (**Result**), and its table with the calculation highlighted — see [Reading a Step](#reading-a-step). A click on a **step** of a rule keeps the panel on that step: its **Parameters** are the values the step's formula used, named exactly as the formula writes them — other steps (`$LimitIndex`), the table's inputs, constants (`MaxLimit`) — its **Result** is the value the step computed, and the step's cell is pointed out in its own table.
 
 Behind the scenes, clicking a rule quietly re-runs the calculation up to and through that rule: the engine does not keep every intermediate value, so OpenL Studio recomputes them on demand. The tree itself never changes — it is the record of the original run, and only the **Details** panel follows your clicks. On a heavy calculation the re-run takes a moment, shown by the **Calculating** badge.
 
-**Run** is used once: it disappears after the calculation has run (and comes back only if the run failed, so it can be retried). To trace the table again — for example after changing the rules or the input — close the trace window and start a new trace from the editor.
+The business view runs once, on open. To trace the table again — for example after changing the rules or the input — close the trace window and start a new trace from the editor.
 
 #### The Advanced Mode
 
-The **Advanced** switch replaces the business view with a full interactive debugger: pause the calculation at any point, step through it rule by rule, set **breakpoints**, watch how a cell's value changes, and measure performance. The rest of this chapter describes this mode. Switching back to the business view clears any breakpoints.
+Selecting **Advanced tracer** before starting the trace opens a full interactive debugger instead of the business view: pause the calculation at any point, step through it rule by rule, set **breakpoints**, watch how a cell's value changes, and measure performance. The rest of this chapter describes this mode. The mode is fixed for the window — to switch, close it and start a new trace with the checkbox set the other way.
 
 In the advanced mode the status can also show **Starting** — the run is being prepared — and **Paused** — waiting for you to act; this is your turn to look around or move forward.
 

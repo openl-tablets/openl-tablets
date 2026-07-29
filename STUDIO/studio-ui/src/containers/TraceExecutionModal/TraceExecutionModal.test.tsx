@@ -66,6 +66,30 @@ describe('TraceExecutionModal', () => {
         expect(retire).not.toHaveBeenCalled()
     })
 
+    it('carries the launch-time advanced flag into the trace window URL', async () => {
+        render(<TraceExecutionModal />)
+
+        await act(async () => {
+            fire({ projectId: 'p1', tableId: 't1', moduleName: 'm', showRealNumbers: true, inputJson: '{}',
+                advanced: true })
+            await new Promise(resolve => setTimeout(resolve, 50))
+        })
+
+        // The Advanced tracer checkbox on the JSF page decides the mode; the window opens straight into it.
+        expect(String(openSpy.mock.calls[0][0])).toContain('advanced=true')
+    })
+
+    it('opens the business view — no advanced flag — when the checkbox is off', async () => {
+        render(<TraceExecutionModal />)
+
+        await act(async () => {
+            fire({ projectId: 'p1', tableId: 't1', moduleName: 'm', showRealNumbers: true, inputJson: '{}' })
+            await new Promise(resolve => setTimeout(resolve, 50))
+        })
+
+        expect(String(openSpy.mock.calls[0][0])).not.toContain('advanced')
+    })
+
     it('hands the launch token back when the session fails to start', async () => {
         startTrace.mockRejectedValueOnce(new Error('compilation in progress'))
         render(<TraceExecutionModal />)

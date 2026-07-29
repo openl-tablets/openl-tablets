@@ -224,6 +224,13 @@
                            value="true" style="vertical-align:-2px;margin:-4px"/>
                 </div>
             </h:panelGroup>
+            <h:panelGroup id="advancedTracerSetting" layout="block" styleClass="hidden b-trace">
+                <div style="margin: 10px 15px 0; white-space:nowrap;" title="Trace in the advanced step debugger instead of the business view">
+                    <span style="margin-right: 10px">Advanced tracer</span>
+                    <input id="advancedTracerTest" type="checkbox"
+                           value="true" style="vertical-align:-2px;margin:-4px"/>
+                </div>
+            </h:panelGroup>
             <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}"
                           styleClass="hidden b-run b-test">
                 <div title="Show only failed test cases">
@@ -531,6 +538,11 @@
                                         <div style="margin: 10px" title="Result in JSON format">
                                             <span style="margin-right: 10px">Result in JSON format</span>
                                             <input id="resultInJSONFormat" name="resultInJSONFormat" type="checkbox"
+                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
+                                        </div>
+                                        <div style="margin: 10px; display: none" class="manual-trace" title="Trace in the advanced step debugger instead of the business view">
+                                            <span style="margin-right: 10px">Advanced tracer</span>
+                                            <input id="advancedTracerExec" type="checkbox"
                                                    value="true" style="vertical-align:-2px;margin:-4px"/>
                                         </div>
                                     </h:panelGroup>
@@ -872,6 +884,13 @@
          * Used for test tables only.
          * Fetches real project ID from backend, then dispatches CustomEvent to React TraceExecutionModal.
          */
+        // The Advanced tracer checkbox on the Trace menu: checked opens the full step debugger, unchecked the
+        // business view. React reads this flag and does the rest.
+        function isAdvancedTracer(checkboxId) {
+            var cb = document.getElementById(checkboxId);
+            return !!(cb && cb.checked);
+        }
+
         function startTestTableTrace(repositoryId, projectName, tableId, moduleName, downloadMode) {
             var testRanges = getTestRangesParam();
             var moduleOnlyCheckbox = document.getElementById('runTestModuleOnly');
@@ -888,7 +907,8 @@
                             showRealNumbers: #{studio.showRealNumbers},
                             testRanges: testRanges || undefined,
                             fromModule: (moduleOnlyCheckbox && moduleOnlyCheckbox.checked) ? moduleName : undefined,
-                            downloadMode: downloadMode || false
+                            downloadMode: downloadMode || false,
+                            advanced: isAdvancedTracer('advancedTracerTest')
                         }
                     }));
                 })
@@ -914,7 +934,8 @@
                             moduleName: moduleName,
                             showRealNumbers: #{studio.showRealNumbers},
                             inputJson: '{}',
-                            downloadMode: false
+                            downloadMode: false,
+                            advanced: isAdvancedTracer('advancedTracerExec')
                         }
                     }));
                 })
@@ -1030,7 +1051,8 @@
                             showRealNumbers: ctx.showRealNumbers,
                             fromModule: (moduleOnlyCheckbox && moduleOnlyCheckbox.checked) ? ctx.moduleName : undefined,
                             inputJson: inputJson,
-                            downloadMode: ctx.downloadMode || false
+                            downloadMode: ctx.downloadMode || false,
+                            advanced: isAdvancedTracer('advancedTracerExec')
                         }
                     }));
                 })
