@@ -8,15 +8,15 @@ A decision table returns only the first fired, non-empty result in common case. 
 
 In the example below, rule **InterestTable** returns the list of interest schemes of a particular plan:
 
-![](../../../ref-guide-images/collectingResultsSmartSimpleRuleTable.png)
+![Collecting results in Smart and Simple rule table](../../../ref-guide-images/collectingResultsSmartSimpleRuleTable.png)
 
 *Collecting results in Smart and Simple rule table*
 
 In the following example, rule **PriceTable** collects car price information for desired specified country and/or ”make” of a car:
 
-![](../../../ref-guide-images/collectingResultsDecisionTable.png)
+![Collecting results in a Decision table](../../../ref-guide-images/collectingResultsDecisionTable.png)
 
-![](../../../ref-guide-images/collectingResultsRegularDecisionTable.png)
+![Collecting results in regular Decision table](../../../ref-guide-images/collectingResultsRegularDecisionTable.png)
 
 *Collecting results in regular Decision table*
 
