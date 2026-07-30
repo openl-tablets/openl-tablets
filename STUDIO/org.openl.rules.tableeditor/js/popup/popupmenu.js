@@ -1,10 +1,5 @@
 // @Deprecated
 var PopupMenu = {
-	showChild: function (id, show)
-	{
-		document.getElementById(id).style.display = show ? "inline" : "none";
-	},
-
 	menu_ie: !!(window.attachEvent && !window.opera),
 	menu_ns6: document.getElementById && !document.all,
 	menuON: false,
