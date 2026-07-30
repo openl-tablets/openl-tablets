@@ -104,26 +104,25 @@ class WorkspaceProjectServiceTest {
     @Test
     void get_branches_marks_the_base_and_protected_ones_without_reading_commits() throws Exception {
         var acl = mock(RepositoryAclService.class);
-        var service = newService(acl, mock(ProtectedBranchBypassService.class));
         var project = mock(RulesProject.class);
         var repository = mock(BranchRepository.class);
-        var branchNames = List.of("main", "feature");
+        var workspace = workspaceFor(project);
 
         when(project.isSupportsBranches()).thenReturn(true);
         when(project.getDesignRepository()).thenReturn(repository);
-        when(project.getBranch()).thenReturn("main");
+        when(repository.getId()).thenReturn("design");
+        mockMembership(workspace, project, "main", "feature");
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), workspace);
         when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
         when(repository.getBaseBranch()).thenReturn("main");
         when(repository.isBranchProtected("main")).thenReturn(true);
-        when(repository.listBranches()).thenReturn(branchNames);
 
         var result = service.getBranches(project);
 
         assertEquals(List.of("feature", "main"), result.stream().map(ProjectBranchInfo::name).toList());
         assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::base).toList());
         assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::protectedFlag).toList());
-        assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::containsProject).toList());
-        // The branch list feeds pickers only, so it never pays for the tip commits.
+        verify(repository, never()).listBranches();
         verify(repository, never()).getBranchStatuses(any());
     }
 
@@ -136,21 +135,6 @@ class WorkspaceProjectServiceTest {
         var result = service.getProject(project);
 
         // The descriptor is resolved only on request, so it is absent by default.
-        assertNull(result.descriptor);
-    }
-
-    @Test
-    void get_project_keeps_branch_metadata_without_modules() throws Exception {
-        var project = projectWithSimpleExcelModule();
-        when(project.isSupportsBranches()).thenReturn(true);
-        var workspace = workspaceFor(project);
-        mockMembership(workspace, project, "release", "master");
-        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
-                workspace);
-
-        var result = service.getProject(project);
-
-        assertEquals(List.of("master", "release"), result.selectedBranches);
         assertNull(result.descriptor);
     }
 
@@ -474,28 +458,6 @@ class WorkspaceProjectServiceTest {
         var exception = assertThrows(BadRequestException.class, () -> service.updateProjectStatus(project, model));
 
         assertEquals("openl.error.400.repo.invalid.comment.message", exception.getErrorCode());
-        verify(webStudio, never()).saveProject(project);
-    }
-
-    @Test
-    void update_project_status_rejects_selected_branches_before_mutating_the_project() throws Exception {
-        var webStudio = mock(WebStudio.class);
-        var service = newService(
-                mock(RepositoryAclService.class),
-                mock(ProtectedBranchBypassService.class),
-                null,
-                mock(ProjectStateValidator.class),
-                webStudio);
-        var project = mock(RulesProject.class);
-        when(project.isModified()).thenReturn(true);
-        var model = ProjectStatusUpdateModel.builder()
-                .save(true)
-                .selectedBranches(Set.of("feature/rates"))
-                .build();
-
-        var exception = assertThrows(BadRequestException.class, () -> service.updateProjectStatus(project, model));
-
-        assertEquals("openl.error.400.project.branches.read-only.message", exception.getErrorCode());
         verify(webStudio, never()).saveProject(project);
     }
 

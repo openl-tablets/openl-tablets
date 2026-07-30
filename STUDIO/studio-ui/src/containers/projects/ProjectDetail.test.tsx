@@ -693,10 +693,10 @@ describe('ProjectDetail', () => {
         expect(searchParamsMock.get('tab')).toBe('publish')
     })
 
-    it('lets the breadcrumb switch between the branches the project takes part in', () => {
+    it('renders the branch switcher without an eager branch list', () => {
         setParams('tab=overview')
         renderProjectDetail({
-            project: { ...PROJECT, branchDefault: true, selectedBranches: ['main', 'dev']},
+            project: { ...PROJECT, branchDefault: true },
         })
 
         expect(screen.getByTestId('crumb-branch-switcher')).toBeTruthy()
@@ -704,7 +704,6 @@ describe('ProjectDetail', () => {
             currentBranch: 'main',
             currentBranchDefault: true,
             projectId: 'p1',
-            branches: ['main', 'dev'],
         }))
     })
 

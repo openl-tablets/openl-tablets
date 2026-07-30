@@ -46,10 +46,6 @@ public class ProjectViewModel extends AProjectViewModel {
     @JsonView(GenericView.Full.class)
     public final String comment;
 
-    @Parameter(description = "The list of selected branches")
-    @JsonView(GenericView.Full.class)
-    public final List<String> selectedBranches;
-
     @Parameter(description = "Project Dependencies")
     @JsonView(GenericView.Full.class)
     public final List<ProjectDependencyViewModel> dependencies;
@@ -97,7 +93,6 @@ public class ProjectViewModel extends AProjectViewModel {
         this.lockInfo = from.lockInfo;
         this.tags = new TreeMap<>(from.tags);
         this.comment = from.comment;
-        this.selectedBranches = Optional.ofNullable(from.selectedBranches).map(List::copyOf).orElseGet(List::of);
         this.dependencies = Optional.ofNullable(from.dependencies).map(List::copyOf).orElseGet(List::of);
         this.usedBy = Optional.ofNullable(from.usedBy).map(List::copyOf).orElseGet(List::of);
         this.descriptor = from.descriptor;
@@ -120,7 +115,6 @@ public class ProjectViewModel extends AProjectViewModel {
         private String path;
         private final Map<String, String> tags = new HashMap<>();
         private String comment;
-        private List<String> selectedBranches;
         private List<ProjectDependencyViewModel> dependencies;
         private List<ProjectDependencyViewModel> usedBy;
         private DescriptorViewModel descriptor;
@@ -165,11 +159,6 @@ public class ProjectViewModel extends AProjectViewModel {
 
         public Builder comment(String comment) {
             this.comment = comment;
-            return this;
-        }
-
-        public Builder selectedBranches(List<String> selectedBranches) {
-            this.selectedBranches = selectedBranches;
             return this;
         }
 

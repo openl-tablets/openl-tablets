@@ -12,9 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "EPBDS-15093",
   "comment": "Project EPBDS-15093 is created.",
-  "selectedBranches": [
-    "master"
-  ],
   "branchDefault": true,
   "repositoryInfo": {
     "id": "design-flat",

@@ -603,9 +603,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         builder.branchProtected(src.isBranchProtected());
         builder.branchDefault(src.isBranchDefault());
         builder.repositoryInfo(mapRepositoryInfo(src));
-        if (src.isSupportsBranches()) {
-            builder.selectedBranches(projectBranches(src));
-        }
         projectDependencyResolver.getDependencies(src).stream()
                 .sorted(DEPENDENCY_NAME_ORDER)
                 .map(this::mapProjectDependency)
@@ -746,9 +743,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public void updateProjectStatus(RulesProject project, ProjectStatusUpdateModel model) throws ProjectException {
         if (model.status() != null && !ALLOWED_STATUSES.contains(model.status())) {
             throw new BadRequestException("invalid.project.status.message");
-        }
-        if (model.selectedBranches() != null) {
-            throw new BadRequestException("project.branches.read-only.message");
         }
         if (project.isModified() && shouldSave(model)) {
             save(project, model);
@@ -1259,21 +1253,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         requireGranted(project, BasePermission.READ);
         var repository = unwrapBranchRepository(project.getDesignRepository());
         var baseBranch = repository.getBaseBranch();
-        var projectBranches = Set.copyOf(projectBranches(project));
-        try {
-            var branches = repository.listBranches();
-            return branches.stream()
-                    .map(branch -> ProjectBranchInfo.builder()
-                            .name(branch)
-                            .protectedFlag(repository.isBranchProtected(branch))
-                            .base(branch.equals(baseBranch))
-                            .containsProject(projectBranches.contains(branch))
-                            .build())
-                    .sorted(Comparator.comparing(ProjectBranchInfo::name, String.CASE_INSENSITIVE_ORDER))
-                    .toList();
-        } catch (IOException e) {
-            throw new ProjectException("Failed to retrieve branches", e);
-        }
+        return projectBranches(project).stream()
+                .map(branch -> ProjectBranchInfo.builder()
+                        .name(branch)
+                        .protectedFlag(repository.isBranchProtected(branch))
+                        .base(branch.equals(baseBranch))
+                        .build())
+                .toList();
     }
 
     private List<String> projectBranches(RulesProject project) {

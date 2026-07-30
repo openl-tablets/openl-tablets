@@ -14,12 +14,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-13931",
       "comment": "Save changes",
-      "selectedBranches": [
-        "EPBDS-13931_1",
-        "EPBDS-14376_1",
-        "EPBDS-15409_1",
-        "master"
-      ],
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -88,11 +82,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-14376",
       "comment": "Project EPBDS-14376 is created.",
-      "selectedBranches": [
-        "EPBDS-14376_1",
-        "EPBDS-15409_1",
-        "master"
-      ],
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -157,10 +146,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-15409",
       "comment": "Project EPBDS-15409 is created.",
-      "selectedBranches": [
-        "EPBDS-15409_1",
-        "master"
-      ],
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",

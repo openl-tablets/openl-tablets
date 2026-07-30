@@ -14,10 +14,6 @@ Content-Type: application/json
       "status": "CLOSED",
       "comment": "Project Project is created.",
       "repository": "design-flat",
-      "selectedBranches": [
-        "admin/feature-1",
-        "master"
-      ],
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-flat",
@@ -51,9 +47,6 @@ Content-Type: application/json
       "status": "CLOSED",
       "comment": "Project ProjectUser1 is created.",
       "repository": "design-flat",
-      "selectedBranches": [
-        "master"
-      ],
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-flat",

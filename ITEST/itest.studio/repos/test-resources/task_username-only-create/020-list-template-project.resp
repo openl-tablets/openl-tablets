@@ -14,9 +14,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "UsernameOnlyTemplate",
       "comment": "EPBDS-16200 Create UsernameOnlyTemplate from template",
-      "selectedBranches": [
-        "master"
-      ],
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-non-flat",

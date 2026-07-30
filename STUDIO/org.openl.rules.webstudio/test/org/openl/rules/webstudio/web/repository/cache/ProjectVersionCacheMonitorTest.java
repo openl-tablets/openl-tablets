@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
@@ -88,26 +87,28 @@ class ProjectVersionCacheMonitorTest {
         var homeProject = mock(AProject.class);
         var branchProject = mock(AProject.class);
         var historicProject = mock(AProject.class);
-        var version = mock(ProjectVersion.class);
-        var versionInfo = mock(VersionInfo.class);
         var createdAt = new Date(1_721_000_000_000L);
+        var versionData = new FileData();
+        versionData.setName("mapped/Pricing");
+        versionData.setVersion("revision-1");
+        versionData.setModifiedAt(createdAt);
+        versionData.setAuthor(new UserInfo("author"));
 
         when(cacheManager.isCacheCalculated()).thenReturn(false);
         when(baseRepository.getId()).thenReturn("design");
         when(baseRepository.supports()).thenReturn(new FeaturesBuilder(baseRepository).setBranches(true).build());
         when(branchRepository.getId()).thenReturn("design");
         when(branchRepository.getBranch()).thenReturn("feature/rates");
-        when(branchRepository.supports()).thenReturn(new FeaturesBuilder(branchRepository).setBranches(true).build());
+        when(branchRepository.supports())
+                .thenReturn(new FeaturesBuilder(branchRepository).setBranches(true).setVersions(true).build());
+        when(branchRepository.listHistory("mapped/Pricing")).thenReturn(List.of(versionData));
         when(homeProject.getRepository()).thenReturn(baseRepository);
         when(homeProject.getName()).thenReturn("Pricing");
         when(homeProject.isDeleted()).thenReturn(false);
         when(branchProject.getRepository()).thenReturn(branchRepository);
         when(branchProject.getBusinessName()).thenReturn("Pricing");
+        when(branchProject.getFolderPath()).thenReturn("mapped/Pricing");
         when(branchProject.getRealPath()).thenReturn("mapped/Pricing");
-        when(branchProject.getVersions()).thenReturn(List.of(version));
-        when(version.getVersionName()).thenReturn("revision-1");
-        when(version.getVersionInfo()).thenReturn(versionInfo);
-        when(versionInfo.getCreatedAt()).thenReturn(createdAt);
         doReturn(List.of(homeProject)).when(designRepository).getProjects();
         when(designRepository.getRepository("design")).thenReturn(baseRepository);
         when(designRepository.getBranchedProject("design", "Pricing"))
@@ -128,6 +129,8 @@ class ProjectVersionCacheMonitorTest {
 
         monitor.run();
 
+        verify(branchProject, never()).getVersions();
+        verify(branchRepository).listHistory("mapped/Pricing");
         verify(designRepository).getProjectByPath("design", "feature/rates", "mapped/Pricing", "revision-1");
         verify(monitor).cacheProjectVersion(historicProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
         verify(cacheDB).setCacheCalculatedState(true);

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.withSettings;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,10 +28,13 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
+import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
@@ -66,11 +71,73 @@ class ProjectIdentityConverterTest {
         var projectId = encode(repoId, projectName);
 
         var rulesProject = mock(RulesProject.class);
+        var designRepository = mock(DesignTimeRepository.class);
+        var localWorkspace = mock(LocalWorkspace.class);
+        var metainfoRegistry = mock(MetainfoRegistry.class);
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designRepository);
+        when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
+        when(localWorkspace.getMetainfoRegistry()).thenReturn(metainfoRegistry);
+        when(userWorkspace.getProject(repoId, projectName, false)).thenReturn(rulesProject);
         when(userWorkspace.getProject(repoId, projectName)).thenReturn(rulesProject);
+        when(rulesProject.getDesignProjectName()).thenReturn(projectName);
+        when(rulesProject.getBusinessName()).thenReturn(projectName);
+        when(designRepository.hasProject(repoId, projectName)).thenReturn(true);
         when(designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))).thenReturn(true);
 
         assertSame(rulesProject, projectConverter.convert(projectId));
+        verify(userWorkspace, never()).getProject(repoId, projectName);
         verify(designRepositoryAclService).isGranted(rulesProject, List.of(BasePermission.READ));
+    }
+
+    @Test
+    void convert_byId_refreshes_a_stale_cached_project() throws ProjectException {
+        var repoId = "qwerty";
+        var projectName = "projectName";
+        var projectId = encode(repoId, projectName);
+        var staleProject = mock(RulesProject.class);
+        var currentProject = mock(RulesProject.class);
+        var designRepository = mock(DesignTimeRepository.class);
+        var localWorkspace = mock(LocalWorkspace.class);
+        var metainfoRegistry = mock(MetainfoRegistry.class);
+
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designRepository);
+        when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
+        when(localWorkspace.getMetainfoRegistry()).thenReturn(metainfoRegistry);
+        when(userWorkspace.getProject(repoId, projectName, false)).thenReturn(staleProject);
+        when(staleProject.getDesignProjectName()).thenReturn(projectName);
+        when(designRepository.hasProject(repoId, projectName)).thenReturn(false);
+        when(userWorkspace.getProject(repoId, projectName)).thenReturn(currentProject);
+        when(designRepositoryAclService.isGranted(currentProject, List.of(BasePermission.READ))).thenReturn(true);
+
+        assertSame(currentProject, projectConverter.convert(projectId));
+        verify(userWorkspace).getProject(repoId, projectName);
+    }
+
+    @Test
+    void convert_byId_refreshes_when_the_local_copy_state_changed() throws ProjectException {
+        var repoId = "qwerty";
+        var projectName = "projectName";
+        var projectId = encode(repoId, projectName);
+        var staleProject = mock(RulesProject.class);
+        var currentProject = mock(RulesProject.class);
+        var designRepository = mock(DesignTimeRepository.class);
+        var localWorkspace = mock(LocalWorkspace.class);
+        var metainfoRegistry = mock(MetainfoRegistry.class);
+
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designRepository);
+        when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
+        when(localWorkspace.getMetainfoRegistry()).thenReturn(metainfoRegistry);
+        when(userWorkspace.getProject(repoId, projectName, false)).thenReturn(staleProject);
+        when(staleProject.getDesignProjectName()).thenReturn(projectName);
+        when(staleProject.getBusinessName()).thenReturn(projectName);
+        when(designRepository.hasProject(repoId, projectName)).thenReturn(true);
+        when(metainfoRegistry.get(projectName)).thenReturn(new ProjectMetainfo(
+                repoId, projectName, "master", "1", "admin", 1L, 1L, null, Map.of()));
+        when(userWorkspace.getProject(repoId, projectName)).thenReturn(currentProject);
+        when(designRepositoryAclService.isGranted(currentProject, List.of(BasePermission.READ))).thenReturn(true);
+
+        assertSame(currentProject, projectConverter.convert(projectId));
+        verify(userWorkspace).getProject(repoId, projectName);
     }
 
     @Test

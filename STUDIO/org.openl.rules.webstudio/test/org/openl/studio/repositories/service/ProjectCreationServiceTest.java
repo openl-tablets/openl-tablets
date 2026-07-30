@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -278,6 +279,35 @@ class ProjectCreationServiceTest {
 
         verify(designTimeRepository).getProject("design", "Alpha", "feature");
         verify(workspace, never()).getProject("design", "Alpha");
+        verify(project).open();
+    }
+
+    @Test
+    void apply_status_resolves_a_mapped_project_by_its_business_name() throws Exception {
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getBranch()).thenReturn("feature");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var workspace = mock(UserWorkspace.class);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        when(designTimeRepository.getProject("design", "Alpha", "feature"))
+                .thenThrow(new ProjectException("Not found"));
+        var indexedProject = mock(AProject.class);
+        when(indexedProject.getBusinessName()).thenReturn("Alpha");
+        when(indexedProject.getName()).thenReturn("Alpha:hash");
+        doReturn(List.of(indexedProject)).when(designTimeRepository).getProjects("design");
+        var designProject = mock(AProject.class);
+        when(designTimeRepository.getProject("design", "Alpha:hash", "feature")).thenReturn(designProject);
+        var project = mock(RulesProject.class);
+        var testService = new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
+                mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
+                workspace, comments);
+        testService.designWorkspaceProject = project;
+
+        testService.applyStatusAfterCreate(repository, "Alpha", ProjectStatus.VIEWING);
+
+        verify(designTimeRepository).getProject("design", "Alpha:hash", "feature");
         verify(project).open();
     }
 

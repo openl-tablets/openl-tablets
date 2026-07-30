@@ -3,39 +3,10 @@ Content-Type: application/json
 
 [
   {
-    "name": "EPBDS-13930_Project2",
-    "protected": false,
-    "base": false,
-    "containsProject": false
-  },
-  {
-    "name": "EPBDS-13931_1",
-    "protected": false,
-    "base": false,
-    "containsProject": false
-  },
-  {
-    "name": "EPBDS-14376_1",
-    "protected": false,
-    "base": false,
-    "containsProject": false
-  },
-  {
-    "name": "EPBDS-15409_1",
-    "protected": false,
-    "base": false,
-    "containsProject": false
-  },
-  {
-    "name": "EPBDS-15600",
-    "protected": false,
-    "base": false,
-    "containsProject": true
+    "name": "EPBDS-15600"
   },
   {
     "name": "master",
-    "protected": false,
-    "base": true,
-    "containsProject": true
+    "base": true
   }
 ]

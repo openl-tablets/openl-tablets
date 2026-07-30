@@ -1,7 +1,5 @@
 package org.openl.studio.projects.model;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -43,9 +41,6 @@ public record ProjectStatusUpdateModel(
                 Discard local project modifications while closing, switching branches, \
                 or opening a revision.""")
         Boolean discardChanges,
-
-        @Parameter(description = "List of branches selected by the user for this project.")
-        Set<String> selectedBranches,
 
         @Parameter(description = "When opening a project, also open its dependency projects. Defaults to false.")
         Boolean openDependencies

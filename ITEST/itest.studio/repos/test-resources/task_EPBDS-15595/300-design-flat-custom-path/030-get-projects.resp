@@ -41,7 +41,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS_15595",
       "comment": "Project EPBDS_15595 is created.",
-      "selectedBranches": "***",
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-flat",
@@ -72,7 +71,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "rules/EPBDS_15595_path",
       "comment": "Project EPBDS_15595_path is created.",
-      "selectedBranches": "***",
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-flat",

@@ -77,7 +77,6 @@ export const ManageBranchesModal = ({
 
     const needle = filter.trim().toLowerCase()
     const filtered = (branches ?? [])
-        .filter(branch => branch.containsProject)
         .filter(branch => branch.name.toLowerCase().includes(needle))
 
     return (

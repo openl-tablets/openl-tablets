@@ -14,10 +14,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-13931",
       "comment": "Save changes",
-      "selectedBranches": [
-        "EPBDS-13931_1",
-        "master"
-      ],
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",

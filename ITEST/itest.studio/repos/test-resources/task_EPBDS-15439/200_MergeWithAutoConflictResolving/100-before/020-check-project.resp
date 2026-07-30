@@ -12,11 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "EPBDS-15439",
   "comment": "Project EPBDS-15439 is created.",
-  "selectedBranches": [
-    "EPBDS-15439_MergeWithoutConflicts_one",
-    "EPBDS-15439_MergeWithoutConflicts_two",
-    "master"
-  ],
   "branchDefault": true,
   "repositoryInfo": {
     "id": "design-flat",

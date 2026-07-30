@@ -655,7 +655,6 @@ public class ProjectsController {
                 .comment(StringUtils.trimToNull(raw.comment()))
                 .save(raw.save())
                 .discardChanges(raw.discardChanges())
-                .selectedBranches(raw.selectedBranches())
                 .openDependencies(raw.openDependencies())
                 .build();
     }

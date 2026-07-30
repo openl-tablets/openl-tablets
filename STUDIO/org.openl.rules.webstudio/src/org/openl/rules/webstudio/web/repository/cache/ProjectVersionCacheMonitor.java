@@ -90,10 +90,10 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
                     .stream()
                     .flatMap(branchedProject -> branchedProject.entries().values().stream())
                     .map(entry -> entry.project())
-                    .forEach(branchProject -> branchProject.getVersions()
+                    .forEach(branchProject -> readVersions(branchProject)
                             .forEach(version -> versions.add(new ProjectVersionSource(branchProject, version))));
         } else {
-            project.getVersions().forEach(version -> versions.add(new ProjectVersionSource(project, version)));
+            readVersions(project).forEach(version -> versions.add(new ProjectVersionSource(project, version)));
         }
         versions.sort(Comparator.comparing(source -> source.version().getVersionInfo().getCreatedAt(),
                 Comparator.reverseOrder()));
@@ -124,6 +124,12 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
                 cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
             }
         }
+    }
+
+    private List<ProjectVersion> readVersions(AProject project) {
+        // Snapshot projects are long-lived. Read through a disposable view so a complete Git history is not retained
+        // by every project/branch membership after the cache has been calculated.
+        return new AProject(project.getRepository(), project.getFolderPath()).getVersions();
     }
 
     private record ProjectVersionSource(AProject project, ProjectVersion version) {

@@ -42,6 +42,7 @@ public class AProject extends AProjectFolder implements IProject {
     private Boolean folderStructure;
     protected List<FileData> historyFileDatas;
     private String lastHistoryVersion;
+    private volatile boolean historyVersionResolved = true;
 
     public AProject(Repository repository, String folderPath) {
         this(repository, folderPath, null);
@@ -52,8 +53,39 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     public AProject(Repository repository, FileData fileData) {
-        super(null, repository, fileData.getName(), fileData.getVersion());
-        setFileData(fileData);
+        super(null, repository, fileData.getName(), null);
+        historyVersionResolved = false;
+        setFileData(fileData, false);
+    }
+
+    @Override
+    public String getHistoryVersion() {
+        if (!historyVersionResolved) {
+            resolveHistoryVersion();
+        }
+        return super.getHistoryVersion();
+    }
+
+    private void resolveHistoryVersion() {
+        synchronized (this) {
+            if (historyVersionResolved) {
+                return;
+            }
+            var fileData = super.getFileData();
+            super.setHistoryVersion(fileData == null ? null : fileData.getVersion());
+            historyVersionResolved = true;
+        }
+    }
+
+    @Override
+    public void setHistoryVersion(String historyVersion) {
+        super.setHistoryVersion(historyVersion);
+        historyVersionResolved = true;
+    }
+
+    @Override
+    public boolean isHistoric() {
+        return getHistoryVersion() != null && isRepositoryVersionable();
     }
 
     @Override
@@ -201,6 +233,7 @@ public class AProject extends AProjectFolder implements IProject {
     @Override
     public void setFileData(FileData fileData) {
         super.setFileData(fileData);
+        historyVersionResolved = true;
         historyFileDatas = null;
         lastHistoryVersion = null;
     }

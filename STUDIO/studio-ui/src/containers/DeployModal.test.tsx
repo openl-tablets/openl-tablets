@@ -150,7 +150,6 @@ const defaultDetail = {
     modifiedBy: '',
     repository: '',
     revision: '',
-    selectedBranches: [] as string[],
     status: '',
 }
 

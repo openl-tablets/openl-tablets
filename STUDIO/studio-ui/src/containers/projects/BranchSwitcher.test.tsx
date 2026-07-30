@@ -1,6 +1,7 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { notification } from 'antd'
 import { BranchSwitcher } from './BranchSwitcher'
 import { getProjectBranches, switchProjectBranch } from '../../services/repositories'
 
@@ -71,7 +72,6 @@ vi.mock('antd', () => {
 const props = {
     projectId: 'p1',
     currentBranch: 'main',
-    branches: ['main', 'dev'],
     onSwitched: vi.fn(),
 }
 
@@ -79,9 +79,8 @@ describe('BranchSwitcher', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.mocked(getProjectBranches).mockResolvedValue([
-            { name: 'main', protected: true, base: true, containsProject: true },
-            { name: 'dev', protected: false, base: false, containsProject: true },
-            { name: 'other', protected: false, base: false, containsProject: false },
+            { name: 'main', protected: true, base: true },
+            { name: 'dev' },
         ])
         vi.mocked(switchProjectBranch).mockResolvedValue()
     })
@@ -94,21 +93,14 @@ describe('BranchSwitcher', () => {
         expect(getProjectBranches).not.toHaveBeenCalled()
     })
 
-    it('stays a switcher when the project takes part in a single branch', () => {
-        render(<BranchSwitcher {...props} branches={['main']} />)
-
+    it('shows only the current branch until the dropdown is opened', () => {
+        render(<BranchSwitcher {...props} />)
         expect(screen.getByTestId('branch-switcher')).toHaveTextContent('main')
-        expect(screen.getByTestId('option-main')).toBeInTheDocument()
-        expect(screen.queryByTestId('option-dev')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('option-main')).not.toBeInTheDocument()
+        expect(getProjectBranches).not.toHaveBeenCalled()
     })
 
-    it('offers the current branch while actual membership is not available yet', () => {
-        render(<BranchSwitcher {...props} branches={[]} />)
-
-        expect(screen.getByTestId('option-main')).toBeInTheDocument()
-    })
-
-    it('offers only the branches the project takes part in', async () => {
+    it('loads and offers the project branches when opened', async () => {
         render(<BranchSwitcher {...props} />)
 
         await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
@@ -116,6 +108,18 @@ describe('BranchSwitcher', () => {
         await waitFor(() => expect(getProjectBranches).toHaveBeenCalledWith('p1'))
         expect(screen.getByTestId('option-dev')).toBeInTheDocument()
         expect(screen.queryByTestId('option-other')).not.toBeInTheDocument()
+    })
+
+    it('reports a branch-list failure', async () => {
+        vi.mocked(getProjectBranches).mockRejectedValueOnce(new Error('offline'))
+        render(<BranchSwitcher {...props} />)
+
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+
+        await waitFor(() => expect(notification.error).toHaveBeenCalledWith({
+            title: 'browser.branch.load_failed',
+            description: 'offline',
+        }))
     })
 
     it('marks every branch it lists once the branch list is loaded', async () => {
@@ -131,6 +135,8 @@ describe('BranchSwitcher', () => {
         const onSwitched = vi.fn()
         render(<BranchSwitcher {...props} onSwitched={onSwitched} />)
 
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-dev')
         await userEvent.click(screen.getByTestId('option-dev'))
 
         await waitFor(() => expect(switchProjectBranch).toHaveBeenCalledWith('p1', 'dev', {}))
@@ -144,6 +150,8 @@ describe('BranchSwitcher', () => {
             .mockResolvedValueOnce(undefined)
         render(<BranchSwitcher {...props} onSwitched={onSwitched} />)
 
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-dev')
         await userEvent.click(screen.getByTestId('option-dev'))
 
         await screen.findByText('browser.switch_branch_discard_warning')

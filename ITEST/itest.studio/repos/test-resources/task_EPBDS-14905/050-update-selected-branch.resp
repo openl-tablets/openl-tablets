@@ -1,7 +1,0 @@
-HTTP/1.1 400
-Content-Type: application/json
-
-{
-  "code": "openl.error.400.project.branches.read-only.message",
-  "message": "Project branches are derived from repository content and cannot be changed as a project property."
-}

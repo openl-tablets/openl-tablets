@@ -12,9 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "Sample1",
   "comment": "Project Sample1 is created.",
-  "selectedBranches": [
-    "master"
-  ],
   "usedBy": [
     {
       "id": "ZGVzaWduLWZsYXQ6U2FtcGxlMjpiMjMxZTU4Y2VhODNjZDdhN2NkYjdhNGUxY2ZiMWFhMDgyNTI3MDY1MDNkNzk1MzhlMDg4MDhhYjA3ZTZjZDkz",

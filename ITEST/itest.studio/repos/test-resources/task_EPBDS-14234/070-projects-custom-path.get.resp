@@ -14,9 +14,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "foo/bar/project-custom-name",
       "comment": "EPBDS-10682 Update project via rest",
-      "selectedBranches": [
-        "master"
-      ],
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-non-flat",

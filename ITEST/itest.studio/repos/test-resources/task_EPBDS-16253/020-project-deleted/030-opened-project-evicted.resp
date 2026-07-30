@@ -3,8 +3,5 @@ Content-Type: application/json
 
 {
   "status": "OPENED",
-  "branch": "EPBDS-16253-copy",
-  "selectedBranches": [
-    "EPBDS-16253-copy"
-  ]
+  "branch": "EPBDS-16253-copy"
 }

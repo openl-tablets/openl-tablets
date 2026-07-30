@@ -14,9 +14,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-15425_Project1",
       "comment": "Project EPBDS-15425_Project1 is created.",
-      "selectedBranches": [
-        "master"
-      ],
       "dependencies": [
         {
           "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDI6NzgxMDMzNTk2ODBlOTI4NTI3ODEwZDY4N2RmOTQ4NmM4NWUzNThiODBjMjAxNjY2NjIyYWM3N2MzMjMxNDQ0ZA==",

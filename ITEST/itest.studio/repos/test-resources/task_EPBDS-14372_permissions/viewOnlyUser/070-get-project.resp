@@ -12,9 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "Project",
   "comment": "EPBDS-10682 Create project via rest",
-  "selectedBranches": [
-    "master"
-  ],
   "branchDefault": true,
   "repositoryInfo": {
     "id": "design-non-flat",

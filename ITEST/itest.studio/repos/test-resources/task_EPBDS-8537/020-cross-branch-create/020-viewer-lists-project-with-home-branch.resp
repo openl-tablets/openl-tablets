@@ -5,10 +5,7 @@ Content-Type: application/json
   "content": [
     {
       "name": "EPBDS_8537_BRANCH",
-      "branch": "EPBDS-8537-feature",
-      "selectedBranches": [
-        "EPBDS-8537-feature"
-      ]
+      "branch": "EPBDS-8537-feature"
     }
   ],
   "pageNumber": 0,

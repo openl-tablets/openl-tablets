@@ -1313,7 +1313,6 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canManageB
                 {project.path && metaRow(t('browser.overview.path'), <ValueText>{project.path}</ValueText>)}
                 {supportsBranches && project.branch && metaRow(t('browser.overview.branch'), (
                     <BranchSwitcher
-                        branches={project.selectedBranches ?? []}
                         currentBranch={project.branch}
                         currentBranchDefault={project.branchDefault}
                         currentBranchProtected={project.branchProtected}

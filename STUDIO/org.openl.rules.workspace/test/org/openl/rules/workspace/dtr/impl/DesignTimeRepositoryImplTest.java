@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.env.PropertyResolver;
 
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.BranchTreeRevision;
@@ -39,11 +41,27 @@ import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 class DesignTimeRepositoryImplTest {
 
     @Test
+    void resolvesListedProjectVersionOnlyOnDemand() {
+        var repository = mock(Repository.class);
+        var fileData = mock(FileData.class);
+        when(fileData.getName()).thenReturn("DESIGN/Rates");
+        when(fileData.getVersion()).thenReturn("revision");
+
+        var project = new AProject(repository, fileData);
+
+        verify(fileData, never()).getVersion();
+        assertEquals("revision", project.getHistoryVersion());
+        assertEquals("revision", project.getHistoryVersion());
+        verify(fileData).getVersion();
+    }
+
+    @Test
     void listsAProjectThatExistsOnlyInANonBaseBranch() throws Exception {
         var root = branchRepository("main");
         var main = branchRepository("main");
         var feature = branchRepository("feature/rates");
-        var branchOnly = fileData("DESIGN/Rates");
+        var branchOnly = mock(FileData.class);
+        when(branchOnly.getName()).thenReturn("DESIGN/Rates");
         var created = fileData("DESIGN/Created");
         when(root.listFolders("DESIGN/")).thenReturn(List.of());
         when(root.listBranches()).thenReturn(List.of("main", "feature/rates"));
@@ -86,6 +104,7 @@ class DesignTimeRepositoryImplTest {
             assertEquals("Created", repository.getProject("design", "Created").getBusinessName());
             repository.refresh();
 
+            verify(branchOnly, never()).getVersion();
             repository.destroy();
         }
     }
