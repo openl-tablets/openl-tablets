@@ -1,11 +1,11 @@
-package org.openl.rules.webstudio.web;
+package org.openl.rules.project.migration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -16,20 +16,20 @@ import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 
-class ProjectBeanMigrateMethodFiltersTest {
+class RulesXmlMigrationsMethodFilterTest {
 
     @Test
     void testSingleModuleWithIncludes() {
         var pd = createProject("TestProject",
                 createModule("Module1", new String[]{".+ calculate\\(.+\\)"}, null));
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
         // Module-level filter should be cleared
-        assertEmptyMethodFilter(result.getModules().getFirst());
+        assertEmptyMethodFilter(pd.getModules().getFirst());
         // Project-level exposed-methods should contain converted pattern
-        assertNotNull(result.getExposedMethods());
-        assertTrue(result.getExposedMethods().getIncludes().contains("calculate"));
+        assertNotNull(pd.getExposedMethods());
+        assertTrue(pd.getExposedMethods().getIncludes().contains("calculate"));
     }
 
     @Test
@@ -37,12 +37,12 @@ class ProjectBeanMigrateMethodFiltersTest {
         var pd = createProject("TestProject",
                 createModule("Module1", null, new String[]{".* getDiscount(.*)"}));
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
-        assertEmptyMethodFilter(result.getModules().getFirst());
-        assertNotNull(result.getExposedMethods());
-        assertNull(result.getExposedMethods().getIncludes());
-        assertTrue(result.getExposedMethods().getExcludes().contains("getDiscount*"));
+        assertEmptyMethodFilter(pd.getModules().getFirst());
+        assertNotNull(pd.getExposedMethods());
+        assertNull(pd.getExposedMethods().getIncludes());
+        assertTrue(pd.getExposedMethods().getExcludes().contains("getDiscount*"));
     }
 
     @Test
@@ -52,10 +52,10 @@ class ProjectBeanMigrateMethodFiltersTest {
                         new String[]{".+ calculate\\(.+\\)", ".+ getRate\\(.*\\)"},
                         new String[]{".* internal(.*)"}));
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
-        assertEmptyMethodFilter(result.getModules().getFirst());
-        var im = result.getExposedMethods();
+        assertEmptyMethodFilter(pd.getModules().getFirst());
+        var im = pd.getExposedMethods();
         assertNotNull(im);
         assertEquals(2, im.getIncludes().size());
         assertTrue(im.getIncludes().contains("calculate"));
@@ -70,14 +70,14 @@ class ProjectBeanMigrateMethodFiltersTest {
                 createModule("Module1", new String[]{".+ foo\\(.+\\)"}, null),
                 createModule("Module2", new String[]{".+ bar\\(.*\\)"}, null));
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
         // Both modules should be cleared
-        for (var module : result.getModules()) {
+        for (var module : pd.getModules()) {
             assertEmptyMethodFilter(module);
         }
         // Patterns from both modules should be merged
-        var im = result.getExposedMethods();
+        var im = pd.getExposedMethods();
         assertNotNull(im);
         assertEquals(2, im.getIncludes().size());
         assertTrue(im.getIncludes().contains("foo"));
@@ -91,9 +91,9 @@ class ProjectBeanMigrateMethodFiltersTest {
                 createModule("Module1", new String[]{".+ calculate\\(.+\\)"}, null),
                 createModule("Module2", new String[]{".+ calculate\\(.+\\)"}, null));
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
-        var im = result.getExposedMethods();
+        var im = pd.getExposedMethods();
         assertNotNull(im);
         assertEquals(1, im.getIncludes().size());
         assertTrue(im.getIncludes().contains("calculate"));
@@ -108,9 +108,9 @@ class ProjectBeanMigrateMethodFiltersTest {
         existing.setIncludes(Set.of("existingMethod"));
         pd.setExposedMethods(existing);
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
-        var im = result.getExposedMethods();
+        var im = pd.getExposedMethods();
         assertNotNull(im);
         assertEquals(2, im.getIncludes().size());
         assertTrue(im.getIncludes().contains("newMethod"));
@@ -123,11 +123,11 @@ class ProjectBeanMigrateMethodFiltersTest {
         var pd = createProject("TestProject",
                 createModule("Module1", new String[]{"*", "not_matching_anything"}, null));
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
-        assertEmptyMethodFilter(result.getModules().getFirst());
+        assertEmptyMethodFilter(pd.getModules().getFirst());
         // No valid patterns means no exposed-methods
-        assertNull(result.getExposedMethods());
+        assertNull(pd.getExposedMethods());
     }
 
     @Test
@@ -135,9 +135,9 @@ class ProjectBeanMigrateMethodFiltersTest {
         var pd = createProject("TestProject",
                 createModule("Module1", new String[]{".*"}, null));
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
-        var im = result.getExposedMethods();
+        var im = pd.getExposedMethods();
         assertNotNull(im);
         assertEquals(1, im.getIncludes().size());
         assertTrue(im.getIncludes().contains("*"));
@@ -148,10 +148,10 @@ class ProjectBeanMigrateMethodFiltersTest {
         var pd = createProject("TestProject",
                 createModule("Module1", null, null));
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
         // No exposed-methods should be set
-        assertNull(result.getExposedMethods());
+        assertNull(pd.getExposedMethods());
     }
 
     @Test
@@ -159,24 +159,11 @@ class ProjectBeanMigrateMethodFiltersTest {
         var pd = createProject("TestProject",
                 createModule("Module1", new String[]{".*determinePolicyPremium.*"}, null));
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
-        var im = result.getExposedMethods();
+        var im = pd.getExposedMethods();
         assertNotNull(im);
         assertTrue(im.getIncludes().contains("*determinePolicyPremium*"));
-    }
-
-    @Test
-    void testOriginalDescriptorNotModified() {
-        var pd = createProject("TestProject",
-                createModule("Module1", new String[]{".+ foo\\(.+\\)"}, null));
-        var originalIncludes = Set.copyOf(pd.getModules().getFirst().getMethodFilter().getIncludes());
-
-        var result = ProjectBean._migrateMethodFilters(pd);
-
-        assertNotSame(pd, result);
-        // Original descriptor should still have its method-filter
-        assertEquals(originalIncludes, pd.getModules().getFirst().getMethodFilter().getIncludes());
     }
 
     @Test
@@ -194,9 +181,9 @@ class ProjectBeanMigrateMethodFiltersTest {
                         },
                         null));
 
-        var result = ProjectBean._migrateMethodFilters(pd);
+        RulesXmlMigrations.methodFilter(pd);
 
-        var im = result.getExposedMethods();
+        var im = pd.getExposedMethods();
         assertNotNull(im);
         assertEquals(5, im.getIncludes().size());
         assertTrue(im.getIncludes().contains("RatingBasis1"));
@@ -209,7 +196,7 @@ class ProjectBeanMigrateMethodFiltersTest {
     private static ProjectDescriptor createProject(String name, Module... modules) {
         var pd = new ProjectDescriptor();
         pd.setName(name);
-        pd.setModules(List.of(modules));
+        pd.setModules(new ArrayList<>(List.of(modules)));
         return pd;
     }
 

@@ -11,15 +11,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIInput;
@@ -29,7 +26,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
@@ -52,6 +48,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
+import org.openl.rules.project.migration.RulesXmlMigrations;
 import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
@@ -1017,153 +1014,12 @@ public class ProjectBean {
         var currentProject = studio.getCurrentProject();
         validatePermissionsForDescriptorFile(currentProject, true);
 
-        var projectDescriptor = studio.getCurrentProjectDescriptor();
-        var newProjectDescriptor = _migrateMethodFilters(projectDescriptor);
+        var newProjectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
+        keepDeclaredModules(newProjectDescriptor);
+        clean(newProjectDescriptor);
+        RulesXmlMigrations.methodFilter(newProjectDescriptor);
 
         save(newProjectDescriptor);
-    }
-
-    /**
-     * Migrates module-level method-filter regex patterns to project-level exposed-methods glob patterns.
-     * <p>
-     * For each module, converts its method-filter includes/excludes from regex to glob syntax,
-     * merges them with any existing exposed-methods, clears the module-level filters,
-     * and sets the result on the project descriptor.
-     * <p>
-     * Invalid patterns that cannot match any method signature are silently ignored.
-     *
-     * @param projectDescriptor the project descriptor to migrate
-     * @return a new project descriptor with migrated filters (the original is not modified)
-     */
-    // package-private static for testing
-    static @NonNull ProjectDescriptor _migrateMethodFilters(@NonNull ProjectDescriptor projectDescriptor) {
-        var newProjectDescriptor = Cloner.clone(projectDescriptor);
-
-        clean(newProjectDescriptor);
-
-        // Collect all method-filter patterns from all modules
-        var allIncludes = new LinkedHashSet<String>();
-        var allExcludes = new LinkedHashSet<String>();
-        for (var module : newProjectDescriptor.getModules()) {
-            var mf = module.getMethodFilter();
-            if (mf != null) {
-                if (mf.getIncludes() != null) {
-                    for (var pattern : mf.getIncludes()) {
-                        var converted = convertRegexToGlob(pattern);
-                        if (StringUtils.isNotBlank(converted)) {
-                            allIncludes.add(converted);
-                        }
-                    }
-                }
-                if (mf.getExcludes() != null) {
-                    for (var pattern : mf.getExcludes()) {
-                        var converted = convertRegexToGlob(pattern);
-                        if (StringUtils.isNotBlank(converted)) {
-                            allExcludes.add(converted);
-                        }
-                    }
-                }
-                // Clear module-level method-filter
-                mf.setIncludes(null);
-                mf.setExcludes(null);
-            }
-        }
-
-        // Merge with existing exposed-methods if present
-        ExposedMethods existing = newProjectDescriptor.getExposedMethods();
-        if (existing != null) {
-            if (existing.getIncludes() != null) {
-                allIncludes.addAll(existing.getIncludes());
-            }
-            if (existing.getExcludes() != null) {
-                allExcludes.addAll(existing.getExcludes());
-            }
-        }
-
-        if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
-            ExposedMethods filter = new ExposedMethods();
-            if (!allIncludes.isEmpty()) {
-                filter.setIncludes(new HashSet<>(allIncludes));
-            }
-            if (!allExcludes.isEmpty()) {
-                filter.setExcludes(new HashSet<>(allExcludes));
-            }
-            newProjectDescriptor.setExposedMethods(filter);
-        }
-        return newProjectDescriptor;
-    }
-
-    /**
-     * Converts a method-filter regex pattern (matched against full method signature) to an
-     * exposed-methods glob pattern (matched against method name only).
-     * <p>
-     * Method-filter patterns are regexps matched against method signatures in the format:
-     * {@code returnType methodName(ArgType1, ArgType2, ArgTypeN)}.
-     * If the pattern is not a valid regexp or cannot match any method signature, it is ignored.
-     * <p>
-     * Common regex patterns and their conversions:
-     * <ul>
-     *     <li>{@code .+ methodName\(.+\)} → {@code methodName}</li>
-     *     <li>{@code .* methodName\(.*\)} → {@code methodName}</li>
-     *     <li>{@code .+ methodName\(\)} → {@code methodName}</li>
-     *     <li>{@code .*methodName.*} → {@code methodName}</li>
-     *     <li>{@code .*} or {@code *} → {@code *}</li>
-     * </ul>
-     *
-     * @return the converted glob pattern, or {@code null} if the pattern should be ignored
-     */
-    static String convertRegexToGlob(String regex) {
-        if (regex == null || regex.isBlank()) {
-            return null;
-        }
-        regex = regex.trim();
-
-        // Validate that the pattern is a valid regexp and can match a method signature
-        try {
-            Pattern.compile(regex);
-        } catch (PatternSyntaxException e) {
-            // Not a valid regex
-            return null;
-        }
-
-        var prefix = Pattern.compile("^[^ (]+ ");
-        var matcher = prefix.matcher(regex);
-        if (matcher.find()) {
-            // remove return type definition
-            regex = matcher.replaceFirst("");
-        } else if (!regex.matches("^[.][*+].*")) {
-            // does not match to return type definition of the method signature
-            return null;
-        }
-
-        // Pattern: <returnType> <methodName>(<params>)
-        // e.g., ".+ methodName\(.+\)" or ".* methodName\(.*\)" or ".+ methodName\(\)"
-        var signaturePattern = Pattern.compile("\\\\\\(.*\\\\\\)$");
-        var signatureMatcher = signaturePattern.matcher(regex);
-        if (signatureMatcher.find()) {
-            regex = signatureMatcher.replaceFirst("");
-        }
-
-        // Try to convert simple regex patterns in the name part to glob
-        // Replace .* and .+ with glob *, and . with ?
-        regex = regex.replace("(.*)", "*");
-        regex = regex.replace("(.+)", "*");
-        regex = regex.replace(".*", "*");
-        regex = regex.replace(".+", "*");
-        regex = regex.replace("?", "^"); // replace on the illegal symbol due conflict with Glob
-        regex = regex.replace(".", "?");
-
-        // check on the illegal symbols in the method name glob
-        for (int i = 0; i < regex.length(); i++) {
-            char c = regex.charAt(i);
-            if (c == '\\' || c == '[' || c == ']' || c == '(' || c == ')'
-                    || c == '{' || c == '}' || c == '|' || c == '^'
-                    || c == '+' || c == '.' || c == ' ') {
-                return null;
-            }
-        }
-        // If the result looks clean (no remaining regex metacharacters), return it
-        return regex;
     }
 
     public void reconcileOpenAPI() {

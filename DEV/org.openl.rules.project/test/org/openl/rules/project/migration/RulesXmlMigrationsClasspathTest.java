@@ -1,4 +1,4 @@
-package org.openl.rules.maven.migration;
+package org.openl.rules.project.migration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 
-class ConfigProjectClasspathMigratorTest {
+class RulesXmlMigrationsClasspathTest {
 
     @Test
     void dropsClasspathWhenOnlyGroovyTrailingSlash() {
@@ -166,7 +166,7 @@ class ConfigProjectClasspathMigratorTest {
      */
     private static void assertMigration(String before, String after) {
         var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(before.getBytes(StandardCharsets.UTF_8)));
-        ConfigProjectClasspathMigrator.transform(descriptor);
+        RulesXmlMigrations.classpath(descriptor);
         var actual = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
         assertEquals(after, actual);
     }
