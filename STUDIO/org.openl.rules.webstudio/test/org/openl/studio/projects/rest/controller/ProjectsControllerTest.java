@@ -28,6 +28,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
+import org.openl.studio.projects.service.ProjectMigrationService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
@@ -164,7 +165,8 @@ class ProjectsControllerTest {
                 projectStatusMapper,
                 mock(ProjectTablesGraphService.class),
                 mock(RepositoryConfigService.class),
-                metadataService) {
+                metadataService,
+                mock(ProjectMigrationService.class)) {
             @Override
             public WebStudio getWebStudio() {
                 return webStudio;

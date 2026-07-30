@@ -1,0 +1,8 @@
+PATCH /rest/projects/ZGVzaWduLWZsYXQ6TWlncmF0ZVByb2plY3Q6NmYzNDkwYWUyMTIxNjlmMzY1MTdmMTE1OTkxZDg4ODhhYjU3M2E5YWRmY2E3ZWE3N2ExZmRiMGZiODEzMjliYQ== HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "status": "CLOSED",
+  "discardChanges": true
+}

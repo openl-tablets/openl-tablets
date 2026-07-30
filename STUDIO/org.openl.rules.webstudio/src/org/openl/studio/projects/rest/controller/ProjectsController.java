@@ -66,10 +66,12 @@ import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.CreateBranchModel;
+import org.openl.studio.projects.model.MigrationScope;
 import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectInclude;
+import org.openl.studio.projects.model.ProjectMigrationView;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.ProjectsPageResponse;
@@ -90,6 +92,7 @@ import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
+import org.openl.studio.projects.service.ProjectMigrationService;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
@@ -132,6 +135,7 @@ public class ProjectsController {
     private final ProjectTablesGraphService graphService;
     private final RepositoryConfigService repositoryConfigService;
     private final ProjectMetadataService metadataService;
+    private final ProjectMigrationService migrationService;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -389,6 +393,20 @@ public class ProjectsController {
     @Operation(summary = "projects.modules.list.summary")
     public List<ModuleViewModel> getModules(@ProjectId @PathVariable("projectId") RulesProject project) {
         return projectService.getModules(project);
+    }
+
+    @GetMapping("/{projectId}/migration")
+    @Operation(summary = "projects.migration.get.summary", description = "projects.migration.get.desc")
+    public ProjectMigrationView getMigration(@ProjectId @PathVariable("projectId") RulesProject project) {
+        return migrationService.migrationInfo(project);
+    }
+
+    @PostMapping("/{projectId}/migrate")
+    @Operation(summary = "projects.migration.migrate.summary", description = "projects.migration.migrate.desc")
+    public void migrate(@ProjectId @PathVariable("projectId") RulesProject project,
+            @Parameter(description = "projects.migration.migrate.param.scope.desc") @RequestParam("scope") MigrationScope scope) {
+        migrationService.migrate(project, scope);
+        getWebStudio().reset();
     }
 
     @GetMapping("/{projectId}/modules/{moduleName}/sheets")
