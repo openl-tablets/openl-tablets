@@ -467,6 +467,9 @@ public class ProjectCreationService {
      * renamed, the creator is granted a CONTRIBUTOR ACL, and the workspace is refreshed so the copy is
      * indexed.
      *
+     * <p>The source name is its business name. It must identify one readable project in the source repository.
+     * This also resolves projects whose mapped repository identity contains a path-derived suffix.
+     *
      * @return the created copy's file data (branch/revision)
      */
     public FileData copyProject(String targetRepositoryId, String newName, String path,
@@ -485,7 +488,7 @@ public class ProjectCreationService {
         var workspace = getUserWorkspace();
         var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
         try {
-            var source = workspace.getProject(sourceRepositoryId, sourceProjectName, true);
+            var source = resolveSourceProject(workspace, sourceRepositoryId, sourceProjectName);
             if (!designRepoAclService.isGranted(source, List.of(BasePermission.READ))) {
                 throw new ForbiddenException("default.message");
             }
@@ -515,6 +518,24 @@ public class ProjectCreationService {
         } catch (ProjectException e) {
             throw new ConflictException("project.copy.failed.message");
         }
+    }
+
+    private RulesProject resolveSourceProject(UserWorkspace workspace,
+                                              String sourceRepositoryId,
+                                              String sourceProjectName) throws ProjectException {
+        var matches = workspace.getProjectsByName(sourceProjectName)
+                .stream()
+                .filter(project -> project.getDesignRepository() != null
+                        && sourceRepositoryId.equals(project.getDesignRepository().getId()))
+                .toList();
+        if (matches.size() != 1) {
+            throw new ProjectException(
+                    "Cannot uniquely resolve project ''{0}'' in repository ''{1}''.",
+                    null,
+                    sourceProjectName,
+                    sourceRepositoryId);
+        }
+        return matches.getFirst();
     }
 
     /**

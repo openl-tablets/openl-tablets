@@ -1,0 +1,17 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "name": "EPBDS_8537_COPY",
+      "branch": "EPBDS-8537-copy-feature",
+      "path": "EPBDS_8537_COPY",
+      "comment": "Copied from: EPBDS_8537_SOURCE."
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 10,
+  "numberOfElements": 1,
+  "total": 1
+}
