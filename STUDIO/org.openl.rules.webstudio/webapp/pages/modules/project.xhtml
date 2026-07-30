@@ -159,6 +159,7 @@
                 <div class="block-content">
                     <div class="list list-modules">
                         <ui:param name="modulesNumber" value="#{projectBean.modulesWithWildcard.size()}"/>
+                        <ui:param name="modulesDefault" value="#{projectBean.modulesDefault}"/>
                         <ui:repeat var="module" value="#{projectBean.modulesWithWildcard}" varStatus="i">
                             <ui:param name="isModuleWithWildcard" value="#{projectBean.isModuleWithWildcard(module)}"/>
                             <ui:param name="includedInWildcard"
@@ -167,7 +168,13 @@
                                           styleClass="list-item editable-inner"
                                           rendered="#{isModuleWithWildcard or !includedInWildcard}">
                                 <div>
-                                    <h:panelGroup rendered="#{isModuleWithWildcard}">
+                                    <h:panelGroup rendered="#{isModuleWithWildcard and modulesDefault}">
+                                        #{module.rulesRootPath.startsWith('tests/') ? 'Auto-discovered tests' : 'Auto-discovered modules'}
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{isModuleWithWildcard and not modulesDefault and not empty module.name}">
+                                        #{module.name}
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{isModuleWithWildcard and not modulesDefault and empty module.name}">
                                         Modules matched by pattern
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{!isModuleWithWildcard}">

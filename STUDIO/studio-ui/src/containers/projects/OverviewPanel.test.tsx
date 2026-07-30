@@ -225,6 +225,26 @@ describe('OverviewPanel', () => {
         expect(screen.getByText('browser.overview.modules_pattern')).toBeInTheDocument()
     })
 
+    it('reads the engine defaults as the rules and the tests found automatically', async () => {
+        await renderPanel({
+            ...base,
+            descriptor: {
+                modules: [
+                    { path: 'rules/**/*.xlsx', modules: [{ name: 'Pricing', path: 'rules/Pricing.xlsx' }]},
+                    { path: 'tests/**/*.xlsx', modules: [{ name: 'PricingTest', path: 'tests/PricingTest.xlsx' }]},
+                ],
+                modulesDefault: true,
+                sources: ['groovy/', 'lib/*.jar'],
+                sourcesDefault: true,
+            },
+        })
+
+        // Defaulted modules read by what they are — never as a "pattern".
+        expect(screen.getByText('browser.overview.modules_auto')).toBeInTheDocument()
+        expect(screen.getByText('browser.overview.modules_auto_tests')).toBeInTheDocument()
+        expect(screen.queryByText('browser.overview.modules_pattern')).toBeNull()
+    })
+
     it('folds a section away by its own heading', async () => {
         setRulesXml('<project><comment>A ruleset</comment></project>')
         await renderPanel(base)
