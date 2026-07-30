@@ -422,11 +422,10 @@ export async function getDesignRepositoryConfig(repositoryId: string): Promise<R
 
 export interface ProjectBranch {
     name: string
-    protected: boolean
+    /** Present only for a protected branch. */
+    protected?: boolean
     /** The repository base branch; it can never be deleted. */
-    base: boolean
-    /** Whether this branch's current Git tree contains the project. */
-    containsProject: boolean
+    base?: boolean
 }
 
 /** Create a new branch for a project, optionally from a specific revision (defaults to HEAD). */

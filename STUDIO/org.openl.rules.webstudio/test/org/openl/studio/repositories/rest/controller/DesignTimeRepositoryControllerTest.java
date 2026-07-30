@@ -29,6 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -195,6 +196,20 @@ class DesignTimeRepositoryControllerTest {
         order.verify(projectCreationService).refreshWorkspaceAfterDesignChange();
         verify(designTimeRepository, never()).getProject(REPOSITORY_ID, "Project");
         verify(projectCreationService).applyStatusAfterCreate(repository, "Project", null);
+    }
+
+    @Test
+    void contentCreationKeepsItsOpenedDefaultAndUsesTheIndexedProjectName() throws Exception {
+        var data = new FileData();
+        data.setName("Project:hash");
+        when(projectCreationService.createFromTemplate(repository, "Project", null,
+                "predefined", "templates", "Sample Project", "comment", null)).thenReturn(data);
+
+        controller.createProject(repository, "Project", null, "comment", null, "predefined", "templates",
+                "Sample Project", "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx",
+                false, null, null, false);
+
+        verify(projectCreationService).applyStatusAfterCreate(repository, "Project:hash", ProjectStatus.VIEWING);
     }
 
     @Test

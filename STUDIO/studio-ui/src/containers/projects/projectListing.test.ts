@@ -11,7 +11,7 @@ const project = (over: Partial<Project>): Project => ({
     ...over,
 } as Project)
 
-const alpha = project({ id: 'p1', name: 'Alpha', modifiedBy: 'jane', branch: 'main', selectedBranches: ['main', 'release/alpha'], modifiedAt: '2026-01-02T00:00:00Z', tags: { Domain: 'Policy', LOB: 'Auto' } })
+const alpha = project({ id: 'p1', name: 'Alpha', modifiedBy: 'jane', branch: 'main', modifiedAt: '2026-01-02T00:00:00Z', tags: { Domain: 'Policy', LOB: 'Auto' } })
 const beta = project({ id: 'p2', name: 'Beta', repository: 'flat', modifiedBy: 'john', branch: 'feature/rates', modifiedAt: '2026-03-01T00:00:00Z', status: ProjectStatus.Opened, tags: { Domain: 'Claims' } })
 const local = project({ id: 'p3', name: 'Gamma', repository: 'design', status: ProjectStatus.Local })
 const removed = project({ id: 'p4', name: 'Delta', status: ProjectStatus.Deleted })
@@ -24,7 +24,6 @@ describe('searchProjects', () => {
         expect(searchProjects(all, 'ph').map(p => p.id)).toEqual(['p1'])
         expect(searchProjects(all, 'JOHN').map(p => p.id)).toEqual(['p2'])
         expect(searchProjects(all, 'feature').map(p => p.id)).toEqual(['p2'])
-        expect(searchProjects(all, 'release').map(p => p.id)).toEqual(['p1'])
         // A tag matches by its type as well as its value.
         expect(searchProjects(all, 'claims').map(p => p.id)).toEqual(['p2'])
         expect(searchProjects(all, 'domain').map(p => p.id)).toEqual(['p1', 'p2'])

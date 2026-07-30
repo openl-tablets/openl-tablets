@@ -21860,10 +21860,6 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
-          "containsProject": {
-            "type": "boolean",
-            "description": "***"
-          },
           "name": {
             "type": "string",
             "description": "***"
@@ -22430,14 +22426,6 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
-          "selectedBranches": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            },
-            "uniqueItems": true
-          },
           "status": {
             "type": "string",
             "description": "***",
@@ -22649,13 +22637,6 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "selectedBranches": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          },
           "status": {
             "type": "string",
             "description": "***",
@@ -22777,13 +22758,6 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "selectedBranches": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          },
           "status": {
             "type": "string",
             "description": "***",
@@ -22888,13 +22862,6 @@ Content-Type: application/json
           "revision": {
             "type": "string",
             "description": "***"
-          },
-          "selectedBranches": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
           },
           "status": {
             "type": "string",

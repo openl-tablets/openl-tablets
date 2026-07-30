@@ -312,7 +312,7 @@ describe('getProjects', () => {
 
     it('loads branches, revisions and tags', async () => {
         vi.mocked(apiCall)
-            .mockResolvedValueOnce([{ name: 'main', selected: true }])
+            .mockResolvedValueOnce([{ name: 'main', base: true }])
             .mockResolvedValueOnce({
                 content: [{ revisionNo: '1' }],
                 pageNumber: 0,
@@ -322,7 +322,7 @@ describe('getProjects', () => {
             })
             .mockResolvedValue(undefined)
 
-        await expect(getProjectBranches('abc')).resolves.toEqual([{ name: 'main', selected: true }])
+        await expect(getProjectBranches('abc')).resolves.toEqual([{ name: 'main', base: true }])
 
         await expect(getProjectRevisions('design', 'Alpha', 'feature/1', {
             search: ' fix ',

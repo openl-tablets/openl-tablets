@@ -79,7 +79,6 @@ export const projectSignature = (project: Project | null): string =>
             project.revision,
             project.status,
             project.branch,
-            project.selectedBranches,
             project.modifiedAt,
         ])
 

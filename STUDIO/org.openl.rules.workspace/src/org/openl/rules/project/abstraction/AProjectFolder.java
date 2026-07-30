@@ -417,10 +417,22 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
     @Override
     public void setFileData(FileData fileData) {
+        setFileData(fileData, true);
+    }
+
+    /**
+     * Associates repository data with this folder.
+     *
+     * <p>Callers that publish current repository listings can defer version metadata. The metadata is resolved when
+     * the project version is requested.
+     */
+    protected final void setFileData(FileData fileData, boolean resolveHistoryVersion) {
         super.setFileData(fileData);
         if (fileData != null) {
             setFolderPath(fileData.getName());
-            setHistoryVersion(fileData.getVersion());
+            if (resolveHistoryVersion) {
+                setHistoryVersion(fileData.getVersion());
+            }
         }
     }
 

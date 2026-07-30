@@ -12,9 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "ModuleTree",
   "comment": "Create a project whose rules.xml declares a pattern",
-  "selectedBranches": [
-    "master"
-  ],
   "dependencies": [
     {
       "name": "Ghost Project",

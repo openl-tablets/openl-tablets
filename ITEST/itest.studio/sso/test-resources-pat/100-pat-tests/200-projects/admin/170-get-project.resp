@@ -12,10 +12,6 @@ Content-Type: application/json
   "status": "OPENED",
   "comment": "Admin saved the project",
   "repository": "design-flat",
-  "selectedBranches": [
-    "admin/feature-1",
-    "master"
-  ],
   "repositoryInfo": {
     "id": "design-flat",
     "name": "Git Flat",

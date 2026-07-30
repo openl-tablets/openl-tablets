@@ -230,25 +230,25 @@ public class DesignTimeRepositoryController {
 
         allowedToPush(targetRepository, force);
 
-        ProjectViewModel result;
+        FileData data;
         // An uploaded archive keeps the robust create/overwrite path (locking, overwrite).
         if (archiveUpload) {
-            result = createFromArchive(targetRepository, projectName, files.getFirst(), model);
+            data = createFromArchive(targetRepository, projectName, files.getFirst(), model);
         } else {
-            var data = createFromContent(targetRepository, projectName, path, resolvedComment, files,
+            data = createFromContent(targetRepository, projectName, path, resolvedComment, files,
                     templateType, templateCategory, templateName, modelsPath, algorithmsPath, modelsModuleName,
                     algorithmsModuleName);
-            result = mapFileDataResponse(data, targetRepository.supports());
         }
-        // A caller may ask for the created project to be opened (or closed); left alone every source keeps
-        // its own default, so existing callers are unaffected. The lookup uses the canonical (trimmed)
-        // name the project was actually created under.
-        projectCreationService.applyStatusAfterCreate(targetRepository, model.getProjectName(), status);
-        return result;
+        // Content-based creation historically leaves a project opened. An archive stays closed unless the caller
+        // explicitly requests otherwise.
+        var effectiveStatus = status == null && !archiveUpload ? ProjectStatus.VIEWING : status;
+        projectCreationService.applyStatusAfterCreate(targetRepository, FileUtils.getName(data.getName()),
+                effectiveStatus);
+        return mapFileDataResponse(data, targetRepository.supports());
     }
 
-    private ProjectViewModel createFromArchive(Repository repository, String projectName, MultipartFile file,
-                                               CreateUpdateProjectModel model) throws IOException, ProjectException {
+    private FileData createFromArchive(Repository repository, String projectName, MultipartFile file,
+                                       CreateUpdateProjectModel model) throws IOException, ProjectException {
         final Path archiveTmp = Files.createTempFile(projectName, ".zip");
         final var lock = getLock(repository, model);
         try {
@@ -264,7 +264,7 @@ public class DesignTimeRepositoryController {
             projectCreationService.registerExtensibleTags(project);
             projectCreationService.awaitProjectVisibility(repository);
             projectCreationService.refreshWorkspaceAfterDesignChange();
-            return mapFileDataResponse(data, repository.supports());
+            return data;
         } finally {
             FileUtils.deleteQuietly(archiveTmp);
             lock.unlock();

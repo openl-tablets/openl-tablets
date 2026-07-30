@@ -12,9 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "EPBDS-15993-shared",
   "comment": "EPBDS-15993 Create shared project in flat repo",
-  "selectedBranches": [
-    "master"
-  ],
   "branchDefault": true,
   "repositoryInfo": {
     "id": "design-flat",

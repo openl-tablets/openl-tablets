@@ -46,8 +46,6 @@ const useStyles = createStyles(({ css, token }) => ({
 interface BranchSwitcherProps {
     projectId: string
     currentBranch: string
-    /** Branches the project takes part in — the only branches offered as switch targets. */
-    branches: string[]
     /** Marks of the current branch, known from the project itself without listing the branches. */
     currentBranchProtected?: boolean | undefined
     currentBranchDefault?: boolean | undefined
@@ -62,14 +60,12 @@ interface BranchSwitcherProps {
  * The branch reads as plain text with a caret rather than as a form input, so it stays unobtrusive
  * wherever it is placed — the breadcrumb and the Overview tab render the very same control.
  *
- * The switch targets are the branches whose current Git trees contain the project, and nothing else.
- * Their marks are fetched the first time the menu opens, so simply showing the current branch costs no
- * request.
+ * The switch targets and their marks are fetched when the menu first opens. Simply showing the current
+ * branch costs no request and does not carry every project membership in the projects response.
  */
 export const BranchSwitcher = ({
     projectId,
     currentBranch,
-    branches: projectBranches,
     currentBranchProtected,
     currentBranchDefault,
     onSwitched,
@@ -82,10 +78,6 @@ export const BranchSwitcher = ({
     const [switching, setSwitching] = useState(false)
     const [discardSwitchBranch, setDiscardSwitchBranch] = useState<string | null>(null)
 
-    const targets = projectBranches.includes(currentBranch)
-        ? projectBranches
-        : [currentBranch, ...projectBranches]
-
     const loadBranches = async () => {
         if (branchInfo !== null || loading) {
             return
@@ -93,9 +85,9 @@ export const BranchSwitcher = ({
         setLoading(true)
         try {
             setBranchInfo(await getProjectBranches(projectId))
-        } catch {
-            // The marks are decoration: without them the branch names are still switchable.
+        } catch (e) {
             setBranchInfo([])
+            notification.error({ title: t('browser.branch.load_failed'), description: errorMessage(e) })
         } finally {
             setLoading(false)
         }
@@ -158,7 +150,10 @@ export const BranchSwitcher = ({
             <Dropdown
                 trigger={['click']}
                 menu={{
-                    items: targets.map(branch => ({ key: branch, label: branchLabel(branch) })),
+                    items: (branchInfo ?? []).map(branch => ({
+                        key: branch.name,
+                        label: branchLabel(branch.name),
+                    })),
                     selectedKeys: [currentBranch],
                     onClick: ({ key }) => void switchTo(key),
                 }}

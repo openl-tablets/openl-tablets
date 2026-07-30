@@ -12,9 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "Project",
   "comment": "Project Project is created.",
-  "selectedBranches": [
-    "master"
-  ],
   "branchDefault": true,
   "repositoryInfo": {
     "id": "design-flat",

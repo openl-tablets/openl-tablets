@@ -13,8 +13,11 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.projects.model.ProjectIdModel;
 
 /**
- * Resolves a project by its base64-encoded ID ({@code repositoryId:projectName}). For repositories that support mapped
- * folders, retries the lookup with the business name when the direct lookup fails.
+ * Resolves a project by its base64-encoded ID ({@code repositoryId:projectName}).
+ *
+ * <p>A cached workspace project is reused only while the current secured design-repository view still contains it and
+ * its opened state matches the authoritative local metainfo registry. A cache miss or stale entry refreshes the
+ * workspace. For mapped repositories, lookup is retried with the business name when the direct lookup fails.
  *
  * @author Vladyslav Pikus
  */
@@ -32,12 +35,8 @@ public class Base64ProjectResolveStrategy implements ProjectResolveStrategy {
         }
         var repoId = projectId.getRepository();
         var projectName = projectId.getProjectName();
-        // FIXME: getProject(repoId, name) force-refreshes the whole user workspace (rebuilds all ~160 RulesProject
-        //  instances on every request). The cached getProject(repoId, name, false) overload is far cheaper but serves
-        //  stale cross-session state — a deleted design repo still resolves, a fresh ACL grant stays invisible until
-        //  the session refreshes — so it is reverted until workspace-cache invalidation is fixed.
         try {
-            return List.of(workspace.getProject(repoId, projectName));
+            return List.of(resolveProject(workspace, repoId, projectName));
         } catch (ProjectException e) {
             return mappedFolderFallback(workspace, repoId, projectName);
         }
@@ -53,9 +52,36 @@ public class Base64ProjectResolveStrategy implements ProjectResolveStrategy {
             return List.of();
         }
         try {
-            return List.of(workspace.getProject(repoId, businessName));
+            return List.of(resolveProject(workspace, repoId, businessName));
         } catch (ProjectException e) {
             return List.of();
         }
+    }
+
+    private RulesProject resolveProject(UserWorkspace workspace,
+                                        String repositoryId,
+                                        String projectName) throws ProjectException {
+        try {
+            var cachedProject = workspace.getProject(repositoryId, projectName, false);
+            if (cachedProject != null && isCurrent(workspace, repositoryId, cachedProject)) {
+                return cachedProject;
+            }
+        } catch (ProjectException ignored) {
+            // A newly granted project is not in the user cache yet. Refresh it below.
+        }
+        return workspace.getProject(repositoryId, projectName);
+    }
+
+    private boolean isCurrent(UserWorkspace workspace, String repositoryId, RulesProject project) {
+        if (project.isLocalOnly()) {
+            return true;
+        }
+        var projectName = project.getDesignProjectName();
+        if (!workspace.getDesignTimeRepository().hasProject(repositoryId, projectName)) {
+            return false;
+        }
+        var metainfo = workspace.getLocalWorkspace().getMetainfoRegistry().get(project.getBusinessName());
+        var isOpened = metainfo != null && repositoryId.equals(metainfo.repositoryId());
+        return project.isOpened() == isOpened;
     }
 }

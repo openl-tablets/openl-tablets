@@ -12,9 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "EPBDS-15612",
   "comment": "*",
-  "selectedBranches": [
-    "master"
-  ],
   "branchDefault": true,
   "repositoryInfo": {
     "id": "design-flat",

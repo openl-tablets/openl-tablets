@@ -45,10 +45,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "Project",
       "comment": "Project Project is created.",
-      "selectedBranches": [
-        "EPBDS-13930_Project2",
-        "master"
-      ],
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-flat",
@@ -83,9 +79,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "Project",
       "comment": "EPBDS-10682 Create project via rest",
-      "selectedBranches": [
-        "master"
-      ],
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-non-flat",
@@ -150,10 +143,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "Project2",
       "comment": "Project is created.",
-      "selectedBranches": [
-        "EPBDS-13930_Project2",
-        "master"
-      ],
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -188,9 +177,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "Project2",
       "comment": "EPBDS-10682 Create project via rest",
-      "selectedBranches": [
-        "master"
-      ],
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-non-flat",
@@ -225,9 +211,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "foo/bar/Project4",
       "comment": "EPBDS-10682 Create project via rest",
-      "selectedBranches": [
-        "master"
-      ],
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-non-flat",
@@ -262,9 +245,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "foo/bar/project-custom-name",
       "comment": "EPBDS-10682 Update project via rest",
-      "selectedBranches": [
-        "master"
-      ],
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-non-flat",

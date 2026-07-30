@@ -35,6 +35,7 @@ import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -347,7 +348,10 @@ public class ProjectCreationService {
             throws ProjectException {
         if (repository instanceof BranchRepository branchRepository && repository.supports().branches()) {
             var designTimeRepository = workspace.getDesignTimeRepository();
-            var designProject = designTimeRepository.getProject(repositoryId, projectName, branchRepository.getBranch());
+            var designProject = resolveBranchedDesignProject(designTimeRepository,
+                    repositoryId,
+                    projectName,
+                    branchRepository.getBranch());
             return newWorkspaceProject(workspace, repositoryId, designProject);
         }
         try {
@@ -357,6 +361,22 @@ public class ProjectCreationService {
             designTimeRepository.refresh();
             var designProject = designTimeRepository.getProject(repositoryId, projectName);
             return newWorkspaceProject(workspace, repositoryId, designProject);
+        }
+    }
+
+    private AProject resolveBranchedDesignProject(DesignTimeRepository designTimeRepository,
+                                                  String repositoryId,
+                                                  String projectName,
+                                                  String branch) throws ProjectException {
+        try {
+            return designTimeRepository.getProject(repositoryId, projectName, branch);
+        } catch (ProjectException e) {
+            var indexedProject = designTimeRepository.getProjects(repositoryId)
+                    .stream()
+                    .filter(project -> project.getBusinessName().equalsIgnoreCase(projectName))
+                    .findFirst()
+                    .orElseThrow(() -> e);
+            return designTimeRepository.getProject(repositoryId, indexedProject.getName(), branch);
         }
     }
 

@@ -30,8 +30,6 @@ export interface Project {
     revision: string
     status: ProjectStatus
     tags?: Record<string, string>
-    /** Branches whose current Git trees contain the project. */
-    selectedBranches?: string[]
     /** Whether the project's current branch is protected. */
     branchProtected?: boolean
     /** Whether the project's current branch is the repository main branch. */

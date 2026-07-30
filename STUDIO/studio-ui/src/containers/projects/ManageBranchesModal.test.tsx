@@ -77,9 +77,8 @@ describe('ManageBranchesModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.mocked(getProjectBranches).mockResolvedValue([
-            { name: 'main', protected: true, base: true, containsProject: true },
-            { name: 'dev', protected: false, base: false, containsProject: true },
-            { name: 'feature/rates', protected: false, base: false, containsProject: false },
+            { name: 'main', protected: true, base: true },
+            { name: 'dev', protected: false, base: false },
         ])
     })
 
@@ -88,7 +87,6 @@ describe('ManageBranchesModal', () => {
 
         expect(screen.getByTestId('manage-branches-item-main')).toBeInTheDocument()
         expect(screen.getByTestId('manage-branches-item-dev')).toBeInTheDocument()
-        expect(screen.queryByTestId('manage-branches-item-feature/rates')).toBeNull()
         expect(screen.queryByText('browser.branch.contains_project')).toBeNull()
         expect(screen.queryByText('browser.branch.does_not_contain_project')).toBeNull()
     })

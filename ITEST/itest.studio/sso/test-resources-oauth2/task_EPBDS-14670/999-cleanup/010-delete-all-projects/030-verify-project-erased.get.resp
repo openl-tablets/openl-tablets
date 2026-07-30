@@ -44,11 +44,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "Project",
       "comment": "Admin saved the project",
-      "selectedBranches": [
-        "admin/feature-1",
-        "master",
-        "user1/feature-1"
-      ],
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -83,10 +78,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "ProjectUser1",
       "comment": "Project ProjectUser1 is created.",
-      "selectedBranches": [
-        "master",
-        "user1/feature-1"
-      ],
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-flat",

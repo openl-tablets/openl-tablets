@@ -12,9 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "EPBDS_RepoConfig",
   "comment": "Project EPBDS_RepoConfig is created.",
-  "selectedBranches": [
-    "master"
-  ],
   "branchDefault": true,
   "repositoryInfo": {
     "id": "design-flat",

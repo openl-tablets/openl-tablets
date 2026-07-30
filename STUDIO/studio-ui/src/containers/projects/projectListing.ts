@@ -21,7 +21,7 @@ const contains = (value: string | undefined, needle: string): boolean =>
 
 /**
  * The projects matching the search, which the facet counts are scoped to as well. One box searches
- * everything at once: a project matches when the text is found in its name, its author, its branch, or
+ * everything at once: a project matches when the text is found in its name, its author, its current branch, or
  * any of its tags — whichever of them the user happened to remember.
  */
 export const searchProjects = (projects: Project[], query: string): Project[] => {
@@ -32,7 +32,7 @@ export const searchProjects = (projects: Project[], query: string): Project[] =>
     return projects.filter(project =>
         contains(project.name, needle)
         || contains(project.modifiedBy, needle)
-        || (project.selectedBranches ?? [project.branch]).some(branch => contains(branch, needle))
+        || contains(project.branch, needle)
         || Object.entries(project.tags ?? {})
             .some(([type, value]) => contains(type, needle) || contains(value, needle)))
 }

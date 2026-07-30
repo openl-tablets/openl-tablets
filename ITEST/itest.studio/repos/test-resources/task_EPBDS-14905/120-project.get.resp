@@ -12,9 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "EPBDS-14905",
   "comment": "Project EPBDS-14905 is created.",
-  "selectedBranches": [
-    "EPBDS-14905"
-  ],
   "repositoryInfo": {
     "id": "design-flat",
     "name": "Git Flat",

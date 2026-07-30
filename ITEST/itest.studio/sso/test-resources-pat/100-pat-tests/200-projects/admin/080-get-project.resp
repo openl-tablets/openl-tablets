@@ -12,10 +12,6 @@ Content-Type: application/json
   "status": "OPENED",
   "comment": "Project Project is created.",
   "repository": "design-flat",
-  "selectedBranches": [
-    "admin/feature-1",
-    "master"
-  ],
   "repositoryInfo": {
     "id": "design-flat",
     "name": "Git Flat",

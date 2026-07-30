@@ -41,7 +41,6 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS_15595",
       "comment": "Project EPBDS_15595 is created.",
-      "selectedBranches": "***",
       "branchDefault": true,
       "repositoryInfo": {
         "id": "design-flat",

@@ -38,7 +38,8 @@ are reported below the **Branch** field before the request is sent.
 This section describes how to view existing branches, switch between them in the editor and repository,
 inspect project membership, and delete branches. OpenL Studio discovers projects from the current Git tree
 of every readable branch. A project that exists only outside the default branch therefore appears in the
-project list, and its **Branch** field lists only the branches that contain it. Proceed as follows:
+project list. Its **Branch** field shows the current branch and loads the branches that contain the project when
+the branch menu is opened. Proceed as follows:
 
 1.  To display a current project branch, in OpenL Studio, in the editor or repository, open a project.
 

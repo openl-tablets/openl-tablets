@@ -185,6 +185,8 @@ class LazyFileData extends FileData {
             }
 
             loaded = true;
+            fromCommit = null;
+            fileCommit = null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

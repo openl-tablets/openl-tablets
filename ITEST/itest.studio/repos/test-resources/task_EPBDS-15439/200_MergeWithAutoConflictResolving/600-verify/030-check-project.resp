@@ -12,13 +12,6 @@ Content-Type: application/json
   "revision": "*",
   "path": "EPBDS-15439",
   "comment": "Merge commit with *\n\n Automatically resolved conflicts:\n\tEPBDS-15439/Main.xlsx\n\t\tRules (EPBDS-15439_MergeWithAutoConflictResolving_two)\n\t\tBranchOne (EPBDS-15439_MergeWithAutoConflictResolving_one)",
-  "selectedBranches": [
-    "EPBDS-15439_MergeWithAutoConflictResolving_one",
-    "EPBDS-15439_MergeWithAutoConflictResolving_two",
-    "EPBDS-15439_MergeWithoutConflicts_one",
-    "EPBDS-15439_MergeWithoutConflicts_two",
-    "master"
-  ],
   "repositoryInfo": {
     "id": "design-flat",
     "name": "Git Flat",

@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Builder;
@@ -10,14 +11,13 @@ public record ProjectBranchInfo(
         @Parameter(description = "Branch name")
         @NonNull String name,
 
-        @Parameter(description = "Whether the branch is protected")
+        @Parameter(description = "Present only when the branch is protected")
+        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
         @JsonProperty("protected")
         boolean protectedFlag,
 
-        @Parameter(description = "Whether this is the repository base branch, which can never be deleted")
-        boolean base,
-
-        @Parameter(description = "Whether the branch's current Git tree contains this project")
-        boolean containsProject
+        @Parameter(description = "Present only for the repository base branch, which can never be deleted")
+        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+        boolean base
 ) {
 }
