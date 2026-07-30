@@ -1,0 +1,65 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6QXV0b01vZHVsZXM6ZWYzZWMzZGQzZjAxOWRjMzk2OWNmYzMzYWE5MTNiOGUzZDQ4MWVkM2E3NjA3M2M2ZjNmNzA2MzhmM2NmMjYxYg==",
+  "name": "AutoModules",
+  "branch": "master",
+  "status": "CLOSED",
+  "repository": "design-flat",
+  "modifiedBy": "Admin",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "AutoModules",
+  "comment": "Create a project that declares no modules",
+  "descriptor": {
+    "modules": [
+      {
+        "path": "rules/**/*.xlsx",
+        "modules": [
+          {
+            "name": "Pricing",
+            "path": "rules/Pricing.xlsx"
+          }
+        ]
+      },
+      {
+        "path": "tests/**/*.xlsx",
+        "modules": [
+          {
+            "name": "PricingTest",
+            "path": "tests/PricingTest.xlsx"
+          }
+        ]
+      }
+    ],
+    "modulesDefault": true,
+    "sources": [
+      "groovy/",
+      "lib/*.jar"
+    ],
+    "sourcesDefault": true
+  },
+  "branchDefault": true,
+  "repositoryInfo": {
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
+  "capabilities": {
+    "canDelete": true,
+    "canOpen": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canManageBranches": true,
+    "canExport": true
+  }
+}
