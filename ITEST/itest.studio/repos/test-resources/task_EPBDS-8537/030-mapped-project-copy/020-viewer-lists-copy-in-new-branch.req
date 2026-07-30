@@ -1,0 +1,3 @@
+GET /rest/projects?page=0&size=10&name=EPBDS_8537_COPY&fields=name,branch,path,comment HTTP/1.1
+Authorization: Basic RVBCRFNfODUzN192aWV3ZXI6RVBCRFNfODUzN192aWV3ZXI=
+

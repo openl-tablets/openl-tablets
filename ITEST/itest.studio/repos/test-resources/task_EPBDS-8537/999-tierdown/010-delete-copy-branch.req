@@ -1,0 +1,3 @@
+DELETE /rest/projects/EPBDS_8537_COPY/branches/EPBDS-8537-copy-feature HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+
