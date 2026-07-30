@@ -156,11 +156,11 @@ An output result for this spreadsheet is as follows.
 ```
 {
   "Value_BankID": "commerz",
-  "Description_BalanceDynamicIndexCalculation": "Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+  "Description_BalanceDynamicIndexCalculation": "Calculate Indices B, B1, B2, B3 according to Financial Data and Quality Indicators",
   "Value_BalanceDynamicIndexCalculation": 0.94,
-  "Description_BankQualitativeIndexCalculation": "Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+  "Description_BankQualitativeIndexCalculation": "Calculate Indices B, B1, B2, B3 according to Financial Data and Quality Indicators",
   "Value_BankQualitativeIndexCalculation": 0.9,
-  "Description_IsAdequateNormativeIndexCalculation": "Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+  "Description_IsAdequateNormativeIndexCalculation": "Calculate Indices B, B1, B2, B3 according to Financial Data and Quality Indicators",
   "Value_IsAdequateNormativeIndexCalculation": 1,
   "Description_BankRating": "Bank Rating R = B x B1 x B2 x B3",
   "Value_BankRating": 0.85,
