@@ -150,7 +150,7 @@
             <div class="block editable">
                 <h3>
                     <span>Modules</span>
-                    <h:panelGroup rendered="#{editable}">
+                    <h:panelGroup rendered="#{editable and not projectBean.modulesDefault}">
                         <a href="javascript:void(0)" title="Add Module" class="editable-link"
                            onclick="addModule()"><img src="#{request.contextPath}/webresource/images/add.png"
                                                       style="opacity:0.4"/></a>
@@ -208,7 +208,7 @@
                                     </div>
                                 </h:panelGroup>
                                 <h:panelGroup >
-                                    <h:panelGroup rendered="#{editable}">
+                                    <h:panelGroup rendered="#{editable and not modulesDefault}">
                                         <a href="javascript:void(0)" title="Edit Module"
                                            class="editable-link-inner first-button"
                                            onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}', compileThisModuleOnly: #{module.webstudioConfiguration.compileThisModuleOnly}})"><img
@@ -216,14 +216,14 @@
                                                 style="opacity:0.4"/></a>
                                     </h:panelGroup>
                                     <c:set var="canCopyModule" value="#{projectBean.canCopyModule(module)}"/>
-                                    <h:panelGroup rendered="#{canCopyModule}">
+                                    <h:panelGroup rendered="#{canCopyModule and not modulesDefault}">
                                         <a href="javascript:void(0)" title="Copy Module"
                                            class="editable-link-inner #{editable ? 'second-button' : 'first-button'}"
                                            onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'})"><img
                                                 src="#{request.contextPath}/webresource/images/copy.png"
                                                 style="opacity:0.4"/></a>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{modulesNumber > 1 and projectBean.canDeleteModule(module)}">
+                                    <h:panelGroup rendered="#{modulesNumber > 1 and not modulesDefault and projectBean.canDeleteModule(module)}">
                                         <a href="javascript:void(0)" title="Remove Module"
                                            class="editable-link-inner #{canCopyModule and editable ? 'third-button' : (editable ? 'second-button' : 'first-button')} delete-icon"
                                            onclick="removeModule('#{i.index}', #{projectBean.isOnlySafeModuleRemove(module)}, #{isModuleWithWildcard})"/>

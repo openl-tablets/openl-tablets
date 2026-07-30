@@ -22,11 +22,28 @@ class ProjectBeanDeclaredModulesTest {
     }
 
     @Test
-    void chooseModulesSourceFallsBackToResolvedWhenDeclaredHasNoModules() {
+    void chooseModulesSourceShowsDefaultWildcardsWhenDeclaredHasNoModules() {
         var declared = createProject("declared");
         var resolved = createProject("resolved", createModule("A"), createModule("B"));
 
-        assertSame(resolved, ProjectBean.chooseModulesSource(declared, resolved));
+        var source = ProjectBean.chooseModulesSource(declared, resolved);
+
+        // rules.xml declares no modules: show the default wildcard patterns (grouped), not the
+        // expanded files, so the screen matches the modern one and edits keep the block intact.
+        assertSame(declared, source);
+        assertEquals(List.of("rules/**/*.xlsx", "tests/**/*.xlsx"),
+                source.getModules().stream().map(Module::getRulesRootPath).toList());
+    }
+
+    @Test
+    void chooseModulesSourceGivesAMutableModuleListForTheDeprecatedEditActions() {
+        var declared = createProject("declared");
+
+        var source = ProjectBean.chooseModulesSource(declared, createProject("resolved"));
+
+        // The deprecated module-edit actions add to this list; it must not be the immutable default.
+        source.getModules().add(createModule("rules/Extra.xlsx"));
+        assertEquals(3, source.getModules().size());
     }
 
     @Test
