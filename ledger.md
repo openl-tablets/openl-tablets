@@ -4,8 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Open PR #1933 on `dead-code/studio-resources`, 1 commit `ba44801c5e`. `Build artifacts` and 3 ITEST jobs green;
-  `Tests (without ITEST)` red on the `LockTest` flake below, diagnosis already posted, rerun pending (0 of 2 used).
+- Open PR #1933 on `dead-code/studio-resources`, 1 commit `ba44801c5e`, `mergeable_state` blocked only by the red check.
+  `Build artifacts` and all 6 ITEST jobs green; `Tests (without ITEST)` hit the `LockTest` flake below, diagnosis
+  posted, rerun 1 of 2 in flight. If it goes green, say nothing; if it flakes again, one rerun is left.
 - First action next run: retry `mvn -o clean install -Dquick -DnoPerf -T1C`. If the opensaml BOM resolves, the eight
   Java/Maven queue rows open up; if it 403s again, stay on resource rows.
 - Resource veins still untouched: dead functions inside the legacy `.js` files, `Docs/` images and pages, React
@@ -76,6 +77,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   (whole tree, not just edited files), `npx vitest run`. Baseline is 162 files / 1410 tests green, eslint and tsc clean.
 - `npm ci` works here — registry.npmjs.org bypasses the proxy. `node_modules` is gitignored.
 - When a deletion empties a parent object literal, delete the parent in the same commit.
+- A PR body loses angle-bracketed placeholders even inside backticks — the stored body dropped `<type>` from
+  `repo-default.<type>.*`, leaving `repo-default..*`. Write such a segment as prose and re-read the stored body.
 
 ## Keep-list
 
