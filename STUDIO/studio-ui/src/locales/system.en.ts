@@ -18,7 +18,6 @@ i18next.addResourceBundle('en', 'system', {
     update_table_properties: 'Update table properties (\'createdOn\', \'modifiedBy\' etc.) on editing',
     date_format: 'Date Format',
     time_format: 'Time Format',
-    apply_all: 'Apply',
     db_url: 'Database URL',
     login: 'Login',
     password: 'Password',

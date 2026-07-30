@@ -22,7 +22,6 @@ i18next.addResourceBundle('en', 'users', {
     last_first: 'Last First',
     other: 'Custom',
     details: 'Details',
-    access_management: 'Access Management',
     design_repositories: 'Design Repositories',
     deploy_repositories: 'Deploy Repositories',
     default_design_repository_role: 'Default role for design repositories',
@@ -72,8 +71,6 @@ i18next.addResourceBundle('en', 'users', {
         show_numbers_without_formatting: 'Show Numbers Without Formatting',
     },
     action: {
-        edit_details: 'Edit Details',
-        edit_access_rights: 'Edit Access Rights',
         delete_user: 'Delete User',
     },
     resend_verification_email: 'Resend Verification Email',

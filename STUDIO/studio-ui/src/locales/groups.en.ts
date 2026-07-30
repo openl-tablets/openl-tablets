@@ -8,7 +8,6 @@ i18next.addResourceBundle('en', 'groups', {
         description: 'Description',
         members: 'Members',
         actions: 'Actions',
-        no_results: 'No groups found'
     },
     apply: 'Apply',
     search_placeholder: 'Search by name',
@@ -20,13 +19,7 @@ i18next.addResourceBundle('en', 'groups', {
         CONTRIBUTOR: 'Contributor',
         MANAGER: 'Manager'
     },
-    action: {
-        edit_details: 'Edit Details',
-        edit_access_rights: 'Edit Access Rights',
-        delete_group: 'Delete Group',
-    },
     details: 'Details',
-    access_management: 'Access Management',
     design_repositories: 'Design Repositories',
     deploy_repositories: 'Deploy Repositories',
     projects: 'Projects',
