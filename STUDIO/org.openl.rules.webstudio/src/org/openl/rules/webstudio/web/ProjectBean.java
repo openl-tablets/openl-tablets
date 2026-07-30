@@ -2074,13 +2074,27 @@ public class ProjectBean {
     /**
      * Chooses which descriptor supplies the modules shown on the Project Info screen.
      *
-     * <p>Uses the modules declared in rules.xml when it declares any. When rules.xml declares no modules,
-     * or cannot be read, falls back to the resolved descriptor so the modules auto-discovered from the
-     * rules directory are still displayed.
+     * <p>Uses the modules declared in rules.xml when it declares any.
+     *
+     * <p>When rules.xml is present but declares no modules, the project relies on the default wildcard
+     * modules that OpenL discovers from the rules and tests directories. The screen then shows those
+     * patterns, each grouping the files it matches, instead of one standalone entry per discovered file.
+     * This mirrors the modern project screen and keeps a later edit of other project information from
+     * rewriting the empty modules block with every discovered file.
+     *
+     * <p>When rules.xml is missing or cannot be read, falls back to the resolved descriptor so the
+     * discovered files are still listed.
      */
     static ProjectDescriptor chooseModulesSource(@Nullable ProjectDescriptor declared,
                                                  ProjectDescriptor resolved) {
-        return declared != null && !declared.getModules().isEmpty() ? declared : resolved;
+        if (declared == null) {
+            return resolved;
+        }
+        if (declared.getModules().isEmpty()) {
+            // A mutable copy: the deprecated module-edit actions add to and remove from this list.
+            declared.setModules(new ArrayList<>(ProjectDescriptor.defaultModules()));
+        }
+        return declared;
     }
 
     public void setCurrentModuleIndex(Integer currentModuleIndex) {
