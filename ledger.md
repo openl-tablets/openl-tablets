@@ -4,7 +4,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Open PR #1933 on `dead-code/studio-resources`, 1 commit `ba44801c5e`, CI still running at hand-off.
+- Open PR #1933 on `dead-code/studio-resources`, 1 commit `ba44801c5e`. `Build artifacts` and 3 ITEST jobs green;
+  `Tests (without ITEST)` red on the `LockTest` flake below, diagnosis already posted, rerun pending (0 of 2 used).
 - First action next run: retry `mvn -o clean install -Dquick -DnoPerf -T1C`. If the opensaml BOM resolves, the eight
   Java/Maven queue rows open up; if it 403s again, stay on resource rows.
 - Resource veins still untouched: dead functions inside the legacy `.js` files, `Docs/` images and pages, React
@@ -88,7 +89,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## CI flakes
 
-(none observed yet)
+- `LockTest.testSimultaneousMultiThreadsWithWaiting` in `STUDIO/org.openl.rules.repository`, job `Tests (without
+  ITEST)`. Tell: `expected: <800> but was: <798>` — a count just under 800. It asserts all 8x100 `tryLock` attempts
+  succeed with a 30 s timeout each, so a loaded runner times a few out. Rerun, at most twice per SHA; never a code fix.
 
 ## Container facts
 
