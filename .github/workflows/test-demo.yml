@@ -81,7 +81,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: demo
-          path: DEMO
+          path: "DEMO package"
 
       # 1. Start on Linux/macOS
       - name: Start DEMO (Linux/macOS)
@@ -89,7 +89,7 @@ jobs:
         shell: bash
         run: |
           set -uo pipefail
-          cd DEMO
+          cd "DEMO package"
           chmod +x start
           nohup ./start > demo-${{ runner.os }}.log.txt 2>&1 &
           echo "DEMO_PID=$!" >> "$GITHUB_ENV"
@@ -101,7 +101,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Continue'
-          Set-Location DEMO
+          Set-Location 'DEMO package'
 
           # Use -Command instead of -File, and add *> demo.log to combine streams
           $proc = Start-Process -FilePath 'pwsh' `
@@ -152,7 +152,7 @@ jobs:
 
           if [ "$fail" -ne 0 ]; then
             echo "::group::demo logs (tail)"
-            tail -n 200 DEMO/demo-${{ runner.os }}.log.txt || true
+            tail -n 200 "DEMO package/demo-${{ runner.os }}.log.txt" || true
             echo "::endgroup::"
             exit 1
           fi
@@ -183,7 +183,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           path: |
-            DEMO/demo-${{ runner.os }}.log.txt
+            DEMO package/demo-${{ runner.os }}.log.txt
           if-no-files-found: ignore
           archive: false
           retention-days: 10

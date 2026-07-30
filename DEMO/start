@@ -38,7 +38,7 @@ MSSQL_VERSION="13.4.0.jre11"
 # --- SCRIPT INTERNAL VARIABLES ---
 # -----------------------------------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR"
 JETTY_HOME="$SCRIPT_DIR/jetty-home"
 JETTY_DOWNLOAD_URL="${MAVEN_URL}/org/eclipse/jetty/jetty-home/${JETTY_VERSION}/jetty-home-${JETTY_VERSION}.tar.gz"
 WEBAPPS_DIR="$SCRIPT_DIR/webapps"
