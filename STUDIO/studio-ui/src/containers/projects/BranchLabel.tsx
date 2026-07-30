@@ -37,7 +37,14 @@ const useStyles = createStyles(({ css, token }) => ({
     prominentName: css`
         color: ${token.colorText};
     `,
+    /** Breadcrumb tone: the branch reads like the other breadcrumb links, not as faint metadata. */
+    secondary: css`
+        color: ${token.colorTextSecondary};
+    `,
 }))
+
+/** How prominently a branch reads. `secondary` matches a breadcrumb link instead of faint metadata. */
+export type BranchTone = 'secondary'
 
 interface BranchLabelProps {
     name: string
@@ -52,6 +59,8 @@ interface BranchLabelProps {
      * what the screen is about — a dialog field — instead of metadata beside something else.
      */
     prominent?: boolean | undefined
+    /** Colour tone. `secondary` makes the branch read like a breadcrumb link rather than faint metadata. */
+    tone?: BranchTone | undefined
     /**
      * Prefix for the marks' test ids — `crumb-branch` yields `crumb-branch-default` and
      * `crumb-branch-protected`.
@@ -67,14 +76,17 @@ interface BranchLabelProps {
  * This is the single rendering of a branch across the workspace: the project list, the breadcrumb, the
  * Overview tab and every entry of the branch switcher, so a branch always reads the same way.
  */
-export const BranchLabel = ({ name, isDefault, isProtected, withIcon, prominent, testId, className }: BranchLabelProps) => {
+export const BranchLabel = ({ name, isDefault, isProtected, withIcon, prominent, tone, testId, className }: BranchLabelProps) => {
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { t } = useTranslation('repository')
+    const secondary = !prominent && tone === 'secondary'
+    const toneClassName = secondary ? styles.secondary : undefined
+    const nameClassName = prominent ? styles.prominentName : toneClassName
     return (
-        <span className={cx(styles.label, prominent && styles.prominent, className)} data-testid={testId}>
+        <span className={cx(styles.label, prominent && styles.prominent, secondary && styles.secondary, className)} data-testid={testId}>
             {withIcon && <BranchesOutlined />}
-            <ValueText ellipsis={!prominent} {...(prominent ? { className: styles.prominentName } : {})}>
+            <ValueText ellipsis={!prominent} {...(nameClassName ? { className: nameClassName } : {})}>
                 {name}
             </ValueText>
             {isDefault && (

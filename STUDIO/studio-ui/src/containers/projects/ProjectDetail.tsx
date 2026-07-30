@@ -76,6 +76,10 @@ const useStyles = createStyles(({ css, token }) => ({
             }
         }
     `,
+    /** A breadcrumb value (repository, branch): reads like the "Projects" link — secondary colour, crumb size. */
+    crumbValue: css`
+        color: ${token.colorTextSecondary};
+    `,
     titleRow: css`
         display: flex;
         flex-wrap: nowrap;
@@ -509,7 +513,7 @@ export const ProjectDetail = ({
             <div className={styles.header}>
                 <div className={styles.crumb}>
                     {headerPrefix}
-                    <ValueText>{repoLabel}</ValueText>
+                    <ValueText className={styles.crumbValue}>{repoLabel}</ValueText>
                     {hasBranches && (
                         <>
                             <span aria-hidden>/</span>
@@ -520,6 +524,7 @@ export const ProjectDetail = ({
                                 data-testid="crumb-branch"
                                 onSwitched={() => onChanged?.()}
                                 projectId={project.id}
+                                tone="secondary"
                             />
                         </>
                     )}

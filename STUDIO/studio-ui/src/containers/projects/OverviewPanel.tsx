@@ -195,6 +195,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     rowMeta: css`
         flex: none;
+        font-size: 12px;
     `,
     /** A dependency the workspace cannot show is marked, so an empty row does not read as a broken link. */
     missingTag: css`
@@ -281,6 +282,10 @@ const useStyles = createStyles(({ css, token }) => ({
     metaSub: css`
         color: ${token.colorTextTertiary};
         font-size: 12px;
+    `,
+    /** Muted metadata value at the row's own size (repository, commit message) — colour only, size inherited. */
+    metaMuted: css`
+        color: ${token.colorTextTertiary};
     `,
     statusValue: css`
         display: inline-flex;
@@ -1384,7 +1389,7 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canManageB
                         <StatusPill status={project.status} />
                     </span>
                 ))}
-                {metaRow(t('browser.overview.repository'), <RepoBadge name={repoLabel} type={repoType} />)}
+                {metaRow(t('browser.overview.repository'), <RepoBadge className={styles.metaMuted} name={repoLabel} type={repoType} />)}
                 {project.path && metaRow(t('browser.overview.path'), <ValueText>{project.path}</ValueText>)}
                 {supportsBranches && project.branch && metaRow(t('browser.overview.branch'), (
                     <BranchSwitcher
@@ -1426,7 +1431,7 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canManageB
                     </>
                 ))}
                 {project.comment && metaRow(t('browser.overview.comment'), (
-                    <GitCommitMessage className={styles.metaSub} message={project.comment} />
+                    <GitCommitMessage className={styles.metaMuted} message={project.comment} />
                 ))}
                 {(tags.length > 0 || canEditTags) && metaRow(
                     t('browser.overview.tags'),

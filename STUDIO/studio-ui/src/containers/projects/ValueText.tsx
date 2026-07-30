@@ -3,6 +3,10 @@ import { createStyles } from 'antd-style'
 import { useSharedStyles } from './sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
+    /** Inherits the surrounding font-size so each context sets the value size it needs. */
+    base: css`
+        line-height: 18px;
+    `,
     muted: css`
         color: ${token.colorTextTertiary};
     `,
@@ -38,7 +42,8 @@ interface ValueTextProps {
 
 /**
  * Muted inline value text (repository names, branches, paths, revisions, service names). Plain by
- * default; `filled` renders a subtle chip.
+ * default; `filled` renders a subtle chip. The font-size is inherited from the surrounding context, so
+ * the same value reads at the size that context uses.
  */
 export const ValueText = ({ children, filled, ellipsis, className, title, 'data-testid': testId }: ValueTextProps) => {
     const { styles: shared } = useSharedStyles()
@@ -49,7 +54,7 @@ export const ValueText = ({ children, filled, ellipsis, className, title, 'data-
             data-testid={testId}
             title={title}
             className={cx(
-                shared.valueText,
+                styles.base,
                 styles.muted,
                 clipped && shared.ellipsis,
                 filled && styles.filled,

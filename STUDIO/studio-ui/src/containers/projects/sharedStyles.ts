@@ -14,7 +14,10 @@ import { MOCKUP } from './projectsTheme'
  * ```
  */
 export const useSharedStyles = createStyles(({ css, token }) => ({
-    /** Compact secondary-size text for values: repository names, branches, paths, revisions. */
+    /**
+     * The explicit compact (12px) value size, for the few places that opt into it directly (module cells,
+     * patterns, source paths, the rail count). `ValueText` itself inherits its context size instead.
+     */
     valueText: css`
         font-size: 12px;
         line-height: 18px;
