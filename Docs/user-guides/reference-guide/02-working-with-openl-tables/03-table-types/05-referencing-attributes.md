@@ -26,7 +26,7 @@ An example of a redundant reference as follows:
 
 *A spreadsheet with a redundant reference*
 
-A full reference is redundant here and can be omitted as numberOfFamilies is an attribute of the policyEndorsementForm input paramter. The correct way to use the reference is as follows:
+A full reference is redundant here and can be omitted as numberOfFamilies is an attribute of the policyEndorsementForm input parameter. The correct way to use the reference is as follows:
 
 ![A spreadsheet with correct reference](../../ref-guide-images/spreadsheetCorrectReference.png)
 

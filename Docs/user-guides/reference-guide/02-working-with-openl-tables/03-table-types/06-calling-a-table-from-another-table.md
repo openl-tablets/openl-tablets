@@ -18,7 +18,7 @@ The return value type of the nested rule table must match the return value type 
 
 Sometimes specific values must be sent to the nested table. In this case, input parameter values can be specified as follows:
 
--   decalred in the quatation marks “” for String values
+-   declared in the quotation marks “” for String values
 -   set to true or false for Boolean values
 -   provided as a number for Double and Integer values
 -   set to null for empty values

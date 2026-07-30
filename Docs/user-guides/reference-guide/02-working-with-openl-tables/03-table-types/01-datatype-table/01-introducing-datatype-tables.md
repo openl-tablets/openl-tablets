@@ -93,7 +93,7 @@ During execution, the system takes default values from FinancialData data type.
 
 *Datatype table with default values*
 
-**Note:** For array types \_DEFAULT_creates an empty array.
+**Note:** For array types \_DEFAULT\_ creates an empty array.
 
 **Note:** A default value can be defined for String fields of the Datatype table by assigning the "" empty string.
 

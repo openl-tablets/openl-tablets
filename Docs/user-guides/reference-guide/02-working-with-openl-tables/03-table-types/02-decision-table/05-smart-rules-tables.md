@@ -1,6 +1,6 @@
 ###### Smart Rules Table
 
-A decision table which has simple conditions for input parameters and a direct return (without expression) can be easily represented as a **smart rules table**. Comparing to a simple rules table, a smart rules table type is used more frequently because smart rules are more flexible and cover wider range of business requirements.
+A decision table which has simple conditions for input parameters and a direct return (without expression) can be easily represented as a **smart rules table**. Compared to a simple rules table, a smart rules table type is used more frequently because smart rules are more flexible and cover a wider range of business requirements.
 
 The smart rules table header format is as follows:
 
@@ -10,7 +10,7 @@ The smart rules table header format is as follows:
 
 *Smart rules table with simple return value*
 
-OpenL Tablets identifies which condition сolumns correspond to which input parameters by condition titles and parameter names. First of all, OpenL parses a parameter name and splits it into words, as it interprets a part starting with a capital letter as a separate word. Then it calculates the percentage of matching words in all columns and selects the column with the highest percentage of coincidence. If the analysis returns more than one result, OpenL throws an error and requires a more unique name for the column.
+OpenL Tablets identifies which condition columns correspond to which input parameters by condition titles and parameter names. First of all, OpenL parses a parameter name and splits it into words, as it interprets a part starting with a capital letter as a separate word. Then it calculates the percentage of matching words in all columns and selects the column with the highest percentage of coincidence. If the analysis returns more than one result, OpenL throws an error and requires a more unique name for the column.
 
 **Note:** OpenL Tablets matches input parameters or its fields to the conditions columns using the score. The score is calculated based on words used in parameter naming. If the particular parameter has the highest score for the particular condition, matching occurs. If several parameters have the same score, the system displays a warning message “Ambiguous matching of column titles to DT columns. Use more appropriate titles.” To overcome this issue and improve matching, use extended names for conditions.
 
@@ -27,7 +27,7 @@ During rules execution, the system checks condition and input values on equality
 
 In the example above, the **driverType** value is compared with values from the **Type of Driver** column, the **maritalStatus** value is compared with the **Marital Status** column values, and the value from the **Driver Premium** column is returned as the result.
 
-**Note:** To insure the system checks a condition with an appropriate input parameter, the user can ”hover” with a mouse over the column title and see the hint with this information in OpenL Studio.
+**Note:** To ensure the system checks a condition with an appropriate input parameter, the user can "hover" with a mouse over the column title and see the hint with this information in OpenL Studio.
 
 If a string value of the condition contains a comma, the value must be delimited with the backslash (\\) separator followed by the comma. Otherwise, it is treated as an array of string elements as described in [Ranges and Arrays in Smart and Simple Decision Tables](12-ranges-and-arrays-in-smart-and-simple-decision-tables.md#ranges-and-arrays-in-smart-and-simple-decision-tables):
 
