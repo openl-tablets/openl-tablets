@@ -274,15 +274,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     private Optional<ResolvedDescriptor> resolveProjectDescriptor(RulesProject project) {
         var localDescriptor = resolveLocalProjectDescriptor(project);
-        var repositoryDescriptor = resolveRepositoryProjectDescriptor(project);
-
         if (localDescriptor.isEmpty()) {
-            return repositoryDescriptor;
+            // Nothing in the local workspace to read: the repository is the only source.
+            return resolveRepositoryProjectDescriptor(project);
         }
-        if (repositoryDescriptor.isPresent()) {
-            return Optional.of(fillMissingDescriptorData(localDescriptor.get(), repositoryDescriptor.get()));
+        if (!hasMissingData(localDescriptor.get().descriptor())) {
+            // The local workspace already answers the whole descriptor, so reading the repository
+            // (its rules.xml and its full file listing) would only re-supply fields already present.
+            return localDescriptor;
         }
-        return localDescriptor;
+        var repositoryDescriptor = resolveRepositoryProjectDescriptor(project);
+        return repositoryDescriptor.isPresent()
+                ? Optional.of(fillMissingDescriptorData(localDescriptor.get(), repositoryDescriptor.get()))
+                : localDescriptor;
     }
 
     /**
@@ -550,24 +554,54 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 : normalizedProjectPath + "/" + relativePath;
     }
 
+    /**
+     * Tells whether the repository descriptor could still add anything to a locally resolved one.
+     *
+     * <p>Checks the very fields {@link #fillMissingDescriptorData} copies over: the comment, the modules,
+     * the properties-file-name patterns, and the exposed methods. When the local workspace supplies all of
+     * them, reading the repository is pure overhead and is skipped.
+     */
+    // package-private static for testing
+    static boolean hasMissingData(ProjectDescriptor descriptor) {
+        return commentMissing(descriptor)
+                || modulesMissing(descriptor)
+                || propertiesPatternsMissing(descriptor)
+                || exposedMethodsMissing(descriptor);
+    }
+
+    private static boolean commentMissing(ProjectDescriptor d) {
+        return d.getComment() == null;
+    }
+
+    private static boolean modulesMissing(ProjectDescriptor d) {
+        return d.getModules().isEmpty();
+    }
+
+    private static boolean propertiesPatternsMissing(ProjectDescriptor d) {
+        return d.getPropertiesFileNamePatterns() == null || d.getPropertiesFileNamePatterns().length == 0;
+    }
+
+    private static boolean exposedMethodsMissing(ProjectDescriptor d) {
+        return d.getExposedMethods() == null;
+    }
+
     private ResolvedDescriptor fillMissingDescriptorData(ResolvedDescriptor target, ResolvedDescriptor fallback) {
         var descriptor = target.descriptor();
         var source = fallback.descriptor();
-        if (descriptor.getComment() == null) {
+        if (commentMissing(descriptor)) {
             descriptor.setComment(source.getComment());
         }
         var declaredModules = target.declaredModules();
         var modulesDefaulted = target.modulesDefaulted();
-        if (descriptor.getModules().isEmpty()) {
+        if (modulesMissing(descriptor)) {
             descriptor.getModules().addAll(source.getModules());
             declaredModules = fallback.declaredModules();
             modulesDefaulted = fallback.modulesDefaulted();
         }
-        if (descriptor.getPropertiesFileNamePatterns() == null
-                || descriptor.getPropertiesFileNamePatterns().length == 0) {
+        if (propertiesPatternsMissing(descriptor)) {
             descriptor.setPropertiesFileNamePatterns(source.getPropertiesFileNamePatterns());
         }
-        if (descriptor.getExposedMethods() == null) {
+        if (exposedMethodsMissing(descriptor)) {
             descriptor.setExposedMethods(source.getExposedMethods());
         }
         return new ResolvedDescriptor(descriptor, declaredModules, modulesDefaulted);

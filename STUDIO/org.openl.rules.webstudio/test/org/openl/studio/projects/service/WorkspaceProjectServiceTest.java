@@ -22,6 +22,7 @@ import static org.mockito.Mockito.withSettings;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,6 +49,7 @@ import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.BranchRepository;
@@ -239,6 +241,37 @@ class WorkspaceProjectServiceTest {
 
         assertEquals(List.of("Pricing"), result.descriptor.modules().stream().map(ModuleViewModel::name).toList());
         assertEquals(List.of("Pricing.xlsx"), result.descriptor.modules().stream().map(ModuleViewModel::path).toList());
+    }
+
+    @Test
+    void get_project_skips_the_repository_read_when_the_workspace_answers_the_whole_descriptor() throws Exception {
+        var projectFolder = tempDir.resolve("PricingProject");
+        Files.createDirectories(projectFolder);
+        Files.createFile(projectFolder.resolve("Pricing.xlsx"));
+        Files.writeString(projectFolder.resolve("rules.xml"), """
+                <project>
+                    <comment>Pricing rules</comment>
+                    <modules>
+                        <module>
+                            <name>Pricing</name>
+                            <rules-root path="Pricing.xlsx"/>
+                        </module>
+                    </modules>
+                    <properties-file-name-pattern>%lob%</properties-file-name-pattern>
+                    <exposed-methods>
+                        <include>*</include>
+                    </exposed-methods>
+                </project>
+                """);
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project));
+
+        var result = service.getProject(project, List.of(ProjectInclude.DESCRIPTOR));
+
+        assertEquals(List.of("Pricing"), result.descriptor.modules().stream().map(ModuleViewModel::name).toList());
+        // The workspace copy answers every descriptor field, so the repository is never listed.
+        verify(project, never()).getArtefacts();
     }
 
     @Test
@@ -1078,6 +1111,39 @@ class WorkspaceProjectServiceTest {
         when(node.getHeader()).thenReturn(headerNode);
         when(headerNode.getSourceString()).thenReturn(header);
         return node;
+    }
+
+    @Test
+    void has_missing_data_is_false_only_when_every_filled_field_is_present() {
+        assertFalse(WorkspaceProjectService.hasMissingData(completeDescriptor()));
+
+        var noComment = completeDescriptor();
+        noComment.setComment(null);
+        assertTrue(WorkspaceProjectService.hasMissingData(noComment));
+
+        var noModules = completeDescriptor();
+        noModules.setModules(new ArrayList<>());
+        assertTrue(WorkspaceProjectService.hasMissingData(noModules));
+
+        var noPatterns = completeDescriptor();
+        noPatterns.setPropertiesFileNamePatterns(new String[0]);
+        assertTrue(WorkspaceProjectService.hasMissingData(noPatterns));
+
+        var noExposedMethods = completeDescriptor();
+        noExposedMethods.setExposedMethods(null);
+        assertTrue(WorkspaceProjectService.hasMissingData(noExposedMethods));
+    }
+
+    private static ProjectDescriptor completeDescriptor() {
+        var descriptor = new ProjectDescriptor();
+        descriptor.setComment("comment");
+        var module = new Module();
+        module.setName("Pricing");
+        module.setRulesRootPath("rules/Pricing.xlsx");
+        descriptor.setModules(new ArrayList<>(List.of(module)));
+        descriptor.setPropertiesFileNamePatterns(new String[]{"%lob%"});
+        descriptor.setExposedMethods(new ExposedMethods());
+        return descriptor;
     }
 
     private static WorkspaceProjectService newService(RepositoryAclService acl,
