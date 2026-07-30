@@ -1,4 +1,4 @@
-package org.openl.rules.maven.migration;
+package org.openl.rules.project.migration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -7,7 +7,36 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.model.RulesDeploy;
 
-class ConfigDeployTemplateClassMigratorTest {
+class RulesDeployMigrationsTest {
+
+    @Test
+    void dropsIsProvideRuntimeContextFalse() {
+        var deploy = new RulesDeploy();
+        deploy.setProvideRuntimeContext(false);
+
+        RulesDeployMigrations.runtimeContext(deploy);
+
+        assertNull(deploy.isProvideRuntimeContext());
+    }
+
+    @Test
+    void keepsIsProvideRuntimeContextTrue() {
+        var deploy = new RulesDeploy();
+        deploy.setProvideRuntimeContext(true);
+
+        RulesDeployMigrations.runtimeContext(deploy);
+
+        assertEquals(Boolean.TRUE, deploy.isProvideRuntimeContext());
+    }
+
+    @Test
+    void leavesIsProvideRuntimeContextNullUnchanged() {
+        var deploy = new RulesDeploy();
+
+        RulesDeployMigrations.runtimeContext(deploy);
+
+        assertNull(deploy.isProvideRuntimeContext());
+    }
 
     @Test
     void movesInterceptingToEmptyAnnotation() {
@@ -15,7 +44,7 @@ class ConfigDeployTemplateClassMigratorTest {
         deploy.setInterceptingTemplateClassName("com.example.Tpl");
         deploy.setAnnotationTemplateClassName("");
 
-        ConfigDeployTemplateClassMigrator.transform(deploy);
+        RulesDeployMigrations.templateClass(deploy);
 
         assertNull(deploy.getInterceptingTemplateClassName());
         assertEquals("com.example.Tpl", deploy.getAnnotationTemplateClassName());
@@ -26,7 +55,7 @@ class ConfigDeployTemplateClassMigratorTest {
         var deploy = new RulesDeploy();
         deploy.setInterceptingTemplateClassName("com.example.Tpl");
 
-        ConfigDeployTemplateClassMigrator.transform(deploy);
+        RulesDeployMigrations.templateClass(deploy);
 
         assertNull(deploy.getInterceptingTemplateClassName());
         assertEquals("com.example.Tpl", deploy.getAnnotationTemplateClassName());
@@ -38,7 +67,7 @@ class ConfigDeployTemplateClassMigratorTest {
         deploy.setInterceptingTemplateClassName("com.example.Old");
         deploy.setAnnotationTemplateClassName("com.example.New");
 
-        ConfigDeployTemplateClassMigrator.transform(deploy);
+        RulesDeployMigrations.templateClass(deploy);
 
         assertNull(deploy.getInterceptingTemplateClassName());
         assertEquals("com.example.New", deploy.getAnnotationTemplateClassName());
@@ -50,7 +79,7 @@ class ConfigDeployTemplateClassMigratorTest {
         deploy.setInterceptingTemplateClassName(" ");
         deploy.setAnnotationTemplateClassName("");
 
-        ConfigDeployTemplateClassMigrator.transform(deploy);
+        RulesDeployMigrations.templateClass(deploy);
 
         // Blank intercepting is the empty-cleanup migrator's responsibility, not ours.
         assertEquals(" ", deploy.getInterceptingTemplateClassName());
@@ -58,12 +87,25 @@ class ConfigDeployTemplateClassMigratorTest {
     }
 
     @Test
-    void leavesBothNullUntouched() {
+    void leavesBothTemplateSlotsNullUntouched() {
         var deploy = new RulesDeploy();
 
-        ConfigDeployTemplateClassMigrator.transform(deploy);
+        RulesDeployMigrations.templateClass(deploy);
 
         assertNull(deploy.getInterceptingTemplateClassName());
         assertNull(deploy.getAnnotationTemplateClassName());
+    }
+
+    @Test
+    void applyRunsBothTransforms() {
+        var deploy = new RulesDeploy();
+        deploy.setProvideRuntimeContext(false);
+        deploy.setInterceptingTemplateClassName("com.example.Tpl");
+
+        RulesDeployMigrations.apply(deploy);
+
+        assertNull(deploy.isProvideRuntimeContext());
+        assertNull(deploy.getInterceptingTemplateClassName());
+        assertEquals("com.example.Tpl", deploy.getAnnotationTemplateClassName());
     }
 }
