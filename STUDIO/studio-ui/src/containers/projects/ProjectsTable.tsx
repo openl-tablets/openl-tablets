@@ -25,6 +25,7 @@ const useStyles = createStyles(({ css, token }) => ({
         max-width: 280px;
         overflow: hidden;
         vertical-align: middle !important;
+        font-size: 12px;
     `,
     fit: css`
         width: 1px;

@@ -11,7 +11,7 @@ import {
     type ProjectBranch,
 } from '../../services/repositories'
 import { DiscardChangesModal } from '../DiscardChangesModal'
-import { BranchLabel } from './BranchLabel'
+import { BranchLabel, type BranchTone } from './BranchLabel'
 
 const useStyles = createStyles(({ css, token }) => ({
     trigger: css`
@@ -50,6 +50,8 @@ interface BranchSwitcherProps {
     currentBranchProtected?: boolean | undefined
     currentBranchDefault?: boolean | undefined
     onSwitched: () => void
+    /** Colour tone of the current branch — `secondary` to read like a breadcrumb link. */
+    tone?: BranchTone | undefined
     'data-testid'?: string
 }
 
@@ -69,6 +71,7 @@ export const BranchSwitcher = ({
     currentBranchProtected,
     currentBranchDefault,
     onSwitched,
+    tone,
     'data-testid': testId = 'branch-switcher',
 }: BranchSwitcherProps) => {
     const { styles } = useStyles()
@@ -140,7 +143,7 @@ export const BranchSwitcher = ({
 
     const branchLabel = (branch: string) => <BranchLabel name={branch} {...marksOf(branch)} />
 
-    const current = <BranchLabel withIcon name={currentBranch} testId={testId} {...marksOf(currentBranch)} />
+    const current = <BranchLabel withIcon name={currentBranch} testId={testId} tone={tone} {...marksOf(currentBranch)} />
 
     const discardModal = (
         <DiscardChangesModal

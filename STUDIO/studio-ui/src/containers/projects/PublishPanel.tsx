@@ -46,6 +46,7 @@ const useStyles = createStyles(({ css, token }) => ({
         align-items: center;
         justify-content: space-between;
         gap: 8px;
+        font-size: 12px;
     `,
     envTag: css`
         border-radius: ${token.borderRadiusSM}px;

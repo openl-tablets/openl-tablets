@@ -109,6 +109,11 @@ const useStyles = createStyles(({ css, token }) => ({
         color: ${token.colorTextTertiary};
         font-size: 12px;
     `,
+    /** The card repository: compact and muted, matching the branch beside it. */
+    repoMeta: css`
+        font-size: 12px;
+        color: ${token.colorTextTertiary};
+    `,
     chevron: css`
         flex: none;
         color: ${token.colorTextQuaternary};
@@ -176,7 +181,7 @@ export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileSt
                             <ProjectTags tags={tags} />
                         </div>
                         <div className={styles.footer}>
-                            <RepoBadge name={repoLabel} type={repoType} />
+                            <RepoBadge className={styles.repoMeta} name={repoLabel} type={repoType} />
                             <ProjectBranch project={project} supportsBranches={supportsBranches} />
                         </div>
                         <div className={styles.meta}>

@@ -61,6 +61,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     branch: css`
         max-width: 200px;
+        font-size: 12px;
     `,
 }))
 
