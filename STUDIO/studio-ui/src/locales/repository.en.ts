@@ -347,6 +347,8 @@ i18next.addResourceBundle('en', 'repository', {
             comment: 'Comment',
             modules: 'Modules ({{count}})',
             modules_pattern: 'Modules matched by pattern',
+            modules_auto: 'Auto-discovered modules',
+            modules_auto_tests: 'Auto-discovered tests',
             modules_matched_show: 'Show the matched modules',
             modules_matched_hide: 'Hide the matched modules',
             dependency_missing: 'Not Found',
@@ -401,7 +403,7 @@ i18next.addResourceBundle('en', 'repository', {
             module_path: 'Rules root path',
             dependency_name: 'Project name',
             dependency_auto_included: 'Auto-included',
-            default_hint: 'The engine falls back to this because rules.xml declares none. It is not stored in the file.',
+            default_hint: 'Found automatically from the Excel files in the rules and tests folders. They are not listed in the project configuration.',
             unlock: 'Release lock',
         },
         editor: {

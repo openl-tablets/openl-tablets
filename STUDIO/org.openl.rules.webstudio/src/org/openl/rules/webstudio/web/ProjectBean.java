@@ -116,6 +116,8 @@ public class ProjectBean {
     private String newFileName;
     private String currentPathPattern;
     private Integer currentModuleIndex;
+    /** Cached for the request: {@link #isModulesDefault()} is asked once per module row. */
+    private Boolean modulesDefault;
 
     private final RepositoryAclService designRepositoryAclService;
 
@@ -1820,13 +1822,7 @@ public class ProjectBean {
      * rules.xml declares no modules, the block stays empty and is dropped on save.
      */
     private void keepDeclaredModules(ProjectDescriptor target) {
-        ProjectDescriptor declared;
-        try {
-            declared = ProjectDescriptor.read(studio.getCurrentProjectDescriptor().getProjectFolder());
-        } catch (Exception e) {
-            declared = null;
-        }
-        applyDeclaredModules(target, declared);
+        applyDeclaredModules(target, readDeclaredDescriptor());
     }
 
     /**
@@ -1862,6 +1858,18 @@ public class ProjectBean {
 
     public boolean isModuleWithWildcard(Module module) {
         return module.isModuleWithWildcard();
+    }
+
+    /**
+     * Tells whether the modules on the screen are the engine's defaults, taken because rules.xml declares
+     * none. The screen reads it to label those modules as auto-discovered.
+     */
+    public boolean isModulesDefault() {
+        if (modulesDefault == null) {
+            var declared = readDeclaredDescriptor();
+            modulesDefault = declared != null && declared.getModules().isEmpty();
+        }
+        return modulesDefault;
     }
 
     public boolean isModuleMatchesSomePathPattern(Module module) {
@@ -2062,12 +2070,19 @@ public class ProjectBean {
     }
 
     private ProjectDescriptor getOriginalProjectDescriptor() {
-        var descriptor = studio.getCurrentProjectDescriptor();
+        return chooseModulesSource(readDeclaredDescriptor(), studio.getCurrentProjectDescriptor());
+    }
+
+    /**
+     * Reads rules.xml as written, or {@code null} when it is missing or cannot be read. The single place
+     * the bean reads the declared descriptor from disk.
+     */
+    private @Nullable ProjectDescriptor readDeclaredDescriptor() {
         try {
-            var originalDescriptor = ProjectDescriptor.read(descriptor.getProjectFolder());
-            return chooseModulesSource(originalDescriptor, descriptor);
+            return ProjectDescriptor.read(studio.getCurrentProjectDescriptor().getProjectFolder());
         } catch (Exception e) {
-            return descriptor;
+            log.debug("Error on reading the declared rules.xml.", e);
+            return null;
         }
     }
 

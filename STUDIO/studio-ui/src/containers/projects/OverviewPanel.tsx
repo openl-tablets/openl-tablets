@@ -516,11 +516,18 @@ const Section = ({ icon, title, action, hint, hintTestId, onHelp, helpLabel, hel
  * A pattern that names no module of its own is read by what it does — it stands for the modules it
  * matched.
  */
-const ModuleCells = ({ module }: { module: ProjectModule }) => {
+const ModuleCells = ({ module, modulesDefault }: { module: ProjectModule, modulesDefault?: boolean | undefined }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
-    const name = module.name || (module.modules ? t('browser.overview.modules_pattern') : '')
+    // A project that declares no modules of its own takes the engine's defaults: those read as the rules
+    // and the tests found automatically, not as a "pattern". A pattern the file does declare keeps its own
+    // name, or, unnamed, reads by what it matched.
+    const autoDiscoveredHeading = module.path?.startsWith('tests/')
+        ? t('browser.overview.modules_auto_tests')
+        : t('browser.overview.modules_auto')
+    const patternHeading = modulesDefault ? autoDiscoveredHeading : t('browser.overview.modules_pattern')
+    const name = module.name || (module.modules ? patternHeading : '')
     return (
         <>
             <span className={cx(shared.valueText, shared.ellipsis, styles.moduleName)} title={name}>{name}</span>
@@ -537,7 +544,7 @@ const ModuleCells = ({ module }: { module: ProjectModule }) => {
  * A declaration whose path is a pattern stands for the files it matched: they are folded away under it
  * and opened on demand, so the list stays as long as the file is.
  */
-const ModuleRow = ({ module, filter }: { module: ProjectModule, filter?: MethodFilter | undefined }) => {
+const ModuleRow = ({ module, filter, modulesDefault }: { module: ProjectModule, filter?: MethodFilter | undefined, modulesDefault?: boolean | undefined }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [open, setOpen] = useState(false)
@@ -564,7 +571,7 @@ const ModuleRow = ({ module, filter }: { module: ProjectModule, filter?: MethodF
                     // The place of the switcher is kept, so every row starts where the others do.
                     <span className={styles.moduleSwitcherSpace} data-testid={matched ? `module-unmatched-${testId}` : undefined} />
                 )}
-                <ModuleCells module={module} />
+                <ModuleCells module={module} modulesDefault={modulesDefault} />
             </li>
             {/* The module's own method filter, declared in rules.xml alongside it. */}
             {filter && (
@@ -903,6 +910,7 @@ const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters }: {
                                 key={module.path ?? module.name}
                                 filter={module.path ? moduleFilters[module.path] : undefined}
                                 module={module}
+                                modulesDefault={modulesDefault}
                             />
                         ))}
                     </ul>
