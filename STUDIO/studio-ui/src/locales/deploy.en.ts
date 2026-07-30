@@ -18,16 +18,9 @@ i18next.addResourceBundle('en', 'deploy', {
         cancel: 'Cancel',
         deploy: 'Deploy',
     },
-    validation: {
-        repository_required: 'Please select a repository',
-        deployment_name_required: 'Please enter a deployment name',
-        comment_required: 'Please enter a comment',
-    },
     messages: {
         deploying: 'Deploying...',
         deploying_configuration: 'Deploying configuration...',
-        deploy_success: 'Deployment successful',
-        deploy_error: 'Deployment failed',
     },
     notifications: {
         deploy_configuration_added: 'Deploy Configuration added',

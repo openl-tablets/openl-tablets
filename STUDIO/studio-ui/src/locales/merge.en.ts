@@ -54,7 +54,6 @@ i18next.addResourceBundle('en', 'merge', {
         use_base: 'Use base',
         upload_custom: 'Upload merged file',
         delete_yours: 'Delete it',
-        delete_theirs: 'Delete it',
         resolved: 'Resolved',
     },
 
@@ -63,10 +62,6 @@ i18next.addResourceBundle('en', 'merge', {
         download_yours: 'Download your version',
         download_theirs: 'Download their version',
         download_base: 'Download base version',
-        side_yours: 'Your Version',
-        side_theirs: 'Their Version',
-        side_base: 'Base Version',
-        excel_notice: 'Excel files can be downloaded for comparison.',
     },
 
     upload: {
@@ -95,9 +90,7 @@ i18next.addResourceBundle('en', 'merge', {
         merge_failed: 'Merge operation failed.',
         resolve_failed: 'Failed to resolve conflicts.',
         check_failed: 'Failed to check merge status.',
-        download_failed: 'Failed to download file.',
         compare_failed: 'Failed to open file comparison.',
-        upload_required: 'Please upload a file for custom resolution.',
         all_conflicts_required: 'Please resolve all conflicts before saving.',
     },
 

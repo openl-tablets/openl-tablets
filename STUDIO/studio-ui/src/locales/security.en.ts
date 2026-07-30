@@ -18,7 +18,6 @@ i18next.addResourceBundle('en', 'security', {
     configure_saml_info: 'Set up SAML to use for managing users in OpenL Studio. Please contact your System Administrator for this information if necessary.',
     configure_oauth2: 'Configure OAuth2',
     configure_oauth2_info: 'Set up OAuth2 to manage users in OpenL Studio. If necessary, contact your system administrator.',
-    login_and_password_info: 'Login and Password are used to check connection to Active Directory. They will not be saved anywhere.',
     user_modes: {
         single: 'Single-User',
         multi: 'Multi-User',
