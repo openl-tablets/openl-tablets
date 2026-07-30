@@ -209,7 +209,7 @@
         <!-- Static analysis -->
         <errorprone.version>2.50.0</errorprone.version>
         <nullaway.version>0.13.8</nullaway.version>
-        <jspecify.version>1.0.0</jspecify.version>
+        <jspecify.version>1.0.1</jspecify.version>
         <lombok.version>1.18.46</lombok.version>
 
         <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
