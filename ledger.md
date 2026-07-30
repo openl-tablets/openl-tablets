@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Open PR #1933 on `dead-code/studio-resources`, 1 commit `ba44801c5e`, `mergeable_state` blocked only by the red check.
-  `Build artifacts` and all 6 ITEST jobs green; `Tests (without ITEST)` hit the `LockTest` flake below, diagnosis
-  posted, rerun 1 of 2 in flight. If it goes green, say nothing; if it flakes again, one rerun is left.
+- Open PR #1933 on `dead-code/studio-resources`, 1 commit `ba44801c5e`. `Build artifacts` and all 6 ITEST jobs green.
+  `Tests (without ITEST)` is red on the `LockTest` failure that also fails on `main` — reported in the thread, reruns
+  stopped, nothing left to do on it but re-run once `main` recovers. Treat the PR as verified and awaiting review.
 - First action next run: retry `mvn -o clean install -Dquick -DnoPerf -T1C`. If the opensaml BOM resolves, the eight
   Java/Maven queue rows open up; if it 403s again, stay on resource rows.
 - Resource veins still untouched: dead functions inside the legacy `.js` files, `Docs/` images and pages, React
@@ -92,9 +92,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## CI flakes
 
-- `LockTest.testSimultaneousMultiThreadsWithWaiting` in `STUDIO/org.openl.rules.repository`, job `Tests (without
-  ITEST)`. Tell: `expected: <800> but was: <798>` — a count just under 800. It asserts all 8x100 `tryLock` attempts
-  succeed with a 30 s timeout each, so a loaded runner times a few out. Rerun, at most twice per SHA; never a code fix.
+- `LockTest.testSimultaneousMultiThreadsWithWaiting` in `STUDIO/org.openl.rules.repository` fails on **`main`**, not
+  just on sweep branches — job `Tests (without ITEST)`, tell `expected: <800> but was: <79x>`. It asserts all 8x100
+  `tryLock` attempts beat a 30 s timeout. Ten of the last eleven `Quick Build` runs on `main` are red on it. Do not
+  rerun and do not treat it as your own breakage: check the latest `main` run first, then say so in the thread once.
 
 ## Container facts
 
@@ -121,6 +122,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   contract; if they go, `Docs/api/projects-merge-api.md` moves with them.
 - Confirm whether `tableeditor.all.css` / `.min.css` and `tableeditor.all.js` / `.min.js` are build outputs or
   hand-maintained. Every tableeditor resource removal is blocked on this answer.
+- `main` is red: `LockTest.testSimultaneousMultiThreadsWithWaiting` keeps the `Quick Build` unit-test job failing, so no
+  pull request can reach a fully green CI. Its sibling is already `@Disabled` as unstable; this one needs the same
+  decision or a real fix to the file-system lock. A maintainer call, out of scope for this routine.
 
 ## Run log
 
