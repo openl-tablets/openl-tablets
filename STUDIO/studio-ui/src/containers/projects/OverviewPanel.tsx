@@ -38,6 +38,7 @@ import {
     type RulesDescriptor,
 } from '../../services/rulesDescriptor'
 import { getProjectIndex } from '../../services/projectIndex'
+import { MigrateButton, useDescriptorMigration } from './projectMigration'
 import { getProjectFiles } from '../../services/repositories'
 import { errorMessage } from '../../utils/errorMessage'
 import { EditableList, EditableStringList } from './EditableList'
@@ -819,7 +820,38 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     const moduleFilters = useMemo(() => moduleFiltersOf(rules.moduleDeclarations), [rules.moduleDeclarations])
 
     const editor: DescriptorEditor = { editing, shown: editing ? draft : rules, editDraft }
-    return { state, editing, saving, projectNames, moduleFilters, editor, startEditing, cancelEditing, saveEditing }
+    return { state, editing, saving, fileExists, projectNames, moduleFilters, editor, startEditing, cancelEditing, saveEditing }
+}
+
+/**
+ * Whether the project can be brought to the current rules.xml conventions, and the action that does it.
+ *
+ * <p>A project whose workbooks sit in the root has no rules.xml; writing one would switch module discovery
+ * to the {@code rules/}/{@code tests/} patterns and lose those workbooks, so a migrate — which moves them
+ * under {@code rules/} first — is offered and is required before the descriptor can be edited. A project
+ * that already has a rules.xml is offered a migrate only when it would actually be rewritten.
+ */
+const useProjectMigration = (project: Project, reloadToken: number | undefined, onMigrated: () => void) => {
+    const { t } = useTranslation('repository')
+    const { modal } = App.useApp()
+    const canWrite = project.capabilities?.canWrite ?? false
+    const { migration, migrating, run } = useDescriptorMigration(project.id, canWrite, reloadToken, onMigrated)
+
+    // The root workbooks must move under rules/ before a rules.xml exists, so editing is blocked until then.
+    const mustMigrateBeforeEditing = migration.rulesXml.movableRootModules.length > 0
+
+    const migrate = () => {
+        modal.confirm({
+            title: t('browser.overview.migrate'),
+            content: mustMigrateBeforeEditing
+                ? t('browser.overview.migrate_move_confirm', { count: migration.rulesXml.movableRootModules.length })
+                : t('browser.overview.migrate_rewrite_confirm'),
+            okText: t('browser.overview.migrate'),
+            onOk: () => run('rulesXml', t('browser.overview.migrate_failed')),
+        })
+    }
+
+    return { canMigrate: migration.rulesXml.migratable, mustMigrateBeforeEditing, migrating, migrate }
 }
 
 /** The banner naming who holds the project locked, with the unlock at hand for whoever may use it. */
@@ -871,16 +903,24 @@ const DescriptionSection = ({ editor }: { editor: DescriptorEditor }) => {
     )
 }
 
-/** The modules: the declared ones while editing, the resolved view of them otherwise. */
-const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters }: {
+/**
+ * The modules: the declared ones are edited only when rules.xml declares them; when they are auto-discovered
+ * (empty rules.xml) they are shown read-only, since editing entries the engine derives makes no sense.
+ */
+const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters, hasRulesXml }: {
     editor: DescriptorEditor
     modules: ProjectModule[]
     modulesDefault: boolean
     moduleFilters: Record<string, MethodFilter>
+    hasRulesXml: boolean
 }) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     const { editing, shown, editDraft } = editor
+    // Modules can be edited only when rules.xml declares them. Auto-discovered ones (empty rules.xml) are
+    // resolved by the engine, so they stay read-only even while the rest of the descriptor is edited.
+    const modulesEditable = hasRulesXml && !modulesDefault
+    const asDeclarations = editing && modulesEditable
     if (!editing && modules.length === 0) {
         return null
     }
@@ -889,9 +929,9 @@ const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters }: {
             hint={!editing && modulesDefault ? t('browser.overview.default_hint') : undefined}
             hintTestId="modules-default"
             icon={<ProductOutlined />}
-            title={t('browser.overview.modules', { count: editing ? shown.moduleDeclarations.length : modules.length })}
+            title={t('browser.overview.modules', { count: asDeclarations ? shown.moduleDeclarations.length : modules.length })}
         >
-            {editing
+            {asDeclarations
                 ? (
                     // The declared modules — name and rules-root — are edited; each keeps its own
                     // method filter, and the engine resolves any wildcard after the save.
@@ -904,16 +944,26 @@ const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters }: {
                     />
                 )
                 : (
-                    <ul className={styles.moduleRows}>
-                        {modules.map(module => (
-                            <ModuleRow
-                                key={module.path ?? module.name}
-                                filter={module.path ? moduleFilters[module.path] : undefined}
-                                module={module}
-                                modulesDefault={modulesDefault}
+                    <>
+                        {editing && (
+                            <Alert
+                                data-testid="modules-readonly"
+                                style={{ marginBottom: 8 }}
+                                title={t('browser.overview.modules_auto_note')}
+                                type="info"
                             />
-                        ))}
-                    </ul>
+                        )}
+                        <ul className={styles.moduleRows}>
+                            {modules.map(module => (
+                                <ModuleRow
+                                    key={module.path ?? module.name}
+                                    filter={module.path ? moduleFilters[module.path] : undefined}
+                                    module={module}
+                                    modulesDefault={modulesDefault}
+                                />
+                            ))}
+                        </ul>
+                    </>
                 )}
         </Section>
     )
@@ -1092,38 +1142,55 @@ const DependenciesSection = ({ editor, dependsOn, usedBy, projectNames }: {
     )
 }
 
-/** The source path entries, resolved by the engine when the file declares none. */
-const SourcesSection = ({ editor, sources, sourcesDefault }: {
+/**
+ * The classpath (source path) entries. Declared entries are edited; the engine defaults (an empty
+ * classpath) are shown read-only, since editing entries the engine derives makes no sense — a library is
+ * added by dropping its file in the standard folder instead.
+ */
+const SourcesSection = ({ editor, sources, sourcesDefault, hasRulesXml }: {
     editor: DescriptorEditor
     sources: string[]
     sourcesDefault: boolean
+    hasRulesXml: boolean
 }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { editing, shown, editDraft } = editor
+    // Editable only when rules.xml declares its own classpath. The engine defaults (no rules.xml, or one
+    // with an empty classpath) stay read-only even while the rest of the descriptor is edited.
+    const sourcesEditable = hasRulesXml && !sourcesDefault
     if (!editing && sources.length === 0) {
         return null
     }
     return (
         <Section
-            hint={!editing && sourcesDefault ? t('browser.overview.default_hint') : undefined}
+            hint={!editing && sourcesDefault ? t('browser.overview.sources_default_hint') : undefined}
             hintTestId="sources-default"
             icon={<FolderOutlined />}
             title={t('browser.overview.sources')}
         >
-            {editing
+            {editing && sourcesEditable
                 ? (
-                    // Editing the file's own classpath — empty when the defaults apply, so adding
-                    // an entry is what overrides them, and the defaults never enter the file.
+                    // Editing the file's own declared classpath entries.
                     <EditableStringList items={shown.sources} onChange={values => editDraft({ sources: values })} testId="edit-source" />
                 )
                 : (
-                    <ul className={styles.linedList}>
-                        {sources.map(source => (
-                            <li key={source} className={cx(shared.valueText, styles.linedItem)}>{source}</li>
-                        ))}
-                    </ul>
+                    <>
+                        {editing && (
+                            <Alert
+                                data-testid="sources-readonly"
+                                style={{ marginBottom: 8 }}
+                                title={t('browser.overview.sources_auto_note')}
+                                type="info"
+                            />
+                        )}
+                        <ul className={styles.linedList}>
+                            {sources.map(source => (
+                                <li key={source} className={cx(shared.valueText, styles.linedItem)}>{source}</li>
+                            ))}
+                        </ul>
+                    </>
                 )}
         </Section>
     )
@@ -1403,6 +1470,7 @@ export const OverviewPanel = ({
     const [managingBranches, setManagingBranches] = useState(false)
     const [patternHelpOpen, setPatternHelpOpen] = useState(false)
     const descriptor = useRulesDescriptor(project, reloadToken, () => onChanged?.())
+    const migration = useProjectMigration(project, reloadToken, () => onChanged?.())
 
     const canWrite = project.capabilities?.canWrite ?? false
     // Tags live in a project file, so the right to edit them is the right to write the project.
@@ -1421,15 +1489,29 @@ export const OverviewPanel = ({
             <div className={styles.left} data-testid="overview-left">
                 {canWrite && descriptor.state === 'ready' && (
                     <div className={styles.editBar}>
-                        <EditToolbar
-                            editing={descriptor.editing}
-                            labels={{ edit: t('browser.overview.edit'), save: t('browser.overview.save'), cancel: t('browser.overview.cancel') }}
-                            onCancel={descriptor.cancelEditing}
-                            onEdit={descriptor.startEditing}
-                            onSave={() => void descriptor.saveEditing()}
-                            saving={descriptor.saving}
-                            testId="overview"
-                        />
+                        {!migration.mustMigrateBeforeEditing && (
+                            <EditToolbar
+                                disabled={migration.migrating}
+                                editing={descriptor.editing}
+                                labels={{ edit: t('browser.overview.edit'), save: t('browser.overview.save'), cancel: t('browser.overview.cancel') }}
+                                onCancel={descriptor.cancelEditing}
+                                onEdit={descriptor.startEditing}
+                                onSave={() => void descriptor.saveEditing()}
+                                saving={descriptor.saving}
+                                testId="overview"
+                            />
+                        )}
+                        {migration.canMigrate && !descriptor.editing && (
+                            <MigrateButton
+                                label={t('browser.overview.migrate')}
+                                loading={migration.migrating}
+                                onClick={migration.migrate}
+                                testId="overview-migrate"
+                                tooltip={t(migration.mustMigrateBeforeEditing
+                                    ? 'browser.overview.migrate_before_edit'
+                                    : 'browser.overview.migrate_rewrite_hint')}
+                            />
+                        )}
                     </div>
                 )}
                 {descriptor.state === 'error' && (
@@ -1445,6 +1527,7 @@ export const OverviewPanel = ({
                 <DescriptionSection editor={descriptor.editor} />
                 <ModulesSection
                     editor={descriptor.editor}
+                    hasRulesXml={descriptor.fileExists}
                     moduleFilters={descriptor.moduleFilters}
                     modules={project.descriptor?.modules ?? []}
                     modulesDefault={project.descriptor?.modulesDefault ?? false}
@@ -1461,6 +1544,7 @@ export const OverviewPanel = ({
                 {/* Sources and OpenAPI sit at the very bottom, below what the project is made of. */}
                 <SourcesSection
                     editor={descriptor.editor}
+                    hasRulesXml={descriptor.fileExists}
                     sources={project.descriptor?.sources ?? []}
                     sourcesDefault={project.descriptor?.sourcesDefault ?? false}
                 />

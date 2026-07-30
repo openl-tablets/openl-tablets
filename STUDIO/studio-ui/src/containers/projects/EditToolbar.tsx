@@ -11,27 +11,29 @@ interface EditToolbarProps {
     testId: string
     /** The button captions, so each panel keeps its own translation keys. */
     labels: { edit: string, save: string, cancel: string }
+    /** Disables every button — used while an unrelated write (e.g. a migrate) is in flight for the same file. */
+    disabled?: boolean | undefined
 }
 
 /**
  * The small Edit / Save + Cancel control the editable panels share. One affordance, one look, so the
  * Overview, Publish and other tabs of a project never drift into a zoo of button sizes or orders.
  */
-export const EditToolbar = ({ editing, saving, onEdit, onSave, onCancel, testId, labels }: EditToolbarProps) => (
+export const EditToolbar = ({ editing, saving, onEdit, onSave, onCancel, testId, labels, disabled = false }: EditToolbarProps) => (
     <Space size={8}>
         {editing
             ? (
                 <>
-                    <Button data-testid={`${testId}-save`} icon={<CheckOutlined />} loading={saving} onClick={onSave} size="small" type="primary">
+                    <Button data-testid={`${testId}-save`} disabled={disabled} icon={<CheckOutlined />} loading={saving} onClick={onSave} size="small" type="primary">
                         {labels.save}
                     </Button>
-                    <Button data-testid={`${testId}-cancel`} disabled={saving} icon={<CloseOutlined />} onClick={onCancel} size="small">
+                    <Button data-testid={`${testId}-cancel`} disabled={saving || disabled} icon={<CloseOutlined />} onClick={onCancel} size="small">
                         {labels.cancel}
                     </Button>
                 </>
             )
             : (
-                <Button data-testid={`${testId}-edit`} icon={<EditOutlined />} onClick={onEdit} size="small">
+                <Button data-testid={`${testId}-edit`} disabled={disabled} icon={<EditOutlined />} onClick={onEdit} size="small">
                     {labels.edit}
                 </Button>
             )}

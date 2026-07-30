@@ -1,11 +1,12 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Input, notification, Select, Skeleton, Switch, Tag } from 'antd'
+import { Alert, Input, notification, Select, Skeleton, Space, Switch, Tag } from 'antd'
 import { createStyles } from 'antd-style'
 import { EditToolbar } from './EditToolbar'
 import { FieldRow } from '../../components/FieldRow'
 import { getFileContent, rootFileExists, writeRootFile } from '../../services/files'
+import { MigrateButton, useDescriptorMigration } from './projectMigration'
 import {
     DeployConfigParseError,
     EMPTY_DEPLOY_CONFIG,
@@ -117,6 +118,8 @@ export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }:
     const [state, setState] = useState<'loading' | 'ready' | 'missing' | 'invalid' | 'error'>('loading')
     const [editing, setEditing] = useState(false)
     const [saving, setSaving] = useState(false)
+    const { migration, migrating, run } = useDescriptorMigration(projectId, canWrite, reloadToken, () => onSaved?.())
+    const migratable = migration.rulesDeploy.migratable
 
     useEffect(() => {
         let cancelled = false
@@ -227,17 +230,29 @@ export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }:
                 {t('browser.deploy_config.title')}
                 <span className={styles.titleHint}>{FILE_PATH}</span>
             </h3>
-            {canEdit && (
-                <EditToolbar
-                    editing={editing}
-                    labels={{ edit: t('browser.deploy_config.edit'), save: t('browser.deploy_config.save'), cancel: t('browser.deploy_config.cancel') }}
-                    onCancel={cancel}
-                    onEdit={() => setEditing(true)}
-                    onSave={save}
-                    saving={saving}
-                    testId="deploy-config"
-                />
-            )}
+            <Space size={8}>
+                {migratable && canWrite && !editing && (
+                    <MigrateButton
+                        label={t('browser.deploy_config.migrate')}
+                        loading={migrating}
+                        onClick={() => run('rulesDeploy', t('browser.deploy_config.migrate_failed'))}
+                        testId="deploy-migrate"
+                        tooltip={t('browser.deploy_config.migrate_hint')}
+                    />
+                )}
+                {canEdit && (
+                    <EditToolbar
+                        disabled={migrating}
+                        editing={editing}
+                        labels={{ edit: t('browser.deploy_config.edit'), save: t('browser.deploy_config.save'), cancel: t('browser.deploy_config.cancel') }}
+                        onCancel={cancel}
+                        onEdit={() => setEditing(true)}
+                        onSave={save}
+                        saving={saving}
+                        testId="deploy-config"
+                    />
+                )}
+            </Space>
         </div>
     )
 

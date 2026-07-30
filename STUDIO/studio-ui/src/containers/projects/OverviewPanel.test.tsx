@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { OverviewPanel } from './OverviewPanel'
 import { ProjectStatus } from '../../constants/project'
 import { getFileContent } from '../../services/files'
+import { getProjectMigration, migrateProject } from '../../services/migration'
 import type { Project } from '../../types/projects'
 
 vi.mock('react-i18next', () => ({
@@ -42,6 +43,21 @@ vi.mock('../../services/projectIndex', () => ({
         projectIndexHealth: {},
     }),
 }))
+
+vi.mock('../../services/migration', () => ({
+    getProjectMigration: vi.fn().mockResolvedValue({
+        rulesXml: { movableRootModules: [], migratable: false },
+        rulesDeploy: { migratable: false },
+    }),
+    migrateProject: vi.fn().mockResolvedValue(undefined),
+    EMPTY_MIGRATION: {
+        rulesXml: { movableRootModules: [], migratable: false },
+        rulesDeploy: { migratable: false },
+    },
+}))
+
+const setMigration = (rulesXml: { movableRootModules: string[], migratable: boolean }) =>
+    vi.mocked(getProjectMigration).mockResolvedValue({ rulesXml, rulesDeploy: { migratable: false } })
 
 vi.mock('./ManageBranchesModal', () => ({
     ManageBranchesModal: ({ open }: { open: boolean }) => open ? <div data-testid="manage-branches-modal" /> : null,
@@ -245,6 +261,78 @@ describe('OverviewPanel', () => {
         expect(screen.queryByText('browser.overview.modules_pattern')).toBeNull()
     })
 
+    it('offers a migrate when the rules.xml can be rewritten, still allowing editing', async () => {
+        setMigration({ movableRootModules: [], migratable: true })
+
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        expect(await screen.findByTestId('overview-migrate')).toBeInTheDocument()
+        expect(screen.getByTestId('overview-edit')).toBeInTheDocument()
+        expect(screen.queryByTestId('overview-migrate-notice')).toBeNull()
+    })
+
+    it('withholds editing and offers a migrate when the project has no rules.xml', async () => {
+        setMigration({ movableRootModules: ['Pricing.xlsx', 'Rating.xlsx'], migratable: true })
+
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        expect(await screen.findByTestId('overview-migrate')).toBeInTheDocument()
+        // Editing is withheld until the root workbooks are moved.
+        expect(screen.queryByTestId('overview-edit')).toBeNull()
+    })
+
+    it('runs the migrate after confirmation', async () => {
+        setMigration({ movableRootModules: [], migratable: true })
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        await userEvent.click(await screen.findByTestId('overview-migrate'))
+        const dialog = await screen.findByRole('dialog')
+        await userEvent.click(within(dialog).getByRole('button', { name: 'browser.overview.migrate' }))
+
+        await waitFor(() => expect(migrateProject).toHaveBeenCalledWith('p1', 'rulesXml'))
+    })
+
+    it('disables the edit button while a migrate is in flight', async () => {
+        setMigration({ movableRootModules: [], migratable: true })
+        let resolveMigrate!: () => void
+        vi.mocked(migrateProject).mockReturnValueOnce(new Promise(resolve => { resolveMigrate = () => resolve(undefined) }))
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        await userEvent.click(await screen.findByTestId('overview-migrate'))
+        const dialog = await screen.findByRole('dialog')
+        await userEvent.click(within(dialog).getByRole('button', { name: 'browser.overview.migrate' }))
+
+        // While the migrate write is still in flight, editing the same rules.xml must be blocked.
+        await waitFor(() => expect(screen.getByTestId('overview-edit')).toBeDisabled())
+
+        await act(async () => {
+            resolveMigrate()
+            await Promise.resolve()
+        })
+    })
+
+    it('keeps auto-discovered modules and sources read-only with a note while editing', async () => {
+        await renderPanel({
+            ...base,
+            capabilities: { canWrite: true },
+            descriptor: {
+                modules: [{ path: 'rules/**/*.xlsx', modules: [{ name: 'Auto', path: 'rules/Auto.xlsx' }]}],
+                modulesDefault: true,
+                sources: ['groovy/', 'lib/*.jar'],
+                sourcesDefault: true,
+            },
+        })
+
+        await userEvent.click(screen.getByTestId('overview-edit'))
+
+        // The auto-discovered modules stay read-only with a note instead of the editable list.
+        expect(screen.getByTestId('modules-readonly')).toBeInTheDocument()
+        expect(screen.queryByTestId('edit-module-add')).toBeNull()
+        // The engine-default classpath is read-only the same way.
+        expect(screen.getByTestId('sources-readonly')).toBeInTheDocument()
+        expect(screen.queryByTestId('edit-source-add')).toBeNull()
+    })
+
     it('folds a section away by its own heading', async () => {
         setRulesXml('<project><comment>A ruleset</comment></project>')
         await renderPanel(base)
@@ -323,7 +411,7 @@ describe('OverviewPanel', () => {
                     <MemoryRouter>
                         <OverviewPanel
                             onUnlock={() => {}}
-                            project={{ ...base, capabilities: { canWrite: true }, descriptor: { sources: ['groovy/'], sourcesDefault: true } }}
+                            project={{ ...base, capabilities: { canWrite: true }, descriptor: { sources: ['groovy/'], sourcesDefault: false } }}
                             repoLabel="design"
                         />
                     </MemoryRouter>

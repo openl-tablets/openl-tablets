@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DeployConfigPanel } from './DeployConfigPanel'
 import { getFileContent, rootFileExists, writeRootFile } from '../../services/files'
+import { getProjectMigration, migrateProject } from '../../services/migration'
 
 vi.mock('./CodeEditor', () => ({
     CodeEditor: ({ value, readOnly }: { value: string, readOnly?: boolean }) => (
@@ -14,6 +15,18 @@ vi.mock('../../services/files', () => ({
     getFileContent: vi.fn(),
     rootFileExists: vi.fn(),
     writeRootFile: vi.fn(),
+}))
+
+vi.mock('../../services/migration', () => ({
+    EMPTY_MIGRATION: {
+        rulesXml: { movableRootModules: [], migratable: false },
+        rulesDeploy: { migratable: false },
+    },
+    getProjectMigration: vi.fn().mockResolvedValue({
+        rulesXml: { movableRootModules: [], migratable: false },
+        rulesDeploy: { migratable: false },
+    }),
+    migrateProject: vi.fn().mockResolvedValue(undefined),
 }))
 
 vi.mock('react-i18next', () => {
@@ -62,8 +75,10 @@ vi.mock('antd', () => {
     const Skeleton = () => <div>loading</div>
     const Space = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
     const Tag = ({ children }: Record<string, unknown>) => <span>{children as never}</span>
+    const Tooltip = ({ children }: Record<string, unknown>) => <>{children as never}</>
     const notification = { error: vi.fn(), success: vi.fn() }
-    return { Alert, Button, Form, Input, Select, Skeleton, Space, Switch, Tag, notification }
+    const App = { useApp: () => ({ notification }) }
+    return { Alert, App, Button, Form, Input, Select, Skeleton, Space, Switch, Tag, Tooltip, notification }
 })
 
 vi.mock('antd-style', () => ({
@@ -77,6 +92,7 @@ vi.mock('@ant-design/icons', () => ({
     EditOutlined: () => <span>edit</span>,
     CheckOutlined: () => <span>check</span>,
     CloseOutlined: () => <span>close</span>,
+    ThunderboltOutlined: () => <span>migrate</span>,
 }))
 
 async function renderPanel(canWrite = true, onSaved = vi.fn()) {
@@ -91,6 +107,11 @@ describe('DeployConfigPanel', () => {
         vi.clearAllMocks()
         vi.mocked(writeRootFile).mockResolvedValue()
         vi.mocked(rootFileExists).mockResolvedValue(true)
+        // clearAllMocks keeps mockResolvedValue implementations, so reset the migration flag each test.
+        vi.mocked(getProjectMigration).mockResolvedValue({
+            rulesXml: { movableRootModules: [], migratable: false },
+            rulesDeploy: { migratable: false },
+        })
     })
 
     it('reads the parsed descriptor as plain values, not as fields, by default', async () => {
@@ -194,5 +215,47 @@ describe('DeployConfigPanel', () => {
         expect(screen.getByTestId('deploy-config-invalid')).toBeInTheDocument()
         expect(screen.queryByTestId('deploy-config')).toBeNull()
         expect(writeRootFile).not.toHaveBeenCalled()
+    })
+
+    it('offers a migrate when rules-deploy.xml can be rewritten, and posts it with the scope', async () => {
+        vi.mocked(getFileContent).mockResolvedValue('<rules-deploy><serviceName>svc</serviceName></rules-deploy>')
+        vi.mocked(getProjectMigration).mockResolvedValue({
+            rulesXml: { movableRootModules: [], migratable: false },
+            rulesDeploy: { migratable: true },
+        })
+        await renderPanel()
+
+        await userEvent.click(await screen.findByTestId('deploy-migrate'))
+
+        await waitFor(() => expect(migrateProject).toHaveBeenCalledWith('p1', 'rulesDeploy'))
+    })
+
+    it('disables the edit button while a migrate is in flight', async () => {
+        vi.mocked(getFileContent).mockResolvedValue('<rules-deploy><serviceName>svc</serviceName></rules-deploy>')
+        vi.mocked(getProjectMigration).mockResolvedValue({
+            rulesXml: { movableRootModules: [], migratable: false },
+            rulesDeploy: { migratable: true },
+        })
+        let resolveMigrate!: () => void
+        vi.mocked(migrateProject).mockReturnValueOnce(new Promise(resolve => { resolveMigrate = () => resolve(undefined) }))
+        await renderPanel()
+
+        await userEvent.click(await screen.findByTestId('deploy-migrate'))
+
+        // While the migrate write is still in flight, editing the same rules-deploy.xml must be blocked.
+        await waitFor(() => expect(screen.getByTestId('deploy-config-edit')).toBeDisabled())
+
+        await act(async () => {
+            resolveMigrate()
+            await Promise.resolve()
+        })
+    })
+
+    it('offers no migrate when rules-deploy.xml is already minimal', async () => {
+        vi.mocked(getFileContent).mockResolvedValue('<rules-deploy><serviceName>svc</serviceName></rules-deploy>')
+        await renderPanel()
+
+        await screen.findByTestId('deploy-config')
+        expect(screen.queryByTestId('deploy-migrate')).toBeNull()
     })
 })
