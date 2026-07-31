@@ -1,6 +1,8 @@
 package org.openl.security.acl.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -17,6 +19,10 @@ import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchTreeRevision;
+import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.workspace.dtr.impl.MappedRepository;
 
 class SecureBranchRepositoryTest {
 
@@ -77,5 +83,70 @@ class SecureBranchRepositoryTest {
         assertThrows(AccessDeniedException.class, () -> repository.deleteRepositoryBranch("feature"));
         verify(delegate, never()).createRepositoryBranch("feature", "main");
         verify(delegate, never()).deleteRepositoryBranch("feature");
+    }
+
+    @Test
+    void keepsBranchViewsSecured() throws Exception {
+        var target = mock(BranchRepository.class);
+        when(target.getId()).thenReturn(REPOSITORY_ID);
+        when(delegate.forBranch("feature")).thenReturn(target);
+
+        var branchView = repository.forBranch("feature");
+
+        assertInstanceOf(SecureBranchRepository.class, branchView);
+        assertSame(target, ((SecureRepository) branchView).getOriginal());
+        assertThrows(AccessDeniedException.class, () -> branchView.read("Project/rules.xml"));
+        verify(target, never()).read("Project/rules.xml");
+    }
+
+    @Test
+    void keepsMappedBranchViewsMappedAndSecured() throws Exception {
+        var mapped = mock(MappedRepository.class);
+        var target = mock(MappedRepository.class);
+        when(mapped.getId()).thenReturn(REPOSITORY_ID);
+        when(mapped.forBranch("feature")).thenReturn(target);
+        var mappedRepository = new SecureMappedRepository(mapped, aclService);
+
+        var branchView = mappedRepository.forBranch("feature");
+
+        assertInstanceOf(SecureMappedRepository.class, branchView);
+        assertSame(target, ((SecureRepository) branchView).getOriginal());
+    }
+
+    @Test
+    void delegatesMergeWithoutConflictResolutions() throws Exception {
+        var author = mock(UserInfo.class);
+
+        repository.merge("feature", author, null);
+
+        verify(delegate).merge("feature", author, null);
+    }
+
+    @Test
+    void mergesConflictResolutionsWithWritePermission() throws Exception {
+        var author = mock(UserInfo.class);
+        var conflictData = new ConflictResolveData(
+                "revision",
+                List.of(new FileItem("Project/rules.xml", null)),
+                "Resolve conflict");
+        when(aclService.isGranted(REPOSITORY_ID,
+                "Project/rules.xml",
+                List.of(BasePermission.WRITE))).thenReturn(true);
+
+        repository.merge("feature", author, conflictData);
+
+        verify(delegate).merge("feature", author, conflictData);
+    }
+
+    @Test
+    void rejectsConflictResolutionsWithoutWritePermission() throws Exception {
+        var author = mock(UserInfo.class);
+        var conflictData = new ConflictResolveData(
+                "revision",
+                List.of(new FileItem("Project/rules.xml", null)),
+                "Resolve conflict");
+
+        assertThrows(AccessDeniedException.class, () -> repository.merge("feature", author, conflictData));
+        verify(delegate, never()).merge("feature", author, conflictData);
     }
 }

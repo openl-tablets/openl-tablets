@@ -110,8 +110,24 @@ describe('BranchSwitcher', () => {
         expect(screen.queryByTestId('option-other')).not.toBeInTheDocument()
     })
 
-    it('reports a branch-list failure', async () => {
-        vi.mocked(getProjectBranches).mockRejectedValueOnce(new Error('offline'))
+    it('reloads membership when the component is reused for another project', async () => {
+        const { rerender } = render(<BranchSwitcher {...props} />)
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-dev')
+        vi.mocked(getProjectBranches).mockResolvedValueOnce([{ name: 'release' }])
+
+        rerender(<BranchSwitcher {...props} currentBranch="release" projectId="p2" />)
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+
+        await screen.findByTestId('option-release')
+        expect(screen.queryByTestId('option-dev')).not.toBeInTheDocument()
+        expect(getProjectBranches).toHaveBeenLastCalledWith('p2')
+    })
+
+    it('reports a branch-list failure and retries when reopened', async () => {
+        vi.mocked(getProjectBranches)
+            .mockRejectedValueOnce(new Error('offline'))
+            .mockResolvedValueOnce([{ name: 'main' }, { name: 'dev' }])
         render(<BranchSwitcher {...props} />)
 
         await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
@@ -120,6 +136,11 @@ describe('BranchSwitcher', () => {
             title: 'browser.branch.load_failed',
             description: 'offline',
         }))
+
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+
+        await screen.findByTestId('option-dev')
+        expect(getProjectBranches).toHaveBeenCalledTimes(2)
     })
 
     it('marks every branch it lists once the branch list is loaded', async () => {

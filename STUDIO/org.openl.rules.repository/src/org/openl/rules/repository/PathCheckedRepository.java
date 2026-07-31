@@ -209,7 +209,7 @@ public class PathCheckedRepository implements BranchRepository {
     @Override
     public BranchRepository forBranch(String branch) throws IOException {
         validateBranch(branch);
-        return ((BranchRepository) delegate).forBranch(branch);
+        return new PathCheckedRepository(((BranchRepository) delegate).forBranch(branch));
     }
 
     @Override

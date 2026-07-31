@@ -2393,7 +2393,7 @@ public class GitRepository implements BranchRepository, Closeable {
             initLfsCredentials();
             reset();
 
-            branchAbsentBefore = git.getRepository().findRef(newBranch) == null;
+            branchAbsentBefore = !branchRefExists(git.getRepository(), newBranch);
             if (branchAbsentBefore) {
                 createGitBranch(newBranch, startPoint);
             }
@@ -2564,13 +2564,13 @@ public class GitRepository implements BranchRepository, Closeable {
                                                                       RevWalk walk,
                                                                       String branchName,
                                                                       String path) throws IOException {
-        var branchId = repository.resolve(branchName);
-        if (branchId == null) {
+        var branchRef = findBranchRef(repository, branchName);
+        if (branchRef == null) {
             return Optional.empty();
         }
 
         walk.reset();
-        var tip = walk.parseCommit(branchId);
+        var tip = walk.parseCommit(branchRef.getObjectId());
         var treeRevision = getTreeRevision(repository, tip, path);
         var tipAffectsPath = tip.getParentCount() == 0;
         for (var parent : tip.getParents()) {
@@ -2597,13 +2597,13 @@ public class GitRepository implements BranchRepository, Closeable {
     private static Optional<BranchStatus> getBranchStatus(Repository repository,
                                                           RevWalk walk,
                                                           String branchName) throws IOException {
-        var branchId = repository.resolve(branchName);
-        if (branchId == null) {
+        var branchRef = findBranchRef(repository, branchName);
+        if (branchRef == null) {
             return Optional.empty();
         }
         walk.reset();
         walk.setRevFilter(RevFilter.ALL);
-        var tip = walk.parseCommit(branchId);
+        var tip = walk.parseCommit(branchRef.getObjectId());
         walk.parseBody(tip);
         var ident = tip.getAuthorIdent();
         var author = new UserInfo(ident.getName(), ident.getEmailAddress(), ident.getName());
@@ -2623,25 +2623,9 @@ public class GitRepository implements BranchRepository, Closeable {
             log.debug("forBranch(): read: lock");
             initLfsCredentials();
 
-            if (git.getRepository().findRef(branch) == null && !isEmpty()) {
-                List<Ref> refs = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
-
-                var branchExist = false;
-                var remoteBranchName = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + branch;
-                for (Ref ref : refs) {
-                    var name = ref.getName();
-                    if (remoteBranchName.equals(name)) {
-                        branchExist = true;
-                        break;
-                    }
-                }
-
-                if (!branchExist) {
-                    throw new IOException("Cannot find branch '%s'".formatted(branch));
-                }
+            if (!branchRefExists(git.getRepository(), branch) && !isEmpty()) {
+                throw new IOException("Cannot find branch '%s'".formatted(branch));
             }
-        } catch (GitAPIException e) {
-            throw new IOException(e);
         } finally {
             readLock.unlock();
             log.debug("forBranch(): read: unlock");
@@ -2663,8 +2647,19 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     }
 
+    private static boolean branchRefExists(Repository repository, String branch) throws IOException {
+        return findBranchRef(repository, branch) != null;
+    }
+
+    private static @Nullable Ref findBranchRef(Repository repository, String branch) throws IOException {
+        var local = repository.exactRef(Constants.R_HEADS + branch);
+        return local != null
+                ? local
+                : repository.exactRef(Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + branch);
+    }
+
     private GitRepository createRepository(String branch) throws IOException, GitAPIException {
-        if (git.getRepository().findRef(branch) == null && !isEmpty()) {
+        if (git.getRepository().exactRef(Constants.R_HEADS + branch) == null && !isEmpty()) {
             createRemoteTrackingBranch(git, branch);
         }
 

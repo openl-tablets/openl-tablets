@@ -5,13 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -26,6 +29,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -34,6 +38,7 @@ import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
@@ -143,6 +148,27 @@ class WorkspaceProjectServiceDeleteBranchTest {
         assertDoesNotThrow(() -> service.deleteBranch(project, BRANCH, false));
 
         verify(repository).deleteRepositoryBranch(BRANCH);
+    }
+
+    @Test
+    void branchIsDeletedThroughTheDecoratedRepository() throws IOException {
+        var decorated = mock(BranchRepository.class, withSettings().extraInterfaces(RepositoryDelegate.class));
+        when(((RepositoryDelegate) decorated).getOriginal()).thenReturn(repository);
+        when(project.getDesignRepository()).thenReturn(decorated);
+        when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
+
+        assertDoesNotThrow(() -> service.deleteBranch(project, BRANCH, false));
+
+        verify(decorated).deleteRepositoryBranch(BRANCH);
+        verify(repository, never()).deleteRepositoryBranch(BRANCH);
+    }
+
+    @Test
+    void deniedBranchDeletionIsReportedAsForbidden() throws IOException {
+        when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
+        doThrow(new AccessDeniedException(BRANCH)).when(repository).deleteRepositoryBranch(BRANCH);
+
+        assertThrows(ForbiddenException.class, () -> service.deleteBranch(project, BRANCH, false));
     }
 
     @Test

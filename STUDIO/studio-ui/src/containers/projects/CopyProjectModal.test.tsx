@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import { fireEvent } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -37,13 +37,17 @@ vi.mock('../../store', async importOriginal => ({
 vi.mock('../../components/SuggestInput', () => ({
     SuggestInput: ({ onChange, options, value, ...rest }: {
         onChange: (value: string) => void
-        options: unknown[]
+        options: { value: string }[]
         value: string
         'data-testid'?: string
-    }) => {
-        void options
-        return <input {...rest} onChange={event => onChange(event.target.value)} value={value} />
-    },
+    }) => (
+        <>
+            <input {...rest} onChange={event => onChange(event.target.value)} value={value} />
+            {options.map(option => (
+                <span key={option.value} data-testid={`target-branch-option-${option.value}`}>{option.value}</span>
+            ))}
+        </>
+    ),
 }))
 
 vi.mock('react-i18next', () => {
@@ -267,6 +271,28 @@ describe('CopyProjectModal', () => {
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
             'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', undefined, undefined, 'release/rates'
         ))
+    })
+
+    it('ignores a stale branch response after the target repository changes', async () => {
+        let resolveDesign!: (branches: string[]) => void
+        const designBranches = new Promise<string[]>(resolve => {
+            resolveDesign = resolve
+        })
+        vi.mocked(getDesignRepositoryBranches).mockImplementation(repositoryId =>
+            repositoryId === 'design' ? designBranches : Promise.resolve(['prod-only']))
+        await renderModal()
+        await asNewProject()
+        await waitFor(() => expect(getDesignRepositoryBranches).toHaveBeenCalledWith('design'))
+
+        fireEvent.change(screen.getByTestId('copy-project-repository'), { target: { value: 'prod' } })
+        await screen.findByTestId('target-branch-option-prod-only')
+        await act(async () => {
+            resolveDesign(['design-only'])
+            await designBranches
+        })
+
+        expect(screen.getByTestId('target-branch-option-prod-only')).toBeInTheDocument()
+        expect(screen.queryByTestId('target-branch-option-design-only')).not.toBeInTheDocument()
     })
 
     it('copies to the configured target branch when branch enumeration fails', async () => {

@@ -13,6 +13,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -37,6 +38,7 @@ import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
+import org.openl.rules.workspace.dtr.FolderMapper;
 
 class DesignTimeRepositoryImplTest {
 
@@ -110,6 +112,99 @@ class DesignTimeRepositoryImplTest {
     }
 
     @Test
+    void keepsRequestedBranchWhenResolvingHistoryWithoutCurrentMembership() throws Exception {
+        var root = branchRepository("main");
+        var main = branchRepository("main");
+        var feature = branchRepository("feature/rates");
+        when(root.listFolders("DESIGN/")).thenReturn(List.of());
+        when(root.listBranches()).thenReturn(List.of("main", "feature/rates"));
+        when(root.getBranchStatuses(anyCollection())).thenAnswer(invocation -> statuses(invocation.getArgument(0)));
+        when(root.getBranchTreeRevisions(anyCollection(), anyString()))
+                .thenAnswer(invocation -> revisions(invocation.getArgument(0), 1));
+        when(root.forBranch("main")).thenReturn(main);
+        when(root.forBranch("feature/rates")).thenReturn(feature);
+        when(main.listFolders("DESIGN/")).thenReturn(List.of(fileData("DESIGN/Rates")));
+        when(main.forBranch("feature/rates")).thenReturn(feature);
+        when(feature.listFolders("DESIGN/")).thenReturn(List.of());
+
+        var properties = mock(PropertyResolver.class);
+        when(properties.getProperty("design-repository-configs")).thenReturn("design");
+        when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
+        var published = new CountDownLatch(1);
+        try (var index = new BranchedProjectIndexService()) {
+            var repository = new TestDesignTimeRepository(properties, index, root);
+            repository.addListener(published::countDown);
+            repository.init();
+
+            assertTrue(published.await(5, TimeUnit.SECONDS));
+            var historical = repository.getProjectByPath("design",
+                    "feature/rates",
+                    "DESIGN/Rates",
+                    "revision");
+
+            assertSame(feature, historical.getRepository());
+            verify(main).forBranch("feature/rates");
+            repository.destroy();
+        }
+    }
+
+    @Test
+    void resolvesBranchedMappedProjectByBusinessName() throws Exception {
+        var root = mappedBranchRepository("main");
+        var feature = mappedBranchRepository("feature/rates");
+        when(root.listBranches()).thenReturn(List.of("feature/rates"));
+        when(root.getBranchStatuses(anyCollection())).thenAnswer(invocation -> statuses(invocation.getArgument(0)));
+        when(root.getBranchTreeRevisions(anyCollection(), anyString()))
+                .thenAnswer(invocation -> revisions(invocation.getArgument(0), 1));
+        when(root.forBranch("feature/rates")).thenReturn(feature);
+        when(feature.listFolders("DESIGN/")).thenReturn(List.of(fileData("DESIGN/Rates:path-hash")));
+
+        var properties = mock(PropertyResolver.class);
+        when(properties.getProperty("design-repository-configs")).thenReturn("design");
+        when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
+        var published = new CountDownLatch(1);
+        try (var index = new BranchedProjectIndexService()) {
+            var repository = new TestDesignTimeRepository(properties, index, root);
+            repository.addListener(published::countDown);
+            repository.init();
+
+            assertTrue(published.await(5, TimeUnit.SECONDS));
+            var project = repository.getBranchedProject("design", "rates").orElseThrow();
+
+            assertEquals("Rates:path-hash", project.name());
+            assertEquals("feature/rates", project.homeBranch());
+            assertEquals("Rates", repository.getProject("design", "rates").getBusinessName());
+            assertTrue(repository.hasProject("design", "rates"));
+            repository.destroy();
+        }
+    }
+
+    @Test
+    void keepsConfiguredBranchFallbackWhenInitialIndexingFails() throws Exception {
+        var root = branchRepository("main");
+        when(root.listFolders("DESIGN/")).thenReturn(List.of(fileData("DESIGN/Rates")));
+        when(root.listBranches()).thenThrow(new IOException("Provider credentials leaked here"));
+
+        var properties = mock(PropertyResolver.class);
+        when(properties.getProperty("design-repository-configs")).thenReturn("design");
+        when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
+        var published = new CountDownLatch(1);
+        try (var index = new BranchedProjectIndexService()) {
+            var repository = new TestDesignTimeRepository(properties, index, root);
+            repository.addListener(published::countDown);
+            repository.init();
+
+            assertTrue(published.await(5, TimeUnit.SECONDS));
+            assertEquals(List.of("Rates"),
+                    repository.getProjects().stream().map(AProject::getBusinessName).toList());
+            var health = repository.getProjectIndexHealth("design").orElseThrow();
+            assertEquals(BranchedProjectIndexService.IndexState.DEGRADED, health.state());
+            assertEquals("Repository branches cannot be indexed.", health.lastError());
+            repository.destroy();
+        }
+    }
+
+    @Test
     void retainsNonBranchRepositoryBehaviourAndReportsRefreshFailure() throws Exception {
         var repositoryListener = new AtomicReference<Listener>();
         var root = mock(BranchRepository.class);
@@ -165,6 +260,28 @@ class DesignTimeRepositoryImplTest {
                 .setVersions(true)
                 .setBranches(true)
                 .build());
+        return repository;
+    }
+
+    private static BranchRepository mappedBranchRepository(String branch) {
+        var repository = mock(BranchRepository.class, withSettings().extraInterfaces(FolderMapper.class));
+        when(repository.getId()).thenReturn("design");
+        when(repository.getName()).thenReturn("Design");
+        when(repository.getBranch()).thenReturn(branch);
+        when(repository.getBaseBranch()).thenReturn("main");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository)
+                .setFolders(true)
+                .setVersions(true)
+                .setBranches(true)
+                .setMappedFolders(true)
+                .build());
+        var mapper = (FolderMapper) repository;
+        when(mapper.getRealPath(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(mapper.getBusinessName(anyString())).thenAnswer(invocation -> {
+            String path = invocation.getArgument(0);
+            var suffix = path.indexOf(':');
+            return suffix < 0 ? path : path.substring(0, suffix);
+        });
         return repository;
     }
 

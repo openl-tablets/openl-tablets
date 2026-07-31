@@ -11,7 +11,7 @@ const MAX_COMMENT_LENGTH = 255
 const BRANCH_NAME_RESTRICTED = /[^\p{L}\p{Nd}\-$]/gu
 
 /** Characters forbidden by Git refs and by the server's `NewBranchValidator`. */
-const INVALID_BRANCH_CHARACTERS = /[\u0000-\u0020\u007F\\~^:?*[\]{}]/u
+const INVALID_BRANCH_CHARACTERS = /[\u0000-\u0020\u007F\s\\~^:?*[\]{}"<>|]/u
 
 interface TemplateValues {
     projectName?: string | undefined

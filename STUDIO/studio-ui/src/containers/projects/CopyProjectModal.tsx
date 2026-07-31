@@ -113,6 +113,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     }, [open, project, repositories])
 
     useEffect(() => {
+        let active = true
         setTargetBranch('')
         setTargetBranchOptions([])
         setTargetBranchTouched(false)
@@ -120,8 +121,19 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
             return
         }
         getDesignRepositoryBranches(targetRepositoryId)
-            .then(setTargetBranchOptions)
-            .catch(() => setTargetBranchOptions([]))
+            .then(options => {
+                if (active) {
+                    setTargetBranchOptions(options)
+                }
+            })
+            .catch(() => {
+                if (active) {
+                    setTargetBranchOptions([])
+                }
+            })
+        return () => {
+            active = false
+        }
     }, [newProjectMode, open, targetRepositoryId, targetSupportsBranches])
 
     useEffect(() => {

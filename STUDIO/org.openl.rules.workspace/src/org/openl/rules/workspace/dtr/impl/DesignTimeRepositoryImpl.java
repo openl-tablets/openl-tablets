@@ -200,7 +200,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             } else {
                 Optional<AProject> project = projects.values()
                         .stream()
-                        .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
+                        .filter(p -> p.getRepository().getId().equals(repositoryId)
+                                && p.getBusinessName().equalsIgnoreCase(name))
                         .findFirst();
                 if (project.isPresent()) {
                     return project.get();
@@ -216,7 +217,15 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             if (projectsRefreshNeeded) {
                 refreshProjects();
             }
-            return Optional.ofNullable(branchedProjects.get(projectKey(repositoryId, name)));
+            var direct = branchedProjects.get(projectKey(repositoryId, name));
+            if (direct != null) {
+                return Optional.of(direct);
+            }
+            return branchedProjects.values()
+                    .stream()
+                    .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
+                    .filter(project -> project.homeEntry().project().getBusinessName().equalsIgnoreCase(name))
+                    .findFirst();
         }
     }
 
@@ -300,7 +309,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
                     .findFirst();
             if (project.isPresent()) {
-                return new AProject(project.get().getRepository(), project.get().getFolderPath(), version);
+                var repository = project.get().getRepository();
+                if (branch != null && repository.supports().branches()) {
+                    repository = ((BranchRepository) repository).forBranch(branch);
+                }
+                return new AProject(repository, project.get().getFolderPath(), version);
             }
         }
         return null;
@@ -393,6 +406,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     projects.putAll(configuredBranchFallbacks.getOrDefault(repository.getId(), Map.of()));
                 } else {
                     addSnapshotProjects(branchRepository, snapshot);
+                    if (snapshot.health().state() == BranchedProjectIndexService.IndexState.DEGRADED &&
+                            !snapshot.branches().containsKey(branchRepository.getBranch())) {
+                        configuredBranchFallbacks.getOrDefault(repository.getId(), Map.of())
+                                .forEach(projects::putIfAbsent);
+                    }
                 }
                 var error = snapshot.health().lastError();
                 if (error != null) {
@@ -465,7 +483,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return projects.values()
                     .stream()
                     .anyMatch(p -> p.getRepository().getId().equals(repositoryId)
-                            && p.getBusinessName().equals(name));
+                            && p.getBusinessName().equalsIgnoreCase(name));
         }
     }
 

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NewProjectModal } from './NewProjectModal'
@@ -532,6 +532,42 @@ describe('NewProjectModal', () => {
 
         await waitFor(() => expect(createProject).toHaveBeenCalledTimes(1))
         expect(vi.mocked(createProject).mock.calls[0]![2].branch).toBe('feature/new-project')
+    })
+
+    it('ignores a stale branch response after the target repository changes', async () => {
+        let resolveDesign!: (branches: string[]) => void
+        const designBranches = new Promise<string[]>(resolve => {
+            resolveDesign = resolve
+        })
+        vi.mocked(getDesignRepositoryBranches).mockImplementation(repositoryId =>
+            repositoryId === 'design' ? designBranches : Promise.resolve(['prod-only']))
+        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
+            branch: 'main',
+            comment: { templates: {} },
+        })
+        const repositoriesWithProd = [
+            ...branchingRepositories,
+            {
+                id: 'prod',
+                name: 'Production',
+                aclId: 'b',
+                capabilities: { canCreateProject: true },
+                features: { branches: true, searchable: true, mappedFolders: false },
+            },
+        ]
+        renderWizard({ repositories: repositoriesWithProd })
+        await toConfig('template')
+        await waitFor(() => expect(getDesignRepositoryBranches).toHaveBeenCalledWith('design'))
+
+        await userEvent.click(screen.getByTestId('opt-prod'))
+        await screen.findByText('prod-only')
+        await act(async () => {
+            resolveDesign(['design-only'])
+            await designBranches
+        })
+
+        expect(screen.getByText('prod-only')).toBeInTheDocument()
+        expect(screen.queryByText('design-only')).not.toBeInTheDocument()
     })
 
     it('accepts the configured branch when branch enumeration fails', async () => {

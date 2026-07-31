@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Dropdown, notification } from 'antd'
 import { DownOutlined } from '@ant-design/icons'
@@ -77,19 +77,34 @@ export const BranchSwitcher = ({
     const [loading, setLoading] = useState(false)
     const [switching, setSwitching] = useState(false)
     const [discardSwitchBranch, setDiscardSwitchBranch] = useState<string | null>(null)
+    const projectIdRef = useRef(projectId)
+
+    useEffect(() => {
+        projectIdRef.current = projectId
+        setBranchInfo(null)
+        setLoading(false)
+        setDiscardSwitchBranch(null)
+    }, [projectId])
 
     const loadBranches = async () => {
         if (branchInfo !== null || loading) {
             return
         }
+        const requestedProjectId = projectId
         setLoading(true)
         try {
-            setBranchInfo(await getProjectBranches(projectId))
+            const loaded = await getProjectBranches(requestedProjectId)
+            if (projectIdRef.current === requestedProjectId) {
+                setBranchInfo(loaded)
+            }
         } catch (e) {
-            setBranchInfo([])
-            notification.error({ title: t('browser.branch.load_failed'), description: errorMessage(e) })
+            if (projectIdRef.current === requestedProjectId) {
+                notification.error({ title: t('browser.branch.load_failed'), description: errorMessage(e) })
+            }
         } finally {
-            setLoading(false)
+            if (projectIdRef.current === requestedProjectId) {
+                setLoading(false)
+            }
         }
     }
 

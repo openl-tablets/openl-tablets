@@ -85,8 +85,12 @@ public record BranchedProject(String name,
     }
 
     private static String chooseHomeBranch(String baseBranch, Map<String, BranchEntry> entries) {
-        if (entries.containsKey(baseBranch)) {
-            return baseBranch;
+        var actualBaseBranch = entries.keySet()
+                .stream()
+                .filter(branch -> branch.equalsIgnoreCase(baseBranch))
+                .findFirst();
+        if (actualBaseBranch.isPresent()) {
+            return actualBaseBranch.orElseThrow();
         }
         return entries.keySet()
                 .stream()

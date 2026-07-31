@@ -3,6 +3,7 @@ package org.openl.studio.projects.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -1208,12 +1209,15 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!hasManageBranchPermissions(project)) {
             throw new ForbiddenException("default.message");
         }
-        var repository = unwrapBranchRepository(project.getDesignRepository());
+        var securedRepository = (BranchRepository) project.getDesignRepository();
+        var repository = unwrapBranchRepository(securedRepository);
         var validator = newBranchValidatorFactory.apply(repository);
         validationProvider.validate(model.getBranch(), validator);
         try {
             var startPoint = StringUtils.isNotBlank(model.getRevision()) ? model.getRevision() : project.getBranch();
-            repository.createRepositoryBranch(model.getBranch(), startPoint);
+            securedRepository.createRepositoryBranch(model.getBranch(), startPoint);
+        } catch (AccessDeniedException e) {
+            throw new ForbiddenException("default.message");
         } catch (IOException e) {
             throw new ProjectException("Failed to create branch", e);
         }
@@ -1298,7 +1302,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!hasManageBranchPermissions(project)) {
             throw new ForbiddenException("default.message");
         }
-        var repository = unwrapBranchRepository(project.getDesignRepository());
+        var securedRepository = (BranchRepository) project.getDesignRepository();
+        var repository = unwrapBranchRepository(securedRepository);
         var repositoryId = repository.getId();
         var projectName = project.getBusinessName();
         try {
@@ -1313,7 +1318,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             requireNotLockedByAnotherUser(project, repository, branch);
             bypassService.requireBypassOrThrow(repository, branch, project, force);
             var restoreOpenedState = releaseProjectOnBranch(project, branch);
-            repository.deleteRepositoryBranch(branch);
+            securedRepository.deleteRepositoryBranch(branch);
             if (!refreshRepositoryIndex(repository)) {
                 throw new ProjectException("The deleted branch was not published by the project index.");
             }
@@ -1328,6 +1333,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                     }
                 });
             }
+        } catch (AccessDeniedException e) {
+            throw new ForbiddenException("default.message");
         } catch (IOException | ProjectException e) {
             log.warn("Failed to delete branch '{}' from project '{}'", branchName, project.getBusinessName(), e);
             throw new ConflictException("project.branch.delete.failed.message");

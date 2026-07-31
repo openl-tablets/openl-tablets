@@ -13,6 +13,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
@@ -43,7 +44,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
     public void validate(Object o, Errors errors) {
         var model = (CreateUpdateProjectModel) o;
         getTargetRepository(model, errors).ifPresent(repository -> {
-            if (model.isOverwrite() && designTimeRepository.hasProject(model.getRepoName(), model.getProjectName())) {
+            if (model.isOverwrite() && hasProjectInTarget(model, repository)) {
                 validateProjectUpdate(model, repository);
             } else {
                 validateProjectCreation(model, repository);
@@ -67,7 +68,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
     private void validateProjectUpdate(CreateUpdateProjectModel model, Repository repository) {
         if (repository.supports().mappedFolders()) {
             try {
-                var project = designTimeRepository.getProject(model.getRepoName(), model.getProjectName());
+                var project = getProjectInTarget(model, repository);
                 if (!Objects.equals(project.getRealPath(), model.getFullPath())) {
                     throw new NotFoundException("project.message", model.getProjectName());
                 }
@@ -78,6 +79,33 @@ public class CreateUpdateProjectModelValidator implements Validator {
                 throw new NotFoundException("project.message", model.getProjectName());
             }
         }
+    }
+
+    private boolean hasProjectInTarget(CreateUpdateProjectModel model, Repository repository) {
+        if (repository.supports().branches()) {
+            return findProjectInTargetBranch(model, repository).isPresent();
+        }
+        return designTimeRepository.hasProject(model.getRepoName(), model.getProjectName());
+    }
+
+    private AProject getProjectInTarget(CreateUpdateProjectModel model, Repository repository) throws ProjectException {
+        if (repository.supports().branches()) {
+            var targetBranch = ((BranchRepository) repository).getBranch();
+            return findProjectInTargetBranch(model, repository)
+                    .orElseThrow(() -> new ProjectException(
+                            "Project ''{0}'' is not found in branch ''{1}''.",
+                            null,
+                            model.getProjectName(),
+                            targetBranch));
+        }
+        return designTimeRepository.getProject(model.getRepoName(), model.getProjectName());
+    }
+
+    private Optional<AProject> findProjectInTargetBranch(CreateUpdateProjectModel model, Repository repository) {
+        var targetBranch = ((BranchRepository) repository).getBranch();
+        return designTimeRepository.getBranchedProject(model.getRepoName(), model.getProjectName())
+                .flatMap(project -> project.entry(targetBranch))
+                .map(entry -> entry.project());
     }
 
     private void validateProjectCreation(CreateUpdateProjectModel model, Repository repository) {
@@ -113,7 +141,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
         var branchRepository = (BranchRepository) repository;
         var branch = model.getBranch();
         var rawRepository = unwrap(branchRepository);
-        if (branch.equals(rawRepository.getBaseBranch())) {
+        if (branch.equalsIgnoreCase(rawRepository.getBaseBranch())) {
             return Optional.of(repository);
         }
         if (!rawRepository.isValidBranchName(branch)) {
@@ -122,6 +150,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
         }
         try {
             if (rawRepository.branchExists(branch)) {
+                branch = canonicalBranchName(rawRepository, branch);
                 return Optional.of(branchRepository.forBranch(branch));
             }
             if (!validateNewBranch(rawRepository, branch, errors)) {
@@ -131,6 +160,14 @@ public class CreateUpdateProjectModelValidator implements Validator {
         } catch (IOException e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }
+    }
+
+    private static String canonicalBranchName(BranchRepository repository, String branch) throws IOException {
+        return repository.listBranches()
+                .stream()
+                .filter(candidate -> candidate.equalsIgnoreCase(branch))
+                .findFirst()
+                .orElse(branch);
     }
 
     private boolean validateNewBranch(BranchRepository repository, String branch, Errors errors) {

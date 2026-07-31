@@ -73,6 +73,11 @@ describe('validateBranchName', () => {
     it.each([
         'anything goes',
         'feature[1]',
+        'feature"rates',
+        'feature<rates',
+        'feature>rates',
+        'feature|rates',
+        'feature\u00A0rates',
         '.feature',
         'feature/.rates',
         'feature..rates',
