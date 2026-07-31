@@ -603,8 +603,11 @@ public final class BranchedProjectIndexService implements AutoCloseable {
     private static String chooseHomeBranch(Set<String> branches,
                                            Map<String, BranchSnapshot> snapshots,
                                            String baseBranch) {
-        if (branches.contains(baseBranch)) {
-            return baseBranch;
+        var actualBaseBranch = branches.stream()
+                .filter(branch -> branch.equalsIgnoreCase(baseBranch))
+                .findFirst();
+        if (actualBaseBranch.isPresent()) {
+            return actualBaseBranch.orElseThrow();
         }
         return branches.stream()
                 .min(Comparator

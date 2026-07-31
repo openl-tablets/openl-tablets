@@ -1,6 +1,7 @@
 package org.openl.studio.repositories.service;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.function.Function;
 import jakarta.annotation.Nullable;
 
@@ -11,6 +12,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.util.StringUtils;
@@ -44,23 +46,35 @@ public class ProjectCreationTargetResolver {
 
         var branchRepository = (BranchRepository) repository;
         var rawRepository = unwrap(branchRepository);
-        if (branch.equals(rawRepository.getBaseBranch())) {
+        if (branch.equalsIgnoreCase(rawRepository.getBaseBranch())) {
             return repository;
         }
         try {
-            if (!rawRepository.branchExists(branch)) {
+            if (rawRepository.branchExists(branch)) {
+                branch = canonicalBranchName(rawRepository, branch);
+            } else {
                 if (!allowBranchCreation) {
                     throw new ConflictException("repository.branch.message");
                 }
                 validationProvider.validate(branch, newBranchValidatorFactory.apply(rawRepository));
                 if (!rawRepository.listBranches().isEmpty()) {
-                    rawRepository.createRepositoryBranch(branch, rawRepository.getBaseBranch());
+                    branchRepository.createRepositoryBranch(branch, rawRepository.getBaseBranch());
                 }
             }
             return branchRepository.forBranch(branch);
+        } catch (AccessDeniedException e) {
+            throw new ForbiddenException();
         } catch (IOException e) {
             throw new ConflictException("project.create.branch.failed.message", branch);
         }
+    }
+
+    private static String canonicalBranchName(BranchRepository repository, String branch) throws IOException {
+        return repository.listBranches()
+                .stream()
+                .filter(candidate -> candidate.equalsIgnoreCase(branch))
+                .findFirst()
+                .orElse(branch);
     }
 
     private static BranchRepository unwrap(BranchRepository repository) {

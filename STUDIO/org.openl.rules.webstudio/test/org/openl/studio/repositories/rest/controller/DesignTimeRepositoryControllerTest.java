@@ -176,6 +176,62 @@ class DesignTimeRepositoryControllerTest {
     }
 
     @Test
+    void publishChecksBranchProtectionBeforeResolvingTheTarget() {
+        rejectRequestedBranch("protected/new");
+        var request = new CreateFromWorkspaceModel(List.of("Project"), null, "comment", "protected/new");
+
+        assertThrows(ConflictException.class, () -> controller.createProjectsFromWorkspace(repository, request));
+
+        verify(projectCreationTargetResolver, never()).resolve(repository, "protected/new");
+        verify(projectCreationService, never()).uploadLocalProjects(any(Repository.class), anyList(), any(), any());
+    }
+
+    @Test
+    void copyChecksBranchProtectionBeforeResolvingTheTarget() {
+        rejectRequestedBranch("protected/new");
+        var request = new CreateFromProjectModel(REPOSITORY_ID,
+                "Source",
+                null,
+                "comment",
+                null,
+                "protected/new");
+
+        assertThrows(ConflictException.class,
+                () -> controller.createProjectFromProject(repository, "Copy", request));
+
+        verify(projectCreationTargetResolver, never()).resolve(repository, "protected/new");
+        verify(projectCreationService, never()).copyProject(any(Repository.class), any(), any(), any(), any(), any(),
+                any());
+    }
+
+    @Test
+    void createChecksBranchProtectionBeforeResolvingTheTarget() {
+        rejectRequestedBranch("protected/new");
+
+        assertThrows(ConflictException.class,
+                () -> controller.createProject(repository,
+                        "Project",
+                        null,
+                        "comment",
+                        null,
+                        "predefined",
+                        "templates",
+                        "Sample Project",
+                        "Models",
+                        "rules/Models.xlsx",
+                        "Algorithms",
+                        "rules/Algorithms.xlsx",
+                        false,
+                        null,
+                        "protected/new",
+                        false));
+
+        verify(projectCreationTargetResolver, never()).resolve(repository, "protected/new", true);
+        verify(projectCreationService, never()).createFromTemplate(any(Repository.class), any(), any(), any(), any(),
+                any(), any(), any());
+    }
+
+    @Test
     void createProjectFromArchiveRegistersTagsFromDesignProject() throws Exception {
         when(aclProjectsHelper.hasCreateProjectPermission(REPOSITORY_ID)).thenReturn(true);
         var archive = mock(MultipartFile.class);
@@ -260,6 +316,13 @@ class DesignTimeRepositoryControllerTest {
 
         assertNotNull(size);
         assertEquals(CreateFromWorkspaceModel.MAX_PROJECTS, size.max());
+    }
+
+    private void rejectRequestedBranch(String branch) {
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        doThrow(new ConflictException("repository.branch.message"))
+                .when(bypassService)
+                .requireBypassOrThrow(repository, branch, REPOSITORY_ID, false);
     }
 
 }

@@ -24,9 +24,11 @@ Content-Type: application/json
     }
   },
   "capabilities": {
+    "canDelete": true,
     "canOpen": true,
     "canCompare": true,
     "canViewHistory": true,
+    "canCopy": true,
     "canManageBranches": true,
     "canExport": true
   }

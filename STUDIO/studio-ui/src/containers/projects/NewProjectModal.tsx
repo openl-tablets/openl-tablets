@@ -389,13 +389,27 @@ export const NewProjectModal = ({
     }, [commentSubject, commentTouched, config, mode, open])
 
     useEffect(() => {
+        let active = true
         setBranch('')
         setBranchOptions([])
         setBranchTouched(false)
         if (!open || !repositorySupportsBranches || !repoId) {
             return
         }
-        getDesignRepositoryBranches(repoId).then(setBranchOptions).catch(() => setBranchOptions([]))
+        getDesignRepositoryBranches(repoId)
+            .then(options => {
+                if (active) {
+                    setBranchOptions(options)
+                }
+            })
+            .catch(() => {
+                if (active) {
+                    setBranchOptions([])
+                }
+            })
+        return () => {
+            active = false
+        }
     }, [open, repoId, repositorySupportsBranches])
 
     useEffect(() => {

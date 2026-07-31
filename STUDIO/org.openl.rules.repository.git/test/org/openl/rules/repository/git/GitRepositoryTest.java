@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -1120,6 +1121,28 @@ class GitRepositoryTest {
         assertFalse(branches.contains(deletedBranch));
         assertTrue(repo.branchExists(remoteOnlyBranch));
         assertFalse(repo.branchExists(deletedBranch));
+    }
+
+    @Test
+    void tagWithTheSameNameDoesNotMasqueradeAsABranch() throws Exception {
+        var name = "tag-and-branch";
+        try (var git = repo.getClosableGit()) {
+            git.tag().setName(name).call();
+        }
+
+        assertFalse(repo.branchExists(name));
+        assertThrows(IOException.class, () -> repo.forBranch(name));
+        assertTrue(repo.getBranchStatuses(List.of(name)).isEmpty());
+        assertTrue(repo.getBranchTreeRevisions(List.of(name), "").isEmpty());
+
+        repo.createRepositoryBranch(name, repo.getBranch());
+
+        assertTrue(repo.branchExists(name));
+        assertTrue(repo.getBranchStatuses(List.of(name)).containsKey(name));
+        assertTrue(repo.getBranchTreeRevisions(List.of(name), "").containsKey(name));
+        try (var branchRepository = repo.forBranch(name)) {
+            assertEquals(name, branchRepository.getBranch());
+        }
     }
 
     @Test

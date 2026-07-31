@@ -87,7 +87,8 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public BranchRepository forBranch(String branch) throws IOException {
-        return branchRepository.forBranch(branch);
+        return (BranchRepository) SecuredRepositoryFactory
+                .wrapToSecureRepo(branchRepository.forBranch(branch), simpleRepositoryAclService);
     }
 
     @Override
@@ -102,10 +103,12 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
-        for (FileItem fileItem : conflictResolveData.getResolvedFiles()) {
-            if (simpleRepositoryAclService
-                    .isGranted(getId(), fileItem.getData().getName(), List.of(BasePermission.WRITE))) {
-                throw new AccessDeniedException("There is no permission for merging changes to a branch.");
+        if (conflictResolveData != null) {
+            for (FileItem fileItem : conflictResolveData.getResolvedFiles()) {
+                if (!simpleRepositoryAclService
+                        .isGranted(getId(), fileItem.getData().getName(), List.of(BasePermission.WRITE))) {
+                    throw new AccessDeniedException("There is no permission for merging changes to a branch.");
+                }
             }
         }
         branchRepository.merge(branchFrom, author, conflictResolveData);

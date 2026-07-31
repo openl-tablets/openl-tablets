@@ -70,6 +70,24 @@ class BranchedProjectIndexServiceTest {
     }
 
     @Test
+    void choosesTheActualBaseRefWhenItsConfiguredCasingDiffers() throws Exception {
+        var repository = new TestBranchRepository();
+        repository.baseBranch("MAIN");
+        repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Common");
+        repository.put("feature/rates",
+                "rates-1",
+                "tree-rates",
+                NOW.plusSeconds(60),
+                "DESIGN/Common");
+
+        try (var service = new BranchedProjectIndexService()) {
+            var snapshot = await(service.register(repository.repository(), "DESIGN/"));
+
+            assertEquals("main", snapshot.project("Common").orElseThrow().homeBranch());
+        }
+    }
+
+    @Test
     void choosesNewestNonBaseBranchAndUsesNameAsTieBreaker() throws Exception {
         var repository = new TestBranchRepository();
         repository.put("main", "main-1", "tree-main", NOW);
@@ -438,6 +456,10 @@ class BranchedProjectIndexServiceTest {
 
         private BranchRepository repository() {
             return repository;
+        }
+
+        private void baseBranch(String branch) {
+            when(repository.getBaseBranch()).thenReturn(branch);
         }
 
         private synchronized void put(String branch,

@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -74,6 +75,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ModuleViewModel;
@@ -194,10 +196,12 @@ class WorkspaceProjectServiceTest {
         var workspace = workspaceFor();
         when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
         var service = newService(acl, mock(ProtectedBranchBypassService.class), workspace);
-        var repository = mock(BranchRepository.class);
-        when(repository.getId()).thenReturn("design");
-        when(repository.supports())
-                .thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var rawRepository = mock(BranchRepository.class);
+        var repository = mock(BranchRepository.class, withSettings().extraInterfaces(RepositoryDelegate.class));
+        when(((RepositoryDelegate) repository).getOriginal()).thenReturn(rawRepository);
+        when(rawRepository.getId()).thenReturn("design");
+        when(rawRepository.supports())
+                .thenReturn(new FeaturesBuilder(rawRepository).setBranches(true).build());
         var project = mock(RulesProject.class);
         var artefact = mock(AProjectArtefact.class);
         fillProject(project, repository, "PricingProject", "PricingProject");
@@ -215,7 +219,14 @@ class WorkspaceProjectServiceTest {
         service.createBranch(project, model);
 
         verify(repository).createRepositoryBranch("feature/rates", "main");
+        verify(rawRepository, never()).createRepositoryBranch("feature/rates", "main");
         verify(designTimeRepository).refreshBranch("design", "feature/rates");
+
+        model.setBranch("protected/rates");
+        doThrow(new AccessDeniedException("protected/rates"))
+                .when(repository)
+                .createRepositoryBranch("protected/rates", "main");
+        assertThrows(ForbiddenException.class, () -> service.createBranch(project, model));
     }
 
     @Test

@@ -217,6 +217,7 @@ public class DesignTimeRepositoryController {
         if (!archiveOverwrite && !aclProjectsHelper.hasCreateProjectPermission(repository.getId())) {
             throw new ForbiddenException();
         }
+        allowedToPushRequestedBranch(repository, branch, force);
         var targetRepository = projectCreationTargetResolver.resolve(repository, branch, !archiveOverwrite);
         if (archiveOverwrite) {
             String pathInRepo = targetRepository.supports().mappedFolders()
@@ -309,6 +310,7 @@ public class DesignTimeRepositoryController {
         for (String name : request.names()) {
             validatedCreateModel(repository, name, request.path(), request.comment(), request.branch());
         }
+        allowedToPushRequestedBranch(repository, request.branch(), false);
         var targetRepository = projectCreationTargetResolver.resolve(repository, request.branch());
         allowedToPush(targetRepository, false);
         projectCreationService.uploadLocalProjects(targetRepository,
@@ -328,6 +330,7 @@ public class DesignTimeRepositoryController {
         String comment = StringUtils.isNotBlank(request.comment()) ? request.comment()
                 : getCommentsService(repository.getId()).copiedFrom(request.sourceProjectName());
         var model = validatedCreateModel(repository, projectName, request.path(), comment, request.branch());
+        allowedToPushRequestedBranch(repository, request.branch(), false);
         var targetRepository = projectCreationTargetResolver.resolve(repository, request.branch());
         allowedToPush(targetRepository, false);
         var data = projectCreationService.copyProject(targetRepository, model.getProjectName(),
@@ -391,6 +394,13 @@ public class DesignTimeRepositoryController {
         if (repo.supports().branches()) {
             var branchRepo = (BranchRepository) repo;
             bypassService.requireBypassOrThrow(branchRepo, branchRepo.getBranch(), repo.getId(), force);
+        }
+    }
+
+    private void allowedToPushRequestedBranch(Repository repo, @Nullable String requestedBranch, boolean force) {
+        var branch = StringUtils.trimToNull(requestedBranch);
+        if (branch != null && repo.supports().branches()) {
+            bypassService.requireBypassOrThrow((BranchRepository) repo, branch, repo.getId(), force);
         }
     }
 
