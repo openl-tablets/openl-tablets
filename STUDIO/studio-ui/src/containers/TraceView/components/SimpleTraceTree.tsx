@@ -170,6 +170,9 @@ const flattenSimple = (
 /** The detailed-view marker a failed table node and every step on the path to it carry. */
 const ERROR_SUFFIX = ' = ERROR'
 
+/** Whether a detailed title marks a failed table or step on the error path. */
+const isErrorLabel = (text: string): boolean => text.endsWith(ERROR_SUFFIX)
+
 /**
  * Collect the tree paths to open so a failed run's whole error branch shows at once: every node and step on
  * the path marked "= ERROR". Path keys mirror flattenSimple's. Returns whether this subtree failed, so a
@@ -271,9 +274,11 @@ const SimpleTraceTree: React.FC = () => {
         const node = row.node as CallNodeView
         const target = row.target as SimpleInspectTarget
         const open = () => void inspect(target)
+        const failed = isErrorLabel(node.name)
         return (
             <div
                 key={row.key}
+                data-failed={failed || undefined}
                 data-rowkey={row.key}
                 data-testid={`simple-node-${row.key}`}
                 onClick={open}
@@ -287,8 +292,12 @@ const SimpleTraceTree: React.FC = () => {
                 {twisty(row.expandKey)}
                 {kindIcon(node.kind)}
                 {/* The detailed title carries the kind prefix (DT, SpreadSheet…), so no separate kind tag. It
-                    truncates in place, with the full title on hover only when it does not fit. */}
-                <Typography.Text className={styles.labelText} ellipsis={{ tooltip: node.name }}>
+                    truncates in place, with the full title on hover only when it does not fit. A failed path
+                    paints the whole label red — not only the "= ERROR" suffix. */}
+                <Typography.Text
+                    className={cx(styles.labelText, failed && styles.errorLabel)}
+                    ellipsis={{ tooltip: node.name }}
+                >
                     {node.name}
                 </Typography.Text>
                 <DispatchBadge dispatch={node.dispatch} />
@@ -301,9 +310,11 @@ const SimpleTraceTree: React.FC = () => {
         const target = row.target as SimpleInspectTarget
         const open = () => void inspect(target)
         const label = step.label || step.ref
+        const failed = isErrorLabel(label)
         return (
             <div
                 key={row.key}
+                data-failed={failed || undefined}
                 data-rowkey={row.key}
                 data-testid={`simple-step-${row.key}`}
                 onClick={open}
@@ -316,7 +327,12 @@ const SimpleTraceTree: React.FC = () => {
             >
                 {twisty(row.expandKey)}
                 {stepIcon(row.owner?.kind)}
-                <Typography.Text className={styles.labelText} ellipsis={{ tooltip: label }}>{label}</Typography.Text>
+                <Typography.Text
+                    className={cx(styles.labelText, failed && styles.errorLabel)}
+                    ellipsis={{ tooltip: label }}
+                >
+                    {label}
+                </Typography.Text>
                 {/* A referenced step reads exactly like its original occurrence, tagged so it is clear it
                     is the same step used again — its subtree and value are browsable right here. */}
                 {row.isRef && <span className={styles.kind}>{t('tree.referenceTag')}</span>}

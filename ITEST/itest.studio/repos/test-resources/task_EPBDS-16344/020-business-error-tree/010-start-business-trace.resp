@@ -1,0 +1,70 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "completed",
+  "frames": [],
+  "tree": {
+    "uri": "EPBDS-16344/BugReproducing.xlsx?sheet=Alg&range=C3:D6",
+    "name": "SpreadSheet SpreadsheetResultcalc3 calc3(Type3 originalValue, Type3 overriddenValuess) = ERROR",
+    "instance": 0,
+    "kind": "spreadsheet",
+    "durationMillis": "*",
+    "selfMillis": "*",
+    "steps": [
+      {
+        "ref": "R0C0",
+        "label": "$Coverages = ERROR",
+        "status": "executed",
+        "children": [
+          {
+            "uri": "EPBDS-16344/BugReproducing.xlsx?sheet=Alg&range=C14:D18",
+            "name": "SpreadSheet SpreadsheetResultcalc2 calc2(Type1 someInputValue, Type1[] originalValues) = ERROR",
+            "instance": 0,
+            "kind": "spreadsheet",
+            "durationMillis": "*",
+            "selfMillis": "*",
+            "steps": [
+              {
+                "ref": "R0C0",
+                "label": "$Classes = ERROR",
+                "status": "executed",
+                "children": [
+                  {
+                    "uri": "EPBDS-16344/BugReproducing.xlsx?sheet=Alg&range=C25:D28",
+                    "name": "SpreadSheet SpreadsheetResultcalc1 calc1(Type1 originalValue) = ERROR",
+                    "instance": 0,
+                    "kind": "spreadsheet",
+                    "durationMillis": "*",
+                    "selfMillis": "*",
+                    "steps": [
+                      {
+                        "ref": "R0C0",
+                        "label": "$Step1 = ERROR",
+                        "status": "executed",
+                        "durationMillis": "*",
+                        "selfMillis": "*"
+                      }
+                    ]
+                  }
+                ],
+                "durationMillis": "*",
+                "selfMillis": "*"
+              }
+            ]
+          }
+        ],
+        "durationMillis": "*",
+        "selfMillis": "*"
+      }
+    ]
+  },
+  "profile": {
+    "hotspots": "*",
+    "distinctTables": 3,
+    "nodeCount": 3,
+    "totalMillis": "*",
+    "truncated": false
+  },
+  "sessionId": "***"
+}
