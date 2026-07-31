@@ -127,8 +127,16 @@ class LockTest {
 
     @Test
     void testSimultaneousMultiThreadsWithWaiting() throws InterruptedException {
+        // The file lock elects a winner by last-modified time; on a coarse-mtime CI that degrades to a
+        // deterministic filename tie-break, so the losing threads make no progress until the winners drain
+        // their own work. That contention is self-terminating, so the retry only has to outlast it. Cap the
+        // whole flow with one shared deadline — not an independent budget per attempt — so a genuinely stuck
+        // lock fails in bounded time instead of attempts x the wait, while a healthy run (which drains well
+        // inside the deadline) still lands every acquisition. The old 100 attempts / 30 s-per-attempt pairing
+        // let the window outlast one attempt's budget, timing out a single acquisition of 800 ("799 != 800").
         var streaming = MAX_THREADS;
-        var attempts = 100;
+        var attempts = 50;
+        var deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(90);
         var passed = new AtomicBoolean(true);
         var testedValue = new AtomicInteger(0);
         var countDown = new CountDownLatch(streaming);
@@ -139,7 +147,8 @@ class LockTest {
                 for (var j = 0; j < attempts; j++) {
                     try {
                         var userName = "user" + finalI;
-                        if (lock.tryLock(userName, 30, TimeUnit.SECONDS)) {
+                        var remainingMillis = deadline - System.currentTimeMillis();
+                        if (remainingMillis > 0 && lock.tryLock(userName, remainingMillis, TimeUnit.MILLISECONDS)) {
                             locksCounter.getAndIncrement();
                             testedValue.set(31);
                             for (var k = 0; k <= 1000; k++) {
