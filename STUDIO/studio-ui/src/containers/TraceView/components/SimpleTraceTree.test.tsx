@@ -124,9 +124,14 @@ describe('SimpleTraceTree', () => {
         render(<SimpleTraceTree />)
 
         // The deepest failing table is visible — its whole ancestor path was opened automatically.
-        expect(screen.getByTestId('simple-node-tree/S1#0/C0#0')).toHaveTextContent('uValidate')
+        const failing = screen.getByTestId('simple-node-tree/S1#0/C0#0')
+        expect(failing).toHaveTextContent('uValidate = ERROR')
         // The step that finished before the error is still there, at the top, not forced anywhere.
-        expect(screen.getByTestId('simple-step-tree/S0')).toHaveTextContent('$Base')
+        const finished = screen.getByTestId('simple-step-tree/S0')
+        expect(finished).toHaveTextContent('$Base')
+        // Failed rows paint the whole label red (data-failed); a finished sibling stays unmarked.
+        expect(failing).toHaveAttribute('data-failed', 'true')
+        expect(finished).not.toHaveAttribute('data-failed')
     })
 
     it('leaves a clean run collapsed below the root — nothing to open', () => {

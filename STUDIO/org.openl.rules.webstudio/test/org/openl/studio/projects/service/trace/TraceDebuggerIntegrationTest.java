@@ -3,6 +3,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -314,6 +315,10 @@ class TraceDebuggerIntegrationTest {
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
         assertEquals(List.of("T0", "T1"), uris(debugger));
         assertNotNull(debugger.stack().get(1).getError(), "the throwing frame carries its error");
+        assertNotNull(debugger.stack().get(0).getError(),
+                "the live caller is stamped too, so inspecting it still reads the failure");
+        assertSame(debugger.stack().get(1).getError(), debugger.stack().get(0).getError(),
+                "every live frame shares the same throwable instance");
 
         // Resuming lets the exception propagate; the session ends in error (it does not re-break per frame).
         assertEquals(DebugStatus.ERROR, debugger.command(DebugCommand.RESUME, TIMEOUT));

@@ -132,7 +132,16 @@ const TraceDetails: React.FC = () => {
         }
     }, [focus, projectId, ownerIndex, stackVersion])
 
+    // A business-view click clears the frame while it re-runs to the target, so the previous (often the
+    // throwing child) table is not held on screen. Show a spinner for that window instead of "no selection".
     if (selectedFrameIndex === null) {
+        if (variablesLoading) {
+            return (
+                <div className={cx(styles.details, styles.detailsCentered)} data-testid="debug-details-loading">
+                    <Spin description={t('loadingDetails')} />
+                </div>
+            )
+        }
         return (
             <div className={cx(styles.details, styles.detailsCentered)}>
                 <Empty
@@ -165,6 +174,7 @@ const TraceDetails: React.FC = () => {
     // A focused step shows its own error — the step the run failed on carries it — so clicking the failing
     // step explains why it failed, not only the whole table's frame, like the advanced view shows both.
     const shownErrors = stepView ? stepInputs?.errors ?? undefined : errors
+    const hasErrors = (shownErrors?.length ?? 0) > 0
     // A focused step is self-contained from step-inputs; only the frame view waits on the variables payload.
     const loadingDetails = stepView ? stepInputsLoading : variablesLoading
 
@@ -172,7 +182,9 @@ const TraceDetails: React.FC = () => {
         <div className={styles.details} data-testid="debug-details">
             {/* The business view already names the rule in the tree; a title here would just duplicate it. */}
             {advanced && title && <span className={styles.frameTitle}>{title}</span>}
-            {/* Parameters and Result come first, so they stay reachable above a large traced table. */}
+            {/* Parameters and Result/Errors come first, so they stay reachable above a large traced table.
+                A failed frame or step has no return value — show the error in Result's place instead of an
+                empty Result plus a second Errors block below the table (same layout in both views). */}
             {loadingDetails ? (
                 <div className={styles.detailsCentered}>
                     <Spin description={t('loadingDetails')} />
@@ -185,12 +197,16 @@ const TraceDetails: React.FC = () => {
                         parameters={shownParameters}
                         title={t('details.parameters')}
                     />
-                    <SingleParameter
-                        copyButton={<CopyJsonButton data={shownResult} tooltipKey="copy.result" />}
-                        emptyText={t('details.noResult')}
-                        parameter={shownResult}
-                        title={t('details.result')}
-                    />
+                    {hasErrors ? (
+                        <TraceErrors errors={shownErrors} />
+                    ) : (
+                        <SingleParameter
+                            copyButton={<CopyJsonButton data={shownResult} tooltipKey="copy.result" />}
+                            emptyText={t('details.noResult')}
+                            parameter={shownResult}
+                            title={t('details.result')}
+                        />
+                    )}
                 </>
             )}
             {/* Source table: the owning table of a focused step (its cell highlighted), else the frame's. */}
@@ -220,7 +236,6 @@ const TraceDetails: React.FC = () => {
                             ruleNames={variables?.ruleNames ?? null}
                         />
                     )}
-                    <TraceErrors errors={shownErrors} />
                 </>
             )}
         </div>

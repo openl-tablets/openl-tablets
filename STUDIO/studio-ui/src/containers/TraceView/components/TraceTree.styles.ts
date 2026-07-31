@@ -260,6 +260,13 @@ export const useStyles = createStyles(({ css, token }) => ({
     markError: css`
         color: ${token.colorError};
     `,
+    // A failed business-tree row (table or step marked "= ERROR") — the whole label reads in the error colour.
+    // Beat Ant Design Typography's own colour on the same element.
+    errorLabel: css`
+        &.ant-typography {
+            color: ${token.colorError};
+        }
+    `,
     // A decision table's evaluated conditions: green check when matched, red cross when not — the legacy look.
     condMatched: css`
         color: ${token.colorSuccess};

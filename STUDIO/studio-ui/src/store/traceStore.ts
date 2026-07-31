@@ -532,7 +532,16 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 if (get().projectId !== projectId || get().runId !== runId) return
                 applyStack(stack)
             } catch (error: any) {
-                set({ error: error?.message || 'Failed to load stack' })
+                // applyStack never ran, so a business inspect's loading window would otherwise stick. The
+                // 'suspended' socket event that triggers this refresh leaves status at 'running' (from the
+                // resume) for applyStack to settle; with no applyStack, restore 'suspended' here so the stale
+                // 'running' does not block a business inspect from retrying the highlighted row. The
+                // completed/error refreshes set their terminal status before calling in, so they are untouched.
+                set({
+                    error: error?.message || 'Failed to load stack',
+                    variablesLoading: false,
+                    ...(get().status === 'running' ? { status: 'suspended' as const } : {}),
+                })
             }
         },
 
@@ -583,11 +592,15 @@ export const useTraceStore = create<DebugState>((set, get) => {
         resume: async () => {
             const { projectId } = get()
             if (!projectId) return
-            set({ status: 'running', variables: null, variablesLoading: false })
+            // Drop stale variables, but leave variablesLoading alone on the happy path: a business inspect
+            // may already be spinning with no frame selected until the next stack settles — clearing the
+            // flag would flash the empty "no selection" panel mid-run. On failure there is no settle, so
+            // clear the spinner here.
+            set({ status: 'running', variables: null })
             try {
                 await traceService.resume(projectId)
             } catch (error: any) {
-                set({ status: 'suspended', error: error?.message || 'Resume failed' })
+                set({ status: 'suspended', error: error?.message || 'Resume failed', variablesLoading: false })
             }
         },
 
@@ -836,20 +849,28 @@ export const useTraceStore = create<DebugState>((set, get) => {
         simpleInspect: async ({ key, frameUri, frameInstance, stepType, label, focus, selectionKey }) => {
             const { projectId, simpleReady, simpleLoading, loading, status } = get()
             if (!projectId || !simpleReady || simpleLoading || loading || status === 'running' || inspecting) return
-            // Clicking the row already on screen is a no-op — its inputs and result are shown, nothing to re-run.
+            // Clicking the row already settled on screen is a no-op. A failed or abandoned inspect leaves
+            // the highlight without a selected frame — allow the same row to retry.
             const clickedKey = selectionKey ?? key
-            if (get().simpleSelectedKey === clickedKey) return
+            if (get().simpleSelectedKey === clickedKey && get().selectedFrameIndex !== null) return
             // Single-flight: hold the guard across the whole inspect (its run-to branch neither raises
             // `loading` nor flips status to 'running' until after an awaited round-trip).
             inspecting = true
+            const clearInspectLoading = (): void => set({
+                variablesLoading: false, simpleSelectedKey: null, simpleInspectFrame: null, simpleFocus: null,
+            })
             try {
                 const order = get().simpleOrder[key] ?? null
                 const last = get().simpleLastInspected
                 // The highlight follows the clicked row (selectionKey); the run follows the target (key). A
                 // table row also records its frame, so an error deep in the table it called keeps the clicked
                 // table selected rather than the throwing frame; a focused step tracks its owner instead.
+                // Drop the previous frame from the panel immediately: restartQuietly keeps the last table on
+                // purpose to avoid flashing the root, but when that last table is the throwing child, holding
+                // it until settle looks like a flicker of the error table before the clicked ancestor appears.
                 set({ simpleSelectedKey: clickedKey, simpleLastInspected: order?.end ?? null, simpleFocus: focus ?? null,
-                    simpleInspectFrame: focus ? null : { uri: frameUri, instance: frameInstance } })
+                    simpleInspectFrame: focus ? null : { uri: frameUri, instance: frameInstance },
+                    selectedFrameIndex: null, variables: null, variablesLoading: true })
                 // Execution can only move forward: a row is still reachable by resuming when it starts after
                 // everything the previous inspection already ran — its own subtree included. Anything else
                 // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.
@@ -857,7 +878,10 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 let freshStack: DebugStackView | null = null
                 if (!canResume) {
                     freshStack = await restartQuietly()
-                    if (freshStack?.status !== 'suspended') return
+                    if (freshStack?.status !== 'suspended') {
+                        clearInspectLoading()
+                        return
+                    }
                 }
                 // Execute in place only when paused exactly at the target: a call at its fresh entry (the
                 // root right after a restart), or the owning frame already ON the clicked step's line (the
@@ -875,6 +899,13 @@ export const useTraceStore = create<DebugState>((set, get) => {
                     // it executed, its inputs and result on the stack — a single stop, no follow-up steps.
                     await get().runTo(`after:${key}`, label)
                 }
+                // Success either selected a frame (step) or handed off to a running resume that settles via
+                // the socket. Anything else left the loading window with nowhere to land.
+                if (get().selectedFrameIndex === null && get().status !== 'running') {
+                    clearInspectLoading()
+                }
+            } catch {
+                clearInspectLoading()
             } finally {
                 inspecting = false
             }
