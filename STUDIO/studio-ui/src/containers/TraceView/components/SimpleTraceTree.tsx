@@ -275,9 +275,11 @@ const SimpleTraceTree: React.FC = () => {
         const target = row.target as SimpleInspectTarget
         const open = () => void inspect(target)
         const failed = isErrorLabel(node.name)
+        const selected = selectedKey === (target.selectionKey ?? target.key)
         return (
             <div
                 key={row.key}
+                aria-selected={selected}
                 data-failed={failed || undefined}
                 data-rowkey={row.key}
                 data-testid={`simple-node-${row.key}`}
@@ -286,8 +288,7 @@ const SimpleTraceTree: React.FC = () => {
                 role="treeitem"
                 style={indent(row.depth)}
                 tabIndex={0}
-                className={cx(styles.row, styles.frame, styles.runnable,
-                    selectedKey === (target.selectionKey ?? target.key) && styles.selected)}
+                className={cx(styles.row, styles.frame, styles.runnable, selected && styles.selected)}
             >
                 {twisty(row.expandKey)}
                 {kindIcon(node.kind)}
@@ -311,9 +312,11 @@ const SimpleTraceTree: React.FC = () => {
         const open = () => void inspect(target)
         const label = step.label || step.ref
         const failed = isErrorLabel(label)
+        const selected = selectedKey === (target.selectionKey ?? target.key)
         return (
             <div
                 key={row.key}
+                aria-selected={selected}
                 data-failed={failed || undefined}
                 data-rowkey={row.key}
                 data-testid={`simple-step-${row.key}`}
@@ -322,8 +325,7 @@ const SimpleTraceTree: React.FC = () => {
                 role="treeitem"
                 style={indent(row.depth)}
                 tabIndex={0}
-                className={cx(styles.row, styles.runnable,
-                    selectedKey === (target.selectionKey ?? target.key) && styles.selected)}
+                className={cx(styles.row, styles.runnable, selected && styles.selected)}
             >
                 {twisty(row.expandKey)}
                 {stepIcon(row.owner?.kind)}
