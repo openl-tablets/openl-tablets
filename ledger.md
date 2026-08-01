@@ -9,8 +9,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - Next run, in order: (1) re-seed the container (git identity, gpg unset, `opensaml-bom` stub) — the container is
   rebuilt every time, nothing survives; (2) maintain the open PR until it merges.
 - With no queue row left, a run whose only product is PR maintenance plus ledger compaction is the expected
-  steady state. Do not invent a detector to have something to delete.
+  steady state. Do not invent a detector to have something to delete. Nothing needs rebuilding or re-verifying
+  to reach that state, so skip the reactor install unless a commit is actually being made.
 - Do not re-run PMD or the resource detectors on the same scope — see *Exhausted veins*.
+- Check the re-queued `IT (studio)` and `Tests (without ITEST)` on #1940. The previous run was cancelled after
+  `IT (studio)` ran 90 minutes without finishing; the rerun is the retry, so do not rerun again on this SHA.
 
 ## Change-type queue
 
@@ -38,10 +41,14 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - `676a8e9071 Remove never-read variable and field initializers` — 5 files.
 - `ac445bd038 Remove unused local variables that assertions never read` — 1 file.
 - `90168ba313 Remove an unused private field from the grid-table test stub` — 1 file.
+- The three commits are three different change types — one PMD rule each. They are not same-kind and must not be
+  squashed together; the branch is correctly grouped as it stands.
 - CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module
   has no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
 - Steady state: red only on `Tests (without ITEST)`, which is red on `main` too. Answered in the body. Do not
   rerun and do not comment again.
+- The body is trimmed to current CI state. Everything it claims is still true at head; re-check the counts
+  against `git diff --shortstat` and leave it alone unless a commit changes them.
 
 ## Merged PRs
 
@@ -153,6 +160,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 - Prove non-reference with a plain repo-wide literal search excluding `target/`, `node_modules/` and `.git/` — every
   file type, never a regex scoped to one attribute or one module.
+- **One detector rule is one change type**, so one PMD rule is one commit. The queue rows are coarser than that
+  and group several rules per row — never squash two commits just because they share a queue row.
 - For a bundle key, search the full dotted path **and** the bare leaf name; either hit means keep.
 - Validate any new bulk detector by feeding it two fabricated names; if they come back "referenced", the search is
   wrong, not the repository. For a linter, plant a violation and confirm it is reported.
@@ -236,6 +245,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - **`Tests (without ITEST)` has two independent causes; identify which one fired before answering.** Read the
   `-rf :<module>` hint: `org.openl.rules.repository` is the LockTest timeout, `studio-ui` is the frontend flake.
   They alternate — each has passed on a run where the other failed, so a green studio-ui does not mean a green job.
+- **`IT (studio)` has two failure shapes; separate them by duration.** Normal is 6-8 min. (a) Fails in 3-7 min at
+  `-rf :itest.studio.repos` with three assertion diffs under `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify`
+  — the same-second commit-ordering race, also on `main`, 1 run in 7. (b) Runs far past 8 min with every step
+  logging `HttpTimeoutException` at 10001ms — WebStudio under Jetty stopped answering; no test is at fault.
+- Shape (b) never self-terminates before the 6 h job limit. Cancel the whole run, then `rerun_failed_jobs`; that
+  counts as the SHA's one retry. `IT (studio)` passing on the previous commit is the proof it is environmental.
 - A floating container tag can break a job for hours and then fix itself: `apache/kafka-native:latest` segfaulted
   in its own native-image bootstrap and `IT (services-data)` went green again a day later with no code change.
   Before escalating an image failure, check whether a later run of the same job already recovered.
@@ -312,9 +327,13 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
   import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
   or swept until then, and the stub has to be re-seeded on every container rebuild.
-- `main` is red: `LockTest.testSimultaneousMultiThreadsWithWaiting` keeps the `Quick Build` unit-test job failing, so
+- `main` is red: `LockTest.testSimultaneousMultiThreadsWithWaiting` fails on all 7 of the last 7 `main` runs, so
   no pull request can reach a fully green CI. Its sibling is already `@Disabled` as unstable; this one needs the same
   decision or a real fix. It passes on this container, so it is load-sensitive, not broken.
+- `itest.studio.repos` has a same-second commit-ordering race: when a scenario's two commits land in the same second
+  the history endpoint returns them oldest-first, so `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify` reads
+  the pre-merge revision and an empty table list. Needs a tiebreaker in the ordering or a fixture that does not
+  depend on it. Intermittent on `main`, so it will keep costing pull requests a rerun.
 - Decide whether the tableeditor JSP taglib (`META-INF/tableeditor.tld` plus `TableEditorTag`/`TableViewerTag`) is
   still reachable by any downstream consumer. It is the largest single dead-code candidate found so far — 18
   write-only fields and two classes — and no in-repository evidence can settle it.
@@ -329,9 +348,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-01 — fifth run. #1933 merged. Found the fast-install flag, so the whole reactor plus PMD plus dependency
-  analysis fit in one run. Rows 9-13 all swept; 3 never-read initializers removed, everything else deferred.
 - 08-01 — sixth run. Closed the last two open scopes: PMD over test sources and whole-type deadness over Java.
   5 removals folded into #1940 as 2 commits; 13 findings rejected, 6 new false-positive shapes recorded.
 - 08-01 — seventh run. Settled the last four test fixtures: 3 are deliberate negative fixtures, 1 removed as
   #1940's third commit. Kafka blocker cleared itself; escalation withdrawn. Queue fully done.
+- 08-01 — eighth run. First pure-maintenance run: no queue row left, no detector re-run, no build. Diagnosed both
+  `IT (studio)` shapes, cancelled a 90-minute stalled run and re-queued it, and rewrote #1940's CI section.
