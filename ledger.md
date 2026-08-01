@@ -12,8 +12,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   steady state. Do not invent a detector to have something to delete. Nothing needs rebuilding or re-verifying
   to reach that state, so skip the reactor install unless a commit is actually being made.
 - Do not re-run PMD or the resource detectors on the same scope — see *Exhausted veins*.
-- #1940 is back to its steady state: `IT (studio)` green on rerun, everything green except the `main`-wide
-  `LockTest` red. The SHA's one rerun is spent — do not rerun anything on `90168ba313`.
+- **New scope exists only when `main` moves.** Compare `git merge-base origin/main origin/dead-code/java-internals`
+  with `origin/main` first; while they are equal no code has changed since the last sweep, so go straight to
+  maintenance instead of looking for something to delete.
+- #1940 is settled and waiting on a human reviewer: everything green except the `main`-wide `LockTest` red. The
+  rerun budget on head `90168ba313` is spent — do not rerun, do not comment again, do not edit the body.
 
 ## Change-type queue
 
@@ -45,10 +48,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   squashed together; the branch is correctly grouped as it stands.
 - CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module
   has no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
-- Steady state: red only on `Tests (without ITEST)`, which is red on `main` too. Answered in the body. Do not
-  rerun and do not comment again.
-- The body is trimmed to current CI state. Everything it claims is still true at head; re-check the counts
-  against `git diff --shortstat` and leave it alone unless a commit changes them.
+- Steady state: red only on `Tests (without ITEST)`, resume hint `-rf :org.openl.rules.repository`, which is the
+  `LockTest` timeout red on `main` too. Answered in the body — do not rerun and do not comment again.
+- The body's counts and CI claims were re-verified against `git diff --shortstat` and the latest `main` runs and
+  are all still true at head. Leave the body alone unless a commit changes them.
 
 ## Merged PRs
 
@@ -73,9 +76,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
   `TableSyntaxNodeDispatcherBuilder:136` — the whole chain is inert, but the setter is public API in `DEV/**`.
 - `WSFrontend` `ServiceManagerImpl:230` re-assigns `serviceDescriptionInProcess` to the value already assigned at
-  228. The field is private and written only in the private `deploy`/`undeploy` pair, reachable only from the
-  private `processServices`, so 230 matters only if rules compilation re-enters that flow. Proving it dead is an
-  absence-of-path argument through the whole compile subsystem for a one-line payoff — leave it.
+  228. Proving 230 dead is an absence-of-path argument through the whole compile subsystem for a one-line payoff.
 - `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — the flagged `messagesCount++` passes its value to
   `error(...)`; only the increment is wasted, so this is an expression rewrite, not a deletion. Out of scope.
 - `JsonUtilsTest.KeyClass.field` — written by the constructor, read by nobody, but the class is a cache key whose
@@ -348,9 +349,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-01 — sixth run. Closed the last two open scopes: PMD over test sources and whole-type deadness over Java.
-  5 removals folded into #1940 as 2 commits; 13 findings rejected, 6 new false-positive shapes recorded.
 - 08-01 — seventh run. Settled the last four test fixtures: 3 are deliberate negative fixtures, 1 removed as
   #1940's third commit. Kafka blocker cleared itself; escalation withdrawn. Queue fully done.
 - 08-01 — eighth run. First pure-maintenance run: no queue row left, no detector re-run, no build. Diagnosed both
   `IT (studio)` shapes, cancelled a 90-minute stalled run and re-queued it, and rewrote #1940's CI section.
+- 08-01 — ninth run. `main` unmoved since #1940's merge base, so no new scope existed. Re-verified #1940 end to
+  end — body counts, commit grouping, the one red check — and changed nothing on it. Ledger compaction only.
