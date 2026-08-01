@@ -4285,8 +4285,8 @@ public final class DecisionTableHelper {
     private static class FuzzyContext {
         @Getter(AccessLevel.PACKAGE)
         final ParameterTokens parameterTokens;
-        Token[] returnTokens = null;
-        Map<Token, IOpenField[][]> returnTypeFuzzyTokens = null;
+        Token[] returnTokens;
+        Map<Token, IOpenField[][]> returnTypeFuzzyTokens;
         @Getter(AccessLevel.PACKAGE)
         IOpenClass fuzzyReturnType;
         @Getter

@@ -46,7 +46,7 @@ class GitMultiUserWorkTest {
         for (var i = 0; i < MAX_THREADS; i++) {
             final var idx = i;
             new Thread(() -> {
-                GitRepository branchRepo = null;
+                GitRepository branchRepo;
                 try {
                     var branchName = "branch" + idx;
                     var projectPath = FOLDER_IN_REPOSITORY + "_" + idx;
