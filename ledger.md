@@ -4,11 +4,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Every queue row is swept, main sources and test sources both. The cheap detectors are mined out; what is left
-  is the deferred list below, and each entry needs a targeted proof rather than a new detector run.
+- Every queue row is swept and settled. The detectors are mined out; every remaining candidate is in *Deferred
+  findings* and needs a human decision, not another scan.
 - Next run, in order: (1) re-seed the container (git identity, gpg unset, `opensaml-bom` stub) — the container is
-  rebuilt every time, nothing survives; (2) maintain the open PR; (3) settle the four test-fixture members under
-  *Deferred findings*, which need each test's intent read, not a detector.
+  rebuilt every time, nothing survives; (2) maintain the open PR until it merges.
+- With no queue row left, a run whose only product is PR maintenance plus ledger compaction is the expected
+  steady state. Do not invent a detector to have something to delete.
 - Do not re-run PMD or the resource detectors on the same scope — see *Exhausted veins*.
 
 ## Change-type queue
@@ -24,22 +25,23 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 | 7 | Unreferenced exported TS symbols and modules | done, only deferred findings |
 | 8 | Dead functions inside legacy `.js` | done, merged in #1933 |
 | 9 | Never-read assignments (PMD) | done main+test, 6 removed in #1940 |
-| 10 | Unused private fields and locals (PMD) | locals done (2 removed, #1940); fields all deferred |
-| 11 | Unused private methods and formal params (PMD) | done main; 3 test-fixture methods deferred |
+| 10 | Unused private fields and locals (PMD) | done, 3 removed in #1940; the other 20 fields deferred |
+| 11 | Unused private methods and formal params (PMD) | done main+test, no removable finding |
 | 12 | Unused nested / effectively-private types (javac) | done, no findings |
 | 13 | Unused declared Maven dependencies | done for 52 modules, no provable finding |
 | 14 | Whole-type deadness over Java simple names | done, all 853 non-public top-level types alive |
 
 ## Open PR
 
-- Branch `dead-code/java-internals`, PR #1940, ready for review, 2 commits, 6 files / 8 insertions / 9 deletions.
+- Branch `dead-code/java-internals`, PR #1940, ready for review, 3 commits, 7 files / 8 insertions / 12 deletions.
   No review threads.
 - `676a8e9071 Remove never-read variable and field initializers` — 5 files.
 - `ac445bd038 Remove unused local variables that assertions never read` — 1 file.
+- `90168ba313 Remove an unused private field from the grid-table test stub` — 1 file.
 - CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module
   has no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
-- Steady state: red only on `IT (services-data)` (the kafka image blocker) and `Tests (without ITEST)`, which is
-  red on `main` too. Both answered in the body. Do not rerun and do not comment again.
+- Steady state: red only on `Tests (without ITEST)`, which is red on `main` too. Answered in the body. Do not
+  rerun and do not comment again.
 
 ## Merged PRs
 
@@ -69,9 +71,6 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   absence-of-path argument through the whole compile subsystem for a one-line payoff — leave it.
 - `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — the flagged `messagesCount++` passes its value to
   `error(...)`; only the increment is wasted, so this is an expression rewrite, not a deletion. Out of scope.
-- Four test-fixture members PMD calls unused, each needing its test's intent read before removal:
-  `JavaOpenClassTest.gg` and `AOpenClassTest.getC()` sit in tests of OpenL's own member discovery,
-  `epbds6830/BeanA.getAB()` is a generated-bean fixture, `datatype/binding/Cell.metaInfo` a datatype fixture.
 - `JsonUtilsTest.KeyClass.field` — written by the constructor, read by nobody, but the class is a cache key whose
   identity semantics the GC tests rely on, and the string labels document which test owns which mapper.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
@@ -104,6 +103,13 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   cache key can be collected. Never delete a null-out that sits near `Runtime.gc()` or a weak/soft reference.
 - **Fields of a fixture class handed to a serializer are its contract.** `JsonUtilsTest.BindingClasses` is passed
   to `getCachedObjectMapper` as the binding target, so its "unused" fields are what the test binds.
+- **A private member can exist so a test asserts it is *not* found.** `AOpenClassTest.C.getC()` is what
+  `assertNull(findMethod(methods, "getC"))` fails against; deleting it leaves the assertion passing but vacuous.
+- **A private field can back a setter that bean introspection discovers.** `JavaOpenClassTest.BeanA.gg` is read
+  by no code, but `setGg` is what makes the asserted `gg` property writable. Search for an accessor, not a read.
+- **A deliberately malformed bean encodes one defect per expected error.** `epbds6830.BeanA` feeds
+  `EPBDS-6830_external_datatypes_validation.xlsx.msg.txt`; its private, wrongly-cased `getAB()` is one of them.
+  The message list is unchanged by removing it — that is why the loss would be silent. Check the `.msg.txt` first.
 - **Surefire's default includes match a `Test` prefix as well as a suffix**, so `TestIf`, `TestAutoType0` and
   friends are executed although nothing names them. Never call a `Test*` class dead.
 - **A `@Component`/`@Service` class implementing an interface is injected by interface type**, so its own name
@@ -179,6 +185,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   `mvn org.apache.maven.plugins:maven-pmd-plugin:3.28.0:pmd -fae`, and run it online the first time.
 - GitHub Actions compiles every push against the real opensaml BOM, so CI is the authoritative gate on anything the
   locally stubbed build could not verify.
+- **Never edit a source file while a Maven build is running.** A half-applied edit — import gone, field still
+  there — reads as a genuine compile error and costs the whole reactor pass. Finish the edits, then build.
+- `pgrep -f <pattern>` matches the polling shell's own command line, so a wait loop on it never exits. Poll the
+  log's mtime, or grep the process list for the JVM path instead.
 
 ## Keep-list
 
@@ -226,12 +236,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - **`Tests (without ITEST)` has two independent causes; identify which one fired before answering.** Read the
   `-rf :<module>` hint: `org.openl.rules.repository` is the LockTest timeout, `studio-ui` is the frontend flake.
   They alternate — each has passed on a run where the other failed, so a green studio-ui does not mean a green job.
-- **`apache/kafka-native:latest` no longer starts on the runners — deterministic, not a flake. Do not rerun.** Job
-  `IT (services-data)`, tell `SegfaultHandler caught a segfault` in `com.oracle.svm.core.posix.headers.Pwd.getpwuid`
-  reading `user.name`, then `Timed out waiting for log output matching '.*Transitioning from RECOVERY to RUNNING.*'`.
-  It crashed identically on two runner VMs in two different suites, so it follows whichever Kafka suite runs first.
-  Green on PR #1939 at 2026-08-01 07:47Z, broken from ~15:05Z the same day; the tag floats, so a republished image
-  is the likely cause. Escalated to the maintainers — see *Human follow-ups*. Never pin the tag yourself.
+- A floating container tag can break a job for hours and then fix itself: `apache/kafka-native:latest` segfaulted
+  in its own native-image bootstrap and `IT (services-data)` went green again a day later with no code change.
+  Before escalating an image failure, check whether a later run of the same job already recovered.
 - `rerun_failed_jobs` returns 403 "This workflow is already running" until every other job in the run has finished;
   wait for the run to complete before retrying.
 
@@ -263,7 +270,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - **The container presets a git config that misattributes commits and breaks tests**: `user.name=Claude`,
   `commit.gpgsign=true`, `gpg.format=ssh`. Every JGit commit in `STUDIO/org.openl.rules.repository.git` then dies
   with "No signer for ssh signatures" — 15 test errors that are not a code defect. Unset `commit.gpgsign`,
-  `user.signingkey`, `gpg.format`, `gpg.ssh.program` and set the Yury Molchan identity before building.
+  `user.signingkey`, `gpg.format`, `gpg.ssh.program` before building.
+- **`/root/.gitconfig` is rewritten back to `Claude` while the run is in flight**, so setting only the global
+  identity is not enough — it silently reverts. Set `git config --local user.name/user.email` in the clone too,
+  and repair a bad commit with `git commit --amend --reset-author`: a plain `--amend` keeps the old author even
+  when `GIT_AUTHOR_*` is exported. Verify with `git log --pretty='%an <%ae> | %cn <%ce>'`, which shows both sides.
 - Listing workflow runs through the GitHub MCP tool overflows the tool result. It saves the JSON to a file; parse that
   with python instead of retrying with a smaller page size. The unit-test workflow is `build-quick.yml`.
 
@@ -291,13 +302,13 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
   entry on runtime wiring.
+- Every `org.openl.*` class name referenced from `.xml`, `.xhtml`, `.properties`, `.tld`, `.yaml`, `.json` and
+  `.txt`, resolved against the source tree. The ~90 with no `.java` are all runtime-generated datatype and
+  spreadsheet-result beans or rule-project fixtures under test resources. No stale configuration exists; do not
+  repeat this scan.
 
 ## Human follow-ups
 
-- **`apache/kafka-native:latest` stopped starting on the GitHub runners on 2026-08-01**, segfaulting inside its own
-  native-image bootstrap. It blocks `IT (services-data)` on every pull request and on `main`, and reruns do not
-  clear it. Someone has to pin a working Kafka image or update the runner image; this routine only deletes and must
-  not change a container tag. Evidence is in PR #1940.
 - **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
   import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
   or swept until then, and the stub has to be re-seeded on every container rebuild.
@@ -318,8 +329,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 07-30 — fourth run. Broke the Maven blockade with a local empty `opensaml-bom` stub; nothing deleted.
 - 08-01 — fifth run. #1933 merged. Found the fast-install flag, so the whole reactor plus PMD plus dependency
   analysis fit in one run. Rows 9-13 all swept; 3 never-read initializers removed, everything else deferred.
 - 08-01 — sixth run. Closed the last two open scopes: PMD over test sources and whole-type deadness over Java.
   5 removals folded into #1940 as 2 commits; 13 findings rejected, 6 new false-positive shapes recorded.
+- 08-01 — seventh run. Settled the last four test fixtures: 3 are deliberate negative fixtures, 1 removed as
+  #1940's third commit. Kafka blocker cleared itself; escalation withdrawn. Queue fully done.
