@@ -195,13 +195,15 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - **`Tests (without ITEST)` has two independent causes; identify which one fired before answering.** Read the
   `-rf :<module>` hint: `org.openl.rules.repository` is the LockTest timeout below, `studio-ui` is the frontend
   flake above. They alternate — LockTest passed on the run where studio-ui failed.
-- `RunTracingITest.setUp` in `ITEST/itest.tracing` fails when the `apache/kafka-native:latest` container segfaults
-  during its own startup — job `IT (services-data)`, tell `SegfaultHandler caught a segfault` in
-  `com.oracle.svm.core.posix.headers.Pwd.getpwuid` reading `user.name`, then `Timed out waiting for log output
-  matching '.*Transitioning from RECOVERY to RUNNING.*'`. It crashes before any OpenL code runs, and `ITEST - Kafka
-  Smoke` passes in the same run, so it is never your breakage. Rerun, at most twice per SHA. The tag floats — never
-  pin it. `rerun_failed_jobs` returns 403 "This workflow is already running" until every other job in the run has
-  finished, so wait for the run to complete before retrying.
+- **`apache/kafka-native:latest` no longer starts on the runners — deterministic, not a flake. Do not rerun.** Job
+  `IT (services-data)`, tell `SegfaultHandler caught a segfault` in `com.oracle.svm.core.posix.headers.Pwd.getpwuid`
+  reading `user.name`, then `Timed out waiting for log output matching '.*Transitioning from RECOVERY to RUNNING.*'`.
+  It crashed identically on two runner VMs in two different suites (`RunTracingITest`, then `RunKafkaSmokeITest`
+  which had passed minutes earlier), so it follows whichever Kafka suite runs first. Green on PR #1939 at
+  2026-08-01 07:47Z, broken from ~15:05Z the same day; the tag floats, so a republished image is the likely cause.
+  Escalated to the maintainers — see *Human follow-ups*. Never pin the tag yourself.
+- `rerun_failed_jobs` returns 403 "This workflow is already running" until every other job in the run has finished;
+  wait for the run to complete before retrying.
 
 ## Container facts
 
@@ -258,6 +260,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Human follow-ups
 
+- **`apache/kafka-native:latest` stopped starting on the GitHub runners on 2026-08-01**, segfaulting inside its own
+  native-image bootstrap. It blocks `IT (services-data)` on every pull request and on `main`, and reruns do not
+  clear it. Someone has to pin a working Kafka image or update the runner image; this routine only deletes and must
+  not change a container tag. Evidence is in PR #1940.
 - **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
   import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
   or swept until then, and the stub has to be re-seeded on every container rebuild.
