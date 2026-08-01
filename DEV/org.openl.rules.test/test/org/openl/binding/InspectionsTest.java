@@ -11,7 +11,6 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.Severity;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.CompositeMethod;
 
 class InspectionsTest {
     private static final String ALWAYS_TRUE = "Condition is always true.";
@@ -87,7 +86,7 @@ class InspectionsTest {
         var bindingContext = openl.getBinder().makeBindingContext();
         IOpenMethodHeader header = OpenLManager
                 .makeMethodHeader(openl, new StringSourceCodeModule("Object main()", null), bindingContext);
-        CompositeMethod compositeMethod = OpenLManager.makeMethod(openl, source, header, bindingContext);
+        OpenLManager.makeMethod(openl, source, header, bindingContext);
 
         assertEquals(1, bindingContext.getMessages().size());
         var message = bindingContext.getMessages().iterator().next();
@@ -104,7 +103,7 @@ class InspectionsTest {
         var bindingContext = openl.getBinder().makeBindingContext();
         IOpenMethodHeader header = OpenLManager
                 .makeMethodHeader(openl, new StringSourceCodeModule("Object main()", null), bindingContext);
-        CompositeMethod compositeMethod = OpenLManager.makeMethod(openl, source, header, bindingContext);
+        OpenLManager.makeMethod(openl, source, header, bindingContext);
 
         assertTrue(bindingContext.getMessages().isEmpty());
 
