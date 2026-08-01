@@ -140,7 +140,7 @@ class DispatchingTest {
     @Test
     void testDatesDispatching() {
         MyRule myRule = TestUtils.create("test/rules/dispatching/EPBDS-10367_dates_Dispatching.xlsx", MyRule.class);
-        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        IRulesRuntimeContext context;
         assertEquals(myRule.myRule(13), (Double) 7.0);
 
         context = RulesRuntimeContextFactory.buildRulesRuntimeContext();

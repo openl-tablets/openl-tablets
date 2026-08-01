@@ -32,7 +32,7 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
     private final IOpenSourceCodeModule baseModule;
     @Getter
     private final int startPosition;
-    private int endPosition = 0;
+    private int endPosition;
 
     @Getter
     @Setter

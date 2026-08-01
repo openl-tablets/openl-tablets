@@ -416,7 +416,7 @@ class GitRepositoryMergeConflictsInExcelTest {
         assertFalse(filesToVerify.isEmpty());
         ZipSecureFile.setMinInflateRatio(0.001);
         for (String fileToVerify : filesToVerify) {
-            Map<String, XlsMatch> matchResult = null;
+            Map<String, XlsMatch> matchResult;
             boolean hssf;
             Map<Short, XlsMatch> paletteMatchResult = null;
             try (var file1 = repo.readHistory(fileToVerify, masterToBranchMergeCommit);
