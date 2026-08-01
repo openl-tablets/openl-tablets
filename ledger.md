@@ -4,13 +4,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Maven is no longer blocked.** A local stub of `opensaml-bom` makes the whole reactor build here (see
-  *Container facts*). The three-run stall is over; queue rows 9-13 are workable.
-- Open PR #1933 on `dead-code/studio-resources`, 2 commits, head `4d1cf6b657`, body verified against the diff
-  (12 files, 1 insertion, 74 deletions). No review threads. Only red job is the `main`-wide `LockTest` failure.
-- First actions next run, in order: fix the container git config, seed the `opensaml-bom` stub, start the reactor
-  install with `-fae` (budget an hour), then `mvn -o pmd:pmd` from the root and sweep queue rows 9-13. Do not re-mine
-  resources — every resource vein is closed.
+- Every queue row is now swept at least once. The cheap detectors are mined out; what is left is the deferred list
+  below, and each entry needs a targeted proof rather than a new detector run.
+- Next run, in order: (1) re-seed the container (git identity, `opensaml-bom` stub) — the container is rebuilt every
+  time, nothing survives; (2) maintain the open PR; (3) attack the deferred set, best first: the tableeditor JSP
+  taglib, then the Maven runtime-vs-compile dependency question.
+- Do not re-run PMD or the resource detectors on the same scope — see *Exhausted veins*.
 
 ## Change-type queue
 
@@ -21,38 +20,46 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 | 3 | Dead CSS classes and ids | done, only `.te_hidden`, deferred |
 | 4 | Unreferenced `.js` files | done, no findings |
 | 5 | Unused `.properties` keys | done, no findings |
-| 6 | Unused i18n keys in studio-ui bundles | done, 57 keys in PR #1933 |
+| 6 | Unused i18n keys in studio-ui bundles | done, merged in #1933 |
 | 7 | Unreferenced exported TS symbols and modules | done, only deferred findings |
-| 8 | Dead functions inside legacy `.js` | done, `PopupMenu.showChild` in PR #1933 |
-| 9 | Never-read assignments (PMD) | ready, Maven unblocked |
-| 10 | Unused private fields and locals (PMD) | ready, Maven unblocked |
-| 11 | Unused private methods and formal params (PMD) | ready, Maven unblocked |
-| 12 | Unused nested / effectively-private types (javac) | ready, Maven unblocked |
-| 13 | Unused declared Maven dependencies | ready, Maven unblocked |
+| 8 | Dead functions inside legacy `.js` | done, merged in #1933 |
+| 9 | Never-read assignments (PMD) | done, 3 removed, 8 were false positives |
+| 10 | Unused private fields and locals (PMD) | done, all 20 deferred or false positives |
+| 11 | Unused private methods and formal params (PMD) | done, no findings — all sites already `@SuppressWarnings` |
+| 12 | Unused nested / effectively-private types (javac) | done, no findings |
+| 13 | Unused declared Maven dependencies | done for 52 modules, no provable finding |
 
 ## Open PR
 
-- Branch `dead-code/studio-resources`, PR #1933, head `4d1cf6b657`, ready for review.
-- Commit 1 `ba44801c5e` — `Remove i18n keys no longer referenced by any studio-ui component` (9 files, 63 deletions).
-- Commit 2 `4d1cf6b657` — `Remove the uncalled PopupMenu.showChild helper from the legacy table editor`
-  (3 files: the source plus both regenerated JS bundles).
-- Two distinct change types, so nothing to squash. The `LockTest` job is already answered in two comments — do not
-  comment on it a third time, and do not spend a re-run while `main` is red.
-- CodeRabbit's walkthrough claims `repository.en.ts` "replaces `tab_deploy_config` with nested strings". It is wrong:
-  that file is 0 insertions / 21 deletions. No thread was opened, so nothing to answer.
+- Branch `dead-code/java-internals`, PR #1940, ready for review, 1 commit, 2 files / 3 lines. No review threads yet.
+- Commit `Remove never-read field initializers in the DEV rules engine` — 2 files, 3 lines.
 
 ## Merged PRs
 
-(none)
+- #1933, 12 files / 74 deletions — studio-ui i18n keys plus `PopupMenu.showChild`. Merged by yurkom with the
+  `LockTest` job still red; that job fails on `main` too, so a red `Tests (without ITEST)` does not block a merge here.
 
 ## Module coverage
 
-- `STUDIO/studio-ui` — locale bundles, whole import graph, eslint unused rules, npm dependencies: only deferrals left.
-- `STUDIO/org.openl.rules.webstudio`, `STUDIO/org.openl.rules.tableeditor` — resources and hand-written JS swept.
-- Every other module — Java untouched so far; now reachable.
+- `STUDIO/studio-ui` — locale bundles, import graph, eslint, npm dependencies: only deferrals left.
+- `STUDIO/org.openl.rules.webstudio` — never swept; it cannot be compiled here (see *Container facts*).
+- Every other module — PMD and javac swept; findings are in *Deferred findings* or were false positives.
 
 ## Deferred findings
 
+- `STUDIO/org.openl.rules.tableeditor` `taglib/TableEditorTag.java` (11 unread private fields) and
+  `taglib/TableViewerTag.java` (7). Each field is written by a public setter and read by nobody. Both classes are
+  named only by `META-INF/tableeditor.tld`. **The whole JSP taglib is the real candidate** — prove first that no
+  JSP page and no container auto-scan uses the `.tld`, then remove tld plus both classes together. Do not touch the
+  fields alone: the setters are the taglib's declared attribute contract.
+- `STUDIO/org.openl.security` `SimpleGroup.description` — written by a public setter and a public constructor
+  parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
+- `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
+  `TableSyntaxNodeDispatcherBuilder:136` — the whole chain is inert, but the setter is public API in `DEV/**`.
+- `WSFrontend` `ServiceManagerImpl:230` — re-assigns `serviceDescriptionInProcess` to the value already assigned at
+  228. Provably a no-op, but PMD flagged 228 (which is load-bearing) and not 230, so no detector proves 230.
+- `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — two dead `messagesCount++` before a `continue`. The
+  other ten call sites in the method use the same idiom; changing two of twelve is churn, not cleanup.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
   `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract documented in
   `Docs/api/projects-merge-api.md` with a Java record and an OpenAPI schema. Needs a human decision.
@@ -67,6 +74,18 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## False-positive shapes
 
+- **PMD field-initializer "never used" ignores an early `return` in the constructor.** `CellStyle` returns when its
+  argument is null, so `= HorizontalAlignment.GENERAL` is observable. Check every constructor path before deleting.
+- **PMD treats an assignment in a `try` as overwritten by one in the `catch`.** `GitRepository` assigns `result` in
+  the try and nulls it in the catch; both are live. Any try/catch pair on the same variable reads as a violation.
+- **A field can be written so that a call made on the next line reads it back.** `ServiceManagerImpl` sets
+  `serviceDescriptionInProcess` before `createService`, which reaches it through `getRulesDeployInProcess()`. Look
+  for a getter on the same field before calling any field assignment dead.
+- **A field can be blanked to change what a resolver returns, then restored.** `DynamicPropertySource` sets
+  `settings = Map.of()` so `resolver.getRawProperty` falls through to defaults. Self-referential property sources
+  defeat dataflow entirely.
+- A `for (Object item : c) { size++; }` counting loop reports `item` as an unused local; the variable is required
+  syntax and cannot be removed.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
   prefix as keeping its whole family alive. `t(someKeyVariable)` means the literals sit at the call sites instead.
@@ -76,8 +95,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - A regex of `#[a-zA-Z0-9]+` over CSS reports every hex colour as an id selector. Filter hex before reading results.
 - `.properties` keys are routinely assembled from a prefix plus a runtime segment — see Keep-list for each convention.
 - An interface with zero code references can still be a documented API contract mirrored from the backend.
-- `\b` does not match before `$`, so a `\b`-anchored search finds no call site for a `$`-leading name. `$cell` in
-  `TableEditor.js` looked dead while `this.$cell(cellPos)` sat two lines below. Use `(?<![\w$])name(?![\w$])`.
+- `\b` does not match before `$`, so a `\b`-anchored search finds no call site for a `$`-leading name. Use
+  `(?<![\w$])name(?![\w$])`.
 - A name defined as a key in an options object literal passed to a framework is a callback, not something anyone calls
   by name — `onFailure` in `TableEditor.js` belongs to `new Ajax.Request(...)`. Check the enclosing call first.
 - A module can be imported by a specifier that already carries its extension (`from './App.styles.ts'`), which
@@ -110,16 +129,19 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   sources using the checked-in `yuicompressor-2.4.7.jar`, so any source removal must regenerate them in the same
   commit. `compile.css.sh` does **not** reproduce the committed CSS bundles — never regenerate those.
 - Run the frontend gate from `STUDIO/studio-ui` with no Maven build competing: `npx tsc --noEmit`, `npx eslint src`
-  (whole tree, not just edited files), `npx vitest run`. Baseline is 162 files / 1410 tests green, eslint and tsc clean.
-  `@typescript-eslint/no-unused-vars` is `warn`, so read the output, not just the exit code.
+  (whole tree), `npx vitest run`. Baseline 162 files / 1410 tests green. `no-unused-vars` is `warn`, so read the
+  output, not the exit code.
 - `npm ci` works here — registry.npmjs.org bypasses the proxy. `node_modules` is gitignored.
 - When a deletion empties a parent object literal, delete the parent in the same commit.
 - A PR body loses angle-bracketed placeholders even inside backticks — write such a segment as prose, then re-read the
   stored body to confirm.
 - Documentation is this repository's approved source of truth, so a `Docs/` markdown page that nothing links to is
   not a deletion candidate — Jekyll publishes it regardless. Treat the whole `Docs/` prose tree as out of scope.
-- Build with `mvn clean install -Dquick -DnoPerf -T1C -fae`. `-Dquick` leaves `skipTestsForQuick=false`, so unit tests
-  still compile and run; only Docker tests drop out. Never verify with `-DskipTests` — it skips test compilation.
+- **PMD report XML uses namespace `http://pmd.sourceforge.net/report/2.0.0`** (slash-dot, not underscores). A parser
+  built for the ruleset namespace silently returns zero violations from a non-empty report.
+- Most `target/pmd.xml` files here contain only `<suppressedviolation>` elements — grep `<violation ` to find the
+  reports that matter. The repository already annotates its JAXB `beforeMarshal`/`afterUnmarshal` hooks with
+  `@SuppressWarnings`, which is why rows 11 and 12 come back empty.
 - GitHub Actions compiles every push against the real opensaml BOM, so CI is the authoritative gate on anything the
   locally stubbed build could not verify.
 
@@ -150,6 +172,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   serialization hook the JVM calls reflectively — PMD reports it as unused. Never delete one.
 - A private field carrying an injection or binding annotation (`@Autowired`, `@Inject`, `@Value`, `@Mock`,
   `@InjectMocks`, `@PersistenceContext`, a Jackson or JAXB annotation) is written by a framework, not by code.
+- **`dependency:analyze-only` cannot see runtime wiring**, and every "Unused declared" hit in this repository so far
+  is one of: `lombok`/`jmh-generator-annprocess` (annotation processors), `jspecify` (CLASS-retention annotations
+  the root `AGENTS.md` mandates), `junit-jupiter` (aggregate whose `-api` is what code imports), a `log4j-*-impl` or
+  `jaxb-runtime` binding, a Spring/Hibernate/CXF/Kafka module reached by configuration, or a dependency of the
+  `ws.all` aggregate that exists to be packaged into the WAR. Prove runtime disuse before removing any of them.
 
 ## CI flakes
 
@@ -161,32 +188,31 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 ## Container facts
 
 - No `gh` CLI. Use the GitHub MCP tools for every PR operation.
+- **The whole reactor installs in ~11 minutes with `mvn install -Dquick -DnoPerf -T1C -fae
+  -Dmaven.test.skip.exec=true`** — surefire skips execution while test sources still compile. This replaces the
+  "over an hour" figure: a run can now afford the install and a full sweep. `-DskipTests` still must not be used
+  (this repo maps it to `maven.test.skip=true`, dropping test compilation).
+- After such an install the surefire provider jar is absent, so a later `mvn -o test` dies on
+  `surefire-junit-platform ... in offline mode`. Run the first `mvn test` online.
 - **Maven works after seeding one stub.** `org.opensaml:opensaml-bom:5.2.3` is shibboleth-only, the proxy denies
   CONNECT to `build.shibboleth.net` (403), and Central carries only 4.0.x. Write a pom with an empty
   `<dependencyManagement>` to `~/.m2/repository/org/opensaml/opensaml-bom/5.2.3/opensaml-bom-5.2.3.pom`, delete the
-  `*.lastUpdated` files beside it, and the whole reactor builds. Local only — it must never reach a commit.
+  `*.lastUpdated` files beside it, and 75 of 82 modules build. Local only — it must never reach a commit.
 - The stub is safe: the root pom already imports the Bouncy Castle, Jackson and HttpComponents BOMs *above*
-  opensaml-bom, so first-declaration-wins had already excluded opensaml's management of them. An empty stub can only
-  drop management for opensaml's own artifacts, which are unreachable here regardless.
-- `STUDIO/org.openl.rules.webstudio` is expected to stay unbuildable — `spring-security-saml2-service-provider` 6.5.11
-  declares `opensaml-saml-api` and `opensaml-saml-impl` as non-optional compile dependencies and those jars are
-  shibboleth-only. Not yet reached by a build here, so unconfirmed. Always build with `-fae`, and never delete
-  webstudio Java from a run that could not compile it.
+  opensaml-bom, so first-declaration-wins had already excluded opensaml's management of them.
+- **`STUDIO/org.openl.rules.webstudio` cannot be built here** — confirmed: `spring-security-saml2-service-provider`
+  pulls `opensaml-saml-api`/`opensaml-saml-impl` 4.3.2 as non-optional compile dependencies and both are
+  shibboleth-only. Six ITEST Studio suites skip with it. Never delete webstudio Java from a run here.
+- ITEST modules cannot run `pmd:pmd` or `dependency:analyze-only`: the install does not publish `server-core`, so
+  those 16 modules fail dependency resolution. They are out of the sweep's scope anyway.
 - Maven Central, registry.npmjs.org and github.com all work; only shibboleth is blocked. So a dependency jar can be
   fetched with `curl` straight from Central and inspected with `unzip` plus `javap -c` when a convention is in doubt.
-- Java 21 and Maven 3.9.11 are installed.
-- **The container ships a git config that breaks the repository's own tests and misattributes commits.** It presets
-  `user.name=Claude`, `commit.gpgsign=true` and `gpg.format=ssh`, so every JGit commit in
-  `STUDIO/org.openl.rules.repository.git` dies with "No signer for ssh signatures" — 15 test errors that are not a
-  code defect. Unset `commit.gpgsign`, `user.signingkey`, `gpg.format` and `gpg.ssh.program`, and set the Yury Molchan
-  identity, before building. That module then passes 86/86.
+- **The container presets a git config that misattributes commits and breaks tests**: `user.name=Claude`,
+  `commit.gpgsign=true`, `gpg.format=ssh`. Every JGit commit in `STUDIO/org.openl.rules.repository.git` then dies
+  with "No signer for ssh signatures" — 15 test errors that are not a code defect. Unset `commit.gpgsign`,
+  `user.signingkey`, `gpg.format`, `gpg.ssh.program` and set the Yury Molchan identity before building.
 - Listing workflow runs through the GitHub MCP tool overflows the tool result. It saves the JSON to a file; parse that
   with python instead of retrying with a smaller page size. The unit-test workflow is `build-quick.yml`.
-- A full `clean install` of the 84-module reactor with tests takes well over an hour here, so a run that starts one has
-  no time left to sweep. `pmd:pmd` needs sibling artifacts installed, so some install is unavoidable. `-DskipTests`
-  cannot be the shortcut — this repo's `skipTests` profile maps it to `maven.test.skip=true`, which drops test
-  compilation. Next run: try `-Dmaven.test.skip.exec=true` to install fast while still compiling test sources, and
-  record here whether surefire honours it.
 
 ## Exhausted veins
 
@@ -195,31 +221,33 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - Key-reference scan over `openapi.properties` (605 keys), `ValidationMessages.properties` (204),
   `messages.properties` (46), `sql-errors.properties`, and webstudio `openl-default.properties` (105).
 - All 1292 leaf keys of the 15 studio-ui locale bundles; every bundle is English, there is no other language.
-- `export`ed const/function/class/interface/type/enum across studio-ui `src` — zero-reference symbols all deferred.
-- Import graph over all 345 studio-ui modules — every one has a production importer, so no component is reachable
-  only from its own test.
-- Function, object-literal-method and prototype definitions across all 23 hand-written legacy `.js` files (211 names in
-  tableeditor plus the webstudio ones) — `PopupMenu.showChild` was the single finding.
+- `export`ed const/function/class/interface/type/enum across studio-ui `src`, and the import graph over all 345
+  modules — every one has a production importer.
+- Function, object-literal-method and prototype definitions across all 23 hand-written legacy `.js` files.
 - Whole-file reference check over every extension outside ITEST and test-resources: Velocity templates, taglibs,
   source maps, fonts, schemas, `.html`, `.csv`, `.sql`, `.groovy`, `.sh`, `.cmd`, `.txt`, `.json`, `.yaml`, `.xml`,
   `.svg`, and all 117 `.properties` files. Every orphan found is convention-loaded — see *Keep-list*.
-- All 62 declared npm dependencies of `STUDIO/studio-ui` — every one is imported, or used by a `scripts` entry
-  (`license-checker-rseidelsohn` in `build`, `@vitest/coverage-v8` through `--coverage`), or an ambient `@types/*`.
-- All 114 distinct properties defined in the 207 poms — every `*.version` is interpolated somewhere, and the only
-  uninterpolated ones are plugin convention parameters.
-- Duplicate `<dependency>` declarations inside a single pom, and duplicate keys inside a single `.properties` file —
-  no real instance; `specs.properties` `duplicateKey` is a deliberate parser fixture.
-- `@typescript-eslint/no-unused-vars` over all of studio-ui `src` — zero warnings, detector validated by a planted
-  unused variable.
+- All 62 declared npm dependencies of `STUDIO/studio-ui`, and `@typescript-eslint/no-unused-vars` over all of `src`.
+- All 114 distinct properties defined in the 207 poms, and duplicate `<dependency>` / duplicate `.properties` keys.
+- **PMD 7.17 `UnusedAssignment`, `UnusedLocalVariable`, `UnusedPrivateField`, `UnusedPrivateMethod`,
+  `UnusedFormalParameter` over the main sources of all 43 analysable modules** — 31 violations total, detector
+  validated by a planted field/method/local. Tests sources were NOT scanned (`includeTests=false`) — that is the one
+  PMD scope still open.
+- javac `-Xlint` over the whole reactor: no `UnusedVariable`, `UnusedMethod` or `UnusedNestedClass`; the only
+  `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
+- `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
+  entry on runtime wiring.
 
 ## Human follow-ups
 
 - **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
-  import out of the root pom. The sweep now works around it with a local stub, but `STUDIO/org.openl.rules.webstudio`
-  still cannot be compiled or swept here, and the workaround has to be re-seeded whenever the container is rebuilt.
+  import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
+  or swept until then, and the stub has to be re-seeded on every container rebuild.
 - `main` is red: `LockTest.testSimultaneousMultiThreadsWithWaiting` keeps the `Quick Build` unit-test job failing, so
   no pull request can reach a fully green CI. Its sibling is already `@Disabled` as unstable; this one needs the same
-  decision or a real fix to the file-system lock. It passes on this container, so it is load-sensitive, not broken.
+  decision or a real fix. It passes on this container, so it is load-sensitive, not broken.
+- Decide whether the tableeditor JSP taglib (`META-INF/tableeditor.tld` plus `TableEditorTag`/`TableViewerTag`) is
+  still reachable. It is the largest single dead-code candidate found so far — 18 write-only fields and two classes.
 - Decide whether the four unused `MergeModal/types.ts` interfaces should stay as the frontend mirror of the merge REST
   contract; if they go, `Docs/api/projects-merge-api.md` moves with them.
 - The committed tableeditor CSS bundles do not match what `compile.css.sh` produces from the committed CSS sources, so
@@ -231,10 +259,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 07-30 — second run. Maven 403. Proved the tableeditor JS bundles byte-reproducible and the CSS ones not; shipped
-  `PopupMenu.showChild`.
 - 07-30 — third run. Maven 403. Six veins swept (npm deps, pom properties, whole-file over every extension, all
   `.properties`, duplicate declarations, eslint) — zero findings. Resource side fully mined out.
-- 07-30 — fourth run. Broke the Maven blockade with a local empty `opensaml-bom` stub: 36 of 84 modules built and DEV
-  core passed 1425 tests. Also found the container's git signing config faking 15 test errors. Nothing deleted; the
-  build ate the run, and rows 9-13 are open for the next one.
+- 07-30 — fourth run. Broke the Maven blockade with a local empty `opensaml-bom` stub; nothing deleted.
+- 08-01 — fifth run. #1933 merged. Found the fast-install flag, so the whole reactor plus PMD plus dependency
+  analysis fit in one run. Rows 9-13 all swept; 3 never-read initializers removed, everything else deferred.
