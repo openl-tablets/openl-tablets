@@ -34,8 +34,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - Branch `dead-code/java-internals`, PR #1940, ready for review, 1 commit, 2 files / 3 lines. No review threads.
 - CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module has
   no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
-- Body rewritten with the real CI outcome: 10 of 12 checks green, `IT (services-data)` and `Tests (without ITEST)`
-  red from the two flakes below, both re-run once (one rerun left for this SHA).
+- Steady state after one rerun: red only on `IT (services-data)` (the kafka image blocker) and
+  `Tests (without ITEST)` via LockTest, which is red on `main` too. Both answered in the body and in one comment.
+  This is as green as the PR can get until a maintainer acts; do not rerun or comment again.
 - Commit `Remove never-read field initializers in the DEV rules engine` — 2 files, 3 lines.
 
 ## Merged PRs
@@ -133,7 +134,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   sources using the checked-in `yuicompressor-2.4.7.jar`, so any source removal must regenerate them in the same
   commit. `compile.css.sh` does **not** reproduce the committed CSS bundles — never regenerate those.
 - Run the frontend gate from `STUDIO/studio-ui` with no Maven build competing: `npx tsc --noEmit`, `npx eslint src`
-  (whole tree), `npx vitest run`. Baseline 164 files / 1455 tests green. `no-unused-vars` is `warn`, so read the
+  (whole tree), and `npm run test` — **which is `vitest run --coverage`, not plain `vitest run`; match CI's own
+  command or the coverage pass goes unverified**. Baseline 164 files / 1455 tests green. `no-unused-vars` is `warn`,
+  so read the
   output, not the exit code.
 - `npm ci` works here — registry.npmjs.org bypasses the proxy. `node_modules` is gitignored.
 - When a deletion empties a parent object literal, delete the parent in the same commit.
@@ -190,11 +193,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   `main` run of `build-quick.yml` first, then say so in the thread once. It passes on this container.
 - `studio-ui` `npm run test` fails under `frontend-maven-plugin` in the same `Tests (without ITEST)` job — tell
   `Failed to run task: 'npm run test' failed` plus `-rf :studio-ui`, with the module burning 11+ minutes against
-  3.5 minutes on an idle machine. Runner starvation, not code: run `npx vitest run` locally on the same commit
-  before believing it. Rerun the job.
+  ~4 minutes on an idle machine. Runner starvation, not code: confirmed by running CI's own `npm run test` on the
+  same commit, and it cleared on the first rerun. Rerun the job.
 - **`Tests (without ITEST)` has two independent causes; identify which one fired before answering.** Read the
   `-rf :<module>` hint: `org.openl.rules.repository` is the LockTest timeout below, `studio-ui` is the frontend
-  flake above. They alternate — LockTest passed on the run where studio-ui failed.
+  flake above. They alternate — each has passed on a run where the other failed, so a green studio-ui does not
+  mean the job is green.
 - **`apache/kafka-native:latest` no longer starts on the runners — deterministic, not a flake. Do not rerun.** Job
   `IT (services-data)`, tell `SegfaultHandler caught a segfault` in `com.oracle.svm.core.posix.headers.Pwd.getpwuid`
   reading `user.name`, then `Timed out waiting for log output matching '.*Transitioning from RECOVERY to RUNNING.*'`.
