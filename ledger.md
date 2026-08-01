@@ -12,8 +12,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   steady state. Do not invent a detector to have something to delete. Nothing needs rebuilding or re-verifying
   to reach that state, so skip the reactor install unless a commit is actually being made.
 - Do not re-run PMD or the resource detectors on the same scope — see *Exhausted veins*.
-- Check the re-queued `IT (studio)` and `Tests (without ITEST)` on #1940. The previous run was cancelled after
-  `IT (studio)` ran 90 minutes without finishing; the rerun is the retry, so do not rerun again on this SHA.
+- #1940 is back to its steady state: `IT (studio)` green on rerun, everything green except the `main`-wide
+  `LockTest` red. The SHA's one rerun is spent — do not rerun anything on `90168ba313`.
 
 ## Change-type queue
 
@@ -249,8 +249,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   `-rf :itest.studio.repos` with three assertion diffs under `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify`
   — the same-second commit-ordering race, also on `main`, 1 run in 7. (b) Runs far past 8 min with every step
   logging `HttpTimeoutException` at 10001ms — WebStudio under Jetty stopped answering; no test is at fault.
-- Shape (b) never self-terminates before the 6 h job limit. Cancel the whole run, then `rerun_failed_jobs`; that
-  counts as the SHA's one retry. `IT (studio)` passing on the previous commit is the proof it is environmental.
+- Shape (b) never self-terminates before the 6 h job limit. Cancel the whole run, then `rerun_failed_jobs` — this
+  cleared it on the same commit in 7m30s, which is the proof it is environmental and not the diff.
 - A floating container tag can break a job for hours and then fix itself: `apache/kafka-native:latest` segfaulted
   in its own native-image bootstrap and `IT (services-data)` went green again a day later with no code change.
   Before escalating an image failure, check whether a later run of the same job already recovered.
