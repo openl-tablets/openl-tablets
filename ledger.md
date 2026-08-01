@@ -31,7 +31,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Open PR
 
-- Branch `dead-code/java-internals`, PR #1940, ready for review, 1 commit, 2 files / 3 lines. No review threads yet.
+- Branch `dead-code/java-internals`, PR #1940, ready for review, 1 commit, 2 files / 3 lines. No review threads.
+- CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module has
+  no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
 - Commit `Remove never-read field initializers in the DEV rules engine` — 2 files, 3 lines.
 
 ## Merged PRs
@@ -184,6 +186,13 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   just on sweep branches — job `Tests (without ITEST)`, tell `expected: <800> but was: <79x>`. It asserts all 8x100
   `tryLock` attempts beat a 30 s timeout. Do not rerun and do not treat it as your own breakage: check the latest
   `main` run of `build-quick.yml` first, then say so in the thread once. It passes on this container.
+- `RunTracingITest.setUp` in `ITEST/itest.tracing` fails when the `apache/kafka-native:latest` container segfaults
+  during its own startup — job `IT (services-data)`, tell `SegfaultHandler caught a segfault` in
+  `com.oracle.svm.core.posix.headers.Pwd.getpwuid` reading `user.name`, then `Timed out waiting for log output
+  matching '.*Transitioning from RECOVERY to RUNNING.*'`. It crashes before any OpenL code runs, and `ITEST - Kafka
+  Smoke` passes in the same run, so it is never your breakage. Rerun, at most twice per SHA. The tag floats — never
+  pin it. `rerun_failed_jobs` returns 403 "This workflow is already running" until every other job in the run has
+  finished, so wait for the run to complete before retrying.
 
 ## Container facts
 
