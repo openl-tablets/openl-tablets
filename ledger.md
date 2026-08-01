@@ -4,11 +4,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Every queue row is now swept at least once. The cheap detectors are mined out; what is left is the deferred list
-  below, and each entry needs a targeted proof rather than a new detector run.
-- Next run, in order: (1) re-seed the container (git identity, `opensaml-bom` stub) — the container is rebuilt every
-  time, nothing survives; (2) maintain the open PR; (3) attack the deferred set, best first: the tableeditor JSP
-  taglib, then the Maven runtime-vs-compile dependency question.
+- Every queue row is swept, main sources and test sources both. The cheap detectors are mined out; what is left
+  is the deferred list below, and each entry needs a targeted proof rather than a new detector run.
+- Next run, in order: (1) re-seed the container (git identity, gpg unset, `opensaml-bom` stub) — the container is
+  rebuilt every time, nothing survives; (2) maintain the open PR; (3) settle the four test-fixture members under
+  *Deferred findings*, which need each test's intent read, not a detector.
 - Do not re-run PMD or the resource detectors on the same scope — see *Exhausted veins*.
 
 ## Change-type queue
@@ -23,48 +23,57 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 | 6 | Unused i18n keys in studio-ui bundles | done, merged in #1933 |
 | 7 | Unreferenced exported TS symbols and modules | done, only deferred findings |
 | 8 | Dead functions inside legacy `.js` | done, merged in #1933 |
-| 9 | Never-read assignments (PMD) | done, 3 removed, 8 were false positives |
-| 10 | Unused private fields and locals (PMD) | done, all 20 deferred or false positives |
-| 11 | Unused private methods and formal params (PMD) | done, no findings — all sites already `@SuppressWarnings` |
+| 9 | Never-read assignments (PMD) | done main+test, 6 removed in #1940 |
+| 10 | Unused private fields and locals (PMD) | locals done (2 removed, #1940); fields all deferred |
+| 11 | Unused private methods and formal params (PMD) | done main; 3 test-fixture methods deferred |
 | 12 | Unused nested / effectively-private types (javac) | done, no findings |
 | 13 | Unused declared Maven dependencies | done for 52 modules, no provable finding |
+| 14 | Whole-type deadness over Java simple names | done, all 853 non-public top-level types alive |
 
 ## Open PR
 
-- Branch `dead-code/java-internals`, PR #1940, ready for review, 1 commit, 2 files / 3 lines. No review threads.
-- CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module has
-  no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
-- Steady state after one rerun: red only on `IT (services-data)` (the kafka image blocker) and
-  `Tests (without ITEST)` via LockTest, which is red on `main` too. Both answered in the body and in one comment.
-  This is as green as the PR can get until a maintainer acts; do not rerun or comment again.
-- Commit `Remove never-read field initializers in the DEV rules engine` — 2 files, 3 lines.
+- Branch `dead-code/java-internals`, PR #1940, ready for review, 2 commits, 6 files / 8 insertions / 9 deletions.
+  No review threads.
+- `676a8e9071 Remove never-read variable and field initializers` — 5 files.
+- `ac445bd038 Remove unused local variables that assertions never read` — 1 file.
+- CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module
+  has no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
+- Steady state: red only on `IT (services-data)` (the kafka image blocker) and `Tests (without ITEST)`, which is
+  red on `main` too. Both answered in the body. Do not rerun and do not comment again.
 
 ## Merged PRs
 
 - #1933, 12 files / 74 deletions — studio-ui i18n keys plus `PopupMenu.showChild`. Merged by yurkom with the
-  `LockTest` job still red; that job fails on `main` too, so a red `Tests (without ITEST)` does not block a merge here.
+  `LockTest` job still red, so a red `Tests (without ITEST)` does not block a merge here.
 
 ## Module coverage
 
 - `STUDIO/studio-ui` — locale bundles, import graph, eslint, npm dependencies: only deferrals left.
 - `STUDIO/org.openl.rules.webstudio` — never swept; it cannot be compiled here (see *Container facts*).
-- Every other module — PMD and javac swept; findings are in *Deferred findings* or were false positives.
+- Every other module — PMD (main and test sources) and javac swept; findings are deferred or false positives.
 
 ## Deferred findings
 
 - `STUDIO/org.openl.rules.tableeditor` `taglib/TableEditorTag.java` (11 unread private fields) and
   `taglib/TableViewerTag.java` (7). Each field is written by a public setter and read by nobody. Both classes are
-  named only by `META-INF/tableeditor.tld`. **The whole JSP taglib is the real candidate** — prove first that no
-  JSP page and no container auto-scan uses the `.tld`, then remove tld plus both classes together. Do not touch the
-  fields alone: the setters are the taglib's declared attribute contract.
+  named only by `META-INF/tableeditor.tld`. **The whole JSP taglib is the real candidate, and it cannot be settled
+  from inside this repository** — the module is a published artifact, so a consumer's own JSP may use the taglib.
+  Do not touch the fields alone: the setters are the taglib's declared attribute contract.
 - `STUDIO/org.openl.security` `SimpleGroup.description` — written by a public setter and a public constructor
   parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
   `TableSyntaxNodeDispatcherBuilder:136` — the whole chain is inert, but the setter is public API in `DEV/**`.
-- `WSFrontend` `ServiceManagerImpl:230` — re-assigns `serviceDescriptionInProcess` to the value already assigned at
-  228. Provably a no-op, but PMD flagged 228 (which is load-bearing) and not 230, so no detector proves 230.
-- `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — two dead `messagesCount++` before a `continue`. The
-  other ten call sites in the method use the same idiom; changing two of twelve is churn, not cleanup.
+- `WSFrontend` `ServiceManagerImpl:230` re-assigns `serviceDescriptionInProcess` to the value already assigned at
+  228. The field is private and written only in the private `deploy`/`undeploy` pair, reachable only from the
+  private `processServices`, so 230 matters only if rules compilation re-enters that flow. Proving it dead is an
+  absence-of-path argument through the whole compile subsystem for a one-line payoff — leave it.
+- `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — the flagged `messagesCount++` passes its value to
+  `error(...)`; only the increment is wasted, so this is an expression rewrite, not a deletion. Out of scope.
+- Four test-fixture members PMD calls unused, each needing its test's intent read before removal:
+  `JavaOpenClassTest.gg` and `AOpenClassTest.getC()` sit in tests of OpenL's own member discovery,
+  `epbds6830/BeanA.getAB()` is a generated-bean fixture, `datatype/binding/Cell.metaInfo` a datatype fixture.
+- `JsonUtilsTest.KeyClass.field` — written by the constructor, read by nobody, but the class is a cache key whose
+  identity semantics the GC tests rely on, and the string labels document which test owns which mapper.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
   `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract documented in
   `Docs/api/projects-merge-api.md` with a Java record and an OpenAPI schema. Needs a human decision.
@@ -83,6 +92,22 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   argument is null, so `= HorizontalAlignment.GENERAL` is observable. Check every constructor path before deleting.
 - **PMD treats an assignment in a `try` as overwritten by one in the `catch`.** `GitRepository` assigns `result` in
   the try and nulls it in the catch; both are live. Any try/catch pair on the same variable reads as a violation.
+- **A `= null` initializer before a `try` is required whenever any path can reach a read without the assignment** —
+  a `catch`/`finally` that mentions the variable, or a conditional assignment inside the try. Test it against a
+  sibling declared in the same block with no initializer: if that compiles, the flagged one is genuinely redundant.
+- **An assignment can exist only to host a cast that is the thing under test.** `CastFactoryTest` assigns a
+  never-read variable so that `(int[][][][])` throws the `ClassCastException` it asserts; a cast expression cannot
+  stand alone as a statement, so the assignment cannot be dropped.
+- **A try-with-resources resource reads as an unused local.** Java requires the name, and the block's whole point
+  may be the close — `ExtensionsConfigurationTest` asserts on the bean's destruction afterwards.
+- **An assignment to `null` before a `gc()` call is the test.** `JsonUtilsTest` drops the strong reference so the
+  cache key can be collected. Never delete a null-out that sits near `Runtime.gc()` or a weak/soft reference.
+- **Fields of a fixture class handed to a serializer are its contract.** `JsonUtilsTest.BindingClasses` is passed
+  to `getCachedObjectMapper` as the binding target, so its "unused" fields are what the test binds.
+- **Surefire's default includes match a `Test` prefix as well as a suffix**, so `TestIf`, `TestAutoType0` and
+  friends are executed although nothing names them. Never call a `Test*` class dead.
+- **A `@Component`/`@Service` class implementing an interface is injected by interface type**, so its own name
+  appears in no other file — `FileNodeMapperImpl`. Check for a stereotype annotation before believing a class is orphaned.
 - **A field can be written so that a call made on the next line reads it back.** `ServiceManagerImpl` sets
   `serviceDescriptionInProcess` before `createService`, which reaches it through `getRulesDeployInProcess()`. Look
   for a getter on the same field before calling any field assignment dead.
@@ -125,6 +150,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - For a bundle key, search the full dotted path **and** the bare leaf name; either hit means keep.
 - Validate any new bulk detector by feeding it two fabricated names; if they come back "referenced", the search is
   wrong, not the repository. For a linter, plant a violation and confirm it is reported.
+- For whole-type deadness, "appears in one file" is not enough — count occurrences **inside** that file too. A
+  secondary top-level class used by its file's primary class is alive and otherwise looks orphaned.
 - **This clone is shallow (50 commits).** Its earliest commit "adds" all 15032 files, so `git log --diff-filter=A`
   attributes every older file to that graft and history proves nothing about a file's origin. Never argue from it.
 - Resolve studio-ui imports with tsconfig `paths` `"*": ["./src/*"]` (a bare specifier is `src/`-relative), and follow
@@ -136,8 +163,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - Run the frontend gate from `STUDIO/studio-ui` with no Maven build competing: `npx tsc --noEmit`, `npx eslint src`
   (whole tree), and `npm run test` — **which is `vitest run --coverage`, not plain `vitest run`; match CI's own
   command or the coverage pass goes unverified**. Baseline 164 files / 1455 tests green. `no-unused-vars` is `warn`,
-  so read the
-  output, not the exit code.
+  so read the output, not the exit code.
 - `npm ci` works here — registry.npmjs.org bypasses the proxy. `node_modules` is gitignored.
 - When a deletion empties a parent object literal, delete the parent in the same commit.
 - A PR body loses angle-bracketed placeholders even inside backticks — write such a segment as prose, then re-read the
@@ -148,7 +174,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   built for the ruleset namespace silently returns zero violations from a non-empty report.
 - Most `target/pmd.xml` files here contain only `<suppressedviolation>` elements — grep `<violation ` to find the
   reports that matter. The repository already annotates its JAXB `beforeMarshal`/`afterUnmarshal` hooks with
-  `@SuppressWarnings`, which is why rows 11 and 12 come back empty.
+  `@SuppressWarnings`, which is why row 11 comes back empty on main sources.
+- The `pmd` plugin prefix does not resolve with `-o` on a cold cache. Invoke the goal by full coordinates,
+  `mvn org.apache.maven.plugins:maven-pmd-plugin:3.28.0:pmd -fae`, and run it online the first time.
 - GitHub Actions compiles every push against the real opensaml BOM, so CI is the authoritative gate on anything the
   locally stubbed build could not verify.
 
@@ -191,37 +219,38 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   just on sweep branches — job `Tests (without ITEST)`, tell `expected: <800> but was: <79x>`. It asserts all 8x100
   `tryLock` attempts beat a 30 s timeout. Do not rerun and do not treat it as your own breakage: check the latest
   `main` run of `build-quick.yml` first, then say so in the thread once. It passes on this container.
-- `studio-ui` `npm run test` fails under `frontend-maven-plugin` in the same `Tests (without ITEST)` job — tell
-  `Failed to run task: 'npm run test' failed` plus `-rf :studio-ui`, with the module burning 11+ minutes against
-  ~4 minutes on an idle machine. Runner starvation, not code: confirmed by running CI's own `npm run test` on the
-  same commit, and it cleared on the first rerun. Rerun the job.
+- `studio-ui` `npm run test` is the same job's other failure mode — tell `Failed to run task: 'npm run test' failed`
+  plus `-rf :studio-ui`. It is CPU starvation, not code: it also fails inside this container's own `-T1C` reactor
+  build, where `OverviewPanel.test.tsx` lost 3 of 28 tests to 15 s timeouts in a file that took 79 s against ~4 min
+  for the whole suite on an idle machine. Rerun the job; never judge the frontend from a run that shared the CPU.
 - **`Tests (without ITEST)` has two independent causes; identify which one fired before answering.** Read the
-  `-rf :<module>` hint: `org.openl.rules.repository` is the LockTest timeout below, `studio-ui` is the frontend
-  flake above. They alternate — each has passed on a run where the other failed, so a green studio-ui does not
-  mean the job is green.
+  `-rf :<module>` hint: `org.openl.rules.repository` is the LockTest timeout, `studio-ui` is the frontend flake.
+  They alternate — each has passed on a run where the other failed, so a green studio-ui does not mean a green job.
 - **`apache/kafka-native:latest` no longer starts on the runners — deterministic, not a flake. Do not rerun.** Job
   `IT (services-data)`, tell `SegfaultHandler caught a segfault` in `com.oracle.svm.core.posix.headers.Pwd.getpwuid`
   reading `user.name`, then `Timed out waiting for log output matching '.*Transitioning from RECOVERY to RUNNING.*'`.
-  It crashed identically on two runner VMs in two different suites (`RunTracingITest`, then `RunKafkaSmokeITest`
-  which had passed minutes earlier), so it follows whichever Kafka suite runs first. Green on PR #1939 at
-  2026-08-01 07:47Z, broken from ~15:05Z the same day; the tag floats, so a republished image is the likely cause.
-  Escalated to the maintainers — see *Human follow-ups*. Never pin the tag yourself.
+  It crashed identically on two runner VMs in two different suites, so it follows whichever Kafka suite runs first.
+  Green on PR #1939 at 2026-08-01 07:47Z, broken from ~15:05Z the same day; the tag floats, so a republished image
+  is the likely cause. Escalated to the maintainers — see *Human follow-ups*. Never pin the tag yourself.
 - `rerun_failed_jobs` returns 403 "This workflow is already running" until every other job in the run has finished;
   wait for the run to complete before retrying.
 
 ## Container facts
 
 - No `gh` CLI. Use the GitHub MCP tools for every PR operation.
-- **The whole reactor installs in ~11 minutes with `mvn install -Dquick -DnoPerf -T1C -fae
-  -Dmaven.test.skip.exec=true`** — surefire skips execution while test sources still compile. This replaces the
-  "over an hour" figure: a run can now afford the install and a full sweep. `-DskipTests` still must not be used
-  (this repo maps it to `maven.test.skip=true`, dropping test compilation).
+- **The whole reactor installs in ~35 min from a cold `~/.m2` with `mvn install -Dquick -DnoPerf -T1C -fae
+  -Dmaven.test.skip.exec=true`** — surefire skips execution while test sources still compile. The cache never
+  survives a container rebuild, so budget the download every run. `-DskipTests` still must not be used (this repo
+  maps it to `maven.test.skip=true`, dropping test compilation).
+- That install still runs `studio-ui`'s `npm run test` through frontend-maven-plugin, which `maven.test.skip.exec`
+  does not gate, and it fails under the parallel load. Add `-pl '!STUDIO/studio-ui'` or expect one FAILURE that
+  skips the Studio application module and the Studio ITEST suites.
 - After such an install the surefire provider jar is absent, so a later `mvn -o test` dies on
   `surefire-junit-platform ... in offline mode`. Run the first `mvn test` online.
 - **Maven works after seeding one stub.** `org.opensaml:opensaml-bom:5.2.3` is shibboleth-only, the proxy denies
   CONNECT to `build.shibboleth.net` (403), and Central carries only 4.0.x. Write a pom with an empty
   `<dependencyManagement>` to `~/.m2/repository/org/opensaml/opensaml-bom/5.2.3/opensaml-bom-5.2.3.pom`, delete the
-  `*.lastUpdated` files beside it, and 75 of 82 modules build. Local only — it must never reach a commit.
+  `*.lastUpdated` files beside it, and 74 of 82 modules build. Local only — it must never reach a commit.
 - The stub is safe: the root pom already imports the Bouncy Castle, Jackson and HttpComponents BOMs *above*
   opensaml-bom, so first-declaration-wins had already excluded opensaml's management of them.
 - **`STUDIO/org.openl.rules.webstudio` cannot be built here** — confirmed: `spring-security-saml2-service-provider`
@@ -254,9 +283,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - All 62 declared npm dependencies of `STUDIO/studio-ui`, and `@typescript-eslint/no-unused-vars` over all of `src`.
 - All 114 distinct properties defined in the 207 poms, and duplicate `<dependency>` / duplicate `.properties` keys.
 - **PMD 7.17 `UnusedAssignment`, `UnusedLocalVariable`, `UnusedPrivateField`, `UnusedPrivateMethod`,
-  `UnusedFormalParameter` over the main sources of all 43 analysable modules** — 31 violations total, detector
-  validated by a planted field/method/local. Tests sources were NOT scanned (`includeTests=false`) — that is the one
-  PMD scope still open.
+  `UnusedFormalParameter` over main *and* test sources of all 42 analysable modules** (`includeTests=true`) — 45
+  violations, detector validated by reproducing the known main-source baseline. No PMD scope is left open.
+- **Whole-type deadness over all 3943 `.java` files**: every non-public top-level type (853 of them), each name
+  searched repository-wide with a literal word-boundary search over every file type. Zero removable.
 - javac `-Xlint` over the whole reactor: no `UnusedVariable`, `UnusedMethod` or `UnusedNestedClass`; the only
   `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
@@ -275,7 +305,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   no pull request can reach a fully green CI. Its sibling is already `@Disabled` as unstable; this one needs the same
   decision or a real fix. It passes on this container, so it is load-sensitive, not broken.
 - Decide whether the tableeditor JSP taglib (`META-INF/tableeditor.tld` plus `TableEditorTag`/`TableViewerTag`) is
-  still reachable. It is the largest single dead-code candidate found so far — 18 write-only fields and two classes.
+  still reachable by any downstream consumer. It is the largest single dead-code candidate found so far — 18
+  write-only fields and two classes — and no in-repository evidence can settle it.
 - Decide whether the four unused `MergeModal/types.ts` interfaces should stay as the frontend mirror of the merge REST
   contract; if they go, `Docs/api/projects-merge-api.md` moves with them.
 - The committed tableeditor CSS bundles do not match what `compile.css.sh` produces from the committed CSS sources, so
@@ -287,8 +318,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 07-30 — third run. Maven 403. Six veins swept (npm deps, pom properties, whole-file over every extension, all
-  `.properties`, duplicate declarations, eslint) — zero findings. Resource side fully mined out.
 - 07-30 — fourth run. Broke the Maven blockade with a local empty `opensaml-bom` stub; nothing deleted.
 - 08-01 — fifth run. #1933 merged. Found the fast-install flag, so the whole reactor plus PMD plus dependency
   analysis fit in one run. Rows 9-13 all swept; 3 never-read initializers removed, everything else deferred.
+- 08-01 — sixth run. Closed the last two open scopes: PMD over test sources and whole-type deadness over Java.
+  5 removals folded into #1940 as 2 commits; 13 findings rejected, 6 new false-positive shapes recorded.
