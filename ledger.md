@@ -4,19 +4,18 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Every queue row is swept and settled. The detectors are mined out; every remaining candidate is in *Deferred
-  findings* and needs a human decision, not another scan.
-- Next run, in order: (1) re-seed the container (git identity, gpg unset, `opensaml-bom` stub) — the container is
-  rebuilt every time, nothing survives; (2) maintain the open PR until it merges.
-- With no queue row left, a run whose only product is PR maintenance plus ledger compaction is the expected
-  steady state. Do not invent a detector to have something to delete. Nothing needs rebuilding or re-verifying
-  to reach that state, so skip the reactor install unless a commit is actually being made.
-- Do not re-run PMD or the resource detectors on the same scope — see *Exhausted veins*.
+- Queue fully done and detectors mined out; every remaining candidate is in *Deferred findings* and needs a human
+  decision, not another scan. Do not re-run PMD or the resource detectors — see *Exhausted veins*.
 - **New scope exists only when `main` moves.** Compare `git merge-base origin/main origin/dead-code/java-internals`
-  with `origin/main` first; while they are equal no code has changed since the last sweep, so go straight to
-  maintenance instead of looking for something to delete.
-- #1940 is settled and waiting on a human reviewer: everything green except the `main`-wide `LockTest` red. The
-  rerun budget on head `90168ba313` is spent — do not rerun, do not comment again, do not edit the body.
+  with `origin/main` first; while they are equal, go straight to maintenance. They have been equal at `2cd75330ae`
+  since #1940 was opened — `main` has taken no commit since 07-31.
+- Next run: re-seed the container (git identity, unset gpg, `opensaml-bom` stub — nothing survives a rebuild),
+  check that comparison, then maintain #1940 and stop. Maintenance needs no build, so skip the reactor install
+  unless a commit is actually being made. Do not invent a detector to have something to delete.
+- #1940 is settled and waiting on a human reviewer: 11 checks green, the twelfth is the `main`-wide `LockTest`
+  red. Rerun budget on head `90168ba313` is spent — do not rerun, do not comment again, do not edit the body.
+- The owner has been notified once that the routine is idle pending review of #1940. Do not notify again while
+  the PR sits in this same state.
 
 ## Change-type queue
 
@@ -40,7 +39,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 ## Open PR
 
 - Branch `dead-code/java-internals`, PR #1940, ready for review, 3 commits, 7 files / 8 insertions / 12 deletions.
-  No review threads.
+  No review threads, `mergeable_state` blocked on the missing human review.
 - `676a8e9071 Remove never-read variable and field initializers` — 5 files.
 - `ac445bd038 Remove unused local variables that assertions never read` — 1 file.
 - `90168ba313 Remove an unused private field from the grid-table test stub` — 1 file.
@@ -50,8 +49,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   has no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
 - Steady state: red only on `Tests (without ITEST)`, resume hint `-rf :org.openl.rules.repository`, which is the
   `LockTest` timeout red on `main` too. Answered in the body — do not rerun and do not comment again.
-- The body's counts and CI claims were re-verified against `git diff --shortstat` and the latest `main` runs and
-  are all still true at head. Leave the body alone unless a commit changes them.
+- The body's counts and CI claims are re-derived mechanically every run and are still true at head. Leave the
+  body alone unless a commit changes them.
 
 ## Merged PRs
 
@@ -349,9 +348,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-01 — seventh run. Settled the last four test fixtures: 3 are deliberate negative fixtures, 1 removed as
-  #1940's third commit. Kafka blocker cleared itself; escalation withdrawn. Queue fully done.
 - 08-01 — eighth run. First pure-maintenance run: no queue row left, no detector re-run, no build. Diagnosed both
   `IT (studio)` shapes, cancelled a 90-minute stalled run and re-queued it, and rewrote #1940's CI section.
 - 08-01 — ninth run. `main` unmoved since #1940's merge base, so no new scope existed. Re-verified #1940 end to
   end — body counts, commit grouping, the one red check — and changed nothing on it. Ledger compaction only.
+- 08-02 — tenth run. `main` still at `2cd75330ae`, no new scope. #1940 unchanged since the ninth run: counts
+  re-derived, grouping correct, no review threads, red still `-rf :org.openl.rules.repository`. Notified the
+  owner that the routine is idle pending review; nothing else to do.
