@@ -298,8 +298,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   shibboleth-only. Six ITEST Studio suites skip with it. Never delete webstudio Java from a run here.
 - ITEST modules cannot run `pmd:pmd` or `dependency:analyze-only`: the install does not publish `server-core`, so
   those 16 modules fail dependency resolution. They are out of the sweep's scope anyway.
-- Maven Central, registry.npmjs.org and github.com all work; only shibboleth is blocked. So a dependency jar can be
-  fetched with `curl` straight from Central and inspected with `unzip` plus `javap -c` when a convention is in doubt.
+- Maven Central, registry.npmjs.org and github.com all work. So a dependency jar can be fetched with `curl` straight
+  from Central and inspected with `unzip` plus `javap -c` when a convention is in doubt.
+- **`sonarcloud.io` is blocked too** — 403 to CONNECT, same shape as shibboleth, confirmed against
+  `$HTTPS_PROXY/__agentproxy/status`. So a red `SonarCloud Code Analysis` check can never be diagnosed from here:
+  report the failed conditions from the check-run summary and hand the judgement to a maintainer. The gate also
+  failed on the merged #1933, so a delete-only sweep failing it is not by itself a blocker.
 - **The container presets a git config that misattributes commits and breaks tests**: `user.name=Claude`,
   `commit.gpgsign=true`, `gpg.format=ssh`. Every JGit commit in `STUDIO/org.openl.rules.repository.git` then dies
   with "No signer for ssh signatures" — 15 test errors that are not a code defect. Unset `commit.gpgsign`,
