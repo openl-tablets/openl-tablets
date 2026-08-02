@@ -4,18 +4,16 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Queue fully done and detectors mined out; every remaining candidate is in *Deferred findings* and needs a human
-  decision, not another scan. Do not re-run PMD or the resource detectors — see *Exhausted veins*.
-- **New scope exists only when `main` moves.** Compare `git merge-base origin/main origin/dead-code/java-internals`
-  with `origin/main` first; while they are equal, go straight to maintenance. They have been equal at `2cd75330ae`
-  since #1940 was opened — `main` has taken no commit since 07-31.
-- Next run: re-seed the container (git identity, unset gpg, `opensaml-bom` stub — nothing survives a rebuild),
-  check that comparison, then maintain #1940 and stop. Maintenance needs no build, so skip the reactor install
-  unless a commit is actually being made. Do not invent a detector to have something to delete.
+- `main` and #1940's merge base have been equal at `2cd75330ae` for four runs; while they are equal there is no
+  new scope. Compare them first, then go straight to maintenance — the queue is done and every remaining
+  candidate is a *Deferred finding* needing a human, so do not invent a detector to have something to delete.
+- Re-seed the container before any build: git identity, unset gpg, `opensaml-bom` stub. Maintenance alone needs
+  no build, so skip the reactor install unless a commit is actually being made.
+- Re-probe `build.shibboleth.net` for the `opensaml-bom` pom with one `curl` — still CONNECT 403. A 200 unlocks
+  webstudio and is the only route to new scope while `main` is frozen.
 - #1940 is settled and waiting on a human reviewer: 11 checks green, the twelfth is the `main`-wide `LockTest`
-  red. Rerun budget on head `90168ba313` is spent — do not rerun, do not comment again, do not edit the body.
-- The owner has been notified once that the routine is idle pending review of #1940. Do not notify again while
-  the PR sits in this same state.
+  red, rerun budget on head `90168ba313` spent. Do not rerun, do not comment, do not edit the body. The owner
+  was notified once that the routine is idle; do not notify again while the PR sits in this state.
 
 ## Change-type queue
 
@@ -43,14 +41,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - `676a8e9071 Remove never-read variable and field initializers` — 5 files.
 - `ac445bd038 Remove unused local variables that assertions never read` — 1 file.
 - `90168ba313 Remove an unused private field from the grid-table test stub` — 1 file.
-- The three commits are three different change types — one PMD rule each. They are not same-kind and must not be
-  squashed together; the branch is correctly grouped as it stands.
+- The three commits are one PMD rule each, so they are three change types, not same-kind: never squash them.
 - CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module
   has no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
 - Steady state: red only on `Tests (without ITEST)`, resume hint `-rf :org.openl.rules.repository`, which is the
   `LockTest` timeout red on `main` too. Answered in the body — do not rerun and do not comment again.
-- The body's counts and CI claims are re-derived mechanically every run and are still true at head. Leave the
-  body alone unless a commit changes them.
+- The body's counts and CI claims re-derive true at head every run; leave it alone unless a commit changes them.
 
 ## Merged PRs
 
@@ -348,11 +344,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-01 — ninth run. `main` unmoved since #1940's merge base, so no new scope existed. Re-verified #1940 end to
-  end — body counts, commit grouping, the one red check — and changed nothing on it. Ledger compaction only.
 - 08-02 — tenth run. `main` still at `2cd75330ae`, no new scope. #1940 unchanged since the ninth run: counts
   re-derived, grouping correct, no review threads, red still `-rf :org.openl.rules.repository`. Notified the
   owner that the routine is idle pending review; nothing else to do.
 - 08-02 — eleventh run. Third consecutive idle run: `main` still `2cd75330ae`, #1940 still `90168ba313` with no
   new comment since the tenth run. Counts re-derived and unchanged, one red check, nothing touched, no
   notification sent. No build was run — maintenance needed none.
+- 08-02 — twelfth run. Fourth idle run, same two SHAs, no new comment on #1940. Counts re-derived and unchanged,
+  no review threads, one red check. Re-probed `build.shibboleth.net`: still CONNECT 403, so webstudio stays out
+  of scope. Nothing touched, no build, no notification.
