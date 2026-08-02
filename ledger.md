@@ -4,11 +4,14 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Every queue row is done and every vein below is closed. While `origin/main` equals #1940's merge base there is
-  no new scope: go straight to maintenance, and never invent a detector to have something to delete.
+- Every queue row is done and every vein below is closed. While `git merge-base origin/main
+  origin/dead-code/java-internals` equals `origin/main`, main has not moved and there is no new scope: go straight
+  to maintenance, and never invent a detector to have something to delete.
 - #1940 carries the whole sweep, is green on every Actions check, has no review thread, and waits on a human
   review — the only lever left, and this routine cannot pull it. Do not nudge it with a no-op commit, do not
   re-argue the SonarCloud gate, and do not comment merely to restate a green status: the description carries it.
+- The whole maintenance pass is four calls: that merge-base check, `git diff --shortstat` plus `git log | wc -l`
+  against the description's counts, `get_comments`, `get_check_runs`. Nothing else changes between idle runs.
 - One `curl` for the `opensaml-bom` pom is the whole scope probe: a 200 from `build.shibboleth.net` unlocks
   webstudio Java, the last unswept surface. Refused again, and Central 404s. Seed the stub only if a build is needed.
 
@@ -373,7 +376,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-02 — eighteenth and nineteenth runs. Maintenance only: #1940 unchanged and green, `main` not moved, no
-  comment to answer, shibboleth and Central both refused. No commit.
-- 08-02 — twentieth run. Same picture: head `8957deb3`, all 13 Actions checks green, counts re-derived and
-  matching the description, zero review threads, shibboleth 403 and Central 404. Ledger compacted, no commit.
+- 08-02 — runs eighteen to twenty. Maintenance only, the same picture each time: head `8957deb3` green on every
+  Actions check, `main` not moved, no comment to answer, shibboleth and Central refused. No commit.
+- 08-02 — twenty-first run. Unchanged again: counts re-derived (4 commits, 8 files, 8 insertions, 24 deletions),
+  zero review threads, newest comment still this routine's own, shibboleth blocked and Central 404. No commit.
