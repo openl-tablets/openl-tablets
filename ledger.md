@@ -6,11 +6,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 - Every queue row is done and every vein below is closed. While `origin/main` equals #1940's merge base there is
   no new scope: go straight to maintenance, and never invent a detector to have something to delete.
-- #1940 carries the whole sweep, is green on every GitHub Actions check, and waits on a human review. Do not push
-  a no-op commit to nudge it, and do not re-argue the SonarCloud gate — the description already carries the argument.
+- #1940 carries the whole sweep, is green on every Actions check, has no review thread, and waits on a human
+  review. Do not nudge it with a no-op commit, do not re-argue the SonarCloud gate, and do not comment merely to
+  restate a green status — the description already carries all of it.
 - One `curl` for the `opensaml-bom` pom is the whole scope probe: a 200 from `build.shibboleth.net` unlocks
-  webstudio Java, the last unswept surface. Still refused. Seed the stub and the local git/gpg fixes only if a
-  build is actually needed.
+  webstudio Java, the last unswept surface. Refused again, and Central 404s. Seed the stub only if a build is needed.
 
 ## Change-type queue
 
@@ -55,8 +55,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 ## Module coverage
 
 - `STUDIO/studio-ui` — locale bundles, import graph, eslint, npm dependencies: only deferrals left.
-- `STUDIO/org.openl.rules.webstudio` Java — never swept; it cannot be compiled here (see *Container facts*). Its
-  resources are already covered by the repo-wide resource veins.
+- `STUDIO/org.openl.rules.webstudio` Java — never swept, uncompilable here (see *Container facts*); its resources
+  are already covered by the repo-wide resource veins.
 - Every other module — PMD (main and test sources), javac, member and whole-type deadness all swept.
 
 ## Deferred findings
@@ -70,10 +70,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
   `TableSyntaxNodeDispatcherBuilder:136` — the whole chain is inert, but the setter is public API in `DEV/**`.
-- `WSFrontend` `ServiceManagerImpl:230` re-assigns `serviceDescriptionInProcess` to the value already assigned at
-  228. Proving 230 dead is an absence-of-path argument through the whole compile subsystem for a one-line payoff.
+- `WSFrontend` `ServiceManagerImpl:230` re-assigns `serviceDescriptionInProcess` to the value already at 228;
+  proving it dead is an absence-of-path argument through the whole compile subsystem for a one-line payoff.
 - `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — the flagged `messagesCount++` passes its value on,
-  so only the increment is wasted: an expression rewrite, not a deletion. Out of scope.
+  so only the increment is wasted: an expression rewrite, not a deletion.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
   `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract documented in
   `Docs/api/projects-merge-api.md` with a Java record and an OpenAPI schema. Needs a human decision.
@@ -138,8 +138,6 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   built by string concatenation in JS or Java.
 - `rf-*` classes cannot be proven dead (RichFaces ships its JS inside a jar); `ant-*` come from antd at runtime.
 - A regex of `#[a-zA-Z0-9]+` over CSS reports every hex colour as an id selector. Filter hex before reading results.
-- `.properties` keys are routinely assembled from a prefix plus a runtime segment — see Keep-list for each convention.
-- An interface with zero code references can still be a documented API contract mirrored from the backend.
 - `\b` does not match before `$`, so a `\b`-anchored search finds no call site for a `$`-leading name. Use
   `(?<![\w$])name(?![\w$])`.
 - A name defined as a key in an options object literal passed to a framework is a callback, not something anyone calls
@@ -377,9 +375,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-02 — sixteenth run. #1940 went green on every Actions check; rewrote its stale CI section, said so once in
-  the thread. No new scope, no commit.
 - 08-02 — seventeenth run. Closed the pom-configuration vein (profiles and `pluginManagement`): zero removable.
   No new scope on `main`, no code commit, no PR change needed. Compacted the ledger.
 - 08-02 — eighteenth run. Maintenance only: #1940 unchanged and still green, no new comments, `main` not moved.
   Confirmed Central serves no OpenSAML artifact either, so webstudio stays unswept. No commit.
+- 08-02 — nineteenth run. Maintenance only: `main` still at #1940's merge base, PR counts re-derived and matching,
+  all 13 Actions checks green, no comment or thread to answer, shibboleth still refused. Compacted the ledger.
