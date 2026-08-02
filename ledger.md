@@ -9,8 +9,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - #1940 carries the whole sweep, is green on every GitHub Actions check, and waits on a human review. Do not push
   a no-op commit to nudge it, and do not re-argue the SonarCloud gate — the description already carries the argument.
 - One `curl` for the `opensaml-bom` pom is the whole scope probe: a 200 from `build.shibboleth.net` unlocks
-  webstudio Java, the last unswept surface. Still CONNECT 403. Seed the stub, the local git identity and the gpg
-  unset only when a build is actually needed.
+  webstudio Java, the last unswept surface. Still refused. Seed the stub and the local git/gpg fixes only if a
+  build is actually needed.
 
 ## Change-type queue
 
@@ -285,8 +285,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   skips the Studio application module and the Studio ITEST suites.
 - After such an install the surefire provider jar is absent, so a later `mvn -o test` dies on
   `surefire-junit-platform ... in offline mode`. Run the first `mvn test` online.
-- **Maven works after seeding one stub.** `org.opensaml:opensaml-bom:5.2.3` is shibboleth-only, the proxy denies
-  CONNECT to `build.shibboleth.net` (403), and Central carries only 4.0.x. Write a pom with an empty
+- **Maven works after seeding one stub.** `org.opensaml:opensaml-bom:5.2.3` is shibboleth-only, the proxy refuses
+  `build.shibboleth.net`, and Central 404s on every `org.opensaml` artifact probed. Write a pom with an empty
   `<dependencyManagement>` to `~/.m2/repository/org/opensaml/opensaml-bom/5.2.3/opensaml-bom-5.2.3.pom`, delete the
   `*.lastUpdated` files beside it, and 74 of 82 modules build. Local only — it must never reach a commit.
 - The stub is safe: the root pom already imports the Bouncy Castle, Jackson and HttpComponents BOMs *above*
@@ -377,9 +377,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-02 — fifteenth run. Closed the two remaining Java surfaces: package-private members of public types (zero
-  removable) and public types in test trees (one, the `JavaType` fixture, committed to #1940).
 - 08-02 — sixteenth run. #1940 went green on every Actions check; rewrote its stale CI section, said so once in
   the thread. No new scope, no commit.
 - 08-02 — seventeenth run. Closed the pom-configuration vein (profiles and `pluginManagement`): zero removable.
   No new scope on `main`, no code commit, no PR change needed. Compacted the ledger.
+- 08-02 — eighteenth run. Maintenance only: #1940 unchanged and still green, no new comments, `main` not moved.
+  Confirmed Central serves no OpenSAML artifact either, so webstudio stays unswept. No commit.
