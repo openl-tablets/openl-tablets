@@ -4,9 +4,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- `main` and #1940's merge base have been equal at `2cd75330ae` for five runs. While they are equal there is no
+- `main` and #1940's merge base have been equal at `2cd75330ae` for six runs. While they are equal there is no
   new scope: the queue is done and every remaining candidate needs a human, so compare the two SHAs first and go
   straight to maintenance — never invent a detector to have something to delete.
+- Member-level deadness below `private` is now also exhausted (see *Exhausted veins*), so no Java vein is open.
+  The only untried surface is package-private members of *public* types; expect the same result and no build here.
 - #1940 is settled and waiting on a human reviewer: 11 checks green, the twelfth the `main`-wide `LockTest` red,
   rerun budget on head `90168ba313` spent. Do not rerun, comment or edit the body, and do not notify the owner
   again while it sits in this state — that was done once already.
@@ -31,6 +33,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 | 12 | Unused nested / effectively-private types (javac) | done, no findings |
 | 13 | Unused declared Maven dependencies | done for 52 modules, no provable finding |
 | 14 | Whole-type deadness over Java simple names | done, all 853 non-public top-level types alive |
+| 15 | Package-private/protected members of non-public types | done, all 386 examined are alive |
 
 ## Open PR
 
@@ -146,6 +149,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   comments; otherwise correct Maven practice and commented-out samples both report as duplicates.
 - A CodeRabbit walkthrough describes intent, not the diff — it reported an insertion in a file with zero insertions.
   Verify any bot claim against `git diff --numstat` before answering it.
+- **A multi-line annotation defeats a scan-upwards for annotations**, so a `@ParameterizedTest` whose `@CsvSource`
+  ends on `})` reads as an unannotated method. Walk back over a closing bracket, or the liveliest tests look dead.
+- A Java field regex with no scope tracking matches every local declaration — 3313 "fields" against 112 real ones.
+  Track brace depth and only accept a declaration whose enclosing brace was opened by a type declaration.
 
 ## Method rules
 
@@ -156,8 +163,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - For a bundle key, search the full dotted path **and** the bare leaf name; either hit means keep.
 - Validate any new bulk detector by feeding it two fabricated names; if they come back "referenced", the search is
   wrong, not the repository. For a linter, plant a violation and confirm it is reported.
-- For whole-type deadness, "appears in one file" is not enough — count occurrences **inside** that file too. A
-  secondary top-level class used by its file's primary class is alive and otherwise looks orphaned.
+- For any deadness check on a type **or a member**, "appears in one file" is not enough — count occurrences
+  **inside** that file too. This one rule killed every member candidate ever raised: a secondary top-level class
+  used by its file's primary class, and a helper called only by its own file's other methods, both look orphaned.
 - **This clone is shallow (50 commits).** Its earliest commit "adds" all 15032 files, so `git log --diff-filter=A`
   attributes every older file to that graft and history proves nothing about a file's origin. Never argue from it.
 - Resolve studio-ui imports with tsconfig `paths` `"*": ["./src/*"]` (a bare specifier is `src/`-relative), and follow
@@ -304,6 +312,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   violations, detector validated by reproducing the known main-source baseline. No PMD scope is left open.
 - **Whole-type deadness over all 3943 `.java` files**: every non-public top-level type (853 of them), each name
   searched repository-wide with a literal word-boundary search over every file type. Zero removable.
+- **Member deadness below `private` — the gap between PMD (private only) and whole-type deadness.** Every
+  unannotated package-private and protected method (274) and field (112) of the 915 files whose top-level type is
+  non-public, each name resolved against an identifier index over all 15151 text files. 33 had no outside
+  reference and all 33 are read inside their own file. Zero removable; do not repeat this scan.
 - javac `-Xlint` over the whole reactor: no `UnusedVariable`, `UnusedMethod` or `UnusedNestedClass`; the only
   `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
@@ -339,12 +351,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-02 — eleventh run. Third consecutive idle run: `main` still `2cd75330ae`, #1940 still `90168ba313` with no
-  new comment since the tenth run. Counts re-derived and unchanged, one red check, nothing touched, no
-  notification sent. No build was run — maintenance needed none.
 - 08-02 — twelfth run. Fourth idle run, same two SHAs, no new comment on #1940. Counts re-derived and unchanged,
   no review threads, one red check. Re-probed `build.shibboleth.net`: still CONNECT 403, so webstudio stays out
   of scope. Nothing touched, no build, no notification.
 - 08-02 — thirteenth run. Fifth idle run: same two SHAs, no new comment on #1940, shibboleth still 403, counts
   re-derived and unchanged, no review threads, one red check. Only product was compaction — 355 to 350 lines,
   resume point cut to spec, `JsonUtilsTest.KeyClass` folded into *False-positive shapes* as settled alive.
+- 08-02 — fourteenth run. Same two SHAs, no new comment on #1940, shibboleth still 403, counts re-derived and
+  unchanged, one red check. Instead of a sixth idle run, opened and closed the last Java vein: member deadness
+  below `private`. Zero removable, no commit, no build needed — detection was search-only.
