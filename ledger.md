@@ -9,8 +9,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   detector to have something to delete.
 - No Java vein is left open. Member deadness below `private` and whole-type deadness are now both closed for
   public and non-public types alike (see *Exhausted veins*). Only webstudio is unswept, and it cannot be built here.
-- #1940 carries the sweep. Its `LockTest` check is the `main`-wide red one; do not rerun it, and do not notify
-  the owner about it again — that was done once already.
+- #1940 carries the sweep and is **green on every GitHub Actions check**; only the SonarCloud gate is red, and
+  #1933 merged with it red. It waits on a human review — do not push a no-op commit to nudge it, and do not
+  re-argue the gate: the description already carries the argument.
 - One `curl` for the `opensaml-bom` pom is the whole scope probe: a 200 from `build.shibboleth.net` unlocks
   webstudio, still CONNECT 403. Seed the stub, git identity and gpg unset only when a build is actually needed.
 
@@ -40,6 +41,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 - Branch `dead-code/java-internals`, PR #1940, ready for review, 4 commits, 8 files / 8 insertions /
   24 deletions, no review threads, blocked on the missing human review. Re-derive the counts mechanically.
+- Its description's CI section was rewritten once the checks went green; re-read it against the checks on every
+  wake, because that section is the part that goes false without any push.
 - `676a8e9071 Remove never-read variable and field initializers` — 5 files.
 - `ac445bd038 Remove unused local variables that assertions never read` — 1 file.
 - `90168ba313 Remove an unused private field from the grid-table test stub` — 1 file.
@@ -72,8 +75,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   `TableSyntaxNodeDispatcherBuilder:136` — the whole chain is inert, but the setter is public API in `DEV/**`.
 - `WSFrontend` `ServiceManagerImpl:230` re-assigns `serviceDescriptionInProcess` to the value already assigned at
   228. Proving 230 dead is an absence-of-path argument through the whole compile subsystem for a one-line payoff.
-- `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — the flagged `messagesCount++` passes its value to
-  `error(...)`; only the increment is wasted, so this is an expression rewrite, not a deletion. Out of scope.
+- `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — the flagged `messagesCount++` passes its value on,
+  so only the increment is wasted: an expression rewrite, not a deletion. Out of scope.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
   `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract documented in
   `Docs/api/projects-merge-api.md` with a Java record and an OpenAPI schema. Needs a human decision.
@@ -83,8 +86,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - `.te_hidden` in `STUDIO/org.openl.rules.tableeditor/css/common.css` — the only real CSS orphan. Blocked because the
   CSS bundles are not reproducible (see *Method rules*), so the removal cannot be propagated to what ships.
 - `STUDIO/org.openl.rules.workspace/resources/deployer.properties` — a `production-repository.$ref` sample no file
-  names, in a library jar with no matching application. Its `$ref` syntax is still live, and `{appName}.properties`
-  would load it for an app named `deployer`, so only a human knows whether such an app still exists downstream.
+  names, in a library jar with no matching application. `{appName}.properties` would load it for an app named
+  `deployer`, so only a human knows whether such an app still exists downstream.
 
 ## False-positive shapes
 
@@ -95,16 +98,13 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - **A `= null` initializer before a `try` is required whenever any path can reach a read without the assignment** —
   a `catch`/`finally` that mentions the variable, or a conditional assignment inside the try. Test it against a
   sibling declared in the same block with no initializer: if that compiles, the flagged one is genuinely redundant.
-- **An assignment can exist only to host a cast that is the thing under test.** `CastFactoryTest` assigns a
-  never-read variable so that `(int[][][][])` throws the `ClassCastException` it asserts; a cast expression cannot
-  stand alone as a statement, so the assignment cannot be dropped.
-- **A try-with-resources resource reads as an unused local.** Java requires the name, and the block's whole point
-  may be the close — `ExtensionsConfigurationTest` asserts on the bean's destruction afterwards.
-- **An assignment to `null` before a `gc()` call is the test.** `JsonUtilsTest` drops the strong reference so the
-  cache key can be collected. Never delete a null-out that sits near `Runtime.gc()` or a weak/soft reference.
+- **A never-read local can be the test itself.** Three shapes, all reported as unused: a variable that only hosts
+  a cast whose failure is asserted (a cast cannot stand alone as a statement); a try-with-resources name Java
+  requires, where the close is the point; and a null-out near `Runtime.gc()` or a weak reference, which drops the
+  strong reference so collection can happen. Read the assertions before deleting any of them.
 - **Fields of a fixture class handed to a serializer are its contract.** `JsonUtilsTest.BindingClasses` is passed
-  to `getCachedObjectMapper` as the binding target, and `KeyClass.field` carries the cache key's identity plus the
-  label saying which test owns which mapper. Both read as unused; both are what the test relies on.
+  to `getCachedObjectMapper` as the binding target, and `KeyClass.field` carries the cache key's identity. Both
+  read as unused; both are what the test relies on.
 - **A private member can exist so a test asserts it is *not* found.** `AOpenClassTest.C.getC()` is what
   `assertNull(findMethod(methods, "getC"))` fails against; deleting it leaves the assertion passing but vacuous.
 - **Lombok `@Getter`/`@Setter` generate the accessor, so the field's own name never appears as a read** —
@@ -196,8 +196,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - When a deletion empties a parent object literal, delete the parent in the same commit.
 - A PR body loses angle-bracketed placeholders even inside backticks — write such a segment as prose, then re-read the
   stored body to confirm.
-- Documentation is this repository's approved source of truth, so a `Docs/` markdown page that nothing links to is
-  not a deletion candidate — Jekyll publishes it regardless. Treat the whole `Docs/` prose tree as out of scope.
+- A `Docs/` markdown page that nothing links to is not a candidate — Jekyll publishes it and documentation is this
+  repository's approved source of truth. The whole `Docs/` prose tree is out of scope.
 - **PMD report XML uses namespace `http://pmd.sourceforge.net/report/2.0.0`** (slash-dot, not underscores). A parser
   built for the ruleset namespace silently returns zero violations from a non-empty report.
 - Most `target/pmd.xml` files here contain only `<suppressedviolation>` elements — grep `<violation ` to find the
@@ -252,8 +252,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 - `LockTest.testSimultaneousMultiThreadsWithWaiting` in `STUDIO/org.openl.rules.repository` fails on **`main`**, not
   just on sweep branches — job `Tests (without ITEST)`, tell `expected: <800> but was: <79x>`. It asserts all 8x100
-  `tryLock` attempts beat a 30 s timeout. Do not rerun and do not treat it as your own breakage: check the latest
-  `main` run of `build-quick.yml` first, then say so in the thread once. It passes on this container.
+  `tryLock` attempts beat a 30 s timeout. Do not treat it as your own breakage: check the latest `main` run of
+  `build-quick.yml` first, then say so in the thread once. It passes on this container.
+- **It is load-sensitive, not deterministic** — it went green on #1940 while still red on that branch's own merge
+  base. So a red `Tests (without ITEST)` is worth one rerun after all, and a green one is not proof of anything.
 - `studio-ui` `npm run test` is the same job's other failure mode — tell `Failed to run task: 'npm run test' failed`
   plus `-rf :studio-ui`. It is CPU starvation, not code: it also fails inside this container's own `-T1C` reactor
   build, where `OverviewPanel.test.tsx` lost 3 of 28 tests to 15 s timeouts in a file that took 79 s against ~4 min
@@ -267,11 +269,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   logging `HttpTimeoutException` at 10001ms — WebStudio under Jetty stopped answering; no test is at fault.
 - Shape (b) never self-terminates before the 6 h job limit. Cancel the whole run, then `rerun_failed_jobs` — this
   cleared it on the same commit in 7m30s, which is the proof it is environmental and not the diff.
-- A floating container tag can break a job for hours and then fix itself: `apache/kafka-native:latest` segfaulted
-  in its own native-image bootstrap and `IT (services-data)` went green again a day later with no code change.
-  Before escalating an image failure, check whether a later run of the same job already recovered.
-- `rerun_failed_jobs` returns 403 "This workflow is already running" until every other job in the run has finished;
-  wait for the run to complete before retrying.
+- A floating container tag can break a job for hours and then fix itself — `apache/kafka-native:latest` segfaulted
+  in its own bootstrap, then recovered with no code change. Check for a later green run before escalating one.
+- `rerun_failed_jobs` returns 403 until every other job in the run has finished; wait for the run to complete.
 
 ## Container facts
 
@@ -363,9 +363,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
   import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
   or swept until then, and the stub has to be re-seeded on every container rebuild.
-- `main` is red: `LockTest.testSimultaneousMultiThreadsWithWaiting` fails on all 7 of the last 7 `main` runs, so
-  no pull request can reach a fully green CI. Its sibling is already `@Disabled` as unstable; this one needs the same
-  decision or a real fix. It passes on this container, so it is load-sensitive, not broken.
+- `main` is red on `LockTest.testSimultaneousMultiThreadsWithWaiting` — every recent `main` run of
+  `build-quick.yml`. Its sibling is already `@Disabled` as unstable; this one needs the same decision or a real
+  fix. It passes on this container and passed once on #1940, so it is load-sensitive, not broken.
 - `itest.studio.repos` has a same-second commit-ordering race: when a scenario's two commits land in the same second
   the history endpoint returns them oldest-first, so `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify` reads
   the pre-merge revision and an empty table list. Needs a tiebreaker in the ordering or a fixture that does not
@@ -376,12 +376,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   contract; if they go, `Docs/api/projects-merge-api.md` moves with them.
 - The committed tableeditor CSS bundles do not match what `compile.css.sh` produces from the committed sources, so
   they are stale or hand-edited, and `.te_hidden` is blocked until someone says which side is authoritative. That
-  bundling step is documented nowhere and is wired into no Maven phase, so editing a `js/` or `css/` source
-  silently fails to reach the runtime — worth a note in `STUDIO/AGENTS.md`; this routine only deletes.
+  step is wired into no Maven phase, so editing a `js/` or `css/` source silently fails to reach the runtime.
 
 ## Run log
 
-- 08-02 — thirteenth run. Fifth idle run; only product was compaction, 355 to 350 lines.
 - 08-02 — fourteenth run. Opened and closed the last member vein below `private`: zero removable, no commit.
 - 08-02 — fifteenth run. Closed the two remaining Java surfaces — package-private members of public types (zero
   removable) and public types in test trees (one: the `JavaType` fixture, committed to #1940).
+- 08-02 — sixteenth run. #1940 went green on every Actions check; rewrote its stale CI section, said so once in
+  the thread. No new scope, no commit.
