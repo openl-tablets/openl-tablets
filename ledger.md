@@ -4,14 +4,13 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- `main` and #1940's merge base have been equal at `2cd75330ae` for six runs. While they are equal there is no
-  new scope: the queue is done and every remaining candidate needs a human, so compare the two SHAs first and go
-  straight to maintenance — never invent a detector to have something to delete.
-- Member-level deadness below `private` is now also exhausted (see *Exhausted veins*), so no Java vein is open.
-  The only untried surface is package-private members of *public* types; expect the same result and no build here.
-- #1940 is settled and waiting on a human reviewer: 11 checks green, the twelfth the `main`-wide `LockTest` red,
-  rerun budget on head `90168ba313` spent. Do not rerun, comment or edit the body, and do not notify the owner
-  again while it sits in this state — that was done once already.
+- Compare `origin/main` with #1940's merge base first. While they are equal there is no new scope: every queue
+  row is done and every remaining candidate needs a human, so go straight to maintenance — never invent a
+  detector to have something to delete.
+- No Java vein is left open. Member deadness below `private` and whole-type deadness are now both closed for
+  public and non-public types alike (see *Exhausted veins*). Only webstudio is unswept, and it cannot be built here.
+- #1940 carries the sweep. Its `LockTest` check is the `main`-wide red one; do not rerun it, and do not notify
+  the owner about it again — that was done once already.
 - One `curl` for the `opensaml-bom` pom is the whole scope probe: a 200 from `build.shibboleth.net` unlocks
   webstudio, still CONNECT 403. Seed the stub, git identity and gpg unset only when a build is actually needed.
 
@@ -34,29 +33,31 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 | 13 | Unused declared Maven dependencies | done for 52 modules, no provable finding |
 | 14 | Whole-type deadness over Java simple names | done, all 853 non-public top-level types alive |
 | 15 | Package-private/protected members of non-public types | done, all 386 examined are alive |
+| 16 | Package-private members of public types | done, all 835 declarations are alive |
+| 17 | Unreferenced public types in test trees | done, 1 removed in #1940 |
 
 ## Open PR
 
-- Branch `dead-code/java-internals`, PR #1940, ready for review, 3 commits, 7 files / 8 insertions / 12 deletions,
-  no review threads, `mergeable_state` blocked on the missing human review. The body's counts, CI section and
-  reachability claims re-derive true at head every run; leave it alone unless a commit changes them.
+- Branch `dead-code/java-internals`, PR #1940, ready for review, 4 commits, 8 files / 8 insertions /
+  24 deletions, no review threads, blocked on the missing human review. Re-derive the counts mechanically.
 - `676a8e9071 Remove never-read variable and field initializers` — 5 files.
 - `ac445bd038 Remove unused local variables that assertions never read` — 1 file.
 - `90168ba313 Remove an unused private field from the grid-table test stub` — 1 file.
-- The three commits are one PMD rule each, so they are three change types, not same-kind: never squash them.
+- `8957deb3c5 Delete a test fixture class that no test and no spreadsheet references` — 1 file.
+- The commits are one detector rule each, so they are different change types: never squash them together.
 - CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module
   has no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
 
 ## Merged PRs
 
-- #1933, 12 files / 74 deletions — studio-ui i18n keys plus `PopupMenu.showChild`. Merged by yurkom with the
-  `LockTest` job still red, so a red `Tests (without ITEST)` does not block a merge here.
+- #1933, 12 files / 74 deletions — studio-ui i18n keys plus `PopupMenu.showChild`. Merged with `LockTest` still
+  red, so a red `Tests (without ITEST)` does not block a merge here.
 
 ## Module coverage
 
 - `STUDIO/studio-ui` — locale bundles, import graph, eslint, npm dependencies: only deferrals left.
 - `STUDIO/org.openl.rules.webstudio` — never swept; it cannot be compiled here (see *Container facts*).
-- Every other module — PMD (main and test sources) and javac swept; findings are deferred or false positives.
+- Every other module — PMD (main and test sources), javac, member and whole-type deadness all swept.
 
 ## Deferred findings
 
@@ -106,13 +107,21 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   label saying which test owns which mapper. Both read as unused; both are what the test relies on.
 - **A private member can exist so a test asserts it is *not* found.** `AOpenClassTest.C.getC()` is what
   `assertNull(findMethod(methods, "getC"))` fails against; deleting it leaves the assertion passing but vacuous.
+- **Lombok `@Getter`/`@Setter` generate the accessor, so the field's own name never appears as a read** —
+  `TablePart.partName` is reached only as `getPartName`. Search the generated accessor name, not the field.
 - **A private field can back a setter that bean introspection discovers.** `JavaOpenClassTest.BeanA.gg` is read
   by no code, but `setGg` is what makes the asserted `gg` property writable. Search for an accessor, not a read.
+- **A test bean is usually named from inside an `.xlsx`/`.xls`, which no text search can see.** `Bean1`, `Bean2`,
+  `EPBDS7956`, `IChildBean` and `MyProp` are all bound by simple name from a spreadsheet. Before calling any test
+  bean dead, unzip every Excel resource and search the name as UTF-8 and as UTF-16LE.
 - **A deliberately malformed bean encodes one defect per expected error.** `epbds6830.BeanA` feeds
   `EPBDS-6830_external_datatypes_validation.xlsx.msg.txt`; its private, wrongly-cased `getAB()` is one of them.
   The message list is unchanged by removing it — that is why the loss would be silent. Check the `.msg.txt` first.
 - **Surefire's default includes match a `Test` prefix as well as a suffix**, so `TestIf`, `TestAutoType0` and
   friends are executed although nothing names them. Never call a `Test*` class dead.
+- **A nested `@Configuration @ComponentScan` keeps every class in its own package alive** — the 17 `appNNN`
+  controller fixtures in `spring.openapi` are reached only that way. A JMH `@Benchmark` class is likewise run by
+  the harness and named by nothing.
 - **A `@Component`/`@Service` class implementing an interface is injected by interface type**, so its own name
   appears in no other file — `FileNodeMapperImpl`. Check for a stereotype annotation before believing a class is orphaned.
 - **A field can be written so that a call made on the next line reads it back.** `ServiceManagerImpl` sets
@@ -166,6 +175,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - For any deadness check on a type **or a member**, "appears in one file" is not enough — count occurrences
   **inside** that file too. This one rule killed every member candidate ever raised: a secondary top-level class
   used by its file's primary class, and a helper called only by its own file's other methods, both look orphaned.
+- **Run two independent Java detectors and resolve the union.** A brace-tracking parser silently drops members
+  behind an annotation or a multi-line signature; an indent-based one drops nested members and reports interface
+  members, which are implicitly public. Neither alone is trustworthy; their disagreement is where the bugs are.
+- **A production package can be named `test`** — `webstudio/src/.../web/test/`. Detect a test tree by the module's
+  test source root, never by a path segment.
 - **This clone is shallow (50 commits).** Its earliest commit "adds" all 15032 files, so `git log --diff-filter=A`
   attributes every older file to that graft and history proves nothing about a file's origin. Never argue from it.
 - Resolve studio-ui imports with tsconfig `paths` `"*": ["./src/*"]` (a bare specifier is `src/`-relative), and follow
@@ -215,6 +229,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   JUL `logging.properties`, `META-INF/io/opentelemetry/instrumentation/*.properties`, `archetype-metadata.xml`,
   maven-site `site.xml`, Facelets `*.taglib.xml` and `.tld`, Bean Validation message overrides, favicons and
   web-manifest icons, `DEV/org.openl.rules.gen/enums/*.csv` codegen inputs, and a vendored library's own source map.
+- `WSFrontend/org.openl.rules.ruleservice` and `.ruleservice.deployer` publish a **test-jar**, so their test classes
+  are consumer API. Test types anywhere else are not published and may be deleted once proven unreferenced.
 - The tableeditor `compile.js.sh`/`compile.css.sh` and their `.cmd` twins are manual developer tooling wired into
   nothing. Unreferenced by design — this routine itself runs `compile.js.sh`, so they stay.
 - Rules-tree and diff icons are referenced by literal path built as `"images/" + name`; they stay.
@@ -225,6 +241,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   serialization hook the JVM calls reflectively — PMD reports it as unused. Never delete one.
 - A private field carrying an injection or binding annotation (`@Autowired`, `@Inject`, `@Value`, `@Mock`,
   `@InjectMocks`, `@PersistenceContext`, a Jackson or JAXB annotation) is written by a framework, not by code.
+  The same holds for a Maven plugin `@Parameter` field in `Util/openl-maven-plugin`.
 - **`dependency:analyze-only` cannot see runtime wiring**, and every "Unused declared" hit in this repository so far
   is one of: `lombok`/`jmh-generator-annprocess` (annotation processors), `jspecify` (CLASS-retention annotations
   the root `AGENTS.md` mandates), `junit-jupiter` (aggregate whose `-api` is what code imports), a `log4j-*-impl` or
@@ -263,6 +280,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   -Dmaven.test.skip.exec=true`** — surefire skips execution while test sources still compile. The cache never
   survives a container rebuild, so budget the download every run. `-DskipTests` still must not be used (this repo
   maps it to `maven.test.skip=true`, dropping test compilation).
+- For a change confined to one module, `mvn test -pl <module> -am -Dquick -DnoPerf` is far cheaper than the reactor
+  and never reaches webstudio, so the opensaml block does not apply to it.
 - That install still runs `studio-ui`'s `npm run test` through frontend-maven-plugin, which `maven.test.skip.exec`
   does not gate, and it fails under the parallel load. Add `-pl '!STUDIO/studio-ui'` or expect one FAILURE that
   skips the Studio application module and the Studio ITEST suites.
@@ -289,8 +308,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   identity is not enough — it silently reverts. Set `git config --local user.name/user.email` in the clone too,
   and repair a bad commit with `git commit --amend --reset-author`: a plain `--amend` keeps the old author even
   when `GIT_AUTHOR_*` is exported. Verify with `git log --pretty='%an <%ae> | %cn <%ce>'`, which shows both sides.
-- Listing workflow runs through the GitHub MCP tool overflows the tool result. It saves the JSON to a file; parse that
-  with python instead of retrying with a smaller page size. The unit-test workflow is `build-quick.yml`.
+- Listing workflow runs through the GitHub MCP tool returns a very large result; ask for `per_page` 3 or less.
+  The unit-test workflow is `build-quick.yml`.
 
 ## Exhausted veins
 
@@ -316,6 +335,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   unannotated package-private and protected method (274) and field (112) of the 915 files whose top-level type is
   non-public, each name resolved against an identifier index over all 15151 text files. 33 had no outside
   reference and all 33 are read inside their own file. Zero removable; do not repeat this scan.
+- **Package-private members of *public* types** — 835 declarations over 593 names, from the union of a
+  brace-tracking and an indent-based detector, resolved against the identifier index. Every one is alive: read in
+  its own file, reached through a Lombok accessor, or written by a framework annotation. Zero removable.
+- **Public top-level types declared in test trees** — 193 types over 165 names, ITEST and the two test-jar modules
+  excluded, each name resolved against the identifier index and then against every Excel and archive resource.
+  Only `JavaType` was removable; the rest are surefire, Spring-scanned, JMH or named from a spreadsheet.
 - javac `-Xlint` over the whole reactor: no `UnusedVariable`, `UnusedMethod` or `UnusedNestedClass`; the only
   `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
@@ -337,26 +362,18 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   the history endpoint returns them oldest-first, so `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify` reads
   the pre-merge revision and an empty table list. Needs a tiebreaker in the ordering or a fixture that does not
   depend on it. Intermittent on `main`, so it will keep costing pull requests a rerun.
-- Decide whether the tableeditor JSP taglib (`META-INF/tableeditor.tld` plus `TableEditorTag`/`TableViewerTag`) is
-  still reachable by any downstream consumer. It is the largest single dead-code candidate found so far — 18
-  write-only fields and two classes — and no in-repository evidence can settle it.
+- Decide whether the tableeditor JSP taglib is still reachable by a downstream consumer — the largest single
+  candidate found so far, and no in-repository evidence can settle it.
 - Decide whether the four unused `MergeModal/types.ts` interfaces should stay as the frontend mirror of the merge REST
   contract; if they go, `Docs/api/projects-merge-api.md` moves with them.
-- The committed tableeditor CSS bundles do not match what `compile.css.sh` produces from the committed CSS sources, so
-  they are stale or hand-edited. Someone has to decide which side is authoritative before any tableeditor CSS removal
-  can ship; `.te_hidden` is blocked on it. The JS bundles reproduce exactly and have no such problem.
-- The tableeditor bundling step is documented nowhere — no `AGENTS.md` or `Docs/` page mentions the two compile
-  scripts or the checked-in yuicompressor jar, and it is not wired into Maven, so editing a source under `js/` or
-  `css/` silently fails to reach the runtime. Worth a note in `STUDIO/AGENTS.md`; this routine only deletes.
+- The committed tableeditor CSS bundles do not match what `compile.css.sh` produces from the committed sources, so
+  they are stale or hand-edited, and `.te_hidden` is blocked until someone says which side is authoritative. That
+  bundling step is documented nowhere and is wired into no Maven phase, so editing a `js/` or `css/` source
+  silently fails to reach the runtime — worth a note in `STUDIO/AGENTS.md`; this routine only deletes.
 
 ## Run log
 
-- 08-02 — twelfth run. Fourth idle run, same two SHAs, no new comment on #1940. Counts re-derived and unchanged,
-  no review threads, one red check. Re-probed `build.shibboleth.net`: still CONNECT 403, so webstudio stays out
-  of scope. Nothing touched, no build, no notification.
-- 08-02 — thirteenth run. Fifth idle run: same two SHAs, no new comment on #1940, shibboleth still 403, counts
-  re-derived and unchanged, no review threads, one red check. Only product was compaction — 355 to 350 lines,
-  resume point cut to spec, `JsonUtilsTest.KeyClass` folded into *False-positive shapes* as settled alive.
-- 08-02 — fourteenth run. Same two SHAs, no new comment on #1940, shibboleth still 403, counts re-derived and
-  unchanged, one red check. Instead of a sixth idle run, opened and closed the last Java vein: member deadness
-  below `private`. Zero removable, no commit, no build needed — detection was search-only.
+- 08-02 — thirteenth run. Fifth idle run; only product was compaction, 355 to 350 lines.
+- 08-02 — fourteenth run. Opened and closed the last member vein below `private`: zero removable, no commit.
+- 08-02 — fifteenth run. Closed the two remaining Java surfaces — package-private members of public types (zero
+  removable) and public types in test trees (one: the `JavaType` fixture, committed to #1940).
