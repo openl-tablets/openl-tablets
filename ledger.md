@@ -4,16 +4,13 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Compare `origin/main` with #1940's merge base first. While they are equal there is no new scope: every queue
-  row is done and every remaining candidate needs a human, so go straight to maintenance — never invent a
-  detector to have something to delete.
-- No Java vein is left open. Member deadness below `private` and whole-type deadness are now both closed for
-  public and non-public types alike (see *Exhausted veins*). Only webstudio is unswept, and it cannot be built here.
-- #1940 carries the sweep and is **green on every GitHub Actions check**; only the SonarCloud gate is red, and
-  #1933 merged with it red. It waits on a human review — do not push a no-op commit to nudge it, and do not
-  re-argue the gate: the description already carries the argument.
+- Every queue row is done and every vein below is closed. While `origin/main` equals #1940's merge base there is
+  no new scope: go straight to maintenance, and never invent a detector to have something to delete.
+- #1940 carries the whole sweep, is green on every GitHub Actions check, and waits on a human review. Do not push
+  a no-op commit to nudge it, and do not re-argue the SonarCloud gate — the description already carries the argument.
 - One `curl` for the `opensaml-bom` pom is the whole scope probe: a 200 from `build.shibboleth.net` unlocks
-  webstudio, still CONNECT 403. Seed the stub, git identity and gpg unset only when a build is actually needed.
+  webstudio Java, the last unswept surface. Still CONNECT 403. Seed the stub, the local git identity and the gpg
+  unset only when a build is actually needed.
 
 ## Change-type queue
 
@@ -36,13 +33,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 | 15 | Package-private/protected members of non-public types | done, all 386 examined are alive |
 | 16 | Package-private members of public types | done, all 835 declarations are alive |
 | 17 | Unreferenced public types in test trees | done, 1 removed in #1940 |
+| 18 | Dead Maven profiles and `pluginManagement` entries | done, all 14 profiles and 44 managed plugins alive |
 
 ## Open PR
 
 - Branch `dead-code/java-internals`, PR #1940, ready for review, 4 commits, 8 files / 8 insertions /
   24 deletions, no review threads, blocked on the missing human review. Re-derive the counts mechanically.
-- Its description's CI section was rewritten once the checks went green; re-read it against the checks on every
-  wake, because that section is the part that goes false without any push.
 - `676a8e9071 Remove never-read variable and field initializers` — 5 files.
 - `ac445bd038 Remove unused local variables that assertions never read` — 1 file.
 - `90168ba313 Remove an unused private field from the grid-table test stub` — 1 file.
@@ -53,22 +49,23 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Merged PRs
 
-- #1933, 12 files / 74 deletions — studio-ui i18n keys plus `PopupMenu.showChild`. Merged with `LockTest` still
-  red, so a red `Tests (without ITEST)` does not block a merge here.
+- #1933, 12 files / 74 deletions — studio-ui i18n keys plus `PopupMenu.showChild`. Merged with the SonarCloud gate
+  *and* `Tests (without ITEST)` red, which is the precedent #1940 rests on.
 
 ## Module coverage
 
 - `STUDIO/studio-ui` — locale bundles, import graph, eslint, npm dependencies: only deferrals left.
-- `STUDIO/org.openl.rules.webstudio` — never swept; it cannot be compiled here (see *Container facts*).
+- `STUDIO/org.openl.rules.webstudio` Java — never swept; it cannot be compiled here (see *Container facts*). Its
+  resources are already covered by the repo-wide resource veins.
 - Every other module — PMD (main and test sources), javac, member and whole-type deadness all swept.
 
 ## Deferred findings
 
 - `STUDIO/org.openl.rules.tableeditor` `taglib/TableEditorTag.java` (11 unread private fields) and
-  `taglib/TableViewerTag.java` (7). Each field is written by a public setter and read by nobody. Both classes are
-  named only by `META-INF/tableeditor.tld`. **The whole JSP taglib is the real candidate, and it cannot be settled
-  from inside this repository** — the module is a published artifact, so a consumer's own JSP may use the taglib.
-  Do not touch the fields alone: the setters are the taglib's declared attribute contract.
+  `TableViewerTag.java` (7): each is written by a public setter, read by nobody, and both classes are named only by
+  `META-INF/tableeditor.tld`. The whole JSP taglib is the real candidate and no in-repository evidence settles it —
+  the module is published, so a consumer's own JSP may use it. Never touch the fields alone: the setters are the
+  taglib's declared attribute contract.
 - `STUDIO/org.openl.security` `SimpleGroup.description` — written by a public setter and a public constructor
   parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
@@ -95,43 +92,45 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   argument is null, so `= HorizontalAlignment.GENERAL` is observable. Check every constructor path before deleting.
 - **PMD treats an assignment in a `try` as overwritten by one in the `catch`.** `GitRepository` assigns `result` in
   the try and nulls it in the catch; both are live. Any try/catch pair on the same variable reads as a violation.
-- **A `= null` initializer before a `try` is required whenever any path can reach a read without the assignment** —
-  a `catch`/`finally` that mentions the variable, or a conditional assignment inside the try. Test it against a
-  sibling declared in the same block with no initializer: if that compiles, the flagged one is genuinely redundant.
-- **A never-read local can be the test itself.** Three shapes, all reported as unused: a variable that only hosts
-  a cast whose failure is asserted (a cast cannot stand alone as a statement); a try-with-resources name Java
-  requires, where the close is the point; and a null-out near `Runtime.gc()` or a weak reference, which drops the
-  strong reference so collection can happen. Read the assertions before deleting any of them.
-- **Fields of a fixture class handed to a serializer are its contract.** `JsonUtilsTest.BindingClasses` is passed
-  to `getCachedObjectMapper` as the binding target, and `KeyClass.field` carries the cache key's identity. Both
-  read as unused; both are what the test relies on.
+- **A `= null` initializer before a `try` is required whenever any path can reach a read without the assignment** — a
+  `catch`/`finally` mentioning the variable, or a conditional assignment inside the try. Test it against a sibling
+  declared in the same block with no initializer: if that compiles, the flagged one is genuinely redundant.
+- **A never-read local can be the test itself.** Three shapes, all reported as unused: a variable that only hosts a
+  cast whose failure is asserted (a cast cannot stand alone as a statement); a try-with-resources name Java requires,
+  where the close is the point; and a null-out near `Runtime.gc()` or a weak reference, which drops the strong
+  reference so collection can happen. Read the assertions before deleting any of them.
+- **Fields of a fixture class handed to a serializer are its contract.** `JsonUtilsTest.BindingClasses` is the binding
+  target passed to `getCachedObjectMapper`, and `KeyClass.field` carries the cache key's identity. Both read as unused.
 - **A private member can exist so a test asserts it is *not* found.** `AOpenClassTest.C.getC()` is what
   `assertNull(findMethod(methods, "getC"))` fails against; deleting it leaves the assertion passing but vacuous.
 - **Lombok `@Getter`/`@Setter` generate the accessor, so the field's own name never appears as a read** —
   `TablePart.partName` is reached only as `getPartName`. Search the generated accessor name, not the field.
-- **A private field can back a setter that bean introspection discovers.** `JavaOpenClassTest.BeanA.gg` is read
-  by no code, but `setGg` is what makes the asserted `gg` property writable. Search for an accessor, not a read.
+- **A private field can back a setter that bean introspection discovers.** `JavaOpenClassTest.BeanA.gg` is read by no
+  code, but `setGg` is what makes the asserted `gg` property writable. Search for an accessor, not a read.
 - **A test bean is usually named from inside an `.xlsx`/`.xls`, which no text search can see.** `Bean1`, `Bean2`,
   `EPBDS7956`, `IChildBean` and `MyProp` are all bound by simple name from a spreadsheet. Before calling any test
   bean dead, unzip every Excel resource and search the name as UTF-8 and as UTF-16LE.
 - **A deliberately malformed bean encodes one defect per expected error.** `epbds6830.BeanA` feeds
-  `EPBDS-6830_external_datatypes_validation.xlsx.msg.txt`; its private, wrongly-cased `getAB()` is one of them.
-  The message list is unchanged by removing it — that is why the loss would be silent. Check the `.msg.txt` first.
+  `EPBDS-6830_external_datatypes_validation.xlsx.msg.txt`; its private, wrongly-cased `getAB()` is one of them, and
+  the message list is unchanged by removing it — that is why the loss would be silent. Check the `.msg.txt` first.
 - **Surefire's default includes match a `Test` prefix as well as a suffix**, so `TestIf`, `TestAutoType0` and
   friends are executed although nothing names them. Never call a `Test*` class dead.
 - **A nested `@Configuration @ComponentScan` keeps every class in its own package alive** — the 17 `appNNN`
-  controller fixtures in `spring.openapi` are reached only that way. A JMH `@Benchmark` class is likewise run by
-  the harness and named by nothing.
+  controller fixtures in `spring.openapi`. A JMH `@Benchmark` class is likewise run by the harness and named by nothing.
 - **A `@Component`/`@Service` class implementing an interface is injected by interface type**, so its own name
   appears in no other file — `FileNodeMapperImpl`. Check for a stereotype annotation before believing a class is orphaned.
 - **A field can be written so that a call made on the next line reads it back.** `ServiceManagerImpl` sets
   `serviceDescriptionInProcess` before `createService`, which reaches it through `getRulesDeployInProcess()`. Look
   for a getter on the same field before calling any field assignment dead.
 - **A field can be blanked to change what a resolver returns, then restored.** `DynamicPropertySource` sets
-  `settings = Map.of()` so `resolver.getRawProperty` falls through to defaults. Self-referential property sources
-  defeat dataflow entirely.
-- A `for (Object item : c) { size++; }` counting loop reports `item` as an unused local; the variable is required
-  syntax and cannot be removed.
+  `settings = Map.of()` so `resolver.getRawProperty` falls through to defaults. Self-referential sources defeat dataflow.
+- **Neither pom configuration shape is ever deletable here.** A `pluginManagement` entry needs no `<plugin>` consumer
+  to be load-bearing: it pins a plugin bound by a lifecycle default (`deploy`, `site`), by a packaging type
+  (`maven-archetype`), or invoked as a bare goal (`release:prepare` in `release.yml`, `scm:`, `license:`). A profile
+  with no `-P` reference is alive when a property activates it (`quick`, `skipTests`, `!noPerf`, `noDocker`, `sonar`,
+  `!sonar`, `!skipTests`, `env.CI`) or when it is documented developer tooling — `owasp`, named by `SECURITY.md` and
+  the developer guide, is the only profile in the repository with neither an activation block nor a `-P` reference.
+- A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
   prefix as keeping its whole family alive. `t(someKeyVariable)` means the literals sit at the call sites instead.
@@ -150,8 +149,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - A "dead" JS function is usually called from inside its own file — exclude the defining file from the search and
   every private helper looks unreferenced.
 - **A dependency jar can read a resource by a name hardcoded in its own bytecode.** CXF's `AbstractHTTPServlet`
-  loads `/cxfServletStaticResourcesMap.txt`, so that file is named by no file in this repository and is still
-  load-bearing. When a resource name looks invented-but-conventional, fetch the owning jar and grep its constants.
+  loads `/cxfServletStaticResourcesMap.txt`, so that file is named by no file here and is still load-bearing. When
+  a resource name looks invented-but-conventional, fetch the owning jar and grep its constants.
 - A pom property with no `${...}` reference anywhere is almost always a plugin convention parameter — `maven.*`,
   `sonar.*`, `invoker.*`, `archetype.*`, `spotless.*`, `lombok.delombok.skip`, `project.build.sourceEncoding`.
 - Duplicate-`<dependency>` detection must first strip `<dependencyManagement>`, `<plugin><dependencies>` and XML
@@ -194,8 +193,6 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   so read the output, not the exit code.
 - `npm ci` works here — registry.npmjs.org bypasses the proxy. `node_modules` is gitignored.
 - When a deletion empties a parent object literal, delete the parent in the same commit.
-- A PR body loses angle-bracketed placeholders even inside backticks — write such a segment as prose, then re-read the
-  stored body to confirm.
 - A `Docs/` markdown page that nothing links to is not a candidate — Jekyll publishes it and documentation is this
   repository's approved source of truth. The whole `Docs/` prose tree is out of scope.
 - **PMD report XML uses namespace `http://pmd.sourceforge.net/report/2.0.0`** (slash-dot, not underscores). A parser
@@ -205,6 +202,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   `@SuppressWarnings`, which is why row 11 comes back empty on main sources.
 - The `pmd` plugin prefix does not resolve with `-o` on a cold cache. Invoke the goal by full coordinates,
   `mvn org.apache.maven.plugins:maven-pmd-plugin:3.28.0:pmd -fae`, and run it online the first time.
+- Two of the 207 poms are archetype-resource templates whose first line is Velocity, not XML, so any XML parser
+  fails on them. Skip them by name rather than aborting the scan; they declare no profiles and no plugins of ours.
 - GitHub Actions compiles every push against the real opensaml BOM, so CI is the authoritative gate on anything the
   locally stubbed build could not verify.
 - **Never edit a source file while a Maven build is running.** A half-applied edit — import gone, field still
@@ -252,10 +251,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 - `LockTest.testSimultaneousMultiThreadsWithWaiting` in `STUDIO/org.openl.rules.repository` fails on **`main`**, not
   just on sweep branches — job `Tests (without ITEST)`, tell `expected: <800> but was: <79x>`. It asserts all 8x100
-  `tryLock` attempts beat a 30 s timeout. Do not treat it as your own breakage: check the latest `main` run of
-  `build-quick.yml` first, then say so in the thread once. It passes on this container.
-- **It is load-sensitive, not deterministic** — it went green on #1940 while still red on that branch's own merge
-  base. So a red `Tests (without ITEST)` is worth one rerun after all, and a green one is not proof of anything.
+  `tryLock` attempts beat a 30 s timeout. It is load-sensitive, not deterministic: it passes on this container and it
+  went green on #1940 while still red on that branch's own merge base. So a red run is worth one rerun, a green one
+  proves nothing, and it is never your own breakage — check the latest `main` run of `build-quick.yml`, say so once.
 - `studio-ui` `npm run test` is the same job's other failure mode — tell `Failed to run task: 'npm run test' failed`
   plus `-rf :studio-ui`. It is CPU starvation, not code: it also fails inside this container's own `-T1C` reactor
   build, where `OverviewPanel.test.tsx` lost 3 of 28 tests to 15 s timeouts in a file that took 79 s against ~4 min
@@ -293,31 +291,30 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   `*.lastUpdated` files beside it, and 74 of 82 modules build. Local only — it must never reach a commit.
 - The stub is safe: the root pom already imports the Bouncy Castle, Jackson and HttpComponents BOMs *above*
   opensaml-bom, so first-declaration-wins had already excluded opensaml's management of them.
-- **`STUDIO/org.openl.rules.webstudio` cannot be built here** — confirmed: `spring-security-saml2-service-provider`
-  pulls `opensaml-saml-api`/`opensaml-saml-impl` 4.3.2 as non-optional compile dependencies and both are
-  shibboleth-only. Six ITEST Studio suites skip with it. Never delete webstudio Java from a run here.
+- **`STUDIO/org.openl.rules.webstudio` cannot be built here** — `spring-security-saml2-service-provider` pulls
+  `opensaml-saml-api`/`opensaml-saml-impl` 4.3.2 as non-optional compile dependencies and both are shibboleth-only.
+  No stub helps, because webstudio code imports those classes. Six ITEST Studio suites skip with it. Never delete
+  webstudio Java from a run here.
 - ITEST modules cannot run `pmd:pmd` or `dependency:analyze-only`: the install does not publish `server-core`, so
   those 16 modules fail dependency resolution. They are out of the sweep's scope anyway.
 - Maven Central, registry.npmjs.org and github.com all work. So a dependency jar can be fetched with `curl` straight
   from Central and inspected with `unzip` plus `javap -c` when a convention is in doubt.
 - **`sonarcloud.io` is blocked too** — 403 to CONNECT, same shape as shibboleth, confirmed against
   `$HTTPS_PROXY/__agentproxy/status`. So a red `SonarCloud Code Analysis` check can never be diagnosed from here:
-  report the failed conditions from the check-run summary and hand the judgement to a maintainer. The gate also
-  failed on the merged #1933, so a delete-only sweep failing it is not by itself a blocker.
+  report the failed conditions from the check-run summary and hand the judgement to a maintainer.
 - **The container presets a git config that misattributes commits and breaks tests**: `user.name=Claude`,
   `commit.gpgsign=true`, `gpg.format=ssh`. Every JGit commit in `STUDIO/org.openl.rules.repository.git` then dies
   with "No signer for ssh signatures" — 15 test errors that are not a code defect. Unset `commit.gpgsign`,
   `user.signingkey`, `gpg.format`, `gpg.ssh.program` before building.
 - **`/root/.gitconfig` is rewritten back to `Claude` while the run is in flight**, so setting only the global
-  identity is not enough — it silently reverts. Set `git config --local user.name/user.email` in the clone too,
-  and repair a bad commit with `git commit --amend --reset-author`: a plain `--amend` keeps the old author even
-  when `GIT_AUTHOR_*` is exported. Verify with `git log --pretty='%an <%ae> | %cn <%ce>'`, which shows both sides.
+  identity is not enough — it silently reverts. Set `git config --local user.name/user.email` in the clone and in
+  every worktree, and repair a bad commit with `git commit --amend --reset-author`: a plain `--amend` keeps the old
+  author even when `GIT_AUTHOR_*` is exported. Verify with `git log --pretty='%an <%ae> | %cn <%ce>'`.
 - Listing workflow runs through the GitHub MCP tool returns a very large result; ask for `per_page` 3 or less.
   The unit-test workflow is `build-quick.yml`.
-- **A generic type in a PR body does not survive the MCP round trip** — `Map<String, X>` reads back as `Map`,
-  even inside a fenced code block, so a quoted signature silently becomes wrong. Whether the write or the read
-  drops it was not established. Keep generics out of bodies, name the identifiers in prose, and re-read after
-  every write.
+- **Angle-bracketed text does not survive the PR-body MCP round trip** — a bare XML element name is swallowed, and
+  `Map<String, X>` reads back as `Map` even inside a fenced code block, so a quoted signature silently becomes
+  wrong. Keep generics and element names out of bodies, name the identifiers in prose, and re-read after writing.
 
 ## Exhausted veins
 
@@ -334,18 +331,20 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   `.svg`, and all 117 `.properties` files. Every orphan found is convention-loaded — see *Keep-list*.
 - All 62 declared npm dependencies of `STUDIO/studio-ui`, and `@typescript-eslint/no-unused-vars` over all of `src`.
 - All 114 distinct properties defined in the 207 poms, and duplicate `<dependency>` / duplicate `.properties` keys.
+- **Every Maven profile (14 declarations, 11 distinct ids) and every `pluginManagement` entry (44 declarations over
+  25 distinct coordinates) across the 207 poms**, each resolved against `-P` references, activation blocks,
+  packaging types and goal invocations. Zero removable — see the *False-positive shapes* entry on pom configuration.
 - **PMD 7.17 `UnusedAssignment`, `UnusedLocalVariable`, `UnusedPrivateField`, `UnusedPrivateMethod`,
   `UnusedFormalParameter` over main *and* test sources of all 42 analysable modules** (`includeTests=true`) — 45
   violations, detector validated by reproducing the known main-source baseline. No PMD scope is left open.
-- **Whole-type deadness over all 3943 `.java` files**: every non-public top-level type (853 of them), each name
-  searched repository-wide with a literal word-boundary search over every file type. Zero removable.
-- **Member deadness below `private` — the gap between PMD (private only) and whole-type deadness.** Every
-  unannotated package-private and protected method (274) and field (112) of the 915 files whose top-level type is
-  non-public, each name resolved against an identifier index over all 15151 text files. 33 had no outside
-  reference and all 33 are read inside their own file. Zero removable; do not repeat this scan.
+- **Whole-type deadness over all 3943 `.java` files**: every non-public top-level type (853), each name searched
+  repository-wide with a literal word-boundary search over every file type. Zero removable.
+- **Member deadness below `private`** — every unannotated package-private and protected method (274) and field (112)
+  of the 915 files whose top-level type is non-public, resolved against an identifier index over all 15151 text
+  files. 33 had no outside reference and all 33 are read inside their own file. Zero removable.
 - **Package-private members of *public* types** — 835 declarations over 593 names, from the union of a
-  brace-tracking and an indent-based detector, resolved against the identifier index. Every one is alive: read in
-  its own file, reached through a Lombok accessor, or written by a framework annotation. Zero removable.
+  brace-tracking and an indent-based detector. Every one is alive: read in its own file, reached through a Lombok
+  accessor, or written by a framework annotation. Zero removable.
 - **Public top-level types declared in test trees** — 193 types over 165 names, ITEST and the two test-jar modules
   excluded, each name resolved against the identifier index and then against every Excel and archive resource.
   Only `JavaType` was removable; the rest are surefire, Spring-scanned, JMH or named from a spreadsheet.
@@ -355,17 +354,15 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   entry on runtime wiring.
 - Every `org.openl.*` class name referenced from `.xml`, `.xhtml`, `.properties`, `.tld`, `.yaml`, `.json` and
   `.txt`, resolved against the source tree. The ~90 with no `.java` are all runtime-generated datatype and
-  spreadsheet-result beans or rule-project fixtures under test resources. No stale configuration exists; do not
-  repeat this scan.
+  spreadsheet-result beans or rule-project fixtures under test resources. No stale configuration exists.
 
 ## Human follow-ups
 
 - **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
   import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
   or swept until then, and the stub has to be re-seeded on every container rebuild.
-- `main` is red on `LockTest.testSimultaneousMultiThreadsWithWaiting` — every recent `main` run of
-  `build-quick.yml`. Its sibling is already `@Disabled` as unstable; this one needs the same decision or a real
-  fix. It passes on this container and passed once on #1940, so it is load-sensitive, not broken.
+- `main` is red on `LockTest.testSimultaneousMultiThreadsWithWaiting` on every recent run of `build-quick.yml`. Its
+  sibling is already `@Disabled` as unstable; this one needs the same decision or a real fix.
 - `itest.studio.repos` has a same-second commit-ordering race: when a scenario's two commits land in the same second
   the history endpoint returns them oldest-first, so `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify` reads
   the pre-merge revision and an empty table list. Needs a tiebreaker in the ordering or a fixture that does not
@@ -380,8 +377,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-02 — fourteenth run. Opened and closed the last member vein below `private`: zero removable, no commit.
-- 08-02 — fifteenth run. Closed the two remaining Java surfaces — package-private members of public types (zero
-  removable) and public types in test trees (one: the `JavaType` fixture, committed to #1940).
+- 08-02 — fifteenth run. Closed the two remaining Java surfaces: package-private members of public types (zero
+  removable) and public types in test trees (one, the `JavaType` fixture, committed to #1940).
 - 08-02 — sixteenth run. #1940 went green on every Actions check; rewrote its stale CI section, said so once in
   the thread. No new scope, no commit.
+- 08-02 — seventeenth run. Closed the pom-configuration vein (profiles and `pluginManagement`): zero removable.
+  No new scope on `main`, no code commit, no PR change needed. Compacted the ledger.
