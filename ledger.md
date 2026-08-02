@@ -314,6 +314,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   when `GIT_AUTHOR_*` is exported. Verify with `git log --pretty='%an <%ae> | %cn <%ce>'`, which shows both sides.
 - Listing workflow runs through the GitHub MCP tool returns a very large result; ask for `per_page` 3 or less.
   The unit-test workflow is `build-quick.yml`.
+- **A generic type in a PR body does not survive the MCP round trip** — `Map<String, X>` reads back as `Map`,
+  even inside a fenced code block, so a quoted signature silently becomes wrong. Whether the write or the read
+  drops it was not established. Keep generics out of bodies, name the identifiers in prose, and re-read after
+  every write.
 
 ## Exhausted veins
 
