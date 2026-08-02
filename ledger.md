@@ -348,10 +348,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-01 — eighth run. First pure-maintenance run: no queue row left, no detector re-run, no build. Diagnosed both
-  `IT (studio)` shapes, cancelled a 90-minute stalled run and re-queued it, and rewrote #1940's CI section.
 - 08-01 — ninth run. `main` unmoved since #1940's merge base, so no new scope existed. Re-verified #1940 end to
   end — body counts, commit grouping, the one red check — and changed nothing on it. Ledger compaction only.
 - 08-02 — tenth run. `main` still at `2cd75330ae`, no new scope. #1940 unchanged since the ninth run: counts
   re-derived, grouping correct, no review threads, red still `-rf :org.openl.rules.repository`. Notified the
   owner that the routine is idle pending review; nothing else to do.
+- 08-02 — eleventh run. Third consecutive idle run: `main` still `2cd75330ae`, #1940 still `90168ba313` with no
+  new comment since the tenth run. Counts re-derived and unchanged, one red check, nothing touched, no
+  notification sent. No build was run — maintenance needed none.
