@@ -7,8 +7,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - Every queue row is done and every vein below is closed. While `origin/main` equals #1940's merge base there is
   no new scope: go straight to maintenance, and never invent a detector to have something to delete.
 - #1940 carries the whole sweep, is green on every Actions check, has no review thread, and waits on a human
-  review. Do not nudge it with a no-op commit, do not re-argue the SonarCloud gate, and do not comment merely to
-  restate a green status — the description already carries all of it.
+  review — the only lever left, and this routine cannot pull it. Do not nudge it with a no-op commit, do not
+  re-argue the SonarCloud gate, and do not comment merely to restate a green status: the description carries it.
 - One `curl` for the `opensaml-bom` pom is the whole scope probe: a 200 from `build.shibboleth.net` unlocks
   webstudio Java, the last unswept surface. Refused again, and Central 404s. Seed the stub only if a build is needed.
 
@@ -254,11 +254,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   proves nothing, and it is never your own breakage — check the latest `main` run of `build-quick.yml`, say so once.
 - `studio-ui` `npm run test` is the same job's other failure mode — tell `Failed to run task: 'npm run test' failed`
   plus `-rf :studio-ui`. It is CPU starvation, not code: it also fails inside this container's own `-T1C` reactor
-  build, where `OverviewPanel.test.tsx` lost 3 of 28 tests to 15 s timeouts in a file that took 79 s against ~4 min
-  for the whole suite on an idle machine. Rerun the job; never judge the frontend from a run that shared the CPU.
-- **`Tests (without ITEST)` has two independent causes; identify which one fired before answering.** Read the
-  `-rf :<module>` hint: `org.openl.rules.repository` is the LockTest timeout, `studio-ui` is the frontend flake.
-  They alternate — each has passed on a run where the other failed, so a green studio-ui does not mean a green job.
+  build. Rerun the job; never judge the frontend from a run that shared the CPU.
+- **Read the `-rf :<module>` hint to tell those two apart before answering `Tests (without ITEST)`.** They alternate,
+  so a green studio-ui does not mean a green job.
 - **`IT (studio)` has two failure shapes; separate them by duration.** Normal is 6-8 min. (a) Fails in 3-7 min at
   `-rf :itest.studio.repos` with three assertion diffs under `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify`
   — the same-second commit-ordering race, also on `main`, 1 run in 7. (b) Runs far past 8 min with every step
@@ -375,9 +373,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-02 — seventeenth run. Closed the pom-configuration vein (profiles and `pluginManagement`): zero removable.
-  No new scope on `main`, no code commit, no PR change needed. Compacted the ledger.
-- 08-02 — eighteenth run. Maintenance only: #1940 unchanged and still green, no new comments, `main` not moved.
-  Confirmed Central serves no OpenSAML artifact either, so webstudio stays unswept. No commit.
-- 08-02 — nineteenth run. Maintenance only: `main` still at #1940's merge base, PR counts re-derived and matching,
-  all 13 Actions checks green, no comment or thread to answer, shibboleth still refused. Compacted the ledger.
+- 08-02 — eighteenth and nineteenth runs. Maintenance only: #1940 unchanged and green, `main` not moved, no
+  comment to answer, shibboleth and Central both refused. No commit.
+- 08-02 — twentieth run. Same picture: head `8957deb3`, all 13 Actions checks green, counts re-derived and
+  matching the description, zero review threads, shibboleth 403 and Central 404. Ledger compacted, no commit.
