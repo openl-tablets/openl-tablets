@@ -4,16 +4,14 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- `main` and #1940's merge base have been equal at `2cd75330ae` for four runs; while they are equal there is no
-  new scope. Compare them first, then go straight to maintenance — the queue is done and every remaining
-  candidate is a *Deferred finding* needing a human, so do not invent a detector to have something to delete.
-- Re-seed the container before any build: git identity, unset gpg, `opensaml-bom` stub. Maintenance alone needs
-  no build, so skip the reactor install unless a commit is actually being made.
-- Re-probe `build.shibboleth.net` for the `opensaml-bom` pom with one `curl` — still CONNECT 403. A 200 unlocks
-  webstudio and is the only route to new scope while `main` is frozen.
-- #1940 is settled and waiting on a human reviewer: 11 checks green, the twelfth is the `main`-wide `LockTest`
-  red, rerun budget on head `90168ba313` spent. Do not rerun, do not comment, do not edit the body. The owner
-  was notified once that the routine is idle; do not notify again while the PR sits in this state.
+- `main` and #1940's merge base have been equal at `2cd75330ae` for five runs. While they are equal there is no
+  new scope: the queue is done and every remaining candidate needs a human, so compare the two SHAs first and go
+  straight to maintenance — never invent a detector to have something to delete.
+- #1940 is settled and waiting on a human reviewer: 11 checks green, the twelfth the `main`-wide `LockTest` red,
+  rerun budget on head `90168ba313` spent. Do not rerun, comment or edit the body, and do not notify the owner
+  again while it sits in this state — that was done once already.
+- One `curl` for the `opensaml-bom` pom is the whole scope probe: a 200 from `build.shibboleth.net` unlocks
+  webstudio, still CONNECT 403. Seed the stub, git identity and gpg unset only when a build is actually needed.
 
 ## Change-type queue
 
@@ -36,17 +34,15 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Open PR
 
-- Branch `dead-code/java-internals`, PR #1940, ready for review, 3 commits, 7 files / 8 insertions / 12 deletions.
-  No review threads, `mergeable_state` blocked on the missing human review.
+- Branch `dead-code/java-internals`, PR #1940, ready for review, 3 commits, 7 files / 8 insertions / 12 deletions,
+  no review threads, `mergeable_state` blocked on the missing human review. The body's counts, CI section and
+  reachability claims re-derive true at head every run; leave it alone unless a commit changes them.
 - `676a8e9071 Remove never-read variable and field initializers` — 5 files.
 - `ac445bd038 Remove unused local variables that assertions never read` — 1 file.
 - `90168ba313 Remove an unused private field from the grid-table test stub` — 1 file.
 - The three commits are one PMD rule each, so they are three change types, not same-kind: never squash them.
 - CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module
   has no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
-- Steady state: red only on `Tests (without ITEST)`, resume hint `-rf :org.openl.rules.repository`, which is the
-  `LockTest` timeout red on `main` too. Answered in the body — do not rerun and do not comment again.
-- The body's counts and CI claims re-derive true at head every run; leave it alone unless a commit changes them.
 
 ## Merged PRs
 
@@ -74,8 +70,6 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   228. Proving 230 dead is an absence-of-path argument through the whole compile subsystem for a one-line payoff.
 - `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — the flagged `messagesCount++` passes its value to
   `error(...)`; only the increment is wasted, so this is an expression rewrite, not a deletion. Out of scope.
-- `JsonUtilsTest.KeyClass.field` — written by the constructor, read by nobody, but the class is a cache key whose
-  identity semantics the GC tests rely on, and the string labels document which test owns which mapper.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
   `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract documented in
   `Docs/api/projects-merge-api.md` with a Java record and an OpenAPI schema. Needs a human decision.
@@ -105,7 +99,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - **An assignment to `null` before a `gc()` call is the test.** `JsonUtilsTest` drops the strong reference so the
   cache key can be collected. Never delete a null-out that sits near `Runtime.gc()` or a weak/soft reference.
 - **Fields of a fixture class handed to a serializer are its contract.** `JsonUtilsTest.BindingClasses` is passed
-  to `getCachedObjectMapper` as the binding target, so its "unused" fields are what the test binds.
+  to `getCachedObjectMapper` as the binding target, and `KeyClass.field` carries the cache key's identity plus the
+  label saying which test owns which mapper. Both read as unused; both are what the test relies on.
 - **A private member can exist so a test asserts it is *not* found.** `AOpenClassTest.C.getC()` is what
   `assertNull(findMethod(methods, "getC"))` fails against; deleting it leaves the assertion passing but vacuous.
 - **A private field can back a setter that bean introspection discovers.** `JavaOpenClassTest.BeanA.gg` is read
@@ -344,12 +339,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-02 — tenth run. `main` still at `2cd75330ae`, no new scope. #1940 unchanged since the ninth run: counts
-  re-derived, grouping correct, no review threads, red still `-rf :org.openl.rules.repository`. Notified the
-  owner that the routine is idle pending review; nothing else to do.
 - 08-02 — eleventh run. Third consecutive idle run: `main` still `2cd75330ae`, #1940 still `90168ba313` with no
   new comment since the tenth run. Counts re-derived and unchanged, one red check, nothing touched, no
   notification sent. No build was run — maintenance needed none.
 - 08-02 — twelfth run. Fourth idle run, same two SHAs, no new comment on #1940. Counts re-derived and unchanged,
   no review threads, one red check. Re-probed `build.shibboleth.net`: still CONNECT 403, so webstudio stays out
   of scope. Nothing touched, no build, no notification.
+- 08-02 — thirteenth run. Fifth idle run: same two SHAs, no new comment on #1940, shibboleth still 403, counts
+  re-derived and unchanged, no review threads, one red check. Only product was compaction — 355 to 350 lines,
+  resume point cut to spec, `JsonUtilsTest.KeyClass` folded into *False-positive shapes* as settled alive.
