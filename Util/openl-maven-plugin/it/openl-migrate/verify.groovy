@@ -66,7 +66,8 @@ interface LegacyService {
     assert buildLog.contains('Migrate: rules-deploy.xml (needless tags cleanup)')
     assert buildLog.contains('Migrate: rules-deploy.xml (drop default isProvideRuntimeContext=false)')
     assert buildLog.contains('Migrate: rules-deploy.xml (interceptingTemplateClassName to annotationTemplateClassName)')
-    assert buildLog.contains('Migrate groovy/LegacyService.groovy')
+    // GroovyJakartaMigrator logs a relative path, so the separator is the platform one.
+    assert buildLog =~ /Migrate groovy[\\\/]LegacyService\.groovy/
 
     // Tally every "Migrate: " line so an unexpected migrator (e.g. someone wires a noisy migrator without
     // updating this script) immediately surfaces. rules.xml: empty-tag + lib + classpath + cw-processor +
