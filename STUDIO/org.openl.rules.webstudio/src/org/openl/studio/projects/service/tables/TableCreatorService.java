@@ -39,6 +39,7 @@ import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.tables.write.RawTableWriter;
+import org.openl.studio.projects.service.tables.write.TableWriter;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.util.FileUtils;
@@ -67,7 +68,7 @@ public class TableCreatorService {
         var table = (TableView) createTableRequest.table();
         requireTableName(table.name);
 
-        var gridModel = getXlsSheetGridModel(createTableRequest, projectModel);
+        var gridModel = sheetGridModel(projectModel, resolveSheetName(createTableRequest));
         var tableWriter = tableWritersFactory.getNewTableWriter(table, gridModel);
         return tableWriterExecutor.executeWrite(tableWriter, createTableRequest.table());
     }
@@ -86,15 +87,52 @@ public class TableCreatorService {
                                       ProjectDescriptor resolvedDescriptor,
                                       CreateNewTableRequest createTableRequest,
                                       RawTableView rawTable) throws ProjectException {
-        var modulePath = createTableRequest.modulePath();
+        createModule(project, resolvedDescriptor, createTableRequest.moduleName(), createTableRequest.modulePath(),
+                createWorkbook(createTableRequest, rawTable));
+    }
+
+    /**
+     * Creates an empty module with a single blank sheet and registers it.
+     *
+     * <p>The module holds no table yet; the caller writes one into the sheet after the project is recompiled.
+     * Registration follows the same rules as a module created with a table, and a failure to register removes the
+     * workbook.
+     *
+     * @param moduleName name of the module to create
+     * @param modulePath project-relative path of the module workbook
+     * @param sheetName  name of the sheet the module holds
+     */
+    public void createEmptyModule(RulesProject project,
+                                  ProjectDescriptor resolvedDescriptor,
+                                  String moduleName,
+                                  String modulePath,
+                                  String sheetName) throws ProjectException {
+        createModule(project, resolvedDescriptor, moduleName, modulePath, createEmptyWorkbook(sheetName));
+    }
+
+    /** Writes the module workbook to the project and registers it, removing the workbook when registration fails. */
+    private void createModule(RulesProject project,
+                              ProjectDescriptor resolvedDescriptor,
+                              String moduleName,
+                              String modulePath,
+                              byte[] workbook) throws ProjectException {
         var root = projectFileRootFactory.of(project);
-        var workbook = createWorkbook(createTableRequest, rawTable);
         projectFilesService.createResource(root, modulePath, new ByteArrayInputStream(workbook), true);
         try {
-            registerModule(project, root, resolvedDescriptor, createTableRequest.moduleName(), modulePath);
+            registerModule(project, root, resolvedDescriptor, moduleName, modulePath);
         } catch (RuntimeException | ProjectException e) {
             rollbackModule(root, modulePath);
             throw e;
+        }
+    }
+
+    private byte[] createEmptyWorkbook(String sheetName) {
+        try (var workbook = new XSSFWorkbook(); var output = new ByteArrayOutputStream()) {
+            createSheet(workbook, sheetName);
+            workbook.write(output);
+            return output.toByteArray();
+        } catch (IOException e) {
+            throw new BadRequestException("table.new-module.workbook.message");
         }
     }
 
@@ -332,13 +370,69 @@ public class TableCreatorService {
         }
     }
 
-    private static XlsSheetGridModel getXlsSheetGridModel(CreateNewTableRequest createTableRequest,
-                                                         ProjectModel projectModel) {
+    /**
+     * Removes a module a table write created and then failed to fill.
+     *
+     * <p>Deletes the module workbook and drops its declaration from {@code rules.xml}, so a create or copy that fails
+     * after the module was registered leaves no phantom module behind. Best-effort: a failure to revert is logged, not
+     * propagated, so it never masks the write failure that triggered the rollback.
+     *
+     * @param moduleName name of the module to remove
+     * @param modulePath project-relative path of the module workbook
+     */
+    public void deleteModule(RulesProject project, String moduleName, String modulePath) {
+        var root = projectFileRootFactory.of(project);
+        rollbackModule(root, modulePath);
+        try {
+            undeclareModule(project, root, moduleName, modulePath);
+        } catch (RuntimeException | ProjectException e) {
+            log.warn("Failed to revert rules.xml after removing module '{}'", moduleName, e);
+        }
+    }
+
+    /** Drops the module's declaration from {@code rules.xml}; a no-op when the module was only wildcard-discovered. */
+    private void undeclareModule(RulesProject project,
+                                 FileRoot root,
+                                 String moduleName,
+                                 String modulePath) throws ProjectException {
+        if (!project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
+            return;
+        }
+        var content = projectFilesService.getResource(root, ProjectDescriptor.FILE_NAME, null).getContent();
+        ProjectDescriptor descriptor;
+        try {
+            descriptor = ProjectDescriptor.read(content);
+        } finally {
+            IOUtils.closeQuietly(content);
+        }
+        if (descriptor == null || descriptor.getModules() == null) {
+            return;
+        }
+        var normalizedPath = modulePath == null ? null : modulePath.replace('\\', '/');
+        // Remove the exact module the rollback created: match by its path when one was given, so a same-named module
+        // at a different path is left alone. Only a pathless module is matched by name.
+        boolean removed = descriptor.getModules().removeIf(module -> normalizedPath != null
+                ? module.getRulesRootPath() != null
+                        && normalizedPath.equalsIgnoreCase(module.getRulesRootPath().replace('\\', '/'))
+                : moduleName.equalsIgnoreCase(module.getName()));
+        if (removed) {
+            projectFilesService.updateResource(root, ProjectDescriptor.FILE_NAME,
+                    new ByteArrayInputStream(descriptor.toBytes()));
+        }
+    }
+
+    /**
+     * The grid model of a sheet in the module's first workbook, creating the sheet when it is absent.
+     *
+     * @param projectModel the compiled module the copy is written to
+     * @param sheetName    name of the sheet the copy goes to
+     * @return the grid model to write the copy into
+     */
+    public XlsSheetGridModel sheetGridModel(ProjectModel projectModel, String sheetName) {
         var currentWorkbook = projectModel.getXlsModuleNode().getWorkbookSyntaxNodes()[0]
                 .getWorkbookSourceCodeModule();
 
         var excelWorkbook = currentWorkbook.getWorkbook();
-        var sheetName = resolveSheetName(createTableRequest);
         var sheet = excelWorkbook.getSheet(sheetName);
         if (sheet == null) {
             sheet = createSheet(excelWorkbook, sheetName);
@@ -346,5 +440,14 @@ public class TableCreatorService {
 
         var sourceCodeModule = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), currentWorkbook);
         return new XlsSheetGridModel(sourceCodeModule);
+    }
+
+    /**
+     * Persist the workbook a table was written into, dropping the styles the write left unused.
+     *
+     * @param gridModel the grid model the copy was written into
+     */
+    public void save(XlsSheetGridModel gridModel) {
+        TableWriter.save(gridModel);
     }
 }

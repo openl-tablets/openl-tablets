@@ -85,7 +85,7 @@ class RawTableValidationTest {
     @Test
     void acceptsUnrecognizedHeaderForFreeFormTable() {
         var view = RawTableView.builder()
-                .kind("Other")
+                .kind(TableKind.OTHER)
                 .source(List.of(List.of(RawTableCell.builder().value("Notes").build())))
                 .build();
         assertTrue(validator.validate(view).isEmpty(), "a non-blank free-form header is accepted");
@@ -94,7 +94,7 @@ class RawTableValidationTest {
     @Test
     void rejectsBlankHeaderForFreeFormTable() {
         var view = RawTableView.builder()
-                .kind("Other")
+                .kind(TableKind.OTHER)
                 .source(List.of(List.of(RawTableCell.builder().value(" ").build())))
                 .build();
         assertEquals(1, validator.validate(view).size(), "a free-form table still requires a header");
@@ -123,7 +123,7 @@ class RawTableValidationTest {
 
         headerByKind.forEach((header, kind) -> {
             var view = RawTableView.builder()
-                    .kind(kind)
+                    .kind(TableKind.fromValue(kind))
                     .source(List.of(List.of(RawTableCell.builder().value(header).build())))
                     .build();
             assertTrue(validator.validate(view).isEmpty(), "rejected the generated header: " + header);

@@ -29,26 +29,8 @@ public abstract class TableView {
     @Schema(description = "Type of the table (e.g., 'Datatype', 'Vocabulary', 'Spreadsheet', etc.)")
     public final String tableType;
 
-    @Schema(description = "Kind of the table object",
-            allowableValues = {
-                    "Rules",
-                    "Spreadsheet",
-                    "Datatype",
-                    "Data",
-                    "Test",
-                    "TBasic",
-                    "Column Match",
-                    "Method",
-                    "Run",
-                    "Constants",
-                    "Conditions",
-                    "Actions",
-                    "Returns",
-                    "Environment",
-                    "Properties",
-                    "Other"
-            })
-    public final String kind;
+    @Schema(description = "Kind of the table object")
+    public final TableKind kind;
 
     @Schema(description = "Name of the table")
     public final String name;
@@ -87,7 +69,7 @@ public abstract class TableView {
     public static abstract class Builder<T extends Builder<T>> {
         private String id;
         private String tableType;
-        private String kind;
+        private TableKind kind;
         private String name;
         private Map<String, Object> properties;
 
@@ -106,7 +88,7 @@ public abstract class TableView {
             return self();
         }
 
-        public T kind(String kind) {
+        public T kind(TableKind kind) {
             this.kind = kind;
             return self();
         }

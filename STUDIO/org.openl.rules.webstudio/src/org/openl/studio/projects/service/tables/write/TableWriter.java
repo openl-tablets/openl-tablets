@@ -258,9 +258,13 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     protected void save() {
+        save((XlsSheetGridModel) getGridTable().getGrid());
+    }
+
+    /** Persist the workbook the grid belongs to, dropping the styles the write left unused. */
+    public static void save(XlsSheetGridModel gridModel) {
         try {
-            var xlsgrid = (XlsSheetGridModel) getGridTable().getGrid();
-            var workbook = xlsgrid.getSheetSource().getWorkbookSource();
+            var workbook = gridModel.getSheetSource().getWorkbookSource();
             if (workbook.getWorkbook() instanceof XSSFWorkbook xssfWorkbook) {
                 XSSFOptimizer.removeUnusedStyles(xssfWorkbook);
             }

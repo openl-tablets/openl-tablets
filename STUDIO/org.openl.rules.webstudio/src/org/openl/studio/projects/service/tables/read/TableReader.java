@@ -10,6 +10,7 @@ import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 
@@ -35,7 +36,7 @@ public abstract class TableReader<T extends TableView, R extends TableView.Build
         var type = XlsNodeTypes.getEnumByValue(openLTable.getType());
         var header = tsn.getHeader();
         builder.id(openLTable.getId())
-                .kind(OpenLTableUtils.getTableTypeItems().get(type.toString()))
+                .kind(TableKind.fromValue(OpenLTableUtils.getTableTypeItems().get(type.toString())))
                 .name(TableSyntaxNodeUtils.str2name(header.getSourceString(), type));
         Optional.ofNullable(openLTable.getProperties())
                 .map(ITableProperties::getTableProperties)

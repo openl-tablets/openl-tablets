@@ -61,6 +61,7 @@ import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.Props;
@@ -84,15 +85,20 @@ import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
+import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableKind;
+import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
+import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
@@ -1014,7 +1020,7 @@ class WorkspaceProjectServiceTest {
         var expected = SummaryTableView.builder()
                 .id("created-id")
                 .tableType("RawSource")
-                .kind("Constants")
+                .kind(TableKind.CONSTANTS)
                 .name("Constants")
                 .build();
         when(handle.awaitCompiled()).thenReturn(projectModel);
@@ -1070,6 +1076,212 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void copy_table_into_a_new_module_writes_the_copy_and_returns_no_identifier() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, webStudio, tableCreatorService, tableCopyService,
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var descriptor = emptyModulesDescriptor();
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(project.isOpened()).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
+        var source = mock(IOpenLTable.class);
+        stubResolvedSource(service, project, source);
+        var destModel = mock(ProjectModel.class);
+        var destHandle = mock(ProjectHandle.class);
+        when(destHandle.awaitCompiled()).thenReturn(destModel);
+        doReturn(destHandle).when(service).openProject(project, "NewModule");
+        var destGrid = mock(XlsSheetGridModel.class);
+        when(tableCreatorService.sheetGridModel(destModel, "CopyName")).thenReturn(destGrid);
+        // Not locked when the request arrives; the request locks it before the module is created.
+        when(project.isLockedByMe()).thenReturn(false, true);
+        var request = new CopyTableRequest("NewModule", null, "rules/NewModule.xlsx", "CopyName", null);
+
+        var copyId = service.copyTable(project, "src-id", request);
+
+        // A new module has no compiled identifier yet, so the copy is resolved by name afterwards.
+        assertNull(copyId);
+        // The sheet defaults to the copy's name, and the copy is written into the freshly created module.
+        verify(tableCreatorService).createEmptyModule(project, descriptor, "NewModule", "rules/NewModule.xlsx",
+                "CopyName");
+        verify(tableCopyService).copyInto(source, "CopyName", null, destGrid);
+        verify(tableCreatorService).save(destGrid);
+        verify(tableCreatorService, never()).deleteModule(any(), any(), any());
+    }
+
+    @Test
+    void copy_table_rejects_a_case_insensitive_duplicate_module_name() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var service = spy(newCopyService(acl, webStudio, tableCreatorService, mock(TableCopyService.class),
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("PricingProject");
+        var existing = new Module();
+        existing.setName("newmodule");
+        existing.setRulesRootPath("rules/newmodule.xlsx");
+        descriptor.setModules(new ArrayList<>(List.of(existing)));
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(project.isOpened()).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
+        stubResolvedSource(service, project, mock(IOpenLTable.class));
+        when(project.isLockedByMe()).thenReturn(false, true);
+        // A different path, so only the case-insensitive name collision rejects the request.
+        var request = new CopyTableRequest("NewModule", null, "rules/Other.xlsx", "CopyName", null);
+
+        var exception = assertThrows(ConflictException.class, () -> service.copyTable(project, "src-id", request));
+
+        assertEquals("openl.error.409.table.new-module.exists.message", exception.getErrorCode());
+        verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
+        // A duplicate name is ordinary input; the lock the request took is released.
+        verify(project).unlock();
+    }
+
+    @Test
+    void copy_table_rolls_back_the_created_module_and_releases_the_lock_when_the_write_fails() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, webStudio, tableCreatorService, tableCopyService,
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var descriptor = emptyModulesDescriptor();
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(project.isOpened()).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
+        var source = mock(IOpenLTable.class);
+        stubResolvedSource(service, project, source);
+        var destModel = mock(ProjectModel.class);
+        var destHandle = mock(ProjectHandle.class);
+        when(destHandle.awaitCompiled()).thenReturn(destModel);
+        doReturn(destHandle).when(service).openProject(project, "NewModule");
+        var destGrid = mock(XlsSheetGridModel.class);
+        when(tableCreatorService.sheetGridModel(destModel, "CopyName")).thenReturn(destGrid);
+        when(tableCopyService.copyInto(any(), any(), any(), any())).thenThrow(new RuntimeException("boom"));
+        when(project.isLockedByMe()).thenReturn(false, true);
+        var request = new CopyTableRequest("NewModule", null, "rules/NewModule.xlsx", "CopyName", null);
+
+        var exception = assertThrows(RuntimeException.class, () -> service.copyTable(project, "src-id", request));
+
+        assertEquals("boom", exception.getMessage());
+        // The empty module was registered before the write failed, so it is removed to leave no phantom behind.
+        verify(tableCreatorService).deleteModule(project, "NewModule", "rules/NewModule.xlsx");
+        verify(project).unlock();
+    }
+
+    @Test
+    void table_properties_are_read_from_the_summary_and_the_properties_service() throws Exception {
+        var summaryTableReader = mock(SummaryTableReader.class);
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var service = spy(newCopyService(mock(RepositoryAclService.class), mock(WebStudio.class),
+                mock(TableCreatorService.class), mock(TableCopyService.class), summaryTableReader,
+                tablePropertiesService));
+        var project = mock(RulesProject.class);
+        var table = mock(IOpenLTable.class);
+        stubResolvedSource(service, project, table);
+        var summary = SummaryTableView.builder().name("MyTable").kind(TableKind.RULES).build();
+        when(summaryTableReader.read(table)).thenReturn(summary);
+        var properties = List.of(new TableProperty("state", "AL"));
+        when(tablePropertiesService.read(table)).thenReturn(properties);
+
+        var view = service.getTableProperties(project, "src-id");
+
+        assertEquals("MyTable", view.name());
+        assertEquals(TableKind.RULES, view.kind());
+        assertEquals(properties, view.properties());
+        verify(tablePropertiesService).read(table);
+    }
+
+    @Test
+    void copy_table_into_an_existing_module_writes_the_copy_and_returns_its_identifier() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, webStudio, tableCreatorService, tableCopyService,
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var source = mock(IOpenLTable.class);
+        stubResolvedSource(service, project, source);
+        var destModel = mock(ProjectModel.class);
+        var destHandle = mock(ProjectHandle.class);
+        when(destHandle.awaitCompiled()).thenReturn(destModel);
+        doReturn(destHandle).when(service).openProject(project, "Existing");
+        // Without a module path the copy goes into an existing module, so the current project is locked for the write.
+        var currentProject = mock(RulesProject.class);
+        when(webStudio.getCurrentProject()).thenReturn(currentProject);
+        var destGrid = mock(XlsSheetGridModel.class);
+        when(tableCreatorService.sheetGridModel(destModel, "Copies")).thenReturn(destGrid);
+        when(tableCopyService.copyInto(source, "CopyName", null, destGrid)).thenReturn("copy-id");
+        var request = new CopyTableRequest("Existing", "Copies", null, "CopyName", null);
+
+        var copyId = service.copyTable(project, "src-id", request);
+
+        // The module is already compiled, so the copy's own identifier is known and returned.
+        assertEquals("copy-id", copyId);
+        verify(currentProject).tryLockOrThrow();
+        verify(tableCopyService).copyInto(source, "CopyName", null, destGrid);
+        verify(tableCreatorService).save(destGrid);
+        verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void copy_table_rejects_a_new_module_whose_path_another_module_already_declares() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var service = spy(newCopyService(acl, webStudio, tableCreatorService, mock(TableCopyService.class),
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("PricingProject");
+        var existing = new Module();
+        existing.setName("Other");
+        existing.setRulesRootPath("rules/Shared.xlsx");
+        descriptor.setModules(new ArrayList<>(List.of(existing)));
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(project.isOpened()).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
+        stubResolvedSource(service, project, mock(IOpenLTable.class));
+        when(project.isLockedByMe()).thenReturn(false, true);
+        // A free name but a path another module already declares — the collision is on the path, not the name.
+        var request = new CopyTableRequest("NewModule", null, "rules/Shared.xlsx", "CopyName", null);
+
+        var exception = assertThrows(ConflictException.class, () -> service.copyTable(project, "src-id", request));
+
+        assertEquals("openl.error.409.table.new-module.exists.message", exception.getErrorCode());
+        verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
+        verify(project).unlock();
+    }
+
+    /** Stubs the source-resolution chain so {@code getOpenLTable(project, "src-id")} returns {@code source}. */
+    private void stubResolvedSource(WorkspaceProjectService service, RulesProject project, IOpenLTable source) {
+        var handle = mock(ProjectHandle.class);
+        var model = mock(ProjectModel.class);
+        when(handle.awaitCompiled()).thenReturn(model);
+        when(model.getTableById("src-id")).thenReturn(source);
+        when(source.getUri()).thenReturn("src-uri");
+        var moduleInfo = mock(Module.class);
+        when(model.getModuleInfo()).thenReturn(moduleInfo);
+        when(moduleInfo.containsTable("src-uri")).thenReturn(true);
+        doReturn(handle).when(service).openProject(project);
+    }
+
+    private static ProjectDescriptor emptyModulesDescriptor() {
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("PricingProject");
+        descriptor.setModules(new ArrayList<>());
+        return descriptor;
+    }
+
+    @Test
     void created_table_is_found_when_its_name_is_longer_than_a_shortened_one() throws Exception {
         var summaryTableReader = mock(SummaryTableReader.class);
         var service = spy(newService(
@@ -1090,7 +1302,7 @@ class WorkspaceProjectServiceTest {
         var expected = SummaryTableView.builder()
                 .id("created-id")
                 .tableType("RawSource")
-                .kind("Datatype")
+                .kind(TableKind.DATATYPE)
                 .name(longName)
                 .build();
         when(handle.awaitCompiled()).thenReturn(projectModel);
@@ -1277,7 +1489,9 @@ class WorkspaceProjectServiceTest {
                                                       TableCreatorService tableCreatorService,
                                                       SummaryTableReader summaryTableReader,
                                                       ApplicationEventPublisher eventPublisher,
-                                                      MultiUserWorkspaceManager workspaceManager)
+                                                      MultiUserWorkspaceManager workspaceManager,
+                                                      TableCopyService tableCopyService,
+                                                      TablePropertiesService tablePropertiesService)
             throws ProjectException {
         var dependencyResolver = mock(ProjectDependencyResolver.class);
         when(dependencyResolver.getProjectDependencies(any(RulesProject.class))).thenReturn(List.of());
@@ -1293,6 +1507,8 @@ class WorkspaceProjectServiceTest {
                 repository -> mock(NewBranchValidator.class),
                 mock(BeanValidationProvider.class),
                 tableCreatorService,
+                tableCopyService,
+                tablePropertiesService,
                 mock(ProjectMetadataService.class),
                 mock(TableWriterExecutor.class),
                 mock(TableWritersFactory.class),
@@ -1321,6 +1537,54 @@ class WorkspaceProjectServiceTest {
         };
     }
 
+    private static WorkspaceProjectService newService(RepositoryAclService acl,
+                                                      ProtectedBranchBypassService bypassService,
+                                                      UserWorkspace userWorkspace,
+                                                      ProjectStateValidator projectStateValidator,
+                                                      WebStudio webStudio,
+                                                      AclProjectsHelper aclProjectsHelper,
+                                                      TableCreatorService tableCreatorService,
+                                                      SummaryTableReader summaryTableReader,
+                                                      ApplicationEventPublisher eventPublisher,
+                                                      MultiUserWorkspaceManager workspaceManager)
+            throws ProjectException {
+        return newService(
+                acl,
+                bypassService,
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                tableCreatorService,
+                summaryTableReader,
+                eventPublisher,
+                workspaceManager,
+                mock(TableCopyService.class),
+                mock(TablePropertiesService.class));
+    }
+
+    private static WorkspaceProjectService newCopyService(RepositoryAclService acl,
+                                                          WebStudio webStudio,
+                                                          TableCreatorService tableCreatorService,
+                                                          TableCopyService tableCopyService,
+                                                          SummaryTableReader summaryTableReader,
+                                                          TablePropertiesService tablePropertiesService)
+            throws ProjectException {
+        return newService(
+                acl,
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                tableCreatorService,
+                summaryTableReader,
+                mock(ApplicationEventPublisher.class),
+                mock(MultiUserWorkspaceManager.class),
+                tableCopyService,
+                tablePropertiesService);
+    }
+
     private static WorkspaceProjectService newDeleteService(RepositoryAclService acl,
                                                             UserWorkspace userWorkspace,
                                                             ProjectStateValidator projectStateValidator,
@@ -1343,7 +1607,7 @@ class WorkspaceProjectServiceTest {
 
     private static RawTableView rawTable(String name) {
         return RawTableView.builder()
-                .kind("Rules")
+                .kind(TableKind.RULES)
                 .name(name)
                 .source(List.of())
                 .build();

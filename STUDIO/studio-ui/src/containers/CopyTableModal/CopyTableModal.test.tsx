@@ -3,8 +3,8 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { MockedFunction } from 'vitest'
 import { getModuleSheets, getProjectModules, getProjectProperties } from 'services/projects'
-import { createTableCopy, getTableRaw } from 'services/tables'
-import type { RawTable } from 'types/tables'
+import { copyTable, getTableCopyInfo } from 'services/tables'
+import type { TableCopyInfo } from 'types/tables'
 import { CopyTableModal, type CopyTableModalDetail } from './CopyTableModal'
 
 vi.mock('services/projects', () => ({
@@ -14,8 +14,8 @@ vi.mock('services/projects', () => ({
 }))
 
 vi.mock('services/tables', () => ({
-    createTableCopy: vi.fn(),
-    getTableRaw: vi.fn(),
+    copyTable: vi.fn(),
+    getTableCopyInfo: vi.fn(),
 }))
 
 vi.mock('antd', async () => {
@@ -118,35 +118,20 @@ vi.mock('react-i18next', () => ({
     }),
 }))
 
-const source: RawTable = {
-    tableType: 'RawSource',
-    kind: 'Rules',
+const sourceInfo: TableCopyInfo = {
     name: 'Eligibility',
-    source: [
-        [
-            { value: 'Rules Boolean Eligibility(Policy policy)', colspan: 3 },
-            { value: null, covered: true },
-            { value: null, covered: true },
-        ],
-        [
-            { value: 'properties', rowspan: 2 },
-            { value: 'version' },
-            { value: '1.2.3' },
-        ],
-        [
-            { value: null, covered: true },
-            { value: 'lob' },
-            { value: 'Auto' },
-        ],
-        [{ value: 'C1' }, { value: 'RET1' }, { value: null }],
+    kind: 'Rules',
+    properties: [
+        { name: 'version', value: '1.2.3' },
+        { name: 'lob', value: 'Auto' },
     ],
 }
 
-const mockGetRaw = getTableRaw as MockedFunction<typeof getTableRaw>
+const mockGetInfo = getTableCopyInfo as MockedFunction<typeof getTableCopyInfo>
 const mockGetModules = getProjectModules as MockedFunction<typeof getProjectModules>
 const mockGetProperties = getProjectProperties as MockedFunction<typeof getProjectProperties>
 const mockGetSheets = getModuleSheets as MockedFunction<typeof getModuleSheets>
-const mockCreateCopy = createTableCopy as MockedFunction<typeof createTableCopy>
+const mockCopy = copyTable as MockedFunction<typeof copyTable>
 
 const openModal = async (overrides: Partial<CopyTableModalDetail> = {}) => {
     const onSuccess = overrides.onSuccess ?? vi.fn()
@@ -167,7 +152,7 @@ const openModal = async (overrides: Partial<CopyTableModalDetail> = {}) => {
 describe('CopyTableModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        mockGetRaw.mockResolvedValue(source)
+        mockGetInfo.mockResolvedValue(sourceInfo)
         mockGetModules.mockResolvedValue([
             { name: 'Main', path: 'rules/Main.xlsx' },
             { name: 'Pricing', path: 'rules/Pricing.xlsx' },
@@ -187,7 +172,7 @@ describe('CopyTableModal', () => {
             },
         ])
         mockGetSheets.mockResolvedValue(['Rules', 'Archive'])
-        mockCreateCopy.mockResolvedValue({
+        mockCopy.mockResolvedValue({
             id: 'copy-id',
             tableType: 'SimpleRules',
             kind: 'Rules',
@@ -195,16 +180,15 @@ describe('CopyTableModal', () => {
         })
     })
 
-    it('reads raw cells and creates the copy through the ordinary table write request', async () => {
+    it('reads the properties and copies the table on the server by its id', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         const onSuccess = await openModal()
 
         await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
-        expect(mockGetRaw).toHaveBeenCalledWith('project-id', 'source-id')
+        expect(mockGetInfo).toHaveBeenCalledWith('project-id', 'source-id')
         expect(mockGetProperties).toHaveBeenCalledWith('project-id', 'Rules')
         expect(screen.getByRole('dialog')).toHaveTextContent('project:copy_table_modal.title:Eligibility')
-        expect(screen.queryByText('Copy As')).not.toBeInTheDocument()
         expect(screen.getByTestId('copy-table-sheet')).toHaveValue('Rules')
         expect(screen.getByTestId('copy-table-property-name-0')).toHaveValue('version')
         expect(screen.getByTestId('copy-table-property-value-1')).toHaveValue('Auto')
@@ -213,33 +197,15 @@ describe('CopyTableModal', () => {
         await user.type(screen.getByTestId('copy-table-name'), 'EligibilityCopy')
         await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
 
-        await waitFor(() => expect(mockCreateCopy).toHaveBeenCalledTimes(1))
-        expect(mockCreateCopy).toHaveBeenCalledWith('project-id', {
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
+        expect(mockCopy).toHaveBeenCalledWith('project-id', 'source-id', {
             moduleName: 'Main',
             sheetName: 'Rules',
-            table: {
-                tableType: 'RawSource',
-                kind: 'Rules',
-                name: 'EligibilityCopy',
-                source: [
-                    [
-                        { value: 'Rules Boolean EligibilityCopy(Policy policy)', colspan: 3 },
-                        { value: null, covered: true },
-                        { value: null, covered: true },
-                    ],
-                    [
-                        { value: 'properties', rowspan: 2 },
-                        { value: 'version' },
-                        { value: '1.2.3' },
-                    ],
-                    [
-                        { value: null, covered: true },
-                        { value: 'lob' },
-                        { value: 'Auto' },
-                    ],
-                    [{ value: 'C1' }, { value: 'RET1' }, { value: null }],
-                ],
-            },
+            name: 'EligibilityCopy',
+            properties: [
+                { name: 'version', value: '1.2.3' },
+                { name: 'lob', value: 'Auto' },
+            ],
         })
         expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ id: 'copy-id' }), 'Main')
     })
@@ -254,11 +220,26 @@ describe('CopyTableModal', () => {
         expect(copyButton).toBeEnabled()
         await user.click(copyButton)
 
-        await waitFor(() => expect(mockCreateCopy).toHaveBeenCalledTimes(1))
-        expect(mockCreateCopy.mock.calls[0]![1].table.name).toBe('Eligibility')
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
+        expect(mockCopy.mock.calls[0]![2].name).toBe('Eligibility')
     })
 
-    it('shows enum values but writes their codes', async () => {
+    it('copies a source that declares no properties', async () => {
+        mockGetInfo.mockResolvedValue({ name: 'Eligibility', kind: 'Rules' })
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
+
+        await user.clear(screen.getByTestId('copy-table-name'))
+        await user.type(screen.getByTestId('copy-table-name'), 'EligibilityCopy')
+        await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
+
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
+        expect(mockCopy.mock.calls[0]![2].properties).toEqual([])
+    })
+
+    it('shows enum values but sends their codes', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
@@ -271,10 +252,8 @@ describe('CopyTableModal', () => {
         await user.selectOptions(value, 'AL')
         await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
 
-        await waitFor(() => expect(mockCreateCopy).toHaveBeenCalledTimes(1))
-        const written = mockCreateCopy.mock.calls[0]![1].table.source
-        expect(written[3]?.[1]?.value).toBe('state')
-        expect(written[3]?.[2]?.value).toBe('AL')
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
+        expect(mockCopy.mock.calls[0]![2].properties).toContainEqual({ name: 'state', value: 'AL' })
     })
 
     it('adds properties with the same trailing-row behavior as Spreadsheet arguments', async () => {
@@ -292,14 +271,12 @@ describe('CopyTableModal', () => {
         await user.type(screen.getByTestId('copy-table-name'), 'EligibilityEurope')
         await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
 
-        await waitFor(() => expect(mockCreateCopy).toHaveBeenCalledTimes(1))
-        const written = mockCreateCopy.mock.calls[0]![1].table.source
-        expect(written.slice(1, 4).map(row => [row[1]?.value, row[2]?.value])).toEqual([
-            ['version', '1.2.3'],
-            ['lob', 'Auto'],
-            ['region', 'EU'],
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
+        expect(mockCopy.mock.calls[0]![2].properties).toEqual([
+            { name: 'version', value: '1.2.3' },
+            { name: 'lob', value: 'Auto' },
+            { name: 'region', value: 'EU' },
         ])
-        expect(written[1]?.[0]).toEqual({ value: 'properties', rowspan: 3 })
     })
 
     it('uses the Create Table module and sheet behavior for a new module', async () => {
@@ -316,8 +293,8 @@ describe('CopyTableModal', () => {
         await user.type(screen.getByTestId('copy-table-sheet'), 'Eligibility')
         await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
 
-        await waitFor(() => expect(mockCreateCopy).toHaveBeenCalledTimes(1))
-        expect(mockCreateCopy.mock.calls[0]![1]).toMatchObject({
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
+        expect(mockCopy.mock.calls[0]![2]).toMatchObject({
             moduleName: 'New Pricing',
             modulePath: 'rules/New Pricing.xlsx',
             sheetName: 'Eligibility',

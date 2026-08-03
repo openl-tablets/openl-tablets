@@ -23,9 +23,12 @@ import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.PropertyValueView;
+import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableKind;
+import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectMigrationService;
@@ -125,7 +128,7 @@ class ProjectsControllerTest {
         var controller = controller(projectService, mock(ProjectStatusMapper.class));
         var project = mock(RulesProject.class);
         var table = RawTableView.builder()
-                .kind("Constants")
+                .kind(TableKind.CONSTANTS)
                 .name("Constants")
                 .source(List.of())
                 .build();
@@ -133,7 +136,7 @@ class ProjectsControllerTest {
         var expected = SummaryTableView.builder()
                 .id("created-id")
                 .tableType("RawSource")
-                .kind("Constants")
+                .kind(TableKind.CONSTANTS)
                 .name("Constants")
                 .build();
         when(projectService.createNewTable(project, request)).thenReturn("created-id");
@@ -143,6 +146,41 @@ class ProjectsControllerTest {
 
         assertEquals(expected, created);
         verify(projectService).getCreatedTable(project, "Main", "created-id", "Constants");
+    }
+
+    @Test
+    void copyTableReadsTheResponseByTheCopyName() throws ProjectException {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var project = mock(RulesProject.class);
+        var request = new CopyTableRequest("Main", "Rules", null, "GreetingCopy", null);
+        var expected = SummaryTableView.builder()
+                .id("copy-id")
+                .tableType("Rules")
+                .kind(TableKind.RULES)
+                .name("GreetingCopy")
+                .build();
+        when(projectService.copyTable(project, "source-id", request)).thenReturn("copy-id");
+        when(projectService.getCreatedTable(project, "Main", "copy-id", "GreetingCopy")).thenReturn(expected);
+
+        var copied = controller.copyTable(project, "source-id", request);
+
+        assertEquals(expected, copied);
+        verify(projectService).copyTable(project, "source-id", request);
+        // The id the copy returns is read back, not the source name a same-named copy would collide on.
+        verify(projectService).getCreatedTable(project, "Main", "copy-id", "GreetingCopy");
+    }
+
+    @Test
+    void getTablePropertiesDelegatesToProjectService() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var project = mock(RulesProject.class);
+        var expected = new TablePropertiesView("Greeting", TableKind.RULES, List.of());
+        when(projectService.getTableProperties(project, "table-id")).thenReturn(expected);
+
+        assertEquals(expected, controller.getTableProperties(project, "table-id"));
+        verify(projectService).getTableProperties(project, "table-id");
     }
 
     private static ProjectsController controller(WorkspaceProjectService projectService,

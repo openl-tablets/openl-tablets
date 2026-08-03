@@ -28,6 +28,7 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableGraphNodeKind;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
@@ -348,7 +349,7 @@ public class ProjectTablesGraphService {
         }
         builder.id(node.id())
                 .name(node.name())
-                .kind(node.kind())
+                .kind(TableGraphNodeKind.fromValue(node.kind()))
                 .project(node.project())
                 .dimensionProperties(node.dimensionProperties());
         if (direction.includesDependencies()) {

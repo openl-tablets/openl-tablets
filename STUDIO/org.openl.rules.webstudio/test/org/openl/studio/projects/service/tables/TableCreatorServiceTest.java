@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,6 +35,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
@@ -284,6 +287,69 @@ class TableCreatorServiceTest {
                 () -> createModuleWithTable(descriptor, request));
     }
 
+    @Test
+    void createsAnEmptyModuleWithABlankSheet() throws Exception {
+        service.createEmptyModule(project, simpleDescriptor(), "Greeting", "custom/Greeting.xlsx", "Sheet1");
+
+        assertEquals(List.of("custom/Greeting.xlsx", ProjectDescriptor.FILE_NAME),
+                createdResources.keySet().stream().toList());
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(createdResources.get("custom/Greeting.xlsx")))) {
+            assertNotNull(workbook.getSheet("Sheet1"), "the sheet the caller named exists");
+            assertEquals(0, workbook.getSheet("Sheet1").getPhysicalNumberOfRows(), "the module starts empty");
+        }
+    }
+
+    @Test
+    void deleteModuleRemovesTheWorkbookOfADescriptorFreeProject() {
+        // A project with no rules.xml has nothing to undeclare, so only the workbook is removed.
+        service.deleteModule(project, "Greeting", "custom/Greeting.xlsx");
+
+        verify(projectFilesService).deleteResource(root, "custom/Greeting.xlsx");
+        verify(projectFilesService, never()).updateResource(any(), anyString(), any());
+    }
+
+    @Test
+    void deleteModuleDropsTheDeclarationFromRulesXml() throws Exception {
+        var declared = new ProjectDescriptor();
+        declared.setName("Example");
+        var module = new Module();
+        module.setName("Greeting");
+        module.setRulesRootPath("custom/Greeting.xlsx");
+        declared.setModules(new ArrayList<>(List.of(module)));
+        when(project.hasArtefact(ProjectDescriptor.FILE_NAME)).thenReturn(true);
+        var descriptorResource = mock(AProjectResource.class);
+        when(descriptorResource.getContent()).thenReturn(new ByteArrayInputStream(declared.toBytes()));
+        when(projectFilesService.getResource(root, ProjectDescriptor.FILE_NAME, null)).thenReturn(descriptorResource);
+
+        service.deleteModule(project, "Greeting", "custom/Greeting.xlsx");
+
+        verify(projectFilesService).deleteResource(root, "custom/Greeting.xlsx");
+        var rewritten = ProjectDescriptor.read(new ByteArrayInputStream(
+                updatedResources.get(ProjectDescriptor.FILE_NAME)));
+        assertTrue(rewritten.getModules() == null || rewritten.getModules().isEmpty(),
+                "the declaration of the removed module is dropped");
+    }
+
+    @Test
+    void deleteModuleKeepsASameNamedModuleDeclaredAtADifferentPath() throws Exception {
+        var declared = new ProjectDescriptor();
+        declared.setName("Example");
+        var module = new Module();
+        module.setName("Greeting");
+        module.setRulesRootPath("rules/Greeting.xlsx");
+        declared.setModules(new ArrayList<>(List.of(module)));
+        when(project.hasArtefact(ProjectDescriptor.FILE_NAME)).thenReturn(true);
+        var descriptorResource = mock(AProjectResource.class);
+        when(descriptorResource.getContent()).thenReturn(new ByteArrayInputStream(declared.toBytes()));
+        when(projectFilesService.getResource(root, ProjectDescriptor.FILE_NAME, null)).thenReturn(descriptorResource);
+
+        // Roll back a module of the same name but a different path: the declared one is matched by path and left alone.
+        service.deleteModule(project, "Greeting", "custom/Greeting.xlsx");
+
+        verify(projectFilesService).deleteResource(root, "custom/Greeting.xlsx");
+        verify(projectFilesService, never()).updateResource(any(), anyString(), any());
+    }
+
     private void createModuleWithTable(ProjectDescriptor descriptor,
                                        CreateNewTableRequest request) throws ProjectException {
         service.createModuleWithTable(project, descriptor, request, (RawTableView) request.table());
@@ -322,7 +388,7 @@ class TableCreatorServiceTest {
 
     private static RawTableView rawTable(List<List<RawTableCell>> source) {
         return RawTableView.builder()
-                .kind("Rules")
+                .kind(TableKind.RULES)
                 .name("Greeting")
                 .source(source)
                 .build();

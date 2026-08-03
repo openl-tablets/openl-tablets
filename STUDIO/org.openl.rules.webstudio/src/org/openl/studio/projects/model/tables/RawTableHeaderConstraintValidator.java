@@ -4,8 +4,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import org.openl.rules.lang.xls.XlsHelper;
-import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -14,9 +12,6 @@ import org.openl.util.StringUtils;
  * @author Vladyslav Pikus
  */
 public class RawTableHeaderConstraintValidator implements ConstraintValidator<RawTableHeaderConstraint, RawTableView> {
-
-    private static final String FREE_FORM_KIND = OpenLTableUtils.getTableTypeItems()
-            .get(XlsNodeTypes.XLS_OTHER.toString());
 
     @Override
     public boolean isValid(RawTableView view, ConstraintValidatorContext context) {
@@ -34,7 +29,7 @@ public class RawTableHeaderConstraintValidator implements ConstraintValidator<Ra
         var headerCell = firstRow.getFirst();
         Object value = headerCell == null ? null : headerCell.value();
         var header = value == null ? null : value.toString();
-        return FREE_FORM_KIND.equals(view.kind)
+        return view.kind == TableKind.OTHER
                 ? StringUtils.isNotBlank(header)
                 : XlsHelper.isKnownTableHeader(header);
     }

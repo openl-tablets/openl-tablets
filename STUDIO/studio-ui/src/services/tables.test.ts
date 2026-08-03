@@ -1,8 +1,8 @@
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
-import type { CreateTableRequest } from 'types/tables'
+import type { CopyTableRequest, CreateTableRequest } from 'types/tables'
 import apiCall from './apiCall'
-import { createTable, createTableCopy, getDatatype, getProjectTables, getTableRaw } from './tables'
+import { copyTable, createTable, getDatatype, getProjectTables, getTableCopyInfo } from './tables'
 
 vi.mock('./apiCall', () => ({
     default: vi.fn(),
@@ -38,15 +38,11 @@ const request: CreateTableRequest = {
     },
 }
 
-const copyRequest: CreateTableRequest = {
+const copyRequest: CopyTableRequest = {
     moduleName: 'Main',
     sheetName: 'Rules',
-    table: {
-        tableType: 'RawSource',
-        kind: 'Rules',
-        name: 'EligibilityCopy',
-        source: [[{ value: 'Rules Boolean EligibilityCopy()' }]],
-    },
+    name: 'EligibilityCopy',
+    properties: [{ name: 'version', value: '1.2.3' }],
 }
 
 describe('createTable', () => {
@@ -135,33 +131,38 @@ describe('getProjectTables', () => {
 
 })
 
-describe('createTableCopy', () => {
+describe('getTableCopyInfo', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    it('reads the lightweight properties view for an encoded table identifier', async () => {
+        mockApiCall.mockResolvedValueOnce({
+            name: 'Eligibility',
+            kind: 'Rules',
+            properties: [{ name: 'version', value: '1.2.3' }],
+        })
+
+        await expect(getTableCopyInfo('project-id', 'source id')).resolves.toMatchObject({
+            name: 'Eligibility',
+        })
+
+        expect(mockApiCall).toHaveBeenCalledWith(
+            '/projects/project-id/tables/source%20id/properties',
+            undefined,
+            { throwError: true, suppressErrorPages: true }
+        )
+    })
+})
+
+describe('copyTable', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.spyOn(notification, 'success').mockImplementation(() => {})
         vi.spyOn(notification, 'error').mockImplementation(() => {})
     })
 
-    it('reads raw source for an encoded table identifier', async () => {
-        mockApiCall.mockResolvedValueOnce({
-            tableType: 'RawSource',
-            kind: 'Rules',
-            name: 'Eligibility',
-            source: [[{ value: 'Rules Boolean Eligibility()' }]],
-        })
-
-        await expect(getTableRaw('project-id', 'source id')).resolves.toMatchObject({
-            name: 'Eligibility',
-        })
-
-        expect(mockApiCall).toHaveBeenCalledWith(
-            '/projects/project-id/tables/source%20id?raw=true',
-            undefined,
-            { throwError: true, suppressErrorPages: true }
-        )
-    })
-
-    it('posts the browser-built copy to the ordinary table collection', async () => {
+    it('posts the copy request to the copy endpoint of the source table', async () => {
         mockApiCall.mockResolvedValueOnce({
             id: 'copy-id',
             tableType: 'SimpleRules',
@@ -169,10 +170,10 @@ describe('createTableCopy', () => {
             name: 'EligibilityCopy',
         })
 
-        await expect(createTableCopy('project-id', copyRequest)).resolves.toMatchObject({ id: 'copy-id' })
+        await expect(copyTable('project-id', 'source id', copyRequest)).resolves.toMatchObject({ id: 'copy-id' })
 
         expect(mockApiCall).toHaveBeenCalledWith(
-            '/projects/project-id/tables',
+            '/projects/project-id/tables/source%20id/copy',
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -189,7 +190,7 @@ describe('createTableCopy', () => {
     it('reports a copy failure without closing its caller', async () => {
         mockApiCall.mockRejectedValueOnce(new Error('Version already exists'))
 
-        await expect(createTableCopy('project-id', copyRequest)).resolves.toBeNull()
+        await expect(copyTable('project-id', 'source-id', copyRequest)).resolves.toBeNull()
 
         expect(notification.error).toHaveBeenCalledWith({
             title: 'Failed to copy the table',

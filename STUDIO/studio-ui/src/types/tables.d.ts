@@ -19,6 +19,29 @@ export interface CreateTableRequest {
     table: RawTable
 }
 
+/** A table property in display string form; a blank value removes the property from a copy. */
+export interface TableProperty {
+    name: string
+    value: string | null
+}
+
+/** A table's name, kind and its own properties — read cheaply for the copy dialog, without the body. */
+export interface TableCopyInfo {
+    name: string
+    kind: string
+    /** Absent when the table declares no properties (the backend omits an empty list). */
+    properties?: TableProperty[]
+}
+
+/** Copy an existing table (named by its id in the path) into a module of the same project. */
+export interface CopyTableRequest {
+    moduleName: string
+    sheetName?: string
+    modulePath?: string
+    name: string
+    properties?: TableProperty[]
+}
+
 export interface SummaryTable {
     id: string
     tableType: string
