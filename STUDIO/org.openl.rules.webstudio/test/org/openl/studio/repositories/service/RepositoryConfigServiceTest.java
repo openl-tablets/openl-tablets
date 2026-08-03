@@ -1,10 +1,14 @@
 package org.openl.studio.repositories.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
@@ -41,6 +45,31 @@ class RepositoryConfigServiceTest {
         when(designTimeRepository.getRepository("design")).thenReturn(repository);
 
         assertEquals("release/2026", service.getConfig("design").branch());
+    }
+
+    @Test
+    void gitRepositoryExposesItsProtectedBranchPatterns() {
+        environment.setProperty("repository.design.factory", "repo-git");
+        environment.setProperty("repository.design.protected-branches", "master, release/* ,");
+
+        // The blank entry left by a trailing comma is dropped, the rest are trimmed.
+        assertEquals(List.of("master", "release/*"), service.getConfig("design").protectedBranches());
+    }
+
+    @Test
+    void protectedBranchesAreEmptyWhenNoneAreConfigured() {
+        environment.setProperty("repository.design.factory", "repo-git");
+
+        assertEquals(List.of(), service.getConfig("design").protectedBranches());
+    }
+
+    @Test
+    void protectedBranchesAreOmittedFromJsonWhenEmpty() throws Exception {
+        environment.setProperty("repository.design.factory", "repo-git");
+
+        var json = new ObjectMapper().writeValueAsString(service.getConfig("design"));
+
+        assertFalse(json.contains("protectedBranches"));
     }
 
     @Test

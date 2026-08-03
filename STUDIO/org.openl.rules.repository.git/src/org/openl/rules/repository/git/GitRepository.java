@@ -2491,8 +2491,8 @@ public class GitRepository implements BranchRepository, Closeable {
             remoteBranches.stream()
                     .filter(ref -> !ref.isSymbolic())
                     .map(Ref::getName)
-                    .filter(name -> name.startsWith(remotePrefix))
-                    .map(name -> name.substring(remotePrefix.length()))
+                    .filter(refName -> refName.startsWith(remotePrefix))
+                    .map(refName -> refName.substring(remotePrefix.length()))
                     .forEach(branchNames::add);
             return new ArrayList<>(branchNames);
         } catch (GitAPIException e) {

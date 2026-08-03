@@ -192,11 +192,6 @@ public class RepositoryDiffController extends AbstractDiffController {
         }
     }
 
-    private String designFolderName() {
-        return projectUW instanceof RulesProject rulesProject ? rulesProject.getDesignFolderName()
-                : projectUW.getRealPath();
-    }
-
     private List<ProjectVersion> getVersionsRepo() {
         if (projectUW == null) {
             return Collections.emptyList();

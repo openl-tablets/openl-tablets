@@ -512,7 +512,8 @@ class WorkspaceProjectServiceTest {
         var projectStateValidator = mock(ProjectStateValidator.class);
         var userWorkspace = userWorkspaceWithNonDirectoryParent();
         var webStudio = mock(WebStudio.class);
-        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var projectModel = mock(ProjectModel.class);
+        when(webStudio.getModel()).thenReturn(projectModel);
         var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace, projectStateValidator,
                 webStudio, aclProjectsHelper);
         var project = mock(RulesProject.class);
@@ -534,7 +535,8 @@ class WorkspaceProjectServiceTest {
         var user = mock(WorkspaceUser.class);
         when(userWorkspace.getUser()).thenReturn(user);
         var webStudio = mock(WebStudio.class);
-        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var projectModel = mock(ProjectModel.class);
+        when(webStudio.getModel()).thenReturn(projectModel);
         var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace, projectStateValidator,
                 webStudio, aclProjectsHelper);
         var originalRepository = repository();
@@ -601,7 +603,8 @@ class WorkspaceProjectServiceTest {
         var userWorkspace = userWorkspaceWithNonDirectoryParent();
         when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
         var webStudio = mock(WebStudio.class);
-        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var projectModel = mock(ProjectModel.class);
+        when(webStudio.getModel()).thenReturn(projectModel);
         var service = newDeleteService(
                 acl,
                 userWorkspace,
@@ -653,7 +656,8 @@ class WorkspaceProjectServiceTest {
         var userWorkspace = userWorkspaceWithNonDirectoryParent();
         when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
         var webStudio = mock(WebStudio.class);
-        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var projectModel = mock(ProjectModel.class);
+        when(webStudio.getModel()).thenReturn(projectModel);
         var service = newDeleteService(
                 acl,
                 userWorkspace,
@@ -691,7 +695,8 @@ class WorkspaceProjectServiceTest {
         var userWorkspace = userWorkspaceWithNonDirectoryParent();
         when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
         var webStudio = mock(WebStudio.class);
-        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var projectModel = mock(ProjectModel.class);
+        when(webStudio.getModel()).thenReturn(projectModel);
         var service = newDeleteService(
                 acl,
                 userWorkspace,
@@ -830,7 +835,8 @@ class WorkspaceProjectServiceTest {
         var projectStateValidator = mock(ProjectStateValidator.class);
         var userWorkspace = mock(UserWorkspace.class);
         var webStudio = mock(WebStudio.class);
-        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var projectModel = mock(ProjectModel.class);
+        when(webStudio.getModel()).thenReturn(projectModel);
         var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace, projectStateValidator,
                 webStudio);
         var project = mock(RulesProject.class);
@@ -1439,7 +1445,8 @@ class WorkspaceProjectServiceTest {
         var userWorkspace = mock(UserWorkspace.class);
         when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
         when(userWorkspace.getProjects()).thenReturn(List.of(projects));
-        when(userWorkspace.getDesignTimeRepository()).thenReturn(mock(DesignTimeRepository.class));
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
         return userWorkspace;
     }
 
@@ -1463,7 +1470,8 @@ class WorkspaceProjectServiceTest {
 
         var userWorkspace = mock(UserWorkspace.class);
         when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
-        when(userWorkspace.getDesignTimeRepository()).thenReturn(mock(DesignTimeRepository.class));
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
         return userWorkspace;
     }
 

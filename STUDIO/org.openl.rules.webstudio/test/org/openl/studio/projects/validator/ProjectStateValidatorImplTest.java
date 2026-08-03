@@ -477,7 +477,8 @@ class ProjectStateValidatorImplTest {
                 when(project.getRepository()).thenReturn(repo);
                 when(project.getBranch()).thenReturn(branch);
                 if (existsInBranch) {
-                    when(project.getVersion()).thenReturn(mock(ProjectVersion.class));
+                    var version = mock(ProjectVersion.class);
+                    when(project.getVersion()).thenReturn(version);
                 }
             } else if (!localOnly) {
                 var repo = mock(Repository.class);

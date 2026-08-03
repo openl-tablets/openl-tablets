@@ -449,7 +449,8 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
                 null,
                 false);
 
-        when(mockedRepo.check(eq(model.getFullPath()))).thenReturn(mock(FileData.class));
+        var fileData = mock(FileData.class);
+        when(mockedRepo.check(model.getFullPath())).thenReturn(fileData);
 
         try {
             validateAndGetResult(model, validator);

@@ -1,5 +1,8 @@
 package org.openl.studio.repositories.service;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
@@ -42,7 +45,21 @@ public class RepositoryConfigService {
         var branch = repository != null && repository.supports().branches()
                 ? ((BranchRepository) repository).getBranch()
                 : null;
-        return new RepositoryConfigModel(branch, newBranch(settings), comment(settings));
+        return new RepositoryConfigModel(branch, protectedBranches(settings), newBranch(settings), comment(settings));
+    }
+
+    /**
+     * The glob patterns that mark a branch as protected, split from the comma-separated setting the way the
+     * repository itself splits them. Empty when the repository is not a Git one or configures none.
+     */
+    private static List<String> protectedBranches(RepositorySettings settings) {
+        if (!(settings instanceof GitRepositorySettings git)) {
+            return List.of();
+        }
+        return Stream.of(StringUtils.trimToEmpty(git.getProtectedBranches()).split(","))
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .toList();
     }
 
     private static RepositoryConfigModel.NewBranch newBranch(RepositorySettings settings) {

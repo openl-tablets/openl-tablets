@@ -37,7 +37,6 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.IOUtils;
 
 class LocalGitRepositoryTest {
-    private static final String FOLDER_IN_REPOSITORY = "rules/project1";
     private static final String REPO_ID = "designLocal";
 
     @TempDir

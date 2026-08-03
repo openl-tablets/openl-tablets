@@ -19,6 +19,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
+import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.studio.common.exception.ConflictException;
@@ -31,6 +32,8 @@ import org.openl.util.StringUtils;
 @Component
 @RequiredArgsConstructor
 public class CreateUpdateProjectModelValidator implements Validator {
+
+    private static final String BRANCH_FIELD = "branch";
 
     private final DesignTimeRepository designTimeRepository;
     private final Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory;
@@ -105,7 +108,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
         var targetBranch = ((BranchRepository) repository).getBranch();
         return designTimeRepository.getBranchedProject(model.getRepoName(), model.getProjectName())
                 .flatMap(project -> project.entry(targetBranch))
-                .map(entry -> entry.project());
+                .map(BranchEntry::project);
     }
 
     private void validateProjectCreation(CreateUpdateProjectModel model, Repository repository) {
@@ -145,7 +148,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
             return Optional.of(repository);
         }
         if (!rawRepository.isValidBranchName(branch)) {
-            errors.rejectValue("branch", "branch.name.invalid.4.message");
+            errors.rejectValue(BRANCH_FIELD, "branch.name.invalid.4.message");
             return Optional.empty();
         }
         try {
@@ -171,9 +174,9 @@ public class CreateUpdateProjectModelValidator implements Validator {
     }
 
     private boolean validateNewBranch(BranchRepository repository, String branch, Errors errors) {
-        var branchErrors = new BeanPropertyBindingResult(branch, "branch");
+        var branchErrors = new BeanPropertyBindingResult(branch, BRANCH_FIELD);
         newBranchValidatorFactory.apply(repository).validate(branch, branchErrors);
-        branchErrors.getAllErrors().forEach(error -> errors.rejectValue("branch",
+        branchErrors.getAllErrors().forEach(error -> errors.rejectValue(BRANCH_FIELD,
                 error.getCode(),
                 error.getArguments(),
                 error.getDefaultMessage()));

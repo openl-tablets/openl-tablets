@@ -168,7 +168,8 @@ class ProjectsMergeServiceCheckTest {
         when(repository.forBranch(OTHER)).thenReturn(targetRepository);
         when(repository.isMergedInto(CURRENT, OTHER)).thenReturn(false);
         var user = mock(WorkspaceUser.class);
-        when(user.getUserInfo()).thenReturn(mock(UserInfo.class));
+        var userInfo = mock(UserInfo.class);
+        when(user.getUserInfo()).thenReturn(userInfo);
         when(userWorkspace.getUser()).thenReturn(user);
         var designTimeRepository = mock(DesignTimeRepository.class);
         when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);

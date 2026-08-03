@@ -141,7 +141,7 @@ class ProjectMigrationServiceTest {
     }
 
     @Test
-    void migrate_rewrites_an_existing_rules_xml_to_its_minimal_form() throws Exception {
+    void migrate_rewrites_an_existing_rules_xml_to_its_minimal_form() {
         rootFiles(file("rules.xml"), file("Pricing.xlsx"));
         rulesXml("""
                 <project>
@@ -164,7 +164,7 @@ class ProjectMigrationServiceTest {
     }
 
     @Test
-    void migrate_keeps_a_project_name_even_when_it_equals_the_folder() throws Exception {
+    void migrate_keeps_a_project_name_even_when_it_equals_the_folder() {
         rootFiles(file("rules.xml"), file("Pricing.xlsx"));
         // The name equals the project (folder) name; the default classpath still makes the file migratable.
         rulesXml("""
@@ -186,7 +186,7 @@ class ProjectMigrationServiceTest {
     }
 
     @Test
-    void migrate_rewrites_the_rules_deploy_and_leaves_the_rules_xml_alone() throws Exception {
+    void migrate_rewrites_the_rules_deploy_and_leaves_the_rules_xml_alone() {
         rootFiles(file("rules-deploy.xml"));
         var deploy = new RulesDeploy();
         deploy.setProvideRuntimeContext(false);

@@ -23602,6 +23602,13 @@ Content-Type: application/json
           },
           "newBranch": {
             "$ref": "#/components/schemas/NewBranch"
+          },
+          "protectedBranches": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
