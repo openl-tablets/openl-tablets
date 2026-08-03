@@ -4,8 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Every queue row is done and every vein below is closed; while `git merge-base origin/main
-  origin/dead-code/java-internals` equals `origin/main` there is no new scope. Never invent a detector.
+- Every queue row is done and every vein below is closed. New scope arrives only as new commits on `main`: diff
+  `git log --name-status <merge-base>..origin/main`, sweep only the source files it touches, and skip webstudio
+  Java, ITEST fixtures, `Docs/` and `.github/`. Never invent a detector.
 - #1940 carries the whole sweep, is green on all 12 Actions checks, has no review thread, and waits on a human
   review this routine cannot supply. Do not nudge it, do not re-argue the SonarCloud gate, do not comment to
   restate a green status — the description carries it.
@@ -186,7 +187,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   commit. `compile.css.sh` does **not** reproduce the committed CSS bundles — never regenerate those.
 - Run the frontend gate from `STUDIO/studio-ui` with no Maven build competing: `npx tsc --noEmit`, `npx eslint src`
   (whole tree), and `npm run test` — **which is `vitest run --coverage`, not plain `vitest run`; match CI's own
-  command or the coverage pass goes unverified**. Baseline 164 files / 1455 tests green. `no-unused-vars` is `warn`,
+  command or the coverage pass goes unverified**. Baseline 164 files / 1460 tests. `no-unused-vars` is `warn`,
   so read the output, not the exit code.
 - `npm ci` works here — registry.npmjs.org bypasses the proxy. `node_modules` is gitignored.
 - When a deletion empties a parent object literal, delete the parent in the same commit.
@@ -246,16 +247,15 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## CI flakes
 
-- `LockTest.testSimultaneousMultiThreadsWithWaiting` in `STUDIO/org.openl.rules.repository` fails on **`main`**, not
-  just on sweep branches — job `Tests (without ITEST)`, tell `expected: <800> but was: <79x>`. It asserts all 8x100
-  `tryLock` attempts beat a 30 s timeout. It is load-sensitive, not deterministic: it passes on this container and it
-  went green on #1940 while still red on that branch's own merge base. So a red run is worth one rerun, a green one
-  proves nothing, and it is never your own breakage — check the latest `main` run of `build-quick.yml`, say so once.
-- `studio-ui` `npm run test` is the same job's other failure mode — tell `Failed to run task: 'npm run test' failed`
-  plus `-rf :studio-ui`. It is CPU starvation, not code: it also fails inside this container's own `-T1C` reactor
-  build. Rerun the job; never judge the frontend from a run that shared the CPU.
-- **Read the `-rf :<module>` hint to tell those two apart before answering `Tests (without ITEST)`.** They alternate,
-  so a green studio-ui does not mean a green job.
+- `studio-ui` `npm run test` is the standing failure of `Tests (without ITEST)` — tell `Failed to run task:
+  'npm run test' failed` plus `-rf :studio-ui`. It is always the same file and the same 2 of its 28 tests:
+  `src/containers/projects/OverviewPanel.test.tsx`, "edits the descriptor text in place…" (`Test timed out in
+  15000ms`) and "edits the sources and the declared dependencies…" (`vitest-fail-on-console` rejecting a React
+  `act(...)` warning from `OverviewPanel.tsx:799` and `:1231`). Load, not code — never your own breakage.
+- Reproduce that flake on demand: run the one file with eight busy loops beside it on these four cores. Idle it is
+  28/28 in 15 s; loaded it is exactly those 2 failing in 35 s. Use this before blaming any frontend red on a diff.
+- `LockTest.testSimultaneousMultiThreadsWithWaiting` was the other mode; `main` commit `288f4177` fixed it with one
+  shared 90 s deadline instead of 30 s per attempt. `OpenL - STUDIO - Repository` is green. Do not re-escalate it.
 - **`IT (studio)` has two failure shapes; separate them by duration.** Normal is 6-8 min. (a) Fails in 3-7 min at
   `-rf :itest.studio.repos` with three assertion diffs under `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify`
   — the same-second commit-ordering race, also on `main`, 1 run in 7. (b) Runs far past 8 min with every step
@@ -307,6 +307,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   author even when `GIT_AUTHOR_*` is exported. Verify with `git log --pretty='%an <%ae> | %cn <%ce>'`.
 - Listing workflow runs through the GitHub MCP tool returns a very large result; ask for `per_page` 3 or less.
   The unit-test workflow is `build-quick.yml`.
+- `get_job_logs` truncates from the **end**, and the reactor summary alone fills the last 700 lines, so a failing
+  test name needs `tail_lines` 4000. That overflows context — let it save to a file and grep the file instead.
 - **Angle-bracketed text does not survive the PR-body MCP round trip** — a bare XML element name is swallowed, and
   `Map<String, X>` reads back as `Map` even inside a fenced code block, so a quoted signature silently becomes
   wrong. Keep generics and element names out of bodies, name the identifiers in prose, and re-read after writing.
@@ -347,6 +349,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
   entry on runtime wiring.
+- Incremental `main` scope swept through `cb2bde23`: the only new source surface is studio-ui TraceView —
+  `SimpleTraceTree`, `TraceDetails`, `TraceTree.styles.ts`, `traceStore.ts`. Every new export, style key and
+  helper is referenced; `SimpleOrderRange` is the known export-used-only-in-its-own-file shape.
 - Every `org.openl.*` class name referenced from `.xml`, `.xhtml`, `.properties`, `.tld`, `.yaml`, `.json` and
   `.txt`, resolved against the source tree. The ~90 with no `.java` are all runtime-generated datatype and
   spreadsheet-result beans or rule-project fixtures under test resources. No stale configuration exists.
@@ -356,8 +361,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
   import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
   or swept until then, and the stub has to be re-seeded on every container rebuild.
-- `main` is red on `LockTest.testSimultaneousMultiThreadsWithWaiting` on every recent run of `build-quick.yml`. Its
-  sibling is already `@Disabled` as unstable; this one needs the same decision or a real fix.
+- `OverviewPanel.tsx` starts two unawaited promises that resolve into state setters — `getProjectIndex().then(
+  setProjectNames)` at line 799 and the same shape at line 1231. Nothing synchronises them with the test, so
+  `OverviewPanel.test.tsx` fails whenever the machine is slow. It is what keeps `main` red on `Tests (without
+  ITEST)`. Needs the effect awaited or the test made to wait on it; the 15 s per-test timeout is also tight.
 - `itest.studio.repos` has a same-second commit-ordering race: when a scenario's two commits land in the same second
   the history endpoint returns them oldest-first, so `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify` reads
   the pre-merge revision and an empty table list. Needs a tiebreaker in the ordering or a fixture that does not
@@ -372,6 +379,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-03 — run twenty-three. Unchanged again; ledger compacted 384 to 379 lines. No commit to the sweep branch.
 - 08-03 — run twenty-four. Unchanged; all 12 Actions checks green, shibboleth 000 and Central 404. No commit.
 - 08-03 — run twenty-five. Unchanged; resume point compacted 379 to 377 lines. No commit to the sweep branch.
+- 08-03 — run twenty-six. Swept 4 new `main` commits, no findings. Identified and reproduced the studio-ui
+  flake (`OverviewPanel.test.tsx`); LockTest fixed upstream. #1940 description corrected. No sweep commit.
