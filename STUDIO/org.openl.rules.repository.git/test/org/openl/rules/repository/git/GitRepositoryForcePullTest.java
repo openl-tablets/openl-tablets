@@ -23,7 +23,6 @@ import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.UserInfo;
@@ -37,7 +36,7 @@ class GitRepositoryForcePullTest {
     @TempDir
     private static File template;
 
-    @TempDir(cleanup = CleanupMode.NEVER)
+    @TempDir
     private File root;
     @AutoClose
     private GitRepository repo;
