@@ -9,6 +9,10 @@ import { getFileContent } from '../../services/files'
 import { getProjectMigration, migrateProject } from '../../services/migration'
 import type { Project } from '../../types/projects'
 
+// Type without the per-keystroke delay: these forms render real antd and re-render on every character, so
+// the default cadence dragged the descriptor-editing tests over the coverage build's timeout under load.
+const user = userEvent.setup({ delay: null })
+
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key: string, opts?: { count?: number }) => (opts?.count !== undefined ? `${key}:${opts.count}` : key),
@@ -58,10 +62,6 @@ vi.mock('../../services/migration', () => ({
 
 const setMigration = (rulesXml: { movableRootModules: string[], migratable: boolean }) =>
     vi.mocked(getProjectMigration).mockResolvedValue({ rulesXml, rulesDeploy: { migratable: false } })
-
-vi.mock('./ManageBranchesModal', () => ({
-    ManageBranchesModal: ({ open }: { open: boolean }) => open ? <div data-testid="manage-branches-modal" /> : null,
-}))
 
 const base: Project = {
     id: 'p1',
@@ -198,7 +198,7 @@ describe('OverviewPanel', () => {
         // A pattern that matched nothing has no switcher, only the mark that it stands for nothing.
         expect(screen.getByTestId('module-unmatched-tests/**/*.xlsx')).toBeInTheDocument()
 
-        await userEvent.click(screen.getByTestId('module-matched-rules/**/*.xlsx'))
+        await user.click(screen.getByTestId('module-matched-rules/**/*.xlsx'))
 
         expect(screen.getByText('rules/Auto.xlsx')).toBeInTheDocument()
         expect(screen.getByText('rules/Home.xlsx')).toBeInTheDocument()
@@ -285,9 +285,9 @@ describe('OverviewPanel', () => {
         setMigration({ movableRootModules: [], migratable: true })
         await renderPanel({ ...base, capabilities: { canWrite: true } })
 
-        await userEvent.click(await screen.findByTestId('overview-migrate'))
+        await user.click(await screen.findByTestId('overview-migrate'))
         const dialog = await screen.findByRole('dialog')
-        await userEvent.click(within(dialog).getByRole('button', { name: 'browser.overview.migrate' }))
+        await user.click(within(dialog).getByRole('button', { name: 'browser.overview.migrate' }))
 
         await waitFor(() => expect(migrateProject).toHaveBeenCalledWith('p1', 'rulesXml'))
     })
@@ -298,9 +298,9 @@ describe('OverviewPanel', () => {
         vi.mocked(migrateProject).mockReturnValueOnce(new Promise(resolve => { resolveMigrate = () => resolve(undefined) }))
         await renderPanel({ ...base, capabilities: { canWrite: true } })
 
-        await userEvent.click(await screen.findByTestId('overview-migrate'))
+        await user.click(await screen.findByTestId('overview-migrate'))
         const dialog = await screen.findByRole('dialog')
-        await userEvent.click(within(dialog).getByRole('button', { name: 'browser.overview.migrate' }))
+        await user.click(within(dialog).getByRole('button', { name: 'browser.overview.migrate' }))
 
         // While the migrate write is still in flight, editing the same rules.xml must be blocked.
         await waitFor(() => expect(screen.getByTestId('overview-edit')).toBeDisabled())
@@ -323,7 +323,7 @@ describe('OverviewPanel', () => {
             },
         })
 
-        await userEvent.click(screen.getByTestId('overview-edit'))
+        await user.click(screen.getByTestId('overview-edit'))
 
         // The auto-discovered modules stay read-only with a note instead of the editable list.
         expect(screen.getByTestId('modules-readonly')).toBeInTheDocument()
@@ -339,11 +339,11 @@ describe('OverviewPanel', () => {
 
         expect(await screen.findByText('A ruleset')).toBeInTheDocument()
 
-        await userEvent.click(screen.getByText('browser.overview.description'))
+        await user.click(screen.getByText('browser.overview.description'))
 
         expect(screen.queryByText('A ruleset')).toBeNull()
 
-        await userEvent.click(screen.getByText('browser.overview.description'))
+        await user.click(screen.getByText('browser.overview.description'))
 
         expect(screen.getByText('A ruleset')).toBeInTheDocument()
     })
@@ -376,17 +376,17 @@ describe('OverviewPanel', () => {
             await Promise.resolve()
         })
 
-        await userEvent.click(screen.getByTestId('overview-edit'))
+        await user.click(screen.getByTestId('overview-edit'))
         // A version pattern is added and typed in — an empty list section shows in the editing view.
-        await userEvent.click(screen.getByTestId('edit-version-pattern-add'))
-        await userEvent.type(screen.getByTestId('edit-version-pattern-0'), '%lob%-%state%')
+        await user.click(screen.getByTestId('edit-version-pattern-add'))
+        await user.type(screen.getByTestId('edit-version-pattern-0'), '%lob%-%state%')
         // A declared module — its name and rules-root path.
-        await userEvent.click(screen.getByTestId('edit-module-add'))
-        await userEvent.type(screen.getByTestId('edit-module-0'), 'Main')
-        await userEvent.type(screen.getByTestId('edit-module-0-path'), 'rules/Main.xlsx')
-        await userEvent.clear(screen.getByTestId('edit-description'))
-        await userEvent.type(screen.getByTestId('edit-description'), 'new')
-        await userEvent.click(screen.getByTestId('overview-save'))
+        await user.click(screen.getByTestId('edit-module-add'))
+        await user.type(screen.getByTestId('edit-module-0'), 'Main')
+        await user.type(screen.getByTestId('edit-module-0-path'), 'rules/Main.xlsx')
+        await user.clear(screen.getByTestId('edit-description'))
+        await user.type(screen.getByTestId('edit-description'), 'new')
+        await user.click(screen.getByTestId('overview-save'))
 
         await waitFor(() => expect(writeRootFile).toHaveBeenCalledWith(
             'p1',
@@ -421,17 +421,17 @@ describe('OverviewPanel', () => {
             await Promise.resolve()
         })
 
-        await userEvent.click(screen.getByTestId('overview-edit'))
+        await user.click(screen.getByTestId('overview-edit'))
         // A source entry.
-        await userEvent.click(screen.getByTestId('edit-source-add'))
-        await userEvent.type(screen.getByTestId('edit-source-0'), 'lib/*.jar')
+        await user.click(screen.getByTestId('edit-source-add'))
+        await user.type(screen.getByTestId('edit-source-0'), 'lib/*.jar')
         // A dependency is picked from the existing projects, not typed by hand.
-        await userEvent.click(screen.getByTestId('edit-dependency-add'))
+        await user.click(screen.getByTestId('edit-dependency-add'))
         fireEvent.mouseDown(within(screen.getByTestId('edit-dependency-0')).getByRole('combobox'))
         expect(await screen.findByRole('option', { name: 'Common Datatypes' })).toBeInTheDocument()
         expect(screen.getByRole('option', { name: 'Rates' })).toBeInTheDocument()
 
-        await userEvent.click(screen.getByTestId('overview-save'))
+        await user.click(screen.getByTestId('overview-save'))
 
         await waitFor(() => expect(writeRootFile).toHaveBeenCalled())
         const saved = vi.mocked(writeRootFile).mock.calls.at(-1)![2]
@@ -461,7 +461,7 @@ describe('OverviewPanel', () => {
             await Promise.resolve()
         })
 
-        await userEvent.click(screen.getByTestId('overview-edit'))
+        await user.click(screen.getByTestId('overview-edit'))
 
         // The file is picked from the project, not typed: only specification files are offered.
         fireEvent.mouseDown(within(screen.getByTestId('edit-openapi-path')).getByRole('combobox'))
@@ -470,10 +470,10 @@ describe('OverviewPanel', () => {
 
         // Switching the mode to generation reveals the module names it needs.
         expect(screen.queryByTestId('edit-openapi-algorithm')).toBeNull()
-        await userEvent.click(screen.getByText('browser.overview.openapi_generation'))
-        await userEvent.type(screen.getByTestId('edit-openapi-algorithm'), 'Algorithms')
+        await user.click(screen.getByText('browser.overview.openapi_generation'))
+        await user.type(screen.getByTestId('edit-openapi-algorithm'), 'Algorithms')
 
-        await userEvent.click(screen.getByTestId('overview-save'))
+        await user.click(screen.getByTestId('overview-save'))
 
         await waitFor(() => expect(writeRootFile).toHaveBeenCalled())
         const saved = vi.mocked(writeRootFile).mock.calls.at(-1)![2]
@@ -510,12 +510,12 @@ describe('OverviewPanel', () => {
             await Promise.resolve()
         })
 
-        await userEvent.click(screen.getByTestId('overview-edit'))
+        await user.click(screen.getByTestId('overview-edit'))
         // The clear control of the file picker is the way to drop the configuration.
         const select = screen.getByTestId('edit-openapi-path')
         fireEvent.mouseDown(select.querySelector('.ant-select-clear')!)
 
-        await userEvent.click(screen.getByTestId('overview-save'))
+        await user.click(screen.getByTestId('overview-save'))
 
         await waitFor(() => expect(writeRootFile).toHaveBeenCalled())
         const saved = vi.mocked(writeRootFile).mock.calls.at(-1)![2]
@@ -541,20 +541,6 @@ describe('OverviewPanel', () => {
     it('shows no shield for an unprotected branch', async () => {
         const { container } = await renderPanel({ ...base, branch: 'main' })
         expect(container.querySelector('.anticon-safety')).toBeNull()
-    })
-
-    it('opens branch management for a project whose branches the user may manage', async () => {
-        await renderPanel({ ...base, branch: 'main', capabilities: { canManageBranches: true } })
-
-        await userEvent.click(screen.getByTestId('manage-branches'))
-
-        expect(screen.getByTestId('manage-branches-modal')).toBeInTheDocument()
-    })
-
-    it('offers no branch management without write access', async () => {
-        await renderPanel({ ...base, branch: 'main' })
-
-        expect(screen.queryByTestId('manage-branches')).toBeNull()
     })
 
     it('shows the revision shortened, keeping the full one for copying', async () => {

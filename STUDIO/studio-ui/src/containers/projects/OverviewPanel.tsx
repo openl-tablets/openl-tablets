@@ -19,7 +19,6 @@ import {
     ProductOutlined,
     QuestionCircleOutlined,
     RightOutlined,
-    SettingOutlined,
     SwapOutlined,
     UnlockOutlined,
     UploadOutlined,
@@ -51,7 +50,6 @@ import { ValueText } from './ValueText'
 import { RepoBadge } from './RepoBadge'
 import { BranchLabel } from './BranchLabel'
 import { BranchSwitcher } from './BranchSwitcher'
-import { ManageBranchesModal } from './ManageBranchesModal'
 import { GitCommitMessage } from './GitCommitMessage'
 import { useProjectTags } from './useProjectTags'
 import { shortRevision } from './revisions'
@@ -1352,17 +1350,15 @@ const OpenApiSection = ({ editor, projectId }: { editor: DescriptorEditor, proje
 }
 
 /** The identity of the project on the right: status, where it lives, its last change and its tags. */
-const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canManageBranches, canEditTags, tagsContent, tagsAction, onChanged, onManageBranches }: {
+const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTags, tagsContent, tagsAction, onChanged }: {
     project: Project
     repoLabel: string
     repoType?: string | undefined
     supportsBranches: boolean
-    canManageBranches: boolean
     canEditTags: boolean
     tagsContent: ReactNode
     tagsAction: ReactNode
     onChanged: () => void
-    onManageBranches: () => void
 }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
@@ -1400,17 +1396,6 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canManageB
                         onSwitched={onChanged}
                         projectId={project.id}
                     />
-                ), canManageBranches && (
-                    <Tooltip title={t('browser.branch.manage')}>
-                        <Button
-                            aria-label={t('browser.branch.manage')}
-                            data-testid="manage-branches"
-                            icon={<SettingOutlined />}
-                            onClick={onManageBranches}
-                            size="small"
-                            type="text"
-                        />
-                    </Tooltip>
                 ))}
                 {project.revision && metaRow(
                     t('browser.overview.revision'),
@@ -1472,7 +1457,6 @@ export const OverviewPanel = ({
 }: OverviewPanelProps) => {
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
-    const [managingBranches, setManagingBranches] = useState(false)
     const [patternHelpOpen, setPatternHelpOpen] = useState(false)
     const descriptor = useRulesDescriptor(project, reloadToken, () => onChanged?.())
     const migration = useProjectMigration(project, reloadToken, () => onChanged?.())
@@ -1486,9 +1470,6 @@ export const OverviewPanel = ({
         projectId: project.id,
         tags: project.tags ?? {},
     })
-    // Picking the branches the project takes part in changes the project, so it follows write access.
-    const canManageBranches = project.capabilities?.canManageBranches ?? false
-
     return (
         <div className={styles.panel} data-testid="overview-panel">
             <div className={styles.left} data-testid="overview-left">
@@ -1557,9 +1538,7 @@ export const OverviewPanel = ({
             </div>
             <MetaColumn
                 canEditTags={canEditTags}
-                canManageBranches={canManageBranches}
                 onChanged={() => onChanged?.()}
-                onManageBranches={() => setManagingBranches(true)}
                 project={project}
                 repoLabel={repoLabel}
                 repoType={repoType}
@@ -1567,13 +1546,6 @@ export const OverviewPanel = ({
                 tagsAction={tagsAction}
                 tagsContent={tagsContent}
             />
-            {supportsBranches && project.branch && (
-                <ManageBranchesModal
-                    onClose={() => setManagingBranches(false)}
-                    open={managingBranches}
-                    projectId={project.id}
-                />
-            )}
             <PropertiesPatternHelpModal onClose={() => setPatternHelpOpen(false)} open={patternHelpOpen} />
         </div>
     )

@@ -24,8 +24,10 @@ export interface RepositoryFeatures {
  * a commit comment are suggested, and the expressions they must match.
  */
 export interface RepositoryConfig {
-    /** Configured branch preselected by project-creation forms. */
+    /** Configured branch preselected by project-creation forms; also the repository's default branch. */
     branch?: string | undefined
+    /** Branch-name glob patterns that are protected. Absent when the repository configures none. */
+    protectedBranches?: string[] | undefined
     /** Branch rules; absent when the repository has no branches. */
     newBranch?: {
         /** Pattern the suggested name is built from, e.g. `{project-name}/{username}/{current-date}`. */

@@ -14,6 +14,8 @@ export interface ListingQuery {
     repositories: Set<string>
     /** Tag filters written as `Type:Value`. */
     tags: Set<string>
+    /** Current-branch filters — the branch each project is open on. */
+    branches: Set<string>
 }
 
 const contains = (value: string | undefined, needle: string): boolean =>
@@ -76,6 +78,9 @@ const matchesRepositories = (project: Project, repositories: Set<string>): boole
     // bucket countFacets counts it in, so the facet's count and the rows it lists always agree.
     || repositories.has(project.status === ProjectStatus.Local ? LOCAL_REPO_KEY : project.repository)
 
+const matchesBranches = (project: Project, branches: Set<string>): boolean =>
+    branches.size === 0 || (project.branch != null && branches.has(project.branch))
+
 /**
  * The already-searched projects the list keeps for the facet part of the query — repositories, tags, and
  * statuses. Kept apart from {@link searchProjects} so a caller that also counts facets searches only once.
@@ -84,6 +89,7 @@ export const refineProjects = (searched: Project[], query: ListingQuery): Projec
     const wanted = wantedTags(query.tags)
     return searched.filter(project =>
         matchesRepositories(project, query.repositories)
+        && matchesBranches(project, query.branches)
         && matchesTags(project, wanted)
         // Without a status filter a deleted project stays out of the list, as the API leaves it out.
         && (query.statuses.size === 0
@@ -140,10 +146,17 @@ export const statusCount = (counts: ProjectStatusSummary | undefined, status: Pr
  * The facet counts of the rail, counted over the search scope and ignoring the picked facets — the same
  * scope the API counts, so a multi-select rail does not collapse as values are ticked.
  */
+/** A branch facet value with the marks it carries — the default badge and the protected shield. */
+export interface BranchFacetCount extends FacetCount {
+    isDefault: boolean
+    isProtected: boolean
+}
+
 export const countFacets = (scope: Project[], repositoryName: (id: string) => string): {
     statusCounts: ProjectStatusSummary
     repositoryCounts: FacetCount[]
     tagCounts: TagFacetSummary[]
+    branchCounts: BranchFacetCount[]
 } => {
     const statusCounts: ProjectStatusSummary = {
         local: 0,
@@ -154,6 +167,7 @@ export const countFacets = (scope: Project[], repositoryName: (id: string) => st
         deleted: 0,
     }
     const repositories = new Map<string, number>()
+    const branches = new Map<string, { count: number, isDefault: boolean, isProtected: boolean }>()
     const tags = new Map<string, Map<string, number>>()
     for (const project of scope) {
         const field = STATUS_FIELD[project.status]
@@ -162,6 +176,14 @@ export const countFacets = (scope: Project[], repositoryName: (id: string) => st
         }
         const repositoryId = project.status === ProjectStatus.Local ? LOCAL_REPO_KEY : project.repository
         repositories.set(repositoryId, (repositories.get(repositoryId) ?? 0) + 1)
+        if (project.branch) {
+            const branch = branches.get(project.branch)
+            branches.set(project.branch, {
+                count: (branch?.count ?? 0) + 1,
+                isDefault: (branch?.isDefault ?? false) || (project.branchDefault ?? false),
+                isProtected: (branch?.isProtected ?? false) || (project.branchProtected ?? false),
+            })
+        }
         for (const [type, value] of Object.entries(project.tags ?? {})) {
             if (!type || !value) {
                 continue
@@ -174,6 +196,9 @@ export const countFacets = (scope: Project[], repositoryName: (id: string) => st
     const repositoryCounts = [...repositories.entries()]
         .map(([id, count]) => ({ id, name: id === LOCAL_REPO_KEY ? 'Local' : repositoryName(id), count }))
         .sort((left, right) => left.name.localeCompare(right.name, undefined, { sensitivity: 'base' }))
+    const branchCounts: BranchFacetCount[] = [...branches.entries()]
+        .map(([name, info]) => ({ id: name, name, count: info.count, isDefault: info.isDefault, isProtected: info.isProtected }))
+        .sort((left, right) => left.name.localeCompare(right.name, undefined, { sensitivity: 'base' }))
     const tagCounts = [...tags.entries()]
         .sort(([left], [right]) => left.localeCompare(right, undefined, { sensitivity: 'base' }))
         .map(([type, values]) => ({
@@ -182,5 +207,5 @@ export const countFacets = (scope: Project[], repositoryName: (id: string) => st
                 .map(([value, count]) => ({ id: value, name: value, count }))
                 .sort((left, right) => left.name.localeCompare(right.name, undefined, { sensitivity: 'base' })),
         }))
-    return { statusCounts, repositoryCounts, tagCounts }
+    return { statusCounts, repositoryCounts, tagCounts, branchCounts }
 }

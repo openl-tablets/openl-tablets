@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { GroupProjectsModal } from './GroupProjectsModal'
-import { GROUP_BY_REPOSITORY, type GroupingLevels } from './projectGrouping'
+import { GROUP_BY_BRANCH, GROUP_BY_REPOSITORY, type GroupingLevels } from './projectGrouping'
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
@@ -62,7 +62,7 @@ describe('GroupProjectsModal', () => {
         // The repository is taken by the first level, Domain by the second; the third offers the rest.
         const third = screen.getByTestId('grouping-level-3')
         const offered = [...third.querySelectorAll('option')].map(option => option.getAttribute('value'))
-        expect(offered).toEqual(['', 'LOB'])
+        expect(offered).toEqual(['', GROUP_BY_BRANCH, 'LOB'])
     })
 
     it('ends the grouping below a level that was cleared', async () => {

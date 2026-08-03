@@ -27,6 +27,7 @@ vi.mock('@ant-design/icons', () => {
     const icon = (name: string) => (props: Record<string, unknown>) => <span {...props}>{name}</span>
     return {
         BranchesOutlined: icon('branches'),
+        SafetyOutlined: icon('safety'),
         CloudUploadOutlined: icon('cloud-upload'),
         DatabaseOutlined: icon('database'),
         DeleteOutlined: icon('delete'),
@@ -122,7 +123,9 @@ vi.mock('antd', () => {
             return <span {...dom}>{children as never}</span>
         },
     }
-    return { Alert, Button, Empty, Skeleton, Tooltip, Tree: Object.assign(Tree, { DirectoryTree: Tree }), Typography }
+    const Tag = ({ children, ...rest }: Record<string, unknown>) =>
+        <span data-testid={rest['data-testid'] as string}>{children as never}</span>
+    return { Alert, Button, Empty, Skeleton, Tag, Tooltip, Tree: Object.assign(Tree, { DirectoryTree: Tree }), Typography }
 })
 
 const repositories = [
@@ -183,6 +186,42 @@ describe('ProjectsTree', () => {
         expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
     })
 
+    it('uses the projects the screen supplies, without reading the index a second time', async () => {
+        await renderTree({ projects })
+
+        // The list already read the snapshot; the tree groups that one instead of pulling it again.
+        expect(getProjectIndex).not.toHaveBeenCalled()
+        expect(screen.getByText('Design')).toBeInTheDocument()
+        expect(screen.getByText('Git Flat')).toBeInTheDocument()
+    })
+
+    it('shows the skeleton while the supplier is still loading its projects', async () => {
+        await renderTree({ projects: null })
+
+        expect(getProjectIndex).not.toHaveBeenCalled()
+        expect(screen.queryByText('Design')).not.toBeInTheDocument()
+    })
+
+    it('asks the screen to refresh instead of reading the index when the projects are supplied', async () => {
+        const onRefresh = vi.fn()
+        render(
+            <ProjectsTree
+                onOpenGroup={vi.fn()}
+                onOpenProject={vi.fn()}
+                onRefresh={onRefresh}
+                onShowAll={vi.fn()}
+                projects={projects}
+                repositories={repositories}
+            />
+        )
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        await userEvent.click(screen.getByTestId('projects-tree-refresh'))
+
+        expect(onRefresh).toHaveBeenCalledTimes(1)
+        expect(getProjectIndex).not.toHaveBeenCalled()
+    })
+
     it('unfolds a remembered group without the repository list and without looping', async () => {
         // The project-page rail passes no repositories; an unstable default here once cascaded through
         // the grouping memos into an endless expand-effect loop (React error #185).
@@ -241,12 +280,51 @@ describe('ProjectsTree', () => {
         await userEvent.click(screen.getByText('Design'))
 
         // Picking a group asks the screen for its projects and leaves the tree as it was.
-        expect(onOpenGroup).toHaveBeenCalledWith({ repositories: ['design'], tags: []})
+        expect(onOpenGroup).toHaveBeenCalledWith({ repositories: ['design'], branches: [], tags: []})
         expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
 
         // Unfolding is what the caret is for.
         await userEvent.click(screen.getByTestId('caret-grp/[Repository]=design'))
         expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
+    })
+
+    it('groups by the branch, marks each group with the icon and its default/protected marks, and opens it', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Branch]', '', '']))
+        const branched = [
+            { id: 'p1', name: 'Alpha', repository: 'design', status: ProjectStatus.Editing, branch: 'main', branchDefault: true },
+            { id: 'p2', name: 'Beta', repository: 'flat', status: ProjectStatus.Closed, branch: 'feature/x', branchProtected: true },
+        ] as unknown as Project[]
+
+        const { onOpenGroup } = await renderTree({ projects: branched })
+
+        expect(screen.getByText('main')).toBeInTheDocument()
+        expect(screen.getByTestId('tree-branch-icon-main')).toBeInTheDocument()
+        // Each branch group wears the same marks it wears on a project row.
+        expect(screen.getByTestId('tree-branch-label-main-default')).toBeInTheDocument()
+        expect(screen.getByTestId('tree-branch-label-feature/x-protected')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('main'))
+
+        expect(onOpenGroup).toHaveBeenCalledWith({ repositories: [], branches: ['main'], tags: []})
+    })
+
+    it('marks a branch group from its own projects, so a same-named branch in another repository stays unmarked', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '[Branch]', '']))
+        const branched = [
+            { id: 'p1', name: 'Alpha', repository: 'design', status: ProjectStatus.Editing, branch: 'main', branchDefault: true },
+            { id: 'p2', name: 'Beta', repository: 'flat', status: ProjectStatus.Closed, branch: 'main', branchDefault: false },
+        ] as unknown as Project[]
+
+        await renderTree({ projects: branched })
+
+        // Reveal the branch groups nested under each repository.
+        await userEvent.click(screen.getByTestId('caret-grp/[Repository]=design'))
+        await userEvent.click(screen.getByTestId('caret-grp/[Repository]=flat'))
+
+        // Both repositories rendered a 'main' branch group, but only the design repository's main is default;
+        // the flat repository's same-named main wears no mark.
+        expect(screen.getAllByTestId('tree-branch-icon-main')).toHaveLength(2)
+        expect(screen.getAllByTestId('tree-branch-label-main-default')).toHaveLength(1)
     })
 
     it('remembers the group the user picked and opens the tree on it next time', async () => {

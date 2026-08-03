@@ -1,7 +1,7 @@
 import { readStored, removeStored, writeStored } from '../../utils/localStore'
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Alert, Button, Empty, Skeleton, Tooltip, Tree } from 'antd'
-import { PartitionOutlined, ReloadOutlined, TagOutlined } from '@ant-design/icons'
+import { BranchesOutlined, PartitionOutlined, ReloadOutlined, TagOutlined } from '@ant-design/icons'
 import { createStyles, useTheme } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '../../utils/errorMessage'
@@ -12,11 +12,13 @@ import { STATUS_META } from '../../constants/projectStatusMeta'
 import type { ProjectStatus } from '../../constants/project'
 import { useSharedStyles } from './sharedStyles'
 import { RepoIcon } from './RepoBadge'
+import { BranchMarks } from './BranchMarks'
 import { SearchInput } from '../../components/SearchInput'
 import {
     activeLevels,
     buildGroupTree,
     findNode,
+    GROUP_BY_BRANCH,
     GROUP_BY_REPOSITORY,
     groupKeys,
     pathToNode,
@@ -121,7 +123,18 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-interface ProjectsTreeProps {
+/**
+ * Where the tree gets its projects. The screen either supplies them — and then owns the re-read — or the
+ * tree reads them itself. Supplying projects requires supplying the refresh, so a controlled tree can never
+ * silently read on its own; a single-project page supplies neither.
+ *
+ * `null` supplied means the screen is still loading — the tree shows its skeleton.
+ */
+export type ProjectsSource =
+    | { projects: Project[] | null, onRefresh: () => void }
+    | { projects?: undefined, onRefresh?: undefined }
+
+interface ProjectsTreeBaseProps {
     /**
      * The design repositories, when the screen has read them. The tree names and marks a repository
      * from the projects themselves otherwise, so a user granted a single project — for whom the
@@ -140,6 +153,8 @@ interface ProjectsTreeProps {
     /** What the rail hangs on the header row, beside the actions of the tree itself. */
     headerActions?: ReactNode
 }
+
+type ProjectsTreeProps = ProjectsTreeBaseProps & ProjectsSource
 
 /**
  * One stable value for every render without the prop: a fresh `[]` default would change identity
@@ -161,13 +176,15 @@ export const ProjectsTree = ({
     onShowAll,
     reloadToken,
     headerActions,
+    projects: providedProjects,
+    onRefresh,
 }: ProjectsTreeProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const token = useTheme()
     const [levels, setLevels] = useState<GroupingLevels>(loadGrouping)
-    const [projects, setProjects] = useState<Project[] | null>(null)
+    const [selfProjects, setSelfProjects] = useState<Project[] | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [grouping, setGrouping] = useState(false)
     const [expanded, setExpanded] = useState<string[]>([])
@@ -180,17 +197,27 @@ export const ProjectsTree = ({
     const [search, setSearch] = useState('')
     const [openedOn, setOpenedOn] = useState<string | null>(null)
 
+    // The list supplies the projects it already read; only a single-project page lets the tree read them
+    // itself, so the list screen no longer pulls the same /projects snapshot a second time.
+    const controlled = providedProjects !== undefined
+    const projects = controlled ? providedProjects : selfProjects
+
     const load = useCallback(() => {
         setError(null)
         getProjectIndex()
-            .then(index => setProjects(index.projects))
+            .then(index => setSelfProjects(index.projects))
             .catch((e: unknown) => {
-                setProjects([])
+                setSelfProjects([])
                 setError(errorMessage(e))
             })
     }, [])
 
-    useEffect(load, [load, reloadToken])
+    useEffect(() => {
+        if (controlled) {
+            return
+        }
+        load()
+    }, [controlled, load, reloadToken])
 
     // Every project names and types the repository it lives in, so the groups stay properly titled
     // even when the repository list itself is not readable; the read list wins where both exist.
@@ -274,6 +301,54 @@ export const ProjectsTree = ({
         [currentProjectId, nodes, repoMeta]
     )
 
+    // A repository carries its own icon — a branch, a database, a disk — as it does everywhere else, a
+    // branch group carries the branch mark, and a tag value carries the tag it is.
+    function groupIcon(node: GroupNode): ReactNode {
+        if (node.groupedBy === GROUP_BY_REPOSITORY) {
+            return <RepoIcon type={repoMeta.get(node.value ?? '')?.type} />
+        }
+        if (node.groupedBy === GROUP_BY_BRANCH) {
+            return <BranchesOutlined data-testid={`tree-branch-icon-${node.value}`} />
+        }
+        return <TagOutlined data-testid={`tree-tag-icon-${node.value}`} />
+    }
+
+    // The projects a group holds, gathered from its own subtree.
+    function projectsOf(node: GroupNode): Project[] {
+        return node.project ? [node.project] : node.children.flatMap(projectsOf)
+    }
+
+    // The Default and protected marks a branch group wears, read from the projects it actually holds — so a
+    // protected or default main in one repository never marks a same-named branch grouped under another.
+    function branchMarksOf(node: GroupNode): { isDefault: boolean, isProtected: boolean } {
+        return projectsOf(node).reduce<{ isDefault: boolean, isProtected: boolean }>(
+            (carried, project) => ({
+                isDefault: carried.isDefault || (project.branchDefault ?? false),
+                isProtected: carried.isProtected || (project.branchProtected ?? false),
+            }),
+            { isDefault: false, isProtected: false }
+        )
+    }
+
+    // A branch group reads as its plain name in the tree's own style, with the same Default and protected
+    // marks it wears on a project row; every other group is just its name.
+    function groupTitle(node: GroupNode): ReactNode {
+        if (node.groupedBy === GROUP_BY_BRANCH) {
+            const marks = branchMarksOf(node)
+            return (
+                <>
+                    {node.title}
+                    <BranchMarks
+                        isDefault={marks.isDefault}
+                        isProtected={marks.isProtected}
+                        testId={`tree-branch-label-${node.value}`}
+                    />
+                </>
+            )
+        }
+        return node.title
+    }
+
     function toTreeNode(node: GroupNode): TreeNodeData {
         if (node.project) {
             const project = node.project
@@ -305,21 +380,23 @@ export const ProjectsTree = ({
         }
         return {
             key: node.key,
-            // A repository carries its own icon — a branch, a database, a disk — as it does everywhere
-            // else, and a tag value carries the tag it is.
-            icon: node.groupedBy === GROUP_BY_REPOSITORY
-                ? <RepoIcon type={repoMeta.get(node.value ?? '')?.type} />
-                : <TagOutlined data-testid={`tree-tag-icon-${node.value}`} />,
+            icon: groupIcon(node),
             title: (
-                <span className={styles.node} data-testid={`tree-group-${node.key}`}>{node.title}</span>
+                <span className={styles.node} data-testid={`tree-group-${node.key}`}>{groupTitle(node)}</span>
             ),
             children: node.children.map(child => toTreeNode(child)),
         }
     }
 
     const refresh = () => {
+        // When the screen supplies the projects, it owns the read: ask it to refresh and hand them down.
+        // The controlled shape guarantees a refresh, so a supplied tree never falls back to reading itself.
+        if (controlled) {
+            onRefresh?.()
+            return
+        }
         invalidateProjectIndex()
-        setProjects(null)
+        setSelfProjects(null)
         load()
     }
 

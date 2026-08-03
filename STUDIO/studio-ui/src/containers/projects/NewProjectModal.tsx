@@ -29,7 +29,8 @@ import type { Repository } from '../../types/repositories'
 import type { Project } from '../../types/projects'
 import { FieldError } from '../../components/FieldError'
 import { FieldRow } from '../../components/FieldRow'
-import { SuggestInput } from '../../components/SuggestInput'
+import { BranchSelect } from './BranchSelect'
+import { branchMarksFromConfig } from './configBranchMarks'
 import { RepoFolderInput } from './RepoFolderInput'
 import { ProjectStatus } from '../../constants/project'
 import { useSharedStyles } from './sharedStyles'
@@ -371,12 +372,11 @@ export const NewProjectModal = ({
     const availableBranches = config?.branch && !branchOptions.includes(config.branch)
         ? [config.branch, ...branchOptions]
         : branchOptions
-    const branchError = repositorySupportsBranches
-        ? availableBranches.includes(branch.trim())
-            ? null
-            : validateBranchName(branch, config, t('browser.create.branch_required'),
-                t('browser.create.branch_invalid'))
-        : null
+    const branchKnown = availableBranches.includes(branch.trim())
+    const branchError = !repositorySupportsBranches || branchKnown
+        ? null
+        : validateBranchName(branch, config, t('browser.create.branch_required'),
+            t('browser.create.branch_invalid'))
     const commentError = useCommentError(comment, config)
     const commentSubject = mode === 'copy'
         ? copyableProjectSources.find(candidate => candidate.id === copySource)?.name
@@ -949,11 +949,12 @@ export const NewProjectModal = ({
             </FieldRow>
             {repositorySupportsBranches && (
                 <FieldRow required label={t('browser.create.branch')}>
-                    <SuggestInput
+                    <BranchSelect
+                        allowNew
+                        branchNames={availableBranches}
                         data-testid="new-project-branch"
-                        options={availableBranches.map(value => ({ label: value, value }))}
+                        marksOf={branchMarksFromConfig(config)}
                         placeholder={t('browser.create.branch')}
-                        style={{ width: '100%' }}
                         value={branch}
                         onChange={value => {
                             setBranchTouched(true)

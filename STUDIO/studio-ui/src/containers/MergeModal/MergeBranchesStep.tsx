@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Button, Form, Modal, Space, Spin, Tooltip } from 'antd'
-import { BranchesOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
+import { DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { Select } from '../../components/form'
 import type { ApiCallOptions } from '../../services'
 import { apiCall, ApiHttpError, isApiHttpError } from '../../services'
 import { WIDTH_OF_FORM_LABEL_MODAL } from '../../constants'
 import { BranchInfo, CheckMergeResult, MergeMode, MergeResultResponse } from './types'
 import { MergeBranchLabel } from './MergeBranchLabel'
+import { BranchSelect } from '../projects/BranchSelect'
 
 // A merge check reads the branches; it changes nothing, so it must not drop the projects snapshot.
 const MERGE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true, skipWorkspaceEvent: true }
@@ -60,15 +60,16 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
 
     const isGitRepository = repositoryType === 'repo-git'
 
-    // Filter out current branch from options; a branch reads here exactly as it does everywhere else.
-    const branchOptions = useMemo(() => {
-        return branches
-            .filter(b => b.name !== currentBranch)
-            .map(b => ({
-                value: b.name,
-                label: <MergeBranchLabel branches={branches} name={b.name} testId={`merge-branch-${b.name}`} />,
-            }))
-    }, [branches, currentBranch])
+    // The branches to merge with — every branch but the current one — and the marks each carries.
+    const branchNames = useMemo(
+        () => branches.filter(b => b.name !== currentBranch).map(b => b.name),
+        [branches, currentBranch]
+    )
+    const branchByName = useMemo(() => new Map(branches.map(b => [b.name, b])), [branches])
+    const branchMarks = useCallback((name: string) => {
+        const info = branchByName.get(name)
+        return { isDefault: info?.base, isProtected: info?.protected }
+    }, [branchByName])
 
     /**
      * Why a merge that has something to merge still cannot be performed, or `null` when it can — a bypass
@@ -134,10 +135,9 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
             return
         }
         autoCheckedBranch.current = targetBranch
-        form.setFieldValue('targetBranch', targetBranch)
         setSelectedBranch(targetBranch)
         void checkMergeStatus(targetBranch)
-    }, [canSelectBranch, checkMergeStatus, form, targetBranch])
+    }, [canSelectBranch, checkMergeStatus, targetBranch])
 
     const handleMerge = async (mode: MergeMode) => {
         if (!selectedBranch) return
@@ -232,18 +232,19 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                         testId="merge-current-branch"
                     />
                 </Form.Item>
-                <Select
-                    label={t('merge:branches.target')}
-                    name="targetBranch"
-                    options={branchOptions}
-                    placeholder={t('merge:branches.select_placeholder')}
-                    suffixIcon={<BranchesOutlined />}
-                    onChange={(value) => {
-                        const branch = value as string
-                        setSelectedBranch(branch)
-                        checkMergeStatus(branch)
-                    }}
-                />
+                <Form.Item label={t('merge:branches.target')}>
+                    <BranchSelect
+                        branchNames={branchNames}
+                        data-testid="merge-target-branch"
+                        marksOf={branchMarks}
+                        placeholder={t('merge:branches.select_placeholder')}
+                        value={selectedBranch}
+                        onChange={branch => {
+                            setSelectedBranch(branch)
+                            void checkMergeStatus(branch)
+                        }}
+                    />
+                </Form.Item>
             </Form>
             {mergeError && (
                 <Alert

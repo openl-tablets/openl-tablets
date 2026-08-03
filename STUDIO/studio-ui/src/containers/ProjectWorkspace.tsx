@@ -474,6 +474,10 @@ const groupQuery = (filters: NodeFilters): string => {
     if (filters.repositories.length > 0) {
         params.set('repo', filters.repositories.join(','))
     }
+    // Branch names may contain a comma, so each branch rides as its own param instead of a comma-joined one.
+    for (const branch of filters.branches) {
+        params.append('branch', branch)
+    }
     if (filters.tags.length > 0) {
         params.set('tags', filters.tags.join(','))
     }

@@ -10,6 +10,7 @@ import {
     switchProjectBranch,
     type ProjectBranch,
 } from '../../services/repositories'
+import { SearchInput } from '../../components/SearchInput'
 import { DiscardChangesModal } from '../DiscardChangesModal'
 import { BranchLabel, type BranchTone } from './BranchLabel'
 
@@ -40,6 +41,48 @@ const useStyles = createStyles(({ css, token }) => ({
     caret: css`
         color: ${token.colorTextQuaternary};
         font-size: 10px;
+    `,
+    /**
+     * The popup reads as one card: a fixed width so a long branch name is clipped instead of stretching the
+     * list across the screen, and the list below the search is the card's own body, not a second card
+     * floating under it.
+     */
+    popup: css`
+        min-width: 220px;
+        max-width: 320px;
+        background: ${token.colorBgElevated};
+        border-radius: ${token.borderRadiusLG}px;
+        box-shadow: ${token.boxShadowSecondary};
+        overflow: hidden;
+
+        /* The list is this card's own body, not a second card floating under the search. */
+        .ant-dropdown-menu {
+            box-shadow: none;
+            background: transparent;
+            border-radius: 0;
+            padding: 4px 0;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .ant-dropdown-menu-item {
+            max-width: 100%;
+        }
+
+        /* A long branch name is clipped to the fixed width instead of stretching the popup. */
+        .ant-dropdown-menu-title-content {
+            min-width: 0;
+            overflow: hidden;
+        }
+    `,
+    search: css`
+        padding: 8px;
+        border-bottom: 1px solid ${token.colorBorderSecondary};
+    `,
+    empty: css`
+        padding: 12px;
+        color: ${token.colorTextTertiary};
+        text-align: center;
     `,
 }))
 
@@ -80,6 +123,7 @@ export const BranchSwitcher = ({
     const [loading, setLoading] = useState(false)
     const [switching, setSwitching] = useState(false)
     const [discardSwitchBranch, setDiscardSwitchBranch] = useState<string | null>(null)
+    const [query, setQuery] = useState('')
     const projectIdRef = useRef(projectId)
 
     useEffect(() => {
@@ -87,6 +131,7 @@ export const BranchSwitcher = ({
         setBranchInfo(null)
         setLoading(false)
         setDiscardSwitchBranch(null)
+        setQuery('')
     }, [projectId])
 
     const loadBranches = async () => {
@@ -145,6 +190,11 @@ export const BranchSwitcher = ({
 
     const current = <BranchLabel withIcon name={currentBranch} testId={testId} tone={tone} {...marksOf(currentBranch)} />
 
+    const needle = query.trim().toLowerCase()
+    const filteredBranches = needle
+        ? (branchInfo ?? []).filter(branch => branch.name.toLowerCase().includes(needle))
+        : branchInfo ?? []
+
     const discardModal = (
         <DiscardChangesModal
             cancelButtonTestId={`${testId}-discard-switch-cancel`}
@@ -168,7 +218,7 @@ export const BranchSwitcher = ({
             <Dropdown
                 trigger={['click']}
                 menu={{
-                    items: (branchInfo ?? []).map(branch => ({
+                    items: filteredBranches.map(branch => ({
                         key: branch.name,
                         label: branchLabel(branch.name),
                     })),
@@ -176,10 +226,29 @@ export const BranchSwitcher = ({
                     onClick: ({ key }) => void switchTo(key),
                 }}
                 onOpenChange={open => {
+                    setQuery('')
                     if (open) {
                         void loadBranches()
                     }
                 }}
+                popupRender={menu => (
+                    <div className={styles.popup}>
+                        {/* Search sits at the top of the list: heavy repositories carry many branches, so the
+                            list filters as the user types (client-side over the already-loaded branches). */}
+                        <div className={styles.search}>
+                            <SearchInput
+                                autoFocus
+                                data-testid={`${testId}-search`}
+                                onChange={event => setQuery(event.target.value)}
+                                placeholder={t('browser.branch.filter')}
+                                value={query}
+                            />
+                        </div>
+                        {needle && filteredBranches.length === 0
+                            ? <div className={styles.empty}>{t('browser.branch.no_match')}</div>
+                            : menu}
+                    </div>
+                )}
             >
                 <button
                     className={styles.trigger}

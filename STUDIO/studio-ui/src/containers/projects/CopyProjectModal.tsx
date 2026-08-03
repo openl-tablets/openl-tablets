@@ -11,7 +11,8 @@ import {
 } from '../../services/repositories'
 import { FieldError } from '../../components/FieldError'
 import { FieldRow } from '../../components/FieldRow'
-import { SuggestInput } from '../../components/SuggestInput'
+import { BranchSelect } from './BranchSelect'
+import { branchMarksFromConfig } from './configBranchMarks'
 import { RepoFolderInput } from './RepoFolderInput'
 import { useProjectRevisions } from './revisions'
 import type { Project } from '../../types/projects'
@@ -85,12 +86,11 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     const availableTargetBranches = targetConfig?.branch && !targetBranchOptions.includes(targetConfig.branch)
         ? [targetConfig.branch, ...targetBranchOptions]
         : targetBranchOptions
-    const targetBranchError = targetSupportsBranches
-        ? availableTargetBranches.includes(targetBranch.trim())
-            ? null
-            : validateBranchName(targetBranch, targetConfig, t('browser.create.branch_required'),
-                t('browser.create.branch_invalid'))
-        : null
+    const targetBranchKnown = availableTargetBranches.includes(targetBranch.trim())
+    const targetBranchError = !targetSupportsBranches || targetBranchKnown
+        ? null
+        : validateBranchName(targetBranch, targetConfig, t('browser.create.branch_required'),
+            t('browser.create.branch_invalid'))
 
     useEffect(() => {
         if (!open || !project) {
@@ -340,11 +340,12 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
                         </FieldRow>
                         {targetSupportsBranches && (
                             <FieldRow required label={t('browser.create.branch')} labelWidth={LABEL_WIDTH}>
-                                <SuggestInput
+                                <BranchSelect
+                                    allowNew
+                                    branchNames={availableTargetBranches}
                                     data-testid="copy-project-target-branch"
-                                    options={availableTargetBranches.map(value => ({ label: value, value }))}
+                                    marksOf={branchMarksFromConfig(targetConfig)}
                                     placeholder={t('browser.create.branch')}
-                                    style={{ width: '100%' }}
                                     value={targetBranch}
                                     onChange={value => {
                                         setTargetBranchTouched(true)
