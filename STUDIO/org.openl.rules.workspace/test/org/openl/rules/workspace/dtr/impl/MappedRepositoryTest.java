@@ -84,8 +84,7 @@ class MappedRepositoryTest {
     @Test
     void nonBaseBranchUsesRequestedMappedFolderForANewProject() throws Exception {
         var feature = branchRepository("feature", "existing/project", "Existing");
-        var mapped = MappedRepository.create(feature, "DESIGN/");
-        try {
+        try (var mapped = MappedRepository.create(feature, "DESIGN/")) {
             var project = fileData("DESIGN/NewProject");
             project.addAdditionalData(FileMappingData.forProject(
                     "DESIGN/NewProject", "custom/path", "NewProject"));
@@ -99,8 +98,6 @@ class MappedRepositoryTest {
             var folderCaptor = org.mockito.ArgumentCaptor.forClass(FileData.class);
             verify(feature).save(folderCaptor.capture(), any(), eq(ChangesetType.FULL));
             assertEquals("custom/path/NewProject", folderCaptor.getValue().getName());
-        } finally {
-            mapped.close();
         }
     }
 
