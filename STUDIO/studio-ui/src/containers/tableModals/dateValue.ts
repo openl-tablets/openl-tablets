@@ -22,9 +22,9 @@ export const datePickerFormatForLocale = (locale?: string): string =>
 
 /** Parses the ISO date representation stored in a table cell. */
 export const parseDateValue = (value: unknown): Dayjs | null => {
-    if (!value) {
+    if (typeof value !== 'string' || !value) {
         return null
     }
-    const parsed = dayjs(String(value), ISO_DATE_FORMAT, true)
+    const parsed = dayjs(value, ISO_DATE_FORMAT, true)
     return parsed.isValid() ? parsed : null
 }

@@ -196,7 +196,7 @@ describe('CopyTableModal', () => {
     })
 
     it('reads raw cells and creates the copy through the ordinary table write request', async () => {
-        const user = userEvent.setup()
+        const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         const onSuccess = await openModal()
 
@@ -245,7 +245,7 @@ describe('CopyTableModal', () => {
     })
 
     it('allows a copy to keep the source table name', async () => {
-        const user = userEvent.setup()
+        const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
         await waitFor(() => expect(screen.getByTestId('copy-table-name')).toHaveValue('Eligibility'))
@@ -259,7 +259,7 @@ describe('CopyTableModal', () => {
     })
 
     it('shows enum values but writes their codes', async () => {
-        const user = userEvent.setup()
+        const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
         await waitFor(() => expect(screen.getByTestId('copy-table-property-row-2')).toBeInTheDocument())
@@ -278,7 +278,7 @@ describe('CopyTableModal', () => {
     })
 
     it('adds properties with the same trailing-row behavior as Spreadsheet arguments', async () => {
-        const user = userEvent.setup()
+        const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
         await waitFor(() => expect(screen.getByTestId('copy-table-property-row-2')).toBeInTheDocument())
@@ -303,7 +303,7 @@ describe('CopyTableModal', () => {
     })
 
     it('uses the Create Table module and sheet behavior for a new module', async () => {
-        const user = userEvent.setup()
+        const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
         await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
@@ -326,7 +326,7 @@ describe('CopyTableModal', () => {
     })
 
     it('does not submit an incomplete or duplicated property row', async () => {
-        const user = userEvent.setup()
+        const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
         await waitFor(() => expect(screen.getByTestId('copy-table-property-row-2')).toBeInTheDocument())
