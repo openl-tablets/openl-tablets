@@ -1,11 +1,12 @@
 import { notification } from 'antd'
 import i18n from '../i18n'
 import type {
+    CopyTableRequest,
     CreateTableRequest,
     ProjectDatatype,
     ProjectTable,
-    RawTable,
     SummaryTable,
+    TableCopyInfo,
 } from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
 import apiCall, { asArray } from './apiCall'
@@ -20,14 +21,14 @@ interface TableWriteMessages {
     missingTable: string
 }
 
-const writeTable = async (
-    projectId: string,
-    request: CreateTableRequest,
+const writeTable = async <T>(
+    url: string,
+    request: T,
     messages: TableWriteMessages
 ): Promise<SummaryTable | null> => {
     try {
         const table = await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/tables`,
+            url,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -101,30 +102,40 @@ export const getDatatype = async (projectId: string, tableId: string): Promise<P
 export const createTable = async (
     projectId: string,
     request: CreateTableRequest
-): Promise<SummaryTable | null> => writeTable(projectId, request, {
+): Promise<SummaryTable | null> => writeTable(`/projects/${toUrlSafeId(projectId)}/tables`, request, {
     successTitle: i18n.t('project:create_table_modal.created'),
     successDescription: table => i18n.t('project:create_table_modal.created_description', { table }),
     failureTitle: i18n.t('project:create_table_modal.create_failed'),
     missingTable: i18n.t('project:create_table_modal.created_table_not_found'),
 })
 
-/** Read the exact cell matrix that the browser uses to create a copy. */
-export const getTableRaw = async (
+/**
+ * The source table's name, kind and its own properties, read for the copy dialog.
+ *
+ * <p>It carries none of the table's rows, so a table of any size is read cheaply — the whole table stays on the
+ * server and is copied there by id.
+ */
+export const getTableCopyInfo = async (
     projectId: string,
     tableId: string
-): Promise<RawTable> => apiCall(
-    `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}?raw=true`,
+): Promise<TableCopyInfo> => apiCall(
+    `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/properties`,
     undefined,
     TABLE_API_OPTIONS
-) as Promise<RawTable>
+) as Promise<TableCopyInfo>
 
-/** Write a browser-built copy through the ordinary Create Table endpoint. */
-export const createTableCopy = async (
+/** Copy a table on the server by its id, without sending the table content. */
+export const copyTable = async (
     projectId: string,
-    request: CreateTableRequest
-): Promise<SummaryTable | null> => writeTable(projectId, request, {
-    successTitle: i18n.t('project:copy_table_modal.copied'),
-    successDescription: table => i18n.t('project:copy_table_modal.copied_description', { table }),
-    failureTitle: i18n.t('project:copy_table_modal.copy_failed'),
-    missingTable: i18n.t('project:copy_table_modal.copied_table_not_found'),
-})
+    tableId: string,
+    request: CopyTableRequest
+): Promise<SummaryTable | null> => writeTable(
+    `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/copy`,
+    request,
+    {
+        successTitle: i18n.t('project:copy_table_modal.copied'),
+        successDescription: table => i18n.t('project:copy_table_modal.copied_description', { table }),
+        failureTitle: i18n.t('project:copy_table_modal.copy_failed'),
+        missingTable: i18n.t('project:copy_table_modal.copied_table_not_found'),
+    }
+)

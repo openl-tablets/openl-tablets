@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "eb371809463ad5de586563bd08dbdef9",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "BankLimitIndex",
+      "returnType": "Double",
+      "signature": "BankLimitIndex (String bank, String bankRatingGroup)",
+      "file": "EPBDS-16358/BankLimits.xlsx",
+      "pos": "B22:H30"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

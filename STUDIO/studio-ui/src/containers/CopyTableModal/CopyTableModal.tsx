@@ -7,8 +7,8 @@ import { IconAction } from 'components/IconAction'
 import { SuggestInput } from 'components/SuggestInput'
 import { useGlobalEvents } from 'hooks'
 import { getModuleSheets, getProjectModules, getProjectProperties } from 'services/projects'
-import { createTableCopy, getTableRaw } from 'services/tables'
-import type { ProjectProperty, RawTable, SummaryTable } from 'types/tables'
+import { copyTable, getTableCopyInfo } from 'services/tables'
+import type { ProjectProperty, SummaryTable, TableCopyInfo } from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
 import {
     asOptions,
@@ -25,8 +25,13 @@ import {
 import { useSharedStyles } from '../tableModals/sharedStyles'
 import { useSheetLoader } from '../tableModals/useSheetLoader'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
-import { buildCopySource, readTableProperties, type TablePropertyInput } from './copyTableSource'
 import { useStyles } from './CopyTableModal.styles'
+
+/** A property row being edited: its value is whatever {@link PropertyValueInput} produces for the property's type. */
+interface TablePropertyInput {
+    name: string
+    value: string | number | boolean | null
+}
 
 const blankProperty = (): TablePropertyInput => ({ name: '', value: '' })
 
@@ -53,7 +58,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
     const { t } = useTranslation()
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
-    const [sourceTable, setSourceTable] = useState<RawTable | null>(null)
+    const [sourceInfo, setSourceInfo] = useState<TableCopyInfo | null>(null)
     const [modules, setModules] = useState<ModuleOption[]>([])
     const [projectProperties, setProjectProperties] = useState<ProjectProperty[]>([])
     const [tableName, setTableName] = useState('')
@@ -73,30 +78,30 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
     // test adapters and would also discard input when translations are reloaded.
     React.useEffect(() => {
         let active = true
-        const sourceRequest = getTableRaw(detail.projectId, detail.sourceTableId)
+        const infoRequest = getTableCopyInfo(detail.projectId, detail.sourceTableId)
         Promise.all([
-            sourceRequest,
+            infoRequest,
             getProjectModules(detail.projectId),
-            sourceRequest.then(table => getProjectProperties(detail.projectId, table.kind)),
+            infoRequest.then(info => getProjectProperties(detail.projectId, info.kind)),
             detail.currentModuleName
                 ? getModuleSheets(detail.projectId, detail.currentModuleName).catch(() => [])
                 : Promise.resolve<string[]>([]),
         ])
-            .then(([table, loadedModules, loadedProperties, currentSheets]) => {
+            .then(([info, loadedModules, loadedProperties, currentSheets]) => {
                 if (!active) {
                     return
                 }
                 const available = toModuleOptions(loadedModules)
                 const current = available.find(module => module.name === detail.currentModuleName)
                 const destination = current?.name ?? available[0]?.name ?? ''
-                setSourceTable(table)
+                setSourceInfo(info)
                 setModules(available)
                 setProjectProperties(loadedProperties)
-                setTableName(table.name)
-                setSheetName(table.name)
+                setTableName(info.name)
+                setSheetName(info.name)
                 const applicableNames = new Set(loadedProperties.map(property => property.name))
                 setProperties(normalizeProperties(
-                    readTableProperties(table.source).filter(property => applicableNames.has(property.name))
+                    (info.properties ?? []).filter(property => applicableNames.has(property.name))
                 ))
                 setSelectedModule(destination)
                 if (currentSheets.length && destination === detail.currentModuleName) {
@@ -138,7 +143,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
     const propertyNames = submittedProperties.map(property => property.name.trim().toLocaleLowerCase())
     const propertyNamesUnique = new Set(propertyNames).size === propertyNames.length
     const valid = Boolean(
-        sourceTable
+        sourceInfo
         && IDENTIFIER.test(tableName.trim())
         && moduleName
         && isValidSheetName(sheetName)
@@ -184,22 +189,21 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
         changeProperties(current => deleteAt(current, index))
 
     const handleCopy = async () => {
-        if (!sourceTable || !valid || copying) {
+        if (!sourceInfo || !valid || copying) {
             return
         }
         setCopying(true)
         try {
             const copyName = tableName.trim()
-            const table = await createTableCopy(detail.projectId, {
+            const table = await copyTable(detail.projectId, detail.sourceTableId, {
                 moduleName,
                 sheetName: sheetName.trim(),
-                ...(isNewModule ? { modulePath: defaultModulePath(moduleName, sourceTable.kind) } : {}),
-                table: {
-                    tableType: 'RawSource',
-                    kind: sourceTable.kind,
-                    name: copyName,
-                    source: buildCopySource(sourceTable, copyName, submittedProperties),
-                },
+                ...(isNewModule ? { modulePath: defaultModulePath(moduleName, sourceInfo.kind) } : {}),
+                name: copyName,
+                properties: submittedProperties.map(property => ({
+                    name: property.name.trim(),
+                    value: property.value == null ? null : String(property.value),
+                })),
             })
             if (table) {
                 close()
@@ -232,7 +236,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
             title={(
                 <Space>
                     <CopyOutlined />
-                    {t('project:copy_table_modal.title', { table: sourceTable?.name ?? '' })}
+                    {t('project:copy_table_modal.title', { table: sourceInfo?.name ?? '' })}
                 </Space>
             )}
         >

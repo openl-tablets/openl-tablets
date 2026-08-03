@@ -117,7 +117,12 @@ When opening a Data Table in the same project, these properties are not availabl
 *The Decision table properties that are not available for a Data table*
 
 The **Copy table** window reads the properties explicitly defined on the source table. It displays them as editable
-property name and value rows and suggests the property names declared by the project.
+property name and value rows and suggests the property names declared by the project. The copy keeps the source table's
+formatting — its cell styles, merged cells and comments.
+
+To create a variant of a rule that OpenL selects at runtime from the request context, keep the source table's name and
+give the copy a different value for a dimensional property, such as **state** or **lob**. The copy is created with its
+properties already set, so the two same-named tables are told apart from the start.
 
 To add a new property for the selected table, perform the following steps:
 

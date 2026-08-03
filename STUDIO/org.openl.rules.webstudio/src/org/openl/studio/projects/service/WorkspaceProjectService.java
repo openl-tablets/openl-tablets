@@ -99,11 +99,13 @@ import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.project.status.DetailedMessageDescription;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
+import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
@@ -112,7 +114,9 @@ import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
+import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
@@ -156,6 +160,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final BeanValidationProvider validationProvider;
     private final TableWriterExecutor tableWriterExecutor;
     private final TableCreatorService tableCreatorService;
+    private final TableCopyService tableCopyService;
+    private final TablePropertiesService tablePropertiesService;
     private final ProjectMetadataService metadataService;
     private final TableWritersFactory tableWritersFactory;
     private final ApplicationEventPublisher eventPublisher;
@@ -179,6 +185,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory,
             BeanValidationProvider validationProvider,
             TableCreatorService tableCreatorService,
+            TableCopyService tableCopyService,
+            TablePropertiesService tablePropertiesService,
             ProjectMetadataService metadataService,
             TableWriterExecutor tableWriterExecutor,
             TableWritersFactory tableWritersFactory,
@@ -203,6 +211,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.newBranchValidatorFactory = newBranchValidatorFactory;
         this.validationProvider = validationProvider;
         this.tableCreatorService = tableCreatorService;
+        this.tableCopyService = tableCopyService;
+        this.tablePropertiesService = tablePropertiesService;
         this.metadataService = metadataService;
         this.tableWriterExecutor = tableWriterExecutor;
         this.tableWritersFactory = tableWritersFactory;
@@ -1688,6 +1698,21 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
+     * Get a table's name, kind and its own properties, without reading the body.
+     * <p>
+     * The copy dialog prefills the copy's name and properties from this, so a table of any size is read cheaply.
+     *
+     * @param project project
+     * @param tableId table id
+     * @return the table's name, kind and defined properties
+     */
+    public TablePropertiesView getTableProperties(RulesProject project, String tableId) {
+        var table = getOpenLTable(project, tableId).table();
+        var summary = summaryTableReader.read(table);
+        return new TablePropertiesView(summary.name, summary.kind, tablePropertiesService.read(table));
+    }
+
+    /**
      * Get the modules the project declares.
      *
      * <p>One entry per module, patterns already resolved to the files they matched.
@@ -1852,6 +1877,86 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return tableCreatorService.createTable(createTableRequest, projectModel);
     }
 
+    /**
+     * Copy a table into a module of the currently opened project, preserving its formatting.
+     * <p>
+     * The table stays on the server, resolved by its id. It is rebuilt on the destination sheet the way the table
+     * editor writes a new table: the body is copied with its styles, merged cells and comments, the header is renamed
+     * after the request, and the properties are the requested ones or — when none are given — the source's own. The
+     * copy is laid out in one pass, so a copy that keeps the source's name never exists as an indistinguishable
+     * duplicate.
+     *
+     * <p>The returned identifier is the copy's own, even when it shares the source's name — a copy kept under the same
+     * name is a new version told apart by its properties, and its identifier reflects its position, not its name.
+     *
+     * @param project       project
+     * @param sourceTableId id of the table to copy
+     * @param request       the copy request
+     * @return the copy's identifier, or {@code null} for a newly created module
+     * @throws ProjectException if project is locked by another user
+     */
+    public @Nullable String copyTable(RulesProject project,
+                                      String sourceTableId,
+                                      CopyTableRequest request) throws ProjectException {
+        requireGranted(project, BasePermission.WRITE);
+        // Resolve the source (with its live grid) before opening the destination module. The resolved POI grid stays
+        // valid across the reopen — the copy only reads it — so a copy into another module still sees the source cells.
+        var source = getOpenLTable(project, sourceTableId).table();
+        var sheetName = Optional.ofNullable(request.sheetName()).filter(StringUtils::isNotBlank).orElseGet(request::name);
+        if (StringUtils.isNotBlank(request.modulePath())) {
+            return copyIntoNewModule(project, source, request, sheetName);
+        }
+        var projectModel = openProject(project, request.moduleName()).awaitCompiled();
+        getWebStudio().getCurrentProject().tryLockOrThrow();
+        return writeCopy(projectModel, source, request, sheetName);
+    }
+
+    /** Rebuild the copy on {@code sheetName} of the already-compiled destination module and persist it. */
+    private String writeCopy(ProjectModel projectModel, IOpenLTable source, CopyTableRequest request,
+                             String sheetName) {
+        var destGrid = tableCreatorService.sheetGridModel(projectModel, sheetName);
+        var copyId = tableCopyService.copyInto(source, request.name(), request.properties(), destGrid);
+        tableCreatorService.save(destGrid);
+        return copyId;
+    }
+
+    /**
+     * Copy a table into a module that does not exist yet.
+     * <p>
+     * The module is created empty and registered, then the copy is written into it. The copy's identifier is unknown
+     * until the project is recompiled, so it is found after the write by name.
+     *
+     * @return {@code null}, so the caller resolves the copy by name
+     */
+    private @Nullable String copyIntoNewModule(RulesProject project,
+                                               IOpenLTable source,
+                                               CopyTableRequest request,
+                                               String sheetName) throws ProjectException {
+        var lockedBefore = project.isLockedByMe();
+        project.tryLockOrThrow();
+        boolean moduleCreated = false;
+        try {
+            var projectDescriptor = getProjectDescriptor(project);
+            requireModuleAbsent(projectDescriptor.getModules(), request.moduleName(), request.modulePath());
+            tableCreatorService.createEmptyModule(project, projectDescriptor, request.moduleName(),
+                    request.modulePath(), sheetName);
+            moduleCreated = true;
+            // Recompile so the empty module carries a sheet to write into, then rebuild the copy there.
+            getWebStudio().reset();
+            var projectModel = openProject(project, request.moduleName()).awaitCompiled();
+            writeCopy(projectModel, source, request, sheetName);
+            return null;
+        } catch (RuntimeException | ProjectException e) {
+            // The write can fail after the empty module is registered — unlike the atomic create path. Remove the
+            // module so no phantom lingers to block a retry, and release the lock this request took.
+            if (moduleCreated) {
+                tableCreatorService.deleteModule(project, request.moduleName(), request.modulePath());
+            }
+            releaseLockTaken(project, lockedBefore);
+            throw e;
+        }
+    }
+
     private void createTableInNewModule(RulesProject project,
                                         CreateNewTableRequest createTableRequest) throws ProjectException {
         if (!(createTableRequest.table() instanceof RawTableView rawTable)) {
@@ -1864,16 +1969,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         ProjectDescriptor projectDescriptor;
         try {
             projectDescriptor = getProjectDescriptor(project);
-            var modules = projectDescriptor.getModules();
-            if (modules.stream()
-                    .map(Module::getName)
-                    .filter(Objects::nonNull)
-                    .anyMatch(createTableRequest.moduleName()::equalsIgnoreCase)) {
-                throw new ConflictException("table.new-module.exists.message", createTableRequest.moduleName());
-            }
-            if (declaresPath(modules, createTableRequest.modulePath())) {
-                throw new ConflictException("table.new-module.exists.message", createTableRequest.modulePath());
-            }
+            requireModuleAbsent(projectDescriptor.getModules(), createTableRequest.moduleName(),
+                    createTableRequest.modulePath());
             var newTableName = rawTable.name;
             // Required whether or not the project has a module to compile first: without a name the table is written
             // and then cannot be found again, which answers a successful create with an empty body.
@@ -1892,6 +1989,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private static void releaseLockTaken(RulesProject project, boolean lockedBefore) {
         if (!lockedBefore && project.isLockedByMe()) {
             project.unlock();
+        }
+    }
+
+    /** Rejects a new module whose name or path already resolves in the project. */
+    private static void requireModuleAbsent(List<Module> modules, String moduleName, @Nullable String modulePath) {
+        if (modules.stream().map(Module::getName).filter(Objects::nonNull).anyMatch(moduleName::equalsIgnoreCase)) {
+            throw new ConflictException("table.new-module.exists.message", moduleName);
+        }
+        if (declaresPath(modules, modulePath)) {
+            throw new ConflictException("table.new-module.exists.message", modulePath);
         }
     }
 

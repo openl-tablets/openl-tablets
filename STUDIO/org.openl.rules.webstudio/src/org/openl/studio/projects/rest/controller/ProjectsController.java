@@ -78,12 +78,14 @@ import org.openl.studio.projects.model.ProjectsPageResponse;
 import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
+import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableIdView;
 import org.openl.studio.projects.model.tables.TableNodeView;
+import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
@@ -389,6 +391,23 @@ public class ProjectsController {
         return projectService.getCreatedTable(project, request.moduleName(), tableId, table.name);
     }
 
+    @Operation(summary = "projects.tables.copy.summary", description = "projects.tables.copy.desc")
+    @Parameter(name = "projectId", description = "projects.param.project-id.desc", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
+    @PostMapping("/{projectId}/tables/{tableId}/copy")
+    @ResponseStatus(HttpStatus.CREATED)
+    public SummaryTableView copyTable(@ProjectId @PathVariable("projectId") RulesProject project,
+                                      @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                      @Valid @RequestBody CopyTableRequest request) throws ProjectException {
+        String copyId;
+        try {
+            copyId = projectService.copyTable(project, tableId, request);
+        } finally {
+            getWebStudio().reset();
+        }
+        // Read the copy back by its own id: a copy kept under the source's name cannot be told apart by name.
+        return projectService.getCreatedTable(project, request.moduleName(), copyId, request.name());
+    }
+
     @GetMapping("/{projectId}/modules")
     @Operation(summary = "projects.modules.list.summary")
     public List<ModuleViewModel> getModules(@ProjectId @PathVariable("projectId") RulesProject project) {
@@ -442,6 +461,13 @@ public class ProjectsController {
             return projectService.getTableRaw(project, tableId, startRow, maxRows, styles);
         }
         return (EditableTableView) projectService.getTable(project, tableId);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/properties")
+    @Operation(summary = "projects.table.properties.summary", description = "projects.table.properties.desc")
+    public TablePropertiesView getTableProperties(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                  @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId) {
+        return projectService.getTableProperties(project, tableId);
     }
 
     @GetMapping("/{projectId}/tables/graph")

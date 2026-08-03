@@ -1,0 +1,14 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "*",
+  "fields": [
+    {
+      "code": "openl.error.CellValueConstraint",
+      "message": "*",
+      "field": "table.source[3][1].value",
+      "rejectedValue": ["R1"]
+    }
+  ]
+}

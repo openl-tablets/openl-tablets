@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.studio.projects.model.tables.TableGraphNodeKind;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 
@@ -109,7 +110,7 @@ class ProjectTablesGraphServiceTest {
     void dispatcherBecomesATechnicalNode() {
         var byName = byName(service.buildProjectGraph(projectModel, false));
         var dispatcher = byName.get("mySPR");
-        assertEquals("Dispatcher", dispatcher.kind);
+        assertEquals(TableGraphNodeKind.DISPATCHER, dispatcher.kind);
         assertNotNull(dispatcher.project);
         // the dispatcher fans out to the overloaded versions...
         assertEquals(Set.of(byName.get("mySPR [state=AR]").id, byName.get("mySPR [state=AZ]").id),

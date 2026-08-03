@@ -9,13 +9,43 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * A node of the project tables dependency graph.
  *
- * <p>Extends {@link SummaryTableView} with the owning project name and the table's relations to other tables. Summary
- * fields that are not relevant to the graph are left unset and omitted from the response.
+ * <p>Carries the summary fields of the table it stands for plus the owning project name and the table's relations to
+ * other tables. Its {@link #kind} is a {@link TableGraphNodeKind} rather than a {@link TableKind}, because a node can
+ * also be the synthetic dispatcher of same-named versions, which is not a table. It does not extend
+ * {@link SummaryTableView}: the fields are declared here so the schema can carry the graph node kind, which the shared
+ * summary kind cannot. Summary fields that are not relevant to the graph are left unset and omitted from the response.
  *
  * @author Vladyslav Pikus
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class TableNodeView extends SummaryTableView {
+public class TableNodeView {
+
+    @Schema(description = "Unique identifier of the table")
+    public final String id;
+
+    @Schema(description = "Type of the table (e.g., 'Datatype', 'Vocabulary', 'Spreadsheet', etc.)")
+    public final String tableType;
+
+    @Schema(description = "Kind of the graph node")
+    public final TableGraphNodeKind kind;
+
+    @Schema(description = "Name of the table")
+    public final String name;
+
+    @Schema(description = "Custom properties associated with the table")
+    public final Map<String, Object> properties;
+
+    @Schema(description = "Return type of the table (e.g., Integer, String, etc.)")
+    public final String returnType;
+
+    @Schema(description = "Signature of the table")
+    public final String signature;
+
+    @Schema(description = "File where the table is located")
+    public final String file;
+
+    @Schema(description = "Position of the table within the file")
+    public final String pos;
 
     @Schema(description = "Name of the project that owns the table")
     public final String project;
@@ -32,58 +62,70 @@ public class TableNodeView extends SummaryTableView {
     public final Map<String, String> dimensionProperties;
 
     private TableNodeView(Builder builder) {
-        super(builder.summary);
+        this.id = builder.id;
+        this.tableType = builder.tableType;
+        this.kind = builder.kind;
+        this.name = builder.name;
+        this.properties = builder.properties;
+        this.returnType = builder.returnType;
+        this.signature = builder.signature;
+        this.file = builder.file;
+        this.pos = builder.pos;
         this.project = builder.project;
         this.dependencies = builder.dependencies;
         this.dependents = builder.dependents;
         this.dimensionProperties = builder.dimensionProperties;
     }
 
-    /**
-     * Builder that reuses {@link SummaryTableView.Builder} for the inherited summary fields and adds the graph-specific
-     * ones. Kept as a thin wrapper so that {@link SummaryTableView} stays free of any graph concerns.
-     */
     public static final class Builder {
-        private final SummaryTableView.Builder summary = SummaryTableView.builder();
+        private String id;
+        private String tableType;
+        private TableGraphNodeKind kind;
+        private String name;
+        private Map<String, Object> properties;
+        private String returnType;
+        private String signature;
+        private String file;
+        private String pos;
         private String project;
         private Set<String> dependencies;
         private Set<String> dependents;
         private Map<String, String> dimensionProperties;
 
         /**
-         * Copies every {@link SummaryTableView} field from an already-read table view. Graph-specific fields (project,
-         * dependencies, dependents) and any id/name override are applied separately afterwards.
+         * Copies every {@link SummaryTableView} field except the kind — the graph node's kind is set separately,
+         * because it can be the dispatcher rather than a table kind. Graph-specific fields (project, dependencies,
+         * dependents) and any id/name override are applied afterwards.
          */
         public Builder summary(SummaryTableView source) {
-            summary.id(source.id)
-                    .name(source.name)
-                    .kind(source.kind)
-                    .tableType(source.tableType)
-                    .properties(source.properties)
-                    .returnType(source.returnType)
-                    .signature(source.signature)
-                    .file(source.file)
-                    .pos(source.pos);
+            this.id = source.id;
+            this.name = source.name;
+            this.tableType = source.tableType;
+            this.properties = source.properties;
+            this.returnType = source.returnType;
+            this.signature = source.signature;
+            this.file = source.file;
+            this.pos = source.pos;
             return this;
         }
 
         public Builder id(String id) {
-            summary.id(id);
+            this.id = id;
             return this;
         }
 
         public Builder name(String name) {
-            summary.name(name);
+            this.name = name;
             return this;
         }
 
-        public Builder kind(String kind) {
-            summary.kind(kind);
+        public Builder kind(TableGraphNodeKind kind) {
+            this.kind = kind;
             return this;
         }
 
         public Builder tableType(String tableType) {
-            summary.tableType(tableType);
+            this.tableType = tableType;
             return this;
         }
 
