@@ -119,4 +119,13 @@ interface LegacyService {
 } catch (Throwable e) {
     e.printStackTrace()
     return false
+} finally {
+    // The assertions above are the last users of the repository setup.groovy created here. Git stores its
+    // objects read-only and Windows refuses to delete a read-only file, so leaving the repository behind
+    // would make the next `mvn clean` fail on this folder.
+    def gitDir = new File(basedir, '.git')
+    if (gitDir.isDirectory()) {
+        gitDir.eachFileRecurse { it.setWritable(true) }
+        assert gitDir.deleteDir() : "cannot delete the fixture repository ${gitDir} — `mvn clean` would fail on it"
+    }
 }
