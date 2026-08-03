@@ -1573,6 +1573,12 @@
                     <upToDateChecking>
                         <enabled>true</enabled>
                     </upToDateChecking>
+                    <!-- Resolve the line ending per file. The plugin default, GIT_ATTRIBUTES_FAST_ALLSAME,
+                         resolves only the first file of a format and reuses that answer for the rest. Formats
+                         here span both '* text=auto' paths and paths pinned to 'eol=lf' by .gitattributes, so
+                         that shortcut rewrites the whole format to one ending. On Windows, where 'text=auto'
+                         checks out as CRLF, it turned every such file into a spurious modification. -->
+                    <lineEndings>GIT_ATTRIBUTES</lineEndings>
                     <java>
                         <includes>
                             <include>**/*.java</include>
@@ -1666,7 +1672,6 @@
                     </pom>
                     <formats>
                         <format>
-                            <lineEndings>GIT_ATTRIBUTES</lineEndings>
                             <includes>
                                 <include>**/*.ts</include>
                                 <include>**/*.tsx</include>
