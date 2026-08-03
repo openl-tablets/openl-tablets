@@ -5,8 +5,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 ## Resume point
 
 - Every queue row is done and every vein below is closed. New scope arrives only as new commits on `main`; the
-  incremental sweep is current through `e605fe8b`. Diff `git log --name-status e605fe8b..origin/main`, sweep only
+  incremental sweep is current through `23399ada`. Diff `git log --name-status 23399ada..origin/main`, sweep only
   the source files it touches, skip webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Never invent a detector.
+- A feature commit that deletes a screen is the richest incremental vein: check the locale keys, service functions
+  and helper modules it used, and the `throws` clauses it dropped, before assuming the author cleaned up.
 - #1940 carries the whole sweep, is green on all 12 Actions checks, has no unanswered comment, and waits on a human
   review this routine cannot supply. Do not nudge it, do not re-argue the SonarCloud gate, do not comment to
   restate a green status — the description carries it.
@@ -66,6 +68,12 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - `STUDIO/org.openl.rules.tableeditor` `taglib/TableEditorTag.java` (11 unread private fields) and
   `TableViewerTag.java` (7): written by public setters, read by nobody, named only by `META-INF/tableeditor.tld`.
   Never touch the fields alone — the setters are the taglib's declared attribute contract.
+- `STUDIO/org.openl.rules.workspace` `dtr/RepositoryException` — a public class with zero repository-wide
+  references since EPBDS-8537 dropped the `throws` on `DesignTimeRepositoryImpl.init()`, its last user. A whole
+  public type in a published artifact, so a downstream `catch` may still need it.
+- `STUDIO/org.openl.rules.repository` `BranchRepository` — the four `@Deprecated(forRemoval = true)` default
+  methods (`createBranch` twice, `deleteBranch(String, String)`, `getBranches(String)`) have no caller of their
+  signature left; everything moved to `listBranches`/`createRepositoryBranch`. Public API, so a human removes them.
 - `STUDIO/org.openl.security` `SimpleGroup.description` — written by a public setter and a public constructor
   parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
@@ -77,7 +85,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
   `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract in
   `Docs/api/projects-merge-api.md` backed by a Java record and an OpenAPI schema.
-- ~45 studio-ui exported types used only inside their own file — alive; dropping `export` is a refactor, not a delete.
+- ~50 studio-ui exports used only inside their own file — alive; dropping `export` is a refactor, not a delete. Every
+  incremental pass adds a few (`RailMode`, `loadRailMode`, `ListingQuery`, `RepositoryCapabilities`); stop re-listing them.
 - `js/datepicker.js` `dateValidForSelection`, `getSelectedDate`, `setDisabledDays`, `joinNodeLists` — no call site,
   but the file is vendored third party (DatePicker v5.4, frequency-decoder.com, CC BY-SA 3.0) and these are its API.
 - `.te_hidden` in `STUDIO/org.openl.rules.tableeditor/css/common.css` — the only real CSS orphan. Blocked because the
@@ -88,11 +97,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## False-positive shapes
 
-- **PMD field-initializer "never used" ignores an early `return` in the constructor.** `CellStyle` returns when its
-  argument is null, so `= HorizontalAlignment.GENERAL` is observable. Check every constructor path.
-- **A `= null` initializer is live whenever any path reaches a read without the assignment.** PMD also treats an
-  assignment in a `try` as overwritten by one in the `catch` — `GitRepository.result` has both, both live. Test the
-  candidate against a sibling declared in the same block with no initializer: if that compiles, it is redundant.
+- **An initializer PMD calls overwritten is live whenever any path reaches a read without the later assignment.**
+  Three ways it misses one: an early `return` in the constructor (`CellStyle`), an assignment in a `try` it treats as
+  overwritten by the `catch` (`GitRepository.result` — both live), and any conditional assignment. Check every
+  constructor and branch path; a sibling declared in the same block with no initializer that still compiles proves it.
 - **A never-read local can be the test itself.** Three shapes, all reported as unused: a variable that only hosts a
   cast whose failure is asserted (a cast cannot stand alone as a statement); a try-with-resources name Java requires,
   where the close is the point; and a null-out near `Runtime.gc()` or a weak reference, dropping the strong reference
@@ -239,11 +247,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 - `studio-ui` `npm run test` is the standing failure of `Tests (without ITEST)` — tell `Failed to run task:
   'npm run test' failed` plus `-rf :studio-ui`. Always the same file and the same 2 of its 28 tests:
-  `src/containers/projects/OverviewPanel.test.tsx`, "edits the descriptor text in place…" (`Test timed out in
-  15000ms`) and "edits the sources and the declared dependencies…" (`vitest-fail-on-console` rejecting a React
-  `act(...)` warning from `OverviewPanel.tsx:799` and `:1231`). Load, not code — never your own breakage. Reproduce
-  it by running that one file with eight busy loops beside it on these four cores: idle 28/28 in 15 s, loaded
-  exactly those 2 failing in 35 s. Use this before blaming any frontend red on a diff.
+  `src/containers/projects/OverviewPanel.test.tsx`, "edits the descriptor text in place…" (a `Test timed out`, now
+  against the 20 s CI/coverage ceiling `vite.config.ts` sets) and "edits the sources and the declared dependencies…"
+  (`vitest-fail-on-console` rejecting a React `act(...)` warning from the floating `.then` at `OverviewPanel.tsx:797`
+  and `:1227`). Load, not code — never your own breakage. Reproduce it by running that one file with eight busy loops
+  beside it on these four cores. Use this before blaming any frontend red on a diff.
 - `LockTest.testSimultaneousMultiThreadsWithWaiting` was fixed on `main` by one shared 90 s deadline. Do not
   re-escalate it.
 - **`IT (studio)` has two failure shapes; separate them by duration.** Normal is 6-8 min. (a) Fails in 3-7 min at
@@ -339,9 +347,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
   entry on runtime wiring.
-- Incremental `main` scope (SHA reached is in *Resume point*): the only new source surface since the veins above
-  closed is studio-ui TraceView — `SimpleTraceTree`, `TraceDetails`, `TraceTree.styles.ts`, `traceStore.ts` — and
-  every new export, style key and helper is referenced. Dependabot bumps touch `pom.xml` values only, adding none.
+- Incremental `main` scope (SHA reached is in *Resume point*): studio-ui TraceView, and EPBDS-8537 branch marking —
+  its new exports, locale keys and helpers are all referenced, and the `ManageBranchesModal` it deleted left no
+  orphan (the author removed `browser.branch.manage`/`.manage_hint` with it). Dependabot bumps add no surface.
 - Every `org.openl.*` class name referenced from `.xml`, `.xhtml`, `.properties`, `.tld`, `.yaml`, `.json` and
   `.txt`, resolved against the source tree. The ~90 with no `.java` are all runtime-generated datatype and
   spreadsheet-result beans or rule-project fixtures under test resources. No stale configuration exists.
@@ -351,9 +359,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
   import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
   or swept until then, and the stub has to be re-seeded on every container rebuild.
-- `OverviewPanel.tsx` starts two unawaited promises that resolve into state setters, at lines 799 and 1231. Nothing
+- `OverviewPanel.tsx` starts two unawaited promises that resolve into state setters, at lines 797 and 1227. Nothing
   synchronises them with the test, so `OverviewPanel.test.tsx` fails whenever the machine is slow. Needs the effect
-  awaited or the test made to wait on it; the 15 s per-test timeout is also tight.
+  awaited or the test made to wait on it; raising the CI timeout to 20 s treated the symptom only.
+- Delete `dtr/RepositoryException` and the four `BranchRepository` methods already marked `forRemoval = true` (see
+  *Deferred findings*) — public API, so only a maintainer can weigh the downstream break.
 - `itest.studio.repos` has a same-second commit-ordering race: when a scenario's two commits land in the same second
   the history endpoint returns them oldest-first, so `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify` reads
   the pre-merge revision and an empty table list. Needs a tiebreaker or a fixture that does not depend on ordering.
@@ -367,8 +377,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-03 — run twenty-five. Unchanged; resume point compacted. No commit to the sweep branch.
 - 08-03 — run twenty-six. Swept 4 new `main` commits, no findings. Identified and reproduced the studio-ui
   flake (`OverviewPanel.test.tsx`); LockTest fixed upstream. #1940 description corrected. No sweep commit.
 - 08-03 — run twenty-seven. Swept 2 new `main` commits (pom property bumps only), no findings. #1940 green and
   unchanged. Ledger compacted 385 to 374 lines. No sweep commit.
+- 08-03 — run twenty-eight. Swept 4 new `main` commits (EPBDS-8537 branch marking, 78 files). Two public-API
+  orphans deferred: `RepositoryException` and four `BranchRepository` methods. #1940 green. No sweep commit.
