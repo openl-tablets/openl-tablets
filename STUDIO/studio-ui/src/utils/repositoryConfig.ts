@@ -11,7 +11,9 @@ const MAX_COMMENT_LENGTH = 255
 const BRANCH_NAME_RESTRICTED = /[^\p{L}\p{Nd}\-$]/gu
 
 /** Characters forbidden by Git refs and by the server's `NewBranchValidator`. */
-const INVALID_BRANCH_CHARACTERS = /[\u0000-\u0020\u007F\s\\~^:?*[\]{}"<>|]/u
+// The control-char range stops before the ASCII whitespace the whitespace class already matches, so the
+// class carries no duplicate characters while matching exactly the same set of characters.
+const INVALID_BRANCH_CHARACTERS = /[\u0000-\u0008\u000E-\u001F\u007F\s\\~^:?*[\]{}"<>|]/u
 
 interface TemplateValues {
     projectName?: string | undefined

@@ -33,7 +33,9 @@ import type { FacetCount, ProjectStatusSummary, TagFacetSummary } from '../../ty
 import type { Repository } from '../../types/repositories'
 import { useSharedStyles } from './sharedStyles'
 import { RepoBadge } from './RepoBadge'
+import { BranchMarks } from './BranchMarks'
 import {
+    BRANCH_GROUP,
     loadFilterLayout,
     moveGroup,
     orderGroups,
@@ -43,7 +45,7 @@ import {
     tagGroupId,
     type FilterLayout,
 } from './filterLayout'
-import { LOCAL_REPO_KEY, statusCount } from './projectListing'
+import { LOCAL_REPO_KEY, statusCount, type BranchFacetCount } from './projectListing'
 
 const STATUS_ORDER: ProjectStatus[] = [
     ProjectStatus.Local,
@@ -57,6 +59,13 @@ const STATUS_ORDER: ProjectStatus[] = [
 const useStyles = createStyles(({ css, token }) => ({
     section: css`
         padding: 4px 16px 8px;
+    `,
+    /** A branch facet row: the name reads in the rail's own colour and size, only the marks are borrowed. */
+    branchFacet: css`
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
     `,
     /** The group caption row; its type comes from {@link useSharedStyles.microLabel}. */
     sectionHead: css`
@@ -113,12 +122,15 @@ interface ProjectsFilterRailProps {
     statusCounts: ProjectStatusSummary | undefined
     repositoryCounts: FacetCount[] | undefined
     tagCounts: TagFacetSummary[] | undefined
+    branchCounts: BranchFacetCount[] | undefined
     statuses: Set<string>
     repos: Set<string>
     tags: Set<string>
+    branches: Set<string>
     onToggleStatus: (status: string) => void
     onToggleRepo: (repoId: string) => void
     onToggleTag: (key: string) => void
+    onToggleBranch: (branch: string) => void
     onReset: () => void
     /** What the rail hangs on the header row, beside the reset of the filters. */
     headerActions?: ReactNode
@@ -143,12 +155,15 @@ export const ProjectsFilterRail = ({
     statusCounts,
     repositoryCounts,
     tagCounts,
+    branchCounts,
     statuses,
     repos,
     tags,
+    branches,
     onToggleStatus,
     onToggleRepo,
     onToggleTag,
+    onToggleBranch,
     onReset,
     headerActions,
 }: ProjectsFilterRailProps) => {
@@ -176,7 +191,7 @@ export const ProjectsFilterRail = ({
     }, [repositoryCounts])
 
     const hasLocal = repoCounts.has(LOCAL_REPO_KEY)
-    const hasFilters = statuses.size > 0 || repos.size > 0 || tags.size > 0
+    const hasFilters = statuses.size > 0 || repos.size > 0 || tags.size > 0 || branches.size > 0
 
     const renderRow = (testId: string, checked: boolean, onChange: () => void, label: ReactNode, count?: number) => (
         <label key={testId} className={shared.railRow}>
@@ -209,6 +224,26 @@ export const ProjectsFilterRail = ({
                         () => onToggleRepo(LOCAL_REPO_KEY),
                         <RepoBadge name={t('home.local')} type="repo-file" />,
                         repoCounts.get(LOCAL_REPO_KEY) ?? 0
+                    )}
+                </>
+            ),
+        },
+        {
+            id: BRANCH_GROUP,
+            title: t('home.facet_branch'),
+            rows: (
+                <>
+                    {(branchCounts ?? []).map(({ id, count, isDefault, isProtected }) =>
+                        renderRow(
+                            `filter-branch-${id}`,
+                            branches.has(id),
+                            () => onToggleBranch(id),
+                            <span className={styles.branchFacet}>
+                                <span className={shared.ellipsis}>{id}</span>
+                                <BranchMarks isDefault={isDefault} isProtected={isProtected} testId={`filter-branch-label-${id}`} />
+                            </span>,
+                            count
+                        )
                     )}
                 </>
             ),

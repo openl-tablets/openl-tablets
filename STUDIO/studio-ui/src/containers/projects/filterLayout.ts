@@ -1,6 +1,8 @@
 import { readJson, writeJson } from '../../utils/localStore'
 /** The group of the rail that filters by repository. */
 export const REPOSITORY_GROUP = 'repository'
+/** The group of the rail that filters by the branch a project is open on. */
+export const BRANCH_GROUP = 'branch'
 /** The group of the rail that filters by project state. */
 export const STATUS_GROUP = 'status'
 /** The group of the rail that filters by one tag type. */

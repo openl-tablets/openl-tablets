@@ -34,20 +34,27 @@ vi.mock('../../store', async importOriginal => ({
     useUserStore: () => 'jdoe',
 }))
 
-vi.mock('../../components/SuggestInput', () => ({
-    SuggestInput: ({ onChange, options, value, ...rest }: {
+// The real BranchSelect shows marked-up branch labels; the test needs the field value and the offered names.
+vi.mock('./BranchSelect', () => ({
+    BranchSelect: ({ onChange, branchNames, value, placeholder, marksOf, allowNew, ...rest }: {
         onChange: (value: string) => void
-        options: { value: string }[]
-        value: string
+        branchNames: string[]
+        value?: string
+        placeholder?: string
+        marksOf?: unknown
+        allowNew?: boolean
         'data-testid'?: string
-    }) => (
-        <>
-            <input {...rest} onChange={event => onChange(event.target.value)} value={value} />
-            {options.map(option => (
-                <span key={option.value} data-testid={`target-branch-option-${option.value}`}>{option.value}</span>
-            ))}
-        </>
-    ),
+    }) => {
+        void marksOf; void allowNew
+        return (
+            <>
+                <input {...rest} onChange={event => onChange(event.target.value)} placeholder={placeholder} value={value ?? ''} />
+                {branchNames.map(name => (
+                    <span key={name} data-testid={`target-branch-option-${name}`}>{name}</span>
+                ))}
+            </>
+        )
+    },
 }))
 
 vi.mock('react-i18next', () => {
@@ -263,7 +270,6 @@ describe('CopyProjectModal', () => {
         await asNewProject()
         await screen.findByTestId('copy-project-target-branch')
 
-        expect(screen.getByTestId('copy-project-target-branch')).toHaveStyle({ width: '100%' })
         fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
         fireEvent.change(screen.getByTestId('copy-project-target-branch'), { target: { value: 'release/rates' } })
         await userEvent.click(screen.getByTestId('copy-project-submit'))

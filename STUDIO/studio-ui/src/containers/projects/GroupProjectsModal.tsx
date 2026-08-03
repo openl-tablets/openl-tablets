@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Modal, Select } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { FieldRow } from '../../components/FieldRow'
-import { GROUP_BY_NONE, GROUP_BY_REPOSITORY, type GroupingLevels } from './projectGrouping'
+import { GROUP_BY_BRANCH, GROUP_BY_NONE, GROUP_BY_REPOSITORY, type GroupingLevels } from './projectGrouping'
 
 const LABEL_WIDTH = 90
 
@@ -47,6 +47,7 @@ export const GroupProjectsModal = ({ open, levels, tagTypes, onApply, onClose }:
     const optionsFor = (index: number) => [
         { value: GROUP_BY_NONE, label: t('home.tree.level_none') },
         { value: GROUP_BY_REPOSITORY, label: t('home.tree.level_repository') },
+        { value: GROUP_BY_BRANCH, label: t('home.tree.level_branch') },
         ...tagTypes.map(type => ({ value: type, label: type })),
     ].filter(option => !option.value || !draft.some((level, at) => at !== index && level === option.value))
 

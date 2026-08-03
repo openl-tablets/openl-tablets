@@ -215,7 +215,8 @@ vi.mock('antd', async () => {
     }
     Empty.PRESENTED_IMAGE_SIMPLE = 'simple'
 
-    const Tag = ({ children, icon }: { children?: unknown, icon?: unknown }) => <span>{icon as never}{children as never}</span>
+    const Tag = ({ children, icon, ...rest }: Record<string, unknown>) =>
+        <span data-testid={rest['data-testid'] as string}>{icon as never}{children as never}</span>
     const Tooltip = ({ children }: { children?: unknown }) => <>{children as never}</>
     const Skeleton = () => <div>skeleton</div>
     const Spin = () => <div>spin</div>
@@ -582,13 +583,21 @@ describe('ProjectsHome', () => {
         expect(screen.queryByTestId('filter-tag-Category:Payroll')).toBeNull()
     })
 
-    it('reads the repositories first, the tags next and the states last', async () => {
+    it('reads the repositories first, then branches, the tags and the states last', async () => {
         await renderHome()
 
         const groups = [...document.querySelectorAll('[data-testid^="filter-group-"]')]
             .map(group => group.getAttribute('data-testid'))
 
-        expect(groups).toEqual(['filter-group-repository', 'filter-group-tag:Category', 'filter-group-status'])
+        expect(groups).toEqual(['filter-group-repository', 'filter-group-branch', 'filter-group-tag:Category', 'filter-group-status'])
+    })
+
+    it('marks the default and protected branches in the branch facet', async () => {
+        mockProjectSearch([{ ...projects[0]!, branch: 'main', branchDefault: true, branchProtected: true }])
+        await renderHome()
+
+        expect(screen.getByTestId('filter-branch-label-main-default')).toBeTruthy()
+        expect(screen.getByTestId('filter-branch-label-main-protected')).toBeTruthy()
     })
 
     it('puts a filter away and brings it back, while the rail is being arranged', async () => {

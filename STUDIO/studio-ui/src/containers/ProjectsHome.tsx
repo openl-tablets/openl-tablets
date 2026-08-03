@@ -27,7 +27,7 @@ import { ProjectsToolbar, type ProjectView } from './projects/ProjectsToolbar'
 import { ProjectsTable } from './projects/ProjectsTable'
 import { ProjectsGrid } from './projects/ProjectsGrid'
 import type { ProjectListHandlers, RowActionId } from './projects/ProjectRowActions'
-import { countFacets, refineProjects, searchProjects, sortProjects, type ProjectSort, type SortDirection } from './projects/projectListing'
+import { countFacets, refineProjects, searchProjects, sortProjects, type BranchFacetCount, type ProjectSort, type SortDirection } from './projects/projectListing'
 import { getProjectIndex, hasProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
 import { useWindowFocus, useWorkspaceChanges } from '../hooks'
 import { COMPILE_COLORS } from './projects/projectsTheme'
@@ -48,6 +48,7 @@ interface ProjectFacets {
     statusCounts: ProjectStatusSummary
     repositoryCounts: FacetCount[]
     tagCounts: TagFacetSummary[]
+    branchCounts: BranchFacetCount[]
 }
 
 const SEARCH_DEBOUNCE_MS = 300
@@ -232,6 +233,9 @@ export const ProjectsHome = () => {
     const statuses = useMemo(() => new Set(statusParam.split(',').filter(Boolean)), [statusParam])
     const repos = useMemo(() => new Set(repoParam.split(',').filter(Boolean)), [repoParam])
     const tags = useMemo(() => new Set(tagParam.split(',').filter(Boolean)), [tagParam])
+    // Branch names may legally contain a comma, so branch filters ride as repeated params (branch=a&branch=b)
+    // rather than one comma-joined value like the other facets, which can never collide with their values.
+    const branches = useMemo(() => new Set(params.getAll('branch').filter(Boolean)), [params])
     const repositoryName = useCallback(
         (id: string) => repositories.find(repo => repo.id === id)?.name ?? id,
         [repositories]
@@ -242,8 +246,8 @@ export const ProjectsHome = () => {
     // What the rail counts: the search scope, with the picked facets ignored — the way the API counted it.
     const facets = useMemo<ProjectFacets>(() => countFacets(searched, repositoryName), [searched, repositoryName])
     const matched = useMemo(
-        () => sortProjects(refineProjects(searched, { statuses, repositories: repos, tags }), sort ?? 'name', direction),
-        [direction, repos, searched, sort, statuses, tags]
+        () => sortProjects(refineProjects(searched, { statuses, repositories: repos, tags, branches }), sort ?? 'name', direction),
+        [branches, direction, repos, searched, sort, statuses, tags]
     )
 
     const totalProjects = matched.length
@@ -296,6 +300,23 @@ export const ProjectsHome = () => {
         }
         setParam(key, [...next].join(','), true)
     }, [setParam])
+
+    // The branch facet writes repeated params instead of a comma-joined value, since a branch name may hold
+    // a comma; every other facet toggles through toggleInParam.
+    const toggleBranch = useCallback((value: string) => {
+        setParams(prev => {
+            const next = new URLSearchParams(prev)
+            const chosen = new Set(prev.getAll('branch'))
+            if (chosen.has(value)) {
+                chosen.delete(value)
+            } else {
+                chosen.add(value)
+            }
+            setRepeatedListParam(next, 'branch', [...chosen])
+            next.delete('page')
+            return next
+        }, { replace: true })
+    }, [setParams])
 
     // The whole workspace is read once and kept in the browser: filtering, sorting and paging happen
     // here, so a facet click or a page step costs nothing and the server is not asked again. The facet
@@ -470,6 +491,7 @@ export const ProjectsHome = () => {
             const next = new URLSearchParams(prev)
             next.delete('page')
             setListParam(next, 'repo', filters.repositories)
+            setRepeatedListParam(next, 'branch', filters.branches)
             setListParam(next, 'tags', filters.tags)
             return next
         }, { replace: true })
@@ -565,10 +587,10 @@ export const ProjectsHome = () => {
         }, { replace: true })
     }, [setParams])
 
-    const resetFilters = useCallback(() => deleteParams('status', 'repo', 'tags', 'page'), [deleteParams])
+    const resetFilters = useCallback(() => deleteParams('status', 'repo', 'tags', 'branch', 'page'), [deleteParams])
 
     // The no-match state clears the search too, not just the facets.
-    const clearAll = useCallback(() => deleteParams('q', 'status', 'repo', 'tags', 'page'), [deleteParams])
+    const clearAll = useCallback(() => deleteParams('q', 'status', 'repo', 'tags', 'branch', 'page'), [deleteParams])
 
     const content = () => {
         if (loading && projects.length === 0 && !error) {
@@ -611,6 +633,7 @@ export const ProjectsHome = () => {
                 <ProjectsGrid
                     compileStatusByProject={compileStatusByProject}
                     handlers={handlers}
+                    onChanged={() => void load(true)}
                     onOpen={openProject}
                     pending={pending}
                     projects={projects}
@@ -655,15 +678,22 @@ export const ProjectsHome = () => {
             <ProjectsRail
                 onOpenGroup={openGroup}
                 onOpenProject={openProject}
+                onRefresh={() => void load(true)}
                 onShowAll={resetFilters}
+                // Hand the tree the snapshot the list already read, so the list screen reads /projects once,
+                // not once for the list and again for the tree. `null` while the first read is still running.
+                projects={loading && allProjects.length === 0 ? null : allProjects}
                 reloadToken={reloadToken}
                 repositories={repositories}
                 filters={headerActions => renderFilterRail({
                     headerActions,
                     onReset: resetFilters,
+                    onToggleBranch: toggleBranch,
                     onToggleRepo: value => toggleInParam('repo', repos, value),
                     onToggleStatus: value => toggleInParam('status', statuses, value),
                     onToggleTag: value => toggleInParam('tags', tags, value),
+                    branchCounts: facets?.branchCounts,
+                    branches,
                     repos,
                     repositories,
                     repositoryCounts: facets?.repositoryCounts,
@@ -804,5 +834,16 @@ const setListParam = (params: URLSearchParams, key: string, values: string[]): v
         params.delete(key)
     } else {
         params.set(key, values.join(','))
+    }
+}
+
+/**
+ * Writes a multi-value parameter as one entry per value ({@code key=a&key=b}), so a value that itself
+ * contains the comma the other facets join on — a branch name may — survives the round trip.
+ */
+const setRepeatedListParam = (params: URLSearchParams, key: string, values: string[]): void => {
+    params.delete(key)
+    for (const value of values) {
+        params.append(key, value)
     }
 }

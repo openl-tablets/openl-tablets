@@ -44,42 +44,26 @@ vi.mock('react-i18next', () => {
     }
 })
 
-// Mock the custom Select to render a native <select> that properly triggers onChange.
-// Ant Design's Form.useWatch + MessageChannel does not work in jsdom.
-vi.mock('components/form', () => ({
-    // Drop AntD-only props that React warns about if spread onto a native <select>;
-    // forward everything else (className, style, disabled, value, data-*, aria-*, …)
-    // so tests keep fidelity on accessibility and custom attributes.
-    Select: ({
-        name,
-        label,
-        options,
-        onChange,
-        placeholder,
-        // AntD-only — extend this list if the component under test starts passing
-        // more AntD-specific props (e.g. `mode`, `showSearch`).
-
-        suffixIcon,
-        ...rest
-    }: any) => (
+// Mock the shared BranchSelect as a native <select> that reports selection, and render each branch's marks
+// beside it — AntD's Select dropdown does not settle in jsdom.
+vi.mock('containers/projects/BranchSelect', () => ({
+    BranchSelect: ({ value, onChange, branchNames, marksOf, placeholder, ...rest }: any) => (
         <div>
-            <label htmlFor={name}>{label}</label>
-            <select
-                {...rest}
-                id={name}
-                onChange={(e) => onChange?.(e.target.value)}
-            >
+            <select {...rest} onChange={(e) => onChange?.(e.target.value)} value={value ?? ''}>
                 <option value="">{placeholder}</option>
-                {options?.map((opt: any) => (
-                    <option key={String(opt.value)} value={String(opt.value)}>
-                        {String(opt.value)}
-                    </option>
+                {branchNames.map((name: string) => (
+                    <option key={name} value={name}>{name}</option>
                 ))}
             </select>
-            {/* A rendered label is a node, which a native <option> cannot hold — render them alongside. */}
-            <div data-testid="option-labels">
-                {options?.map((opt: any) => <div key={String(opt.value)}>{opt.label}</div>)}
-            </div>
+            {branchNames.map((name: string) => {
+                const marks = marksOf?.(name) ?? {}
+                return (
+                    <span key={name}>
+                        {marks.isDefault && <i data-testid={`branch-option-${name}-default`} />}
+                        {marks.isProtected && <i data-testid={`branch-option-${name}-protected`} />}
+                    </span>
+                )
+            })}
         </div>
     ),
 }))
@@ -126,7 +110,7 @@ const createBypassError = (message = 'bypass required') =>
     createApiError(409, message, { code: BYPASS_CODE, message })
 
 const selectBranch = async (branchValue: string) => {
-    const select = screen.getByLabelText('merge:branches.target')
+    const select = screen.getByTestId('merge-target-branch')
     await userEvent.selectOptions(select, branchValue)
 }
 
@@ -154,7 +138,7 @@ describe('MergeBranchesStep', () => {
 
     it('marks a protected branch in the options', () => {
         render(<MergeBranchesStep {...defaultProps()} />)
-        expect(screen.getByTestId('merge-branch-release-1.0-protected')).toBeInTheDocument()
+        expect(screen.getByTestId('branch-option-release-1.0-protected')).toBeInTheDocument()
     })
 
     describe('merge check', () => {

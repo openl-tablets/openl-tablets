@@ -28,21 +28,29 @@ vi.mock('../../utils/openlArchive', () => ({ inspectOpenLArchive: vi.fn(), zipPr
 
 vi.mock('./RepoFolderPicker', () => ({ RepoFolderPicker: () => null }))
 
-vi.mock('../../components/SuggestInput', () => ({
-    SuggestInput: ({ onChange, options, value, ...rest }: {
+// The real BranchSelect shows marked-up branch labels; the test only needs the field value and the names.
+vi.mock('./BranchSelect', () => ({
+    BranchSelect: ({ onChange, branchNames, value, placeholder, marksOf, allowNew, ...rest }: {
         onChange: (value: string) => void
-        options: { label: string, value: string }[]
-        value: string
-    }) => (
-        <div>
-            <input
-                {...rest}
-                onChange={event => onChange(event.target.value)}
-                value={value}
-            />
-            {options.map(option => <span key={option.value}>{option.label}</span>)}
-        </div>
-    ),
+        branchNames: string[]
+        value?: string
+        placeholder?: string
+        marksOf?: unknown
+        allowNew?: boolean
+    }) => {
+        void marksOf; void allowNew
+        return (
+            <div>
+                <input
+                    {...rest}
+                    onChange={event => onChange(event.target.value)}
+                    placeholder={placeholder}
+                    value={value ?? ''}
+                />
+                {branchNames.map(name => <span key={name}>{name}</span>)}
+            </div>
+        )
+    },
 }))
 
 vi.mock('react-i18next', () => {
@@ -232,7 +240,6 @@ describe('NewProjectModal', () => {
 
             await waitFor(() => expect(screen.getByTestId('new-project-branch')).toHaveValue('main'))
             expect(screen.getAllByTestId('new-project-branch')).toHaveLength(1)
-            expect(screen.getByTestId('new-project-branch')).toHaveStyle({ width: '100%' })
         }
     )
 

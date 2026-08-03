@@ -63,7 +63,11 @@ vi.mock('./projectRow', () => ({
         date: 'Jan 2',
     }),
     ProjectTags: () => <span data-testid="project-tags" />,
-    ProjectBranch: () => <span data-testid="branch-label" />,
+    showsBranch: () => true,
+}))
+
+vi.mock('./BranchSwitcher', () => ({
+    BranchSwitcher: (props: Record<string, unknown>) => <div data-testid={props['data-testid'] as string} />,
 }))
 
 describe('ProjectsGrid', () => {
@@ -79,6 +83,7 @@ describe('ProjectsGrid', () => {
             <ProjectsGrid
                 compileStatusByProject={new Map()}
                 handlers={handlers}
+                onChanged={vi.fn()}
                 onOpen={onOpen}
                 pending={{}}
                 projects={[project]}
@@ -91,5 +96,32 @@ describe('ProjectsGrid', () => {
 
         fireEvent.keyDown(screen.getByTestId('project-card-p1'), { key: 'Enter' })
         expect(onOpen).toHaveBeenCalledTimes(2)
+    })
+
+    it('offers the branch switcher on a card without opening the project', async () => {
+        const onOpen = vi.fn()
+        const handlers = {
+            onOpen: vi.fn(), onClose: vi.fn(), onSave: vi.fn(),
+            onCopy: vi.fn(), onDelete: vi.fn(), onDeleteBranch: vi.fn(), onDeploy: vi.fn(),
+            onExport: vi.fn(), onOpenRevision: vi.fn(), onSync: vi.fn(), onCompare: vi.fn(),
+        }
+
+        render(
+            <ProjectsGrid
+                compileStatusByProject={new Map()}
+                handlers={handlers}
+                onChanged={vi.fn()}
+                onOpen={onOpen}
+                pending={{}}
+                projects={[project]}
+                repoInfoOf={() => ({ id: 'design', name: 'Design', type: 'git' })}
+            />
+        )
+
+        const branch = screen.getByTestId('card-branch-p1')
+        expect(branch).toBeInTheDocument()
+        // Interacting with the branch is a card action of its own: it must not open the project.
+        await userEvent.click(branch)
+        expect(onOpen).not.toHaveBeenCalled()
     })
 })

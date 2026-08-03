@@ -8,7 +8,7 @@ import type { Project } from '../../types/projects'
 import type { NodeFilters } from './projectGrouping'
 import type { Repository } from '../../types/repositories'
 import { useSharedStyles } from './sharedStyles'
-import { ProjectsTree } from './ProjectsTree'
+import { ProjectsTree, type ProjectsSource } from './ProjectsTree'
 
 /** What the rail shows: the facet filters, or the grouped project tree. */
 export type RailMode = 'filters' | 'tree'
@@ -78,7 +78,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-interface ProjectsRailProps {
+interface ProjectsRailBaseProps {
     /** The design repositories, when the screen has read them; the tree manages without. */
     repositories?: Repository[] | undefined
     currentProjectId?: string | undefined
@@ -96,22 +96,35 @@ interface ProjectsRailProps {
 }
 
 /**
+ * The rail carries the same projects source the tree does: the screen either supplies the projects it
+ * already loaded (and the refresh that re-reads them) or, on a single-project page, supplies neither and
+ * the tree reads them itself.
+ */
+type ProjectsRailProps = ProjectsRailBaseProps & ProjectsSource
+
+/**
  * The left rail of the project screens. It carries the filters of the list, and — for a user who thinks
  * in folders rather than facets — the same projects as a grouped tree, which is also the quickest way to
  * step from one project to another while looking at one.
  *
  * The tree is only built once the user asks for it, and it never holds up the screen beside it.
  */
-export const ProjectsRail = ({
-    repositories,
-    currentProjectId,
-    onOpenProject,
-    onOpenGroup,
-    onShowAll,
-    filters,
-    initialMode,
-    reloadToken,
-}: ProjectsRailProps) => {
+export const ProjectsRail = (props: ProjectsRailProps) => {
+    const {
+        repositories,
+        currentProjectId,
+        onOpenProject,
+        onOpenGroup,
+        onShowAll,
+        filters,
+        initialMode,
+        reloadToken,
+    } = props
+    // Forward the projects source as one unit so its controlled/uncontrolled shape survives the hop: a
+    // controlled rail always hands the tree its refresh, an uncontrolled one hands it neither.
+    const treeSource: ProjectsSource = props.projects !== undefined
+        ? { projects: props.projects, onRefresh: props.onRefresh }
+        : {}
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -200,6 +213,7 @@ export const ProjectsRail = ({
             {mode === 'tree' || !filters
                 ? (
                     <ProjectsTree
+                        {...treeSource}
                         currentProjectId={currentProjectId}
                         headerActions={foldHandle}
                         onOpenGroup={onOpenGroup}

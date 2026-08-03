@@ -3,6 +3,7 @@ import {
     activeLevels,
     buildGroupTree,
     DEFAULT_GROUPING,
+    GROUP_BY_BRANCH,
     GROUP_BY_REPOSITORY,
     groupKeys,
     loadGrouping,
@@ -71,6 +72,21 @@ describe('buildGroupTree', () => {
         expect(tree[0]?.children.map(node => node.title)).toEqual(['Alpha', 'Beta'])
     })
 
+    it('groups by the branch and keeps a project without one beside the groups', () => {
+        const branched = [
+            { id: 'b1', name: 'Alpha', repository: 'design', branch: 'main' },
+            { id: 'b2', name: 'Beta', repository: 'design', branch: 'feature/x' },
+            { id: 'b3', name: 'Gamma', repository: 'design', branch: 'main' },
+            { id: 'b4', name: 'Delta', repository: 'design' },
+        ] as unknown as Project[]
+        const tree = buildGroupTree(branched, [GROUP_BY_BRANCH], repositoryName)
+
+        // The branch groups come first, sorted, then the project on no branch — never hidden.
+        expect(tree.map(node => node.title)).toEqual(['feature/x', 'main', 'Delta'])
+        expect(tree[1]?.children.map(node => node.title)).toEqual(['Alpha', 'Gamma'])
+        expect(tree[2]?.project?.id).toBe('b4')
+    })
+
     it('groups by a tag and keeps a project that does not carry it beside the groups', () => {
         const tree = buildGroupTree(projects, ['Domain'], repositoryName)
 
@@ -108,8 +124,18 @@ describe('group filters', () => {
         const tree = buildGroupTree(projects, [GROUP_BY_REPOSITORY, 'Domain'], repositoryName)
 
         const design = tree.find(node => node.title === 'Design')
-        expect(design?.filters).toEqual({ repositories: ['design'], tags: []})
-        expect(design?.children[0]?.filters).toEqual({ repositories: ['design'], tags: ['Domain:Policy']})
+        expect(design?.filters).toEqual({ repositories: ['design'], branches: [], tags: []})
+        expect(design?.children[0]?.filters).toEqual({ repositories: ['design'], branches: [], tags: ['Domain:Policy']})
+    })
+
+    it('carries the branch a group is grouped by', () => {
+        const branched = [
+            { id: 'b1', name: 'Alpha', repository: 'design', branch: 'main' },
+            { id: 'b2', name: 'Beta', repository: 'design', branch: 'main' },
+        ] as unknown as Project[]
+        const tree = buildGroupTree(branched, [GROUP_BY_BRANCH], repositoryName)
+
+        expect(tree[0]?.filters).toEqual({ repositories: [], branches: ['main'], tags: []})
     })
 })
 

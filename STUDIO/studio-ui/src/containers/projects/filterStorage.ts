@@ -8,7 +8,7 @@ const STORAGE_KEY = 'openl.projects.filters'
  * how it is laid out. The page number is deliberately left out — coming back to page 7 of a list that has
  * moved on since helps nobody.
  */
-const REMEMBERED = ['q', 'status', 'repo', 'tags', 'sort', 'view', 'size']
+const REMEMBERED = ['q', 'status', 'repo', 'tags', 'branch', 'sort', 'view', 'size']
 
 /** Stores the filters of the projects screen, so a user finds the list as they left it. */
 export const saveProjectFilters = (params: URLSearchParams): void => {

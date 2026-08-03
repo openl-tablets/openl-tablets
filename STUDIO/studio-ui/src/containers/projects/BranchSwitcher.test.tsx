@@ -13,6 +13,17 @@ vi.mock('../../services/repositories', () => ({
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
+vi.mock('../../components/SearchInput', () => ({
+    SearchInput: (props: Record<string, unknown>) => (
+        <input
+            data-testid={props['data-testid'] as string}
+            onChange={props['onChange'] as never}
+            placeholder={props['placeholder'] as string}
+            value={props['value'] as string}
+        />
+    ),
+}))
+
 vi.mock('antd-style', () => ({
     createStyles: () => () => ({
         styles: new Proxy({}, { get: () => '' }),
@@ -48,9 +59,8 @@ vi.mock('antd', () => {
     ) : null
     interface MenuItem { key: string, label: unknown }
     interface Menu { items: MenuItem[], onClick: (info: { key: string }) => void }
-    const Dropdown = ({ children, menu, onOpenChange }: Record<string, unknown>) => (
-        <div>
-            <div onClick={() => (onOpenChange as (v: boolean) => void)?.(true)}>{children as never}</div>
+    const Dropdown = ({ children, menu, popupRender, onOpenChange }: Record<string, unknown>) => {
+        const list = (
             <ul>
                 {(menu as unknown as Menu).items.map(item => (
                     <li key={item.key}>
@@ -63,8 +73,14 @@ vi.mock('antd', () => {
                     </li>
                 ))}
             </ul>
-        </div>
-    )
+        )
+        return (
+            <div>
+                <div onClick={() => (onOpenChange as (v: boolean) => void)?.(true)}>{children as never}</div>
+                {popupRender ? (popupRender as (node: unknown) => never)(list) : list}
+            </div>
+        )
+    }
     const notification = { error: vi.fn() }
     return { Alert, Dropdown, Modal, Tag, Tooltip, notification }
 })
@@ -108,6 +124,49 @@ describe('BranchSwitcher', () => {
         await waitFor(() => expect(getProjectBranches).toHaveBeenCalledWith('p1'))
         expect(screen.getByTestId('option-dev')).toBeInTheDocument()
         expect(screen.queryByTestId('option-other')).not.toBeInTheDocument()
+    })
+
+    it('filters the offered branches by name as the user types', async () => {
+        vi.mocked(getProjectBranches).mockResolvedValue([
+            { name: 'main', base: true },
+            { name: 'feature/rates' },
+            { name: 'dev' },
+        ])
+        render(<BranchSwitcher {...props} />)
+
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-dev')
+
+        await userEvent.type(screen.getByTestId('branch-switcher-search'), 'feat')
+
+        expect(screen.getByTestId('option-feature/rates')).toBeInTheDocument()
+        expect(screen.queryByTestId('option-dev')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('option-main')).not.toBeInTheDocument()
+    })
+
+    it('shows a no-match message when the search matches no branch', async () => {
+        render(<BranchSwitcher {...props} />)
+
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-dev')
+
+        await userEvent.type(screen.getByTestId('branch-switcher-search'), 'zzz')
+
+        expect(screen.getByText('browser.branch.no_match')).toBeInTheDocument()
+        expect(screen.queryByTestId('option-dev')).not.toBeInTheDocument()
+    })
+
+    it('resets the search each time the dropdown is reopened', async () => {
+        render(<BranchSwitcher {...props} />)
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-dev')
+        await userEvent.type(screen.getByTestId('branch-switcher-search'), 'zzz')
+        expect(screen.queryByTestId('option-dev')).not.toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+
+        expect(screen.getByTestId('branch-switcher-search')).toHaveValue('')
+        expect(screen.getByTestId('option-dev')).toBeInTheDocument()
     })
 
     it('reloads membership when the component is reused for another project', async () => {

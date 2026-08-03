@@ -3,6 +3,8 @@ import type { Project } from '../../types/projects'
 
 /** Group a level by the repository the project lives in. */
 export const GROUP_BY_REPOSITORY = '[Repository]'
+/** Group a level by the branch the project is open on. */
+export const GROUP_BY_BRANCH = '[Branch]'
 /** The level is not used; the levels below it are not used either. */
 export const GROUP_BY_NONE = ''
 
@@ -47,11 +49,13 @@ export const activeLevels = (levels: GroupingLevels): string[] => {
 export interface NodeFilters {
     /** Repository ids. */
     repositories: string[]
+    /** Branch names — the branch each project is open on. */
+    branches: string[]
     /** Tag filters, each written as `Type:Value` the way the list carries them in the URL. */
     tags: string[]
 }
 
-const EMPTY_FILTERS: NodeFilters = { repositories: [], tags: []}
+const EMPTY_FILTERS: NodeFilters = { repositories: [], branches: [], tags: []}
 
 /** One node of the tree: a group of projects, or a project itself. */
 export interface GroupNode {
@@ -83,16 +87,24 @@ const valueOf = (
     if (level === GROUP_BY_REPOSITORY) {
         return { key: project.repository, label: repositoryName(project.repository) }
     }
+    if (level === GROUP_BY_BRANCH) {
+        return project.branch ? { key: project.branch, label: project.branch } : null
+    }
     const tags = project.tags ?? {}
     const type = Object.keys(tags).find(name => name.toLowerCase() === level.toLowerCase())
     const value = type ? tags[type] : undefined
     return value ? { key: value, label: value } : null
 }
 
-const withLevel = (filters: NodeFilters, level: string, value: string): NodeFilters =>
-    level === GROUP_BY_REPOSITORY
-        ? { repositories: [...filters.repositories, value], tags: filters.tags }
-        : { repositories: filters.repositories, tags: [...filters.tags, `${level}:${value}`]}
+const withLevel = (filters: NodeFilters, level: string, value: string): NodeFilters => {
+    if (level === GROUP_BY_REPOSITORY) {
+        return { ...filters, repositories: [...filters.repositories, value]}
+    }
+    if (level === GROUP_BY_BRANCH) {
+        return { ...filters, branches: [...filters.branches, value]}
+    }
+    return { ...filters, tags: [...filters.tags, `${level}:${value}`]}
+}
 
 /**
  * Groups the projects into a tree, one level per grouping.

@@ -11,13 +11,13 @@ const project = (over: Partial<Project>): Project => ({
     ...over,
 } as Project)
 
-const alpha = project({ id: 'p1', name: 'Alpha', modifiedBy: 'jane', branch: 'main', modifiedAt: '2026-01-02T00:00:00Z', tags: { Domain: 'Policy', LOB: 'Auto' } })
-const beta = project({ id: 'p2', name: 'Beta', repository: 'flat', modifiedBy: 'john', branch: 'feature/rates', modifiedAt: '2026-03-01T00:00:00Z', status: ProjectStatus.Opened, tags: { Domain: 'Claims' } })
+const alpha = project({ id: 'p1', name: 'Alpha', modifiedBy: 'jane', branch: 'main', branchDefault: true, modifiedAt: '2026-01-02T00:00:00Z', tags: { Domain: 'Policy', LOB: 'Auto' } })
+const beta = project({ id: 'p2', name: 'Beta', repository: 'flat', modifiedBy: 'john', branch: 'feature/rates', branchProtected: true, modifiedAt: '2026-03-01T00:00:00Z', status: ProjectStatus.Opened, tags: { Domain: 'Claims' } })
 const local = project({ id: 'p3', name: 'Gamma', repository: 'design', status: ProjectStatus.Local })
 const removed = project({ id: 'p4', name: 'Delta', status: ProjectStatus.Deleted })
 const all = [alpha, beta, local, removed]
 
-const noFilters = { statuses: new Set<string>(), repositories: new Set<string>(), tags: new Set<string>() }
+const noFilters = { statuses: new Set<string>(), repositories: new Set<string>(), tags: new Set<string>(), branches: new Set<string>() }
 
 describe('searchProjects', () => {
     it('matches the name, the author, the branch and the tags at once, ignoring case', () => {
@@ -58,6 +58,14 @@ describe('refineProjects', () => {
             .toEqual(['p1'])
         expect(refineProjects(all, { ...noFilters, tags: new Set(['Domain:Policy', 'LOB:Home']) })).toEqual([])
     })
+
+    it('keeps only the projects open on the chosen branches, ignoring those without one', () => {
+        expect(refineProjects(all, { ...noFilters, branches: new Set(['feature/rates']) }).map(p => p.id))
+            .toEqual(['p2'])
+        // Several branches read as either of them.
+        expect(refineProjects(all, { ...noFilters, branches: new Set(['main', 'feature/rates']) }).map(p => p.id))
+            .toEqual(['p1', 'p2'])
+    })
 })
 
 describe('sortProjects', () => {
@@ -92,6 +100,15 @@ describe('countFacets', () => {
                 { id: 'Policy', name: 'Policy', count: 1 },
             ]},
             { type: 'LOB', values: [{ id: 'Auto', name: 'Auto', count: 1 }]},
+        ])
+    })
+
+    it('counts each branch and carries its default and protected marks', () => {
+        const counts = countFacets(all, id => id)
+
+        expect(counts.branchCounts).toEqual([
+            { id: 'feature/rates', name: 'feature/rates', count: 1, isDefault: false, isProtected: true },
+            { id: 'main', name: 'main', count: 1, isDefault: true, isProtected: false },
         ])
     })
 })
