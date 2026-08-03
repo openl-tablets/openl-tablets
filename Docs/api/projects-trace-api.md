@@ -40,7 +40,9 @@ frame's variables — all against a real, suspended execution rather than a pre-
   so memory is bounded by stack depth.
 - **Stepping** — Step Into, Step Over, Step Out, Resume, and asynchronous Pause. A step that finishes a
   frame first suspends at that frame's **own exit** (its result is on the stack), then continues in the
-  caller. An exception suspends at the throwing frame before it propagates.
+  caller. An exception suspends at the throwing frame before it propagates, and every live caller on the
+  stack is stamped with the same throwable for variables and step-inputs so ancestor inspection still
+  returns the messages (the stack frame's `error` flag stays on the completed throwing frame only).
 - **Breakpoints** — on a table by URI or by **name** (stops on every same-named version), on a spreadsheet
   cell, on any fired decision-table rule, or on a specific rule. See [Breakpoint Keys](#breakpoint-keys).
 - **Profiling (executed call tree)** — with `profiling=true` the session retains the structure of returned
@@ -457,7 +459,9 @@ interface DebugFrameVariables {
   gridRows?: string[];            // spreadsheet row names (spreadsheet frames only)
   decision?: DecisionView;        // which rule fired and which conditions matched (decision tables only)
   ruleNames?: string[];           // every rule of the decision table, in rule order (decision tables only)
-  errors: MessageDescription[];   // errors, if the frame failed
+  errors: MessageDescription[];   // errors if the frame failed, or the same messages when it is a live
+                                  // caller stamped for inspect (break-on-exception); stack `error`
+                                  // remains true only on the completed throwing frame
 }
 ```
 
@@ -852,7 +856,8 @@ curl "http://localhost:8080/projects/MyProject/trace/breakpoint-tables?fields=na
 - **Decision explanation**: `DebugFrameVariables.decision` — which rule fired and which conditions matched.
 - **Structured errors**: `DebugStackView.error` (`DebugError`) replaces the flat `errorMessage`.
 - **Step exit and exceptions**: a step finishing a frame suspends at the frame's own exit with its result;
-  an exception suspends at the throwing frame before propagating.
+  an exception suspends at the throwing frame before propagating, and stamps every live caller with
+  the same throwable for inspect (stack `error` stays on the completed thrower).
 - **Steps are executable cells only**; the input is remembered for replay/profiling restarts; idle
   sessions are reaped after 10 minutes; the legacy tree-trace implementation was removed.
 

@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "parameters": [
+    {
+      "name": "originalValue",
+      "description": "***",
+      "lazy": true,
+      "parameterId": "###"
+    }
+  ],
+  "context": "***",
+  "steps": "***",
+  "gridColumns": "***",
+  "gridRows": "***",
+  "errors": [
+    {
+      "id": "###",
+      "summary": "UnsupportedOperationException: You are trying to run openl code with a compile error in it",
+      "severity": "ERROR"
+    }
+  ]
+}

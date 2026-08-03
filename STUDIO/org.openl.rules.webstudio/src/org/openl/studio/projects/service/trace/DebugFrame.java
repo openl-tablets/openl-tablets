@@ -178,8 +178,11 @@ public final class DebugFrame {
                 steps, dispatch, null, notRetained, childNanos);
     }
 
-    /** The tree steps of a non-decision table: its executed steps, any interrupted step present only through
-     * its sub-call, and a spreadsheet's static value/constant cells, all in grid order. */
+    /**
+     * The tree steps of a non-decision table: its executed steps, any interrupted step present only through
+     * its sub-call, the step the frame failed on when that step never finished, and a spreadsheet's static
+     * value/constant cells — all in grid order.
+     */
     private List<CallNode.Step> cellSteps(UnaryOperator<String> intern, boolean detailedTitles) {
         var steps = new ArrayList<CallNode.Step>();
         var covered = new HashSet<String>();
@@ -191,16 +194,52 @@ public final class DebugFrame {
             }
         }
         executedChildren.forEach((ref, children) -> {
-            if (!covered.contains(ref)) {
+            // Mark covered: the failing-location synthesis below must not add the same interrupted caller twice.
+            if (covered.add(ref)) {
                 steps.add(new CallNode.Step(intern.apply(ref), interruptedStepLabel(ref, intern, detailedTitles), 0,
                         List.copyOf(children)));
             }
         });
+        // A formula that throws in its own body (no sub-call, no nested re-read) never enters executedSteps
+        // or executedChildren — only location stays on that cell. Without synthesizing it here, the business
+        // tree would show the table as "= ERROR" with no step underneath, while the advanced live stack still
+        // highlights the failing cell.
+        appendFailingStep(covered, steps, intern, detailedTitles);
         if (source instanceof Spreadsheet spreadsheet) {
             appendStaticCells(spreadsheet, covered, steps, intern, detailedTitles);
             steps.sort(Comparator.comparingLong(DebugFrame::gridOrder));
         }
         return steps;
+    }
+
+    /** Include the cell the frame failed on when it is not already listed through a finished or interrupted step. */
+    private void appendFailingStep(Set<String> covered, List<CallNode.Step> steps, UnaryOperator<String> intern,
+                                   boolean detailedTitles) {
+        var loc = location;
+        if (error == null || loc == null) {
+            return;
+        }
+        String ref = failingRef(loc);
+        if (!covered.add(ref)) {
+            return;
+        }
+        String label = interruptedStepLabel(ref, intern, detailedTitles);
+        if (label == null) {
+            // A non-spreadsheet frame (a TBasic operation, say) has no resolvable cell name; fall back to the
+            // location's own label, marked "= ERROR" in the detailed view so the failed step still reads as
+            // part of the error trail rather than a plain, unmarked line.
+            String base = loc.label() != null ? loc.label() : ref;
+            label = detailedTitles ? base + " = ERROR" : intern.apply(base);
+        }
+        steps.add(new CallNode.Step(intern.apply(ref), label, 0, List.copyOf(childrenOf(ref))));
+    }
+
+    /** The cell of the failing location: its cell ref, else its step label, else the location kind's code. */
+    private static String failingRef(CurrentLocation location) {
+        if (location.ref() != null) {
+            return location.ref();
+        }
+        return location.label() != null ? location.label() : location.kind().getCode();
     }
 
     /**
@@ -226,7 +265,7 @@ public final class DebugFrame {
             return;
         }
         String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
-        if (!covered.contains(ref)) {
+        if (covered.add(ref)) {
             steps.add(new CallNode.Step(intern.apply(ref),
                     staticCellLabel(spreadsheet, cell, intern, detailedTitles), 0, List.of(), true, null));
         }
@@ -387,6 +426,17 @@ public final class DebugFrame {
     void failWith(Throwable error) {
         this.error = error;
         this.completed = true;
+    }
+
+    /**
+     * Attach an error without completing the frame. Used when an exception parks the run: every live
+     * caller on the stack is already interrupted by that failure, so each can expose the same messages
+     * while the throwing frame is still the one suspended.
+     */
+    void markError(Throwable error) {
+        if (this.error == null) {
+            this.error = error;
+        }
     }
 
     void setDurationNanos(long durationNanos) {
