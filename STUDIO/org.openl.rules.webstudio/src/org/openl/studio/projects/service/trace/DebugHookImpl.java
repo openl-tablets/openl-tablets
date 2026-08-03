@@ -435,12 +435,21 @@ final class DebugHookImpl implements DebugHook {
      * Suspend at the frame where an exception surfaced so its state can be inspected before it
      * propagates. Each exception breaks once: as it unwinds through the outer frames, the same instance
      * is recognised and not re-broken.
+     *
+     * <p>Every live frame on the stack is stamped with the same throwable. The business view keeps a
+     * clicked ancestor selected when the run parks deeper on the throwing frame; without the stamp those
+     * callers would show {@code = ERROR} in the tree but have empty error details when inspected.
      */
     private void breakOnException(int depth, Throwable ex) {
         if (!breakOnErrors || ex == brokenException || channel.isTerminateRequested()) {
             return;
         }
         brokenException = ex;
+        for (DebugFrame frame : stack) {
+            if (frame.getError() == null) {
+                frame.markError(ex);
+            }
+        }
         suspendAndAwait(depth);
     }
 

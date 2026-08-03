@@ -189,7 +189,11 @@ Two refinements on top of the threshold:
   the returned value can be inspected before execution continues in the caller.
 - **Break on exception.** An exception suspends at the **throwing frame** before it propagates, once per
   exception instance; resuming lets it unwind and the session ends in `ERROR` with a structured,
-  user-readable error (message, failing table, failing step, technical detail).
+  user-readable error (message, failing table, failing step, technical detail). Every live caller on the
+  stack is stamped with the same throwable for variables and step-inputs, so inspecting an ancestor (as
+  the business view does when a click keeps the selected table while the run parks deeper) still returns
+  the error details. The stack view's `error` flag stays on the completed throwing frame only, so
+  Advanced Trace still marks waiting callers distinctly from the failed frame.
 
 The hook evaluates this at every safepoint (a frame enter, a frame exit, or a current-line change):
 
@@ -245,6 +249,9 @@ would drop:
   and everything it called) and **self** (total minus called tables).
 - When the root frame returns, the whole tree survives as `DebugStackView.tree`, so a completed trace is
   still explorable.
+- On a rule error the failed branch is kept: calling steps interrupted mid-call, and the cell whose own
+  formula threw (even with no sub-call), so the business tree can mark that step `= ERROR` instead of
+  ending at the table node alone.
 - Structure only: no arguments or results are retained. Values are inspectable only on the live stack
   while suspended — to look inside a returned branch, replay: restart the trace with a one-shot
   breakpoint on that node (the UI does this in one click; the input is remembered across restarts).

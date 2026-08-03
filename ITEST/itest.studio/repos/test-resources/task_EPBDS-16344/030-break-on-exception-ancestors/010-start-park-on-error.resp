@@ -1,0 +1,116 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "suspended",
+  "frames": [
+    {
+      "index": 0,
+      "depth": 1,
+      "instance": 0,
+      "uri": "***",
+      "tableId": "***",
+      "name": "calc3",
+      "kind": "spreadsheet",
+      "location": {
+        "kind": "cell",
+        "row": 0,
+        "column": 0,
+        "ref": "R0C0",
+        "label": "$Coverages"
+      },
+      "active": false,
+      "completed": false,
+      "error": false,
+      "steps": [
+        {
+          "ref": "R0C0",
+          "label": "$Coverages",
+          "cell": "D5",
+          "status": "current"
+        },
+        {
+          "ref": "R1C0",
+          "label": "$OverriddenType1",
+          "cell": "D6",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "depth": 2,
+      "instance": 0,
+      "uri": "***",
+      "tableId": "***",
+      "name": "calc2",
+      "kind": "spreadsheet",
+      "location": {
+        "kind": "cell",
+        "row": 0,
+        "column": 0,
+        "ref": "R0C0",
+        "label": "$Classes"
+      },
+      "active": false,
+      "completed": false,
+      "error": false,
+      "steps": [
+        {
+          "ref": "R0C0",
+          "label": "$Classes",
+          "cell": "D16",
+          "status": "current"
+        },
+        {
+          "ref": "R1C0",
+          "label": "$OverriddenType1",
+          "cell": "D17",
+          "status": "pending"
+        },
+        {
+          "ref": "R2C0",
+          "label": "$Type1",
+          "cell": "D18",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "depth": 3,
+      "instance": 0,
+      "uri": "***",
+      "tableId": "***",
+      "name": "calc1",
+      "kind": "spreadsheet",
+      "location": {
+        "kind": "cell",
+        "row": 0,
+        "column": 0,
+        "ref": "R0C0",
+        "label": "$Step1"
+      },
+      "active": true,
+      "completed": true,
+      "error": true,
+      "steps": [
+        {
+          "ref": "R0C0",
+          "label": "$Step1",
+          "cell": "D27",
+          "status": "current"
+        },
+        {
+          "ref": "R1C0",
+          "label": "$Type1",
+          "cell": "D28",
+          "status": "pending"
+        }
+      ],
+      "durationMillis": "*",
+      "selfMillis": "*"
+    }
+  ],
+  "sessionId": "***"
+}

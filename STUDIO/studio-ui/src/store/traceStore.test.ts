@@ -745,6 +745,14 @@ describe('traceStore simple mode', () => {
 
     it('keeps the clicked table selected when running to it hits an error deeper down', async () => {
         primeSimpleReady({ status: 'error' })
+        // A previous inspect left the throwing child on screen; clicking the root must not keep flashing it.
+        useTraceStore.setState({
+            frames: [
+                { index: 0, uri: 'uR', instance: 0 } as any,
+                { index: 1, uri: 'uBoom', instance: 0, tableId: 'boom-table' } as any,
+            ],
+            selectedFrameIndex: 1,
+        })
         cancelTrace.mockResolvedValue(undefined)
         getStack.mockRejectedValue(new Error('no session'))
         // The quiet restart lands suspended at the root entry, so stepping it out runs the whole table.
@@ -757,8 +765,14 @@ describe('traceStore simple mode', () => {
             { index: 2, uri: 'uBoom', instance: 0, completed: false, error: { summary: 'boom' } } as any]))
         getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
 
-        await useTraceStore.getState().simpleInspect(
+        const inspect = useTraceStore.getState().simpleInspect(
             { key: 'uR@0', frameUri: 'uR', frameInstance: 0, stepType: 'out', label: 'uR' })
+        // As soon as the click is accepted, the previous (throwing) frame is cleared so its table cannot
+        // linger on screen while the re-run parks deeper and then remaps to the clicked ancestor.
+        expect(useTraceStore.getState().selectedFrameIndex).toBeNull()
+        expect(useTraceStore.getState().variablesLoading).toBe(true)
+
+        await inspect
 
         const state = useTraceStore.getState()
         expect(step).toHaveBeenCalledWith('p1', 'out')
@@ -769,7 +783,10 @@ describe('traceStore simple mode', () => {
     })
 
     it('does nothing when the clicked row is already the one on screen', async () => {
-        primeSimpleReady({ status: 'suspended', simpleSelectedKey: 'uA@1', simpleLastInspected: 0 })
+        // A settled inspect has both the highlight and a selected frame; without a frame the same row
+        // is allowed to retry (a failed inspect left the loading window empty).
+        primeSimpleReady({ status: 'suspended', simpleSelectedKey: 'uA@1', simpleLastInspected: 0,
+            selectedFrameIndex: 0 })
 
         await useTraceStore.getState().simpleInspect(
             { key: 'uA@1', frameUri: 'uA', frameInstance: 1, stepType: 'out', label: 'uA' })
@@ -913,10 +930,11 @@ describe('traceStore simple mode', () => {
         expect(useTraceStore.getState().simpleReady).toBe(true)
     })
 
-    it('keeps the previously inspected table on the panel through a restart — never flashes the root', async () => {
-        // A prior inspection left a deep table (uA) on screen. Clicking an earlier node forces a fresh run,
-        // but the panel must not flash the fresh root and its parameters: the frames stay on uA until the
-        // target inspection settles (the resume here is mocked, so no settle happens).
+    it('does not apply the fresh root stack on inspect restart — and clears the previous selection', async () => {
+        // A prior inspection left a deep table (uA) on screen. Clicking another node forces a fresh run:
+        // the root stack must not be painted (that would flash the root), and the previous selection must
+        // be cleared too (holding uA would flash the wrong table, e.g. a throwing child before the target).
+        // The resume here is mocked, so no settle happens — Details stays in the loading window.
         const previous = [
             { index: 0, uri: 'uR', instance: 0, completed: true } as any,
             { index: 1, uri: 'uA', instance: 0, completed: false } as any,
@@ -934,9 +952,88 @@ describe('traceStore simple mode', () => {
 
         expect(cancelTrace).toHaveBeenCalled() // an earlier node needs a fresh run
         expect(resume).toHaveBeenCalled() // run to the target with an inclusive breakpoint
-        // The fresh root stack was never applied: the previous table and selection are untouched.
+        // The fresh root stack was never applied; the previous frames stay only as inert state.
         expect(useTraceStore.getState().frames).toBe(previous)
-        expect(useTraceStore.getState().selectedFrameIndex).toBe(1)
+        expect(useTraceStore.getState().selectedFrameIndex).toBeNull()
+        expect(useTraceStore.getState().variablesLoading).toBe(true)
+    })
+
+    it('clears the inspect loading window when resume fails, and allows retrying the same row', async () => {
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 9 })
+        cancelTrace.mockResolvedValue(undefined)
+        getStack.mockRejectedValue(new Error('no session'))
+        startTrace.mockResolvedValue(suspended([{ index: 0, uri: 'uR', instance: 0, completed: false } as any]))
+        setBreakpoints.mockResolvedValue(undefined)
+        resume.mockRejectedValue(new Error('resume boom'))
+
+        await useTraceStore.getState().simpleInspect(
+            { key: 'uB@0', frameUri: 'uB', frameInstance: 0, stepType: 'out', label: 'uB' })
+
+        expect(useTraceStore.getState().variablesLoading).toBe(false)
+        expect(useTraceStore.getState().selectedFrameIndex).toBeNull()
+        expect(useTraceStore.getState().simpleSelectedKey).toBeNull()
+        expect(useTraceStore.getState().error).toBe('resume boom')
+
+        // Same row can be clicked again — a settled highlight would have been a no-op.
+        resume.mockResolvedValue(undefined)
+        await useTraceStore.getState().simpleInspect(
+            { key: 'uB@0', frameUri: 'uB', frameInstance: 0, stepType: 'out', label: 'uB' })
+        expect(resume).toHaveBeenCalledTimes(2)
+        expect(useTraceStore.getState().simpleSelectedKey).toBe('uB@0')
+        expect(useTraceStore.getState().variablesLoading).toBe(true) // handed off to a running resume
+    })
+
+    it('clears the inspect loading window when a step-at-target fails', async () => {
+        // Restart lands on the clicked table's fresh entry, so inspect steps it out instead of run-to.
+        primeSimpleReady({ status: 'error' })
+        cancelTrace.mockResolvedValue(undefined)
+        getStack.mockRejectedValue(new Error('no session'))
+        startTrace.mockResolvedValue(suspended([
+            { index: 0, uri: 'uR', instance: 0, completed: false } as any]))
+        step.mockRejectedValue(new Error('step boom'))
+
+        await useTraceStore.getState().simpleInspect(
+            { key: 'uR@0', frameUri: 'uR', frameInstance: 0, stepType: 'out', label: 'uR' })
+
+        expect(step).toHaveBeenCalledWith('p1', 'out')
+        expect(useTraceStore.getState().variablesLoading).toBe(false)
+        expect(useTraceStore.getState().selectedFrameIndex).toBeNull()
+        expect(useTraceStore.getState().simpleSelectedKey).toBeNull()
+        expect(useTraceStore.getState().error).toBe('step boom')
+    })
+
+    it('restores suspended status when a socket-settle refresh fails, so the same row can be re-inspected', async () => {
+        // A business inspect ran the target; a resume left status 'running' while its suspension is awaited.
+        primeSimpleReady({
+            status: 'running',
+            selectedFrameIndex: null,
+            variablesLoading: true,
+            simpleSelectedKey: 'uB@0',
+        })
+        // The 'suspended' socket event delegates to refreshStack (it sets no status itself), and that fetch fails.
+        getStack.mockRejectedValue(new Error('stack boom'))
+        useTraceStore.getState().onSocketStatus('suspended')
+        await new Promise(resolve => setTimeout(resolve, 0)) // let the fire-and-forget refresh reject
+
+        // Without applyStack to settle it, status would stay a stale 'running' and wedge the guard below;
+        // the failed refresh must restore the suspended status the socket already reported.
+        expect(useTraceStore.getState().status).toBe('suspended')
+        expect(useTraceStore.getState().variablesLoading).toBe(false)
+        expect(useTraceStore.getState().error).toBe('stack boom')
+        // Highlight stays so the same row can be re-inspected (no settled frame selected).
+        expect(useTraceStore.getState().simpleSelectedKey).toBe('uB@0')
+        expect(useTraceStore.getState().selectedFrameIndex).toBeNull()
+
+        // The same row now retries instead of being blocked by 'running': the inspect enters its restart.
+        cancelTrace.mockResolvedValue(undefined)
+        startTrace.mockResolvedValue(suspended([{ index: 0, uri: 'uR', instance: 0, completed: false } as any]))
+        setBreakpoints.mockResolvedValue(undefined)
+        resume.mockResolvedValue(undefined)
+
+        await useTraceStore.getState().simpleInspect(
+            { key: 'uB@0', frameUri: 'uB', frameInstance: 0, stepType: 'out', label: 'uB' })
+
+        expect(cancelTrace).toHaveBeenCalled()
     })
 
     it('ignores a second inspect click while one is mid-flight, so it cannot cancel the first session', async () => {

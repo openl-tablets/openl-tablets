@@ -130,7 +130,9 @@ public class TraceDebugMapper {
                     .location(toLocationView(frame.getLocation()))
                     .active(active)
                     .completed(frame.isCompleted())
-                    .error(frame.getError() != null)
+                    // Only a completed failure — not a live caller stamped for inspect while still parked —
+                    // lights the stack's error mark. Ancestors keep the throwable for variables/step-inputs.
+                    .error(frame.isCompleted() && frame.getError() != null)
                     .steps(options.compact() && !active ? null : outlineSteps(frame, completedTree == null))
                     .durationMillis(completedMillis(frame))
                     .selfMillis(completedSelfMillis(frame))

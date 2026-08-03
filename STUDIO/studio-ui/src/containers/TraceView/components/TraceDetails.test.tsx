@@ -73,6 +73,15 @@ describe('TraceDetails', () => {
         expect(screen.queryByTestId('debug-details')).toBeNull()
     })
 
+    it('shows a loading panel while a business click has cleared the frame and is re-running', () => {
+        // simpleInspect drops selectedFrameIndex so a previous (e.g. throwing) table is not held on screen;
+        // Details must spin for that window instead of flashing "no selection" or the stale table.
+        useTraceStore.setState({ selectedFrameIndex: null, variablesLoading: true })
+        render(<TraceDetails />)
+        expect(screen.getByTestId('debug-details-loading')).toBeInTheDocument()
+        expect(screen.queryByText('details.noSelection')).toBeNull()
+    })
+
     it('renders parameters, result, and the traced table for a selected frame', () => {
         useTraceStore.setState({
             status: 'suspended',
@@ -316,12 +325,15 @@ describe('TraceDetails', () => {
         expect(screen.queryByText('$Value$X')).toBeNull()
     })
 
-    it('lists frame errors when the selected frame reported messages', () => {
+    it('lists frame errors in Result\'s place when the selected frame reported messages', () => {
+        // A failed frame has no return value — Errors replace the empty Result block above the traced table,
+        // in both the business and advanced views.
         useTraceStore.setState({
             status: 'suspended',
             frames: [frame()],
             selectedFrameIndex: 0,
             variables: variables({
+                result: null,
                 errors: [{ severity: 'ERROR', summary: 'Division by zero' }],
             }),
             variablesLoading: false,
@@ -329,11 +341,15 @@ describe('TraceDetails', () => {
         render(<TraceDetails />)
         expect(screen.getByText('details.errors')).toBeInTheDocument()
         expect(screen.getByText('Division by zero')).toBeInTheDocument()
+        // Result's title is rendered as "details.result:" — absent when Errors take its place.
+        expect(screen.queryByText('details.result:')).toBeNull()
+        expect(screen.queryByText('details.noResult')).toBeNull()
     })
 
     it('shows the error on the focused step the run failed on, from its step-inputs', async () => {
         // The failing step carries its own error in the step-inputs payload, so clicking it explains why it
         // failed — not only the whole table's frame — the way the advanced view shows the error on both.
+        // Errors sit where Result would, above the traced table.
         const getStepInputs = traceService.getStepInputs as ReturnType<typeof vi.fn>
         getStepInputs.mockResolvedValue({
             inputs: [{ name: '$AllEmployeesWithSelectedClass', description: 'Employee[]', lazy: false, value: []}],
@@ -355,5 +371,24 @@ describe('TraceDetails', () => {
         expect(getStepInputs).toHaveBeenCalledWith('p1', 0, 'S3')
         expect(await screen.findByText('There are no employee records')).toBeInTheDocument()
         expect(screen.getByText('details.errors')).toBeInTheDocument()
+        expect(screen.queryByText('details.result:')).toBeNull()
+    })
+
+    it('shows frame errors in Result\'s place in the advanced view too', () => {
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame()],
+            selectedFrameIndex: 0,
+            variables: variables({
+                result: null,
+                errors: [{ severity: 'ERROR', summary: 'Division by zero' }],
+            }),
+            variablesLoading: false,
+            advanced: true,
+        })
+        render(<TraceDetails />)
+        expect(screen.getByText('details.errors')).toBeInTheDocument()
+        expect(screen.getByText('Division by zero')).toBeInTheDocument()
+        expect(screen.queryByText('details.result:')).toBeNull()
     })
 })
