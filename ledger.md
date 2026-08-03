@@ -15,9 +15,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - The idle pass is four calls: `git log` against `origin/main`, the merged-PR check, the workflow-run check, and one
   `curl` for `opensaml-bom` — still 000 shibboleth and 404 Central, so webstudio Java stays the one unswept
   surface. Seed the stub only if a build is actually needed.
-- **`main`'s head is red and it is not the sweep's doing** — the kafka-native floating tag, now three consecutive
-  `main` runs, verified again on the head run (see *CI flakes*). Section 7 bars cleanup while `main` is red, so an
-  idle run stays idle until a green `main` run appears.
+- **`main`'s head is red and it is not the sweep's doing** — the kafka-native floating tag, now four consecutive
+  `main` runs (see *CI flakes*). Section 7 bars cleanup while `main` is red, so an idle run stays idle until a green
+  `main` run appears. While the head SHA is unchanged the verdict holds; do not re-diagnose the same run.
 
 ## Change-type queue
 
@@ -239,7 +239,8 @@ None. Open the next one from a fresh branch off the current `main`.
   it is named `IT (services-data)`** — no job is named for tracing or kafka — and it runs ITEST Core, Kafka Smoke,
   WS Tracing, WS Store Log Data and S3, so the failing module is `itest.tracing` (`RunTracingITest.setUp:57`,
   waiting for `Transitioning from RECOVERY to RUNNING`) while `ITEST - Kafka Smoke` passes beside it. It has left
-  `main` red on three consecutive commits. Never pin the tag away; check for a later green run before escalating.
+  `main` red on four consecutive commits. Never pin the tag away; check for a later green run before escalating.
+  The job list alone identifies it — that job failed and every sibling passed — so no log fetch is needed.
 - `studio-ui` `npm run test` is the standing failure of `Tests (without ITEST)` — tell `Failed to run task:
   'npm run test' failed` plus `-rf :studio-ui`. Always the same 2 of the 28 tests in
   `src/containers/projects/OverviewPanel.test.tsx`: "edits the descriptor text in place…" (`Test timed out` against
@@ -357,7 +358,7 @@ None. Open the next one from a fresh branch off the current `main`.
   import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
   or swept until then, and the stub has to be re-seeded on every container rebuild.
 - **`itest.tracing` and `itest.kafka` both start `apache/kafka-native:latest`, an unpinned tag whose image
-  intermittently segfaults in its own bootstrap** and has now left `main` red on three consecutive commits. Pinning
+  intermittently segfaults in its own bootstrap** and has now left `main` red on four consecutive commits. Pinning
   it to a released version would stop a third-party push from reddening CI; this routine only deletes, so it cannot
   make the change.
 - The weekly `build.yml` cross-platform matrix has been red on `main` since 2026-07-01 (details in *CI flakes*).
@@ -383,10 +384,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-03 — run twenty-nine. #1940 merged; collapsed its record and closed the open-PR section. Probed two new veins
-  (orphan Maven modules, service registrations) — both zero, both closed. No sweep commit.
-- 08-03 — run thirty. Zero new `main` commits. Diagnosed `main`'s red head as the kafka-native floating tag.
-  Assessed and closed the pom `<exclusions>` vein. No sweep commit.
-- 08-03 — run thirty-one. Zero new `main` commits, so no scope; `main` red for a third commit on the same flake,
-  which also bars cleanup. Corrected the flake's job name to `IT (services-data)` and recorded the 5-week-red weekly
-  `build.yml`; traded that new content against compacted redundancy, so the file holds at 392 lines.
+- 08-03 — run thirty. No new `main` scope; diagnosed the red head as the kafka flake, closed the pom exclusions vein.
+- 08-03 — run thirty-one. No new scope; named the flake's job `IT (services-data)`, recorded the red weekly `build.yml`.
+- 08-03 — run thirty-two. Nothing moved — same head, same red run, opensaml still blocked, no open PR, no commit.
