@@ -12,9 +12,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   only product is compaction is a successful run.
 - A feature commit that deletes a screen is the richest incremental vein: check the locale keys, service functions
   and helper modules it used, and the `throws` clauses it dropped, before assuming the author cleaned up.
-- The idle pass is four calls: `git log` against `origin/main`, the merged-PR check, the workflow-run check, and one
+- The idle pass is four calls: `git log` against `origin/main`, the open-PR check, the workflow-run check, and one
   `curl` for `opensaml-bom` — still 000 shibboleth and 404 Central, so webstudio Java stays the one unswept
-  surface. Seed the stub only if a build is actually needed.
+  surface. Seed the stub only if a build is actually needed. Three consecutive runs have now been idle at this same
+  head; expect idleness and spend nothing beyond those four calls plus the ledger push.
 - **`main`'s head is red and it is not the sweep's doing** — the kafka-native floating tag, now four consecutive
   `main` runs (see *CI flakes*). Section 7 bars cleanup while `main` is red, so an idle run stays idle until a green
   `main` run appears. While the head SHA is unchanged the verdict holds; do not re-diagnose the same run.
@@ -291,9 +292,9 @@ None. Open the next one from a fresh branch off the current `main`.
 - **`sonarcloud.io` is blocked too** — 403 to CONNECT, same shape as shibboleth, confirmed against
   `$HTTPS_PROXY/__agentproxy/status`. So a red `SonarCloud Code Analysis` check can never be diagnosed from here:
   report the failed conditions from the check-run summary and hand the judgement to a maintainer.
-- **Reading a CI log takes one shape only.** Listing runs ignores both `per_page` and the branch filter and returns
-  30 runs across all branches, overflowing the tool limit even when scoped to one workflow file — let it save to a
-  file and parse that with python for the run `id` (the `run_number` is not an id). `get_job_logs` truncates from
+- **Reading a CI log takes one shape only.** Listing runs ignores `per_page` and always returns 30 runs, overflowing
+  the tool limit even when scoped to one workflow file — let it save to a file and parse that with python for the run
+  `id` (the `run_number` is not an id). The branch filter does apply, so filter to `main` and read the newest row. `get_job_logs` truncates from
   the **end**, so a failing ITEST needs `tail_lines` about 130 to reach the reactor summary; 60 lands mid-cleanup,
   and `failed_only` over a 6-job matrix returns only cleanup noise at 40. Its `logs_url` points at Azure blob
   storage, which the proxy refuses with 403 CONNECT, so always use `return_content` with a bounded tail.
@@ -384,6 +385,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-03 — run thirty. No new `main` scope; diagnosed the red head as the kafka flake, closed the pom exclusions vein.
 - 08-03 — run thirty-one. No new scope; named the flake's job `IT (services-data)`, recorded the red weekly `build.yml`.
 - 08-03 — run thirty-two. Nothing moved — same head, same red run, opensaml still blocked, no open PR, no commit.
+- 08-03 — run thirty-three. Idle again at the same head; only sharpened the workflow-listing branch-filter fact.
