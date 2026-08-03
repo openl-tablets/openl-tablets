@@ -751,6 +751,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         if (descriptorName == null) {
             var fileItem = delegate.read(descriptorPath);
             try (var stream = fileItem.getStream()) {
+                // The name is cached even when absent, so a nameless descriptor is not read and parsed again.
                 descriptorName = Optional.ofNullable(getProjectName(stream));
             }
             if (descriptorRevision != null) {
@@ -783,11 +784,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             if (isExcelFileInFolderRoot(fileData, folderPath)) {
                 String projectName = FileUtils.getName(folderPath);
                 var externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
-                var projectInfo = new ProjectInfo(
+                return new ProjectInfo(
                         externalPath.substring(baseFolder.length()),
                         folderPath
                 );
-                return projectInfo;
             }
         }
 
