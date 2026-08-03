@@ -65,10 +65,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 ## Deferred findings
 
 - `STUDIO/org.openl.rules.tableeditor` `taglib/TableEditorTag.java` (11 unread private fields) and
-  `TableViewerTag.java` (7): each is written by a public setter, read by nobody, and both classes are named only by
-  `META-INF/tableeditor.tld`. The whole JSP taglib is the real candidate and no in-repository evidence settles it —
-  the module is published, so a consumer's own JSP may use it. Never touch the fields alone: the setters are the
-  taglib's declared attribute contract.
+  `TableViewerTag.java` (7): written by public setters, read by nobody, named only by `META-INF/tableeditor.tld`.
+  Never touch the fields alone — the setters are the taglib's declared attribute contract.
 - `STUDIO/org.openl.security` `SimpleGroup.description` — written by a public setter and a public constructor
   parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
@@ -78,8 +76,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — the flagged `messagesCount++` passes its value on,
   so only the increment is wasted: an expression rewrite, not a deletion.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
-  `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract documented in
-  `Docs/api/projects-merge-api.md` with a Java record and an OpenAPI schema. Needs a human decision.
+  `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract in
+  `Docs/api/projects-merge-api.md` backed by a Java record and an OpenAPI schema.
 - ~45 studio-ui exported types used only inside their own file — alive; dropping `export` is a refactor, not a deletion.
 - `js/datepicker.js` `dateValidForSelection`, `getSelectedDate`, `setDisabledDays`, `joinNodeLists` — no call site, but
   the file is vendored third party (DatePicker v5.4, frequency-decoder.com, CC BY-SA 3.0) and these are its public API.
@@ -376,9 +374,6 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-02 — runs eighteen to twenty. Maintenance only, the same picture each time: head `8957deb3` green on every
-  Actions check, `main` not moved, no comment to answer, shibboleth and Central refused. No commit.
-- 08-02 — twenty-first run. Unchanged again: counts re-derived (4 commits, 8 files, 8 insertions, 24 deletions),
-  zero review threads, newest comment still this routine's own, shibboleth blocked and Central 404. No commit.
-- 08-03 — twenty-second run. Same four calls, same answers: merge-base equals `main`, counts still 4/8/8/24,
-  zero review threads, newest comment this routine's own, shibboleth connect fails and Central 404. No commit.
+- 08-02 — run twenty-one. Counts re-derived 4/8/8/24, zero review threads, shibboleth blocked, Central 404. No commit.
+- 08-03 — run twenty-two. Same four answers: merge-base equals `main`, counts 4/8/8/24, no new comment. No commit.
+- 08-03 — run twenty-three. Unchanged again; ledger compacted 384 to 379 lines. No commit to the sweep branch.
