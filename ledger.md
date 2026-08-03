@@ -4,16 +4,14 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Every queue row is done and every vein below is closed. While `git merge-base origin/main
-  origin/dead-code/java-internals` equals `origin/main`, main has not moved and there is no new scope: go straight
-  to maintenance, and never invent a detector to have something to delete.
-- #1940 carries the whole sweep, is green on every Actions check, has no review thread, and waits on a human
-  review — the only lever left, and this routine cannot pull it. Do not nudge it with a no-op commit, do not
-  re-argue the SonarCloud gate, and do not comment merely to restate a green status: the description carries it.
-- The whole maintenance pass is four calls: that merge-base check, `git diff --shortstat` plus `git log | wc -l`
-  against the description's counts, `get_comments`, `get_check_runs`. Nothing else changes between idle runs.
-- One `curl` for the `opensaml-bom` pom is the whole scope probe: a 200 from `build.shibboleth.net` unlocks
-  webstudio Java, the last unswept surface. Refused again, and Central 404s. Seed the stub only if a build is needed.
+- Every queue row is done and every vein below is closed; while `git merge-base origin/main
+  origin/dead-code/java-internals` equals `origin/main` there is no new scope. Never invent a detector.
+- #1940 carries the whole sweep, is green on all 12 Actions checks, has no review thread, and waits on a human
+  review this routine cannot supply. Do not nudge it, do not re-argue the SonarCloud gate, do not comment to
+  restate a green status — the description carries it.
+- The idle pass is five calls: merge-base, counts against the description's 4 commits / 8 files / 8 insertions /
+  24 deletions, `get_comments`, `get_check_runs`, and one `curl` for `opensaml-bom` — still 000 shibboleth and
+  404 Central, so webstudio Java stays the one unswept surface. Seed the stub only if a build is needed.
 
 ## Change-type queue
 
@@ -374,6 +372,6 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-03 — run twenty-two. Same four answers: merge-base equals `main`, counts 4/8/8/24, no new comment. No commit.
 - 08-03 — run twenty-three. Unchanged again; ledger compacted 384 to 379 lines. No commit to the sweep branch.
 - 08-03 — run twenty-four. Unchanged; all 12 Actions checks green, shibboleth 000 and Central 404. No commit.
+- 08-03 — run twenty-five. Unchanged; resume point compacted 379 to 377 lines. No commit to the sweep branch.
