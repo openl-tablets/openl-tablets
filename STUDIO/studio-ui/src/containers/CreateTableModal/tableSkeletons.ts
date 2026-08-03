@@ -213,8 +213,11 @@ export const buildTableHeader = (
     context: TableBuildContext
 ): string => {
     switch (preset) {
-        case 'datatype':
-            return `Datatype ${name}${context.extendsType.trim() ? ` extends ${context.extendsType.trim()}` : ''}`
+        case 'datatype': {
+            const extendsType = context.extendsType.trim()
+            const extendsClause = extendsType ? ` extends ${extendsType}` : ''
+            return `Datatype ${name}${extendsClause}`
+        }
         case 'vocabulary':
             return `Datatype ${name} <${context.vocabularyType || 'String'}>`
         case 'constants':
@@ -672,7 +675,7 @@ export const normalizeFreeFormColumns = (
  */
 export const title = (name: string): string => name
     .replaceAll(/[_-]+/g, ' ')
-    .replaceAll(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .replaceAll(/([A-Z])(?=[A-Z][a-z])/g, '$1 ')
     .replaceAll(/([a-z\d])([A-Z])/g, '$1 $2')
     .trim()
     .split(/\s+/)
