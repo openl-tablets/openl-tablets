@@ -39,7 +39,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.ChangesetType;
@@ -60,7 +59,7 @@ class GitRepositoryTest {
 
     @TempDir
     private static File template;
-    @TempDir(cleanup = CleanupMode.NEVER)
+    @TempDir
     private File root;
     private File remote;
     private File local;
