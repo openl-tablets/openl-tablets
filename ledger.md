@@ -9,9 +9,8 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
   the source files it touches, skip webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Never invent a detector.
 - A feature commit that deletes a screen is the richest incremental vein: check the locale keys, service functions
   and helper modules it used, and the `throws` clauses it dropped, before assuming the author cleaned up.
-- #1940 carries the whole sweep, is green on all 12 Actions checks, has no unanswered comment, and waits on a human
-  review this routine cannot supply. Do not nudge it, do not re-argue the SonarCloud gate, do not comment to
-  restate a green status — the description carries it.
+- **#1940 was merged by yurkom at 2026-08-03 13:14:55Z.** There is no open PR. The next run starts a fresh sweep
+  branch from the new `main`; do not reuse `dead-code/java-internals` and do not stack onto merged history.
 - The idle pass is five calls: merge-base plus counts against the description's 4 commits / 8 files / 8 insertions /
   24 deletions, `get_comments`, `get_check_runs`, and one `curl` for `opensaml-bom` — still 000 shibboleth and
   404 Central, so webstudio Java stays the one unswept surface. Seed the stub only if a build is needed.
@@ -41,20 +40,18 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Open PR
 
-- Branch `dead-code/java-internals`, PR #1940, ready for review, 4 commits, 8 files / 8 insertions /
-  24 deletions, no review threads, blocked on the missing human review. Re-derive the counts mechanically.
-- `676a8e9071 Remove never-read variable and field initializers` — 5 files.
-- `ac445bd038 Remove unused local variables that assertions never read` — 1 file.
-- `90168ba313 Remove an unused private field from the grid-table test stub` — 1 file.
-- `8957deb3c5 Delete a test fixture class that no test and no spreadsheet references` — 1 file.
-- The commits are one detector rule each, so they are different change types: never squash them together.
-- CodeRabbit asked for JSpecify `@Nullable` on the two `FuzzyContext` fields; answered and declined — the module
-  has no JSpecify at all and the diff does not change their nullness. Settled, do not re-answer.
+None. Open the next one from a fresh branch off the current `main`.
 
 ## Merged PRs
 
 - #1933, 12 files / 74 deletions — studio-ui i18n keys plus `PopupMenu.showChild`. Merged with the SonarCloud gate
-  *and* `Tests (without ITEST)` red, which is the precedent #1940 rests on.
+  *and* `Tests (without ITEST)` red, which is the precedent #1940 rested on.
+- #1940, 8 files / 8 insertions / 24 deletions, merged 08-03 13:14:55Z. Four commits, one detector rule each:
+  `676a8e9071` UnusedAssignment (5 files), `ac445bd038` UnusedLocalVariable, `90168ba313` UnusedPrivateField,
+  `8957deb3c5` the `JavaType` fixture deletion. Green on all 12 Actions checks; **merged with the SonarCloud
+  Quality Gate still red**, so that gate is now twice-confirmed as not blocking a deletion-only sweep — state it
+  and leave the call to the maintainer. CodeRabbit's `@Nullable` request on the two `FuzzyContext` fields was
+  answered and declined (the module has no JSpecify and the diff does not change their nullness).
 
 ## Module coverage
 
