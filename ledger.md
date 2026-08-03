@@ -4,39 +4,27 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- Every queue row is done and every vein below is closed. New scope arrives only as new commits on `main`; the
-  incremental sweep is current through `23399ada`. Diff `git log --name-status 23399ada..origin/main`, sweep only
-  the source files it touches, skip webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Never invent a detector.
+- **The sweep has converged.** Every queue row is done, every vein below is closed, and `main` is at `83feec71`,
+  which is #1940's own last commit — so there is no unswept scope at all. New scope arrives only as new commits
+  on `main`.
+- Each run: diff `git log --name-status 83feec71..origin/main`, sweep only the source files it touches, skip
+  webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Never invent a detector to manufacture work; a run whose
+  only product is compaction is a successful run.
 - A feature commit that deletes a screen is the richest incremental vein: check the locale keys, service functions
   and helper modules it used, and the `throws` clauses it dropped, before assuming the author cleaned up.
-- **#1940 was merged by yurkom at 2026-08-03 13:14:55Z.** There is no open PR. The next run starts a fresh sweep
-  branch from the new `main`; do not reuse `dead-code/java-internals` and do not stack onto merged history.
-- The idle pass is five calls: merge-base plus counts against the description's 4 commits / 8 files / 8 insertions /
-  24 deletions, `get_comments`, `get_check_runs`, and one `curl` for `opensaml-bom` — still 000 shibboleth and
-  404 Central, so webstudio Java stays the one unswept surface. Seed the stub only if a build is needed.
+- The idle pass is four calls: `git log` against `origin/main`, the merged-PR check, `get_check_runs`, and one
+  `curl` for `opensaml-bom` — still 000 shibboleth and 404 Central, so webstudio Java stays the one unswept
+  surface. Seed the stub only if a build is actually needed.
 
 ## Change-type queue
 
-| # | Change type | Status |
-|---|---|---|
-| 1 | Unreferenced images | done, no findings (incl. all 610 under `Docs/`) |
-| 2 | Unreferenced `.xhtml` pages | done, no findings |
-| 3 | Dead CSS classes and ids | done, only `.te_hidden`, deferred |
-| 4 | Unreferenced `.js` files | done, no findings |
-| 5 | Unused `.properties` keys | done, no findings |
-| 6 | Unused i18n keys in studio-ui bundles | done, merged |
-| 7 | Unreferenced exported TS symbols and modules | done, only deferred findings |
-| 8 | Dead functions inside legacy `.js` | done, merged |
-| 9 | Never-read assignments (PMD) | done, main and test sources |
-| 10 | Unused private fields and locals (PMD) | done; 20 fields deferred |
-| 11 | Unused private methods and formal params (PMD) | done, no removable finding |
-| 12 | Unused nested / effectively-private types (javac) | done, no findings |
-| 13 | Unused declared Maven dependencies | done for 52 modules, no provable finding |
-| 14 | Whole-type deadness over Java simple names | done, all 853 non-public top-level types alive |
-| 15 | Package-private/protected members of non-public types | done, all 386 examined are alive |
-| 16 | Package-private members of public types | done, all 835 declarations are alive |
-| 17 | Unreferenced public types in test trees | done, 1 removed |
-| 18 | Dead Maven profiles and `pluginManagement` entries | done, all 14 profiles and 44 managed plugins alive |
+All 19 change types are **done**; *Exhausted veins* records the scope each one covered. Resources (images,
+`.xhtml`, CSS, `.js`, `.properties`, studio-ui i18n and TS exports), Java (PMD assignments/fields/locals/methods/
+params, javac nested types, whole-type and member deadness at every visibility, test-tree public types) and Maven
+configuration (declared dependencies, profiles, `pluginManagement`, the module graph, service registrations).
+Only three rows left anything behind, all in *Deferred findings*: dead CSS is `.te_hidden` alone, unused private
+fields left 20 in the tableeditor taglib, and the TS pass left the `MergeModal` contract mirrors. A new row is
+warranted only by a detector this ledger has never run — not by re-running one of these.
 
 ## Open PR
 
@@ -44,21 +32,16 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Merged PRs
 
-- #1933, 12 files / 74 deletions — studio-ui i18n keys plus `PopupMenu.showChild`. Merged with the SonarCloud gate
-  *and* `Tests (without ITEST)` red, which is the precedent #1940 rested on.
-- #1940, 8 files / 8 insertions / 24 deletions, merged 08-03 13:14:55Z. Four commits, one detector rule each:
-  `676a8e9071` UnusedAssignment (5 files), `ac445bd038` UnusedLocalVariable, `90168ba313` UnusedPrivateField,
-  `8957deb3c5` the `JavaType` fixture deletion. Green on all 12 Actions checks; **merged with the SonarCloud
-  Quality Gate still red**, so that gate is now twice-confirmed as not blocking a deletion-only sweep — state it
-  and leave the call to the maintainer. CodeRabbit's `@Nullable` request on the two `FuzzyContext` fields was
-  answered and declined (the module has no JSpecify and the diff does not change their nullness).
+- #1933, 12 files / 74 deletions — studio-ui i18n keys plus `PopupMenu.showChild`.
+- #1940, 8 files / 8 insertions / 24 deletions — PMD and whole-type deadness in DEV Java internals. Merged by
+  yurkom with the SonarCloud Quality Gate red, as #1933 was: that gate is **twice-confirmed as not blocking a
+  deletion-only sweep**, so state its conditions and leave the call to the maintainer rather than chasing it.
 
 ## Module coverage
 
-- `STUDIO/studio-ui` — locale bundles, import graph, eslint, npm dependencies: only deferrals left.
-- `STUDIO/org.openl.rules.webstudio` Java — never swept, uncompilable here (see *Container facts*); its resources
-  are already covered by the repo-wide resource veins.
-- Every other module — PMD (main and test sources), javac, member and whole-type deadness all swept.
+- `STUDIO/org.openl.rules.webstudio` Java is the one unswept surface — uncompilable here (see *Container facts*),
+  though its resources are already covered by the repo-wide resource veins.
+- Every other module is fully swept and has nothing left but the entries in *Deferred findings*.
 
 ## Deferred findings
 
@@ -82,8 +65,8 @@ None. Open the next one from a fresh branch off the current `main`.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
   `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract in
   `Docs/api/projects-merge-api.md` backed by a Java record and an OpenAPI schema.
-- ~50 studio-ui exports used only inside their own file — alive; dropping `export` is a refactor, not a delete. Every
-  incremental pass adds a few (`RailMode`, `loadRailMode`, `ListingQuery`, `RepositoryCapabilities`); stop re-listing them.
+- ~50 studio-ui exports used only inside their own file — alive; dropping `export` is a refactor, not a delete.
+  Every incremental pass adds a few (`RailMode`, `ListingQuery`, `RepositoryCapabilities`); stop re-listing them.
 - `js/datepicker.js` `dateValidForSelection`, `getSelectedDate`, `setDisabledDays`, `joinNodeLists` — no call site,
   but the file is vendored third party (DatePicker v5.4, frequency-decoder.com, CC BY-SA 3.0) and these are its API.
 - `.te_hidden` in `STUDIO/org.openl.rules.tableeditor/css/common.css` — the only real CSS orphan. Blocked because the
@@ -129,6 +112,9 @@ None. Open the next one from a fresh branch off the current `main`.
   invoked as a bare goal (`release:prepare`, `scm:`, `license:`). A profile with no `-P` reference is alive when a
   property activates it (`quick`, `skipTests`, `!noPerf`, `noDocker`, `sonar`, `!sonar`, `!skipTests`, `env.CI`) or
   when it is documented tooling — `owasp`, named by `SECURITY.md`, is the only one with neither.
+- **A pom outside the root aggregator's `<module>` graph is normally a fixture, not an orphan.** All 120 unreachable
+  poms are maven-invoker projects under `Util/openl-maven-plugin/it/**`, run by the invoker plugin, or documentation
+  examples under `Docs/`. Only a `<module>` naming a missing directory would be deletable, and there are none.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
@@ -189,7 +175,7 @@ None. Open the next one from a fresh branch off the current `main`.
   read the output, not the exit code. `npm ci` works here; `node_modules` is gitignored.
 - When a deletion empties a parent object literal, delete the parent in the same commit.
 - A `Docs/` markdown page that nothing links to is not a candidate — Jekyll publishes it and documentation is this
-  repository's approved source of truth. The whole `Docs/` prose tree is out of scope.
+  repository's approved source of truth. The whole `Docs/` prose tree is out of scope, duplicated pages included.
 - **PMD report XML uses namespace `http://pmd.sourceforge.net/report/2.0.0`** (slash-dot, not underscores). A parser
   built for the ruleset namespace silently returns zero violations from a non-empty report. Most `target/pmd.xml`
   files here hold only `<suppressedviolation>` elements — grep `<violation ` to find the reports that matter.
@@ -221,6 +207,8 @@ None. Open the next one from a fresh branch off the current `main`.
   JUL `logging.properties`, `META-INF/io/opentelemetry/instrumentation/*.properties`, `archetype-metadata.xml`,
   maven-site `site.xml`, Facelets `*.taglib.xml` and `.tld`, Bean Validation message overrides, favicons and
   web-manifest icons, `DEV/org.openl.rules.gen/enums/*.csv` codegen inputs, and a vendored library's own source map.
+- Every `META-INF/services` file is reached by `ServiceLoader` alone, so no file names it. All 8 here are valid —
+  each declared implementation and each `org.openl` service interface resolves to a source file.
 - `WSFrontend/org.openl.rules.ruleservice` and `.ruleservice.deployer` publish a **test-jar**, so their test classes
   are consumer API. Test types anywhere else are not published and may be deleted once proven unreferenced.
 - The tableeditor `compile.js.sh`/`compile.css.sh` and their `.cmd` twins are manual developer tooling wired into
@@ -292,14 +280,13 @@ None. Open the next one from a fresh branch off the current `main`.
 - **`sonarcloud.io` is blocked too** — 403 to CONNECT, same shape as shibboleth, confirmed against
   `$HTTPS_PROXY/__agentproxy/status`. So a red `SonarCloud Code Analysis` check can never be diagnosed from here:
   report the failed conditions from the check-run summary and hand the judgement to a maintainer.
-- **The container presets a git config that misattributes commits and breaks tests**: `user.name=Claude`,
-  `commit.gpgsign=true`, `gpg.format=ssh`. Every JGit commit in `STUDIO/org.openl.rules.repository.git` then dies
-  with "No signer for ssh signatures" — 15 test errors that are not a code defect. Unset `commit.gpgsign`,
-  `user.signingkey`, `gpg.format`, `gpg.ssh.program` before building.
-- **`/root/.gitconfig` is rewritten back to `Claude` while the run is in flight**, so setting only the global
-  identity is not enough — it silently reverts. Set `git config --local user.name/user.email` in the clone and in
-  every worktree, and repair a bad commit with `git commit --amend --reset-author`: a plain `--amend` keeps the old
-  author even when `GIT_AUTHOR_*` is exported. Verify with `git log --pretty='%an <%ae> | %cn <%ce>'`.
+- **The container presets a git config that misattributes commits and breaks tests**, and `/root/.gitconfig` is
+  rewritten back to `user.name=Claude` while the run is in flight, so a global identity silently reverts. Set
+  `git config --local user.name/user.email` in the clone **and in every worktree**, and repair a bad commit with
+  `git commit --amend --reset-author` — a plain `--amend` keeps the old author even when `GIT_AUTHOR_*` is exported.
+  The same preset turns on `commit.gpgsign` with `gpg.format=ssh`, which kills every JGit commit in
+  `STUDIO/org.openl.rules.repository.git` with "No signer for ssh signatures" — 15 test errors that are not a code
+  defect. Unset `commit.gpgsign`, `user.signingkey`, `gpg.format` and `gpg.ssh.program` before building.
 - Listing workflow runs through the GitHub MCP tool returns a very large result; ask for `per_page` 3 or less. The
   unit-test workflow is `build-quick.yml`. `get_job_logs` truncates from the **end**, and the reactor summary alone
   fills the last 700 lines, so a failing test name needs `tail_lines` 4000 — which overflows context, so let it save
@@ -326,6 +313,9 @@ None. Open the next one from a fresh branch off the current `main`.
 - **Every Maven profile (14 declarations, 11 distinct ids) and every `pluginManagement` entry (44 declarations over
   25 distinct coordinates) across the 207 poms**, each resolved against `-P` references, activation blocks,
   packaging types and goal invocations. Zero removable — see the *False-positive shapes* entry on pom configuration.
+- **The root aggregator's `<module>` graph over all 205 real poms** — 85 reachable, 120 unreachable and every one a
+  fixture or a doc example, and zero `<module>` naming a missing directory. Also all 8 `META-INF/services` files,
+  every implementation and `org.openl` interface resolved. Both closed with no finding; do not re-run either.
 - **PMD 7.17 `UnusedAssignment`, `UnusedLocalVariable`, `UnusedPrivateField`, `UnusedPrivateMethod`,
   `UnusedFormalParameter` over main *and* test sources of all 42 analysable modules** (`includeTests=true`) — 45
   violations, detector validated against the known main-source baseline. No PMD scope is left open.
@@ -371,12 +361,18 @@ None. Open the next one from a fresh branch off the current `main`.
 - The committed tableeditor CSS bundles do not match what `compile.css.sh` produces from the committed sources, so
   they are stale or hand-edited, and `.te_hidden` is blocked until someone says which side is authoritative. That
   step is wired into no Maven phase, so editing a `js/` or `css/` source silently fails to reach the runtime.
+- **`Docs/production-deployment/example/` and `Docs/examples/production/` are the same 32-file example tree twice**,
+  differing only in one relative link in `README.md`. Both are published and linked — the old one from
+  `Docs/Production_Deployment.md`, the new one from `Docs/README.MD` through `Docs/examples/index.md` — so neither is
+  dead and this routine cannot pick. A docs restructure left both; `Docs/README.MD:232` also points at
+  `operations/production-deployment.md`, which does not exist. Needs a maintainer to name the authoritative copy.
 
 ## Run log
 
-- 08-03 — run twenty-six. Swept 4 new `main` commits, no findings. Identified and reproduced the studio-ui
-  flake (`OverviewPanel.test.tsx`); LockTest fixed upstream. #1940 description corrected. No sweep commit.
 - 08-03 — run twenty-seven. Swept 2 new `main` commits (pom property bumps only), no findings. #1940 green and
   unchanged. Ledger compacted 385 to 374 lines. No sweep commit.
 - 08-03 — run twenty-eight. Swept 4 new `main` commits (EPBDS-8537 branch marking, 78 files). Two public-API
   orphans deferred: `RepositoryException` and four `BranchRepository` methods. #1940 green. No sweep commit.
+- 08-03 — run twenty-nine. #1940 merged; collapsed its record and closed the open-PR section. No new `main` scope
+  at all. Probed two new veins (orphan Maven modules, service registrations) — both zero, both closed. Found the
+  duplicated `Docs/` example tree, deferred to a maintainer. No sweep commit.
