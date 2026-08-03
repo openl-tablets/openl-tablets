@@ -374,6 +374,6 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Run log
 
-- 08-02 — run twenty-one. Counts re-derived 4/8/8/24, zero review threads, shibboleth blocked, Central 404. No commit.
 - 08-03 — run twenty-two. Same four answers: merge-base equals `main`, counts 4/8/8/24, no new comment. No commit.
 - 08-03 — run twenty-three. Unchanged again; ledger compacted 384 to 379 lines. No commit to the sweep branch.
+- 08-03 — run twenty-four. Unchanged; all 12 Actions checks green, shibboleth 000 and Central 404. No commit.
