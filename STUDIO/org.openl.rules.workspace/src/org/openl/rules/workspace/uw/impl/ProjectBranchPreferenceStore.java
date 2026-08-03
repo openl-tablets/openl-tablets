@@ -77,13 +77,17 @@ public final class ProjectBranchPreferenceStore {
         try {
             Files.createDirectories(file.getParent());
             PropertiesUtils.store(temporary, new TreeMap<>(preferences).entrySet());
-            try {
-                Files.move(temporary, file, StandardCopyOption.ATOMIC_MOVE);
-            } catch (AtomicMoveNotSupportedException | FileAlreadyExistsException e) {
-                Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING);
-            }
+            moveIntoPlace(temporary);
         } catch (IOException e) {
             log.warn("Cannot save project branch preferences to '{}'.", file, e);
+        }
+    }
+
+    private void moveIntoPlace(Path temporary) throws IOException {
+        try {
+            Files.move(temporary, file, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException | FileAlreadyExistsException e) {
+            Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 

@@ -22,6 +22,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 
@@ -89,7 +90,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             designRepository.getBranchedProject(repositoryId, project.getName())
                     .stream()
                     .flatMap(branchedProject -> branchedProject.entries().values().stream())
-                    .map(entry -> entry.project())
+                    .map(BranchEntry::project)
                     .forEach(branchProject -> readVersions(branchProject)
                             .forEach(version -> versions.add(new ProjectVersionSource(branchProject, version))));
         } else {
@@ -101,28 +102,31 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException("Project monitor cache task is interrupted.");
             }
-            var branchProject = source.project();
-            var projectVersion = source.version();
-            if (projectVersion.isDeleted()) {
-                continue;
-            }
+            cacheVersionIfAbsent(source);
+        }
+    }
 
-            var hash = projectVersionCacheDB.getHash(branchProject.getBusinessName(),
-                    projectVersion.getVersionName(),
-                    projectVersion.getVersionInfo().getCreatedAt(),
-                    ProjectVersionH2CacheDB.RepoType.DESIGN);
-            if (StringUtils.isEmpty(hash)) {
-                var repo = branchProject.getRepository();
-                String branch = repo.supports().branches() ? ((BranchRepository) repo).getBranch() : null;
-                var designProject = designRepository.getProjectByPath(repo.getId(),
-                        branch,
-                        branchProject.getRealPath(),
-                        projectVersion.getVersionName());
-                if (designProject.isDeleted()) {
-                    continue;
-                }
-                cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
+    private void cacheVersionIfAbsent(ProjectVersionSource source) throws IOException {
+        var branchProject = source.project();
+        var projectVersion = source.version();
+        if (projectVersion.isDeleted()) {
+            return;
+        }
+        var hash = projectVersionCacheDB.getHash(branchProject.getBusinessName(),
+                projectVersion.getVersionName(),
+                projectVersion.getVersionInfo().getCreatedAt(),
+                ProjectVersionH2CacheDB.RepoType.DESIGN);
+        if (StringUtils.isEmpty(hash)) {
+            var repo = branchProject.getRepository();
+            String branch = repo.supports().branches() ? ((BranchRepository) repo).getBranch() : null;
+            var designProject = designRepository.getProjectByPath(repo.getId(),
+                    branch,
+                    branchProject.getRealPath(),
+                    projectVersion.getVersionName());
+            if (designProject == null || designProject.isDeleted()) {
+                return;
             }
+            cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
         }
     }
 

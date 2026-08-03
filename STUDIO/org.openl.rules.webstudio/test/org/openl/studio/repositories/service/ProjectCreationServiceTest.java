@@ -141,8 +141,10 @@ class ProjectCreationServiceTest {
         var project = publishedProject("First");
         when(workspace.uploadLocalProject(repository, "First", "", "comment")).thenReturn(project);
 
+        service = serviceWithWorkspace(workspace);
+        var names = List.of("First");
         assertThrows(ConflictException.class,
-                () -> serviceWithWorkspace(workspace).uploadLocalProjects(repository, List.of("First"), null, "comment"));
+                () -> service.uploadLocalProjects(repository, names, null, "comment"));
 
         verify(acl).createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true);
         verify(tagAssignmentValidator).applicable(Map.of());
@@ -513,8 +515,9 @@ class ProjectCreationServiceTest {
         var workspace = mock(UserWorkspace.class);
         when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
 
+        service = serviceWithWorkspace(workspace);
         assertThrows(ConflictException.class,
-                () -> serviceWithWorkspace(workspace).awaitProjectVisibility(repository));
+                () -> service.awaitProjectVisibility(repository));
     }
 
     private ProjectCreationService serviceWithWorkspace(UserWorkspace workspace) {

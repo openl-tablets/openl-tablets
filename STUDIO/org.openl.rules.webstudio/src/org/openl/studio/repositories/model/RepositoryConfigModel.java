@@ -1,5 +1,7 @@
 package org.openl.studio.repositories.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
 
@@ -14,18 +16,22 @@ import io.swagger.v3.oas.annotations.Parameter;
 public record RepositoryConfigModel(
         @Parameter(description = "Configured branch. Absent when the repository has no branches")
         String branch,
+        @Parameter(description = "Branch name glob patterns that are protected. Absent when none are configured")
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        List<String> protectedBranches,
         @Parameter(description = "New branch rules. Absent when the repository has no branches")
         NewBranch newBranch,
         @Parameter(description = "Commit comment rules")
         Comment comment) {
 
     public RepositoryConfigModel(NewBranch newBranch, Comment comment) {
-        this(null, newBranch, comment);
+        this(null, null, newBranch, comment);
     }
 
     /** The configuration of a project that lives only in the workspace: nothing is suggested or required. */
     public static RepositoryConfigModel none() {
-        return new RepositoryConfigModel(null, null, new Comment(null, null, new Templates(null, null, null, null)));
+        return new RepositoryConfigModel(null, null, null,
+                new Comment(null, null, new Templates(null, null, null, null)));
     }
 
     /**

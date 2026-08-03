@@ -39,7 +39,6 @@ import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -84,7 +83,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         this.indexService = indexService;
     }
 
-    public void init() throws RepositoryException {
+    public void init() {
         synchronized (projects) {
             if (repositories != null) {
                 return;
@@ -246,6 +245,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
         if (project == null) {
             var repository = getRepository(repositoryId);
+            if (repository == null) {
+                return null;
+            }
             var projectPath = rulesLocation + name;
 
             if (repository.supports().branches()) {

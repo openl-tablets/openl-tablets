@@ -49,7 +49,6 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.utils.AclPathUtils;
 import org.openl.studio.common.exception.BadRequestException;
@@ -86,7 +85,6 @@ import org.openl.util.StringUtils;
 @Tag(name = "Design Repository")
 public class DesignTimeRepositoryController {
 
-    private final DesignTimeRepository designTimeRepository;
     private final BeanValidationProvider validationProvider;
     private final CreateUpdateProjectModelValidator createUpdateProjectModelValidator;
     private final ZipArchiveValidator zipArchiveValidator;
@@ -102,8 +100,7 @@ public class DesignTimeRepositoryController {
     private final RepositoryConfigService repositoryConfigService;
 
     @Autowired
-    public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
-                                          @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+    public DesignTimeRepositoryController(@Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
                                           BeanValidationProvider validationService,
                                           CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
                                           ZipArchiveValidator zipArchiveValidator,
@@ -116,7 +113,6 @@ public class DesignTimeRepositoryController {
                                           ProjectCreationService projectCreationService,
                                           ProjectCreationTargetResolver projectCreationTargetResolver,
                                           RepositoryConfigService repositoryConfigService) {
-        this.designTimeRepository = designTimeRepository;
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
@@ -197,8 +193,7 @@ public class DesignTimeRepositoryController {
                                           @Parameter(description = "repos.create-project.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite,
                                           @Parameter(description = "repos.create-project.param.status.desc", schema = @Schema(allowableValues = {"OPENED", "CLOSED"})) @RequestParam(value = "status", required = false) @Nullable ProjectStatus status,
                                           @Parameter(description = "repos.create-project.param.branch.desc") @RequestParam(value = "branch", required = false) @Nullable String branch,
-                                          @Parameter(description = "repos.create-project.param.force.desc") @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) throws IOException,
-            ProjectException {
+                                          @Parameter(description = "repos.create-project.param.force.desc") @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) throws IOException {
         var hasFiles = files != null && !files.isEmpty();
         var archiveUpload = hasFiles && files.size() == 1 && FileTypeHelper.isZipFile(files.getFirst().getOriginalFilename());
         if (!hasFiles && StringUtils.isBlank(templateName)) {
@@ -249,10 +244,11 @@ public class DesignTimeRepositoryController {
     }
 
     private FileData createFromArchive(Repository repository, String projectName, MultipartFile file,
-                                       CreateUpdateProjectModel model) throws IOException, ProjectException {
+                                       CreateUpdateProjectModel model) throws IOException {
         final Path archiveTmp = Files.createTempFile(projectName, ".zip");
-        final var lock = getLock(repository, model);
+        Lock lock = null;
         try {
+            lock = getLock(repository, model);
             IOUtils.copyAndClose(file.getInputStream(), Files.newOutputStream(archiveTmp));
             if (!lock.tryLock(getUserName(), 15, TimeUnit.SECONDS)) {
                 throw new IllegalStateException("Cannot create a lock.");
@@ -268,7 +264,9 @@ public class DesignTimeRepositoryController {
             return data;
         } finally {
             FileUtils.deleteQuietly(archiveTmp);
-            lock.unlock();
+            if (lock != null) {
+                lock.unlock();
+            }
         }
     }
 

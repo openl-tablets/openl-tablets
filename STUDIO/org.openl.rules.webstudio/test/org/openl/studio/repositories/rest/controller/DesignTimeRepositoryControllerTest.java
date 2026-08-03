@@ -35,7 +35,6 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
@@ -59,7 +58,6 @@ class DesignTimeRepositoryControllerTest {
     private static final String BRANCH = "main";
 
     private BranchRepository repository;
-    private DesignTimeRepository designTimeRepository;
     private RepositoryAclService designRepositoryAclService;
     private BeanValidationProvider validationProvider;
     private ZipProjectSaveStrategy zipProjectSaveStrategy;
@@ -73,7 +71,6 @@ class DesignTimeRepositoryControllerTest {
     @BeforeEach
     void setUp() {
         repository = mock(BranchRepository.class);
-        designTimeRepository = mock(DesignTimeRepository.class);
         designRepositoryAclService = mock(RepositoryAclService.class);
         validationProvider = mock(BeanValidationProvider.class);
         zipProjectSaveStrategy = mock(ZipProjectSaveStrategy.class);
@@ -92,7 +89,6 @@ class DesignTimeRepositoryControllerTest {
                 .thenReturn(repository);
 
         controller = new DesignTimeRepositoryController(
-                designTimeRepository,
                 designRepositoryAclService,
                 validationProvider,
                 mock(CreateUpdateProjectModelValidator.class),
@@ -133,8 +129,8 @@ class DesignTimeRepositoryControllerTest {
 
     @Test
     void createProjectFromProjectRequiresBranchProtectionBypass() {
-        when(projectCreationService.copyProject(eq(repository), eq("Copy"), eq(null), eq(REPOSITORY_ID),
-                eq("Source"), eq("comment"), eq("rev-1"))).thenReturn(new FileData());
+        when(projectCreationService.copyProject(repository, "Copy", null, REPOSITORY_ID,
+                "Source", "comment", "rev-1")).thenReturn(new FileData());
 
         controller.createProjectFromProject(repository, "Copy",
                 new CreateFromProjectModel(REPOSITORY_ID, "Source", null, "comment", "rev-1"));
@@ -250,7 +246,6 @@ class DesignTimeRepositoryControllerTest {
         order.verify(projectCreationService).registerExtensibleTags(any(AProject.class));
         order.verify(projectCreationService).awaitProjectVisibility(repository);
         order.verify(projectCreationService).refreshWorkspaceAfterDesignChange();
-        verify(designTimeRepository, never()).getProject(REPOSITORY_ID, "Project");
         verify(projectCreationService).applyStatusAfterCreate(repository, "Project", null);
     }
 
@@ -281,15 +276,15 @@ class DesignTimeRepositoryControllerTest {
         doThrow(new ConflictException("project.indexing.incomplete.message"))
                 .when(projectCreationService).awaitProjectVisibility(repository);
 
+        var archives = List.of(archive);
         assertThrows(ConflictException.class,
-                () -> controller.createProject(repository, "Project", null, "comment", List.of(archive), null,
+                () -> controller.createProject(repository, "Project", null, "comment", archives, null,
                         null, null, "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx",
                         false, null, null, false));
 
         verify(designRepositoryAclService).createAcl(any(AProject.class), anyList(), eq(true));
         verify(projectCreationService).registerExtensibleTags(any(AProject.class));
         verify(projectCreationService, never()).refreshWorkspaceAfterDesignChange();
-        verify(designTimeRepository, never()).getProject(REPOSITORY_ID, "Project");
     }
 
     @Test

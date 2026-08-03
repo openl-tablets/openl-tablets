@@ -19,7 +19,7 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @deprecated Project membership is derived from Git trees. Use
      * {@link #createRepositoryBranch(String, String)}.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     default void createBranch(String projectPath, String branch) throws IOException {
         createRepositoryBranch(branch, getBranch());
     }
@@ -33,7 +33,7 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @param startPoint  existing branch, tag or commit revision
      * @throws IOException if the branch cannot be created
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     default void createBranch(String projectPath, String branch, String startPoint) throws IOException {
         createRepositoryBranch(branch, startPoint);
     }
@@ -42,7 +42,7 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @deprecated Project membership cannot be edited as repository metadata. A {@code null} project path
      * deletes the repository branch; any other value is rejected.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     default void deleteBranch(String projectPath, String branch) throws IOException {
         if (projectPath != null) {
             throw new UnsupportedOperationException("Project branch membership is derived from Git trees.");
@@ -78,7 +78,7 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @deprecated Project membership is available from the workspace project index. This compatibility
      * method returns actual repository branches only.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     default List<String> getBranches(String projectPath) throws IOException {
         return listBranches();
     }

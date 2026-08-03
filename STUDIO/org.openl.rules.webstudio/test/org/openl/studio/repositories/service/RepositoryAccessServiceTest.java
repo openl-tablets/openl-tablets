@@ -69,6 +69,8 @@ class RepositoryAccessServiceTest {
     @Test
     void create_capability_is_independent_of_the_configured_branch_protection() {
         var repository = branchRepository();
+        // A protected configured branch must not gate project creation.
+        when(repository.isBranchProtected(BRANCH)).thenReturn(true);
         when(aclProjectsHelper.hasCreateProjectPermission(REPO)).thenReturn(true);
 
         var caps = service.computeCapabilities(repository, AclRepositoryType.DESIGN);

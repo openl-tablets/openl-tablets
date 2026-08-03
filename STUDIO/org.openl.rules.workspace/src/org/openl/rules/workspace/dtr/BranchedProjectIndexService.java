@@ -172,7 +172,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
             @Parameter(description = "Safe summary of the latest indexing failure")
             @Nullable String lastError) {
         public IndexHealth {
-            state = Objects.requireNonNull(state);
+            Objects.requireNonNull(state);
             failedBranches = Collections.unmodifiableSet(new LinkedHashSet<>(Objects.requireNonNull(failedBranches)));
         }
 
@@ -428,37 +428,28 @@ public final class BranchedProjectIndexService implements AutoCloseable {
                 }
                 var status = statuses.get(branch);
                 var revision = revisions.get(branch);
+                var old = revision == null ? null : previous.branches().get(branch);
                 if (revision == null) {
                     failures.put(branch, TREE_ERROR);
-                    continue;
-                }
-
-                var old = previous.branches().get(branch);
-                var sameTip = old != null && old.status()
-                        .lastCommitRevision()
-                        .equals(status.lastCommitRevision());
-                if (old != null &&
-                        Objects.equals(old.treeRevision(), revision.treeRevision()) &&
-                        (sameTip || !revision.tipAffectsPath())) {
+                } else if (old != null && canReuse(old, status, revision)) {
                     nextBranches.put(branch,
                             new BranchSnapshot(branch, status, revision.treeRevision(), old.projects()));
                     succeeded.add(branch);
-                    continue;
-                }
-
-                try {
-                    var scanned = scanBranch(branch, status, revision.treeRevision());
-                    var verified = repository.getBranchStatuses(List.of(branch)).get(branch);
-                    if (verified == null ||
-                            !status.lastCommitRevision().equals(verified.lastCommitRevision())) {
-                        retryBranches.add(branch);
-                        continue;
+                } else {
+                    try {
+                        var scanned = scanBranch(branch, status, revision.treeRevision());
+                        var verified = repository.getBranchStatuses(List.of(branch)).get(branch);
+                        if (verified == null ||
+                                !status.lastCommitRevision().equals(verified.lastCommitRevision())) {
+                            retryBranches.add(branch);
+                        } else {
+                            nextBranches.put(branch, scanned);
+                            succeeded.add(branch);
+                        }
+                    } catch (Exception e) {
+                        log.error("Failed to index branch '{}' in repository '{}'.", branch, repository.getId(), e);
+                        failures.put(branch, SCAN_ERROR);
                     }
-                    nextBranches.put(branch, scanned);
-                    succeeded.add(branch);
-                } catch (Exception e) {
-                    log.error("Failed to index branch '{}' in repository '{}'.", branch, repository.getId(), e);
-                    failures.put(branch, SCAN_ERROR);
                 }
             }
 
@@ -473,6 +464,14 @@ public final class BranchedProjectIndexService implements AutoCloseable {
                     : new IndexHealth(IndexState.DEGRADED, failedBranchNames(healthFailures), lastError(healthFailures));
             var updated = new RepositorySnapshot(repository.getId(), orderedBranches, projects, health);
             return new BuildOutcome(updated, succeeded, retryBranches, failures);
+        }
+
+        private static boolean canReuse(BranchSnapshot old, BranchStatus status, BranchTreeRevision revision) {
+            if (!Objects.equals(old.treeRevision(), revision.treeRevision())) {
+                return false;
+            }
+            var sameTip = old.status().lastCommitRevision().equals(status.lastCommitRevision());
+            return sameTip || !revision.tipAffectsPath();
         }
 
         private BranchSnapshot scanBranch(String branch,

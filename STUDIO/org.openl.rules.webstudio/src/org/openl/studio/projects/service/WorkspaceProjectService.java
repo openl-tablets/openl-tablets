@@ -1046,7 +1046,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .stream()
                 .flatMap(project -> project.entries().values().stream())
                 .map(entry -> designRepositoryAclService.getPath(entry.project()))
-                .anyMatch(path -> path.equals(aclPath) || path.startsWith(aclPath + '/'));
+                .anyMatch(path -> path != null && (path.equals(aclPath) || path.startsWith(aclPath + '/')));
     }
 
     /**
@@ -1284,7 +1284,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 new RepositoryFeatures(repository.supports()));
     }
 
-    public List<ProjectBranchInfo> getBranches(RulesProject project) throws ProjectException {
+    public List<ProjectBranchInfo> getBranches(RulesProject project) {
         if (!project.isSupportsBranches()) {
             throw new ConflictException("project.branch.unsupported.message");
         }

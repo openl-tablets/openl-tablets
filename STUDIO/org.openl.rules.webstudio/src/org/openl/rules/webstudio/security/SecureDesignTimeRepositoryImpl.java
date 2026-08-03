@@ -63,7 +63,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
                 .stream()
                 .map(project -> secureVisibleProject(project, List.of(BasePermission.ADMINISTRATION)))
                 .flatMap(Optional::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -112,7 +112,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
                 .stream()
                 .map(this::secureVisibleProject)
                 .flatMap(Optional::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

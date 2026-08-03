@@ -181,7 +181,7 @@ class UserWorkspaceRefreshTest {
     }
 
     @Test
-    void unchangedCopyExistingOnlyInSecondaryBranchStaysVisible() throws IOException {
+    void unchangedCopyExistingOnlyInSecondaryBranchStaysVisible() {
         mockDesignWithProjectInBranch("feature");
         seedOpenedCopy("design", "feature", false);
 
@@ -232,7 +232,7 @@ class UserWorkspaceRefreshTest {
     /**
      * The main-branch listing misses the project, but a secondary branch still holds it.
      */
-    private void mockDesignWithProjectInBranch(String branch) throws IOException {
+    private void mockDesignWithProjectInBranch(String branch) {
         mockBranchedEmptyDesign();
         BranchRepository forBranch = mock(BranchRepository.class);
         lenient().when(forBranch.getId()).thenReturn("design");

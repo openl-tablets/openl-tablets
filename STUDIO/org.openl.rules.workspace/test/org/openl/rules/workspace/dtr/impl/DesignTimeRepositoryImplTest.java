@@ -87,7 +87,7 @@ class DesignTimeRepositoryImplTest {
 
             assertTrue(published.await(5, TimeUnit.SECONDS));
             assertEquals(List.of("Rates"),
-                    repository.getProjects().stream().map(project -> project.getBusinessName()).toList());
+                    repository.getProjects().stream().map(AProject::getBusinessName).toList());
             var project = repository.getBranchedProject("design", "Rates").orElseThrow();
             assertEquals("feature/rates", project.homeBranch());
             assertEquals(List.of("feature/rates"), List.copyOf(project.entries().keySet()));

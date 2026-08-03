@@ -309,7 +309,7 @@ public class ProjectsController {
 
     @GetMapping("/{projectId}/branches")
     @Operation(summary = "projects.branch.list.summary")
-    public List<ProjectBranchInfo> getBranches(@ProjectId @PathVariable("projectId") RulesProject project) throws ProjectException {
+    public List<ProjectBranchInfo> getBranches(@ProjectId @PathVariable("projectId") RulesProject project) {
         return projectService.getBranches(project);
     }
 
