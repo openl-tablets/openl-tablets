@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **The sweep has converged.** Every queue row is done, every vein below is closed, and `main` is at `83feec71`,
-  which is #1940's own last commit — so there is no unswept scope at all. New scope arrives only as new commits
-  on `main`.
+- **The sweep has converged.** Every queue row is done, every vein below is closed, and `main` is still at
+  `83feec71` — #1940's own last commit — so there is no unswept scope at all. New scope arrives only as new
+  commits on `main`.
 - Each run: diff `git log --name-status 83feec71..origin/main`, sweep only the source files it touches, skip
   webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Never invent a detector to manufacture work; a run whose
   only product is compaction is a successful run.
@@ -15,18 +15,16 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 - The idle pass is four calls: `git log` against `origin/main`, the merged-PR check, the workflow-run check, and one
   `curl` for `opensaml-bom` — still 000 shibboleth and 404 Central, so webstudio Java stays the one unswept
   surface. Seed the stub only if a build is actually needed.
-- **`main`'s head is red and it is not the sweep's doing** — `itest.tracing` alone, on two consecutive commits, from
-  the kafka-native floating tag (see *CI flakes*). Confirm a later green run before treating it as anything else.
+- **`main`'s head is red and it is not the sweep's doing** — the kafka-native floating tag, now three consecutive
+  `main` runs, verified again on the head run (see *CI flakes*). Section 7 bars cleanup while `main` is red, so an
+  idle run stays idle until a green `main` run appears.
 
 ## Change-type queue
 
-All 19 change types are **done**; *Exhausted veins* records the scope each one covered. Resources (images,
-`.xhtml`, CSS, `.js`, `.properties`, studio-ui i18n and TS exports), Java (PMD assignments/fields/locals/methods/
-params, javac nested types, whole-type and member deadness at every visibility, test-tree public types) and Maven
-configuration (declared dependencies, profiles, `pluginManagement`, the module graph, service registrations).
-Only three rows left anything behind, all in *Deferred findings*: dead CSS is `.te_hidden` alone, unused private
-fields left 20 in the tableeditor taglib, and the TS pass left the `MergeModal` contract mirrors. A new row is
-warranted only by a detector this ledger has never run — not by re-running one of these.
+All 19 change types are **done** and *Exhausted veins* records the scope each covered — resources, Java at every
+visibility, and Maven configuration. Only three rows left anything behind, all in *Deferred findings*: `.te_hidden`,
+the 20 tableeditor taglib fields, and the `MergeModal` contract mirrors. A new row is warranted only by a detector
+this ledger has never run — not by re-running one of these.
 
 ## Open PR
 
@@ -35,9 +33,9 @@ None. Open the next one from a fresh branch off the current `main`.
 ## Merged PRs
 
 - #1933 (12 files / 74 deletions, studio-ui i18n keys plus `PopupMenu.showChild`) and #1940 (8 files / 24 deletions,
-  PMD and whole-type deadness in DEV Java internals). Both merged by yurkom with the SonarCloud Quality Gate red:
-  that gate is **twice-confirmed as not blocking a deletion-only sweep**, so state its conditions and leave the call
-  to the maintainer rather than chasing it.
+  PMD and whole-type deadness in DEV Java internals), both merged by yurkom with the SonarCloud Quality Gate red.
+  That gate is **twice-confirmed as not blocking a deletion-only sweep**: state its conditions, leave the call to
+  the maintainer, do not chase it.
 
 ## Module coverage
 
@@ -49,7 +47,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 - `STUDIO/org.openl.rules.tableeditor` `taglib/TableEditorTag.java` (11 unread private fields) and
   `TableViewerTag.java` (7): written by public setters, read by nobody, named only by `META-INF/tableeditor.tld`.
-  Never touch the fields alone — the setters are the taglib's declared attribute contract.
+  Never touch the fields alone — the setters are the taglib's declared attribute contract. Whether a downstream
+  consumer still reaches this JSP taglib is the largest open question here and no in-repository evidence settles it.
 - `STUDIO/org.openl.rules.workspace` `dtr/RepositoryException` — a public class with zero repository-wide
   references since EPBDS-8537 dropped the `throws` on `DesignTimeRepositoryImpl.init()`, its last user. A whole
   public type in a published artifact, so a downstream `catch` may still need it.
@@ -66,7 +65,7 @@ None. Open the next one from a fresh branch off the current `main`.
   so only the increment is wasted: an expression rewrite, not a deletion.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
   `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract in
-  `Docs/api/projects-merge-api.md` backed by a Java record and an OpenAPI schema.
+  `Docs/api/projects-merge-api.md` backed by a Java record and an OpenAPI schema; if they go, that page goes too.
 - ~50 studio-ui exports used only inside their own file — alive; dropping `export` is a refactor, not a delete.
   Every incremental pass adds a few (`RailMode`, `ListingQuery`, `RepositoryCapabilities`); stop re-listing them.
 - `js/datepicker.js` `dateValidForSelection`, `getSelectedDate`, `setDisabledDays`, `joinNodeLists` — no call site,
@@ -81,8 +80,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 - **An initializer PMD calls overwritten is live whenever any path reaches a read without the later assignment.**
   Three ways it misses one: an early `return` in the constructor (`CellStyle`), an assignment in a `try` it treats as
-  overwritten by the `catch` (`GitRepository.result` — both live), and any conditional assignment. Check every
-  constructor and branch path; a sibling declared in the same block with no initializer that still compiles proves it.
+  overwritten by the `catch` (`GitRepository.result` — both live), and any conditional assignment. Check every branch
+  path; a sibling declared in the same block with no initializer that still compiles proves it.
 - **A never-read local can be the test itself.** Three shapes, all reported as unused: a variable that only hosts a
   cast whose failure is asserted (a cast cannot stand alone as a statement); a try-with-resources name Java requires,
   where the close is the point; and a null-out near `Runtime.gc()` or a weak reference, dropping the strong reference
@@ -95,8 +94,8 @@ None. Open the next one from a fresh branch off the current `main`.
   exist solely to make a bean property writable — `JavaOpenClassTest.BeanA.gg` is read by no code, but `setGg` is
   what makes the asserted `gg` property work.
 - **A test bean is usually named from inside an `.xlsx`/`.xls`, which no text search can see** — `Bean1`, `Bean2`,
-  `EPBDS7956`, `IChildBean`, `MyProp`. Unzip every Excel resource and search as UTF-8 and UTF-16LE before calling one
-  dead. A deliberately malformed bean is worse: `epbds6830.BeanA` feeds
+  `EPBDS7956`, `IChildBean`, `MyProp`. Unzip every Excel resource and search as UTF-8 and UTF-16LE first. A
+  deliberately malformed bean is worse: `epbds6830.BeanA` feeds
   `EPBDS-6830_external_datatypes_validation.xlsx.msg.txt` with one defect per expected error, and its private,
   wrongly-cased `getAB()` is one of them — the message list is unchanged by removing it, so the loss is silent.
 - **Surefire's default includes match a `Test` prefix as well as a suffix**, so `TestIf`, `TestAutoType0` and
@@ -117,8 +116,8 @@ None. Open the next one from a fresh branch off the current `main`.
   defensive and stays correct even when the excluded artifact is absent today, because a transitive upgrade can
   reintroduce it; removing one is a latent classpath change, not a deletion.
 - **A pom outside the root aggregator's `<module>` graph is normally a fixture, not an orphan.** All 120 unreachable
-  poms are maven-invoker projects under `Util/openl-maven-plugin/it/**`, run by the invoker plugin, or documentation
-  examples under `Docs/`. Only a `<module>` naming a missing directory would be deletable, and there are none.
+  poms are maven-invoker projects under `Util/openl-maven-plugin/it/**` or documentation examples under `Docs/`.
+  Only a `<module>` naming a missing directory would be deletable, and there are none.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
@@ -146,7 +145,7 @@ None. Open the next one from a fresh branch off the current `main`.
   declaration whose enclosing brace was opened by a type declaration. A scan-upwards for annotations is defeated by a
   multi-line annotation, so a `@ParameterizedTest` whose `@CsvSource` ends on `})` reads as unannotated. And
   duplicate-`<dependency>` detection must first strip `<dependencyManagement>`, `<plugin><dependencies>` and XML
-  comments, or correct Maven practice and commented-out samples both report as duplicates.
+  comments, or correct practice and commented-out samples both report as duplicates.
 
 ## Method rules
 
@@ -173,10 +172,10 @@ None. Open the next one from a fresh branch off the current `main`.
   runtime loads, not the individual sources. `bash compile.js.sh` reproduces both byte-for-byte using the checked-in
   `yuicompressor-2.4.7.jar`, so a source removal must regenerate them in the same commit. `compile.css.sh` does
   **not** reproduce the committed CSS bundles — never regenerate those.
-- Run the frontend gate from `STUDIO/studio-ui` with no Maven build competing: `npx tsc --noEmit`, `npx eslint src`
-  (whole tree), and `npm run test` — **which is `vitest run --coverage`, not plain `vitest run`; match CI's own
-  command or the coverage pass goes unverified**. Baseline 164 files / 1460 tests. `no-unused-vars` is `warn`, so
-  read the output, not the exit code. `npm ci` works here; `node_modules` is gitignored.
+- Run the frontend gate from `STUDIO/studio-ui` with no Maven build competing: `npx tsc --noEmit`, `npx eslint src`,
+  and `npm run test` — **which is `vitest run --coverage`, not plain `vitest run`; match CI's own command or the
+  coverage pass goes unverified**. Baseline 164 files / 1460 tests. `no-unused-vars` is `warn`, so read the output,
+  not the exit code. `npm ci` works here; `node_modules` is gitignored.
 - When a deletion empties a parent object literal, delete the parent in the same commit.
 - A `Docs/` markdown page that nothing links to is not a candidate — Jekyll publishes it and documentation is this
   repository's approved source of truth. The whole `Docs/` prose tree is out of scope, duplicated pages included.
@@ -236,10 +235,11 @@ None. Open the next one from a fresh branch off the current `main`.
 
 - **`apache/kafka-native:latest` is a floating tag that breaks a job for hours and then fixes itself** with no code
   change. Tell: the container never logs its wait phrase and its own bootstrap dies in a GraalVM native-image
-  segfault at `com.oracle.svm.core.posix.headers.Pwd.getpwuid` while reading `user.name`. It has hit `itest.kafka`
-  and now `itest.tracing` (`RunTracingITest.setUp:57`, waiting for `Transitioning from RECOVERY to RUNNING`), where
-  it failed two consecutive `main` commits. `ITEST - Kafka Smoke` can pass in the same job, so it is per-container
-  start, not a broken image. Never pin the tag away; check for a later green run before escalating one.
+  segfault at `com.oracle.svm.core.posix.headers.Pwd.getpwuid` while reading `user.name`. **The GitHub job carrying
+  it is named `IT (services-data)`** — no job is named for tracing or kafka — and it runs ITEST Core, Kafka Smoke,
+  WS Tracing, WS Store Log Data and S3, so the failing module is `itest.tracing` (`RunTracingITest.setUp:57`,
+  waiting for `Transitioning from RECOVERY to RUNNING`) while `ITEST - Kafka Smoke` passes beside it. It has left
+  `main` red on three consecutive commits. Never pin the tag away; check for a later green run before escalating.
 - `studio-ui` `npm run test` is the standing failure of `Tests (without ITEST)` — tell `Failed to run task:
   'npm run test' failed` plus `-rf :studio-ui`. Always the same 2 of the 28 tests in
   `src/containers/projects/OverviewPanel.test.tsx`: "edits the descriptor text in place…" (`Test timed out` against
@@ -255,6 +255,9 @@ None. Open the next one from a fresh branch off the current `main`.
   (b) never self-terminates before the 6 h job limit: cancel the whole run, then `rerun_failed_jobs`, which cleared
   it on the same commit in 7m30s — the proof it is environmental and not the diff.
 - `rerun_failed_jobs` returns 403 until every other job in the run has finished; wait for the run to complete.
+- The weekly cross-platform `build.yml` ("Build", Java 21/25/26 × ubuntu/windows/macos) has failed on `main` every
+  run since 2026-07-01, 6 of 9 jobs, in three different modules (`studio-ui`, `openl-maven-plugin`,
+  `org.openl.rules.test`). Undiagnosed and unrelated to `build-quick.yml`; never treat it as the sweep's gate.
 
 ## Container facts
 
@@ -287,6 +290,16 @@ None. Open the next one from a fresh branch off the current `main`.
 - **`sonarcloud.io` is blocked too** — 403 to CONNECT, same shape as shibboleth, confirmed against
   `$HTTPS_PROXY/__agentproxy/status`. So a red `SonarCloud Code Analysis` check can never be diagnosed from here:
   report the failed conditions from the check-run summary and hand the judgement to a maintainer.
+- **Reading a CI log takes one shape only.** Listing runs ignores both `per_page` and the branch filter and returns
+  30 runs across all branches, overflowing the tool limit even when scoped to one workflow file — let it save to a
+  file and parse that with python for the run `id` (the `run_number` is not an id). `get_job_logs` truncates from
+  the **end**, so a failing ITEST needs `tail_lines` about 130 to reach the reactor summary; 60 lands mid-cleanup,
+  and `failed_only` over a 6-job matrix returns only cleanup noise at 40. Its `logs_url` points at Azure blob
+  storage, which the proxy refuses with 403 CONNECT, so always use `return_content` with a bounded tail.
+  The unit-test workflow is `build-quick.yml`.
+- **Angle-bracketed text does not survive the PR-body MCP round trip** — a bare XML element name is swallowed, and
+  `Map<String, X>` reads back as `Map` even inside a fenced code block, so a quoted signature silently becomes
+  wrong. Keep generics and element names out of bodies, name the identifiers in prose, and re-read after writing.
 - **The container presets a git config that misattributes commits and breaks tests**, and `/root/.gitconfig` is
   rewritten back to `user.name=Claude` mid-run, so a global identity silently reverts. Set `git config --local
   user.name/user.email` in the clone **and in every worktree**, and repair a bad commit with `git commit --amend
@@ -294,53 +307,39 @@ None. Open the next one from a fresh branch off the current `main`.
   turns on `commit.gpgsign` with `gpg.format=ssh`, killing every JGit commit in
   `STUDIO/org.openl.rules.repository.git` with "No signer for ssh signatures" — 15 test errors that are not a code
   defect. Unset `commit.gpgsign`, `user.signingkey`, `gpg.format` and `gpg.ssh.program` before building.
-- **Reading a CI log takes one shape only.** Listing runs ignores `per_page` and returns 30, overflowing the tool
-  limit — let it save to a file and parse that with python for the run `id` (the `run_number` is not an id).
-  `get_job_logs` truncates from the **end**, so a failing ITEST needs `tail_lines` about 130 to reach the reactor
-  summary; 60 lands mid-cleanup and shows nothing. Its `logs_url` points at Azure blob storage, which the proxy
-  refuses with 403 CONNECT, so always use `return_content` with a bounded tail instead of `curl`. The unit-test
-  workflow is `build-quick.yml`.
-- **Angle-bracketed text does not survive the PR-body MCP round trip** — a bare XML element name is swallowed, and
-  `Map<String, X>` reads back as `Map` even inside a fenced code block, so a quoted signature silently becomes
-  wrong. Keep generics and element names out of bodies, name the identifiers in prose, and re-read after writing.
 
 ## Exhausted veins
 
-- Base-name search over every image, `.xhtml` and `.js` file outside `Docs/`, and over all 610 images under `Docs/`.
+- Base-name search over every image, `.xhtml` and `.js` file outside `Docs/`, and over all `Docs/` images.
 - Class and id selectors across all 11 hand-written CSS files in STUDIO — no provable orphan but `.te_hidden`.
-- Key-reference scan over `openapi.properties` (605 keys), `ValidationMessages.properties` (204),
-  `messages.properties` (46), `sql-errors.properties`, and webstudio `openl-default.properties` (105).
-- All 1292 leaf keys of the 15 studio-ui locale bundles; every bundle is English, there is no other language.
-- `export`ed const/function/class/interface/type/enum across studio-ui `src`, and the import graph over all 345
-  modules — every one has a production importer.
+- Key-reference scan over `openapi.properties`, `ValidationMessages.properties`, `messages.properties`,
+  `sql-errors.properties` and webstudio `openl-default.properties`, plus every leaf key of the 15 studio-ui locale
+  bundles, which are all English with no other language.
+- studio-ui: every exported const/function/class/interface/type/enum, the import graph over all 345 modules (every
+  one has a production importer), all 62 declared npm dependencies, and `@typescript-eslint/no-unused-vars`.
 - Function, object-literal-method and prototype definitions across all 23 hand-written legacy `.js` files.
 - Whole-file reference check over every extension outside ITEST and test-resources: Velocity templates, taglibs,
   source maps, fonts, schemas, `.html`, `.csv`, `.sql`, `.groovy`, `.sh`, `.cmd`, `.txt`, `.json`, `.yaml`, `.xml`,
   `.svg`, and all 117 `.properties` files. Every orphan found is convention-loaded — see *Keep-list*.
-- All 62 declared npm dependencies of `STUDIO/studio-ui`, and `@typescript-eslint/no-unused-vars` over all of `src`.
-- All 114 distinct properties defined in the 207 poms, and duplicate `<dependency>` / duplicate `.properties` keys.
-- **Every Maven profile (14 declarations, 11 distinct ids), every `pluginManagement` entry (44 declarations over
-  25 distinct coordinates) and all 18 `<exclusion>` elements across the 207 poms**, each resolved against `-P`
-  references, activation blocks, packaging types and goal invocations. Zero removable — 14 of the exclusions sit in
-  the root pom, 3 in invoker fixtures and 1 in unbuildable webstudio, and all are defensive; see *False-positive
-  shapes* on pom configuration.
-- **The root aggregator's `<module>` graph over all 205 real poms** — 85 reachable, 120 unreachable and every one a
-  fixture or a doc example, and zero `<module>` naming a missing directory. Also all 8 `META-INF/services` files,
-  every implementation and `org.openl` interface resolved. Both closed with no finding; do not re-run either.
-- **PMD 7.17 `UnusedAssignment`, `UnusedLocalVariable`, `UnusedPrivateField`, `UnusedPrivateMethod`,
-  `UnusedFormalParameter` over main *and* test sources of all 42 analysable modules** (`includeTests=true`) — 45
-  violations, detector validated against the known main-source baseline. No PMD scope is left open.
-- **Whole-type deadness over all 3943 `.java` files**: every non-public top-level type (853), each name searched
-  repository-wide with a literal word-boundary search over every file type. Zero removable.
-- **Member deadness below `private`** — every unannotated package-private and protected method (274) and field (112)
-  of the 915 files whose top-level type is non-public, resolved against an identifier index over all 15151 text
-  files. 33 had no outside reference and all 33 are read inside their own file. Zero removable.
-- **Package-private members of *public* types** — 835 declarations over 593 names, from the union of a brace-tracking
-  and an indent-based detector. Every one is alive: read in its own file, reached through a Lombok accessor, or
-  written by a framework annotation.
-- **Public top-level types declared in test trees** — 193 types over 165 names, ITEST and the two test-jar modules
-  excluded, each name resolved against the identifier index and then against every Excel and archive resource. Only
-  `JavaType` was removable; the rest are surefire, Spring-scanned, JMH or named from a spreadsheet.
+- **Across all 207 poms**: every defined property, duplicate `<dependency>` and duplicate `.properties` keys, every
+  profile, every `pluginManagement` entry and every `<exclusion>`, each resolved against `-P` references, activation
+  blocks, packaging types and goal invocations. Zero removable; every exclusion is defensive.
+- **The root aggregator's `<module>` graph** over all real poms — every unreachable pom is an invoker fixture or a
+  doc example, and no `<module>` names a missing directory. Also all 8 `META-INF/services` files, every
+  implementation and `org.openl` interface resolved. Both closed with no finding; do not re-run either.
+- **PMD 7.17 `UnusedAssignment`, `UnusedLocalVariable`, `UnusedPrivateField`, `UnusedPrivateMethod` and
+  `UnusedFormalParameter` over main *and* test sources of all 42 analysable modules** (`includeTests=true`), the
+  detector validated against the known main-source baseline. No PMD scope is left open.
+- **Whole-type deadness over every `.java` file**: each non-public top-level type searched repository-wide with a
+  literal word-boundary search over every file type. Zero removable.
+- **Member deadness below `private`** — every unannotated package-private and protected method and field of the
+  files whose top-level type is non-public, resolved against an identifier index over all text files. The ones with
+  no outside reference are all read inside their own file. Zero removable.
+- **Package-private members of *public* types**, from the union of a brace-tracking and an indent-based detector.
+  Every one is alive: read in its own file, reached through a Lombok accessor, or written by a framework annotation.
+- **Public top-level types declared in test trees**, ITEST and the two test-jar modules excluded, each name resolved
+  against the identifier index and then against every Excel and archive resource. Only `JavaType` was removable;
+  the rest are surefire, Spring-scanned, JMH or named from a spreadsheet.
 - javac `-Xlint` over the whole reactor: no `UnusedVariable`, `UnusedMethod` or `UnusedNestedClass`; the only
   `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
@@ -357,19 +356,21 @@ None. Open the next one from a fresh branch off the current `main`.
 - **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
   import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
   or swept until then, and the stub has to be re-seeded on every container rebuild.
-- **`itest.kafka` and `itest.tracing` both start `apache/kafka-native:latest`, an unpinned tag whose image
-  intermittently segfaults in its own bootstrap** and has now left `main`'s head red. Pinning it to a released
-  version would stop a third-party push from reddening CI; this routine only deletes, so it cannot make the change.
+- **`itest.tracing` and `itest.kafka` both start `apache/kafka-native:latest`, an unpinned tag whose image
+  intermittently segfaults in its own bootstrap** and has now left `main` red on three consecutive commits. Pinning
+  it to a released version would stop a third-party push from reddening CI; this routine only deletes, so it cannot
+  make the change.
+- The weekly `build.yml` cross-platform matrix has been red on `main` since 2026-07-01 (details in *CI flakes*).
+  Nobody has diagnosed it; it needs an owner, and it is not a dead-code question.
 - `OverviewPanel.tsx` starts two unawaited promises that resolve into state setters, at lines 797 and 1227. Nothing
   synchronises them with the test, so `OverviewPanel.test.tsx` fails whenever the machine is slow. Needs the effect
   awaited or the test made to wait on it; raising the CI timeout to 20 s treated the symptom only.
-- Delete `dtr/RepositoryException` and the four `BranchRepository` methods already marked `forRemoval = true` (see
-  *Deferred findings*) — public API, so only a maintainer can weigh the downstream break.
+- Weigh the public-API removals parked in *Deferred findings* — `dtr/RepositoryException`, the four
+  `BranchRepository` methods already marked `forRemoval = true`, `SimpleGroup.description`, and the tableeditor
+  taglib as a whole. Each needs a downstream-break judgement this routine may not make.
 - `itest.studio.repos` has a same-second commit-ordering race: when a scenario's two commits land in the same second
   the history endpoint returns them oldest-first, so `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify` reads
   the pre-merge revision and an empty table list. Needs a tiebreaker or a fixture that does not depend on ordering.
-- Decide whether the tableeditor JSP taglib is still reachable by a downstream consumer — the largest single
-  candidate found so far, and no in-repository evidence can settle it.
 - Decide whether the four unused `MergeModal/types.ts` interfaces should stay as the frontend mirror of the merge REST
   contract; if they go, `Docs/api/projects-merge-api.md` moves with them.
 - The committed tableeditor CSS bundles do not match what `compile.css.sh` produces from the committed sources, so
@@ -382,11 +383,10 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-03 — run twenty-eight. Swept 4 new `main` commits (EPBDS-8537 branch marking, 78 files). Two public-API
-  orphans deferred: `RepositoryException` and four `BranchRepository` methods. #1940 green. No sweep commit.
-- 08-03 — run twenty-nine. #1940 merged; collapsed its record and closed the open-PR section. No new `main` scope
-  at all. Probed two new veins (orphan Maven modules, service registrations) — both zero, both closed. Found the
-  duplicated `Docs/` example tree, deferred to a maintainer. No sweep commit.
-- 08-03 — run thirty. Zero new `main` commits, so no sweep scope. Diagnosed `main`'s red head: the kafka-native
-  floating tag, `itest.tracing`, on two consecutive commits and predating #1940. Assessed and closed the pom
-  `<exclusions>` vein. Ledger 378 to 392 lines. No sweep commit.
+- 08-03 — run twenty-nine. #1940 merged; collapsed its record and closed the open-PR section. Probed two new veins
+  (orphan Maven modules, service registrations) — both zero, both closed. No sweep commit.
+- 08-03 — run thirty. Zero new `main` commits. Diagnosed `main`'s red head as the kafka-native floating tag.
+  Assessed and closed the pom `<exclusions>` vein. No sweep commit.
+- 08-03 — run thirty-one. Zero new `main` commits, so no scope; `main` red for a third commit on the same flake,
+  which also bars cleanup. Corrected the flake's job name to `IT (services-data)` and recorded the 5-week-red weekly
+  `build.yml`; traded that new content against compacted redundancy, so the file holds at 392 lines.
