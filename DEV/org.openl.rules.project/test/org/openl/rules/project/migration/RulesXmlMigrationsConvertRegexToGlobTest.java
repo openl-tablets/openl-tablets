@@ -96,6 +96,21 @@ class RulesXmlMigrationsConvertRegexToGlobTest {
     }
 
     @Test
+    void testEmptyNameSignatureYieldsNoGlob() {
+        // A signature whose name reduces to nothing (".+ \(\)": return type and params stripped leave "")
+        // must not add an empty include glob; the filter is kept instead.
+        assertNoGlob(".+ \\(\\)");
+        assertNoGlob(".* \\(\\)");
+    }
+
+    @Test
+    void testPathologicalAlternationIsKept() {
+        // Nine nested groups would expand to 2^9 branches; past the cap the pattern is kept as a filter
+        // rather than unfolded, so a crafted method-filter can never OOM the migration.
+        assertNoGlob(".+ " + "(a|b)".repeat(9) + "\\(.+\\)");
+    }
+
+    @Test
     void testComplexRegexIgnored() {
         // Regex patterns that match signatures but cannot be cleanly converted to glob — ignored
         assertNoGlob("[a-z]+Method");

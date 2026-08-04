@@ -44,6 +44,8 @@ public final class RulesXmlMigrations {
     private static final Pattern RETURN_TYPE_PREFIX = Pattern.compile("^[^ (]+ ");
     /** The trailing {@code (params)} part of a method signature. */
     private static final Pattern SIGNATURE_PARAMS = Pattern.compile("\\\\\\(.*\\\\\\)$");
+    /** Cap on alternation branches; a pattern that would expand past this is kept as a filter, not converted. */
+    private static final int MAX_ALTERNATION_BRANCHES = 256;
 
     private RulesXmlMigrations() {
     }
@@ -200,8 +202,14 @@ public final class RulesXmlMigrations {
         } catch (PatternSyntaxException e) {
             return Set.of();
         }
+        var branches = expandAlternations(regex);
+        if (branches.size() > MAX_ALTERNATION_BRANCHES) {
+            // A pathological alternation (many nested groups) expands combinatorially; keep the filter rather
+            // than spend unbounded time and memory unfolding it into globs.
+            return Set.of();
+        }
         var globs = new LinkedHashSet<String>();
-        for (var branch : expandAlternations(regex)) {
+        for (var branch : branches) {
             var glob = reduceSignatureToGlob(branch);
             if (glob == null) {
                 return Set.of();
@@ -213,7 +221,7 @@ public final class RulesXmlMigrations {
 
     /**
      * Reduces one alternation-free signature regexp to a single name glob, or {@code null} when a regexp
-     * metacharacter survives the reduction.
+     * metacharacter survives the reduction or the name reduces to nothing.
      */
     private static @Nullable String reduceSignatureToGlob(String regex) {
         var matcher = RETURN_TYPE_PREFIX.matcher(regex);
@@ -242,7 +250,8 @@ public final class RulesXmlMigrations {
                 return null;
             }
         }
-        return regex;
+        // An empty result is not a name glob (e.g. ".+ \(\)"); treat it as unconvertible so the filter is kept.
+        return regex.isEmpty() ? null : regex;
     }
 
     /**
@@ -268,6 +277,10 @@ public final class RulesXmlMigrations {
         var suffix = regex.substring(group[1] + 1);
         var branches = new ArrayList<String>();
         for (var alternative : splitTopLevel(content)) {
+            if (branches.size() > MAX_ALTERNATION_BRANCHES) {
+                // Stop unfolding once the branch count is past the cap; the caller keeps the filter unchanged.
+                break;
+            }
             branches.addAll(expandGroups(prefix + alternative + suffix));
         }
         return branches;
