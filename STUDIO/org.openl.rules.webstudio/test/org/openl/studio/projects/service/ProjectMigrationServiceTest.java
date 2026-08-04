@@ -310,6 +310,26 @@ class ProjectMigrationServiceTest {
         assertTrue(migrated.getModules().get(0).getWebstudioConfiguration().isCompileThisModuleOnly());
     }
 
+    @Test
+    void migrate_ignores_temp_lock_files_when_checking_for_widening() {
+        rootFiles(file("rules.xml"), file("rules/Main.xlsx"), file("rules/~$Main.xlsx"));
+        // The ~$ lock file matches rules/**/*.xlsx by name but is not a workbook, so collapsing Main.xlsx to
+        // the folder wildcard exposes no new module and the migrate must not be refused.
+        rulesXml("""
+                <project>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/Main.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+
+        service.migrate(project, MigrationScope.RULES_XML);
+
+        verify(filesService).updateResource(eq(root), eq("rules.xml"), any());
+    }
+
     private void rootFiles(FsNode... nodes) {
         // Stub both the root-level listing (recursive=false) and the recursive one the widening check uses.
         when(filesService.getResources(eq(root), any(), anyBoolean(), any(FileViewMode.class), any()))

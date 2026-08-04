@@ -62,6 +62,14 @@ class RulesXmlMigrationsResolveModulesTest {
     }
 
     @Test
+    void ignoresTempAndNonExcelFilesWhenMatchingWildcards() {
+        // A ~$ lock file and a non-Excel file both sit under rules/, but neither is a workbook, so a
+        // rules/** default must not resolve them — otherwise the widening guard would falsely refuse a migrate.
+        var files = List.of("rules/Main.xlsx", "rules/~$Main.xlsx", "rules/notes.txt");
+        assertEquals(Set.of("rules/Main.xlsx"), resolveModuleWorkbooks("<project/>", files));
+    }
+
+    @Test
     void recursiveWildcardMatchesNestedWorkbooks() {
         assertResolves("""
                 <project>

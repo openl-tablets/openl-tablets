@@ -16,6 +16,7 @@ import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.CollectionUtils;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
@@ -364,24 +365,28 @@ public final class RulesXmlMigrations {
      * The workbook files that become modules for the descriptor, resolved against the project's files.
      *
      * <p>A concrete module contributes its own path. A wildcard module contributes every workbook that
-     * matches it. A descriptor that declares no modules resolves against the engine defaults
-     * ({@code rules/**}{@code /*.xlsx} and {@code tests/**}{@code /*.xlsx}).
+     * matches it — only real Excel workbooks, so non-Excel files and temporary {@code ~$} lock files are
+     * ignored even when a pattern would match their name. A descriptor that declares no modules resolves
+     * against the engine defaults ({@code rules/**}{@code /*.xlsx} and {@code tests/**}{@code /*.xlsx}).
      *
      * <p>Comparing this set before and after {@link #defaultModules}/{@link #apply} tells a caller whether a
      * migration would turn an undeclared workbook into a module — in any folder, {@code rules/},
      * {@code tests/} or another — so it can refuse the change.
      *
-     * @param descriptor    the descriptor to resolve
-     * @param workbookPaths the project's workbook paths, relative to the project root and {@code /}-separated
+     * @param descriptor the descriptor to resolve
+     * @param files      the project's file paths, relative to the project root and {@code /}-separated
      * @return the module workbook paths, {@code /}-separated
      */
-    public static Set<String> resolveModuleWorkbooks(ProjectDescriptor descriptor, Collection<String> workbookPaths) {
+    public static Set<String> resolveModuleWorkbooks(ProjectDescriptor descriptor, Collection<String> files) {
         var modules = descriptor.getModules();
         var effective = CollectionUtils.isEmpty(modules) ? ProjectDescriptor.defaultModules() : modules;
-        var files = workbookPaths.stream().map(path -> path.replace('\\', '/')).toList();
+        var workbooks = files.stream()
+                .map(path -> path.replace('\\', '/'))
+                .filter(path -> FileTypeHelper.isExcelFile(FileUtils.getName(path)))
+                .toList();
         var resolved = new LinkedHashSet<String>();
         for (var module : effective) {
-            resolveModule(module, files, resolved);
+            resolveModule(module, workbooks, resolved);
         }
         return resolved;
     }
