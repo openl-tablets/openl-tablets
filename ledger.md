@@ -5,7 +5,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 ## Resume point
 
 - **Converged at `main` = `9ac3873d`** — every queue row done, every vein closed, no unswept scope; new scope arrives
-  only as new commits on `main`. Never invent a detector to manufacture work. Nine runs idle — expect idleness.
+  only as new commits on `main`. Never invent a detector to manufacture work. Ten runs idle — expect idleness.
 - The idle pass is two calls: `git log 9ac3873d..origin/main` and the open-PR check. Check `build-quick.yml` only
   when the first shows `main` has moved. `opensaml-bom` is still 000 shibboleth / 404 Central, so webstudio Java
   stays the one unswept surface; seed the stub only if a build is needed.
@@ -63,8 +63,7 @@ None. Open the next one from a fresh branch off the current `main`.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
   `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract in
   `Docs/api/projects-merge-api.md` backed by a Java record and an OpenAPI schema; if they go, that page goes too.
-- ~50 studio-ui exports used only inside their own file — alive; dropping `export` is a refactor, not a delete.
-  Every incremental pass adds a few (`RailMode`, `ListingQuery`, `RepositoryCapabilities`); stop re-listing them.
+- A studio-ui export used only inside its own file is alive; dropping `export` is a refactor. Never list them.
 - `js/datepicker.js` `dateValidForSelection`, `getSelectedDate`, `setDisabledDays`, `joinNodeLists` — no call site,
   but the file is vendored third party (DatePicker v5.4, frequency-decoder.com, CC BY-SA 3.0) and these are its API.
 - `.te_hidden` in `STUDIO/org.openl.rules.tableeditor/css/common.css` — the only real CSS orphan. Blocked because the
@@ -359,8 +358,7 @@ None. Open the next one from a fresh branch off the current `main`.
   or swept until then, and the stub has to be re-seeded on every container rebuild.
 - **`itest.tracing` and `itest.kafka` both start the unpinned `apache/kafka-native:latest`** (see *CI flakes*), whose
   image segfaults in its own bootstrap and keeps reddening `main`. Pinning it to a released version needs a human.
-- The weekly `build.yml` cross-platform matrix has been red on `main` since 2026-07-01 (details in *CI flakes*).
-  Nobody has diagnosed it; it needs an owner, and it is not a dead-code question.
+- The weekly cross-platform `build.yml` matrix needs an owner; *CI flakes* records what is failing.
 - `OverviewPanel.tsx` starts two unawaited promises that resolve into state setters, at lines 797 and 1227. Nothing
   synchronises them with the test, so `OverviewPanel.test.tsx` fails whenever the machine is slow. Needs the effect
   awaited or the test made to wait on it; raising the CI timeout to 20 s treated the symptom only.
@@ -382,6 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run thirty-six. Idle at the same head; dropped the CI call from the unchanged-SHA idle pass.
 - 08-04 — run thirty-seven. EPBDS-16358 landed a real vein; swept it and found no orphan. Nothing to commit.
 - 08-04 — run thirty-eight. Idle; EPBDS-16355 is additive and orphans nothing. `main` red on `IT (studio)` (a).
+- 08-04 — run thirty-nine. Idle at the same head, no `dead-code/*` PR open; compacted two entries only.
