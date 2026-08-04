@@ -154,7 +154,7 @@ Other unmatched projects are handled as follows:
 ## Upgrade from `.studioProps`
 
 Workspaces created before the registry keep the metainfo in a `.studioProps` folder inside each project.
-A one-time `Migrator` step converts them on the first start:
+A `Migrator` step converts them:
 
 - a project with a repository link in `.studioProps/.version` gets a registry record with the link and the
   per-file baselines; the legacy `.studioProps` folder and the in-project edit history are deleted;
@@ -162,6 +162,12 @@ A one-time `Migrator` step converts them on the first start:
   restored, and the reconciliation deletes such folders at the first workspace load;
 - the step is idempotent: a project that already has a record is skipped, so a repeated run cannot degrade
   it. Downgrade is not supported.
+
+The conversion is not guarded by the installation version. An env-var or default installation keeps no
+dynamic settings file, so the recorded from-version reads as the running build and a version guard would
+skip the conversion — the reconciliation would then delete every unconverted legacy folder as a stray one
+and destroy uncommitted work. Because the step is idempotent and touches only folders with a legacy link,
+it runs on every start.
 
 ## Implementation Map
 
@@ -179,5 +185,5 @@ A one-time `Migrator` step converts them on the first start:
 - `WorkspaceRegistryReconciler` (`org.openl.studio.security`) — triggers the reconciliation on every
   interactive sign-in.
 - `RulesProject` — captures the synchronization snapshot (project link + file baselines) on open and save.
-- `Migrator` — the one-time `.studioProps` conversion.
+- `Migrator` — the `.studioProps` conversion, run unconditionally on every start.
 - `FolderHelper`, `ProjectHistoryService` — the edit-history location and its maintenance.

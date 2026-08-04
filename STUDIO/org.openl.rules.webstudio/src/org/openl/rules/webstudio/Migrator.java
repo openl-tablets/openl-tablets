@@ -93,9 +93,13 @@ public class Migrator {
         if (stringFromVersion.compareTo("6.3.1") < 0) {
             migrateTo6_4_0(settings, props);
         }
-        if (stringFromVersion.compareTo("6.4.0") < 0) {
-            migrateUserWorkspacesToMetainfoRegistry();
-        }
+        // The legacy .studioProps conversion is intentionally not guarded by the from-version. An env-var or
+        // default installation keeps no dynamic settings file, so the from-version reads as the running build
+        // (see DynamicPropertySource#loadProperties) and any version guard would skip the conversion. The
+        // registry-first reconciliation on sign-in would then delete every unconverted legacy folder as a
+        // stray one and destroy the user's uncommitted work. The conversion is idempotent and self-limiting,
+        // so running it on every start is safe.
+        migrateUserWorkspacesToMetainfoRegistry();
 
         if ("saml".equals(Props.text("user.mode"))) {
             // Generating required a private key and its certificate if they are missed
@@ -122,13 +126,17 @@ public class Migrator {
     /**
      * Moves the legacy per-project {@code .studioProps} metainfo into the per-user metainfo registry.
      *
+     * <p>Runs on every start and is idempotent: a project that already has a record is skipped, so the
+     * conversion takes effect once regardless of how many times it is invoked.
+     *
      * <p>A project folder with a missing or unreadable repository link gets no record: the registry is
      * authoritative, and such folders are deleted at the first workspace load. For linked projects the
      * legacy {@code .studioProps} folder and the in-project edit history are deleted right away.
      */
     private static void migrateUserWorkspacesToMetainfoRegistry() {
         String workspacePath = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
-        if (workspacePath != null) {
+        // A blank path must not fall through to Path.of(""), which resolves to the process working directory.
+        if (StringUtils.isNotBlank(workspacePath)) {
             migrateUserWorkspacesToMetainfoRegistry(Path.of(workspacePath));
         }
     }

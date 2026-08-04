@@ -17,7 +17,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 
 /**
- * Tests of the one-time migration of legacy {@code .studioProps} workspaces to the metainfo registry.
+ * Tests of the migration of legacy {@code .studioProps} workspaces to the metainfo registry.
  *
  * @author Yury Molchan
  */
@@ -190,6 +190,30 @@ class MigratorWorkspaceTest {
         assertNotNull(metainfo);
         assertEquals("design", metainfo.repositoryId(),
                 "A repeated migration must not degrade the record to a local project.");
+    }
+
+    @Test
+    void linkedLegacyFolderWithUnsavedWorkSurvivesReconcile() throws IOException {
+        var project = createProject("Linked");
+        var studioProps = project.resolve(".studioProps");
+        Files.createDirectories(studioProps);
+        Files.writeString(studioProps.resolve(".version"), """
+                repository-id=design
+                path-in-repository=Linked
+                version=rev-7
+                branch=master
+                """);
+        var unsaved = project.resolve("unsaved.txt");
+        Files.writeString(unsaved, "work in progress, never committed");
+
+        // The conversion, then the registry-first reconciliation that open() performs on the first load.
+        Migrator.migrateUserWorkspacesToMetainfoRegistry(workspacesRoot);
+        MetainfoRegistry.open(userDir);
+
+        assertTrue(Files.exists(project), "A converted legacy folder must survive the reconciliation.");
+        assertTrue(Files.exists(unsaved), "Uncommitted work in a converted folder must be kept.");
+        assertNotNull(MetainfoRegistry.open(userDir).get("Linked"),
+                "The converted project keeps its registry record.");
     }
 
     private Path createProject(String name) throws IOException {
