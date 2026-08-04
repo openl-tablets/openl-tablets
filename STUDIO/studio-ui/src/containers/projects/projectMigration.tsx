@@ -48,7 +48,7 @@ export const useDescriptorMigration = (
             setMigration(current => ({
                 ...current,
                 [scope]: scope === 'rulesXml'
-                    ? { movableRootModules: [], migratable: false, newModules: [] }
+                    ? { movableRootModules: [], migratable: false, newModules: []}
                     : { migratable: false },
             }))
             onMigrated()
@@ -72,9 +72,14 @@ export const MigrateButton = ({ tooltip, loading, onClick, label, testId, disabl
     disabled?: boolean
 }) => (
     // The button is wrapped so its tooltip still shows while it is disabled — a disabled button fires no
-    // hover events of its own, so the reason a migrate is blocked stays reachable.
-    <Tooltip title={tooltip}>
-        <span style={{ display: 'inline-flex' }}>
+    // hover or focus events of its own, so the reason a migrate is blocked stays reachable by pointer and
+    // keyboard. The wrapper takes focus only while disabled, so an enabled button keeps a single tab stop.
+    <Tooltip title={tooltip} trigger={['hover', 'focus']}>
+        <span
+            aria-disabled={disabled ?? false}
+            style={{ display: 'inline-flex' }}
+            tabIndex={disabled ? 0 : undefined}
+        >
             <Button
                 data-testid={testId}
                 disabled={disabled ?? false}
