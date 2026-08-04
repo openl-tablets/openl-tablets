@@ -4,14 +4,14 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged, and `main` is still at `83feec71`** — every queue row done, every vein closed, no unswept scope; new
-  scope arrives only as new commits on `main`. Never invent a detector to manufacture work.
-- The whole idle pass is four calls: `git log 83feec71..origin/main`, the open-PR check, the newest `build-quick.yml`
+- **Converged at `main` = `23cf6377`** — every queue row done, every vein closed, no unswept scope; new scope arrives
+  only as new commits on `main`. Never invent a detector to manufacture work. Six runs idle — expect idleness.
+- The whole idle pass is four calls: `git log 23cf6377..origin/main`, the open-PR check, the newest `build-quick.yml`
   run on `main`, one `curl` for `opensaml-bom` (still 000 shibboleth / 404 Central, so webstudio Java stays the one
-  unswept surface; seed the stub only if a build is needed). Five runs idle at this head — expect idleness.
-- **`main`'s head run is red and not the sweep's doing** — the kafka-native tag, see *CI flakes*. Section 7 bars
-  cleanup while `main` is red, so an idle run stays idle until a green `main` run appears; do not re-diagnose an
-  unchanged SHA.
+  unswept surface; seed the stub only if a build is needed).
+- **`main` is red and it is not the sweep's doing** — the kafka-native tag, see *CI flakes*. Section 7 bars cleanup
+  while `main` is red, so an idle run stays idle until a green `main` run appears; never re-diagnose an unchanged SHA,
+  and a Dependabot head can sit for hours with no `build-quick.yml` run of its own.
 - When scope arrives, sweep only the files those commits touch — skip webstudio Java, ITEST fixtures, `Docs/` and
   `.github/`. A commit deleting a screen is the richest vein: check the locale keys, service functions, helper
   modules and dropped `throws` clauses it used before assuming the author cleaned up.
@@ -379,6 +379,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-03 — run thirty-two. Nothing moved — same head, same red run, opensaml still blocked, no open PR, no commit.
 - 08-03 — run thirty-three. Idle again at the same head; only sharpened the workflow-listing branch-filter fact.
 - 08-04 — run thirty-four. Idle at the same head; compacted the resume point to spec, 390 to 384 lines.
+- 08-04 — run thirty-five. Idle; `main` advanced by one Dependabot pom bump, which adds no surface.
