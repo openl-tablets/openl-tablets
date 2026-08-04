@@ -5,10 +5,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 ## Resume point
 
 - **Converged at `main` = `23cf6377`** — every queue row done, every vein closed, no unswept scope; new scope arrives
-  only as new commits on `main`. Never invent a detector to manufacture work. Six runs idle — expect idleness.
-- The whole idle pass is four calls: `git log 23cf6377..origin/main`, the open-PR check, the newest `build-quick.yml`
-  run on `main`, one `curl` for `opensaml-bom` (still 000 shibboleth / 404 Central, so webstudio Java stays the one
-  unswept surface; seed the stub only if a build is needed).
+  only as new commits on `main`. Never invent a detector to manufacture work. Seven runs idle — expect idleness.
+- The whole idle pass is three calls: `git log 23cf6377..origin/main`, the open-PR check, and one `curl` for
+  `opensaml-bom` (still 000 shibboleth / 404 Central, so webstudio Java stays the one unswept surface; seed the stub
+  only if a build is needed). Check `build-quick.yml` only when that first call shows `main` has moved — on an
+  unchanged SHA its result is already recorded below.
 - **`main` is red and it is not the sweep's doing** — the kafka-native tag, see *CI flakes*. Section 7 bars cleanup
   while `main` is red, so an idle run stays idle until a green `main` run appears; never re-diagnose an unchanged SHA,
   and a Dependabot head can sit for hours with no `build-quick.yml` run of its own.
@@ -379,6 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-03 — run thirty-three. Idle again at the same head; only sharpened the workflow-listing branch-filter fact.
 - 08-04 — run thirty-four. Idle at the same head; compacted the resume point to spec, 390 to 384 lines.
 - 08-04 — run thirty-five. Idle; `main` advanced by one Dependabot pom bump, which adds no surface.
+- 08-04 — run thirty-six. Idle at the same head; dropped the CI call from the unchanged-SHA idle pass.
