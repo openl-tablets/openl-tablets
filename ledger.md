@@ -4,11 +4,11 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `9ac3873d`**; every queue row done, every vein closed. New scope arrives only as new commits
-  on `main` — never invent a detector to manufacture work. Twelve runs idle; expect idleness.
-- The idle pass is two calls: `git log 9ac3873d..origin/main` and the open-PR check; read `build-quick.yml` only once
-  `main` has moved, and never re-diagnose an unchanged SHA. `main` is red at that head on `IT (studio)` shape (a), not
-  the sweep's doing, and section 7 bars cleanup while it is red, so a finding waits for a green `main`.
+- **Converged at `main` = `b5d99a1d`**; every queue row done, every vein closed. New scope arrives only as new commits
+  on `main` — never invent a detector to manufacture work. Thirteen runs idle; expect idleness.
+- The idle pass is two calls: `git log b5d99a1d..origin/main` and the open-PR check; read `build-quick.yml` only once
+  `main` has moved, and never re-diagnose an unchanged SHA. `build-quick.yml` is **green** at that head — both ITEST
+  flakes cleared themselves — so section 7 no longer bars cleanup.
 - When scope arrives, sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and
   `.github/`. Read the **deleted** lines first — a purely additive commit orphans nothing, and one whose deletions are
   replaced in place usually does too; a commit deleting a screen is the richest vein, so check its locale keys,
@@ -110,6 +110,9 @@ None. Open the next one from a fresh branch off the current `main`.
 - **A pom outside the root aggregator's `<module>` graph is normally a fixture, not an orphan.** All 120 unreachable
   poms are maven-invoker projects under `Util/openl-maven-plugin/it/**` or documentation examples under `Docs/`.
   Only a `<module>` naming a missing directory would be deletable, and there are none.
+- **A signature an incremental-scope diff deletes is usually renamed, not removed** — `convertRegexToGlob` returned as
+  `convertRegexToGlobs`, and two inline `Pattern.compile` locals returned as constants. Search the added lines for the
+  same stem, and a deleted local's body for a new constant, before calling either an orphan.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
@@ -230,8 +233,8 @@ None. Open the next one from a fresh branch off the current `main`.
   segfault at `com.oracle.svm.core.posix.headers.Pwd.getpwuid` while reading `user.name`. **The GitHub job carrying
   it is named `IT (services-data)`** — no job is named for tracing or kafka — and it runs ITEST Core, Kafka Smoke,
   WS Tracing, WS Store Log Data and S3, so the failing module is `itest.tracing` (`RunTracingITest.setUp:57`,
-  waiting for `Transitioning from RECOVERY to RUNNING`) while `ITEST - Kafka Smoke` passes beside it. It has left
-  `main` red on four consecutive commits. Never pin the tag away; check for a later green run before escalating.
+  waiting for `Transitioning from RECOVERY to RUNNING`) while `ITEST - Kafka Smoke` passes beside it. It has reddened
+  `main` for four commits at a stretch. Never pin the tag away; check for a later green run before escalating.
   The job list alone identifies it — that job failed and every sibling passed — so no log fetch is needed.
 - `studio-ui` `npm run test` is the standing failure of `Tests (without ITEST)` — tell `Failed to run task:
   'npm run test' failed` plus `-rf :studio-ui`. Always the same 2 of the 28 tests in
@@ -339,9 +342,9 @@ None. Open the next one from a fresh branch off the current `main`.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
   entry on runtime wiring.
 - Incremental `main` scope (SHA reached is in *Resume point*): studio-ui TraceView, EPBDS-8537 branch marking,
-  EPBDS-16358 server-side table copy and EPBDS-16355 sheet-name clipping — each author's own deletion was already
-  complete, leaving no orphaned export, locale key, bundle key or helper. Dependabot bumps, lock-file-only npm
-  group bumps and Spotless pom tuning add no surface.
+  EPBDS-16358 server-side table copy, EPBDS-16355 sheet-name clipping and the EPBDS-16363/16364/16365 migration
+  refactor — each author's own deletion was already complete, leaving no orphaned export, locale key, bundle key or
+  helper. Dependabot bumps, lock-file-only npm group bumps and Spotless pom tuning add no surface.
 - Every `org.openl.*` class name referenced from `.xml`, `.xhtml`, `.properties`, `.tld`, `.yaml`, `.json` and
   `.txt`, resolved against the source tree. The ~90 with no `.java` are all runtime-generated datatype and
   spreadsheet-result beans or rule-project fixtures under test resources. No stale configuration exists.
@@ -374,6 +377,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run thirty-nine. Idle at the same head, no `dead-code/*` PR open; compacted two entries only.
 - 08-04 — run forty. Idle at the same head, no `dead-code/*` PR; compacted the Resume point only.
 - 08-04 — run forty-one. Idle at the same head, no `dead-code/*` PR; folded two follow-ups into existing entries.
+- 08-04 — run forty-two. Swept the one new `main` commit (EPBDS-16363/64/65 migration refactor): no orphan, nothing
+  removed. `main` went green.
