@@ -444,11 +444,15 @@ public final class RulesXmlMigrations {
             }
             var path = m.getRulesRootPath();
             var seg = subfolder(path);
-            if (m.getName() == null && seg != null && path.endsWith(XLSX_EXT) && m.isModuleWithWildcard()) {
+            // Only a config-free wildcard folds a folder into the recursive default. A wildcard that carries a
+            // method filter or compileThisModuleOnly is kept as declared, so widening rules/*.xlsx to
+            // rules/**/*.xlsx never applies that config to nested workbooks it did not cover.
+            if (m.getName() == null && seg != null && path.endsWith(XLSX_EXT) && m.isModuleWithWildcard()
+                    && hasNoExtraConfig(m)) {
                 m.setRulesRootPath(seg + "/**/*.xlsx");
             }
             result.add(m);
-            if (seg != null && m.isModuleWithWildcard()) {
+            if (seg != null && m.isModuleWithWildcard() && hasNoExtraConfig(m)) {
                 covered.add(seg);
             }
         }

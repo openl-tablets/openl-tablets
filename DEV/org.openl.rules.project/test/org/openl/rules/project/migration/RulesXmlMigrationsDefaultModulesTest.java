@@ -397,6 +397,26 @@ class RulesXmlMigrationsDefaultModulesTest {
     }
 
     @Test
+    void keepsAConfigCarryingWildcardWithoutWideningIt() {
+        // Widening rules/*.xlsx to rules/**/*.xlsx would apply compileThisModuleOnly to nested workbooks the
+        // top-level wildcard never covered, so a config-carrying wildcard is kept exactly as declared.
+        assertUnchanged(
+                """
+                        <project>
+                            <name>explicit-project</name>
+                            <modules>
+                                <module>
+                                    <rules-root path="rules/*.xlsx"/>
+                                    <webstudioConfiguration>
+                                        <compileThisModuleOnly>true</compileThisModuleOnly>
+                                    </webstudioConfiguration>
+                                </module>
+                            </modules>
+                        </project>
+                        """);
+    }
+
+    @Test
     void collapsesPlainNeighbourButKeepsConfigCarryingModuleExplicit() {
         // The config-free neighbour folds into the folder wildcard; the config-carrying module stays put, so
         // the <modules> block is kept (its explicit path is not a default wildcard).
