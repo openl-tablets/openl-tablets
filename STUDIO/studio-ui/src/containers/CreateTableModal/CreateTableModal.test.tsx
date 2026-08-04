@@ -1137,6 +1137,28 @@ describe('CreateTableModal', () => {
         expect(createButton()).toBeEnabled()
     })
 
+    it('keeps Create enabled for a long name, clipping the mirrored sheet to Excel\'s limit', async () => {
+        mockGetModules.mockResolvedValueOnce([])
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue(''))
+
+        // A name past the 31-character worksheet limit is still a table OpenL compiles; only the sheet must be clipped.
+        const longName = 'N'.repeat(40)
+        await user.type(screen.getByTestId('create-table-name'), longName)
+        await user.type(screen.getByTestId('create-table-module'), 'Pricing')
+
+        expect(screen.getByTestId('create-table-name')).toHaveValue(longName)
+        expect(screen.getByTestId('create-table-sheet')).toHaveValue('N'.repeat(31))
+        expect(createButton()).toBeEnabled()
+
+        await user.click(createButton())
+
+        await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
+        expect(mockCreateTable.mock.calls[0]![1].sheetName).toBe('N'.repeat(31))
+    })
+
     it('requires a name for a Test table too', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)

@@ -18,6 +18,7 @@ import {
     insertAt,
     isValidSheetName,
     type ModuleOption,
+    sheetNameFrom,
     toModuleOptions,
     toSortedOptions,
     withTrailingBlank,
@@ -98,7 +99,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                 setModules(available)
                 setProjectProperties(loadedProperties)
                 setTableName(info.name)
-                setSheetName(info.name)
+                setSheetName(sheetNameFrom(info.name))
                 const applicableNames = new Set(loadedProperties.map(property => property.name))
                 setProperties(normalizeProperties(
                     (info.properties ?? []).filter(property => applicableNames.has(property.name))
@@ -155,7 +156,9 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
 
     const handleTableNameChange = (value: string) => {
         setTableName(value)
-        setSheetName(current => current === tableName ? value : current)
+        // The sheet mirrors the name until the author points it elsewhere, following the name clipped to Excel's
+        // limit: a longer name would otherwise leave a sheet Excel rejects and disable Copy.
+        setSheetName(current => current === sheetNameFrom(tableName) ? sheetNameFrom(value) : current)
     }
 
     const handleModuleChange = (value: string) => {

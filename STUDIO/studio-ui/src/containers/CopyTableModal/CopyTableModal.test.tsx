@@ -224,6 +224,30 @@ describe('CopyTableModal', () => {
         expect(mockCopy.mock.calls[0]![2].name).toBe('Eligibility')
     })
 
+    it('keeps Copy enabled for a long name, clipping the mirrored sheet to Excel\'s limit', async () => {
+        mockGetInfo.mockResolvedValueOnce({ name: 'E'.repeat(40), kind: 'Rules' })
+        // No worksheet pins the sheet field, so it mirrors the name the way a fresh module's does.
+        mockGetSheets.mockResolvedValue([])
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal()
+
+        // A source name past the 31-character worksheet limit mirrors into a sheet clipped to fit.
+        await waitFor(() => expect(screen.getByTestId('copy-table-sheet')).toHaveValue('E'.repeat(31)))
+        expect(screen.getByRole('button', { name: 'project:copy_table_modal.copy' })).toBeEnabled()
+
+        // Renaming the copy to another long name keeps the mirror clipped, so Copy stays enabled.
+        await user.clear(screen.getByTestId('copy-table-name'))
+        await user.type(screen.getByTestId('copy-table-name'), 'N'.repeat(40))
+        expect(screen.getByTestId('copy-table-sheet')).toHaveValue('N'.repeat(31))
+        expect(screen.getByRole('button', { name: 'project:copy_table_modal.copy' })).toBeEnabled()
+
+        await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
+
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
+        expect(mockCopy.mock.calls[0]![2]).toMatchObject({ name: 'N'.repeat(40), sheetName: 'N'.repeat(31) })
+    })
+
     it('copies a source that declares no properties', async () => {
         mockGetInfo.mockResolvedValue({ name: 'Eligibility', kind: 'Rules' })
         const user = userEvent.setup({ delay: null })

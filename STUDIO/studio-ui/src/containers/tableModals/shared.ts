@@ -23,6 +23,16 @@ export const isValidSheetName = (sheetName: string): boolean => {
         trimmed.length <= SHEET_NAME_MAX
 }
 
+/**
+ * The sheet name a table defaults into: the name trimmed, then clipped to the length Excel accepts.
+ *
+ * <p>A new table names its sheet after itself. Surrounding spaces are dropped first, the way the compiled table
+ * name and the submitted sheet name both are, so they neither reach the sheet nor eat into its length. A table name
+ * carries no length limit of its own, so a long one is cut to the longest sheet name a workbook can store rather
+ * than left as a name Excel would reject.
+ */
+export const sheetNameFrom = (tableName: string): string => tableName.trim().slice(0, SHEET_NAME_MAX)
+
 /** A module the table can be written to: one the project declares, or one the author is naming. */
 export interface ModuleOption {
     name: string

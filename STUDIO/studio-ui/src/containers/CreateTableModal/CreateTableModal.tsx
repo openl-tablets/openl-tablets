@@ -87,6 +87,7 @@ import {
     isValidSheetName,
     type ModuleOption,
     preferredModule,
+    sheetNameFrom,
     toModuleOptions,
     toSortedOptions,
     withTrailingBlank,
@@ -343,7 +344,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             // The destination module is read at the same time and points the sheet field at one of its worksheets.
             // The tested table has the last word, so it waits for that answer instead of racing it — otherwise the
             // sheet the table is written to is whichever request the server happened to answer first.
-            void moduleRead.current.then(() => setSheetName(structure.table.name || generated))
+            void moduleRead.current.then(() => setSheetName(sheetNameFrom(structure.table.name || generated)))
         }
     }
 
@@ -666,7 +667,10 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
 
     const handleTableNameChange = (value: string) => {
         setTableName(value)
-        setSheetName(current => current === tableName ? value : current)
+        // The sheet mirrors the name until the author points it elsewhere. It follows the name clipped to Excel's
+        // limit, not the raw name: a name past that limit would otherwise leave a sheet Excel rejects and disable
+        // Create, though the name itself is a table OpenL compiles.
+        setSheetName(current => current === sheetNameFrom(tableName) ? sheetNameFrom(value) : current)
     }
 
     const handleModuleChange = (value: string) => {
