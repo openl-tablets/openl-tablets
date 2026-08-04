@@ -28,8 +28,8 @@ class ProjectBeanDeclaredModulesTest {
 
         var source = ProjectBean.chooseModulesSource(declared, resolved);
 
-        // rules.xml declares no modules: show the default wildcard patterns (grouped), not the
-        // expanded files, so the screen matches the modern one and edits keep the block intact.
+        // rules.xml declares no modules: seed the edit list with the default wildcard patterns, not the
+        // expanded files, so edits keep the block intact.
         assertSame(declared, source);
         assertEquals(List.of("rules/**/*.xlsx", "tests/**/*.xlsx"),
                 source.getModules().stream().map(Module::getRulesRootPath).toList());

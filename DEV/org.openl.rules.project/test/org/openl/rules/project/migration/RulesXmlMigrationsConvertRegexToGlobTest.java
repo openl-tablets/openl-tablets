@@ -1,7 +1,8 @@
 package org.openl.rules.project.migration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,90 +10,139 @@ class RulesXmlMigrationsConvertRegexToGlobTest {
 
     @Test
     void testMatchAll() {
-        assertEquals("*", RulesXmlMigrations.convertRegexToGlob(".*"));
-        assertEquals("*", RulesXmlMigrations.convertRegexToGlob(".+"));
+        assertGlobs(".*", "*");
+        assertGlobs(".+", "*");
     }
 
     @Test
     void testNullAndBlank() {
-        assertNull(RulesXmlMigrations.convertRegexToGlob(null));
-        assertNull(RulesXmlMigrations.convertRegexToGlob(""));
-        assertNull(RulesXmlMigrations.convertRegexToGlob("  "));
+        assertNoGlob(null);
+        assertNoGlob("");
+        assertNoGlob("  ");
     }
 
     @Test
     void testInvalidRegex() {
         // "*" is not valid regex — should be ignored
-        assertNull(RulesXmlMigrations.convertRegexToGlob("*"));
+        assertNoGlob("*");
         // Unbalanced brackets
-        assertNull(RulesXmlMigrations.convertRegexToGlob("[abc"));
+        assertNoGlob("[abc");
     }
 
     @Test
     void testRegexThatCannotMatchSignature() {
         // Valid regex but cannot match any method signature like "Type name(Args)"
-        assertNull(RulesXmlMigrations.convertRegexToGlob("^\\d+$"));
-        assertNull(RulesXmlMigrations.convertRegexToGlob("^$"));
+        assertNoGlob("^\\d+$");
+        assertNoGlob("^$");
     }
 
     @Test
     void testSignatureWithEscapedParens() {
         // ".+ methodName\(.+\)" - method with any return type and at least one param
-        assertEquals("SayHello", RulesXmlMigrations.convertRegexToGlob(".+ SayHello\\(.+\\)"));
+        assertGlobs(".+ SayHello\\(.+\\)", "SayHello");
 
         // ".+ methodName\(.*\)" - method with any return type and optional params
-        assertEquals("main1", RulesXmlMigrations.convertRegexToGlob(".+ main1\\(.*\\)"));
-        assertEquals("main2", RulesXmlMigrations.convertRegexToGlob(".* main2\\(.*\\)"));
+        assertGlobs(".+ main1\\(.*\\)", "main1");
+        assertGlobs(".* main2\\(.*\\)", "main2");
 
         // ".+ methodName\(\)" - method with no params
-        assertEquals("mySpr", RulesXmlMigrations.convertRegexToGlob(".+ mySpr\\(\\)"));
+        assertGlobs(".+ mySpr\\(\\)", "mySpr");
     }
 
     @Test
     void testSignatureWithUnescapedParens() {
         // ".* getFactor(.*)" - unescaped parens
-        assertEquals("getFactor*", RulesXmlMigrations.convertRegexToGlob(".* getFactor(.*)"));
-        assertEquals("SayHello*", RulesXmlMigrations.convertRegexToGlob(".+ SayHello(.+)"));
-        assertEquals("Say?Hello*", RulesXmlMigrations.convertRegexToGlob(".+ Say.Hello(.+)"));
+        assertGlobs(".* getFactor(.*)", "getFactor*");
+        assertGlobs(".+ SayHello(.+)", "SayHello*");
+        assertGlobs(".+ Say.Hello(.+)", "Say?Hello*");
     }
 
     @Test
     void testWrappedWildcards() {
         // ".*methodName.*" - method name surrounded by wildcards → exact name
-        assertEquals("*method2*", RulesXmlMigrations.convertRegexToGlob(".*method2.*"));
+        assertGlobs(".*method2.*", "*method2*");
 
         // ".+methodName.+" - same but with .+
-        assertEquals("*Ping*", RulesXmlMigrations.convertRegexToGlob(".+Ping.+"));
+        assertGlobs(".+Ping.+", "*Ping*");
+    }
+
+    @Test
+    void testAlternationUnfoldsIntoNames() {
+        // A (a|b) group unfolds into one glob per branch — the whole point of EPBDS-16365.
+        assertGlobs(".+ calc(Rate|Premium)\\(.+\\)", "calcRate", "calcPremium");
+        assertGlobs(".+ (_api_deduct|premium)\\(.*\\)", "_api_deduct", "premium");
+        // A single-branch group just drops its parentheses.
+        assertGlobs(".+ (myRule7)\\(.+\\)", "myRule7");
+        // Three branches.
+        assertGlobs(".+ (a|b|c)\\(.*\\)", "a", "b", "c");
+    }
+
+    @Test
+    void testTopLevelAlternationSplitsIntoSignatures() {
+        // Two full signatures joined by | — each converts on its own, so neither branch is lost.
+        assertGlobs(".+ calcRate\\(.+\\)|.+ calcPremium\\(.+\\)", "calcRate", "calcPremium");
+    }
+
+    @Test
+    void testAlternationCombinedWithWildcards() {
+        // The branches still reduce their own wildcards.
+        assertGlobs(".* (foo|bar).*", "foo*", "bar*");
+    }
+
+    @Test
+    void testAlternationFailsWholePatternWhenAnyBranchDoesNot() {
+        // "foo" alone is not a signature, so the whole (foo|bar) yields nothing — the filter is kept.
+        assertNoGlob("(foo|bar)");
+    }
+
+    @Test
+    void testEmptyNameSignatureYieldsNoGlob() {
+        // A signature whose name reduces to nothing (".+ \(\)": return type and params stripped leave "")
+        // must not add an empty include glob; the filter is kept instead.
+        assertNoGlob(".+ \\(\\)");
+        assertNoGlob(".* \\(\\)");
+    }
+
+    @Test
+    void testPathologicalAlternationIsKept() {
+        // Nine nested groups would expand to 2^9 branches; past the cap the pattern is kept as a filter
+        // rather than unfolded, so a crafted method-filter can never OOM the migration.
+        assertNoGlob(".+ " + "(a|b)".repeat(9) + "\\(.+\\)");
     }
 
     @Test
     void testComplexRegexIgnored() {
         // Regex patterns that match signatures but cannot be cleanly converted to glob — ignored
-        assertNull(RulesXmlMigrations.convertRegexToGlob("[a-z]+Method"));
-        assertNull(RulesXmlMigrations.convertRegexToGlob("(foo|bar)"));
-        assertNull(RulesXmlMigrations.convertRegexToGlob(".* (foo|bar).*"));
-        assertNull(RulesXmlMigrations.convertRegexToGlob(".* foo\\..*"));
-        assertNull(RulesXmlMigrations.convertRegexToGlob(".* foob?.*"));
-        assertNull(RulesXmlMigrations.convertRegexToGlob(".* fo+.*"));
-        assertNull(RulesXmlMigrations.convertRegexToGlob(".* foo[b].*"));
-        assertNull(RulesXmlMigrations.convertRegexToGlob(".* fo{2}.*"));
-        assertNull(RulesXmlMigrations.convertRegexToGlob(".* f\\o.*"));
-        assertNull(RulesXmlMigrations.convertRegexToGlob(".* f o.*"));
+        assertNoGlob("[a-z]+Method");
+        assertNoGlob(".* foo\\..*");
+        assertNoGlob(".* foob?.*");
+        assertNoGlob(".* fo+.*");
+        assertNoGlob(".* foo[b].*");
+        assertNoGlob(".* fo{2}.*");
+        assertNoGlob(".* f\\o.*");
+        assertNoGlob(".* f o.*");
     }
 
     @Test
     void testFullQualified() {
-        // Regex patterns that match signatures but cannot be cleanly converted to glob — ignored
-        assertEquals("getTest*", RulesXmlMigrations.convertRegexToGlob("void getTest(.*)"));
-        assertEquals("getTest*", RulesXmlMigrations.convertRegexToGlob("java.lang.String getTest(.*)"));
-        assertEquals("getTest", RulesXmlMigrations.convertRegexToGlob("java\\.lang\\.String getTest\\(.*\\)"));
-        assertEquals("getTest", RulesXmlMigrations.convertRegexToGlob("java\\.lang\\.String getTest\\(int, long\\)"));
+        assertGlobs("void getTest(.*)", "getTest*");
+        assertGlobs("java.lang.String getTest(.*)", "getTest*");
+        assertGlobs("java\\.lang\\.String getTest\\(.*\\)", "getTest");
+        assertGlobs("java\\.lang\\.String getTest\\(int, long\\)", "getTest");
     }
 
     @Test
     void testSimpleNameIgnored() {
         // A plain method name like "myMethod" is not a valid method-filter regexp
         // because it cannot match any signature "returnType name(args)"
-        assertNull(RulesXmlMigrations.convertRegexToGlob("myMethod"));
+        assertNoGlob("myMethod");
+    }
+
+    private static void assertGlobs(String regex, String... expected) {
+        assertEquals(Set.of(expected), RulesXmlMigrations.convertRegexToGlobs(regex));
+    }
+
+    private static void assertNoGlob(String regex) {
+        assertEquals(Set.of(), RulesXmlMigrations.convertRegexToGlobs(regex));
     }
 }

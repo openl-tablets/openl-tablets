@@ -401,15 +401,15 @@ public class ProjectDescriptor {
     }
 
     /**
-     * Path patterns for the modules discovered when rules.xml declares none: every Excel file under the
-     * {@code rules/} and {@code tests/} directories.
+     * Path patterns for the modules discovered when rules.xml declares none: every {@code .xlsx} file under
+     * the {@code rules/} and {@code tests/} directories.
      */
     private static final List<String> DEFAULT_MODULE_PATHS = List.of("rules/**/*.xlsx", "tests/**/*.xlsx");
 
     /**
      * Returns the modules discovered by default when rules.xml declares no modules.
      *
-     * <p>These cover every Excel file under the {@code rules/} and {@code tests/} directories.
+     * <p>These cover every {@code .xlsx} file under the {@code rules/} and {@code tests/} directories.
      *
      * <p>Each call returns fresh {@link Module} instances, so callers may modify or persist them freely.
      */

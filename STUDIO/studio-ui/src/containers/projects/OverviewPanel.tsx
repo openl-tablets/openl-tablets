@@ -842,8 +842,21 @@ const useProjectMigration = (project: Project, reloadToken: number | undefined, 
 
     // The root workbooks must move under rules/ before a rules.xml exists, so editing is blocked until then.
     const mustMigrateBeforeEditing = migration.rulesXml.movableRootModules.length > 0
+    // A rewrite that would turn undeclared workbooks into modules is refused by the server. The button is
+    // shown but disabled, so the reason stays visible without firing a doomed request.
+    const blockedModules = migration.rulesXml.newModules
+    const migrationBlocked = blockedModules.length > 0
+    const rewriteHint = mustMigrateBeforeEditing
+        ? 'browser.overview.migrate_before_edit'
+        : 'browser.overview.migrate_rewrite_hint'
+    const migrateTooltip = migrationBlocked
+        ? t('browser.overview.migrate_blocked', { modules: blockedModules.join(', ') })
+        : t(rewriteHint)
 
     const migrate = () => {
+        if (migrationBlocked) {
+            return
+        }
         modal.confirm({
             title: t('browser.overview.migrate'),
             content: mustMigrateBeforeEditing
@@ -854,7 +867,14 @@ const useProjectMigration = (project: Project, reloadToken: number | undefined, 
         })
     }
 
-    return { canMigrate: migration.rulesXml.migratable, mustMigrateBeforeEditing, migrating, migrate }
+    return {
+        canMigrate: migration.rulesXml.migratable,
+        mustMigrateBeforeEditing,
+        migrationBlocked,
+        migrating,
+        migrate,
+        migrateTooltip,
+    }
 }
 
 /** The banner naming who holds the project locked, with the unlock at hand for whoever may use it. */
@@ -1489,13 +1509,12 @@ export const OverviewPanel = ({
                         )}
                         {migration.canMigrate && !descriptor.editing && (
                             <MigrateButton
+                                disabled={migration.migrationBlocked}
                                 label={t('browser.overview.migrate')}
                                 loading={migration.migrating}
                                 onClick={migration.migrate}
                                 testId="overview-migrate"
-                                tooltip={t(migration.mustMigrateBeforeEditing
-                                    ? 'browser.overview.migrate_before_edit'
-                                    : 'browser.overview.migrate_rewrite_hint')}
+                                tooltip={migration.migrateTooltip}
                             />
                         )}
                     </div>

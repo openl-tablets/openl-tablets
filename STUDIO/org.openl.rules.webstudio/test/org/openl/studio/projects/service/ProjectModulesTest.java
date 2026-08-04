@@ -47,7 +47,8 @@ class ProjectModulesTest {
     }
 
     @Test
-    void keepsAPatternThatMatchedNothing() {
+    void keepsADeclaredPatternThatMatchedNothing() {
+        // A pattern the file itself declares is shown even when it matched nothing.
         var modules = ProjectModules.map(List.of(module("Tests", "tests/**/*.xlsx")), List.of());
 
         assertEquals(1, modules.size());

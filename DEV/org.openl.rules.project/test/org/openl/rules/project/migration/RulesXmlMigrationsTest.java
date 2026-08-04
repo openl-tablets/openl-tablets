@@ -1,7 +1,9 @@
 package org.openl.rules.project.migration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,9 +64,9 @@ class RulesXmlMigrationsTest {
     }
 
     @Test
-    void dropsAnUnconvertibleFilterAndStillCollapsesTheModules() {
-        // "get*" is not a method-signature regexp, so it converts to nothing and no <exposed-methods> is
-        // created; the module is still freed of its filter and collapses to the default wildcard.
+    void keepsAnUnconvertibleFilterInsteadOfDroppingIt() {
+        // "get*" is not a method-signature regexp, so the no-compile path cannot lift it. The filter is kept
+        // in place — not dropped — so the module stays explicit and the exposed API is not widened.
         var module = new Module();
         module.setName("Pricing");
         module.setRulesRootPath("rules/Pricing.xlsx");
@@ -76,8 +78,12 @@ class RulesXmlMigrationsTest {
 
         RulesXmlMigrations.apply(descriptor);
 
-        assertNull(descriptor.getModules());
         assertNull(descriptor.getExposedMethods());
+        assertEquals(1, descriptor.getModules().size());
+        var kept = descriptor.getModules().getFirst();
+        assertEquals("rules/Pricing.xlsx", kept.getRulesRootPath());
+        assertNotNull(kept.getMethodFilter());
+        assertTrue(kept.getMethodFilter().getIncludes().contains("get*"));
     }
 
     @Test

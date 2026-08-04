@@ -1,8 +1,10 @@
 package org.openl.rules.project.migration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -14,6 +16,7 @@ import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.CollectionUtils;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
@@ -38,6 +41,12 @@ public final class RulesXmlMigrations {
     private static final Set<String> DEFAULT_WILDCARDS = ProjectDescriptor.defaultModules().stream()
             .map(Module::getRulesRootPath)
             .collect(Collectors.toUnmodifiableSet());
+    /** The leading {@code returnType } part of a method signature. */
+    private static final Pattern RETURN_TYPE_PREFIX = Pattern.compile("^[^ (]+ ");
+    /** The trailing {@code (params)} part of a method signature. */
+    private static final Pattern SIGNATURE_PARAMS = Pattern.compile("\\\\\\(.*\\\\\\)$");
+    /** Cap on alternation branches; a pattern that would expand past this is kept as a filter, not converted. */
+    private static final int MAX_ALTERNATION_BRANCHES = 256;
 
     private RulesXmlMigrations() {
     }
@@ -88,12 +97,16 @@ public final class RulesXmlMigrations {
 
     /**
      * Lifts module-level {@code <method-filter>} blocks to a single project-level {@code <exposed-methods>}.
-     * Each include and exclude regexp is converted to an exposed-methods glob, the results merge with any
-     * existing {@code <exposed-methods>}, and the module-level filters are removed.
+     * Each include and exclude regexp is converted to one or more exposed-methods globs — an alternation such
+     * as {@code .+ calc(Rate|Premium)\(.+\)} unfolds into the matched names {@code calcRate} and
+     * {@code calcPremium} — the results merge with any existing {@code <exposed-methods>}, and the module-level
+     * filters are removed.
      *
-     * <p>A regexp that does not convert to a clean glob is dropped, so a project that used only such patterns
-     * gets no {@code <exposed-methods>} and exposes every method. An already-declared {@code <exposed-methods>}
-     * is preserved and extended, never replaced.
+     * <p>Without compiling the project Studio cannot always reduce a regexp to a glob (a character class, a
+     * {@code \d}, an optional quantifier). When any pattern of any module filter does not convert, every
+     * {@code <method-filter>} is kept in place and no {@code <exposed-methods>} is written, so the migration
+     * never drops a restriction and widens the exposed API. An already-declared {@code <exposed-methods>} is
+     * preserved and extended, never replaced.
      *
      * <p>This is the no-compile counterpart of the {@code openl:migrate} goal's method-filter migrator: it
      * derives globs from the regexp text alone, without building the project, so Studio can run it in place.
@@ -105,15 +118,23 @@ public final class RulesXmlMigrations {
         }
         var includes = new LinkedHashSet<String>();
         var excludes = new LinkedHashSet<String>();
+        var filtered = new ArrayList<Module>();
         for (var module : modules) {
             var filter = module.getMethodFilter();
             if (filter == null) {
                 continue;
             }
-            collectGlobs(filter.getIncludes(), includes);
-            collectGlobs(filter.getExcludes(), excludes);
-            module.setMethodFilter(null);
+            if (!collectGlobs(filter.getIncludes(), includes) || !collectGlobs(filter.getExcludes(), excludes)) {
+                // A pattern does not reduce to a clean glob. Keep every filter in place rather than dropping a
+                // restriction the no-compile path cannot express, which would widen the exposed API.
+                return;
+            }
+            filtered.add(module);
         }
+        if (filtered.isEmpty()) {
+            return;
+        }
+        filtered.forEach(module -> module.setMethodFilter(null));
         var existing = descriptor.getExposedMethods();
         if (existing != null) {
             addAll(existing.getIncludes(), includes);
@@ -132,16 +153,25 @@ public final class RulesXmlMigrations {
         descriptor.setExposedMethods(exposed);
     }
 
-    private static void collectGlobs(Set<String> patterns, Set<String> target) {
+    /**
+     * Converts every pattern to its globs, adding them to {@code target}. A blank pattern is skipped. Returns
+     * {@code false} as soon as a pattern does not reduce to a clean glob, so the caller can keep the filter.
+     */
+    private static boolean collectGlobs(Set<String> patterns, Set<String> target) {
         if (patterns == null) {
-            return;
+            return true;
         }
         for (var pattern : patterns) {
-            var glob = convertRegexToGlob(pattern);
-            if (StringUtils.isNotBlank(glob)) {
-                target.add(glob);
+            if (StringUtils.isBlank(pattern)) {
+                continue;
             }
+            var globs = convertRegexToGlobs(pattern);
+            if (globs.isEmpty()) {
+                return false;
+            }
+            target.addAll(globs);
         }
+        return true;
     }
 
     private static void addAll(Set<String> source, Set<String> target) {
@@ -151,31 +181,51 @@ public final class RulesXmlMigrations {
     }
 
     /**
-     * Converts a legacy method-filter regexp (matched against a full method signature) to an exposed-methods
-     * glob (matched against the method name only). Returns {@code null} when the pattern is not a valid regexp
-     * or cannot be reduced to a clean glob, so the caller drops it.
+     * Converts a legacy method-filter regexp (matched against a full method signature) to the exposed-methods
+     * globs (matched against the method name only). Returns an empty set when the pattern is not a valid
+     * regexp or cannot be reduced to clean globs, so the caller keeps the filter instead of dropping it.
      *
      * <p>The regexp is matched against a {@code returnType methodName(argType1, argTypeN)} signature. Common
      * shapes reduce as {@code .+ methodName\(.+\)} to {@code methodName}, {@code .*} or {@code .+} to the bare
-     * {@code *}, and {@code .*methodName.*} to {@code *methodName*}. Any pattern that still holds a regexp
-     * metacharacter after the reduction is rejected.
+     * {@code *}, and {@code .*methodName.*} to {@code *methodName*}. An alternation — a {@code (a|b)} group or
+     * a top-level {@code sig1|sig2} — unfolds into one glob per branch, so {@code .+ calc(Rate|Premium)\(.+\)}
+     * yields {@code calcRate} and {@code calcPremium}. Any branch that still holds a regexp metacharacter after
+     * the reduction fails the whole pattern.
      */
-    static String convertRegexToGlob(String regex) {
+    static Set<String> convertRegexToGlobs(String regex) {
         if (regex == null || regex.isBlank()) {
-            return null;
+            return Set.of();
         }
         regex = regex.trim();
-
         // Validate that the pattern is a valid regexp and can match a method signature
         try {
             Pattern.compile(regex);
         } catch (PatternSyntaxException e) {
-            // Not a valid regex
-            return null;
+            return Set.of();
         }
+        var branches = expandAlternations(regex);
+        if (branches.size() > MAX_ALTERNATION_BRANCHES) {
+            // A pathological alternation (many nested groups) expands combinatorially; keep the filter rather
+            // than spend unbounded time and memory unfolding it into globs.
+            return Set.of();
+        }
+        var globs = new LinkedHashSet<String>();
+        for (var branch : branches) {
+            var glob = reduceSignatureToGlob(branch);
+            if (glob == null) {
+                return Set.of();
+            }
+            globs.add(glob);
+        }
+        return globs;
+    }
 
-        var prefix = Pattern.compile("^[^ (]+ ");
-        var matcher = prefix.matcher(regex);
+    /**
+     * Reduces one alternation-free signature regexp to a single name glob, or {@code null} when a regexp
+     * metacharacter survives the reduction or the name reduces to nothing.
+     */
+    private static @Nullable String reduceSignatureToGlob(String regex) {
+        var matcher = RETURN_TYPE_PREFIX.matcher(regex);
         if (matcher.find()) {
             // remove return type definition
             regex = matcher.replaceFirst("");
@@ -183,35 +233,109 @@ public final class RulesXmlMigrations {
             // does not match to return type definition of the method signature
             return null;
         }
-
-        // Pattern: <returnType> <methodName>(<params>)
-        // e.g., ".+ methodName\(.+\)" or ".* methodName\(.*\)" or ".+ methodName\(\)"
-        var signaturePattern = Pattern.compile("\\\\\\(.*\\\\\\)$");
-        var signatureMatcher = signaturePattern.matcher(regex);
+        // remove the (params) part of "<returnType> <methodName>(<params>)"
+        var signatureMatcher = SIGNATURE_PARAMS.matcher(regex);
         if (signatureMatcher.find()) {
             regex = signatureMatcher.replaceFirst("");
         }
-
-        // Try to convert simple regex patterns in the name part to glob
-        // Replace .* and .+ with glob *, and . with ?
-        regex = regex.replace("(.*)", "*");
-        regex = regex.replace("(.+)", "*");
+        // reduce the simple regexps left in the name part: .* and .+ to *, . to ?
         regex = regex.replace(".*", "*");
         regex = regex.replace(".+", "*");
-        regex = regex.replace("?", "^"); // replace on the illegal symbol due conflict with Glob
+        regex = regex.replace("?", "^"); // ? conflicts with the glob single-character wildcard
         regex = regex.replace(".", "?");
-
-        // check on the illegal symbols in the method name glob
-        for (int i = 0; i < regex.length(); i++) {
-            char c = regex.charAt(i);
+        for (var i = 0; i < regex.length(); i++) {
+            var c = regex.charAt(i);
             if (c == '\\' || c == '[' || c == ']' || c == '(' || c == ')'
                     || c == '{' || c == '}' || c == '|' || c == '^'
                     || c == '+' || c == '.' || c == ' ') {
                 return null;
             }
         }
-        // If the result looks clean (no remaining regex metacharacters), return it
-        return regex;
+        // An empty result is not a name glob (e.g. ".+ \(\)"); treat it as unconvertible so the filter is kept.
+        return regex.isEmpty() ? null : regex;
+    }
+
+    /**
+     * Expands a regexp's alternations into branches with none left: a top-level {@code sig1|sig2} is split
+     * into separate signatures first, then each unescaped {@code (a|b)} group is unfolded by branch (its
+     * parentheses removed). Splitting first avoids generating duplicate branches for a trailing signature.
+     */
+    private static List<String> expandAlternations(String regex) {
+        var branches = new ArrayList<String>();
+        for (var part : splitTopLevel(regex)) {
+            branches.addAll(expandGroups(part));
+        }
+        return branches;
+    }
+
+    private static List<String> expandGroups(String regex) {
+        var group = firstUnescapedGroup(regex);
+        if (group == null) {
+            return List.of(regex);
+        }
+        var prefix = regex.substring(0, group[0]);
+        var content = regex.substring(group[0] + 1, group[1]);
+        var suffix = regex.substring(group[1] + 1);
+        var branches = new ArrayList<String>();
+        for (var alternative : splitTopLevel(content)) {
+            if (branches.size() > MAX_ALTERNATION_BRANCHES) {
+                // Stop unfolding once the branch count is past the cap; the caller keeps the filter unchanged.
+                break;
+            }
+            branches.addAll(expandGroups(prefix + alternative + suffix));
+        }
+        return branches;
+    }
+
+    /** The bounds of the first unescaped {@code (}…{@code )} group, or {@code null} when there is none. */
+    private static int @Nullable [] firstUnescapedGroup(String regex) {
+        var escaped = false;
+        var open = -1;
+        var depth = 0;
+        for (var i = 0; i < regex.length(); i++) {
+            var c = regex.charAt(i);
+            if (escaped) {
+                escaped = false;
+            } else if (c == '\\') {
+                escaped = true;
+            } else if (c == '(') {
+                if (open < 0) {
+                    open = i;
+                }
+                depth++;
+            } else if (c == ')' && open >= 0 && --depth == 0) {
+                return new int[]{open, i};
+            }
+        }
+        return null;
+    }
+
+    /** Splits on every unescaped {@code |} that sits outside parentheses. */
+    private static List<String> splitTopLevel(String regex) {
+        var parts = new ArrayList<String>();
+        var current = new StringBuilder();
+        var depth = 0;
+        var escaped = false;
+        for (var i = 0; i < regex.length(); i++) {
+            var c = regex.charAt(i);
+            if (!escaped && c == '|' && depth == 0) {
+                parts.add(current.toString());
+                current.setLength(0);
+                continue;
+            }
+            if (escaped) {
+                escaped = false;
+            } else if (c == '\\') {
+                escaped = true;
+            } else if (c == '(') {
+                depth++;
+            } else if (c == ')') {
+                depth--;
+            }
+            current.append(c);
+        }
+        parts.add(current.toString());
+        return parts;
     }
 
     /**
@@ -221,6 +345,13 @@ public final class RulesXmlMigrations {
      * {@code <subfolder>/**}{@code /*.xlsx} wildcard, and drops the whole {@code <modules>} block when only
      * the default wildcards remain.
      *
+     * <p>A module that carries its own configuration — a method filter or a {@code compileThisModuleOnly}
+     * flag — is kept as its own entry, so the collapse never drops what a single module declared.
+     *
+     * <p>This transform derives each wildcard from the declared path alone; it does not read the folder, so
+     * it can widen the module set when the folder holds undeclared workbooks. A caller that can see the
+     * project files should guard against that with {@link #resolveModuleWorkbooks}.
+     *
      * <p>Unlike the {@code openl:migrate} goal, this does not drop the project {@code <name>} — Studio keeps
      * whatever the file declares.
      */
@@ -228,6 +359,57 @@ public final class RulesXmlMigrations {
         dropRedundantModuleNames(descriptor);
         collapseNamelessModulesToSubfolderWildcards(descriptor);
         dropModulesWhenAllAreDefaultWildcards(descriptor);
+    }
+
+    /**
+     * The workbook files that become modules for the descriptor, resolved against the project's files.
+     *
+     * <p>A concrete module contributes its own path. A wildcard module contributes every workbook that
+     * matches it — only real Excel workbooks, so non-Excel files and temporary {@code ~$} lock files are
+     * ignored even when a pattern would match their name. A descriptor that declares no modules resolves
+     * against the engine defaults ({@code rules/**}{@code /*.xlsx} and {@code tests/**}{@code /*.xlsx}).
+     *
+     * <p>Comparing this set before and after {@link #defaultModules}/{@link #apply} tells a caller whether a
+     * migration would turn an undeclared workbook into a module — in any folder, {@code rules/},
+     * {@code tests/} or another — so it can refuse the change.
+     *
+     * @param descriptor the descriptor to resolve
+     * @param files      the project's file paths, relative to the project root and {@code /}-separated
+     * @return the module workbook paths, {@code /}-separated
+     */
+    public static Set<String> resolveModuleWorkbooks(ProjectDescriptor descriptor, Collection<String> files) {
+        var modules = descriptor.getModules();
+        var effective = CollectionUtils.isEmpty(modules) ? ProjectDescriptor.defaultModules() : modules;
+        var workbooks = files.stream()
+                .map(path -> path.replace('\\', '/'))
+                .filter(path -> FileTypeHelper.isExcelFile(FileUtils.getName(path)))
+                .toList();
+        var resolved = new LinkedHashSet<String>();
+        for (var module : effective) {
+            resolveModule(module, workbooks, resolved);
+        }
+        return resolved;
+    }
+
+    private static void resolveModule(Module module, List<String> files, Set<String> resolved) {
+        var path = module.getRulesRootPath();
+        if (path == null) {
+            return;
+        }
+        if (module.isModuleWithWildcard()) {
+            files.stream().filter(file -> FileUtils.pathMatches(path, file)).forEach(resolved::add);
+        } else {
+            resolved.add(path.replace('\\', '/'));
+        }
+    }
+
+    /**
+     * The workbook paths a migration would turn into modules — the sorted set difference of the module sets
+     * {@link #resolveModuleWorkbooks} yields before and after the transform. Empty when the migration keeps
+     * (or narrows) the module set; a non-empty result is a caller's signal to refuse the change.
+     */
+    public static List<String> addedWorkbooks(Set<String> before, Set<String> after) {
+        return after.stream().filter(path -> !before.contains(path)).sorted().toList();
     }
 
     private static void dropRedundantModuleNames(ProjectDescriptor descriptor) {
@@ -255,23 +437,43 @@ public final class RulesXmlMigrations {
         var covered = new HashSet<String>();
         var pending = new LinkedHashSet<String>();
         for (var m : modules) {
+            var foldInto = foldableFolder(m);
+            if (foldInto != null) {
+                pending.add(foldInto);
+                continue;
+            }
             var path = m.getRulesRootPath();
             var seg = subfolder(path);
-            if (m.getName() == null && seg != null && path.endsWith(XLSX_EXT)) {
-                if (!m.isModuleWithWildcard()) {
-                    pending.add(seg);
-                    continue;
-                }
+            // Only a config-free wildcard folds a folder into the recursive default. A wildcard that carries a
+            // method filter or compileThisModuleOnly is kept as declared, so widening rules/*.xlsx to
+            // rules/**/*.xlsx never applies that config to nested workbooks it did not cover.
+            if (m.getName() == null && seg != null && path.endsWith(XLSX_EXT) && m.isModuleWithWildcard()
+                    && hasNoExtraConfig(m)) {
                 m.setRulesRootPath(seg + "/**/*.xlsx");
             }
             result.add(m);
-            if (seg != null && m.isModuleWithWildcard()) {
+            if (seg != null && m.isModuleWithWildcard() && hasNoExtraConfig(m)) {
                 covered.add(seg);
             }
         }
         pending.removeAll(covered);
         pending.forEach(folder -> result.add(wildcardModule(folder)));
         descriptor.setModules(result);
+    }
+
+    /**
+     * The subfolder a name-less concrete {@code .xlsx} module folds into, or {@code null} to keep the module
+     * as its own entry. A module that carries its own configuration — a method filter or a
+     * {@code compileThisModuleOnly} flag — is never folded, so collapsing a folder into one wildcard never
+     * drops what a single module declared.
+     */
+    private static @Nullable String foldableFolder(Module m) {
+        var path = m.getRulesRootPath();
+        if (m.getName() == null && path != null && path.endsWith(XLSX_EXT)
+                && !m.isModuleWithWildcard() && hasNoExtraConfig(m)) {
+            return subfolder(path);
+        }
+        return null;
     }
 
     /** The leading path segment (the subfolder) of a module path, or {@code null} when there is none. */

@@ -3,6 +3,7 @@ package org.openl.studio.projects.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -21,8 +22,10 @@ import org.mockito.ArgumentCaptor;
 
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.projects.model.MigrationScope;
 import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FolderNode;
@@ -46,15 +49,35 @@ class ProjectMigrationServiceTest {
     }
 
     @Test
-    void migration_info_lists_the_root_workbooks_when_the_project_has_no_rules_xml() {
-        rootFiles(file("Rating.xlsx"), file("Pricing.xlsx"), file("readme.txt"), folder("rules"));
+    void migration_info_lists_all_excel_root_workbooks_when_the_project_has_no_rules_xml() {
+        rootFiles(file("Rating.xlsx"), file("Pricing.xlsx"), file("Legacy.xls"), file("readme.txt"), folder("rules"));
 
         var info = service.migrationInfo(project);
 
-        // Only root workbooks, sorted; the text file and the folder are left out.
-        assertEquals(List.of("Pricing.xlsx", "Rating.xlsx"), info.rulesXml().movableRootModules());
+        // Every Excel workbook — .xls too — sorted; the text file and the folder are left out.
+        assertEquals(List.of("Legacy.xls", "Pricing.xlsx", "Rating.xlsx"), info.rulesXml().movableRootModules());
         assertTrue(info.rulesXml().migratable());
         assertFalse(info.rulesDeploy().migratable());
+    }
+
+    @Test
+    void migrate_moves_xls_and_xlsm_root_workbooks_too() {
+        rootFiles(file("Main.xlsx"), file("Legacy.xls"), file("Macro.xlsm"), file("notes.txt"));
+
+        service.migrate(project, MigrationScope.RULES_XML);
+
+        // A .xls/.xlsm workbook is a module too, so the migrate moves it under rules/ instead of leaving it
+        // behind where the rules/** default no longer finds it.
+        verify(filesService).moveResource(root, "Main.xlsx", "rules/Main.xlsx");
+        verify(filesService).moveResource(root, "Legacy.xls", "rules/Legacy.xls");
+        verify(filesService).moveResource(root, "Macro.xlsm", "rules/Macro.xlsm");
+        verify(filesService, never()).moveResource(root, "notes.txt", "rules/notes.txt");
+        var written = ArgumentCaptor.forClass(InputStream.class);
+        verify(filesService).createResource(eq(root), eq("rules.xml"), written.capture(), eq(false));
+        // .xls/.xlsm are not matched by the rules/** default, so every moved workbook is declared explicitly.
+        assertEquals(List.of("rules/Legacy.xls", "rules/Macro.xlsm", "rules/Main.xlsx"),
+                ProjectDescriptor.read(written.getValue()).getModules().stream()
+                        .map(Module::getRulesRootPath).sorted().toList());
     }
 
     @Test
@@ -124,8 +147,11 @@ class ProjectMigrationServiceTest {
 
         verify(filesService).moveResource(root, "Pricing.xlsx", "rules/Pricing.xlsx");
         verify(filesService).moveResource(root, "Rating.xlsx", "rules/Rating.xlsx");
-        verify(filesService).createResource(eq(root), eq("rules.xml"), any(InputStream.class), eq(false));
+        var written = ArgumentCaptor.forClass(InputStream.class);
+        verify(filesService).createResource(eq(root), eq("rules.xml"), written.capture(), eq(false));
         verify(filesService, never()).updateResource(any(), any(), any());
+        // All workbooks are .xlsx, matched by the rules/** default, so the descriptor stays bare.
+        assertTrue(ProjectDescriptor.read(written.getValue()).getModules().isEmpty());
     }
 
     @Test
@@ -211,8 +237,102 @@ class ProjectMigrationServiceTest {
         verify(filesService, never()).updateResource(any(), any(), any());
     }
 
+    @Test
+    void migration_info_lists_the_workbooks_a_widening_rewrite_would_expose() {
+        rootFiles(file("rules.xml"), file("rules/Main.xlsx"), file("rules/Extra.xlsx"), file("tests/Cases.xlsx"));
+        rulesXml("""
+                <project>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/Main.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+
+        var info = service.migrationInfo(project);
+
+        // Dropping <modules> restores the rules/** and tests/** defaults, exposing the undeclared workbooks
+        // in both folders — the guard is not limited to rules/.
+        assertEquals(List.of("rules/Extra.xlsx", "tests/Cases.xlsx"), info.rulesXml().newModules());
+        assertTrue(info.rulesXml().migratable());
+    }
+
+    @Test
+    void migrate_refuses_a_rewrite_that_would_turn_an_undeclared_workbook_into_a_module() {
+        rootFiles(file("rules.xml"), file("rules/Main.xlsx"), file("rules/Extra.xlsx"));
+        // Only Main is a module; collapsing it to rules/**/*.xlsx would pull in the undeclared Extra.
+        rulesXml("""
+                <project>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/Main.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+
+        assertThrows(ConflictException.class, () -> service.migrate(project, MigrationScope.RULES_XML));
+
+        verify(filesService, never()).updateResource(any(), any(), any());
+        verify(filesService, never()).moveResource(any(), any(), any());
+    }
+
+    @Test
+    void migrate_rewrites_and_keeps_a_config_carrying_module_without_widening() {
+        rootFiles(file("rules.xml"), file("rules/Main.xlsx"), file("rules/Extra.xlsx"));
+        // A default classpath makes the file migratable; the module carries compileThisModuleOnly, and Extra
+        // sits undeclared next to it. The module stays explicit, so Extra is not pulled in and nothing widens.
+        rulesXml("""
+                <project>
+                    <classpath>
+                        <entry path="lib/*.jar"/>
+                    </classpath>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/Main.xlsx"/>
+                            <webstudioConfiguration>
+                                <compileThisModuleOnly>true</compileThisModuleOnly>
+                            </webstudioConfiguration>
+                        </module>
+                    </modules>
+                </project>
+                """);
+
+        service.migrate(project, MigrationScope.RULES_XML);
+
+        var written = ArgumentCaptor.forClass(InputStream.class);
+        verify(filesService).updateResource(eq(root), eq("rules.xml"), written.capture());
+        var migrated = ProjectDescriptor.read(written.getValue());
+        assertTrue(migrated.getClasspath().isEmpty());
+        assertEquals(List.of("rules/Main.xlsx"),
+                migrated.getModules().stream().map(Module::getRulesRootPath).toList());
+        assertTrue(migrated.getModules().get(0).getWebstudioConfiguration().isCompileThisModuleOnly());
+    }
+
+    @Test
+    void migrate_ignores_temp_lock_files_when_checking_for_widening() {
+        rootFiles(file("rules.xml"), file("rules/Main.xlsx"), file("rules/~$Main.xlsx"));
+        // The ~$ lock file matches rules/**/*.xlsx by name but is not a workbook, so collapsing Main.xlsx to
+        // the folder wildcard exposes no new module and the migrate must not be refused.
+        rulesXml("""
+                <project>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/Main.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+
+        service.migrate(project, MigrationScope.RULES_XML);
+
+        verify(filesService).updateResource(eq(root), eq("rules.xml"), any());
+    }
+
     private void rootFiles(FsNode... nodes) {
-        when(filesService.getResources(eq(root), any(), eq(false), any(FileViewMode.class), any()))
+        // Stub both the root-level listing (recursive=false) and the recursive one the widening check uses.
+        when(filesService.getResources(eq(root), any(), anyBoolean(), any(FileViewMode.class), any()))
                 .thenReturn(List.of(nodes));
     }
 

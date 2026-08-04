@@ -36,8 +36,7 @@ final class ProjectModules {
         for (var module : declared) {
             if (module.isModuleWithWildcard()) {
                 var pattern = module.getRulesRootPath();
-                views.add(ModuleViewModel
-                        .pattern(module.getName(), pattern, matched.getOrDefault(pattern, List.of())));
+                views.add(ModuleViewModel.pattern(module.getName(), pattern, matched.getOrDefault(pattern, List.of())));
             } else {
                 views.add(module(module));
             }

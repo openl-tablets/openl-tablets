@@ -28,12 +28,16 @@ public record ProjectMigrationView(
         RulesDeploySection rulesDeploy) {
 
     /**
-     * The {@code rules.xml} scope: the root workbooks a migrate would move and whether it applies.
+     * The {@code rules.xml} scope: the root workbooks a migrate would move, whether it applies, and the
+     * workbooks that block it.
      *
      * @param movableRootModules the root-level workbooks a migrate would move into {@code rules/};
      *                           populated only when the project has no {@code rules.xml}
      * @param migratable         whether a migrate would change the {@code rules.xml} — move the root
      *                           workbooks and write one, or rewrite an existing one
+     * @param newModules         the workbooks a rewrite would turn into modules that {@code rules.xml} does
+     *                           not declare today; when non-empty the migrate is refused, because it would
+     *                           change which modules compile
      */
     @Schema(description = "The rules.xml migration scope")
     public record RulesXmlSection(
@@ -44,7 +48,12 @@ public record ProjectMigrationView(
             @Parameter(description = """
                     Whether a migrate would move the root workbooks and write a rules.xml, or rewrite \
                     an existing one""")
-            boolean migratable) {
+            boolean migratable,
+            @Parameter(description = """
+                    Workbooks a rewrite would turn into modules that rules.xml does not declare today. \
+                    When non-empty the rules.xml migrate is refused, because it would change which modules \
+                    compile.""")
+            List<String> newModules) {
     }
 
     /**

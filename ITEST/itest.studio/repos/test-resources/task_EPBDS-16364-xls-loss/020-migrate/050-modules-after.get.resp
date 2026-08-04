@@ -1,0 +1,13 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Legacy",
+    "path": "rules/Legacy.xls"
+  },
+  {
+    "name": "Main",
+    "path": "rules/Main.xlsx"
+  }
+]
