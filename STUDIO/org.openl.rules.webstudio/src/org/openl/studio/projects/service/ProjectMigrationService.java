@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
@@ -29,15 +28,16 @@ import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.FileViewMode;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.util.FileTypeHelper;
 
 /**
  * Migrates a project to the current {@code rules.xml} conventions, the way the {@code openl:migrate} Maven
  * goal does — but from the workspace, over the project file API.
  *
  * <p>A project that has no {@code rules.xml} keeps its workbooks in the root and relies on the resolver to
- * treat each as a module. Migrating it moves every root workbook under {@code rules/} and writes a
- * {@code rules.xml}, so the {@code rules/**}{@code /*.xlsx} default now matches them — writing the
- * {@code rules.xml} without moving them first would lose them. A project that already has a
+ * treat each Excel file as a module. Migrating it moves every root workbook — {@code .xls}, {@code .xlsx}
+ * and {@code .xlsm} — under {@code rules/} and writes a {@code rules.xml}, so the {@code rules/}/{@code tests/}
+ * Excel defaults now match them — writing the {@code rules.xml} without moving them first would lose them. A project that already has a
  * {@code rules.xml} is migrated by running the same content migrations the goal runs and rewriting the
  * file. The method-filter migration runs as the goal's no-compile variant, lifting module filters to a
  * project-level {@code <exposed-methods>}.
@@ -53,7 +53,6 @@ public class ProjectMigrationService {
     private static final String RULES_XML = ProjectDescriptor.FILE_NAME;
     private static final String RULES_DEPLOY = RulesDeploy.FILE_NAME;
     private static final String RULES_FOLDER = "rules/";
-    private static final String XLSX_SUFFIX = ".xlsx";
 
     private final ProjectFilesService filesService;
     private final ProjectFileRootFactory fileRootFactory;
@@ -251,10 +250,12 @@ public class ProjectMigrationService {
 
     private static boolean isRootWorkbook(FsNode node) {
         var path = node.getPath();
+        // Every Excel workbook (.xls/.xlsx/.xlsm) is a module in a project without rules.xml, so migrating
+        // must move them all — matching the resolver's FileTypeHelper.isExcelFile, not just .xlsx.
         return isFile(node)
                 && path != null
                 && !path.contains("/")
-                && path.toLowerCase(Locale.ROOT).endsWith(XLSX_SUFFIX);
+                && FileTypeHelper.isExcelFile(path);
     }
 
     private static boolean isFile(FsNode node) {

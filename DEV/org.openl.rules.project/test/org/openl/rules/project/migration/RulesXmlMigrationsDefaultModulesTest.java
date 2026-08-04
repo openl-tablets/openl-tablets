@@ -478,6 +478,27 @@ class RulesXmlMigrationsDefaultModulesTest {
     }
 
     @Test
+    void dropsModulesWhenOnlyXlsDefaultWildcard() {
+        // The engine defaults cover every Excel type, so rules/**/*.xls is a default wildcard and drops too.
+        assertMigration(
+                """
+                        <project>
+                            <name>explicit-project</name>
+                            <modules>
+                                <module>
+                                    <rules-root path="rules/**/*.xls"/>
+                                </module>
+                            </modules>
+                        </project>
+                        """,
+                """
+                        <project>
+                            <name>explicit-project</name>
+                        </project>
+                        """);
+    }
+
+    @Test
     void dropsModulesWhenBothRulesAndTestsDefaultWildcards() {
         assertMigration(
                 """

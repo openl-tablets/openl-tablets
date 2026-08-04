@@ -48,15 +48,30 @@ class ProjectMigrationServiceTest {
     }
 
     @Test
-    void migration_info_lists_the_root_workbooks_when_the_project_has_no_rules_xml() {
-        rootFiles(file("Rating.xlsx"), file("Pricing.xlsx"), file("readme.txt"), folder("rules"));
+    void migration_info_lists_all_excel_root_workbooks_when_the_project_has_no_rules_xml() {
+        rootFiles(file("Rating.xlsx"), file("Pricing.xlsx"), file("Legacy.xls"), file("readme.txt"), folder("rules"));
 
         var info = service.migrationInfo(project);
 
-        // Only root workbooks, sorted; the text file and the folder are left out.
-        assertEquals(List.of("Pricing.xlsx", "Rating.xlsx"), info.rulesXml().movableRootModules());
+        // Every Excel workbook — .xls too — sorted; the text file and the folder are left out.
+        assertEquals(List.of("Legacy.xls", "Pricing.xlsx", "Rating.xlsx"), info.rulesXml().movableRootModules());
         assertTrue(info.rulesXml().migratable());
         assertFalse(info.rulesDeploy().migratable());
+    }
+
+    @Test
+    void migrate_moves_xls_and_xlsm_root_workbooks_too() {
+        rootFiles(file("Main.xlsx"), file("Legacy.xls"), file("Macro.xlsm"), file("notes.txt"));
+
+        service.migrate(project, MigrationScope.RULES_XML);
+
+        // A .xls/.xlsm workbook is a module too, so the migrate moves it under rules/ instead of leaving it
+        // behind where the rules/** default no longer finds it.
+        verify(filesService).moveResource(root, "Main.xlsx", "rules/Main.xlsx");
+        verify(filesService).moveResource(root, "Legacy.xls", "rules/Legacy.xls");
+        verify(filesService).moveResource(root, "Macro.xlsm", "rules/Macro.xlsm");
+        verify(filesService, never()).moveResource(root, "notes.txt", "rules/notes.txt");
+        verify(filesService).createResource(eq(root), eq("rules.xml"), any(InputStream.class), eq(false));
     }
 
     @Test

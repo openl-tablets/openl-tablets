@@ -77,7 +77,8 @@ class ProjectDescriptorManagerTest {
         manager.registerModule(descriptor, module("New Module.xlsx"));
 
         // A root file is not auto-discovered, so the implicit defaults are materialized before appending it.
-        assertEquals(List.of("rules/**/*.xlsx", "tests/**/*.xlsx", "New Module.xlsx"),
+        assertEquals(List.of("rules/**/*.xlsx", "rules/**/*.xls", "rules/**/*.xlsm",
+                        "tests/**/*.xlsx", "tests/**/*.xls", "tests/**/*.xlsm", "New Module.xlsx"),
                 descriptor.getModules().stream().map(Module::getRulesRootPath).toList());
     }
 
@@ -111,7 +112,8 @@ class ProjectDescriptorManagerTest {
         // The implicit defaults already match the file, so they are written out before the declaration hides them.
         manager.declareModule(descriptor, module("Renamed", "rules/New Module.xlsx"));
 
-        assertEquals(List.of("rules/**/*.xlsx", "tests/**/*.xlsx", "rules/New Module.xlsx"),
+        assertEquals(List.of("rules/**/*.xlsx", "rules/**/*.xls", "rules/**/*.xlsm",
+                        "tests/**/*.xlsx", "tests/**/*.xls", "tests/**/*.xlsm", "rules/New Module.xlsx"),
                 descriptor.getModules().stream().map(Module::getRulesRootPath).toList());
     }
 

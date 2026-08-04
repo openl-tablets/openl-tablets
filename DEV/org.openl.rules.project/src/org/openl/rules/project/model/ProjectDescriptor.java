@@ -404,7 +404,9 @@ public class ProjectDescriptor {
      * Path patterns for the modules discovered when rules.xml declares none: every Excel file under the
      * {@code rules/} and {@code tests/} directories.
      */
-    private static final List<String> DEFAULT_MODULE_PATHS = List.of("rules/**/*.xlsx", "tests/**/*.xlsx");
+    private static final List<String> DEFAULT_MODULE_PATHS = List.of(
+            "rules/**/*.xlsx", "rules/**/*.xls", "rules/**/*.xlsm",
+            "tests/**/*.xlsx", "tests/**/*.xls", "tests/**/*.xlsm");
 
     /**
      * Returns the modules discovered by default when rules.xml declares no modules.

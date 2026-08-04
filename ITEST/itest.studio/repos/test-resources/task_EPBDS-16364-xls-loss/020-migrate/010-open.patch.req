@@ -1,0 +1,7 @@
+PATCH /rest/projects/ZGVzaWduLWZsYXQ6WGxzTG9zc1Byb2plY3Q6MThjZjY2OTdiNDE3ZTFiMWY1ZDgxMjkzMWIwNzg5NjQ5MjViYjMwMzliYjM5YzAzMDQzYWQ1MTZiZjliODczMg== HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "status": "OPENED"
+}

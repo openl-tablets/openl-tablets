@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "rulesXml": {
+    "movableRootModules": [
+      "Legacy.xls",
+      "Main.xlsx"
+    ],
+    "migratable": true
+  },
+  "rulesDeploy": {
+    "migratable": false
+  }
+}
