@@ -4,11 +4,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `b5d99a1d`**; every queue row done, every vein closed. New scope arrives only as new commits
-  on `main` — never invent a detector to manufacture work. Thirteen runs idle; expect idleness.
-- The idle pass is two calls: `git log b5d99a1d..origin/main` and the open-PR check; read `build-quick.yml` only once
-  `main` has moved, and never re-diagnose an unchanged SHA. `build-quick.yml` is **green** at that head — both ITEST
-  flakes cleared themselves — so section 7 no longer bars cleanup.
+- **Converged at `main` = `b5d99a1d`**; every queue row done, every vein closed, `build-quick.yml` green at that head.
+  New scope arrives only as new commits on `main` — never invent a detector to manufacture work. Expect idleness.
+- The idle pass is two calls: `git log b5d99a1d..origin/main` and the open-PR check. Read `build-quick.yml` only once
+  `main` has moved; never re-diagnose an unchanged SHA.
 - When scope arrives, sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and
   `.github/`. Read the **deleted** lines first — a purely additive commit orphans nothing, and one whose deletions are
   replaced in place usually does too; a commit deleting a screen is the richest vein, so check its locale keys,
@@ -52,14 +51,13 @@ None. Open the next one from a fresh branch off the current `main`.
   parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
   `TableSyntaxNodeDispatcherBuilder:136` — the whole chain is inert, but the setter is public API in `DEV/**`.
-- `WSFrontend` `ServiceManagerImpl:230` re-assigns `serviceDescriptionInProcess` to the value already at 228;
-  proving it dead is an absence-of-path argument through the whole compile subsystem for a one-line payoff.
-- `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116` — the flagged `messagesCount++` passes its value on,
-  so only the increment is wasted: an expression rewrite, not a deletion.
+- Two PMD hits are expression rewrites, not deletions, and stay: `WSFrontend` `ServiceManagerImpl:230` re-assigning
+  `serviceDescriptionInProcess` to the value already at 228 (proof needs an absence-of-path argument through the whole
+  compile subsystem), and `DEV/org.openl.rules.test` `RulesInFolderTestRunner:80,116`, where the flagged
+  `messagesCount++` passes its value on so only the increment is wasted.
 - `STUDIO/studio-ui/src/containers/MergeModal/types.ts`: `MergeRequest`, `ResolveConflictsRequest`,
   `ResolveConflictsResponse`, `FileConflictResolution` — unused in TS but mirror a live REST contract in
   `Docs/api/projects-merge-api.md` backed by a Java record and an OpenAPI schema; if they go, that page goes too.
-- A studio-ui export used only inside its own file is alive; dropping `export` is a refactor. Never list them.
 - `js/datepicker.js` `dateValidForSelection`, `getSelectedDate`, `setDisabledDays`, `joinNodeLists` — no call site,
   but the file is vendored third party (DatePicker v5.4, frequency-decoder.com, CC BY-SA 3.0) and these are its API.
 - `.te_hidden` in `STUDIO/org.openl.rules.tableeditor/css/common.css` — the only real CSS orphan. Blocked because the
@@ -127,7 +125,8 @@ None. Open the next one from a fresh branch off the current `main`.
 - A module can be imported by a specifier that already carries its extension (`from './App.styles.ts'`), which
   defeats a resolver that only appends `.ts`/`.tsx`. Try the specifier verbatim before appending.
 - A "dead" JS function is usually called from inside its own file — exclude the defining file from the search and
-  every private helper looks unreferenced.
+  every private helper looks unreferenced. A studio-ui export used only inside its own file is likewise alive, and
+  dropping the `export` keyword is a refactor this routine may not make: never list one.
 - **A dependency jar can read a resource by a name hardcoded in its own bytecode.** CXF's `AbstractHTTPServlet`
   loads `/cxfServletStaticResourcesMap.txt`, so that file is named by no file here and is still load-bearing. When
   a resource name looks invented-but-conventional, fetch the owning jar and grep its constants.
@@ -244,13 +243,11 @@ None. Open the next one from a fresh branch off the current `main`.
   and `:1227`). Load, not code — never your own breakage; reproduce it with eight busy loops beside that one file.
 - `LockTest.testSimultaneousMultiThreadsWithWaiting` was fixed on `main` by one shared 90 s deadline; never re-escalate.
 - **`IT (studio)` has two failure shapes; separate them by duration.** Normal is 6-8 min. (a) Fails in 3-7 min at
-  `-rf :itest.studio.repos` with three assertion diffs under `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify`
-  — the same-second commit-ordering race, also on `main`, now 2 runs in 8. A 130-line tail identifies it without
-  hunting the task folder: `WebStudioTest.repos:11 Failed requests: expected 0 but was 3`, that count being the tell.
-  (b) Runs far past 8 min with every step logging `HttpTimeoutException` at 10001ms — WebStudio under Jetty stopped
-  answering; no test is at fault. Shape
-  (b) never self-terminates before the 6 h job limit: cancel the whole run, then `rerun_failed_jobs`, which cleared
-  it on the same commit in 7m30s — the proof it is environmental and not the diff.
+  `-rf :itest.studio.repos`, tell `WebStudioTest.repos:11 Failed requests: expected 0 but was 3` in a 130-line tail —
+  the same-second commit-ordering race, also on `main`, 2 runs in 8. (b) Runs far past 8 min with every step logging
+  `HttpTimeoutException` at 10001ms — WebStudio under Jetty stopped answering, no test at fault. Shape (b) never
+  self-terminates before the 6 h job limit: cancel the run, then `rerun_failed_jobs` cleared it on the same commit in
+  7m30s, proving it environmental and not the diff.
 - `rerun_failed_jobs` returns 403 until every other job in the run has finished; wait for the run to complete.
 - The weekly cross-platform `build.yml` ("Build", Java 21/25/26 × ubuntu/windows/macos) has failed on `main` every
   run since 2026-07-01, 6 of 9 jobs, in three different modules (`studio-ui`, `openl-maven-plugin`,
@@ -360,10 +357,8 @@ None. Open the next one from a fresh branch off the current `main`.
 - `OverviewPanel.tsx` starts two unawaited promises that resolve into state setters, at lines 797 and 1227. Nothing
   synchronises them with the test, so `OverviewPanel.test.tsx` fails whenever the machine is slow. Needs the effect
   awaited or the test made to wait on it; raising the CI timeout to 20 s treated the symptom only.
-- Weigh the public-API removals parked in *Deferred findings* — `dtr/RepositoryException`, the four
-  `BranchRepository` methods already marked `forRemoval = true`, `SimpleGroup.description`, the tableeditor taglib
-  as a whole, and the four `MergeModal/types.ts` interfaces (whose removal takes `Docs/api/projects-merge-api.md`
-  with them). Each needs a downstream-break judgement this routine may not make.
+- Weigh every public-API removal parked in *Deferred findings*: each needs a downstream-break judgement this routine
+  may not make, and the tableeditor taglib and the `MergeModal` interfaces carry the largest consequences.
 - `itest.studio.repos` has a same-second commit-ordering race: when a scenario's two commits land in the same second
   the history endpoint returns them oldest-first, so `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify` reads
   the pre-merge revision and an empty table list. Needs a tiebreaker or a fixture that does not depend on ordering.
@@ -377,7 +372,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run forty. Idle at the same head, no `dead-code/*` PR; compacted the Resume point only.
 - 08-04 — run forty-one. Idle at the same head, no `dead-code/*` PR; folded two follow-ups into existing entries.
 - 08-04 — run forty-two. Swept the one new `main` commit (EPBDS-16363/64/65 migration refactor): no orphan, nothing
   removed. `main` went green.
+- 08-04 — run forty-three. Idle at the same head, no `dead-code/*` PR; compaction only, 383 to 378 lines.
