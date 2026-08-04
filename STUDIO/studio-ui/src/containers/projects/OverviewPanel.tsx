@@ -846,6 +846,12 @@ const useProjectMigration = (project: Project, reloadToken: number | undefined, 
     // shown but disabled, so the reason stays visible without firing a doomed request.
     const blockedModules = migration.rulesXml.newModules
     const migrationBlocked = blockedModules.length > 0
+    const rewriteHint = mustMigrateBeforeEditing
+        ? 'browser.overview.migrate_before_edit'
+        : 'browser.overview.migrate_rewrite_hint'
+    const migrateTooltip = migrationBlocked
+        ? t('browser.overview.migrate_blocked', { modules: blockedModules.join(', ') })
+        : t(rewriteHint)
 
     const migrate = () => {
         if (migrationBlocked) {
@@ -865,9 +871,9 @@ const useProjectMigration = (project: Project, reloadToken: number | undefined, 
         canMigrate: migration.rulesXml.migratable,
         mustMigrateBeforeEditing,
         migrationBlocked,
-        blockedModules,
         migrating,
         migrate,
+        migrateTooltip,
     }
 }
 
@@ -1508,11 +1514,7 @@ export const OverviewPanel = ({
                                 loading={migration.migrating}
                                 onClick={migration.migrate}
                                 testId="overview-migrate"
-                                tooltip={migration.migrationBlocked
-                                    ? t('browser.overview.migrate_blocked', { modules: migration.blockedModules.join(', ') })
-                                    : t(migration.mustMigrateBeforeEditing
-                                        ? 'browser.overview.migrate_before_edit'
-                                        : 'browser.overview.migrate_rewrite_hint')}
+                                tooltip={migration.migrateTooltip}
                             />
                         )}
                     </div>

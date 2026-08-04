@@ -306,7 +306,7 @@ class ProjectMigrationServiceTest {
         var migrated = ProjectDescriptor.read(written.getValue());
         assertTrue(migrated.getClasspath().isEmpty());
         assertEquals(List.of("rules/Main.xlsx"),
-                migrated.getModules().stream().map(m -> m.getRulesRootPath()).toList());
+                migrated.getModules().stream().map(Module::getRulesRootPath).toList());
         assertTrue(migrated.getModules().get(0).getWebstudioConfiguration().isCompileThisModuleOnly());
     }
 

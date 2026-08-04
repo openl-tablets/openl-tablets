@@ -96,8 +96,9 @@ class ConfigProjectDefaultModulesMigratorTest {
                 """);
         // rules/ also holds an undeclared Extra.xlsx — collapsing rules/Main.xlsx to a folder wildcard widens
         // the module set, so the migrator refuses and the goal leaves rules.xml untouched.
-        assertThrows(IllegalStateException.class, () -> ConfigProjectDefaultModulesMigrator
-                .transformAndGuard(descriptor, List.of("rules/Main.xlsx", "rules/Extra.xlsx")));
+        var files = List.of("rules/Main.xlsx", "rules/Extra.xlsx");
+        assertThrows(IllegalStateException.class,
+                () -> ConfigProjectDefaultModulesMigrator.transformAndGuard(descriptor, files));
     }
 
     @Test
@@ -112,8 +113,9 @@ class ConfigProjectDefaultModulesMigratorTest {
                 </project>
                 """);
         // Dropping <modules> restores the tests/** default too, so the guard covers tests/, not only rules/.
-        assertThrows(IllegalStateException.class, () -> ConfigProjectDefaultModulesMigrator
-                .transformAndGuard(descriptor, List.of("rules/Main.xlsx", "tests/Cases.xlsx")));
+        var files = List.of("rules/Main.xlsx", "tests/Cases.xlsx");
+        assertThrows(IllegalStateException.class,
+                () -> ConfigProjectDefaultModulesMigrator.transformAndGuard(descriptor, files));
     }
 
     @Test

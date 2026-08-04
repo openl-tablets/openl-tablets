@@ -81,7 +81,7 @@ public class ProjectMigrationService {
         var plan = planRulesXml(original, root);
         // migratable keeps its meaning — the file would change; newModules records why a change that widens
         // the module set is refused, so the UI can explain it instead of offering a doomed migrate.
-        return new RulesXmlSection(List.of(), changed(original, plan.migrated()), plan.newModules());
+        return new RulesXmlSection(List.of(), changed(original, plan.migrated().toBytes()), plan.newModules());
     }
 
     private RulesDeploySection rulesDeploySection(FileRoot root, List<FsNode> rootFiles) {
@@ -115,7 +115,7 @@ public class ProjectMigrationService {
             // no minimal form that keeps the behaviour, so the migrate is refused rather than silently widening.
             throw new ConflictException("projects.migration.widens.message", String.join(", ", plan.newModules()));
         }
-        writeIfChanged(root, RULES_XML, original, plan.migrated());
+        writeIfChanged(root, RULES_XML, original, plan.migrated().toBytes());
     }
 
     private void migrateRootWorkbooks(FileRoot root, List<FsNode> rootFiles) {
@@ -168,18 +168,17 @@ public class ProjectMigrationService {
         var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(original));
         var modulesBefore = declaredModulePaths(descriptor);
         RulesXmlMigrations.apply(descriptor);
-        var migrated = descriptor.toBytes();
         if (modulesBefore.equals(declaredModulePaths(descriptor))) {
-            return new RulesXmlPlan(migrated, List.of());
+            return new RulesXmlPlan(descriptor, List.of());
         }
         var files = projectFiles(allFiles(root));
         var before = RulesXmlMigrations.resolveModuleWorkbooks(
                 ProjectDescriptor.read(new ByteArrayInputStream(original)), files);
         var after = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, files);
-        return new RulesXmlPlan(migrated, RulesXmlMigrations.addedWorkbooks(before, after));
+        return new RulesXmlPlan(descriptor, RulesXmlMigrations.addedWorkbooks(before, after));
     }
 
-    private record RulesXmlPlan(byte[] migrated, List<String> newModules) {
+    private record RulesXmlPlan(ProjectDescriptor migrated, List<String> newModules) {
     }
 
     /** The declared module paths, in order — the shape the widening check compares before and after apply. */
