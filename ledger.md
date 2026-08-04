@@ -4,19 +4,15 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `9ac3873d`** — every queue row done, every vein closed, no unswept scope; new scope arrives
-  only as new commits on `main`. Never invent a detector to manufacture work. Ten runs idle — expect idleness.
-- The idle pass is two calls: `git log 9ac3873d..origin/main` and the open-PR check. Check `build-quick.yml` only
-  when the first shows `main` has moved. `opensaml-bom` is still 000 shibboleth / 404 Central, so webstudio Java
-  stays the one unswept surface; seed the stub only if a build is needed.
-- **`main` is red at that head and it is not the sweep's doing** — `IT (studio)` shape (a), see *CI flakes*. Section 7
-  bars cleanup while `main` is red, so a run with a finding waits for a green `main`; never re-diagnose an unchanged
-  SHA, and a Dependabot head can sit for hours with no `build-quick.yml` run of its own.
-- When scope arrives, sweep only the files those commits touch — skip webstudio Java, ITEST fixtures, `Docs/` and
-  `.github/`. Read the commit's **deleted** lines first: a purely additive commit orphans nothing, and one whose
-  deletions are all replaced in place usually does too, so `git show` on the production diff settles most of them.
-  A commit deleting a screen is the richest vein: check the locale keys, service functions, helper modules and
-  dropped `throws` clauses it used before assuming the author cleaned up.
+- **Converged at `main` = `9ac3873d`**; every queue row done, every vein closed. New scope arrives only as new commits
+  on `main` — never invent a detector to manufacture work. Eleven runs idle; expect idleness.
+- The idle pass is two calls: `git log 9ac3873d..origin/main` and the open-PR check; read `build-quick.yml` only once
+  `main` has moved, and never re-diagnose an unchanged SHA. `main` is red at that head on `IT (studio)` shape (a), not
+  the sweep's doing, and section 7 bars cleanup while it is red, so a finding waits for a green `main`.
+- When scope arrives, sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and
+  `.github/`. Read the **deleted** lines first — a purely additive commit orphans nothing, and one whose deletions are
+  replaced in place usually does too; a commit deleting a screen is the richest vein, so check its locale keys,
+  service functions, helper modules and dropped `throws` clauses before assuming the author cleaned up.
 
 ## Change-type queue
 
@@ -243,8 +239,7 @@ None. Open the next one from a fresh branch off the current `main`.
   the 20 s ceiling `vite.config.ts` sets) and "edits the sources and the declared dependencies…"
   (`vitest-fail-on-console` rejecting a React `act(...)` warning from the floating `.then` at `OverviewPanel.tsx:797`
   and `:1227`). Load, not code — never your own breakage; reproduce it with eight busy loops beside that one file.
-- `LockTest.testSimultaneousMultiThreadsWithWaiting` was fixed on `main` by one shared 90 s deadline. Do not
-  re-escalate it.
+- `LockTest.testSimultaneousMultiThreadsWithWaiting` was fixed on `main` by one shared 90 s deadline; never re-escalate.
 - **`IT (studio)` has two failure shapes; separate them by duration.** Normal is 6-8 min. (a) Fails in 3-7 min at
   `-rf :itest.studio.repos` with three assertion diffs under `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify`
   — the same-second commit-ordering race, also on `main`, now 2 runs in 8. A 130-line tail identifies it without
@@ -380,6 +375,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run thirty-seven. EPBDS-16358 landed a real vein; swept it and found no orphan. Nothing to commit.
 - 08-04 — run thirty-eight. Idle; EPBDS-16355 is additive and orphans nothing. `main` red on `IT (studio)` (a).
 - 08-04 — run thirty-nine. Idle at the same head, no `dead-code/*` PR open; compacted two entries only.
+- 08-04 — run forty. Idle at the same head, no `dead-code/*` PR; compacted the Resume point only.
