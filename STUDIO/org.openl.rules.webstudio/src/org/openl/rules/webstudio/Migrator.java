@@ -38,6 +38,7 @@ import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.webstudio.migration.ProjectTagsMigrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.admin.security.NOPUserSettings;
 import org.openl.rules.webstudio.web.install.KeyPairCertUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.ProjectIndex;
@@ -65,6 +66,7 @@ public class Migrator {
     private static final String COMMENT_TEMPLATE_SUFFIX = ".comment-template";
     private static final String COMMENT_TEMPLATE_OLD_SUFFIX = ".comment-template-old";
     private static final String LOCAL_REPO_PATH_SUFFIX = ".local-repository-path";
+    private static final String LEGACY_SINGLE_USERNAME = "DEFAULT";
 
     private Migrator() {
     }
@@ -93,6 +95,10 @@ public class Migrator {
         if (stringFromVersion.compareTo("6.3.1") < 0) {
             migrateTo6_4_0(settings, props);
         }
+        // A single-user installation upgraded from before EPBDS-16213 keeps its workspace under the former
+        // default user name; move it to the resolved name first, so the conversion below records the moved
+        // projects and 6.4.0 does not read a fresh empty workspace while the previous one is abandoned.
+        migrateSingleUserWorkspace();
         // The legacy .studioProps conversion is intentionally not guarded by the from-version. An env-var or
         // default installation keeps no dynamic settings file, so the from-version reads as the running build
         // (see DynamicPropertySource#loadProperties) and any version guard would skip the conversion. The
@@ -120,6 +126,48 @@ public class Migrator {
             settings.reloadIfModified();
         } catch (IOException e) {
             log.error("Migration of properties failed.", e);
+        }
+    }
+
+    /**
+     * Moves the single-user workspace to the currently resolved user name.
+     *
+     * <p>Before EPBDS-16213 the single user defaulted to {@code DEFAULT}; the default is now the OS account.
+     * Without this move 6.4.0 reads a fresh empty workspace under the new name and leaves the previous work
+     * behind. It runs only in single-user mode, only when the legacy workspace exists and the target does
+     * not, so it is idempotent and never overwrites an existing workspace.
+     */
+    private static void migrateSingleUserWorkspace() {
+        migrateSingleUserWorkspace(Props.text("user.mode"),
+                Props.text(AdministrationSettings.USER_WORKSPACE_HOME),
+                Props.text(NOPUserSettings.SINGLE_USERNAME));
+    }
+
+    static void migrateSingleUserWorkspace(@Nullable String userMode,
+                                           @Nullable String workspacePath,
+                                           @Nullable String username) {
+        // Blank values must not fall through to Path.of(""), which resolves to the process working directory.
+        if (!"single".equals(userMode) || StringUtils.isBlank(workspacePath) || StringUtils.isBlank(username)
+                || LEGACY_SINGLE_USERNAME.equals(username)) {
+            return;
+        }
+        var workspacesRoot = Path.of(workspacePath).normalize();
+        var legacy = workspacesRoot.resolve(LEGACY_SINGLE_USERNAME);
+        var target = workspacesRoot.resolve(username).normalize();
+        // The user name is a configured path segment: an absolute or traversing value would move the
+        // workspace outside its root, so reject anything that escapes it.
+        if (!target.startsWith(workspacesRoot)) {
+            log.warn("The single-user name '{}' resolves outside the workspace root; the move is skipped.", username);
+            return;
+        }
+        if (!Files.isDirectory(legacy) || Files.exists(target)) {
+            return;
+        }
+        try {
+            Files.move(legacy, target);
+            log.info("Moved the single-user workspace from '{}' to '{}'.", LEGACY_SINGLE_USERNAME, username);
+        } catch (IOException e) {
+            log.error("Failed to move the single-user workspace from '{}' to '{}'.", LEGACY_SINGLE_USERNAME, username, e);
         }
     }
 
