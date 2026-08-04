@@ -4,17 +4,19 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `00a66974`** — every queue row done, every vein closed, no unswept scope; new scope arrives
-  only as new commits on `main`. Never invent a detector to manufacture work. Eight runs idle — expect idleness.
-- The idle pass is two calls: `git log 00a66974..origin/main` and the open-PR check. Check `build-quick.yml` only
+- **Converged at `main` = `9ac3873d`** — every queue row done, every vein closed, no unswept scope; new scope arrives
+  only as new commits on `main`. Never invent a detector to manufacture work. Nine runs idle — expect idleness.
+- The idle pass is two calls: `git log 9ac3873d..origin/main` and the open-PR check. Check `build-quick.yml` only
   when the first shows `main` has moved. `opensaml-bom` is still 000 shibboleth / 404 Central, so webstudio Java
   stays the one unswept surface; seed the stub only if a build is needed.
-- **`main` is red at that head and it is not the sweep's doing** — the kafka-native tag, see *CI flakes*. Section 7
+- **`main` is red at that head and it is not the sweep's doing** — `IT (studio)` shape (a), see *CI flakes*. Section 7
   bars cleanup while `main` is red, so a run with a finding waits for a green `main`; never re-diagnose an unchanged
   SHA, and a Dependabot head can sit for hours with no `build-quick.yml` run of its own.
 - When scope arrives, sweep only the files those commits touch — skip webstudio Java, ITEST fixtures, `Docs/` and
-  `.github/`. A commit deleting a screen is the richest vein: check the locale keys, service functions, helper
-  modules and dropped `throws` clauses it used before assuming the author cleaned up.
+  `.github/`. Read the commit's **deleted** lines first: a purely additive commit orphans nothing, and one whose
+  deletions are all replaced in place usually does too, so `git show` on the production diff settles most of them.
+  A commit deleting a screen is the richest vein: check the locale keys, service functions, helper modules and
+  dropped `throws` clauses it used before assuming the author cleaned up.
 
 ## Change-type queue
 
@@ -29,10 +31,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Merged PRs
 
-- #1933 (12 files / 74 deletions, studio-ui i18n keys plus `PopupMenu.showChild`) and #1940 (8 files / 24 deletions,
-  PMD and whole-type deadness in DEV Java internals), both merged by yurkom with the SonarCloud Quality Gate red.
-  That gate is **twice-confirmed as not blocking a deletion-only sweep**: state its conditions, leave the call to
-  the maintainer, do not chase it.
+- #1933 and #1940 both merged by yurkom with the SonarCloud Quality Gate red. That gate is **twice-confirmed as not
+  blocking a deletion-only sweep**: state its conditions, leave the call to the maintainer, do not chase it.
 
 ## Module coverage
 
@@ -248,8 +248,10 @@ None. Open the next one from a fresh branch off the current `main`.
   re-escalate it.
 - **`IT (studio)` has two failure shapes; separate them by duration.** Normal is 6-8 min. (a) Fails in 3-7 min at
   `-rf :itest.studio.repos` with three assertion diffs under `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify`
-  — the same-second commit-ordering race, also on `main`, 1 run in 7. (b) Runs far past 8 min with every step
-  logging `HttpTimeoutException` at 10001ms — WebStudio under Jetty stopped answering; no test is at fault. Shape
+  — the same-second commit-ordering race, also on `main`, now 2 runs in 8. A 130-line tail identifies it without
+  hunting the task folder: `WebStudioTest.repos:11 Failed requests: expected 0 but was 3`, that count being the tell.
+  (b) Runs far past 8 min with every step logging `HttpTimeoutException` at 10001ms — WebStudio under Jetty stopped
+  answering; no test is at fault. Shape
   (b) never self-terminates before the 6 h job limit: cancel the whole run, then `rerun_failed_jobs`, which cleared
   it on the same commit in 7m30s — the proof it is environmental and not the diff.
 - `rerun_failed_jobs` returns 403 until every other job in the run has finished; wait for the run to complete.
@@ -290,11 +292,11 @@ None. Open the next one from a fresh branch off the current `main`.
   report the failed conditions from the check-run summary and hand the judgement to a maintainer.
 - **Reading a CI log takes one shape only.** Listing runs ignores `per_page` and always returns 30 runs, overflowing
   the tool limit even when scoped to one workflow file — let it save to a file and parse that with python for the run
-  `id` (the `run_number` is not an id). The branch filter does apply, so filter to `main` and read the newest row. `get_job_logs` truncates from
-  the **end**, so a failing ITEST needs `tail_lines` about 130 to reach the reactor summary; 60 lands mid-cleanup,
-  and `failed_only` over a 6-job matrix returns only cleanup noise at 40. Its `logs_url` points at Azure blob
-  storage, which the proxy refuses with 403 CONNECT, so always use `return_content` with a bounded tail.
-  The unit-test workflow is `build-quick.yml`.
+  `id` (the `run_number` is not an id). The branch filter does apply, so filter to `main` and read the newest row.
+  `get_job_logs` truncates from the **end**, so a failing ITEST needs `tail_lines` about 130 to reach the reactor
+  summary; 60 lands mid-cleanup, and `failed_only` over a 6-job matrix returns only cleanup noise at 40. Its
+  `logs_url` points at Azure blob storage, which the proxy refuses with 403 CONNECT, so always use `return_content`
+  with a bounded tail. The unit-test workflow is `build-quick.yml`.
 - **Angle-bracketed text does not survive the PR-body MCP round trip** — a bare XML element name is swallowed, and
   `Map<String, X>` reads back as `Map` even inside a fenced code block, so a quoted signature silently becomes
   wrong. Keep generics and element names out of bodies, name the identifiers in prose, and re-read after writing.
@@ -342,9 +344,10 @@ None. Open the next one from a fresh branch off the current `main`.
   `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
   entry on runtime wiring.
-- Incremental `main` scope (SHA reached is in *Resume point*): studio-ui TraceView, EPBDS-8537 branch marking and
-  EPBDS-16358 server-side table copy — each author's own deletion was already complete, leaving no orphaned export,
-  locale key, bundle key or helper. Dependabot bumps and Spotless pom tuning add no surface.
+- Incremental `main` scope (SHA reached is in *Resume point*): studio-ui TraceView, EPBDS-8537 branch marking,
+  EPBDS-16358 server-side table copy and EPBDS-16355 sheet-name clipping — each author's own deletion was already
+  complete, leaving no orphaned export, locale key, bundle key or helper. Dependabot bumps, lock-file-only npm
+  group bumps and Spotless pom tuning add no surface.
 - Every `org.openl.*` class name referenced from `.xml`, `.xhtml`, `.properties`, `.tld`, `.yaml`, `.json` and
   `.txt`, resolved against the source tree. The ~90 with no `.java` are all runtime-generated datatype and
   spreadsheet-result beans or rule-project fixtures under test resources. No stale configuration exists.
@@ -379,6 +382,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run thirty-five. Idle; `main` advanced by one Dependabot pom bump, which adds no surface.
 - 08-04 — run thirty-six. Idle at the same head; dropped the CI call from the unchanged-SHA idle pass.
 - 08-04 — run thirty-seven. EPBDS-16358 landed a real vein; swept it and found no orphan. Nothing to commit.
+- 08-04 — run thirty-eight. Idle; EPBDS-16355 is additive and orphans nothing. `main` red on `IT (studio)` (a).
