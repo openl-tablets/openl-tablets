@@ -372,7 +372,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run forty-one. Idle at the same head, no `dead-code/*` PR; folded two follow-ups into existing entries.
 - 08-04 — run forty-two. Swept the one new `main` commit (EPBDS-16363/64/65 migration refactor): no orphan, nothing
   removed. `main` went green.
 - 08-04 — run forty-three. Idle at the same head, no `dead-code/*` PR; compaction only, 383 to 378 lines.
+- 08-04 — run forty-four. Idle at the same head, no `dead-code/*` PR; nothing changed but this line.
