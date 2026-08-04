@@ -5,7 +5,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 ## Resume point
 
 - **Converged at `main` = `9ac3873d`**; every queue row done, every vein closed. New scope arrives only as new commits
-  on `main` — never invent a detector to manufacture work. Eleven runs idle; expect idleness.
+  on `main` — never invent a detector to manufacture work. Twelve runs idle; expect idleness.
 - The idle pass is two calls: `git log 9ac3873d..origin/main` and the open-PR check; read `build-quick.yml` only once
   `main` has moved, and never re-diagnose an unchanged SHA. `main` is red at that head on `IT (studio)` shape (a), not
   the sweep's doing, and section 7 bars cleanup while it is red, so a finding waits for a green `main`.
@@ -358,16 +358,15 @@ None. Open the next one from a fresh branch off the current `main`.
   synchronises them with the test, so `OverviewPanel.test.tsx` fails whenever the machine is slow. Needs the effect
   awaited or the test made to wait on it; raising the CI timeout to 20 s treated the symptom only.
 - Weigh the public-API removals parked in *Deferred findings* — `dtr/RepositoryException`, the four
-  `BranchRepository` methods already marked `forRemoval = true`, `SimpleGroup.description`, and the tableeditor
-  taglib as a whole. Each needs a downstream-break judgement this routine may not make.
+  `BranchRepository` methods already marked `forRemoval = true`, `SimpleGroup.description`, the tableeditor taglib
+  as a whole, and the four `MergeModal/types.ts` interfaces (whose removal takes `Docs/api/projects-merge-api.md`
+  with them). Each needs a downstream-break judgement this routine may not make.
 - `itest.studio.repos` has a same-second commit-ordering race: when a scenario's two commits land in the same second
   the history endpoint returns them oldest-first, so `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify` reads
   the pre-merge revision and an empty table list. Needs a tiebreaker or a fixture that does not depend on ordering.
-- Decide whether the four unused `MergeModal/types.ts` interfaces should stay as the frontend mirror of the merge REST
-  contract; if they go, `Docs/api/projects-merge-api.md` moves with them.
-- The committed tableeditor CSS bundles do not match what `compile.css.sh` produces from the committed sources, so
-  they are stale or hand-edited, and `.te_hidden` is blocked until someone says which side is authoritative. That
-  step is wired into no Maven phase, so editing a `js/` or `css/` source silently fails to reach the runtime.
+- Name the authoritative side of the committed tableeditor CSS bundles, which `compile.css.sh` does not reproduce;
+  `.te_hidden` is blocked until then. That step is wired into no Maven phase, so editing a `js/` or `css/` source
+  silently fails to reach the runtime.
 - **`Docs/production-deployment/example/` and `Docs/examples/production/` are the same 32-file example tree twice**,
   differing only in one relative link in `README.md`, and both published and linked, so neither is dead and this
   routine cannot pick. `Docs/README.MD:232` also points at a missing `operations/production-deployment.md`.
@@ -375,6 +374,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run thirty-eight. Idle; EPBDS-16355 is additive and orphans nothing. `main` red on `IT (studio)` (a).
 - 08-04 — run thirty-nine. Idle at the same head, no `dead-code/*` PR open; compacted two entries only.
 - 08-04 — run forty. Idle at the same head, no `dead-code/*` PR; compacted the Resume point only.
+- 08-04 — run forty-one. Idle at the same head, no `dead-code/*` PR; folded two follow-ups into existing entries.
