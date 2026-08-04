@@ -418,6 +418,7 @@ i18next.addResourceBundle('en', 'repository', {
             migrate_move_confirm_one: 'This moves {{count}} workbook from the project root into the rules folder and creates a rules.xml so it is still found. Continue?',
             migrate_move_confirm_other: 'This moves {{count}} workbooks from the project root into the rules folder and creates a rules.xml so they are still found. Continue?',
             migrate_rewrite_confirm: 'This rewrites rules.xml to its minimal modern form, keeping the project behaviour. Continue?',
+            migrate_blocked: 'Migration is blocked — these workbooks would become modules: {{modules}}. Declare them in rules.xml or remove them, then migrate.',
             migrate_failed: 'Migration failed',
             unlock: 'Release lock',
         },

@@ -6,7 +6,7 @@ import { useDescriptorMigration } from './projectMigration'
 
 vi.mock('../../services/migration', () => ({
     EMPTY_MIGRATION: {
-        rulesXml: { movableRootModules: [], migratable: false },
+        rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
         rulesDeploy: { migratable: false },
     },
     getProjectMigration: vi.fn(),
@@ -30,7 +30,7 @@ describe('useDescriptorMigration', () => {
 
     it('loads the migration info for a writable project', async () => {
         vi.mocked(getProjectMigration).mockResolvedValue({
-            rulesXml: { movableRootModules: ['Pricing.xlsx'], migratable: true },
+            rulesXml: { movableRootModules: ['Pricing.xlsx'], migratable: true, newModules: [] },
             rulesDeploy: { migratable: false },
         })
 
@@ -43,7 +43,7 @@ describe('useDescriptorMigration', () => {
 
     it('updates the migrated scope locally on success and calls onMigrated, without waiting for a refetch', async () => {
         vi.mocked(getProjectMigration).mockResolvedValue({
-            rulesXml: { movableRootModules: [], migratable: false },
+            rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
             rulesDeploy: { migratable: true },
         })
         vi.mocked(migrateProject).mockResolvedValue(undefined)
@@ -64,7 +64,7 @@ describe('useDescriptorMigration', () => {
 
     it('surfaces a failure notification and resets migrating, without calling onMigrated', async () => {
         vi.mocked(getProjectMigration).mockResolvedValue({
-            rulesXml: { movableRootModules: [], migratable: false },
+            rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
             rulesDeploy: { migratable: true },
         })
         vi.mocked(migrateProject).mockRejectedValue(new Error('disk full'))

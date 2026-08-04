@@ -354,6 +354,87 @@ class RulesXmlMigrationsDefaultModulesTest {
                         """);
     }
 
+    // --- Rule 2: a module that carries its own configuration is never folded away -----------------
+
+    @Test
+    void keepsNamelessWorkbookModuleThatCarriesCompileThisModuleOnly() {
+        // Folding rules/Main.xlsx into rules/**/*.xlsx would append a bare wildcard and drop the flag with
+        // the element. The module is kept explicit instead, so the compile-this-module-only scope survives.
+        assertUnchanged(
+                """
+                        <project>
+                            <name>explicit-project</name>
+                            <modules>
+                                <module>
+                                    <rules-root path="rules/Main.xlsx"/>
+                                    <webstudioConfiguration>
+                                        <compileThisModuleOnly>true</compileThisModuleOnly>
+                                    </webstudioConfiguration>
+                                </module>
+                            </modules>
+                        </project>
+                        """);
+    }
+
+    @Test
+    void keepsNamelessWorkbookModuleThatCarriesMethodFilter() {
+        assertUnchanged(
+                """
+                        <project>
+                            <name>explicit-project</name>
+                            <modules>
+                                <module>
+                                    <rules-root path="rules/Main.xlsx"/>
+                                    <method-filter>
+                                        <includes>
+                                            <value>foo*</value>
+                                        </includes>
+                                    </method-filter>
+                                </module>
+                            </modules>
+                        </project>
+                        """);
+    }
+
+    @Test
+    void collapsesPlainNeighbourButKeepsConfigCarryingModuleExplicit() {
+        // The config-free neighbour folds into the folder wildcard; the config-carrying module stays put, so
+        // the <modules> block is kept (its explicit path is not a default wildcard).
+        assertMigration(
+                """
+                        <project>
+                            <name>explicit-project</name>
+                            <modules>
+                                <module>
+                                    <rules-root path="rules/Main.xlsx"/>
+                                    <webstudioConfiguration>
+                                        <compileThisModuleOnly>true</compileThisModuleOnly>
+                                    </webstudioConfiguration>
+                                </module>
+                                <module>
+                                    <rules-root path="rules/Plain.xlsx"/>
+                                </module>
+                            </modules>
+                        </project>
+                        """,
+                """
+                        <project>
+                            <name>explicit-project</name>
+                            <modules>
+                                <module>
+                                    <rules-root path="rules/Main.xlsx"/>
+                                    <webstudioConfiguration>
+                                        <compileThisModuleOnly>true</compileThisModuleOnly>
+                                    </webstudioConfiguration>
+                                </module>
+                                <module>
+                                    <rules-root path="rules/**/*.xlsx"/>
+                                </module>
+                            </modules>
+                        </project>
+                        """);
+    }
+
     // --- Rule 3: drop <modules> when every entry is a default wildcard ----------------------------
 
     @Test

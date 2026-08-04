@@ -10,6 +10,11 @@ export interface RulesXmlMigration {
     movableRootModules: string[]
     /** Whether a migrate would move the root workbooks and write a rules.xml, or rewrite an existing one. */
     migratable: boolean
+    /**
+     * Workbooks a rewrite would turn into modules that rules.xml does not declare today. When non-empty the
+     * rules.xml migrate is refused by the server, because it would change which modules compile.
+     */
+    newModules: string[]
 }
 
 /** The rules-deploy.xml migration scope. */
@@ -26,7 +31,7 @@ export interface ProjectMigration {
 
 /** Nothing to migrate — the state used before the info loads and when it fails. */
 export const EMPTY_MIGRATION: ProjectMigration = {
-    rulesXml: { movableRootModules: [], migratable: false },
+    rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
     rulesDeploy: { migratable: false },
 }
 
@@ -42,6 +47,7 @@ export async function getProjectMigration(projectId: string): Promise<ProjectMig
         rulesXml: {
             movableRootModules: data.rulesXml?.movableRootModules ?? [],
             migratable: data.rulesXml?.migratable ?? false,
+            newModules: data.rulesXml?.newModules ?? [],
         },
         rulesDeploy: {
             migratable: data.rulesDeploy?.migratable ?? false,

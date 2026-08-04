@@ -1,7 +1,9 @@
 package org.openl.rules.maven.migration;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -39,23 +41,62 @@ public final class ConfigProjectDefaultModulesMigrator implements Migrator {
                 collapsing several same-folder modules into one <subfolder>/**/*.xlsx wildcard, and
                 removing the whole <modules> block when only the default rules/**/*.xlsx or
                 tests/**/*.xlsx wildcards remain. Also drops the project <name> when it matches the
-                project folder name.
+                project folder name. A module carrying its own configuration is kept, and the rewrite is
+                skipped when collapsing would turn an undeclared workbook into a module.
                 """;
     }
 
     @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws IOException {
-        return ConfigProjectIO.roundtrip(this, sourceFolder, ConfigProjectDefaultModulesMigrator::transform);
+        var workbooks = workbookPaths(sourceFolder);
+        return ConfigProjectIO.roundtrip(this, sourceFolder, descriptor -> transformAndGuard(descriptor, workbooks));
+    }
+
+    /**
+     * The shared module defaults plus the project-name drop, refusing the rewrite when it would turn an
+     * undeclared workbook into a module.
+     *
+     * <p>Collapsing modules into folder wildcards changes what compiles when the folder holds workbooks the
+     * descriptor did not declare. This resolves the module set against {@code workbooks} before and after the
+     * transform and throws when the set grows, so the goal leaves {@code rules.xml} untouched instead of
+     * silently widening it. The {@code openl:migrate} mojo logs the refusal and moves on to the next migrator.
+     *
+     * <p>Package-private for direct unit testing.
+     */
+    static void transformAndGuard(ProjectDescriptor descriptor, Collection<String> workbooks) {
+        var before = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, workbooks);
+        transform(descriptor);
+        var added = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, workbooks).stream()
+                .filter(path -> !before.contains(path))
+                .sorted()
+                .toList();
+        if (!added.isEmpty()) {
+            throw new IllegalStateException("Refusing to rewrite " + ProjectDescriptor.FILE_NAME
+                    + ": it would turn undeclared workbooks into modules (" + String.join(", ", added)
+                    + "). Declare or remove them, then migrate.");
+        }
     }
 
     /**
      * The shared module defaults, plus the project-name drop the {@code openl:migrate} goal adds on top —
-     * Studio applies {@link RulesXmlMigrations#defaultModules} alone and keeps the name.
-     * Package-private for direct unit testing.
+     * Studio applies {@link RulesXmlMigrations#defaultModules} alone and keeps the name. The pure content
+     * transform, without the file-aware widening guard. Package-private for direct unit testing.
      */
     static void transform(ProjectDescriptor descriptor) {
         RulesXmlMigrations.defaultModules(descriptor);
         dropProjectNameWhenEqualsFolder(descriptor);
+    }
+
+    /** The project's workbook paths, relative to the project root and {@code /}-separated. */
+    private static Collection<String> workbookPaths(Path sourceFolder) throws IOException {
+        if (!Files.isDirectory(sourceFolder)) {
+            return List.of();
+        }
+        try (var files = Files.walk(sourceFolder)) {
+            return files.filter(Files::isRegularFile)
+                    .map(path -> sourceFolder.relativize(path).toString().replace('\\', '/'))
+                    .toList();
+        }
     }
 
     private static void dropProjectNameWhenEqualsFolder(ProjectDescriptor descriptor) {

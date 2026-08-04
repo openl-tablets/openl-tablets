@@ -109,7 +109,7 @@ describe('DeployConfigPanel', () => {
         vi.mocked(rootFileExists).mockResolvedValue(true)
         // clearAllMocks keeps mockResolvedValue implementations, so reset the migration flag each test.
         vi.mocked(getProjectMigration).mockResolvedValue({
-            rulesXml: { movableRootModules: [], migratable: false },
+            rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
             rulesDeploy: { migratable: false },
         })
     })
@@ -220,7 +220,7 @@ describe('DeployConfigPanel', () => {
     it('offers a migrate when rules-deploy.xml can be rewritten, and posts it with the scope', async () => {
         vi.mocked(getFileContent).mockResolvedValue('<rules-deploy><serviceName>svc</serviceName></rules-deploy>')
         vi.mocked(getProjectMigration).mockResolvedValue({
-            rulesXml: { movableRootModules: [], migratable: false },
+            rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
             rulesDeploy: { migratable: true },
         })
         await renderPanel()
@@ -233,7 +233,7 @@ describe('DeployConfigPanel', () => {
     it('disables the edit button while a migrate is in flight', async () => {
         vi.mocked(getFileContent).mockResolvedValue('<rules-deploy><serviceName>svc</serviceName></rules-deploy>')
         vi.mocked(getProjectMigration).mockResolvedValue({
-            rulesXml: { movableRootModules: [], migratable: false },
+            rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
             rulesDeploy: { migratable: true },
         })
         let resolveMigrate!: () => void

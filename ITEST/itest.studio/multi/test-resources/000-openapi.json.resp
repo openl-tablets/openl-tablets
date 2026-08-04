@@ -24886,6 +24886,13 @@ Content-Type: application/json
             "items": {
               "type": "string"
             }
+          },
+          "newModules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

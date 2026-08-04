@@ -1,6 +1,7 @@
 package org.openl.rules.project.migration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -221,6 +222,13 @@ public final class RulesXmlMigrations {
      * {@code <subfolder>/**}{@code /*.xlsx} wildcard, and drops the whole {@code <modules>} block when only
      * the default wildcards remain.
      *
+     * <p>A module that carries its own configuration — a method filter or a {@code compileThisModuleOnly}
+     * flag — is kept as its own entry, so the collapse never drops what a single module declared.
+     *
+     * <p>This transform derives each wildcard from the declared path alone; it does not read the folder, so
+     * it can widen the module set when the folder holds undeclared workbooks. A caller that can see the
+     * project files should guard against that with {@link #resolveModuleWorkbooks}.
+     *
      * <p>Unlike the {@code openl:migrate} goal, this does not drop the project {@code <name>} — Studio keeps
      * whatever the file declares.
      */
@@ -228,6 +236,46 @@ public final class RulesXmlMigrations {
         dropRedundantModuleNames(descriptor);
         collapseNamelessModulesToSubfolderWildcards(descriptor);
         dropModulesWhenAllAreDefaultWildcards(descriptor);
+    }
+
+    /**
+     * The workbook files that become modules for the descriptor, resolved against the project's files.
+     *
+     * <p>A concrete module contributes its own path. A wildcard module contributes every workbook that
+     * matches it. A descriptor that declares no modules resolves against the engine defaults
+     * ({@code rules/**}{@code /*.xlsx} and {@code tests/**}{@code /*.xlsx}).
+     *
+     * <p>Comparing this set before and after {@link #defaultModules}/{@link #apply} tells a caller whether a
+     * migration would turn an undeclared workbook into a module — in any folder, {@code rules/},
+     * {@code tests/} or another — so it can refuse the change.
+     *
+     * @param descriptor    the descriptor to resolve
+     * @param workbookPaths the project's workbook paths, relative to the project root and {@code /}-separated
+     * @return the module workbook paths, {@code /}-separated
+     */
+    public static Set<String> resolveModuleWorkbooks(ProjectDescriptor descriptor, Collection<String> workbookPaths) {
+        var modules = descriptor.getModules();
+        var effective = CollectionUtils.isEmpty(modules) ? ProjectDescriptor.defaultModules() : modules;
+        var resolved = new LinkedHashSet<String>();
+        for (var module : effective) {
+            resolveModule(module, workbookPaths, resolved);
+        }
+        return resolved;
+    }
+
+    private static void resolveModule(Module module, Collection<String> workbookPaths, Set<String> resolved) {
+        var path = module.getRulesRootPath();
+        if (path == null) {
+            return;
+        }
+        if (module.isModuleWithWildcard()) {
+            workbookPaths.stream()
+                    .filter(workbook -> FileUtils.pathMatches(path, workbook.replace('\\', '/')))
+                    .map(workbook -> workbook.replace('\\', '/'))
+                    .forEach(resolved::add);
+        } else {
+            resolved.add(path.replace('\\', '/'));
+        }
     }
 
     private static void dropRedundantModuleNames(ProjectDescriptor descriptor) {
@@ -255,13 +303,14 @@ public final class RulesXmlMigrations {
         var covered = new HashSet<String>();
         var pending = new LinkedHashSet<String>();
         for (var m : modules) {
+            var foldInto = foldableFolder(m);
+            if (foldInto != null) {
+                pending.add(foldInto);
+                continue;
+            }
             var path = m.getRulesRootPath();
             var seg = subfolder(path);
-            if (m.getName() == null && seg != null && path.endsWith(XLSX_EXT)) {
-                if (!m.isModuleWithWildcard()) {
-                    pending.add(seg);
-                    continue;
-                }
+            if (m.getName() == null && seg != null && path.endsWith(XLSX_EXT) && m.isModuleWithWildcard()) {
                 m.setRulesRootPath(seg + "/**/*.xlsx");
             }
             result.add(m);
@@ -272,6 +321,21 @@ public final class RulesXmlMigrations {
         pending.removeAll(covered);
         pending.forEach(folder -> result.add(wildcardModule(folder)));
         descriptor.setModules(result);
+    }
+
+    /**
+     * The subfolder a name-less concrete {@code .xlsx} module folds into, or {@code null} to keep the module
+     * as its own entry. A module that carries its own configuration — a method filter or a
+     * {@code compileThisModuleOnly} flag — is never folded, so collapsing a folder into one wildcard never
+     * drops what a single module declared.
+     */
+    private static @Nullable String foldableFolder(Module m) {
+        var path = m.getRulesRootPath();
+        if (m.getName() == null && path != null && path.endsWith(XLSX_EXT)
+                && !m.isModuleWithWildcard() && hasNoExtraConfig(m)) {
+            return subfolder(path);
+        }
+        return null;
     }
 
     /** The leading path segment (the subfolder) of a module path, or {@code null} when there is none. */

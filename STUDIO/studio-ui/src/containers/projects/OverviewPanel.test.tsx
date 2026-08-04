@@ -50,18 +50,21 @@ vi.mock('../../services/projectIndex', () => ({
 
 vi.mock('../../services/migration', () => ({
     getProjectMigration: vi.fn().mockResolvedValue({
-        rulesXml: { movableRootModules: [], migratable: false },
+        rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
         rulesDeploy: { migratable: false },
     }),
     migrateProject: vi.fn().mockResolvedValue(undefined),
     EMPTY_MIGRATION: {
-        rulesXml: { movableRootModules: [], migratable: false },
+        rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
         rulesDeploy: { migratable: false },
     },
 }))
 
-const setMigration = (rulesXml: { movableRootModules: string[], migratable: boolean }) =>
-    vi.mocked(getProjectMigration).mockResolvedValue({ rulesXml, rulesDeploy: { migratable: false } })
+const setMigration = (rulesXml: { movableRootModules: string[], migratable: boolean, newModules?: string[] }) =>
+    vi.mocked(getProjectMigration).mockResolvedValue({
+        rulesXml: { newModules: [], ...rulesXml },
+        rulesDeploy: { migratable: false },
+    })
 
 const base: Project = {
     id: 'p1',
@@ -269,6 +272,17 @@ describe('OverviewPanel', () => {
         expect(await screen.findByTestId('overview-migrate')).toBeInTheDocument()
         expect(screen.getByTestId('overview-edit')).toBeInTheDocument()
         expect(screen.queryByTestId('overview-migrate-notice')).toBeNull()
+    })
+
+    it('disables the migrate when a rewrite would turn undeclared workbooks into modules', async () => {
+        setMigration({ movableRootModules: [], migratable: true, newModules: ['rules/Extra.xlsx'] })
+
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        // The server refuses this migrate, so the button is shown disabled rather than firing a doomed request.
+        expect(await screen.findByTestId('overview-migrate')).toBeDisabled()
+        // Only the migrate is blocked — editing the existing rules.xml is still allowed.
+        expect(screen.getByTestId('overview-edit')).toBeInTheDocument()
     })
 
     it('withholds editing and offers a migrate when the project has no rules.xml', async () => {

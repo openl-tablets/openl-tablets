@@ -3,6 +3,7 @@ package org.openl.studio.projects.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -23,6 +24,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.projects.model.MigrationScope;
 import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FolderNode;
@@ -211,8 +213,82 @@ class ProjectMigrationServiceTest {
         verify(filesService, never()).updateResource(any(), any(), any());
     }
 
+    @Test
+    void migration_info_lists_the_workbooks_a_widening_rewrite_would_expose() {
+        rootFiles(file("rules.xml"), file("rules/Main.xlsx"), file("rules/Extra.xlsx"), file("tests/Cases.xlsx"));
+        rulesXml("""
+                <project>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/Main.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+
+        var info = service.migrationInfo(project);
+
+        // Dropping <modules> restores the rules/** and tests/** defaults, exposing the undeclared workbooks
+        // in both folders — the guard is not limited to rules/.
+        assertEquals(List.of("rules/Extra.xlsx", "tests/Cases.xlsx"), info.rulesXml().newModules());
+        assertTrue(info.rulesXml().migratable());
+    }
+
+    @Test
+    void migrate_refuses_a_rewrite_that_would_turn_an_undeclared_workbook_into_a_module() {
+        rootFiles(file("rules.xml"), file("rules/Main.xlsx"), file("rules/Extra.xlsx"));
+        // Only Main is a module; collapsing it to rules/**/*.xlsx would pull in the undeclared Extra.
+        rulesXml("""
+                <project>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/Main.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+
+        assertThrows(ConflictException.class, () -> service.migrate(project, MigrationScope.RULES_XML));
+
+        verify(filesService, never()).updateResource(any(), any(), any());
+        verify(filesService, never()).moveResource(any(), any(), any());
+    }
+
+    @Test
+    void migrate_rewrites_and_keeps_a_config_carrying_module_without_widening() {
+        rootFiles(file("rules.xml"), file("rules/Main.xlsx"), file("rules/Extra.xlsx"));
+        // A default classpath makes the file migratable; the module carries compileThisModuleOnly, and Extra
+        // sits undeclared next to it. The module stays explicit, so Extra is not pulled in and nothing widens.
+        rulesXml("""
+                <project>
+                    <classpath>
+                        <entry path="lib/*.jar"/>
+                    </classpath>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/Main.xlsx"/>
+                            <webstudioConfiguration>
+                                <compileThisModuleOnly>true</compileThisModuleOnly>
+                            </webstudioConfiguration>
+                        </module>
+                    </modules>
+                </project>
+                """);
+
+        service.migrate(project, MigrationScope.RULES_XML);
+
+        var written = ArgumentCaptor.forClass(InputStream.class);
+        verify(filesService).updateResource(eq(root), eq("rules.xml"), written.capture());
+        var migrated = ProjectDescriptor.read(written.getValue());
+        assertTrue(migrated.getClasspath().isEmpty());
+        assertEquals(List.of("rules/Main.xlsx"),
+                migrated.getModules().stream().map(m -> m.getRulesRootPath()).toList());
+        assertTrue(migrated.getModules().get(0).getWebstudioConfiguration().isCompileThisModuleOnly());
+    }
+
     private void rootFiles(FsNode... nodes) {
-        when(filesService.getResources(eq(root), any(), eq(false), any(FileViewMode.class), any()))
+        // Stub both the root-level listing (recursive=false) and the recursive one the widening check uses.
+        when(filesService.getResources(eq(root), any(), anyBoolean(), any(FileViewMode.class), any()))
                 .thenReturn(List.of(nodes));
     }
 

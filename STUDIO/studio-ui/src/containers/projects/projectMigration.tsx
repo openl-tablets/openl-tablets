@@ -47,7 +47,9 @@ export const useDescriptorMigration = (
             // locally so the button/gating refresh even if the caller never bumps reloadToken.
             setMigration(current => ({
                 ...current,
-                [scope]: scope === 'rulesXml' ? { movableRootModules: [], migratable: false } : { migratable: false },
+                [scope]: scope === 'rulesXml'
+                    ? { movableRootModules: [], migratable: false, newModules: [] }
+                    : { migratable: false },
             }))
             onMigrated()
         } catch (e) {
@@ -61,16 +63,28 @@ export const useDescriptorMigration = (
 }
 
 /** The small Migrate button the Overview and the deploy-config panel share. */
-export const MigrateButton = ({ tooltip, loading, onClick, label, testId }: {
+export const MigrateButton = ({ tooltip, loading, onClick, label, testId, disabled }: {
     tooltip: string
     loading: boolean
     onClick: () => void
     label: string
     testId: string
+    disabled?: boolean
 }) => (
+    // The button is wrapped so its tooltip still shows while it is disabled — a disabled button fires no
+    // hover events of its own, so the reason a migrate is blocked stays reachable.
     <Tooltip title={tooltip}>
-        <Button data-testid={testId} icon={<ThunderboltOutlined />} loading={loading} onClick={onClick} size="small">
-            {label}
-        </Button>
+        <span style={{ display: 'inline-flex' }}>
+            <Button
+                data-testid={testId}
+                disabled={disabled ?? false}
+                icon={<ThunderboltOutlined />}
+                loading={loading}
+                onClick={onClick}
+                size="small"
+            >
+                {label}
+            </Button>
+        </span>
     </Tooltip>
 )
