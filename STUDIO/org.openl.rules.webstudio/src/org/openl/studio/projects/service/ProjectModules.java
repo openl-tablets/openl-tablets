@@ -30,34 +30,19 @@ final class ProjectModules {
      * @param declared modules as {@code rules.xml} declares them
      * @param resolved modules the project resolved to, each pattern already replaced by its matches
      */
-    static List<ModuleViewModel> map(List<Module> declared, List<Module> resolved, boolean defaulted) {
+    static List<ModuleViewModel> map(List<Module> declared, List<Module> resolved) {
         var matched = matchesByPattern(resolved);
         var views = new ArrayList<ModuleViewModel>(declared.size());
         for (var module : declared) {
             if (module.isModuleWithWildcard()) {
-                addPattern(module, matched, defaulted, views);
+                var pattern = module.getRulesRootPath();
+                views.add(ModuleViewModel.pattern(module.getName(), pattern, matched.getOrDefault(pattern, List.of())));
             } else {
                 views.add(module(module));
             }
         }
         declaredPathsAside(declared, resolved).forEach(module -> views.add(module(module)));
         return views;
-    }
-
-    /**
-     * Adds a pattern declaration with the modules it matched. An engine-default pattern that matched nothing
-     * is hidden — the extra {@code .xls}/{@code .xlsm} and {@code tests/} defaults every project carries are
-     * scan patterns the user never declared, so they are not shown as empty rows. A pattern the file itself
-     * declares is always shown, even when it matched nothing.
-     */
-    private static void addPattern(Module module, Map<String, List<ModuleViewModel>> matched, boolean defaulted,
-                                   List<ModuleViewModel> views) {
-        var pattern = module.getRulesRootPath();
-        var patternMatches = matched.getOrDefault(pattern, List.of());
-        if (defaulted && patternMatches.isEmpty()) {
-            return;
-        }
-        views.add(ModuleViewModel.pattern(module.getName(), pattern, patternMatches));
     }
 
     /** The matches of every pattern, in the order the project resolved them. */

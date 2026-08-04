@@ -22,6 +22,7 @@ import org.mockito.ArgumentCaptor;
 
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.studio.common.exception.ConflictException;
@@ -71,7 +72,12 @@ class ProjectMigrationServiceTest {
         verify(filesService).moveResource(root, "Legacy.xls", "rules/Legacy.xls");
         verify(filesService).moveResource(root, "Macro.xlsm", "rules/Macro.xlsm");
         verify(filesService, never()).moveResource(root, "notes.txt", "rules/notes.txt");
-        verify(filesService).createResource(eq(root), eq("rules.xml"), any(InputStream.class), eq(false));
+        var written = ArgumentCaptor.forClass(InputStream.class);
+        verify(filesService).createResource(eq(root), eq("rules.xml"), written.capture(), eq(false));
+        // .xls/.xlsm are not matched by the rules/** default, so every moved workbook is declared explicitly.
+        assertEquals(List.of("rules/Legacy.xls", "rules/Macro.xlsm", "rules/Main.xlsx"),
+                ProjectDescriptor.read(written.getValue()).getModules().stream()
+                        .map(Module::getRulesRootPath).sorted().toList());
     }
 
     @Test
@@ -141,8 +147,11 @@ class ProjectMigrationServiceTest {
 
         verify(filesService).moveResource(root, "Pricing.xlsx", "rules/Pricing.xlsx");
         verify(filesService).moveResource(root, "Rating.xlsx", "rules/Rating.xlsx");
-        verify(filesService).createResource(eq(root), eq("rules.xml"), any(InputStream.class), eq(false));
+        var written = ArgumentCaptor.forClass(InputStream.class);
+        verify(filesService).createResource(eq(root), eq("rules.xml"), written.capture(), eq(false));
         verify(filesService, never()).updateResource(any(), any(), any());
+        // All workbooks are .xlsx, matched by the rules/** default, so the descriptor stays bare.
+        assertTrue(ProjectDescriptor.read(written.getValue()).getModules().isEmpty());
     }
 
     @Test

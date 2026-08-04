@@ -627,7 +627,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var classpath = descriptor.getClasspath();
         var sourcesDefault = classpath == null || classpath.isEmpty();
         return DescriptorViewModel.builder()
-                .modules(ProjectModules.map(resolved.declaredModules(), descriptor.getModules(), resolved.modulesDefaulted()))
+                .modules(ProjectModules.map(resolved.declaredModules(), descriptor.getModules()))
                 .modulesDefault(resolved.modulesDefaulted())
                 .sources(sourcesDefault ? ProjectDescriptor.defaultClasspath() : List.copyOf(classpath))
                 .sourcesDefault(sourcesDefault)

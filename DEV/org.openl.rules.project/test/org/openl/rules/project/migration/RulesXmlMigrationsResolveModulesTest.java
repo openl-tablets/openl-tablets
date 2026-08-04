@@ -62,15 +62,6 @@ class RulesXmlMigrationsResolveModulesTest {
     }
 
     @Test
-    void defaultsResolveXlsAndXlsmWorkbooksToo() {
-        // The widening guard sees .xls/.xlsm under rules/ and tests/ now that the engine defaults cover them;
-        // other/ is not a default folder, so its .xls is not a module.
-        var files = List.of("rules/Legacy.xls", "rules/Main.xlsx", "tests/Old.xlsm", "other/Skip.xls");
-        assertEquals(Set.of("rules/Legacy.xls", "rules/Main.xlsx", "tests/Old.xlsm"),
-                resolveModuleWorkbooks("<project/>", files));
-    }
-
-    @Test
     void recursiveWildcardMatchesNestedWorkbooks() {
         assertResolves("""
                 <project>

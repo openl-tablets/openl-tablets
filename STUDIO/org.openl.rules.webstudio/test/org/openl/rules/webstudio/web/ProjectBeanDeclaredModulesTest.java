@@ -28,11 +28,10 @@ class ProjectBeanDeclaredModulesTest {
 
         var source = ProjectBean.chooseModulesSource(declared, resolved);
 
-        // rules.xml declares no modules: seed the edit list with the default wildcard patterns (grouped for
-        // every Excel type under rules/ and tests/), not the expanded files, so edits keep the block intact.
+        // rules.xml declares no modules: seed the edit list with the default wildcard patterns, not the
+        // expanded files, so edits keep the block intact.
         assertSame(declared, source);
-        assertEquals(List.of("rules/**/*.xlsx", "rules/**/*.xls", "rules/**/*.xlsm",
-                        "tests/**/*.xlsx", "tests/**/*.xls", "tests/**/*.xlsm"),
+        assertEquals(List.of("rules/**/*.xlsx", "tests/**/*.xlsx"),
                 source.getModules().stream().map(Module::getRulesRootPath).toList());
     }
 
@@ -44,7 +43,7 @@ class ProjectBeanDeclaredModulesTest {
 
         // The deprecated module-edit actions add to this list; it must not be the immutable default.
         source.getModules().add(createModule("rules/Extra.xlsx"));
-        assertEquals(7, source.getModules().size());
+        assertEquals(3, source.getModules().size());
     }
 
     @Test

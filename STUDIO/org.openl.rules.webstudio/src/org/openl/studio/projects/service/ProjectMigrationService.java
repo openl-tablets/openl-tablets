@@ -2,8 +2,10 @@ package org.openl.studio.projects.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.migration.RulesDeployMigrations;
 import org.openl.rules.project.migration.RulesXmlMigrations;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.studio.common.exception.ConflictException;
@@ -36,11 +39,12 @@ import org.openl.util.FileTypeHelper;
  *
  * <p>A project that has no {@code rules.xml} keeps its workbooks in the root and relies on the resolver to
  * treat each Excel file as a module. Migrating it moves every root workbook — {@code .xls}, {@code .xlsx}
- * and {@code .xlsm} — under {@code rules/} and writes a {@code rules.xml}, so the {@code rules/}/{@code tests/}
- * Excel defaults now match them — writing the {@code rules.xml} without moving them first would lose them. A project that already has a
- * {@code rules.xml} is migrated by running the same content migrations the goal runs and rewriting the
- * file. The method-filter migration runs as the goal's no-compile variant, lifting module filters to a
- * project-level {@code <exposed-methods>}.
+ * and {@code .xlsm} — under {@code rules/} and writes a {@code rules.xml}: an all-{@code .xlsx} project keeps
+ * a bare descriptor and relies on the {@code rules/}/{@code tests/} defaults, while a moved {@code .xls} or
+ * {@code .xlsm} — which no default matches — makes every workbook a declared module so none is lost. A
+ * project that already has a {@code rules.xml} is migrated by running the same content migrations the goal
+ * runs and rewriting the file. The method-filter migration runs as the goal's no-compile variant, lifting
+ * module filters to a project-level {@code <exposed-methods>}.
  *
  * <p>A {@link MigrationScope#RULES_DEPLOY} migrate rewrites {@code rules-deploy.xml} the same way — the
  * deployment content migrations the goal runs, plus the empty-tag cleanup that re-serialization does for
@@ -125,28 +129,63 @@ public class ProjectMigrationService {
         for (var path : movable) {
             filesService.moveResource(root, path, RULES_FOLDER + path);
         }
-        // A bare rules.xml with no <name> and no <modules>: the folder is the project's identity, and the
-        // rules/**+tests/** defaults now match the moved workbooks. Nothing is added that a later migrate
-        // would then strip.
-        filesService.createResource(root, RULES_XML, new ByteArrayInputStream(new ProjectDescriptor().toBytes()), false);
+        filesService.createResource(root, RULES_XML, new ByteArrayInputStream(rulesXmlForMovedWorkbooks(movable)), false);
     }
 
     /**
-     * Parses {@code rules.xml} once, resolves the module set it declares, applies the content migrations in
-     * place, resolves the set again, and reports the migrated bytes plus the workbooks the change would add.
-     * A non-empty {@code newModules} means the migrate would widen the module set and must be refused. Files
-     * are listed recursively, so an undeclared workbook nested under {@code rules/} or {@code tests/} is seen.
+     * The {@code rules.xml} to write for the moved workbooks. The {@code rules/**}{@code /*.xlsx} and
+     * {@code tests/**}{@code /*.xlsx} defaults match the moved {@code .xlsx} files, so an all-{@code .xlsx}
+     * project stays a bare descriptor whose folder is its identity — nothing a later migrate would strip. A
+     * {@code .xls} or {@code .xlsm} file no default matches, so once any is moved every workbook is declared
+     * explicitly to keep them all as modules.
+     */
+    private static byte[] rulesXmlForMovedWorkbooks(List<String> movable) {
+        var descriptor = new ProjectDescriptor();
+        if (movable.stream().allMatch(path -> path.toLowerCase(Locale.ROOT).endsWith(".xlsx"))) {
+            return descriptor.toBytes();
+        }
+        var modules = new ArrayList<Module>(movable.size());
+        for (var path : movable) {
+            var module = new Module();
+            module.setRulesRootPath(RULES_FOLDER + path);
+            modules.add(module);
+        }
+        descriptor.setModules(modules);
+        return descriptor.toBytes();
+    }
+
+    /**
+     * Plans the {@code rules.xml} migration: parses the file, applies the content migrations in place, and
+     * reports the migrated bytes plus the workbooks the change would turn into modules. A non-empty
+     * {@code newModules} means the migrate would widen the module set and must be refused.
+     *
+     * <p>The widening check — and the recursive file listing it needs — is skipped when the migration leaves
+     * the {@code <modules>} declarations untouched, since the module set then cannot have grown. When they do
+     * change, files are listed recursively so an undeclared workbook nested under {@code rules/} or
+     * {@code tests/} is seen.
      */
     private RulesXmlPlan planRulesXml(byte[] original, FileRoot root) {
         var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(original));
-        var files = projectFiles(allFiles(root));
-        var before = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, files);
+        var modulesBefore = declaredModulePaths(descriptor);
         RulesXmlMigrations.apply(descriptor);
+        var migrated = descriptor.toBytes();
+        if (modulesBefore.equals(declaredModulePaths(descriptor))) {
+            return new RulesXmlPlan(migrated, List.of());
+        }
+        var files = projectFiles(allFiles(root));
+        var before = RulesXmlMigrations.resolveModuleWorkbooks(
+                ProjectDescriptor.read(new ByteArrayInputStream(original)), files);
         var after = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, files);
-        return new RulesXmlPlan(descriptor.toBytes(), RulesXmlMigrations.addedWorkbooks(before, after));
+        return new RulesXmlPlan(migrated, RulesXmlMigrations.addedWorkbooks(before, after));
     }
 
     private record RulesXmlPlan(byte[] migrated, List<String> newModules) {
+    }
+
+    /** The declared module paths, in order — the shape the widening check compares before and after apply. */
+    private static List<String> declaredModulePaths(ProjectDescriptor descriptor) {
+        var modules = descriptor.getModules();
+        return modules == null ? List.of() : modules.stream().map(Module::getRulesRootPath).toList();
     }
 
     /** Every file in the project, listed recursively. */
