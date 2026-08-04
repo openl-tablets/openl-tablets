@@ -114,7 +114,7 @@ class RulesXmlMigrationsResolveModulesTest {
                 <project>
                 </project>
                 """);
-        var added = after.stream().filter(path -> !before.contains(path)).sorted().toList();
+        var added = RulesXmlMigrations.addedWorkbooks(before, after);
         assertEquals(List.of("rules/Extra.xlsx", "rules/sub/Deep.xlsx", "tests/Cases.xlsx"), added);
     }
 
@@ -140,7 +140,7 @@ class RulesXmlMigrationsResolveModulesTest {
                     </modules>
                 </project>
                 """, files);
-        var added = after.stream().filter(path -> !before.contains(path)).sorted().toList();
+        var added = RulesXmlMigrations.addedWorkbooks(before, after);
         assertEquals(List.of("other/Sibling.xlsx"), added);
     }
 

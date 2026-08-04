@@ -40,6 +40,10 @@ public final class RulesXmlMigrations {
     private static final Set<String> DEFAULT_WILDCARDS = ProjectDescriptor.defaultModules().stream()
             .map(Module::getRulesRootPath)
             .collect(Collectors.toUnmodifiableSet());
+    /** The leading {@code returnType } part of a method signature. */
+    private static final Pattern RETURN_TYPE_PREFIX = Pattern.compile("^[^ (]+ ");
+    /** The trailing {@code (params)} part of a method signature. */
+    private static final Pattern SIGNATURE_PARAMS = Pattern.compile("\\\\\\(.*\\\\\\)$");
 
     private RulesXmlMigrations() {
     }
@@ -212,7 +216,7 @@ public final class RulesXmlMigrations {
      * metacharacter survives the reduction.
      */
     private static @Nullable String reduceSignatureToGlob(String regex) {
-        var matcher = Pattern.compile("^[^ (]+ ").matcher(regex);
+        var matcher = RETURN_TYPE_PREFIX.matcher(regex);
         if (matcher.find()) {
             // remove return type definition
             regex = matcher.replaceFirst("");
@@ -221,7 +225,7 @@ public final class RulesXmlMigrations {
             return null;
         }
         // remove the (params) part of "<returnType> <methodName>(<params>)"
-        var signatureMatcher = Pattern.compile("\\\\\\(.*\\\\\\)$").matcher(regex);
+        var signatureMatcher = SIGNATURE_PARAMS.matcher(regex);
         if (signatureMatcher.find()) {
             regex = signatureMatcher.replaceFirst("");
         }
@@ -242,14 +246,14 @@ public final class RulesXmlMigrations {
     }
 
     /**
-     * Expands a regexp's alternations into branches with none left: each unescaped {@code (a|b)} group is
-     * unfolded by branch (its parentheses removed) and a top-level {@code sig1|sig2} is split into separate
-     * signatures.
+     * Expands a regexp's alternations into branches with none left: a top-level {@code sig1|sig2} is split
+     * into separate signatures first, then each unescaped {@code (a|b)} group is unfolded by branch (its
+     * parentheses removed). Splitting first avoids generating duplicate branches for a trailing signature.
      */
     private static List<String> expandAlternations(String regex) {
         var branches = new ArrayList<String>();
-        for (var grouped : expandGroups(regex)) {
-            branches.addAll(splitTopLevel(grouped));
+        for (var part : splitTopLevel(regex)) {
+            branches.addAll(expandGroups(part));
         }
         return branches;
     }
@@ -361,26 +365,33 @@ public final class RulesXmlMigrations {
     public static Set<String> resolveModuleWorkbooks(ProjectDescriptor descriptor, Collection<String> workbookPaths) {
         var modules = descriptor.getModules();
         var effective = CollectionUtils.isEmpty(modules) ? ProjectDescriptor.defaultModules() : modules;
+        var files = workbookPaths.stream().map(path -> path.replace('\\', '/')).toList();
         var resolved = new LinkedHashSet<String>();
         for (var module : effective) {
-            resolveModule(module, workbookPaths, resolved);
+            resolveModule(module, files, resolved);
         }
         return resolved;
     }
 
-    private static void resolveModule(Module module, Collection<String> workbookPaths, Set<String> resolved) {
+    private static void resolveModule(Module module, List<String> files, Set<String> resolved) {
         var path = module.getRulesRootPath();
         if (path == null) {
             return;
         }
         if (module.isModuleWithWildcard()) {
-            workbookPaths.stream()
-                    .filter(workbook -> FileUtils.pathMatches(path, workbook.replace('\\', '/')))
-                    .map(workbook -> workbook.replace('\\', '/'))
-                    .forEach(resolved::add);
+            files.stream().filter(file -> FileUtils.pathMatches(path, file)).forEach(resolved::add);
         } else {
             resolved.add(path.replace('\\', '/'));
         }
+    }
+
+    /**
+     * The workbook paths a migration would turn into modules — the sorted set difference of the module sets
+     * {@link #resolveModuleWorkbooks} yields before and after the transform. Empty when the migration keeps
+     * (or narrows) the module set; a non-empty result is a caller's signal to refuse the change.
+     */
+    public static List<String> addedWorkbooks(Set<String> before, Set<String> after) {
+        return after.stream().filter(path -> !before.contains(path)).sorted().toList();
     }
 
     private static void dropRedundantModuleNames(ProjectDescriptor descriptor) {

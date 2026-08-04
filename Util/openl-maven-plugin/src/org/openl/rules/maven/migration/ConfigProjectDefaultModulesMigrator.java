@@ -48,8 +48,8 @@ public final class ConfigProjectDefaultModulesMigrator implements Migrator {
 
     @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws IOException {
-        var workbooks = workbookPaths(sourceFolder);
-        return ConfigProjectIO.roundtrip(this, sourceFolder, descriptor -> transformAndGuard(descriptor, workbooks));
+        var files = projectFiles(sourceFolder);
+        return ConfigProjectIO.roundtrip(this, sourceFolder, descriptor -> transformAndGuard(descriptor, files));
     }
 
     /**
@@ -57,19 +57,17 @@ public final class ConfigProjectDefaultModulesMigrator implements Migrator {
      * undeclared workbook into a module.
      *
      * <p>Collapsing modules into folder wildcards changes what compiles when the folder holds workbooks the
-     * descriptor did not declare. This resolves the module set against {@code workbooks} before and after the
+     * descriptor did not declare. This resolves the module set against {@code files} before and after the
      * transform and throws when the set grows, so the goal leaves {@code rules.xml} untouched instead of
      * silently widening it. The {@code openl:migrate} mojo logs the refusal and moves on to the next migrator.
      *
      * <p>Package-private for direct unit testing.
      */
-    static void transformAndGuard(ProjectDescriptor descriptor, Collection<String> workbooks) {
-        var before = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, workbooks);
+    static void transformAndGuard(ProjectDescriptor descriptor, Collection<String> files) {
+        var before = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, files);
         transform(descriptor);
-        var added = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, workbooks).stream()
-                .filter(path -> !before.contains(path))
-                .sorted()
-                .toList();
+        var after = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, files);
+        var added = RulesXmlMigrations.addedWorkbooks(before, after);
         if (!added.isEmpty()) {
             throw new IllegalStateException("Refusing to rewrite " + ProjectDescriptor.FILE_NAME
                     + ": it would turn undeclared workbooks into modules (" + String.join(", ", added)
@@ -87,8 +85,8 @@ public final class ConfigProjectDefaultModulesMigrator implements Migrator {
         dropProjectNameWhenEqualsFolder(descriptor);
     }
 
-    /** The project's workbook paths, relative to the project root and {@code /}-separated. */
-    private static Collection<String> workbookPaths(Path sourceFolder) throws IOException {
+    /** The project's file paths, relative to the project root and {@code /}-separated. */
+    private static Collection<String> projectFiles(Path sourceFolder) throws IOException {
         if (!Files.isDirectory(sourceFolder)) {
             return List.of();
         }

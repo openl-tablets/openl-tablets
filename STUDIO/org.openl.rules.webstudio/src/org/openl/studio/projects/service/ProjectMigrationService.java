@@ -74,10 +74,10 @@ public class ProjectMigrationService {
             return new RulesXmlSection(movable, !movable.isEmpty(), List.of());
         }
         var original = readFile(root, RULES_XML);
-        var migrated = migratedRulesXml(original);
+        var plan = planRulesXml(original, root);
         // migratable keeps its meaning — the file would change; newModules records why a change that widens
         // the module set is refused, so the UI can explain it instead of offering a doomed migrate.
-        return new RulesXmlSection(List.of(), changed(original, migrated), newlyExposedModules(original, migrated, root));
+        return new RulesXmlSection(List.of(), changed(original, plan.migrated()), plan.newModules());
     }
 
     private RulesDeploySection rulesDeploySection(FileRoot root, List<FsNode> rootFiles) {
@@ -105,14 +105,13 @@ public class ProjectMigrationService {
             return;
         }
         var original = readFile(root, RULES_XML);
-        var migrated = migratedRulesXml(original);
-        var newModules = newlyExposedModules(original, migrated, root);
-        if (!newModules.isEmpty()) {
+        var plan = planRulesXml(original, root);
+        if (!plan.newModules().isEmpty()) {
             // Collapsing a module to a folder wildcard would turn undeclared workbooks into modules. There is
             // no minimal form that keeps the behaviour, so the migrate is refused rather than silently widening.
-            throw new ConflictException("projects.migration.widens.message", String.join(", ", newModules));
+            throw new ConflictException("projects.migration.widens.message", String.join(", ", plan.newModules()));
         }
-        writeIfChanged(root, RULES_XML, original, migrated);
+        writeIfChanged(root, RULES_XML, original, plan.migrated());
     }
 
     private void migrateRootWorkbooks(FileRoot root, List<FsNode> rootFiles) {
@@ -133,19 +132,21 @@ public class ProjectMigrationService {
     }
 
     /**
-     * The workbook paths a rules.xml migrate would turn into modules that the project does not declare today
-     * — the module set the migrated descriptor resolves against the project's files, minus the original's.
-     * Empty when the migrate keeps the module set (or when the file cannot be migrated). The files are listed
-     * recursively, so an undeclared workbook nested under {@code rules/} or {@code tests/} is seen.
+     * Parses {@code rules.xml} once, resolves the module set it declares, applies the content migrations in
+     * place, resolves the set again, and reports the migrated bytes plus the workbooks the change would add.
+     * A non-empty {@code newModules} means the migrate would widen the module set and must be refused. Files
+     * are listed recursively, so an undeclared workbook nested under {@code rules/} or {@code tests/} is seen.
      */
-    private List<String> newlyExposedModules(byte[] original, byte @Nullable [] migrated, FileRoot root) {
-        if (migrated == null) {
-            return List.of();
-        }
-        var workbooks = workbookPaths(allFiles(root));
-        var before = RulesXmlMigrations.resolveModuleWorkbooks(read(original), workbooks);
-        var after = RulesXmlMigrations.resolveModuleWorkbooks(read(migrated), workbooks);
-        return after.stream().filter(path -> !before.contains(path)).sorted().toList();
+    private RulesXmlPlan planRulesXml(byte[] original, FileRoot root) {
+        var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(original));
+        var files = projectFiles(allFiles(root));
+        var before = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, files);
+        RulesXmlMigrations.apply(descriptor);
+        var after = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, files);
+        return new RulesXmlPlan(descriptor.toBytes(), RulesXmlMigrations.addedWorkbooks(before, after));
+    }
+
+    private record RulesXmlPlan(byte[] migrated, List<String> newModules) {
     }
 
     /** Every file in the project, listed recursively. */
@@ -153,13 +154,9 @@ public class ProjectMigrationService {
         return filesService.getResources(root, FileCriteriaQuery.builder().build(), true, FileViewMode.FLAT, null);
     }
 
-    private static ProjectDescriptor read(byte[] rulesXml) {
-        return ProjectDescriptor.read(new ByteArrayInputStream(rulesXml));
-    }
-
     /** The project's file paths, relative to the project root and {@code /}-separated, folders excluded. */
-    private static List<String> workbookPaths(List<FsNode> rootFiles) {
-        return rootFiles.stream()
+    private static List<String> projectFiles(List<FsNode> files) {
+        return files.stream()
                 .filter(ProjectMigrationService::isFile)
                 .map(FsNode::getPath)
                 .filter(Objects::nonNull)
@@ -193,16 +190,6 @@ public class ProjectMigrationService {
         return migrated != null && !Arrays.equals(original, migrated);
     }
 
-    /** The {@code rules.xml} bytes after the content migrations, or {@code null} when it cannot be read. */
-    private static byte @Nullable [] migratedRulesXml(byte @Nullable [] original) {
-        var descriptor = parse(original);
-        if (descriptor == null) {
-            return null;
-        }
-        RulesXmlMigrations.apply(descriptor);
-        return descriptor.toBytes();
-    }
-
     /** The {@code rules-deploy.xml} bytes after the content migrations, or {@code null} when it cannot be read. */
     private static byte @Nullable [] migratedRulesDeploy(byte @Nullable [] original) {
         if (original == null) {
@@ -214,10 +201,6 @@ public class ProjectMigrationService {
         }
         RulesDeployMigrations.apply(rulesDeploy);
         return rulesDeploy.toBytes();
-    }
-
-    private static @Nullable ProjectDescriptor parse(byte @Nullable [] rulesXml) {
-        return rulesXml == null ? null : ProjectDescriptor.read(new ByteArrayInputStream(rulesXml));
     }
 
     private byte[] readFile(FileRoot root, String name) {
