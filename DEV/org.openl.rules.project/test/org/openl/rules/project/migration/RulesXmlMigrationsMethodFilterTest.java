@@ -118,15 +118,46 @@ class RulesXmlMigrationsMethodFilterTest {
     }
 
     @Test
-    void testInvalidPatternsIgnored() {
-        // "*" is not valid regex, should be ignored
+    void testUnconvertiblePatternsKeepTheFilter() {
+        // "*" is not a valid regex and "not_matching_anything" is not a signature — neither converts, so the
+        // filter is kept in place rather than dropped, and no exposed-methods are written (no API widening).
         var pd = createProject("TestProject",
                 createModule("Module1", new String[]{"*", "not_matching_anything"}, null));
 
         RulesXmlMigrations.methodFilter(pd);
 
+        var mf = pd.getModules().getFirst().getMethodFilter();
+        assertNotNull(mf);
+        assertTrue(mf.getIncludes().contains("*"));
+        assertTrue(mf.getIncludes().contains("not_matching_anything"));
+        assertNull(pd.getExposedMethods());
+    }
+
+    @Test
+    void testAlternationFilterUnfoldsIntoExposedMethods() {
+        // A (a|b) alternation unfolds into the two names it matches, so the restriction survives exactly.
+        var pd = createProject("TestProject",
+                createModule("Module1", new String[]{".+ calc(Rate|Premium)\\(.+\\)"}, null));
+
+        RulesXmlMigrations.methodFilter(pd);
+
         assertEmptyMethodFilter(pd.getModules().getFirst());
-        // No valid patterns means no exposed-methods
+        var im = pd.getExposedMethods();
+        assertNotNull(im);
+        assertEquals(Set.of("calcRate", "calcPremium"), im.getIncludes());
+    }
+
+    @Test
+    void testOneUnconvertibleFilterKeepsEveryFilter() {
+        // Module1 converts, Module2 (a \d) does not. All-or-nothing: both filters stay, nothing is lifted.
+        var pd = createProject("TestProject",
+                createModule("Module1", new String[]{".+ foo\\(.+\\)"}, null),
+                createModule("Module2", new String[]{".+ getRate\\d\\(.+\\)"}, null));
+
+        RulesXmlMigrations.methodFilter(pd);
+
+        assertNotNull(pd.getModules().get(0).getMethodFilter());
+        assertNotNull(pd.getModules().get(1).getMethodFilter());
         assertNull(pd.getExposedMethods());
     }
 

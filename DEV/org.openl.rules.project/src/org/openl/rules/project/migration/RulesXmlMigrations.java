@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -89,12 +90,16 @@ public final class RulesXmlMigrations {
 
     /**
      * Lifts module-level {@code <method-filter>} blocks to a single project-level {@code <exposed-methods>}.
-     * Each include and exclude regexp is converted to an exposed-methods glob, the results merge with any
-     * existing {@code <exposed-methods>}, and the module-level filters are removed.
+     * Each include and exclude regexp is converted to one or more exposed-methods globs — an alternation such
+     * as {@code .+ calc(Rate|Premium)\(.+\)} unfolds into the matched names {@code calcRate} and
+     * {@code calcPremium} — the results merge with any existing {@code <exposed-methods>}, and the module-level
+     * filters are removed.
      *
-     * <p>A regexp that does not convert to a clean glob is dropped, so a project that used only such patterns
-     * gets no {@code <exposed-methods>} and exposes every method. An already-declared {@code <exposed-methods>}
-     * is preserved and extended, never replaced.
+     * <p>Without compiling the project Studio cannot always reduce a regexp to a glob (a character class, a
+     * {@code \d}, an optional quantifier). When any pattern of any module filter does not convert, every
+     * {@code <method-filter>} is kept in place and no {@code <exposed-methods>} is written, so the migration
+     * never drops a restriction and widens the exposed API. An already-declared {@code <exposed-methods>} is
+     * preserved and extended, never replaced.
      *
      * <p>This is the no-compile counterpart of the {@code openl:migrate} goal's method-filter migrator: it
      * derives globs from the regexp text alone, without building the project, so Studio can run it in place.
@@ -106,15 +111,23 @@ public final class RulesXmlMigrations {
         }
         var includes = new LinkedHashSet<String>();
         var excludes = new LinkedHashSet<String>();
+        var filtered = new ArrayList<Module>();
         for (var module : modules) {
             var filter = module.getMethodFilter();
             if (filter == null) {
                 continue;
             }
-            collectGlobs(filter.getIncludes(), includes);
-            collectGlobs(filter.getExcludes(), excludes);
-            module.setMethodFilter(null);
+            if (!collectGlobs(filter.getIncludes(), includes) || !collectGlobs(filter.getExcludes(), excludes)) {
+                // A pattern does not reduce to a clean glob. Keep every filter in place rather than dropping a
+                // restriction the no-compile path cannot express, which would widen the exposed API.
+                return;
+            }
+            filtered.add(module);
         }
+        if (filtered.isEmpty()) {
+            return;
+        }
+        filtered.forEach(module -> module.setMethodFilter(null));
         var existing = descriptor.getExposedMethods();
         if (existing != null) {
             addAll(existing.getIncludes(), includes);
@@ -133,16 +146,25 @@ public final class RulesXmlMigrations {
         descriptor.setExposedMethods(exposed);
     }
 
-    private static void collectGlobs(Set<String> patterns, Set<String> target) {
+    /**
+     * Converts every pattern to its globs, adding them to {@code target}. A blank pattern is skipped. Returns
+     * {@code false} as soon as a pattern does not reduce to a clean glob, so the caller can keep the filter.
+     */
+    private static boolean collectGlobs(Set<String> patterns, Set<String> target) {
         if (patterns == null) {
-            return;
+            return true;
         }
         for (var pattern : patterns) {
-            var glob = convertRegexToGlob(pattern);
-            if (StringUtils.isNotBlank(glob)) {
-                target.add(glob);
+            if (StringUtils.isBlank(pattern)) {
+                continue;
             }
+            var globs = convertRegexToGlobs(pattern);
+            if (globs.isEmpty()) {
+                return false;
+            }
+            target.addAll(globs);
         }
+        return true;
     }
 
     private static void addAll(Set<String> source, Set<String> target) {
@@ -152,31 +174,45 @@ public final class RulesXmlMigrations {
     }
 
     /**
-     * Converts a legacy method-filter regexp (matched against a full method signature) to an exposed-methods
-     * glob (matched against the method name only). Returns {@code null} when the pattern is not a valid regexp
-     * or cannot be reduced to a clean glob, so the caller drops it.
+     * Converts a legacy method-filter regexp (matched against a full method signature) to the exposed-methods
+     * globs (matched against the method name only). Returns an empty set when the pattern is not a valid
+     * regexp or cannot be reduced to clean globs, so the caller keeps the filter instead of dropping it.
      *
      * <p>The regexp is matched against a {@code returnType methodName(argType1, argTypeN)} signature. Common
      * shapes reduce as {@code .+ methodName\(.+\)} to {@code methodName}, {@code .*} or {@code .+} to the bare
-     * {@code *}, and {@code .*methodName.*} to {@code *methodName*}. Any pattern that still holds a regexp
-     * metacharacter after the reduction is rejected.
+     * {@code *}, and {@code .*methodName.*} to {@code *methodName*}. An alternation — a {@code (a|b)} group or
+     * a top-level {@code sig1|sig2} — unfolds into one glob per branch, so {@code .+ calc(Rate|Premium)\(.+\)}
+     * yields {@code calcRate} and {@code calcPremium}. Any branch that still holds a regexp metacharacter after
+     * the reduction fails the whole pattern.
      */
-    static String convertRegexToGlob(String regex) {
+    static Set<String> convertRegexToGlobs(String regex) {
         if (regex == null || regex.isBlank()) {
-            return null;
+            return Set.of();
         }
         regex = regex.trim();
-
         // Validate that the pattern is a valid regexp and can match a method signature
         try {
             Pattern.compile(regex);
         } catch (PatternSyntaxException e) {
-            // Not a valid regex
-            return null;
+            return Set.of();
         }
+        var globs = new LinkedHashSet<String>();
+        for (var branch : expandAlternations(regex)) {
+            var glob = reduceSignatureToGlob(branch);
+            if (glob == null) {
+                return Set.of();
+            }
+            globs.add(glob);
+        }
+        return globs;
+    }
 
-        var prefix = Pattern.compile("^[^ (]+ ");
-        var matcher = prefix.matcher(regex);
+    /**
+     * Reduces one alternation-free signature regexp to a single name glob, or {@code null} when a regexp
+     * metacharacter survives the reduction.
+     */
+    private static @Nullable String reduceSignatureToGlob(String regex) {
+        var matcher = Pattern.compile("^[^ (]+ ").matcher(regex);
         if (matcher.find()) {
             // remove return type definition
             regex = matcher.replaceFirst("");
@@ -184,35 +220,104 @@ public final class RulesXmlMigrations {
             // does not match to return type definition of the method signature
             return null;
         }
-
-        // Pattern: <returnType> <methodName>(<params>)
-        // e.g., ".+ methodName\(.+\)" or ".* methodName\(.*\)" or ".+ methodName\(\)"
-        var signaturePattern = Pattern.compile("\\\\\\(.*\\\\\\)$");
-        var signatureMatcher = signaturePattern.matcher(regex);
+        // remove the (params) part of "<returnType> <methodName>(<params>)"
+        var signatureMatcher = Pattern.compile("\\\\\\(.*\\\\\\)$").matcher(regex);
         if (signatureMatcher.find()) {
             regex = signatureMatcher.replaceFirst("");
         }
-
-        // Try to convert simple regex patterns in the name part to glob
-        // Replace .* and .+ with glob *, and . with ?
-        regex = regex.replace("(.*)", "*");
-        regex = regex.replace("(.+)", "*");
+        // reduce the simple regexps left in the name part: .* and .+ to *, . to ?
         regex = regex.replace(".*", "*");
         regex = regex.replace(".+", "*");
-        regex = regex.replace("?", "^"); // replace on the illegal symbol due conflict with Glob
+        regex = regex.replace("?", "^"); // ? conflicts with the glob single-character wildcard
         regex = regex.replace(".", "?");
-
-        // check on the illegal symbols in the method name glob
-        for (int i = 0; i < regex.length(); i++) {
-            char c = regex.charAt(i);
+        for (var i = 0; i < regex.length(); i++) {
+            var c = regex.charAt(i);
             if (c == '\\' || c == '[' || c == ']' || c == '(' || c == ')'
                     || c == '{' || c == '}' || c == '|' || c == '^'
                     || c == '+' || c == '.' || c == ' ') {
                 return null;
             }
         }
-        // If the result looks clean (no remaining regex metacharacters), return it
         return regex;
+    }
+
+    /**
+     * Expands a regexp's alternations into branches with none left: each unescaped {@code (a|b)} group is
+     * unfolded by branch (its parentheses removed) and a top-level {@code sig1|sig2} is split into separate
+     * signatures.
+     */
+    private static List<String> expandAlternations(String regex) {
+        var branches = new ArrayList<String>();
+        for (var grouped : expandGroups(regex)) {
+            branches.addAll(splitTopLevel(grouped));
+        }
+        return branches;
+    }
+
+    private static List<String> expandGroups(String regex) {
+        var group = firstUnescapedGroup(regex);
+        if (group == null) {
+            return List.of(regex);
+        }
+        var prefix = regex.substring(0, group[0]);
+        var content = regex.substring(group[0] + 1, group[1]);
+        var suffix = regex.substring(group[1] + 1);
+        var branches = new ArrayList<String>();
+        for (var alternative : splitTopLevel(content)) {
+            branches.addAll(expandGroups(prefix + alternative + suffix));
+        }
+        return branches;
+    }
+
+    /** The bounds of the first unescaped {@code (}…{@code )} group, or {@code null} when there is none. */
+    private static int @Nullable [] firstUnescapedGroup(String regex) {
+        var escaped = false;
+        var open = -1;
+        var depth = 0;
+        for (var i = 0; i < regex.length(); i++) {
+            var c = regex.charAt(i);
+            if (escaped) {
+                escaped = false;
+            } else if (c == '\\') {
+                escaped = true;
+            } else if (c == '(') {
+                if (open < 0) {
+                    open = i;
+                }
+                depth++;
+            } else if (c == ')' && open >= 0 && --depth == 0) {
+                return new int[]{open, i};
+            }
+        }
+        return null;
+    }
+
+    /** Splits on every unescaped {@code |} that sits outside parentheses. */
+    private static List<String> splitTopLevel(String regex) {
+        var parts = new ArrayList<String>();
+        var current = new StringBuilder();
+        var depth = 0;
+        var escaped = false;
+        for (var i = 0; i < regex.length(); i++) {
+            var c = regex.charAt(i);
+            if (!escaped && c == '|' && depth == 0) {
+                parts.add(current.toString());
+                current.setLength(0);
+                continue;
+            }
+            if (escaped) {
+                escaped = false;
+            } else if (c == '\\') {
+                escaped = true;
+            } else if (c == '(') {
+                depth++;
+            } else if (c == ')') {
+                depth--;
+            }
+            current.append(c);
+        }
+        parts.add(current.toString());
+        return parts;
     }
 
     /**
