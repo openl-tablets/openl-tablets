@@ -4,15 +4,14 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `23cf6377`** — every queue row done, every vein closed, no unswept scope; new scope arrives
-  only as new commits on `main`. Never invent a detector to manufacture work. Seven runs idle — expect idleness.
-- The whole idle pass is three calls: `git log 23cf6377..origin/main`, the open-PR check, and one `curl` for
-  `opensaml-bom` (still 000 shibboleth / 404 Central, so webstudio Java stays the one unswept surface; seed the stub
-  only if a build is needed). Check `build-quick.yml` only when that first call shows `main` has moved — on an
-  unchanged SHA its result is already recorded below.
-- **`main` is red and it is not the sweep's doing** — the kafka-native tag, see *CI flakes*. Section 7 bars cleanup
-  while `main` is red, so an idle run stays idle until a green `main` run appears; never re-diagnose an unchanged SHA,
-  and a Dependabot head can sit for hours with no `build-quick.yml` run of its own.
+- **Converged at `main` = `00a66974`** — every queue row done, every vein closed, no unswept scope; new scope arrives
+  only as new commits on `main`. Never invent a detector to manufacture work. Eight runs idle — expect idleness.
+- The idle pass is two calls: `git log 00a66974..origin/main` and the open-PR check. Check `build-quick.yml` only
+  when the first shows `main` has moved. `opensaml-bom` is still 000 shibboleth / 404 Central, so webstudio Java
+  stays the one unswept surface; seed the stub only if a build is needed.
+- **`main` is red at that head and it is not the sweep's doing** — the kafka-native tag, see *CI flakes*. Section 7
+  bars cleanup while `main` is red, so a run with a finding waits for a green `main`; never re-diagnose an unchanged
+  SHA, and a Dependabot head can sit for hours with no `build-quick.yml` run of its own.
 - When scope arrives, sweep only the files those commits touch — skip webstudio Java, ITEST fixtures, `Docs/` and
   `.github/`. A commit deleting a screen is the richest vein: check the locale keys, service functions, helper
   modules and dropped `throws` clauses it used before assuming the author cleaned up.
@@ -343,9 +342,9 @@ None. Open the next one from a fresh branch off the current `main`.
   `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
   entry on runtime wiring.
-- Incremental `main` scope (SHA reached is in *Resume point*): studio-ui TraceView, and EPBDS-8537 branch marking —
-  its new exports, locale keys and helpers are all referenced, and the `ManageBranchesModal` it deleted left no
-  orphan (the author removed `browser.branch.manage`/`.manage_hint` with it). Dependabot bumps add no surface.
+- Incremental `main` scope (SHA reached is in *Resume point*): studio-ui TraceView, EPBDS-8537 branch marking and
+  EPBDS-16358 server-side table copy — each author's own deletion was already complete, leaving no orphaned export,
+  locale key, bundle key or helper. Dependabot bumps and Spotless pom tuning add no surface.
 - Every `org.openl.*` class name referenced from `.xml`, `.xhtml`, `.properties`, `.tld`, `.yaml`, `.json` and
   `.txt`, resolved against the source tree. The ~90 with no `.java` are all runtime-generated datatype and
   spreadsheet-result beans or rule-project fixtures under test resources. No stale configuration exists.
@@ -380,6 +379,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run thirty-four. Idle at the same head; compacted the resume point to spec, 390 to 384 lines.
 - 08-04 — run thirty-five. Idle; `main` advanced by one Dependabot pom bump, which adds no surface.
 - 08-04 — run thirty-six. Idle at the same head; dropped the CI call from the unchanged-SHA idle pass.
+- 08-04 — run thirty-seven. EPBDS-16358 landed a real vein; swept it and found no orphan. Nothing to commit.
