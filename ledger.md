@@ -4,21 +4,17 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **The sweep has converged.** Every queue row is done, every vein below is closed, and `main` is still at
-  `83feec71` — #1940's own last commit — so there is no unswept scope at all. New scope arrives only as new
-  commits on `main`.
-- Each run: diff `git log --name-status 83feec71..origin/main`, sweep only the source files it touches, skip
-  webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Never invent a detector to manufacture work; a run whose
-  only product is compaction is a successful run.
-- A feature commit that deletes a screen is the richest incremental vein: check the locale keys, service functions
-  and helper modules it used, and the `throws` clauses it dropped, before assuming the author cleaned up.
-- The idle pass is four calls: `git log` against `origin/main`, the open-PR check, the workflow-run check, and one
-  `curl` for `opensaml-bom` — still 000 shibboleth and 404 Central, so webstudio Java stays the one unswept
-  surface. Seed the stub only if a build is actually needed. Three consecutive runs have now been idle at this same
-  head; expect idleness and spend nothing beyond those four calls plus the ledger push.
-- **`main`'s head is red and it is not the sweep's doing** — the kafka-native floating tag, now four consecutive
-  `main` runs (see *CI flakes*). Section 7 bars cleanup while `main` is red, so an idle run stays idle until a green
-  `main` run appears. While the head SHA is unchanged the verdict holds; do not re-diagnose the same run.
+- **Converged, and `main` is still at `83feec71`** — every queue row done, every vein closed, no unswept scope; new
+  scope arrives only as new commits on `main`. Never invent a detector to manufacture work.
+- The whole idle pass is four calls: `git log 83feec71..origin/main`, the open-PR check, the newest `build-quick.yml`
+  run on `main`, one `curl` for `opensaml-bom` (still 000 shibboleth / 404 Central, so webstudio Java stays the one
+  unswept surface; seed the stub only if a build is needed). Five runs idle at this head — expect idleness.
+- **`main`'s head run is red and not the sweep's doing** — the kafka-native tag, see *CI flakes*. Section 7 bars
+  cleanup while `main` is red, so an idle run stays idle until a green `main` run appears; do not re-diagnose an
+  unchanged SHA.
+- When scope arrives, sweep only the files those commits touch — skip webstudio Java, ITEST fixtures, `Docs/` and
+  `.github/`. A commit deleting a screen is the richest vein: check the locale keys, service functions, helper
+  modules and dropped `throws` clauses it used before assuming the author cleaned up.
 
 ## Change-type queue
 
@@ -358,10 +354,8 @@ None. Open the next one from a fresh branch off the current `main`.
 - **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
   import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
   or swept until then, and the stub has to be re-seeded on every container rebuild.
-- **`itest.tracing` and `itest.kafka` both start `apache/kafka-native:latest`, an unpinned tag whose image
-  intermittently segfaults in its own bootstrap** and has now left `main` red on four consecutive commits. Pinning
-  it to a released version would stop a third-party push from reddening CI; this routine only deletes, so it cannot
-  make the change.
+- **`itest.tracing` and `itest.kafka` both start the unpinned `apache/kafka-native:latest`** (see *CI flakes*), whose
+  image segfaults in its own bootstrap and keeps reddening `main`. Pinning it to a released version needs a human.
 - The weekly `build.yml` cross-platform matrix has been red on `main` since 2026-07-01 (details in *CI flakes*).
   Nobody has diagnosed it; it needs an owner, and it is not a dead-code question.
 - `OverviewPanel.tsx` starts two unawaited promises that resolve into state setters, at lines 797 and 1227. Nothing
@@ -385,6 +379,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-03 — run thirty-one. No new scope; named the flake's job `IT (services-data)`, recorded the red weekly `build.yml`.
 - 08-03 — run thirty-two. Nothing moved — same head, same red run, opensaml still blocked, no open PR, no commit.
 - 08-03 — run thirty-three. Idle again at the same head; only sharpened the workflow-listing branch-filter fact.
+- 08-04 — run thirty-four. Idle at the same head; compacted the resume point to spec, 390 to 384 lines.
