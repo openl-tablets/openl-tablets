@@ -169,6 +169,13 @@ skip the conversion — the reconciliation would then delete every unconverted l
 and destroy uncommitted work. Because the step is idempotent and touches only folders with a legacy link,
 it runs on every start.
 
+A single-user installation upgraded from before EPBDS-16213 also has its workspace directory moved: the
+single user defaulted to `DEFAULT` and now defaults to the OS account, so the folder is renamed to the
+resolved user name before the conversion above records its projects. Without the rename 6.4.0 would read a
+fresh empty workspace while the previous one is abandoned — and, once the renamed folder is read, the
+unconverted projects in it would be deleted as strays. The move runs only when the legacy folder exists and
+the target does not, so it never overwrites an existing workspace.
+
 ## Implementation Map
 
 - `MetainfoRegistry`, `ProjectMetainfo` (`org.openl.rules.project.impl.local`) — the record model, atomic
@@ -185,5 +192,6 @@ it runs on every start.
 - `WorkspaceRegistryReconciler` (`org.openl.studio.security`) — triggers the reconciliation on every
   interactive sign-in.
 - `RulesProject` — captures the synchronization snapshot (project link + file baselines) on open and save.
-- `Migrator` — the `.studioProps` conversion, run unconditionally on every start.
+- `Migrator` — the `.studioProps` conversion and the single-user workspace rename, run unconditionally on
+  every start.
 - `FolderHelper`, `ProjectHistoryService` — the edit-history location and its maintenance.
