@@ -220,9 +220,15 @@ vi.mock('antd', async () => {
     const Tooltip = ({ children }: { children?: unknown }) => <>{children as never}</>
     const Skeleton = () => <div>skeleton</div>
     const Spin = () => <div>spin</div>
-    const Alert = ({ action, title, description, showIcon, type, ...rest }: Record<string, unknown>) => {
+    const Alert = ({ action, title, description, showIcon, type, closable, ...rest }: Record<string, unknown>) => {
         drop({ showIcon, type })
-        return <div {...rest}>{title as never}{description as never}{action as never}</div>
+        const onClose = (closable as { onClose?: () => void } | undefined)?.onClose
+        return (
+            <div {...rest}>
+                {title as never}{description as never}{action as never}
+                {closable ? <button aria-label="close" onClick={onClose} type="button" /> : null}
+            </div>
+        )
     }
 
     const Typography = ({ children }: { children?: unknown }) => <span>{children as never}</span>
@@ -735,6 +741,56 @@ describe('ProjectsHome', () => {
 
         expect(screen.getByTestId('projects-indexing')).toHaveTextContent('home.indexing')
         expect(screen.queryByTestId('projects-empty')).toBeNull()
+    })
+
+    it('notes in the summary line that a repository is still indexing, and names them on demand', async () => {
+        vi.mocked(getProjects).mockResolvedValue({
+            ...projectsPage(projects, projects.length, false),
+            projectIndexHealth: {
+                design: { state: 'indexing', failedBranches: []},
+            },
+        })
+        await renderHome()
+
+        // The note stays in the summary line; the names only appear when the user asks for them.
+        expect(screen.getByTestId('projects-indexing-toggle')).toHaveTextContent('home.indexing_repositories')
+        expect(screen.queryByTestId('projects-indexing-banner')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('projects-indexing-toggle'))
+        expect(screen.getByTestId('projects-indexing-banner')).toHaveTextContent('home.indexing_banner')
+
+        await userEvent.click(screen.getByTestId('projects-indexing-toggle'))
+        expect(screen.queryByTestId('projects-indexing-banner')).toBeNull()
+    })
+
+    it('still reports that filters matched nothing while a repository is indexing', async () => {
+        vi.mocked(getProjects).mockResolvedValue({
+            ...projectsPage(projects, projects.length, false),
+            projectIndexHealth: {
+                design: { state: 'indexing', failedBranches: []},
+            },
+        })
+        await renderHome()
+
+        await userEvent.type(screen.getByPlaceholderText('home.search_placeholder'), 'nothing-matches-this')
+
+        // The indexing state must not stand in for "your filter hid everything", or the screen reads as a hang.
+        expect(await screen.findByTestId('projects-no-match')).toBeTruthy()
+        expect(screen.getByTestId('projects-clear-filters')).toBeTruthy()
+        expect(screen.queryByTestId('projects-indexing')).toBeNull()
+    })
+
+    it('shows no indexing note once every repository is ready', async () => {
+        vi.mocked(getProjects).mockResolvedValue({
+            ...projectsPage(projects, projects.length, false),
+            projectIndexHealth: {
+                design: { state: 'ready', failedBranches: []},
+            },
+        })
+        await renderHome()
+
+        expect(screen.queryByTestId('projects-indexing-toggle')).toBeNull()
+        expect(screen.queryByTestId('projects-indexing-banner')).toBeNull()
     })
 
     it('shows an error state when loading fails', async () => {
