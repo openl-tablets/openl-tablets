@@ -74,6 +74,8 @@ export interface ProjectDependency {
     branchProtected?: boolean
     /** Whether rules.xml declares this project but the workspace has no such project. */
     missing?: boolean
+    /** Whether another dependency declares this one instead of the project itself. */
+    transitive?: boolean
 }
 
 /**

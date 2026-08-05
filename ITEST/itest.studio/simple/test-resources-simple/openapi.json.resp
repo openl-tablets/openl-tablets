@@ -22564,6 +22564,10 @@ Content-Type: application/json
               "EDITING",
               "CLOSED"
             ]
+          },
+          "transitive": {
+            "type": "boolean",
+            "description": "***"
           }
         },
         "required": [
@@ -22613,6 +22617,10 @@ Content-Type: application/json
               "EDITING",
               "CLOSED"
             ]
+          },
+          "transitive": {
+            "type": "boolean",
+            "description": "***"
           }
         },
         "required": [
@@ -22662,6 +22670,10 @@ Content-Type: application/json
               "EDITING",
               "CLOSED"
             ]
+          },
+          "transitive": {
+            "type": "boolean",
+            "description": "***"
           }
         },
         "required": [

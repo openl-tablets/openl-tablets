@@ -1,0 +1,7 @@
+PATCH /rest/projects/{CONSUMER_ID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "branch": "master"
+}

@@ -100,6 +100,23 @@ paths cannot be used for this association because mapped paths may differ by bra
 Each dependency must keep its own effective branch. Resolving a dependency must not switch it to the declaring
 project's branch.
 
+A dependency must be resolved inside the branch of the declaring project. A project of the same repository counts
+only when that branch contains it — membership comes from the index, not from the branch the workspace happens to
+show the project on. A name the branch does not contain stays unresolved and is reported as missing, because the
+copy another branch keeps is a different version of the same content rather than another project.
+
+The declaring project's branch scopes the lookup and nothing else. It decides membership; it never becomes the
+resolved dependency's branch. The dependency keeps its own effective branch, and that branch is what selects the
+version compiled and opened — which is why a dependency the workspace shows on another branch is reported as
+such, for the user to switch, rather than silently re-pointed.
+
+Another repository is the exception to the scope: nothing keeps the branches of two repositories in step, so a
+match there counts whatever branch it is on. The same rule decides which projects a project reports as its
+dependents.
+
+The declared dependencies and everything they pull in are both reported, and each says which of the two it is, so
+the list can be read against the `rules.xml` that declares only the direct ones.
+
 ## Repository and Mapping Contracts
 
 ### Branch operations

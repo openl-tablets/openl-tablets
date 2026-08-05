@@ -1,0 +1,13 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "Consumer",
+  "branch": "side",
+  "dependencies": [
+    {
+      "name": "Provider",
+      "missing": true
+    }
+  ]
+}
