@@ -133,7 +133,15 @@ class DesignTimeRepositoryImplTest {
         var published = new CountDownLatch(1);
         try (var index = new BranchedProjectIndexService()) {
             var repository = new TestDesignTimeRepository(properties, index, root);
-            repository.addListener(published::countDown);
+            // The default branch's project is mapped across branches early; wait for the complete snapshot, where
+            // the branch that does not hold it drops it again.
+            repository.addListener(() -> {
+                if (repository.getProjectIndexHealth("design")
+                        .filter(health -> health.state() == BranchedProjectIndexService.IndexState.READY)
+                        .isPresent()) {
+                    published.countDown();
+                }
+            });
             repository.init();
 
             assertTrue(published.await(5, TimeUnit.SECONDS));
@@ -200,6 +208,35 @@ class DesignTimeRepositoryImplTest {
             var health = repository.getProjectIndexHealth("design").orElseThrow();
             assertEquals(BranchedProjectIndexService.IndexState.DEGRADED, health.state());
             assertEquals("Repository branches cannot be indexed.", health.lastError());
+            repository.destroy();
+        }
+    }
+
+    @Test
+    void keepsConfiguredBranchFallbackWhenTheFirstBuildIndexesNoBranch() throws Exception {
+        var root = branchRepository("main");
+        when(root.listFolders("DESIGN/")).thenReturn(List.of(fileData("DESIGN/Rates")));
+        when(root.listBranches()).thenReturn(List.of("main", "feature/rates"));
+        when(root.getBranchStatuses(anyCollection())).thenAnswer(invocation -> statuses(invocation.getArgument(0)));
+        when(root.getBranchTreeRevisions(anyCollection(), anyString()))
+                .thenThrow(new IOException("Provider credentials leaked here"));
+
+        var properties = mock(PropertyResolver.class);
+        when(properties.getProperty("design-repository-configs")).thenReturn("design");
+        when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
+        var published = new CountDownLatch(1);
+        try (var index = new BranchedProjectIndexService()) {
+            var repository = new TestDesignTimeRepository(properties, index, root);
+            repository.addListener(published::countDown);
+            repository.init();
+
+            assertTrue(published.await(5, TimeUnit.SECONDS));
+            // The build published a snapshot holding no branch at all, so the configured-branch listing must
+            // still be shown rather than an empty workspace.
+            assertEquals(List.of("Rates"),
+                    repository.getProjects().stream().map(AProject::getBusinessName).toList());
+            assertEquals(BranchedProjectIndexService.IndexState.DEGRADED,
+                    repository.getProjectIndexHealth("design").orElseThrow().state());
             repository.destroy();
         }
     }

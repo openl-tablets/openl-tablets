@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -67,13 +68,20 @@ public final class BranchedProjectIndexService implements AutoCloseable {
     /**
      * Registers a repository and starts its initial index build.
      *
+     * <p>The build publishes twice: an early snapshot with the default branch's projects mapped across every branch
+     * that holds them, then a complete snapshot that also lists projects living only on non-default branches.
+     * {@code onPublished} runs after each publish so a reader can refresh.
+     *
      * @param repository     branch-capable design repository
-     * @param discoveryPath repository-relative path listed for projects
-     * @return a stage completed after the first successful repository snapshot
+     * @param discoveryPath  repository-relative path listed for projects
+     * @param onPublished    runs after every snapshot the build publishes
+     * @return a stage completed after the first complete repository snapshot
      */
-    public CompletionStage<RepositorySnapshot> register(BranchRepository repository, String discoveryPath) {
+    public CompletionStage<RepositorySnapshot> register(BranchRepository repository,
+                                                        String discoveryPath,
+                                                        Runnable onPublished) {
         ensureOpen();
-        var coordinator = new Coordinator(repository, normalizeDiscoveryPath(discoveryPath));
+        var coordinator = new Coordinator(repository, normalizeDiscoveryPath(discoveryPath), onPublished);
         var existing = coordinators.putIfAbsent(repository.getId(), coordinator);
         if (existing != null) {
             throw new IllegalStateException("Repository '%s' is already registered.".formatted(repository.getId()));
@@ -82,7 +90,11 @@ public final class BranchedProjectIndexService implements AutoCloseable {
     }
 
     /**
-     * Returns the latest completed snapshot. The initial snapshot has {@link IndexState#INDEXING} health.
+     * Returns the latest published snapshot.
+     *
+     * <p>Until the first build publishes, that is an empty placeholder. A snapshot published while health is
+     * {@link IndexState#INDEXING} lists the default branch's projects across their branches, but not yet the
+     * projects that live only on other branches.
      */
     public RepositorySnapshot getSnapshot(String repositoryId) {
         ensureOpen();
@@ -241,11 +253,14 @@ public final class BranchedProjectIndexService implements AutoCloseable {
 
     /**
      * The atomically published project index for one design repository.
+     *
+     * @param published whether a build already replaced the placeholder every repository starts with
      */
     public record RepositorySnapshot(@NonNull String repositoryId,
                                      @NonNull Map<@NonNull String, @NonNull BranchSnapshot> branches,
                                      @NonNull Map<@NonNull String, @NonNull ProjectSnapshot> projects,
-                                     @NonNull IndexHealth health) {
+                                     @NonNull IndexHealth health,
+                                     boolean published) {
         public RepositorySnapshot {
             Objects.requireNonNull(repositoryId);
             branches = immutableMap(branches);
@@ -254,7 +269,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         }
 
         private static RepositorySnapshot indexing(String repositoryId) {
-            return new RepositorySnapshot(repositoryId, Map.of(), Map.of(), IndexHealth.indexing());
+            return new RepositorySnapshot(repositoryId, Map.of(), Map.of(), IndexHealth.indexing(), false);
         }
 
         public Optional<ProjectSnapshot> project(String name) {
@@ -266,6 +281,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         private final BranchRepository repository;
         private final String discoveryPath;
         private final String revisionPath;
+        private final Runnable onPublished;
         private final AtomicReference<RepositorySnapshot> snapshot;
         private final Object monitor = new Object();
         private final Set<String> dirtyBranches = new HashSet<>();
@@ -277,9 +293,10 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         private long generation;
         private long invalidationSequence;
 
-        private Coordinator(BranchRepository repository, String discoveryPath) {
+        private Coordinator(BranchRepository repository, String discoveryPath, Runnable onPublished) {
             this.repository = repository;
             this.discoveryPath = discoveryPath;
+            this.onPublished = onPublished;
             revisionPath = getRevisionPath(repository, discoveryPath);
             snapshot = new AtomicReference<>(RepositorySnapshot.indexing(repository.getId()));
         }
@@ -328,15 +345,25 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         }
 
         private void run() {
+            try {
+                index();
+            } finally {
+                // Whatever ended the pass, the coordinator must not stay marked as running: a later
+                // invalidation has to be able to schedule it again.
+                synchronized (monitor) {
+                    scheduled = false;
+                }
+            }
+        }
+
+        private void index() {
             while (true) {
                 Work work;
                 synchronized (monitor) {
-                    if (stopped || closed.get()) {
-                        scheduled = false;
+                    if (stopped || abandoned()) {
                         return;
                     }
                     if (!dirtyRepository && dirtyBranches.isEmpty()) {
-                        scheduled = false;
                         return;
                     }
                     work = new Work(Set.copyOf(dirtyBranches), generation, invalidationSequence);
@@ -347,16 +374,40 @@ public final class BranchedProjectIndexService implements AutoCloseable {
                 var outcome = build(work);
                 List<WaiterCompletion> completions;
                 synchronized (monitor) {
-                    if (stopped || closed.get() || generation != work.generation()) {
+                    // An abandoned pass stopped part-way through the branches, so its result describes less than
+                    // the repository holds and must never replace the published snapshot.
+                    if (stopped || abandoned() || generation != work.generation()) {
                         continue;
                     }
-                    if (outcome.snapshot() != null) {
-                        snapshot.set(outcome.snapshot());
-                    }
+                    snapshot.set(outcome.snapshot());
                     dirtyBranches.addAll(outcome.retryBranches());
                     completions = collectWaiterCompletions(work, outcome);
                 }
+                notifyPublished();
                 completions.forEach(WaiterCompletion::complete);
+            }
+        }
+
+        /**
+         * Whether the pass must give up before the next branch. Closing the index and interrupting the thread that
+         * carries the scan mean the same thing, and a repository with many branches takes long enough that waiting
+         * for the whole pass to end would hold the repository open well past shutdown.
+         *
+         * <p>The interrupt is left set, so the thread still ends as interrupted.
+         */
+        private boolean abandoned() {
+            return closed.get() || Thread.currentThread().isInterrupted();
+        }
+
+        /**
+         * Tells the reader that a snapshot is available. A reader that fails to take it must not stop the
+         * repository from being indexed, so its failure is reported and the pass continues.
+         */
+        private void notifyPublished() {
+            try {
+                onPublished.run();
+            } catch (RuntimeException e) {
+                log.error("Failed to publish the project index of repository '{}'.", repository.getId(), e);
             }
         }
 
@@ -422,48 +473,176 @@ public final class BranchedProjectIndexService implements AutoCloseable {
             }
 
             var retryBranches = new HashSet<String>();
-            for (String branch : candidates) {
-                if (failures.containsKey(branch)) {
-                    continue;
-                }
-                var status = statuses.get(branch);
-                var revision = revisions.get(branch);
-                var old = revision == null ? null : previous.branches().get(branch);
-                if (revision == null) {
-                    failures.put(branch, TREE_ERROR);
-                } else if (old != null && canReuse(old, status, revision)) {
-                    nextBranches.put(branch,
-                            new BranchSnapshot(branch, status, revision.treeRevision(), old.projects()));
-                    succeeded.add(branch);
-                } else {
-                    try {
-                        var scanned = scanBranch(branch, status, revision.treeRevision());
-                        var verified = repository.getBranchStatuses(List.of(branch)).get(branch);
-                        if (verified == null ||
-                                !status.lastCommitRevision().equals(verified.lastCommitRevision())) {
-                            retryBranches.add(branch);
-                        } else {
-                            nextBranches.put(branch, scanned);
-                            succeeded.add(branch);
-                        }
-                    } catch (Exception e) {
-                        log.error("Failed to index branch '{}' in repository '{}'.", branch, repository.getId(), e);
-                        failures.put(branch, SCAN_ERROR);
-                    }
+            var scan = new ScanState(previous, statuses, revisions, nextBranches, failures, succeeded, retryBranches);
+
+            // Phase 1: index the default branch first, then map its projects onto every branch that holds them, so
+            // those projects appear across all their branches before the slower discovery of the rest runs. Only the
+            // first build has nothing to show yet; later ones already serve a full snapshot and skip the early pass.
+            var baseBranch = resolveBaseBranch(branchNames);
+            if (candidates.remove(baseBranch)) {
+                scanCandidate(baseBranch, scan);
+                if (!previous.published()) {
+                    publishIntermediate(intermediateSnapshot(branchNames, baseBranch, scan), work);
                 }
             }
 
-            var orderedBranches = new LinkedHashMap<String, BranchSnapshot>();
-            branchNames.forEach(branch -> Optional.ofNullable(nextBranches.get(branch))
-                    .ifPresent(value -> orderedBranches.put(branch, value)));
-            var projects = buildProjects(orderedBranches.values(), repository.getBaseBranch());
-            var healthFailures = new LinkedHashMap<>(failures);
-            retryBranches.forEach(branch -> healthFailures.put(branch, "Branch changed while it was indexed."));
+            // Phase 2: index the remaining branches, surfacing projects that live only on non-default branches.
+            for (String branch : candidates) {
+                scanCandidate(branch, scan);
+            }
+
+            return finish(branchNames, scan);
+        }
+
+        /**
+         * Indexes one branch: reuses the previous snapshot when its tree is unchanged, otherwise scans it and retries
+         * if the branch tip moved while the scan ran.
+         */
+        private void scanCandidate(String branch, ScanState scan) {
+            if (abandoned() || scan.failures().containsKey(branch)) {
+                return;
+            }
+            var status = scan.statuses().get(branch);
+            var revision = scan.revisions().get(branch);
+            var old = revision == null ? null : scan.previous().branches().get(branch);
+            if (revision == null) {
+                scan.failures().put(branch, TREE_ERROR);
+            } else if (old != null && canReuse(old, status, revision)) {
+                scan.nextBranches().put(branch,
+                        new BranchSnapshot(branch, status, revision.treeRevision(), old.projects()));
+                scan.succeeded().add(branch);
+            } else {
+                try {
+                    var scanned = scanBranch(branch, status, revision.treeRevision());
+                    var verified = repository.getBranchStatuses(List.of(branch)).get(branch);
+                    if (verified == null || !status.lastCommitRevision().equals(verified.lastCommitRevision())) {
+                        scan.retryBranches().add(branch);
+                    } else {
+                        scan.nextBranches().put(branch, scanned);
+                        scan.succeeded().add(branch);
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to index branch '{}' in repository '{}'.", branch, repository.getId(), e);
+                    scan.failures().put(branch, SCAN_ERROR);
+                }
+            }
+        }
+
+        private BuildOutcome finish(List<String> branchNames, ScanState scan) {
+            var healthFailures = new LinkedHashMap<>(scan.failures());
+            scan.retryBranches().forEach(branch -> healthFailures.put(branch, "Branch changed while it was indexed."));
             var health = healthFailures.isEmpty()
                     ? new IndexHealth(IndexState.READY, Set.of(), null)
                     : new IndexHealth(IndexState.DEGRADED, failedBranchNames(healthFailures), lastError(healthFailures));
-            var updated = new RepositorySnapshot(repository.getId(), orderedBranches, projects, health);
-            return new BuildOutcome(updated, succeeded, retryBranches, failures);
+            var updated = snapshotOf(orderBranches(branchNames, scan.nextBranches()), health);
+            return new BuildOutcome(updated, scan.succeeded(), scan.retryBranches(), scan.failures());
+        }
+
+        /**
+         * The early snapshot: the branches indexed so far, plus the default branch's projects mapped onto every other
+         * branch whose tree still holds them. It reports {@link IndexState#INDEXING} because Phase 2 has not run yet.
+         */
+        private RepositorySnapshot intermediateSnapshot(List<String> branchNames, String baseBranch, ScanState scan) {
+            var branches = new LinkedHashMap<>(scan.nextBranches());
+            var baseSnapshot = branches.get(baseBranch);
+            if (baseSnapshot != null && !baseSnapshot.projects().isEmpty()) {
+                branches.putAll(baseProjectMembership(baseSnapshot, branchNames, baseBranch, scan));
+            }
+            return snapshotOf(orderBranches(branchNames, branches), IndexHealth.indexing());
+        }
+
+        private RepositorySnapshot snapshotOf(Map<String, BranchSnapshot> branches, IndexHealth health) {
+            return new RepositorySnapshot(repository.getId(),
+                    branches,
+                    buildProjects(branches.values(), repository.getBaseBranch()),
+                    health,
+                    true);
+        }
+
+        /**
+         * Maps each default-branch project onto every not-yet-indexed branch whose tree still holds it, so those
+         * projects are listed across their branches before the branches themselves are scanned.
+         */
+        private Map<String, BranchSnapshot> baseProjectMembership(BranchSnapshot baseSnapshot,
+                                                                  List<String> branchNames,
+                                                                  String baseBranch,
+                                                                  ScanState scan) {
+            var statuses = scan.statuses();
+            var views = new LinkedHashMap<String, BranchRepository>();
+            branchNames.stream()
+                    .filter(branch -> !branch.equals(baseBranch))
+                    .filter(branch -> statuses.get(branch) != null)
+                    .filter(branch -> !scan.nextBranches().containsKey(branch))
+                    .forEach(branch -> selectBranch(branch).ifPresent(view -> views.put(branch, view)));
+            if (views.isEmpty()) {
+                return Map.of();
+            }
+
+            var projectsByBranch = new LinkedHashMap<String, Map<String, BranchProject>>();
+            baseSnapshot.projects().forEach((key, baseProject) -> membership(views.keySet(), baseProject)
+                    .forEach(branch -> projectsByBranch.computeIfAbsent(branch, ignored -> new LinkedHashMap<>())
+                            .put(key, memberProject(baseProject, branch, statuses.get(branch), views.get(branch)))));
+
+            var result = new LinkedHashMap<String, BranchSnapshot>();
+            projectsByBranch.forEach((branch, projects) ->
+                    result.put(branch, new BranchSnapshot(branch, statuses.get(branch), null, projects)));
+            return result;
+        }
+
+        /** The branches whose current tree holds the project, resolved with one path-scoped revision lookup. */
+        private Collection<String> membership(Collection<String> branches, BranchProject project) {
+            try {
+                return repository.getBranchTreeRevisions(branches, project.externalPath())
+                        .entrySet()
+                        .stream()
+                        .filter(entry -> entry.getValue().treeRevision() != null)
+                        .map(Map.Entry::getKey)
+                        .toList();
+            } catch (Exception e) {
+                log.warn("Failed to map project '{}' across branches in repository '{}'.",
+                        project.externalName(), repository.getId(), e);
+                return List.of();
+            }
+        }
+
+        private Optional<BranchRepository> selectBranch(String branch) {
+            try {
+                return Optional.of(repository.forBranch(branch));
+            } catch (IOException e) {
+                log.warn("Failed to select branch '{}' in repository '{}'.", branch, repository.getId(), e);
+                return Optional.empty();
+            }
+        }
+
+        private static BranchProject memberProject(BranchProject baseProject,
+                                                   String branch,
+                                                   BranchStatus status,
+                                                   BranchRepository view) {
+            return new BranchProject(baseProject.externalName(),
+                    baseProject.externalPath(),
+                    baseProject.internalPath(),
+                    branch,
+                    view,
+                    branchFileData(baseProject.fileData(), branch, status));
+        }
+
+        private void publishIntermediate(RepositorySnapshot intermediate, Work work) {
+            if (intermediate.projects().isEmpty()) {
+                // Nothing to show yet: keep the placeholder so readers stay on the configured-branch listing.
+                return;
+            }
+            synchronized (monitor) {
+                if (stopped || abandoned() || generation != work.generation()) {
+                    return;
+                }
+                snapshot.set(intermediate);
+            }
+            notifyPublished();
+        }
+
+        private String resolveBaseBranch(List<String> branchNames) {
+            var configured = repository.getBaseBranch();
+            return actualBranch(branchNames, configured).orElse(configured);
         }
 
         private static boolean canReuse(BranchSnapshot old, BranchStatus status, BranchTreeRevision revision) {
@@ -566,6 +745,23 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         return slash < 0 ? externalPath : externalPath.substring(slash + 1);
     }
 
+    /**
+     * Derives a branch-scoped file record for a project already indexed on the default branch, keeping its external
+     * identity while reporting the target branch and its tip revision and author.
+     */
+    private static FileData branchFileData(FileData source, String branch, BranchStatus status) {
+        var copy = new FileData();
+        copy.setName(source.getName());
+        copy.setBranch(branch);
+        copy.setVersion(status.lastCommitRevision());
+        copy.setAuthor(status.lastCommitAuthor());
+        copy.setComment(status.lastCommitMessage());
+        copy.setModifiedAt(Date.from(status.lastCommitAt()));
+        copy.setUniqueId(source.getUniqueId());
+        source.getAdditionalData().values().forEach(copy::addAdditionalData);
+        return copy;
+    }
+
     private static String getRevisionPath(BranchRepository repository, String discoveryPath) {
         if (repository instanceof FolderMapper || discoveryPath.isEmpty()) {
             return "";
@@ -602,17 +798,29 @@ public final class BranchedProjectIndexService implements AutoCloseable {
     private static String chooseHomeBranch(Set<String> branches,
                                            Map<String, BranchSnapshot> snapshots,
                                            String baseBranch) {
-        var actualBaseBranch = branches.stream()
-                .filter(branch -> branch.equalsIgnoreCase(baseBranch))
-                .findFirst();
-        if (actualBaseBranch.isPresent()) {
-            return actualBaseBranch.orElseThrow();
-        }
-        return branches.stream()
+        return actualBranch(branches, baseBranch).orElseGet(() -> branches.stream()
                 .min(Comparator
                         .comparing((String branch) -> commitTime(snapshots.get(branch))).reversed()
                         .thenComparing(BRANCH_ORDER))
-                .orElseThrow();
+                .orElseThrow());
+    }
+
+    /**
+     * The actual ref matching a configured branch name, whatever casing the configuration used.
+     */
+    private static Optional<String> actualBranch(Collection<String> branches, String configured) {
+        return branches.stream().filter(branch -> branch.equalsIgnoreCase(configured)).findFirst();
+    }
+
+    /**
+     * The given branch snapshots in repository listing order.
+     */
+    private static Map<String, BranchSnapshot> orderBranches(List<String> branchNames,
+                                                             Map<String, BranchSnapshot> byBranch) {
+        var ordered = new LinkedHashMap<String, BranchSnapshot>();
+        branchNames.forEach(branch -> Optional.ofNullable(byBranch.get(branch))
+                .ifPresent(value -> ordered.put(branch, value)));
+        return ordered;
     }
 
     private static Instant commitTime(BranchSnapshot snapshot) {
@@ -621,7 +829,11 @@ public final class BranchedProjectIndexService implements AutoCloseable {
 
     private static RepositorySnapshot withHealth(RepositorySnapshot snapshot, Map<String, String> failures) {
         var health = new IndexHealth(IndexState.DEGRADED, failedBranchNames(failures), lastError(failures));
-        return new RepositorySnapshot(snapshot.repositoryId(), snapshot.branches(), snapshot.projects(), health);
+        return new RepositorySnapshot(snapshot.repositoryId(),
+                snapshot.branches(),
+                snapshot.projects(),
+                health,
+                snapshot.published());
     }
 
     private static Set<String> failedBranchNames(Map<String, String> failures) {
@@ -647,6 +859,15 @@ public final class BranchedProjectIndexService implements AutoCloseable {
     }
 
     private record Work(Set<String> branches, long generation, long invalidationSequence) {
+    }
+
+    private record ScanState(RepositorySnapshot previous,
+                             Map<String, BranchStatus> statuses,
+                             Map<String, BranchTreeRevision> revisions,
+                             Map<String, BranchSnapshot> nextBranches,
+                             Map<String, String> failures,
+                             Set<String> succeeded,
+                             Set<String> retryBranches) {
     }
 
     private record Waiter(@Nullable String branch,
@@ -676,7 +897,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         }
     }
 
-    private record BuildOutcome(@Nullable RepositorySnapshot snapshot,
+    private record BuildOutcome(RepositorySnapshot snapshot,
                                 Set<String> succeededBranches,
                                 Set<String> retryBranches,
                                 Map<String, String> failures) {

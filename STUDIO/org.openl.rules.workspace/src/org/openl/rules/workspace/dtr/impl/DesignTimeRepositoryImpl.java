@@ -101,9 +101,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 repositories.add(repository);
                 if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
                     configuredBranchFallbacks.put(repository.getId(), scanProjects(repository));
-                    var initialBuild = indexService.register(branchRepository, rulesLocation);
+                    // The callback runs after both the early default-branch snapshot and the complete one, so the
+                    // workspace refreshes as soon as the default branch's projects are mapped across their branches.
+                    indexService.register(branchRepository, rulesLocation, this::indexPublished);
                     repository.setListener(new RepositoryListener(() -> repositoryChanged(repository)));
-                    initialBuild.whenComplete((snapshot, error) -> indexPublished());
                 } else {
                     repository.setListener(new RepositoryListener(() -> repositoryChanged(repository)));
                 }
@@ -333,8 +334,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
         for (Repository repository : currentRepositories) {
             if (isBranchRepository(repository)) {
-                indexService.invalidateRepository(repository.getId())
-                        .whenComplete((snapshot, error) -> indexPublished());
+                indexService.invalidateRepository(repository.getId());
             } else {
                 hasNonBranchedRepository = true;
             }
@@ -351,7 +351,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             refresh();
             return CompletableFuture.completedFuture(null);
         }
-        return indexService.invalidateBranch(repositoryId, branch).thenAccept(snapshot -> indexPublished());
+        // Publishing a snapshot refreshes the projection on its own (see init); the stage only reports completion.
+        return indexService.invalidateBranch(repositoryId, branch).thenRun(() -> {
+        });
     }
 
     @Override
@@ -361,7 +363,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             refresh();
             return CompletableFuture.completedFuture(null);
         }
-        return indexService.invalidateRepository(repositoryId).thenAccept(snapshot -> indexPublished());
+        return indexService.invalidateRepository(repositoryId).thenRun(() -> {
+        });
     }
 
     @Override
@@ -404,7 +407,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         for (Repository repository : repositories) {
             if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
                 var snapshot = indexService.getSnapshot(repository.getId());
-                if (snapshot.health().state() == BranchedProjectIndexService.IndexState.INDEXING) {
+                if (!snapshot.published()) {
+                    // Nothing indexed yet: fall back to the default branch until the first snapshot is published.
                     projects.putAll(configuredBranchFallbacks.getOrDefault(repository.getId(), Map.of()));
                 } else {
                     addSnapshotProjects(branchRepository, snapshot);
@@ -540,8 +544,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return;
         }
         if (isBranchRepository(repository)) {
-            indexService.invalidateRepository(repository.getId())
-                    .whenComplete((snapshot, error) -> indexPublished());
+            indexService.invalidateRepository(repository.getId());
         } else {
             synchronized (projects) {
                 projectsRefreshNeeded = true;
