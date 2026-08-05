@@ -5,25 +5,11 @@ import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
 import { deleteBranch } from '../services/branches'
+import { toUrlSafeId } from '../services/projectId'
 import { ProjectStatus } from '../constants/project'
 
 // Only reads here — a project fetch and a merge check — so the merge-check POST must not drop the snapshot.
 const CHECK_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true, skipWorkspaceEvent: true }
-
-/**
- * Encode a project identifier for use in a URL path segment. Uses the URL-safe Base64
- * alphabet ('-'/'_' instead of '+'/'/') so the id never contains a slash, which servlet
- * containers reject when percent-encoded. The backend {@code ProjectIdModel.decode}
- * accepts this form.
- */
-/**
- * Rebuilds the project id for a caller that only knows the repository and the project name.
- *
- * A caller that has the project passes its id instead: this encoding only covers Latin-1 names, which is
- * all the legacy screens address.
- */
-const encodeProjectId = (repositoryId: string, projectName: string): string =>
-    btoa(`${repositoryId}:${projectName}`).replaceAll('+', '-').replaceAll('/', '_')
 
 /**
  * Detail passed with the {@code openDeleteBranchModal} event by whoever opens the dialog.
@@ -47,6 +33,17 @@ export interface DeleteBranchModalDetail {
 }
 
 /**
+ * The project id every request of this dialog puts in its URL path, in the URL-safe Base64 alphabet.
+ *
+ * The server issues ids in the standard alphabet, whose `/` a servlet container rejects once percent-encoded,
+ * so the id is normalized here as it is everywhere else. An opener that knows only the repository and the
+ * project name gets the id rebuilt from them: that encoding covers Latin-1 names, which is all the legacy
+ * screens address.
+ */
+const resolveProjectId = (detail: DeleteBranchModalDetail): string =>
+    toUrlSafeId(detail.projectId ?? btoa(`${detail.repositoryId}:${detail.projectName}`))
+
+/**
  * DeleteBranchModal component.
  *
  * @example to open this modal, dispatch a custom event:
@@ -63,7 +60,7 @@ export const DeleteBranchModal: React.FC = () => {
     const [modified, setModified] = useState(false)
     const [mergedIntoMain, setMergedIntoMain] = useState(true)
 
-    const projectId = detail ? detail.projectId ?? encodeProjectId(detail.repositoryId, detail.projectName) : ''
+    const projectId = detail ? resolveProjectId(detail) : ''
 
     // Resolve the deletion warnings when the modal opens: `modified` from the project status,
     // `mergedIntoMain` from a merge check (send current branch into main). The check answers whether the
@@ -81,7 +78,7 @@ export const DeleteBranchModal: React.FC = () => {
         setModified(false)
         setMergedIntoMain(true)
         setLoading(true)
-        const id = detail.projectId ?? encodeProjectId(detail.repositoryId, detail.projectName)
+        const id = resolveProjectId(detail)
         const resolve = async () => {
             const project = (await apiCall(`/projects/${id}`, { method: 'GET' }, CHECK_API_OPTIONS)) as { status?: ProjectStatus }
             if (cancelled) {
