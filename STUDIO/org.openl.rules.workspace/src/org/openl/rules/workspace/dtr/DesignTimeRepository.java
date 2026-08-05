@@ -83,6 +83,21 @@ public interface DesignTimeRepository extends ProjectsContainer {
     }
 
     /**
+     * Whether the given branch holds the project.
+     *
+     * <p>The answer is membership in the repository, not the branch a workspace shows the project on: a project
+     * is shown on one branch at a time while its content may live in several.
+     *
+     * <p>A project the index does not know yet answers {@code false}. Until the first snapshot is published every
+     * project is served on the same fallback branch, so callers comparing against that branch never ask.
+     */
+    default boolean containsProject(String repositoryId, String name, String branch) {
+        return getBranchedProject(repositoryId, name)
+                .map(project -> project.entry(branch).isPresent())
+                .orElse(false);
+    }
+
+    /**
      * Returns the projects that no branch other than the given one holds, so deleting that branch deletes them.
      *
      * <p>Deleting a branch is a repository-wide operation: it removes every such project, not only the one the

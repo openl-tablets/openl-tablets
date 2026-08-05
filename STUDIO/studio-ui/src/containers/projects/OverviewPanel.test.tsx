@@ -139,6 +139,19 @@ describe('OverviewPanel', () => {
         expect(screen.getByTestId('dependency-missing-Ghost')).toBeInTheDocument()
     })
 
+    it('tells a dependency another dependency brings in from one rules.xml declares', async () => {
+        await renderPanel({
+            ...base,
+            dependencies: [
+                { name: 'Common Datatypes', id: 'dep-1' },
+                { name: 'Shared Rates', id: 'dep-2', transitive: true },
+            ],
+        })
+
+        expect(screen.getByTestId('dependency-transitive-Shared Rates')).toBeInTheDocument()
+        expect(screen.queryByTestId('dependency-transitive-Common Datatypes')).toBeNull()
+    })
+
     it('marks the branch of a dependency the same way as the branch of the project', async () => {
         await renderPanel({
             ...base,

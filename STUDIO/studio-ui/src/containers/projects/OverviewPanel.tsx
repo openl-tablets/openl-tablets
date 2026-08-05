@@ -204,6 +204,17 @@ const useStyles = createStyles(({ css, token }) => ({
         border-color: ${token.colorErrorBorder};
     `,
     /**
+     * A dependency another dependency brings in is not part of what this rules.xml declares, so it reads
+     * as an aside rather than as an error.
+     */
+    transitiveTag: css`
+        flex: none;
+        margin: 0;
+        color: ${token.colorTextTertiary};
+        background: ${token.colorFillQuaternary};
+        border-color: ${token.colorBorderSecondary};
+    `,
+    /**
      * A module reads in columns — its name, the path beside it, the switcher at the end — so a list of
      * them lines up like a table however long a single name or path is. It carries neither an icon nor a
      * frame: a list of framed rows is mostly lines, and the names are what is read.
@@ -1094,6 +1105,12 @@ const DependencyList = ({ deps }: { deps: ProjectDependency[] }) => {
                     {dep.missing && (
                         <Tag className={styles.missingTag} data-testid={`dependency-missing-${dep.name}`}>
                             {t('browser.overview.dependency_missing')}
+                        </Tag>
+                    )}
+                    {/* rules.xml declares the direct ones only; this one comes with another dependency. */}
+                    {dep.transitive && (
+                        <Tag className={styles.transitiveTag} data-testid={`dependency-transitive-${dep.name}`}>
+                            {t('browser.overview.dependency_transitive')}
                         </Tag>
                     )}
                     {dep.branch && (

@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import jakarta.annotation.Nullable;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +43,29 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
                 getAllProjects().stream().collect(Collectors.groupingBy(RulesProject::getBusinessName)));
 
         var dependencies = new ArrayList<ProjectDependency>();
-        calcDependencies(project, new HashSet<>(Set.of(project.getBusinessName())), dependencies, projectIndex);
+        var declared = declaredDependencies(project);
+        var walk = new Walk(project.getRepository().getId(),
+                project.getBranch(),
+                declared.stream().map(ProjectDependencyDescriptor::getName).collect(Collectors.toSet()),
+                projectIndex,
+                new HashSet<>(Set.of(project.getBusinessName())));
+        calcDependencies(project, declared, walk, dependencies);
         return dependencies;
+    }
+
+    /**
+     * What a walk started at one project resolves against: that project's repository and branch, and the names
+     * it declares itself.
+     *
+     * <p>The branch stays the one the project is opened on for every step inside its own repository, so a
+     * dependency reached through another one is looked for where the project itself lives. Another repository
+     * keeps its own branch, since nothing pairs the branches of two repositories.
+     */
+    private record Walk(String repositoryId,
+                        @Nullable String branch,
+                        Set<String> declared,
+                        Map<String, List<RulesProject>> index,
+                        Set<String> processed) {
     }
 
     @Override
@@ -54,7 +75,12 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         // internal path suffix and would not match.
         var businessName = project.getBusinessName();
         var usedByIndex = listingContext.usedByIndex(this::buildUsedByIndex);
-        return usedByIndex.getOrDefault(businessName, List.of());
+        var repositoryId = project.getRepository().getId();
+        var branch = project.getBranch();
+        return usedByIndex.getOrDefault(businessName, List.of())
+                .stream()
+                .filter(dependent -> visibleTo(dependent, repositoryId, branch))
+                .toList();
     }
 
     private Map<String, List<RulesProject>> buildUsedByIndex() throws ProjectException {
@@ -70,62 +96,107 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         return index;
     }
 
-    private void calcDependencies(RulesProject project,
-                                  Set<String> processedProjects,
-                                  Collection<ProjectDependency> result,
-                                  Map<String, List<RulesProject>> projectIndex) {
-        List<ProjectDependencyDescriptor> dependenciesDescriptors;
+    /**
+     * What a project declares in its {@code rules.xml}, empty when the descriptor cannot be read.
+     */
+    private List<ProjectDependencyDescriptor> declaredDependencies(RulesProject project) {
         try {
-            dependenciesDescriptors = projectDescriptorResolver.getDependencies(project);
-            if (dependenciesDescriptors.isEmpty()) {
-                return;
-            }
+            return projectDescriptorResolver.getDependencies(project);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             // Skip this dependency
+            return List.of();
+        }
+    }
+
+    /**
+     * Collects what the project depends on, walking into each dependency it resolves.
+     *
+     * <p>A dependency is direct when the project the walk started at declares it, whichever step of the walk
+     * reaches it first. Otherwise another dependency brings it in and it is reported as transitive.
+     *
+     * @param dependenciesDescriptors what this project declares, already read by the caller
+     */
+    private void calcDependencies(RulesProject project,
+                                  List<ProjectDependencyDescriptor> dependenciesDescriptors,
+                                  Walk walk,
+                                  Collection<ProjectDependency> result) {
+        if (dependenciesDescriptors.isEmpty()) {
             return;
         }
 
         var repoId = project.getRepository().getId();
-        var projectBranch = project.getBranch();
+        var branch = repoId.equals(walk.repositoryId()) ? walk.branch() : project.getBranch();
 
         for (ProjectDependencyDescriptor dependency : dependenciesDescriptors) {
             var dependencyName = dependency.getName();
-            if (processedProjects.add(dependencyName)) {
+            if (walk.processed().add(dependencyName)) {
                 // A name the workspace has no project for is kept as it is declared: the screen shows the
                 // dependency and says it is missing, instead of hiding what rules.xml asks for.
-                var resolved = resolveDependency(dependencyName, repoId, projectBranch, projectIndex);
-                result.add(new ProjectDependency(dependencyName, resolved.orElse(null)));
-                resolved.ifPresent(dep -> calcDependencies(dep, processedProjects, result, projectIndex));
+                var resolved = resolveDependency(dependencyName, repoId, branch, walk.index());
+                result.add(new ProjectDependency(dependencyName,
+                        resolved.orElse(null),
+                        !walk.declared().contains(dependencyName)));
+                resolved.ifPresent(dep -> calcDependencies(dep, declaredDependencies(dep), walk, result));
             }
         }
     }
 
     /**
-     * Resolves a dependency name to the best matching project by priority:
-     * <ol>
-     *     <li>same repository and same branch (or an unspecified branch);</li>
-     *     <li>same repository, any branch (e.g. the dependency lives on the base branch while this
-     *     project is on a feature branch) -- preferred over another repository;</li>
-     *     <li>a different repository.</li>
-     * </ol>
+     * Resolves a dependency name to the project the branch of the depending project actually contains.
+     *
+     * <p>The own repository is searched in that branch alone. A name the branch does not contain is left
+     * unresolved even when another branch has a project of that name.
+     *
+     * <p>Another repository is searched whatever branch it is on, because nothing keeps the branches of two
+     * repositories in step. The own repository is preferred over such a match.
      */
-    private static Optional<RulesProject> resolveDependency(String dependencyName,
-                                                            String repoId,
-                                                            String projectBranch,
-                                                            Map<String, List<RulesProject>> projectIndex) {
+    private Optional<RulesProject> resolveDependency(String dependencyName,
+                                                     String repoId,
+                                                     @Nullable String projectBranch,
+                                                     Map<String, List<RulesProject>> projectIndex) {
         // Use index for O(1) lookup instead of filtering all projects
         List<RulesProject> candidateProjects = projectIndex.get(dependencyName);
         if (candidateProjects == null || candidateProjects.isEmpty()) {
             return Optional.empty();
         }
-        Predicate<RulesProject> inSameRepo = p -> p.getRepository().getId().equals(repoId);
-        return candidateProjects.stream()
-                .filter(inSameRepo)
-                .filter(p -> projectBranch == null || p.getBranch() == null || p.getBranch().equals(projectBranch))
+        var visible = candidateProjects.stream()
+                .filter(candidate -> visibleTo(candidate, repoId, projectBranch))
+                .toList();
+        return visible.stream()
+                .filter(candidate -> candidate.getRepository().getId().equals(repoId))
                 .findFirst()
-                .or(() -> candidateProjects.stream().filter(inSameRepo).findFirst())
-                .or(() -> candidateProjects.stream().filter(inSameRepo.negate()).findFirst());
+                .or(() -> visible.stream().findFirst());
+    }
+
+    /**
+     * Whether a project belongs to what a project of the given repository and branch may refer to.
+     *
+     * <p>Inside one repository only the own branch counts: its branches are versions of the same content, so
+     * a project another branch keeps is a different version rather than another project.
+     *
+     * <p>A project of another repository always counts, since the branches of two repositories are not kept
+     * in step and neither of them can stand for the other.
+     */
+    private boolean visibleTo(RulesProject project, String repositoryId, @Nullable String branch) {
+        return !project.getRepository().getId().equals(repositoryId) || containedInBranch(project, branch);
+    }
+
+    /**
+     * Whether the given branch of the project's own repository contains it.
+     *
+     * <p>The workspace shows a project on one branch at a time, which is not necessarily the branch asked
+     * about, so membership is taken from the cross-branch index rather than from the branch on display. A
+     * repository without branches reports none, and then every branch contains everything it has.
+     */
+    private boolean containedInBranch(RulesProject project, @Nullable String branch) {
+        if (branch == null || branch.equals(project.getBranch())) {
+            return true;
+        }
+        var repositoryId = project.getRepository().getId();
+        var name = project.getDesignProjectName();
+        return listingContext.branchHoldsProject(repositoryId, name, branch,
+                () -> getUserWorkspace().getDesignTimeRepository().containsProject(repositoryId, name, branch));
     }
 
     private Collection<RulesProject> getAllProjects() {

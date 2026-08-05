@@ -673,9 +673,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     private ProjectDependencyViewModel.Builder mapProjectDependency(ProjectDependency dependency) {
         var project = dependency.project();
-        return project == null
+        var builder = project == null
                 ? ProjectDependencyViewModel.builder().name(dependency.name()).missing(true)
                 : mapProjectDependency(project);
+        return builder.transitive(dependency.transitive());
     }
 
     protected ProjectDependencyViewModel.Builder mapProjectDependency(RulesProject src) {

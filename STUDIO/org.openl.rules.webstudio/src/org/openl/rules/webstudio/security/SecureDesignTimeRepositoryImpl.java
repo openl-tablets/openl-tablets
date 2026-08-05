@@ -166,6 +166,17 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
         return designTimeRepository.getProjectsHeldOnlyBy(repositoryId, branch);
     }
 
+    /**
+     * Answers from the index, without building a readable view of the project first.
+     *
+     * <p>Callers ask about a project they already hold, so the answer adds nothing they may not see, while
+     * filtering it would evaluate the permission of every branch the project lives in to return one bit.
+     */
+    @Override
+    public boolean containsProject(String repositoryId, String name, String branch) {
+        return designTimeRepository.containsProject(repositoryId, name, branch);
+    }
+
     private Optional<BranchedProject> getBranchedProject(String repositoryId,
                                                          String name,
                                                          List<Permission> permissions) {

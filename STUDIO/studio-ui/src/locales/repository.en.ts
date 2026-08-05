@@ -360,6 +360,7 @@ i18next.addResourceBundle('en', 'repository', {
             modules_matched_show: 'Show the matched modules',
             modules_matched_hide: 'Hide the matched modules',
             dependency_missing: 'Not Found',
+            dependency_transitive: 'Transitive',
             dependencies: 'Dependencies',
             depends_on: 'Depends on',
             used_by: 'Used by',

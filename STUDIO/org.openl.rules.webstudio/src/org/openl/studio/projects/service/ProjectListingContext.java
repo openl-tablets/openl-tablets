@@ -26,6 +26,7 @@ public class ProjectListingContext {
     private Boolean canDeployToAnyRepository;
     private Boolean canCreateInAnyRepository;
     private final Map<String, String> repositoryTypes = new HashMap<>();
+    private final Map<String, Boolean> branchMembership = new HashMap<>();
 
     @FunctionalInterface
     public interface CheckedSupplier<T, E extends Exception> {
@@ -66,6 +67,20 @@ public class ProjectListingContext {
      */
     public String repositoryType(String repositoryId, UnaryOperator<String> compute) {
         return repositoryTypes.computeIfAbsent(repositoryId, compute);
+    }
+
+    /**
+     * Whether a branch holds a project, computed once per request for each project and branch asked about.
+     *
+     * <p>Every project of a listing resolves its dependencies against the same few branches, so the same
+     * question comes back for row after row.
+     */
+    public boolean branchHoldsProject(String repositoryId,
+                                      String name,
+                                      String branch,
+                                      BooleanSupplier compute) {
+        return branchMembership.computeIfAbsent(repositoryId + ':' + name + ':' + branch,
+                key -> compute.getAsBoolean());
     }
 
     /** Whether the user can create a project in any repository, computed once per request. */
