@@ -51,8 +51,13 @@ The components must have these responsibilities:
 
 ### Logical identity and membership
 
-A logical project is identified by `(repositoryId, external project name)`. Name matching must be
-case-insensitive. `ProjectKey` and the Base64 `projectId` must remain branchless.
+A logical project is identified by `(repositoryId, internal folder path)`. Every branch agrees on the folder; the
+name does not, because a mapped repository tells two same-named folders apart per branch and the descriptor may
+name the same folder differently on another branch. `ProjectKey` and the Base64 `projectId` must remain branchless.
+
+The name is what a branch shows, not what identifies. A project is displayed under the name of its home branch,
+and a lookup by name must find it whichever branch the caller took the name from: a mapped name carries the folder
+next to the branch's name for it, so it is matched on the folder.
 
 Each logical project must contain one entry for every readable branch whose Git tree contains the project:
 
@@ -68,8 +73,10 @@ branch project entry
 The entry must retain the external name, internal path, branch-scoped repository and `FileData` discovered at the
 recorded branch tip. A path, mapping or revision from one branch must never stand in for another branch.
 
-Two genuinely different projects with the same case-insensitive external name in one repository cannot be represented
-as separate logical projects. Project creation must therefore enforce repository-wide logical-name uniqueness.
+Two folders may end up with the same displayed name — a branch that renames one of them, or a descriptor that names
+them alike — and they remain separate logical projects, because the folder tells them apart. Project creation still
+enforces repository-wide name uniqueness, so a name collision is something branches produce rather than something a
+user can create.
 
 ### Home branch
 
@@ -176,8 +183,8 @@ The mapping scan must follow these rules:
 
 ```text
 repository snapshot
-    → branch name → (tip revision, discovery-root tree revision, projects by external name)
-    → external project name → (home branch, entries by branch)
+    → branch name → (tip revision, discovery-root tree revision, projects by internal folder path)
+    → internal folder path → (display name, home branch, entries by branch)
 ```
 
 Published records and collections must be immutable. A new generation must be assembled separately and replace the

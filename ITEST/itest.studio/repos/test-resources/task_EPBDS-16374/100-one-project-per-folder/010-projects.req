@@ -1,0 +1,3 @@
+GET /rest/projects?name=Quoting&fields=name,branch,path&unpaged=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

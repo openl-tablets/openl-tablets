@@ -11,12 +11,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.xml.sax.InputSource;
 
 import org.openl.rules.common.ProjectException;
@@ -359,13 +361,22 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             clearRulesProjectsCache();
 
+            var designProjects = designTimeRepository.getProjects();
+
+            // The folders the design side accounts for, per repository. A workspace copy sitting in one of them
+            // belongs to the project that holds it, so it must not be claimed by another project that merely
+            // shares its name. Repositories are kept apart, because two of them may hold the very same folder.
+            var designFolders = designProjects.stream()
+                    .collect(Collectors.groupingBy(project -> project.getRepository().getId(),
+                            Collectors.mapping(AProject::getRealPath, Collectors.toSet())));
+
             // add new
-            for (AProject rp : designTimeRepository.getProjects()) {
+            for (AProject rp : designProjects) {
                 var repoId = rp.getRepository().getId();
                 var localRepository = localWorkspace.getRepository(repoId);
                 var name = rp.getName();
                 var branchedProject = designTimeRepository.getBranchedProject(repoId, name);
-                var lp = findLocalProject(repoId, rp, branchedProject);
+                var lp = findLocalProject(repoId, rp, designFolders.getOrDefault(repoId, Set.of()));
 
                 FileData local = lp == null ? null : lp.getFileData();
 
@@ -447,20 +458,39 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
-    private AProject findLocalProject(String repositoryId,
-                                      AProject project,
-                                      Optional<BranchedProject> branchedProject) {
+    /**
+     * The workspace copy of the project, if the user has one.
+     *
+     * <p>A copy is recognised by the folder it was taken from. Every branch keeps the project in that one folder,
+     * so a single lookup answers for all of them.
+     *
+     * <p>Only a copy whose folder the design side no longer accounts for is matched by name, because a name is
+     * shown by more than one project when branches disagree about it, and claiming a copy of another folder
+     * closes it. A copy that does not say which folder it came from is left to the name, as it was before.
+     */
+    private AProject findLocalProject(String repositoryId, AProject project, Set<String> designFolders) {
         var localProject = localWorkspace.getProjectForPath(repositoryId, project.getRealPath());
-        if (localProject != null || branchedProject.isEmpty()) {
+        if (localProject != null) {
             return localProject;
         }
-        for (var entry : branchedProject.get().entries().values()) {
-            localProject = localWorkspace.getProjectForPath(repositoryId, entry.project().getRealPath());
-            if (localProject != null) {
-                return localProject;
-            }
+        var byName = localWorkspace.getProjectForName(repositoryId, project.getBusinessName());
+        if (byName == null) {
+            return null;
         }
-        return localWorkspace.getProjectForName(repositoryId, project.getBusinessName());
+        var folder = folderOf(byName);
+        return folder != null && designFolders.contains(folder) ? null : byName;
+    }
+
+    /**
+     * The repository folder a workspace copy was taken from, or {@code null} when the copy does not carry it.
+     *
+     * <p>A copy lives under its own name locally, so its own path tells nothing about the folder. The folder
+     * travels with it as mapping data.
+     */
+    private static @Nullable String folderOf(AProject project) {
+        var fileData = project.getFileData();
+        var mapping = fileData == null ? null : fileData.getAdditionalData(FileMappingData.class);
+        return mapping == null ? null : mapping.getInternalPath();
     }
 
     private static String getDesignProjectName(RulesProject project) {

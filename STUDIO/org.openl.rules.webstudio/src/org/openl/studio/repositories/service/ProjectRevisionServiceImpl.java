@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -60,13 +62,34 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
         // Get full path based on repository features
         String fullPath;
         if (repository.supports().mappedFolders()) {
-            fullPath = project.getFolderPath();
+            fullPath = mappedPathIn(repository, project);
+            if (fullPath == null) {
+                // The branch being read does not hold the folder, so it has no history of it to report.
+                return PageResponse.of(List.of(), page, 0L);
+            }
         } else {
             fullPath = designTimeRepository.getRulesLocation() + projectName;
         }
 
         // Retrieve and return project history
         return getHistoryRepositoryMapper(repository).getProjectHistory(fullPath, searchTerm, techRevs, page);
+    }
+
+    /**
+     * The path the given repository view knows the project by, or {@code null} when that branch does not hold it.
+     *
+     * <p>A mapped repository names its folders per branch, so the path a project is listed under is not the path
+     * the branch being read uses for it. The folder is the same, so it is translated back through the mapping of
+     * that branch.
+     */
+    private static @Nullable String mappedPathIn(Repository repository, AProject project) {
+        var listedPath = project.getFolderPath();
+        var listedIn = project.getRepository();
+        if (!listedIn.supports().mappedFolders()) {
+            return listedPath;
+        }
+        var internalPath = ((FolderMapper) listedIn).getRealPath(listedPath);
+        return ((FolderMapper) repository).findMappedName(internalPath);
     }
 
     private Repository checkoutBranchIfPresent(Repository repository, String branch) throws IOException {
