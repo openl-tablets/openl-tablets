@@ -47,7 +47,7 @@ vi.mock('react-i18next', () => {
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 const mockDeleteBranch = deleteBranch as MockedFunction<typeof deleteBranch>
 
-// URL-safe Base64 id, matching the modal's encodeProjectId.
+// URL-safe Base64 id, matching the id the modal builds for an opener that knows only repository and name.
 const urlSafeId = (raw: string) => btoa(raw).replaceAll('+', '-').replaceAll('/', '_')
 
 const createDetail = (overrides?: Partial<DeleteBranchModalDetail>): DeleteBranchModalDetail => ({
@@ -100,6 +100,34 @@ describe('DeleteBranchModal', () => {
             expect(mockDeleteBranch).toHaveBeenCalledWith(urlSafeId('repo-1:MyProject'), 'feature', false)
             expect(detail.onSuccess).toHaveBeenCalled()
         })
+    })
+
+    it('normalizes a server-issued id before putting it in a URL path', async () => {
+        // The server encodes ids with the standard Base64 alphabet. A project named "Тарифный план" yields a
+        // '/', which a servlet container rejects in a path, so every request here must carry the URL-safe form.
+        const serverIssuedId = 'cmVwby0xOtCi0LDRgNC40YTQvdGL0Lkg0L/Qu9Cw0L0='
+        const urlSafe = 'cmVwby0xOtCi0LDRgNC40YTQvdGL0Lkg0L_Qu9Cw0L0='
+        mockApiCall
+            .mockResolvedValueOnce({ status: 'VIEWING' } as never)
+            .mockResolvedValueOnce({ status: 'up-to-date' } as never)
+        mockDeleteBranch.mockResolvedValueOnce(true)
+
+        render(<DeleteBranchModal />)
+        await dispatchOpen(createDetail({ projectId: serverIssuedId }))
+
+        await waitFor(() =>
+            expect(screen.getByRole('button', { name: 'repository:delete_branch.confirm_button' })).toBeEnabled()
+        )
+        expect(mockApiCall).toHaveBeenCalledWith(`/projects/${urlSafe}`, expect.anything(), expect.anything())
+        expect(mockApiCall).toHaveBeenCalledWith(
+            `/projects/${urlSafe}/merge/check`,
+            expect.anything(),
+            expect.anything()
+        )
+
+        await userEvent.click(screen.getByRole('button', { name: 'repository:delete_branch.confirm_button' }))
+
+        await waitFor(() => expect(mockDeleteBranch).toHaveBeenCalledWith(urlSafe, 'feature', false))
     })
 
     it('warns and uses the unsafe button when the project is modified', async () => {
