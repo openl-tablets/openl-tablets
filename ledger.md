@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `5d3020a4`**; every queue row done, every vein closed. New scope arrives only as new
+- **Converged at `main` = `75f808fd`**; every queue row done, every vein closed. New scope arrives only as new
   commits on `main` — never invent a detector to manufacture work. Expect idleness.
-- The idle pass is two calls: `git log 5d3020a4..origin/main` and the open-PR check. Read `build-quick.yml` only
+- The idle pass is two calls: `git log 75f808fd..origin/main` and the open-PR check. Read `build-quick.yml` only
   before committing code, and only once `main` has moved; never re-diagnose an unchanged SHA.
 - When scope arrives, sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and
   `.github/`. Read the **deleted** lines first — a purely additive commit orphans nothing, and one whose deletions are
@@ -373,11 +373,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-05 — run fifty-three. `main` still `8ace3b69` and no `dead-code/*` PR; idle pass ended after its two calls.
-  Ledger 380 lines.
-- 08-05 — run fifty-four. `main` advanced five commits (three EPBDS-16378 branch-deletion guards, EPBDS-16381, an
-  ObjectFactory rewrite). Almost purely additive; every freed symbol proved alive — `branchDefault`/`branchProtected`
-  survive the dropped action predicate, the new capability, index API and message key are all wired, and the deleted
-  `encodeProjectId` moved into `services/projectId`. No scope. Resume point `5d3020a4`; ledger 384 lines.
+- 08-05 — run fifty-four. `main` advanced five commits, almost purely additive; every freed symbol proved alive. No scope.
 - 08-05 — run fifty-five. `main` still `5d3020a4` and no `dead-code/*` PR; idle pass ended after its two calls.
-  Ledger 383 lines.
+- 08-05 — run fifty-six. `main` advanced two EPBDS-16382 commits. Additive plus one extraction: `DependencyList` moved
+  out of `OverviewPanel` and its remaining style keys into `sharedStyles`, so nothing was orphaned. No scope.
