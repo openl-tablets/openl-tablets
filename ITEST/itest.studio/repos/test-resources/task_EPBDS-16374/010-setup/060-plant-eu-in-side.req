@@ -1,0 +1,13 @@
+POST /rest/repos/design-non-flat/files/catalog/quoting-core-eu/rules.xml?createFolders=true&branch=side HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/xml
+
+<project>
+  <name>Quoting</name>
+  <modules>
+    <module>
+      <name>Main</name>
+      <rules-root path="Main.xlsx"/>
+    </module>
+  </modules>
+</project>

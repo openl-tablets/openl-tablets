@@ -11,11 +11,16 @@ Content-Type: application/json
     {
       "name": "Quoting",
       "branch": "side",
+      "path": "catalog/quoting-core-eu"
+    },
+    {
+      "name": "Quoting",
+      "branch": "side",
       "path": "catalog/quoting-core-legacy"
     }
   ],
   "pageNumber": -1,
-  "pageSize": 2,
-  "numberOfElements": 2,
-  "total": 2
+  "pageSize": 3,
+  "numberOfElements": 3,
+  "total": 3
 }
