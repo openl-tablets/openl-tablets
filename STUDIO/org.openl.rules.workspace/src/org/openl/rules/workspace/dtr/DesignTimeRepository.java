@@ -70,9 +70,9 @@ public interface DesignTimeRepository extends ProjectsContainer {
     }
 
     /**
-     * Whether the branch is the only one holding the project, so deleting that branch deletes the project.
+     * Whether the branch may be the only one holding the project, so deleting that branch would delete it.
      *
-     * <p>A project the index does not know is treated as held by that branch alone: nothing says otherwise, and
+     * <p>A project the index does not know yet answers {@code true}: nothing proves another branch holds it, and
      * the caller is about to remove content. The answer describes the repository, not what the caller may see,
      * so it counts every branch holding the project.
      */
@@ -80,6 +80,16 @@ public interface DesignTimeRepository extends ProjectsContainer {
         return getBranchedProject(repositoryId, name)
                 .map(project -> project.heldOnlyBy(branch))
                 .orElse(true);
+    }
+
+    /**
+     * Returns the projects that no branch other than the given one holds, so deleting that branch deletes them.
+     *
+     * <p>Deleting a branch is a repository-wide operation: it removes every such project, not only the one the
+     * caller addressed. The answer describes the repository, not what the caller may see.
+     */
+    default List<AProject> getProjectsHeldOnlyBy(String repositoryId, String branch) {
+        return List.of();
     }
 
     /**

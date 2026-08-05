@@ -148,14 +148,22 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     }
 
     /**
-     * Answers from the unfiltered index. Deleting a branch removes the project from the repository whether or
-     * not the caller may read the other branches holding it, and hiding those branches would report the last
-     * branch where there is none. Only a branch name the caller already asked about is involved, so nothing
-     * about the hidden branches is disclosed.
+     * Answers from the unfiltered index, as do the projects it holds alone. Deleting a branch removes content
+     * whether or not the caller may read the other branches holding it, so filtering those out would report the
+     * last branch where there is none and let the guard through.
+     *
+     * <p>The trade-off is deliberate: a caller learns whether some branch they cannot read still holds the
+     * project, which is one bit about content they are already allowed to remove. Reporting a wrong answer
+     * would cost a project.
      */
     @Override
     public boolean isLastProjectBranch(String repositoryId, String name, String branch) {
         return designTimeRepository.isLastProjectBranch(repositoryId, name, branch);
+    }
+
+    @Override
+    public List<AProject> getProjectsHeldOnlyBy(String repositoryId, String branch) {
+        return designTimeRepository.getProjectsHeldOnlyBy(repositoryId, branch);
     }
 
     private Optional<BranchedProject> getBranchedProject(String repositoryId,

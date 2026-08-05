@@ -64,10 +64,12 @@ public record BranchedProject(String name,
     /**
      * Whether the given branch is the only one holding the project, so removing that branch removes the project.
      *
-     * <p>Branch names are matched the same way the home branch is chosen: without regard to case.
+     * <p>Branch names are compared exactly: Git tells apart two branches that differ only in case, and so
+     * must counting them. Matching the configured base branch loosely, as the home branch does, would merge
+     * two real branches into one here.
      */
     public boolean heldOnlyBy(String branch) {
-        return entries.keySet().stream().allMatch(held -> held.equalsIgnoreCase(branch));
+        return entries.containsKey(branch) && entries.size() == 1;
     }
 
     /**

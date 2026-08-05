@@ -37,8 +37,8 @@ class BranchedProjectTest {
         var alone = BranchedProject.create("Rates", "main", entries);
 
         assertTrue(alone.heldOnlyBy("feature/rates"));
-        // The home branch is chosen without regard to case, and so is this.
-        assertTrue(alone.heldOnlyBy("FEATURE/RATES"));
+        // Git tells apart branches differing only in case, so a look-alike name is a different branch.
+        assertFalse(alone.heldOnlyBy("FEATURE/RATES"));
         assertFalse(alone.heldOnlyBy("main"), "A branch that does not hold the project holds no last copy.");
 
         entries.put("main", entry(Instant.parse("2026-07-29T10:00:00Z")));

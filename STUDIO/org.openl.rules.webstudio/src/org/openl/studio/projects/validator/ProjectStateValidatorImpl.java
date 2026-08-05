@@ -113,7 +113,7 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
     @Override
     public boolean canDeleteBranch(RulesProject project) {
-        if (project == null || project.isLocalOnly() || !project.isSupportsBranches()) {
+        if (project == null || project.isDeleted() || project.isLocalOnly() || !project.isSupportsBranches()) {
             return false;
         }
         var branch = project.getBranch();
