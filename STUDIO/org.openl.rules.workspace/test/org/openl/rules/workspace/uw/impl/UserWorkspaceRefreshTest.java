@@ -381,7 +381,8 @@ class UserWorkspaceRefreshTest {
 
     @Test
     void openedCopyUsesTheSelectedBranchesMappedPath() throws ProjectException {
-        var main = mappedBranchProjectRepository("main", "physical/main/P1");
+        // Every branch keeps the project in the same folder, and each names that folder on its own.
+        var main = mappedBranchProjectRepository("main", DESIGN_PATH);
         var feature = mappedBranchProjectRepository("feature/rates", DESIGN_PATH);
         var mainData = new FileData();
         mainData.setName("DESIGN/P1");
@@ -403,8 +404,8 @@ class UserWorkspaceRefreshTest {
     }
 
     @Test
-    void openedCopyIsMatchedByEveryBranchPathBeforeItsLocalFolderName() throws ProjectException {
-        var main = mappedBranchProjectRepository("main", "physical/main/P1");
+    void openedCopyIsMatchedByItsFolderBeforeItsLocalFolderName() throws ProjectException {
+        var main = mappedBranchProjectRepository("main", DESIGN_PATH);
         var feature = mappedBranchProjectRepository("feature/rates", DESIGN_PATH);
         var mainData = new FileData();
         mainData.setName("DESIGN/P1");
@@ -581,6 +582,12 @@ class UserWorkspaceRefreshTest {
     }
 
     private static BranchRepository mappedBranchProjectRepository(String branch, String internalPath) {
+        return mappedBranchProjectRepository(branch, "DESIGN/" + PROJECT, internalPath);
+    }
+
+    private static BranchRepository mappedBranchProjectRepository(String branch,
+                                                                  String externalPath,
+                                                                  String internalPath) {
         BranchRepository repository = mock(BranchRepository.class, withSettings().extraInterfaces(FolderMapper.class));
         lenient().when(repository.getId()).thenReturn("design");
         lenient().when(repository.supports()).thenReturn(new FeaturesBuilder(repository)
@@ -591,8 +598,8 @@ class UserWorkspaceRefreshTest {
         lenient().when(repository.getBranch()).thenReturn(branch);
         lenient().when(repository.getBaseBranch()).thenReturn("main");
         var mapper = (FolderMapper) repository;
-        lenient().when(mapper.getBusinessName("DESIGN/P1")).thenReturn("DESIGN/P1");
-        lenient().when(mapper.getRealPath("DESIGN/P1")).thenReturn(internalPath);
+        lenient().when(mapper.getBusinessName(externalPath)).thenReturn(externalPath);
+        lenient().when(mapper.getRealPath(externalPath)).thenReturn(internalPath);
         return repository;
     }
 

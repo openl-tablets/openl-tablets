@@ -190,20 +190,19 @@ class BranchedProjectIndexServiceTest {
     @Test
     void preservesPathQualifiedExternalProjectIdentity() throws Exception {
         var repository = new TestBranchRepository();
-        repository.put("main",
-                "main-1",
-                "tree-main",
-                NOW,
-                "DESIGN/Rates:path-one",
-                "DESIGN/Rates:path-two");
-        repository.put("feature", "feature-1", "tree-feature", NOW, "DESIGN/Rates:path-one");
+        var one = "Rates:" + "1".repeat(64);
+        var two = "Rates:" + "2".repeat(64);
+        repository.put("main", "main-1", "tree-main", NOW, "DESIGN/" + one, "DESIGN/" + two, "DESIGN/Notes:draft");
+        repository.put("feature", "feature-1", "tree-feature", NOW, "DESIGN/" + one);
 
         try (var service = new BranchedProjectIndexService()) {
             var snapshot = await(register(service, repository));
 
-            assertEquals(Set.of("main", "feature"), snapshot.project("Rates:path-one").orElseThrow().branches());
-            assertEquals(Set.of("main"), snapshot.project("Rates:path-two").orElseThrow().branches());
-            assertEquals(2, snapshot.projects().size());
+            assertEquals(Set.of("main", "feature"), snapshot.project(one).orElseThrow().branches());
+            assertEquals(Set.of("main"), snapshot.project(two).orElseThrow().branches());
+            // A colon that ends in no folder hash belongs to the name, and is matched as part of it.
+            assertEquals(Set.of("main"), snapshot.project("Notes:draft").orElseThrow().branches());
+            assertEquals(3, snapshot.projects().size());
         }
     }
 

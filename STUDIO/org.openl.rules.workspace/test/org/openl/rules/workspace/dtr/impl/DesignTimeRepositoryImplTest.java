@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -79,13 +80,10 @@ class DesignTimeRepositoryImplTest {
         var properties = mock(PropertyResolver.class);
         when(properties.getProperty("design-repository-configs")).thenReturn("design");
         when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
-        var published = new CountDownLatch(1);
         try (var index = new BranchedProjectIndexService()) {
             var repository = new TestDesignTimeRepository(properties, index, root);
-            repository.addListener(published::countDown);
-            repository.init();
+            initAndAwaitIndex(repository);
 
-            assertTrue(published.await(5, TimeUnit.SECONDS));
             assertEquals(List.of("Rates"),
                     repository.getProjects().stream().map(AProject::getBusinessName).toList());
             var project = repository.getBranchedProject("design", "Rates").orElseThrow();
@@ -130,21 +128,10 @@ class DesignTimeRepositoryImplTest {
         var properties = mock(PropertyResolver.class);
         when(properties.getProperty("design-repository-configs")).thenReturn("design");
         when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
-        var published = new CountDownLatch(1);
         try (var index = new BranchedProjectIndexService()) {
             var repository = new TestDesignTimeRepository(properties, index, root);
-            // The default branch's project is mapped across branches early; wait for the complete snapshot, where
-            // the branch that does not hold it drops it again.
-            repository.addListener(() -> {
-                if (repository.getProjectIndexHealth("design")
-                        .filter(health -> health.state() == BranchedProjectIndexService.IndexState.READY)
-                        .isPresent()) {
-                    published.countDown();
-                }
-            });
-            repository.init();
+            initAndAwaitIndex(repository);
 
-            assertTrue(published.await(5, TimeUnit.SECONDS));
             var historical = repository.getProjectByPath("design",
                     "feature/rates",
                     "DESIGN/Rates",
@@ -170,19 +157,59 @@ class DesignTimeRepositoryImplTest {
         var properties = mock(PropertyResolver.class);
         when(properties.getProperty("design-repository-configs")).thenReturn("design");
         when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
-        var published = new CountDownLatch(1);
         try (var index = new BranchedProjectIndexService()) {
             var repository = new TestDesignTimeRepository(properties, index, root);
-            repository.addListener(published::countDown);
-            repository.init();
+            initAndAwaitIndex(repository);
 
-            assertTrue(published.await(5, TimeUnit.SECONDS));
             var project = repository.getBranchedProject("design", "rates").orElseThrow();
 
             assertEquals("Rates:path-hash", project.name());
             assertEquals("feature/rates", project.homeBranch());
             assertEquals("Rates", repository.getProject("design", "rates").getBusinessName());
             assertTrue(repository.hasProject("design", "rates"));
+            repository.destroy();
+        }
+    }
+
+    @Test
+    void findsTheFolderByTheNameAnyOfItsBranchesShowsItUnder() throws Exception {
+        // One folder, named differently per branch: its descriptor carries another name there, and a caller
+        // holding the name of either branch must still reach the same project.
+        var folder = "a".repeat(64);
+        var homeName = "Quoting:" + folder;
+        var sideName = "QuotingLegacy:" + folder;
+        var root = mappedBranchRepository("main");
+        var side = mappedBranchRepository("side");
+        when(root.listBranches()).thenReturn(List.of("main", "side"));
+        when(root.getBranchStatuses(anyCollection())).thenAnswer(invocation -> statuses(invocation.getArgument(0)));
+        when(root.getBranchTreeRevisions(anyCollection(), anyString()))
+                .thenAnswer(invocation -> revisions(invocation.getArgument(0), 1));
+        when(root.forBranch("main")).thenReturn(root);
+        when(root.forBranch("side")).thenReturn(side);
+        when(root.listFolders("DESIGN/")).thenReturn(List.of(fileData("DESIGN/" + homeName)));
+        when(side.listFolders("DESIGN/")).thenReturn(List.of(fileData("DESIGN/" + sideName)));
+
+        var properties = mock(PropertyResolver.class);
+        when(properties.getProperty("design-repository-configs")).thenReturn("design");
+        when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
+        try (var index = new BranchedProjectIndexService()) {
+            var repository = new TestDesignTimeRepository(properties, index, root);
+            initAndAwaitIndex(repository);
+
+            var byHomeName = repository.getBranchedProject("design", homeName).orElseThrow();
+            var bySideName = repository.getBranchedProject("design", sideName).orElseThrow();
+
+            assertSame(byHomeName, bySideName, "One folder is one project, whatever a branch calls it.");
+            assertEquals(Set.of("main", "side"), byHomeName.entries().keySet());
+            // The plain project lookups answer the name of either branch as well.
+            assertSame(byHomeName.homeEntry().project(), repository.getProject("design", sideName));
+            assertTrue(repository.hasProject("design", sideName));
+            // A name without a folder still resolves the way it always did.
+            assertTrue(repository.getBranchedProject("design", "Quoting").isPresent());
+            assertTrue(repository.hasProject("design", "Quoting"));
+            // The folder decides, so a name carrying another folder is another project.
+            assertTrue(repository.getBranchedProject("design", "Quoting:" + "b".repeat(64)).isEmpty());
+            assertFalse(repository.hasProject("design", "Quoting:" + "b".repeat(64)));
             repository.destroy();
         }
     }
@@ -196,13 +223,10 @@ class DesignTimeRepositoryImplTest {
         var properties = mock(PropertyResolver.class);
         when(properties.getProperty("design-repository-configs")).thenReturn("design");
         when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
-        var published = new CountDownLatch(1);
         try (var index = new BranchedProjectIndexService()) {
             var repository = new TestDesignTimeRepository(properties, index, root);
-            repository.addListener(published::countDown);
-            repository.init();
+            initAndAwaitIndex(repository);
 
-            assertTrue(published.await(5, TimeUnit.SECONDS));
             assertEquals(List.of("Rates"),
                     repository.getProjects().stream().map(AProject::getBusinessName).toList());
             var health = repository.getProjectIndexHealth("design").orElseThrow();
@@ -224,13 +248,10 @@ class DesignTimeRepositoryImplTest {
         var properties = mock(PropertyResolver.class);
         when(properties.getProperty("design-repository-configs")).thenReturn("design");
         when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
-        var published = new CountDownLatch(1);
         try (var index = new BranchedProjectIndexService()) {
             var repository = new TestDesignTimeRepository(properties, index, root);
-            repository.addListener(published::countDown);
-            repository.init();
+            initAndAwaitIndex(repository);
 
-            assertTrue(published.await(5, TimeUnit.SECONDS));
             // The build published a snapshot holding no branch at all, so the configured-branch listing must
             // still be shown rather than an empty workspace.
             assertEquals(List.of("Rates"),
@@ -313,13 +334,42 @@ class DesignTimeRepositoryImplTest {
                 .setMappedFolders(true)
                 .build());
         var mapper = (FolderMapper) repository;
-        when(mapper.getRealPath(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(mapper.getRealPath(anyString())).thenAnswer(invocation -> {
+            // A mapped name ends with the hash of the folder, so the name each branch shows a project under
+            // leads to the one folder that holds it.
+            String path = invocation.getArgument(0);
+            var folder = path.lastIndexOf(':');
+            return folder < 0 ? path : "physical/" + path.substring(folder + 1);
+        });
         when(mapper.getBusinessName(anyString())).thenAnswer(invocation -> {
             String path = invocation.getArgument(0);
             var suffix = path.indexOf(':');
             return suffix < 0 ? path : path.substring(0, suffix);
         });
         return repository;
+    }
+
+    /**
+     * Starts the repository and waits until its index build settles.
+     *
+     * <p>A build publishes twice: first the default branch's projects mapped across the branches that hold them,
+     * then the complete snapshot, which also lists the projects living only on other branches and merges the name
+     * each branch shows a folder under. Asserting on the first one reads a half-built index.
+     *
+     * <p>A build that cannot read the repository settles as degraded and publishes no further snapshot, so both
+     * outcomes end the wait.
+     */
+    private static void initAndAwaitIndex(TestDesignTimeRepository repository) throws InterruptedException {
+        var settled = new CountDownLatch(1);
+        repository.addListener(() -> {
+            if (repository.getProjectIndexHealth("design")
+                    .filter(health -> health.state() != BranchedProjectIndexService.IndexState.INDEXING)
+                    .isPresent()) {
+                settled.countDown();
+            }
+        });
+        repository.init();
+        assertTrue(settled.await(5, TimeUnit.SECONDS), "The index build did not settle.");
     }
 
     private static FileData fileData(String path) {

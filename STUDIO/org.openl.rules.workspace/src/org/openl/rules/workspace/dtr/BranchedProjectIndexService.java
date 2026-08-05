@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -52,6 +52,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
 
     private static final Comparator<String> BRANCH_ORDER = String.CASE_INSENSITIVE_ORDER
             .thenComparing(Comparator.naturalOrder());
+    private static final Pattern FOLDER_HASH = Pattern.compile("[0-9a-f]{64}");
     private static final String LIST_ERROR = "Repository branches cannot be indexed.";
     private static final String STATUS_ERROR = "Branch status cannot be resolved.";
     private static final String TREE_ERROR = "Branch content revision cannot be resolved.";
@@ -106,10 +107,28 @@ public final class BranchedProjectIndexService implements AutoCloseable {
     }
 
     /**
-     * Returns a logical project using the case-insensitive Studio project identity.
+     * Returns the logical project the given name refers to.
+     *
+     * <p>A mapped name is matched on the folder it carries, so it finds the project whichever branch the name was
+     * taken from. A plain name is matched case-insensitively against the name each project is displayed under.
      */
     public Optional<ProjectSnapshot> getProject(String repositoryId, String projectName) {
         return getSnapshot(repositoryId).project(projectName);
+    }
+
+    /**
+     * The folder a mapped project name identifies, or {@code null} when the name identifies none.
+     *
+     * <p>A mapped repository names a project {@code businessName:folderHash}, so the folder is what the name ends
+     * with. A name whose ending is not such a hash is a plain project name, even when it contains a colon.
+     */
+    public static @Nullable String folderOf(String name) {
+        var separator = name.lastIndexOf(':');
+        if (separator < 0) {
+            return null;
+        }
+        var folder = name.substring(separator + 1);
+        return FOLDER_HASH.matcher(folder).matches() ? folder : null;
     }
 
     /**
@@ -254,6 +273,8 @@ public final class BranchedProjectIndexService implements AutoCloseable {
     /**
      * The atomically published project index for one design repository.
      *
+     * @param branches  every indexed branch, by branch name
+     * @param projects  the repository's logical projects, by the internal folder each one lives in
      * @param published whether a build already replaced the placeholder every repository starts with
      */
     public record RepositorySnapshot(@NonNull String repositoryId,
@@ -272,9 +293,30 @@ public final class BranchedProjectIndexService implements AutoCloseable {
             return new RepositorySnapshot(repositoryId, Map.of(), Map.of(), IndexHealth.indexing(), false);
         }
 
+        /**
+         * The project the given name refers to.
+         *
+         * <p>A name is what a branch calls a project, not what identifies it, so a plain name may be shown by
+         * more than one project and then answers with the first in display order. A mapped name carries the
+         * folder, which does identify, and is matched on it whichever branch the name was taken from.
+         */
         public Optional<ProjectSnapshot> project(String name) {
-            return Optional.ofNullable(projects.get(projectKey(name)));
+            var folder = folderOf(name);
+            if (folder != null) {
+                return projects.values()
+                        .stream()
+                        .filter(project -> project.entries()
+                                .values()
+                                .stream()
+                                .anyMatch(entry -> folder.equals(folderOf(entry.externalName()))))
+                        .findFirst();
+            }
+            return projects.values()
+                    .stream()
+                    .filter(project -> project.name().equalsIgnoreCase(name))
+                    .findFirst();
         }
+
     }
 
     private final class Coordinator {
@@ -671,7 +713,9 @@ public final class BranchedProjectIndexService implements AutoCloseable {
                 var internalPath = branchRepository instanceof FolderMapper mapper
                         ? mapper.getRealPath(externalPath)
                         : externalPath;
-                projects.putIfAbsent(projectKey(externalName),
+                // Keyed by the folder the project lives in: that is what stays the same across branches,
+                // while the name a branch shows it under does not.
+                projects.putIfAbsent(internalPath,
                         new BranchProject(
                                 externalName,
                                 externalPath,
@@ -780,18 +824,24 @@ public final class BranchedProjectIndexService implements AutoCloseable {
                     .put(branch.branch(), entry));
         }
 
-        var projectKeys = new ArrayList<>(entriesByProject.keySet());
-        projectKeys.sort(String.CASE_INSENSITIVE_ORDER.thenComparing(Comparator.naturalOrder()));
-        var result = new LinkedHashMap<String, ProjectSnapshot>();
-        for (String key : projectKeys) {
-            var entries = entriesByProject.get(key);
+        var built = new HashMap<String, ProjectSnapshot>();
+        for (var entry : entriesByProject.entrySet()) {
+            var entries = entry.getValue();
             var homeBranch = chooseHomeBranch(entries.keySet(), branchSnapshots, baseBranch);
             var homeEntry = entries.get(homeBranch);
             var orderedEntries = new LinkedHashMap<String, BranchProject>();
             entries.keySet().stream().sorted(BRANCH_ORDER)
                     .forEach(branch -> orderedEntries.put(branch, entries.get(branch)));
-            result.put(key, new ProjectSnapshot(homeEntry.externalName(), homeBranch, orderedEntries));
+            built.put(entry.getKey(), new ProjectSnapshot(homeEntry.externalName(), homeBranch, orderedEntries));
         }
+
+        // Read in the order the projects are shown in, which the folder they live in does not give.
+        var result = new LinkedHashMap<String, ProjectSnapshot>();
+        built.entrySet()
+                .stream()
+                .sorted(Comparator.<Map.Entry<String, ProjectSnapshot>, String>comparing(e -> e.getValue().name(),
+                        String.CASE_INSENSITIVE_ORDER).thenComparing(Map.Entry::getKey))
+                .forEach(e -> result.put(e.getKey(), e.getValue()));
         return result;
     }
 
@@ -848,10 +898,6 @@ public final class BranchedProjectIndexService implements AutoCloseable {
             last = value;
         }
         return Objects.requireNonNull(last);
-    }
-
-    private static String projectKey(String name) {
-        return name.toLowerCase(Locale.ROOT);
     }
 
     private static <K, V> Map<K, V> immutableMap(Map<K, V> source) {

@@ -200,9 +200,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             } else {
                 Optional<AProject> project = projects.values()
                         .stream()
-                        .filter(p -> p.getRepository().getId().equals(repositoryId)
-                                && p.getBusinessName().equalsIgnoreCase(name))
-                        .findFirst();
+                        .filter(p -> p.getRepository().getId().equals(repositoryId) && knownAs(p, name))
+                        .min(Comparator.comparing(AProject::getName));
                 if (project.isPresent()) {
                     return project.get();
                 }
@@ -224,9 +223,26 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return branchedProjects.values()
                     .stream()
                     .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
-                    .filter(project -> project.homeEntry().project().getBusinessName().equalsIgnoreCase(name))
-                    .findFirst();
+                    .filter(project -> knownAs(project.homeEntry().project(), name))
+                    .min(Comparator.comparing(project -> project.homeEntry().project().getName()));
         }
+    }
+
+    /**
+     * Whether the project is the one the given name refers to.
+     *
+     * <p>A technical name carries the folder alongside the name a branch shows the project under, and is matched
+     * on the folder. That finds the project whichever branch the caller took the name from, because every branch
+     * agrees on the folder.
+     *
+     * <p>A plain name has no folder to match on. It is compared with the name the project is displayed under,
+     * which is the one its home branch gives it, so a name another branch uses for the folder claims nothing.
+     */
+    private static boolean knownAs(AProject project, String name) {
+        var folder = BranchedProjectIndexService.folderOf(name);
+        return folder == null
+                ? project.getBusinessName().equalsIgnoreCase(name)
+                : folder.equals(BranchedProjectIndexService.folderOf(project.getName()));
     }
 
     @Override
@@ -501,11 +517,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 return true;
             }
 
-            // Check business name
+            // Check business name, and the folder a technical name of another branch carries
             return projects.values()
                     .stream()
-                    .anyMatch(p -> p.getRepository().getId().equals(repositoryId)
-                            && p.getBusinessName().equalsIgnoreCase(name));
+                    .anyMatch(p -> p.getRepository().getId().equals(repositoryId) && knownAs(p, name));
         }
     }
 
