@@ -370,8 +370,9 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-05 — run forty-eight. Sixth consecutive idle run, same head, no `dead-code/*` PR; ledger unchanged at 375 lines.
 - 08-05 — run forty-nine. `main` advanced one commit (EPBDS-16366); its deletions are all replaced in place, so no
   scope. Resume point moved to `8988360c`; ledger 377 lines.
 - 08-05 — run fifty. `main` advanced six commits; four purely additive, the two with deletions replace in place with
   the freed imports already dropped. No scope. Resume point moved to `a80067f2`; ledger 377 lines.
+- 08-05 — run fifty-one. `main` still `a80067f2` and no `dead-code/*` PR, so the idle pass ended after its two
+  calls; nothing built, nothing read beyond the ledger. Ledger 377 lines.
