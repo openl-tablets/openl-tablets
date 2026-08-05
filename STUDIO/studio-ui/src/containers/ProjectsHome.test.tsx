@@ -861,7 +861,7 @@ describe('ProjectsHome row actions', () => {
     })
 
     it('hands branch deletion to the shared branch dialog', async () => {
-        mockProjectSearch(single({ canManageBranches: true }))
+        mockProjectSearch(single({ canDeleteBranch: true }))
         await renderHome()
 
         await userEvent.click(screen.getByTestId('project-action-deleteBranch-p1'))

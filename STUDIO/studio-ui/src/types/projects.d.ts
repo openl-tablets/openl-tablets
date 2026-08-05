@@ -106,6 +106,8 @@ export interface ProjectCapabilities {
     canCopy?: boolean
     /** Whether the project branches can be created, merged and deleted. */
     canManageBranches?: boolean
+    /** Whether the branch the project sits on can be deleted — another branch must still hold the project. */
+    canDeleteBranch?: boolean
     canExport?: boolean
 }
 

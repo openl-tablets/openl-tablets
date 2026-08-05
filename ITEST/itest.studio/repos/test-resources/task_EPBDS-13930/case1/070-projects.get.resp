@@ -69,6 +69,7 @@ Content-Type: application/json
         "canManage": true,
         "canCopy": true,
         "canManageBranches": true,
+        "canDeleteBranch": true,
         "canExport": true
       }
     }

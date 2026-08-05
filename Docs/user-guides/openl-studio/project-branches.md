@@ -69,6 +69,14 @@ the branch menu is opened. Proceed as follows:
     default branch, a warning message is displayed upon deletion attempt. A branch on which the project is locked by
     another user cannot be deleted while the lock is held: the lock means that user is editing the project there.
 
+    **Delete Branch** is unavailable in these cases:
+
+    - the branch is the default one;
+    - the branch is protected and the user cannot bypass branch protection;
+    - the branch is the only one that contains the project and the user cannot delete the project. Deleting that
+      branch removes the project, so it takes the same permission as deleting the project. Users who have it are
+      warned in the confirmation dialog that the project will be gone.
+
     ![](images/delete-branch-unmerged-commits.png)
 
     *Deleting a non-default branch with unmerged commits*

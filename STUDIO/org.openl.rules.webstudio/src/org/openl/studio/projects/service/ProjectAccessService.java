@@ -7,6 +7,7 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.model.Capabilities;
@@ -75,6 +76,12 @@ public class ProjectAccessService {
                 // to a user who may not create projects at all. The exact per-artefact check, the branch
                 // protection and the base-branch rule are enforced when the operation runs.
                 .canManageBranches(flag(!localOnly && workspaceProject.isSupportsBranches() && write))
+                // The base branch and a protected branch without the bypass right are refused when the deletion
+                // runs, so the action is not offered for them. Deleting the only branch that holds the project
+                // deletes the project, which takes the right to delete a project rather than to manage branches.
+                .canDeleteBranch(flag(write && workspaceProject instanceof RulesProject rulesProject
+                        && projectStateValidator.canDeleteBranch(rulesProject)
+                        && (delete || !projectStateValidator.isLastProjectBranch(rulesProject))))
                 .canExport(flag(readShared))
                 .build();
     }

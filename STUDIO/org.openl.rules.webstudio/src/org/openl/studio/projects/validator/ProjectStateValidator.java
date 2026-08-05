@@ -63,4 +63,24 @@ public interface ProjectStateValidator {
      * @return true or false
      */
     boolean canMerge(RulesProject project);
+
+    /**
+     * Check if the branch the project sits on can be deleted.
+     *
+     * <p>The repository base branch never can, and a protected branch needs the right to bypass branch
+     * protection. Whether the deletion also removes the project is a separate question, answered by
+     * {@link #isLastProjectBranch(RulesProject)}.
+     *
+     * @param project project
+     * @return true or false
+     */
+    boolean canDeleteBranch(RulesProject project);
+
+    /**
+     * Check if this is the only branch holding the project, so deleting the branch deletes the project.
+     *
+     * @param project project
+     * @return true or false
+     */
+    boolean isLastProjectBranch(RulesProject project);
 }

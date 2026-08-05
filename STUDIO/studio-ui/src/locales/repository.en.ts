@@ -613,6 +613,7 @@ i18next.addResourceBundle('en', 'repository', {
         title: 'Delete branch',
         confirm: 'Are you sure you want to delete branch "{{branch}}"?',
         modified_warning: 'The project is modified. If you delete the branch, all changes will be lost.',
+        last_branch_warning: 'No other branch contains this project, so deleting the branch deletes the project.',
         protected_warning: 'This branch is protected. Deleting it requires the right to bypass branch protection; the repository refuses the deletion otherwise.',
         not_merged_warning: 'Branch "{{branch}}" is not merged into the "{{mainBranch}}" branch. All unmerged changes will be lost and cannot be restored.',
         confirm_button: 'Delete',

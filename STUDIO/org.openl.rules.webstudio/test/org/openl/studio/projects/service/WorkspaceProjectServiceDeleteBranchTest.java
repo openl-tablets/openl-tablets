@@ -15,7 +15,10 @@ import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -23,16 +26,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
+import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.lock.LockInfo;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -62,6 +70,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
     private static final String BRANCH = "user-a";
 
     private RepositoryAclService designRepositoryAclService;
+    private AclProjectsHelper aclProjectsHelper;
     private UserWorkspace userWorkspace;
     private LockEngine lockEngine;
     private RulesProject project;
@@ -71,6 +80,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
     @BeforeEach
     void init() throws IOException {
         designRepositoryAclService = mock(RepositoryAclService.class);
+        aclProjectsHelper = mock(AclProjectsHelper.class);
         userWorkspace = mock(UserWorkspace.class);
         lockEngine = mock(LockEngine.class);
         when(userWorkspace.getProjectsLockEngine()).thenReturn(lockEngine);
@@ -114,7 +124,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(DetailedMessageDescriptionMapper.class),
                 mock(LocalWorkspaceManager.class),
                 mock(MultiUserWorkspaceManager.class),
-                mock(AclProjectsHelper.class),
+                aclProjectsHelper,
                 mock(ProjectAccessService.class),
                 mock(ProjectStatusMapper.class),
                 mock(Environment.class),
@@ -173,6 +183,36 @@ class WorkspaceProjectServiceDeleteBranchTest {
         doThrow(new AccessDeniedException(BRANCH)).when(repository).deleteRepositoryBranch(BRANCH);
 
         assertThrows(ForbiddenException.class, () -> service.deleteBranch(project, BRANCH, false));
+    }
+
+    @Test
+    void theOnlyBranchHoldingTheProjectNeedsThePermissionToDeleteTheProject() throws IOException {
+        heldOnlyBy(BRANCH);
+
+        // Deleting it deletes the project, so managing branches alone is not enough.
+        assertThrows(ForbiddenException.class, () -> service.deleteBranch(project, BRANCH, false));
+
+        verify(repository, never()).deleteRepositoryBranch(anyString());
+    }
+
+    @Test
+    void theOnlyBranchHoldingTheProjectIsDeletedByWhoMayDeleteTheProject() throws IOException {
+        heldOnlyBy(BRANCH);
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
+
+        assertDoesNotThrow(() -> service.deleteBranch(project, BRANCH, false));
+
+        verify(repository).deleteRepositoryBranch(BRANCH);
+    }
+
+    /** Publishes the project in the index under one branch only. */
+    private void heldOnlyBy(String branch) {
+        var status = new BranchStatus(new UserInfo("author"), Instant.EPOCH, "Change", "revision");
+        var entries = Map.of(branch, new BranchedProject.BranchEntry(mock(AProject.class), status));
+        when(project.getDesignProjectName()).thenReturn("P1");
+        when(userWorkspace.getDesignTimeRepository().getBranchedProject("design", "P1"))
+                .thenReturn(Optional.of(new BranchedProject("P1", branch, "main", entries)));
     }
 
     @Test
