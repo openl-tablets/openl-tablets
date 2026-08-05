@@ -373,12 +373,11 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-05 — run fifty-two. `main` advanced five commits (a dropped `throws`, four EPBDS-16375 indexing commits). Every
-  deletion is replaced in place; all twelve freed-symbol candidates proved alive, including a two-caller private
-  helper and a locale key whose block only moved. No scope. Resume point moved to `8ace3b69`; ledger 380 lines.
 - 08-05 — run fifty-three. `main` still `8ace3b69` and no `dead-code/*` PR; idle pass ended after its two calls.
   Ledger 380 lines.
 - 08-05 — run fifty-four. `main` advanced five commits (three EPBDS-16378 branch-deletion guards, EPBDS-16381, an
   ObjectFactory rewrite). Almost purely additive; every freed symbol proved alive — `branchDefault`/`branchProtected`
   survive the dropped action predicate, the new capability, index API and message key are all wired, and the deleted
   `encodeProjectId` moved into `services/projectId`. No scope. Resume point `5d3020a4`; ledger 384 lines.
+- 08-05 — run fifty-five. `main` still `5d3020a4` and no `dead-code/*` PR; idle pass ended after its two calls.
+  Ledger 383 lines.
