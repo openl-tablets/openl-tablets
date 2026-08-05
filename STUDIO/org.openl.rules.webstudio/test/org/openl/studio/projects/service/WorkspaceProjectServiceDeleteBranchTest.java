@@ -122,12 +122,8 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(ProjectStatusMapper.class),
                 mock(Environment.class),
                 mock(ProjectTagsCache.class),
-                new ProjectListingContext()) {
-            @Override
-            public UserWorkspace getUserWorkspace() {
-                return userWorkspace;
-            }
-        };
+                new ProjectListingContext(),
+                () -> userWorkspace);
     }
 
     @Test
