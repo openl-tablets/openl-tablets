@@ -308,6 +308,22 @@ To open a project, in the project tree, select the project and, in the right pan
 | **Open**          | Opens the latest revision of project.                                         |
 | **Open Revision** | Displays window where user can specify which project revision must be opened. |
 
+When the project declares dependencies, **Open** first asks whether to open them together with it. Opening them
+is the default, because the project needs them to compile.
+
+The same window warns about every dependency the branch of the project does not hold. The project is compiled
+against them as they are, which can fail, and the two kinds are dealt with differently:
+
+-   A dependency of the same repository that the workspace keeps on another branch is switched over to the branch
+    of the project before opening it. Branches of one repository are not switched together: each project keeps the
+    branch it was switched to.
+-   A dependency marked **Not Found** stays unavailable until the branch of the project contains it, so switching
+    branches does not help. Bring the project into that branch, or open the depending project on a branch that
+    already has it.
+
+A dependency of another repository is never reported here: repositories keep no branches in step, so its branch
+means nothing to this project.
+
 Any project revision can be opened, with the project status set to **Viewing Revision**, as follows:
 
 -   [Opening a Project Revision Using the Open Revision Button](#opening-a-project-revision-using-the-open-revision-button)

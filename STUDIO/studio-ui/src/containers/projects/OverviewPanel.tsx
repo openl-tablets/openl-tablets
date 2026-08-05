@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode, type SyntheticEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tag, Tooltip, Typography, Upload } from 'antd'
+import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tooltip, Typography, Upload } from 'antd'
 import {
     ApartmentOutlined,
     ApiOutlined,
@@ -48,7 +47,7 @@ import { useSharedStyles } from './sharedStyles'
 import { StatusPill } from './StatusIndicator'
 import { ValueText } from './ValueText'
 import { RepoBadge } from './RepoBadge'
-import { BranchLabel } from './BranchLabel'
+import { DependencyList } from './DependencyList'
 import { BranchSwitcher } from './BranchSwitcher'
 import { GitCommitMessage } from './GitCommitMessage'
 import { useProjectTags } from './useProjectTags'
@@ -177,42 +176,6 @@ const useStyles = createStyles(({ css, token }) => ({
         display: flex;
         flex-direction: column;
         gap: 12px;
-    `,
-    rowName: css`
-        flex: 1;
-        min-width: 0;
-    `,
-    rowLink: css`
-        flex: 1;
-        min-width: 0;
-        color: ${token.colorLink};
-
-        &:hover {
-            color: ${token.colorLinkHover};
-        }
-    `,
-    rowMeta: css`
-        flex: none;
-        font-size: 12px;
-    `,
-    /** A dependency the workspace cannot show is marked, so an empty row does not read as a broken link. */
-    missingTag: css`
-        flex: none;
-        margin: 0;
-        color: ${token.colorErrorText};
-        background: ${token.colorErrorBg};
-        border-color: ${token.colorErrorBorder};
-    `,
-    /**
-     * A dependency another dependency brings in is not part of what this rules.xml declares, so it reads
-     * as an aside rather than as an error.
-     */
-    transitiveTag: css`
-        flex: none;
-        margin: 0;
-        color: ${token.colorTextTertiary};
-        background: ${token.colorFillQuaternary};
-        border-color: ${token.colorBorderSecondary};
     `,
     /**
      * A module reads in columns — its name, the path beside it, the switcher at the end — so a list of
@@ -389,24 +352,6 @@ const useStyles = createStyles(({ css, token }) => ({
      * so the line sits under the label text — past its icon — rather than directly under the icon. */
     filterValues: css`
         margin-left: 18px;
-    `,
-    /** A plain list read the way exposed methods are: values on their own lines, a line down the left. */
-    linedList: css`
-        list-style: none;
-        margin: 0;
-        padding: 0 0 0 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 0;
-        border-left: 2px solid ${token.colorBorderSecondary};
-    `,
-    linedItem: css`
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-width: 0;
-        word-break: break-word;
     `,
     moduleFilter: css`
         display: flex;
@@ -723,8 +668,8 @@ const FilterPanel = ({ filter, compact }: { filter: MethodFilter, compact?: bool
     const column = (icon: ReactNode, labelKey: string, patterns: string[]) => (
         <div className={styles.filterColumn}>
             <span className={cx(shared.microLabel, styles.dependencyLabel)}>{icon} {t(labelKey)}</span>
-            <ul className={cx(styles.linedList, styles.filterValues)}>
-                {patterns.map(pattern => <li key={pattern} className={cx(shared.valueText, styles.linedItem)}>{pattern}</li>)}
+            <ul className={cx(shared.linedList, styles.filterValues)}>
+                {patterns.map(pattern => <li key={pattern} className={cx(shared.valueText, shared.linedItem)}>{pattern}</li>)}
             </ul>
         </div>
     )
@@ -1007,7 +952,7 @@ const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters, hasRul
 const VersionPatternsSection = ({ editor, onHelp }: { editor: DescriptorEditor, onHelp: () => void }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
-    const { styles, cx } = useStyles()
+    const { cx } = useStyles()
     const { editing, shown, editDraft } = editor
     if (!editing && shown.versionPatterns.length === 0) {
         return null
@@ -1029,9 +974,9 @@ const VersionPatternsSection = ({ editor, onHelp }: { editor: DescriptorEditor, 
                     />
                 )
                 : (
-                    <ul className={styles.linedList}>
+                    <ul className={shared.linedList}>
                         {shown.versionPatterns.map(pattern => (
-                            <li key={pattern} className={cx(shared.valueText, styles.linedItem)}>{pattern}</li>
+                            <li key={pattern} className={cx(shared.valueText, shared.linedItem)}>{pattern}</li>
                         ))}
                     </ul>
                 )}
@@ -1085,49 +1030,6 @@ const ExposedMethodsSection = ({ editor }: { editor: DescriptorEditor }) => {
 }
 
 /** One column of related projects: what this one depends on, or what uses it. */
-const DependencyList = ({ deps }: { deps: ProjectDependency[] }) => {
-    const { t } = useTranslation('repository')
-    const { styles: shared } = useSharedStyles()
-    const { styles, cx } = useStyles()
-    return (
-        <ul className={cx(styles.linedList, styles.filterValues)}>
-            {deps.map(dep => (
-                <li key={dep.id ?? dep.name} className={styles.linedItem}>
-                    {/* rules.xml names a project the workspace does not have: it is shown as declared,
-                        with nothing to open. */}
-                    {dep.id
-                        ? (
-                            <Link className={cx(shared.valueText, shared.ellipsis, styles.rowLink)} to={`/projects/${encodeURIComponent(dep.id)}`}>
-                                {dep.name}
-                            </Link>
-                        )
-                        : <span className={cx(shared.valueText, shared.ellipsis, styles.rowName)}>{dep.name}</span>}
-                    {dep.missing && (
-                        <Tag className={styles.missingTag} data-testid={`dependency-missing-${dep.name}`}>
-                            {t('browser.overview.dependency_missing')}
-                        </Tag>
-                    )}
-                    {/* rules.xml declares the direct ones only; this one comes with another dependency. */}
-                    {dep.transitive && (
-                        <Tag className={styles.transitiveTag} data-testid={`dependency-transitive-${dep.name}`}>
-                            {t('browser.overview.dependency_transitive')}
-                        </Tag>
-                    )}
-                    {dep.branch && (
-                        <BranchLabel
-                            className={styles.rowMeta}
-                            isDefault={dep.branchDefault}
-                            isProtected={dep.branchProtected}
-                            name={dep.branch}
-                            testId={`dependency-branch-${dep.id}`}
-                        />
-                    )}
-                </li>
-            ))}
-        </ul>
-    )
-}
-
 /** The projects this one depends on — the declared list while editing — and the projects using it. */
 const DependenciesSection = ({ editor, dependsOn, usedBy, projectNames }: {
     editor: DescriptorEditor
@@ -1195,7 +1097,7 @@ const SourcesSection = ({ editor, sources, sourcesDefault, hasRulesXml }: {
 }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
-    const { styles, cx } = useStyles()
+    const { cx } = useStyles()
     const { editing, shown, editDraft } = editor
     // Editable only when rules.xml declares its own classpath. The engine defaults (no rules.xml, or one
     // with an empty classpath) stay read-only even while the rest of the descriptor is edited.
@@ -1225,9 +1127,9 @@ const SourcesSection = ({ editor, sources, sourcesDefault, hasRulesXml }: {
                                 type="info"
                             />
                         )}
-                        <ul className={styles.linedList}>
+                        <ul className={shared.linedList}>
                             {sources.map(source => (
-                                <li key={source} className={cx(shared.valueText, styles.linedItem)}>{source}</li>
+                                <li key={source} className={cx(shared.valueText, shared.linedItem)}>{source}</li>
                             ))}
                         </ul>
                     </>

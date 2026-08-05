@@ -27,6 +27,7 @@ import { CopyProjectModal } from './projects/CopyProjectModal'
 import { ExportProjectModal } from './projects/ExportProjectModal'
 import { OpenRevisionModal } from './projects/OpenRevisionModal'
 import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
+import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { openCompareWindow } from './projects/compare'
 import type { ActionId, ProjectActionHandlers } from './projects/ProjectActionBar'
 import { DiscardChangesModal } from './DiscardChangesModal'
@@ -318,13 +319,26 @@ export const ProjectWorkspace = () => {
         )
     }, [project, runAction])
 
+    // The dialog is mounted above the routes and answers back with this project, so moving on takes its
+    // question along. The page stays mounted when the route swaps one project for another, so the question
+    // is withdrawn on the id as well as on the way out.
+    useEffect(() => closeProjectDialog, [projectId])
+
     const handlers: ProjectActionHandlers = useMemo(() => {
         if (!project) {
             // The action bar is only rendered with a project; the handlers are never reached without one.
             return {} as ProjectActionHandlers
         }
         return {
-            open: () => runAction('open', () => setProjectStatus(project.id, 'OPENED', true), 'browser.status_change_failed'),
+            // The detail response is already loaded, so the dialog never reads the dependencies again.
+            open: () => openProjectDialog(
+                { ...project, dependencies: project.dependencies ?? []},
+                openDependencies => runAction(
+                    'open',
+                    () => setProjectStatus(project.id, 'OPENED', { openDependencies }),
+                    'browser.status_change_failed'
+                )
+            ),
             close: () => {
                 if (project.status === ProjectStatus.Editing) {
                     setDiscardCloseOpen(true)

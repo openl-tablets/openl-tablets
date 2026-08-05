@@ -132,6 +132,14 @@ i18next.addResourceBundle('en', 'repository', {
         close: 'Close',
         live_project_synced: 'Project synced',
         live_file_synced: 'File "{{name}}" synced',
+        open_project: {
+            title: 'Open project "{{name}}"',
+            confirm_button: 'Open',
+            open_dependencies: 'Open Dependencies',
+            other_branch_warning: 'The project is compiled against these dependencies as they are, which can '
+                + 'fail. Switch the ones this repository keeps on another branch over to "{{branch}}" first. '
+                + 'A dependency marked as not found stays unavailable until "{{branch}}" contains it.',
+        },
         close_discard_title: 'Discard unsaved changes?',
         close_discard_warning: 'The project is modified. If you close the project, all changes will be lost.',
         close_discard_confirm_unsafe: 'I understand the consequences, close this project',

@@ -14,6 +14,24 @@ import { MOCKUP } from './projectsTheme'
  * ```
  */
 export const useSharedStyles = createStyles(({ css, token }) => ({
+    /** A plain list read the way exposed methods are: values on their own lines, a line down the left. */
+    linedList: css`
+        list-style: none;
+        margin: 0;
+        padding: 0 0 0 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+        border-left: 2px solid ${token.colorBorderSecondary};
+    `,
+    linedItem: css`
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        word-break: break-word;
+    `,
     /**
      * The explicit compact (12px) value size, for the few places that opt into it directly (module cells,
      * patterns, source paths, the rail count). `ValueText` itself inherits its context size instead.

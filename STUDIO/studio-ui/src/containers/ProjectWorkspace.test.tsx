@@ -411,7 +411,42 @@ describe('ProjectWorkspace', () => {
 
         await userEvent.click(screen.getByTestId('open-p1'))
 
-        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', true))
+        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true }))
+    })
+
+    it('withdraws the open question when the route swaps in another project', async () => {
+        // The page stays mounted across /projects/p1 -> /projects/p2, and the dialog lives above the routes,
+        // so without withdrawing it a confirmation would open the project the user has already left.
+        vi.mocked(getProject).mockResolvedValue(project({
+            capabilities: { canOpen: true },
+            dependencies: [{ name: 'Provider', missing: true }],
+        }) as never)
+        const events: CustomEvent[] = []
+        const listener = (event: Event) => events.push(event as CustomEvent)
+        window.addEventListener('openProjectModal', listener)
+
+        try {
+            let view!: ReturnType<typeof render>
+            await act(async () => {
+                view = render(<ProjectWorkspace />)
+                await new Promise(resolve => setTimeout(resolve, 50))
+            })
+
+            await userEvent.click(screen.getByTestId('open-p1'))
+            expect(events.at(-1)?.detail?.projectName).toBe('Alpha')
+
+            routeParams.projectId = 'p2'
+            await act(async () => {
+                view.rerender(<ProjectWorkspace />)
+                await new Promise(resolve => setTimeout(resolve, 50))
+            })
+
+            expect(events.at(-1)?.detail).toBeNull()
+            // The question was never answered, so nothing was opened.
+            expect(setProjectStatus).not.toHaveBeenCalled()
+        } finally {
+            window.removeEventListener('openProjectModal', listener)
+        }
     })
 
     it('closes an unmodified project immediately', async () => {

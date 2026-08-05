@@ -4,6 +4,7 @@ import { Header } from 'containers/Header'
 import { DeployModal } from 'containers/DeployModal'
 import { MergeModal } from 'containers/MergeModal'
 import { DeleteBranchModal } from 'containers/DeleteBranchModal'
+import { OpenProjectModal } from 'containers/projects/OpenProjectModal'
 import { DeleteFileModal } from 'containers/DeleteFileModal'
 import { DeleteProjectModal } from 'containers/DeleteProjectModal'
 import { ConfirmModal } from 'containers/ConfirmModal'
@@ -62,6 +63,7 @@ export const DefaultLayout = () => {
             <DeployModal />
             <MergeModal />
             <DeleteBranchModal />
+            <OpenProjectModal />
             <DeleteFileModal />
             <DeleteProjectModal />
             <TraceExecutionModal />
