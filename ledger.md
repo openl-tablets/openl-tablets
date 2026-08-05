@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `8ace3b69`**; every queue row done, every vein closed. New scope arrives only as new
+- **Converged at `main` = `5d3020a4`**; every queue row done, every vein closed. New scope arrives only as new
   commits on `main` — never invent a detector to manufacture work. Expect idleness.
-- The idle pass is two calls: `git log 8ace3b69..origin/main` and the open-PR check. Read `build-quick.yml` only
+- The idle pass is two calls: `git log 5d3020a4..origin/main` and the open-PR check. Read `build-quick.yml` only
   before committing code, and only once `main` has moved; never re-diagnose an unchanged SHA.
 - When scope arrives, sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and
   `.github/`. Read the **deleted** lines first — a purely additive commit orphans nothing, and one whose deletions are
@@ -110,8 +110,10 @@ None. Open the next one from a fresh branch off the current `main`.
   Only a `<module>` naming a missing directory would be deletable, and there are none.
 - **A signature an incremental-scope diff deletes is usually renamed, not removed** — `convertRegexToGlob` returned as
   `convertRegexToGlobs`, and two inline `Pattern.compile` locals returned as constants. Search the added lines for the
-  same stem, and a deleted local's body for a new constant, before calling either an orphan. A wholly deleted `import`
-  or JSX line likewise usually returns with one more name on it, so grep the post-image file, never the diff alone.
+  same stem, and a deleted local's body for a new constant, before calling either an orphan. It may also move into a
+  shared module the same diff newly imports — a file-local `encodeProjectId` returned as `toUrlSafeId` in
+  `services/projectId` — so read the added imports too. A wholly deleted `import` or JSX line likewise usually
+  returns with one more name on it, so grep the post-image file, never the diff alone.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
@@ -371,10 +373,12 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-05 — run fifty-one. `main` still `a80067f2` and no `dead-code/*` PR, so the idle pass ended after its two
-  calls; nothing built, nothing read beyond the ledger. Ledger 377 lines.
 - 08-05 — run fifty-two. `main` advanced five commits (a dropped `throws`, four EPBDS-16375 indexing commits). Every
   deletion is replaced in place; all twelve freed-symbol candidates proved alive, including a two-caller private
   helper and a locale key whose block only moved. No scope. Resume point moved to `8ace3b69`; ledger 380 lines.
 - 08-05 — run fifty-three. `main` still `8ace3b69` and no `dead-code/*` PR; idle pass ended after its two calls.
   Ledger 380 lines.
+- 08-05 — run fifty-four. `main` advanced five commits (three EPBDS-16378 branch-deletion guards, EPBDS-16381, an
+  ObjectFactory rewrite). Almost purely additive; every freed symbol proved alive — `branchDefault`/`branchProtected`
+  survive the dropped action predicate, the new capability, index API and message key are all wired, and the deleted
+  `encodeProjectId` moved into `services/projectId`. No scope. Resume point `5d3020a4`; ledger 384 lines.
