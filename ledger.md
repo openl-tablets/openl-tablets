@@ -370,6 +370,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run forty-five. Third consecutive idle run: `main` still at the converged head, no `dead-code/*` PR.
 - 08-05 — run forty-six. Fourth consecutive idle run, same head, no `dead-code/*` PR; ledger 377 lines, in budget.
 - 08-05 — run forty-seven. Fifth consecutive idle run, same head; compacted the incremental-scope vein to 375 lines.
+- 08-05 — run forty-eight. Sixth consecutive idle run, same head, no `dead-code/*` PR; ledger unchanged at 375 lines.
