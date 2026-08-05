@@ -4,11 +4,10 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `8988360c`**; every queue row done, every vein closed. `build-quick.yml` was green at the
-  previous head and its run for this one was still in progress — re-check it only before committing code.
-  New scope arrives only as new commits on `main` — never invent a detector to manufacture work. Expect idleness.
-- The idle pass is two calls: `git log 8988360c..origin/main` and the open-PR check. Read `build-quick.yml` only once
-  `main` has moved; never re-diagnose an unchanged SHA.
+- **Converged at `main` = `a80067f2`**; every queue row done, every vein closed. New scope arrives only as new
+  commits on `main` — never invent a detector to manufacture work. Expect idleness.
+- The idle pass is two calls: `git log a80067f2..origin/main` and the open-PR check. Read `build-quick.yml` only
+  before committing code, and only once `main` has moved; never re-diagnose an unchanged SHA.
 - When scope arrives, sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and
   `.github/`. Read the **deleted** lines first — a purely additive commit orphans nothing, and one whose deletions are
   replaced in place usually does too; a commit deleting a screen is the richest vein, so check its locale keys,
@@ -371,7 +370,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-05 — run forty-seven. Fifth consecutive idle run, same head; compacted the incremental-scope vein to 375 lines.
 - 08-05 — run forty-eight. Sixth consecutive idle run, same head, no `dead-code/*` PR; ledger unchanged at 375 lines.
 - 08-05 — run forty-nine. `main` advanced one commit (EPBDS-16366); its deletions are all replaced in place, so no
   scope. Resume point moved to `8988360c`; ledger 377 lines.
+- 08-05 — run fifty. `main` advanced six commits; four purely additive, the two with deletions replace in place with
+  the freed imports already dropped. No scope. Resume point moved to `a80067f2`; ledger 377 lines.
