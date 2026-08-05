@@ -52,8 +52,8 @@ The components must have these responsibilities:
 ### Logical identity and membership
 
 A logical project is identified by `(repositoryId, internal folder path)`. Every branch agrees on the folder; the
-name does not, because a mapped repository tells two same-named folders apart per branch and the descriptor may
-name the same folder differently on another branch. `ProjectKey` and the Base64 `projectId` must remain branchless.
+name does not, because the descriptor may name the same folder differently on another branch. `ProjectKey` and the
+Base64 `projectId` must remain branchless.
 
 The name is what a branch shows, not what identifies. A project is displayed under the name of its home branch,
 and a lookup by name must find it whichever branch the caller took the name from: a mapped name carries the folder
@@ -77,6 +77,10 @@ Two folders may end up with the same displayed name — a branch that renames on
 them alike — and they remain separate logical projects, because the folder tells them apart. Project creation still
 enforces repository-wide name uniqueness, so a name collision is something branches produce rather than something a
 user can create.
+
+A mapped repository must show each folder under the name its descriptor declares, and must never invent a suffix to
+make two of them differ. The folder hash the external name already carries keeps the mapping unambiguous, while an
+invented name shows a project the repository does not contain and hides which folder it stands for.
 
 ### Home branch
 
@@ -423,8 +427,8 @@ The deletion flow must:
 4. keep the logical project when another readable or hidden membership survives;
 5. remove the captured ACL only when no surviving membership uses that path or a covered descendant.
 
-Mapped repositories must use the external design-project identity, including a collision suffix, for the post-delete
-lookup. A display name is not a sufficient index key.
+Mapped repositories must use the external design-project identity, which pairs the declared name with the folder
+hash, for the post-delete lookup. A display name is not a sufficient index key.
 
 ACL cleanup must use a successfully refreshed snapshot. A scan failure, concurrent branch change or timeout must
 retain the ACL. A later successful refresh may perform deferred cleanup.

@@ -30,6 +30,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.workspace.dtr.FolderMapper;
 
 class MappedRepositoryTest {
 
@@ -58,6 +59,36 @@ class MappedRepositoryTest {
                 "Missing rules.xml name must fall back to the folder name, but was: " + mapped);
         assertTrue(mapped.stream().anyMatch(name -> name.startsWith("DESIGN/RealName:")),
                 "Named project must keep its rules.xml name, but was: " + mapped);
+    }
+
+    /**
+     * Two folders may declare the same project name, and both must keep it.
+     *
+     * A suffix invented to tell them apart shows a project no descriptor declares, and hides which folder that
+     * name stands for. The folder hash the mapped name carries already keeps the two apart.
+     */
+    @Test
+    void foldersDeclaringTheSameNameKeepIt() throws IOException {
+        writeProject("catalog/quoting-core", "<project><name>Quoting</name></project>");
+        writeProject("catalog/quoting-legacy", "<project><name>Quoting</name></project>");
+
+        var delegate = new FileSystemRepository();
+        delegate.setRoot(root);
+        delegate.initialize();
+
+        var mapped = MappedRepository.create(delegate, "DESIGN/");
+        try {
+            var names = mapped.listFolders("DESIGN/").stream().map(FileData::getName).toList();
+
+            assertEquals(2, names.size(), "Both folders must be mapped: " + names);
+            assertTrue(names.stream().allMatch(name -> name.startsWith("DESIGN/Quoting:")),
+                    "Both folders must keep the declared name, but were: " + names);
+            assertEquals(List.of("catalog/quoting-core", "catalog/quoting-legacy"),
+                    names.stream().map(((FolderMapper) mapped)::getRealPath).sorted().toList(),
+                    "Each mapped name must lead back to its own folder");
+        } finally {
+            ((Closeable) mapped).close();
+        }
     }
 
     @Test

@@ -637,7 +637,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             }
         }
 
-        var index = generateExternalToInternalMap(delegate, baseFolder);
+        var index = generateExternalToInternalMap(delegate);
         var treeRevisionAfter = getRootTreeRevision(delegate);
         if (treeRevisionBefore != null && treeRevisionBefore.equals(treeRevisionAfter)) {
             indexesByTreeRevision.putIfAbsent(treeRevisionBefore, index.copy());
@@ -657,39 +657,17 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         return revision == null ? null : revision.treeRevision();
     }
 
-    private String createUniquePath(ProjectIndex externalToInternal, String externalPath) {
-        // If occasionally such project name exists already, add some suffix to it.
-        var projectName = externalPath.substring(baseFolder.length());
-        List<ProjectInfo> projects = externalToInternal.getProjects();
-        if (projects.stream().anyMatch(p -> projectName.equals(p.getName()))) {
-            var i = 1;
-            var copy = externalPath + "." + i;
-            var found = false;
-            do {
-                for (ProjectInfo p : projects) {
-                    if (p.getName().equals(copy.substring(baseFolder.length()))) {
-                        found = true;
-                        break;
-                    }
-                }
-                copy = externalPath + "." + (++i);
-            } while (found);
-            externalPath = copy;
-        }
-
-        return externalPath;
-    }
-
     /**
      * Detect existing projects and Deploy Configurations based on rules.xml and
-     * {@link ArtefactProperties#DESCRIPTORS_FILE}. If there are several projects with same name, suffix will be added
-     * to them
+     * {@link ArtefactProperties#DESCRIPTORS_FILE}.
      *
-     * @param delegate   repository to detect projects {@link ArtefactProperties#DESCRIPTORS_FILE}
-     * @param baseFolder virtual base folder. OpenL Studio will think that projects can be found in this folder.
+     * <p>Every project keeps the name its descriptor declares. Several folders may declare the same name; they stay
+     * separate projects, told apart by the folder they live in.
+     *
+     * @param delegate repository to detect projects {@link ArtefactProperties#DESCRIPTORS_FILE}
      * @return generated mapping
      */
-    private ProjectIndex generateExternalToInternalMap(Repository delegate, String baseFolder) throws IOException {
+    private ProjectIndex generateExternalToInternalMap(Repository delegate) throws IOException {
         var externalToInternal = new ProjectIndex();
         var folderQueue = new ArrayDeque<FileData>(delegate.listFolders(""));
 
@@ -697,9 +675,9 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             var folderData = folderQueue.poll();
             var folderPath = folderData.getName();
 
-            var projectInfo = tryResolveProjectFromDescriptor(externalToInternal, folderPath, delegate, baseFolder);
+            var projectInfo = tryResolveProjectFromDescriptor(folderPath, delegate);
             if (projectInfo == null) {
-                projectInfo = tryResolveProjectFromExcelFiles(externalToInternal, folderPath, delegate, baseFolder);
+                projectInfo = tryResolveProjectFromExcelFiles(folderPath, delegate);
             }
 
             if (projectInfo == null) {
@@ -718,14 +696,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      *
      * @param folderPath the folder path to check
      * @param delegate   the repository
-     * @param baseFolder the base folder for external paths
      * @return the resolved ProjectInfo, or null if no project was resolved
      * @throws IOException if an error occurs while reading the descriptor
      */
-    private ProjectInfo tryResolveProjectFromDescriptor(ProjectIndex externalToInternal,
-                                                        String folderPath,
-                                                        Repository delegate,
-                                                        String baseFolder) throws IOException {
+    private ProjectInfo tryResolveProjectFromDescriptor(String folderPath, Repository delegate) throws IOException {
         var descriptorPath = folderPath + "/rules.xml";
         var rulesDescriptor = delegate.check(descriptorPath);
 
@@ -748,8 +722,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         }
 
         var projectName = ProjectDescriptor.resolveName(descriptorName.orElse(null), FileUtils.getName(folderPath));
-        var externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
-        return new ProjectInfo(externalPath.substring(baseFolder.length()), folderPath);
+        return new ProjectInfo(projectName, folderPath);
     }
 
     /**
@@ -758,24 +731,15 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      *
      * @param folderPath the folder path to check
      * @param delegate   the repository
-     * @param baseFolder the base folder for external paths
      * @return the resolved ProjectInfo, or null if no project was resolved
      * @throws IOException if an error occurs while listing or reading files
      */
-    private ProjectInfo tryResolveProjectFromExcelFiles(ProjectIndex externalToInternal,
-                                                        String folderPath,
-                                                        Repository delegate,
-                                                        String baseFolder) throws IOException {
+    private ProjectInfo tryResolveProjectFromExcelFiles(String folderPath, Repository delegate) throws IOException {
         var allFiles = delegate.list(folderPath + "/");
 
         for (FileData fileData : allFiles) {
             if (isExcelFileInFolderRoot(fileData, folderPath)) {
-                String projectName = FileUtils.getName(folderPath);
-                var externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
-                return new ProjectInfo(
-                        externalPath.substring(baseFolder.length()),
-                        folderPath
-                );
+                return new ProjectInfo(FileUtils.getName(folderPath), folderPath);
             }
         }
 
