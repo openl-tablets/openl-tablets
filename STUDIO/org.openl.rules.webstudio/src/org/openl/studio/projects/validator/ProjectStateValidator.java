@@ -69,18 +69,11 @@ public interface ProjectStateValidator {
      *
      * <p>The repository base branch never can, and a protected branch needs the right to bypass branch
      * protection. Whether the deletion also removes the project is a separate question, answered by
-     * {@link #isLastProjectBranch(RulesProject)}.
+     * the design-time repository.
      *
      * @param project project
      * @return true or false
      */
     boolean canDeleteBranch(RulesProject project);
 
-    /**
-     * Check if this is the only branch holding the project, so deleting the branch deletes the project.
-     *
-     * @param project project
-     * @return true or false
-     */
-    boolean isLastProjectBranch(RulesProject project);
 }

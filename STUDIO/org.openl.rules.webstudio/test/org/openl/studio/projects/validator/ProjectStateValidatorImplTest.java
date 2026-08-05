@@ -7,10 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,13 +17,9 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.workspace.dtr.BranchedProject;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 
 class ProjectStateValidatorImplTest {
@@ -36,12 +29,10 @@ class ProjectStateValidatorImplTest {
 
     private ProjectStateValidatorImpl validator;
     private ProtectedBranchBypassService bypassService;
-    private DesignTimeRepository designTimeRepository;
 
     @BeforeEach
     void setUp() {
         bypassService = mock(ProtectedBranchBypassService.class);
-        designTimeRepository = mock(DesignTimeRepository.class);
         // Default: bypass not granted, so protection is enforced exactly when the branch is
         // marked protected on the repo. Tests asserting the bypass case override this.
         when(bypassService.isProtectionEnforced(any(BranchRepository.class), any(), any(AProject.class)))
@@ -50,7 +41,7 @@ class ProjectStateValidatorImplTest {
                     String branch = inv.getArgument(1);
                     return repo.isBranchProtected(branch);
                 });
-        validator = new ProjectStateValidatorImpl(bypassService, designTimeRepository);
+        validator = new ProjectStateValidatorImpl(bypassService);
     }
 
     // --- canSave ---
@@ -409,7 +400,6 @@ class ProjectStateValidatorImplTest {
     @Test
     void canDeleteBranch_baseBranch_returnsFalse() {
         var project = branchProject("main");
-        heldBy(project, "main", "feature");
         assertFalse(validator.canDeleteBranch(project));
     }
 
@@ -417,44 +407,15 @@ class ProjectStateValidatorImplTest {
     void canDeleteBranch_protectedBranchWithoutBypass_returnsFalse() {
         var project = branchProject("release");
         when(((BranchRepository) project.getDesignRepository()).isBranchProtected("release")).thenReturn(true);
-        heldBy(project, "main", "release");
         assertFalse(validator.canDeleteBranch(project));
     }
 
     @Test
     void canDeleteBranch_nonBaseUnprotectedBranch_returnsTrue() {
-        // Whether the deletion also removes the project is answered by isLastProjectBranch.
+        // Whether the deletion also removes the project is answered by the design-time repository.
         assertTrue(validator.canDeleteBranch(branchProject("feature")));
     }
 
-    // --- isLastProjectBranch ---
-
-    @Test
-    void isLastProjectBranch_null_returnsFalse() {
-        assertFalse(validator.isLastProjectBranch(null));
-    }
-
-    @Test
-    void isLastProjectBranch_onlyBranchHoldingTheProject_returnsTrue() {
-        var project = branchProject("feature");
-        heldBy(project, "feature");
-        assertTrue(validator.isLastProjectBranch(project));
-    }
-
-    @Test
-    void isLastProjectBranch_anotherBranchHoldsTheProject_returnsFalse() {
-        var project = branchProject("feature");
-        heldBy(project, "main", "feature");
-        assertFalse(validator.isLastProjectBranch(project));
-    }
-
-    @Test
-    void isLastProjectBranch_projectMissingFromTheIndex_returnsTrue() {
-        var project = branchProject("feature");
-        when(designTimeRepository.getBranchedProject("design", "Rates")).thenReturn(Optional.empty());
-        // Nothing says another branch holds it, so the deletion is treated as removing the project.
-        assertTrue(validator.isLastProjectBranch(project));
-    }
 
     /** A committed project of a branch repository, sitting on the given branch. */
     private static RulesProject branchProject(String branch) {
@@ -470,16 +431,6 @@ class ProjectStateValidatorImplTest {
         return project;
     }
 
-    /** Publishes the project in the index under the given branches. */
-    private void heldBy(RulesProject project, String... branches) {
-        var status = new BranchStatus(new UserInfo("author"), Instant.EPOCH, "Change", "revision");
-        var entries = new LinkedHashMap<String, BranchedProject.BranchEntry>();
-        for (String branch : branches) {
-            entries.put(branch, new BranchedProject.BranchEntry(mock(AProject.class), status));
-        }
-        when(designTimeRepository.getBranchedProject("design", "Rates"))
-                .thenReturn(Optional.of(new BranchedProject("Rates", branches[0], "main", entries)));
-    }
 
     // --- Test project builder ---
 

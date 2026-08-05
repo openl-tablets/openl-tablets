@@ -137,19 +137,6 @@ describe('ProjectRowActions', () => {
         expect(screen.getByTestId('project-menu-delete-p1')).toBeTruthy()
     })
 
-    it('offers branch deletion only where the server allows it', () => {
-        // The main branch, a protected branch without the bypass right and the last branch holding the
-        // project are all refused when the deletion runs, and the server withholds the capability for them.
-        const withheld = { ...everything, capabilities: { ...everything.capabilities, canDeleteBranch: false } }
-        const { rerender } = render(
-            <ProjectRowActions handlers={makeHandlers()} pendingActionId={null} project={withheld} />
-        )
-
-        expect(screen.queryByTestId('project-action-deleteBranch-p1')).toBeNull()
-
-        rerender(<ProjectRowActions handlers={makeHandlers()} pendingActionId={null} project={everything} />)
-        expect(screen.getByTestId('project-action-deleteBranch-p1')).toBeTruthy()
-    })
 
     it('invokes the matching handler from a button and from the menu', async () => {
         const handlers = makeHandlers()

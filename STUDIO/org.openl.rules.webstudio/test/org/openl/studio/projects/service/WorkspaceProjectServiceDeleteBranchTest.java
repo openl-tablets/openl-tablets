@@ -15,10 +15,7 @@ import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -29,18 +26,14 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.lock.LockInfo;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.RepositoryDelegate;
-import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
-import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -206,13 +199,10 @@ class WorkspaceProjectServiceDeleteBranchTest {
         verify(repository).deleteRepositoryBranch(BRANCH);
     }
 
-    /** Publishes the project in the index under one branch only. */
+    /** The index reports that no other branch holds the project. */
     private void heldOnlyBy(String branch) {
-        var status = new BranchStatus(new UserInfo("author"), Instant.EPOCH, "Change", "revision");
-        var entries = Map.of(branch, new BranchedProject.BranchEntry(mock(AProject.class), status));
         when(project.getDesignProjectName()).thenReturn("P1");
-        when(userWorkspace.getDesignTimeRepository().getBranchedProject("design", "P1"))
-                .thenReturn(Optional.of(new BranchedProject("P1", branch, "main", entries)));
+        when(userWorkspace.getDesignTimeRepository().isLastProjectBranch("design", "P1", branch)).thenReturn(true);
     }
 
     @Test

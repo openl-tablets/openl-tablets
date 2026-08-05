@@ -62,6 +62,15 @@ public record BranchedProject(String name,
     }
 
     /**
+     * Whether the given branch is the only one holding the project, so removing that branch removes the project.
+     *
+     * <p>Branch names are matched the same way the home branch is chosen: without regard to case.
+     */
+    public boolean heldOnlyBy(String branch) {
+        return entries.keySet().stream().allMatch(held -> held.equalsIgnoreCase(branch));
+    }
+
+    /**
      * Keeps matching branch entries and recomputes the home branch.
      */
     public Optional<BranchedProject> filter(Predicate<BranchEntry> predicate) {

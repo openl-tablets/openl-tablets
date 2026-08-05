@@ -1361,8 +1361,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             }
             // Deleting the only branch that holds the project deletes the project itself, so it takes the right
             // to delete a project. Managing branches alone must not become a way around that permission.
-            if (projectBranches(project).stream().noneMatch(other -> !other.equalsIgnoreCase(branch))
-                    && !aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
+            if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)
+                    && getUserWorkspace().getDesignTimeRepository()
+                            .isLastProjectBranch(repositoryId, project.getDesignProjectName(), branch)) {
                 throw new ForbiddenException("project.branch.delete.last.message");
             }
             requireNotLockedByAnotherUser(project, repository, branch);
