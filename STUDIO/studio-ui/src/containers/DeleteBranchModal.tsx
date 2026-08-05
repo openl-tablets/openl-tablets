@@ -26,11 +26,11 @@ const encodeProjectId = (repositoryId: string, projectName: string): string =>
     btoa(`${repositoryId}:${projectName}`).replaceAll('+', '-').replaceAll('/', '_')
 
 /**
- * Detail passed from the legacy JSF page via the {@code openDeleteBranchModal} event.
+ * Detail passed with the {@code openDeleteBranchModal} event by whoever opens the dialog.
  *
- * {@code modified} and {@code mergedIntoMain} are resolved by the modal itself through the
- * projects and merge REST APIs; only the cheap identifiers and the main branch name (from
- * the RichFaces controller) are supplied here.
+ * {@code modified} and {@code mergedIntoMain} are resolved by the modal itself through the projects and merge
+ * REST APIs. Everything the opener already read — the identifiers, the main branch, the branch marks — is
+ * supplied here rather than fetched a second time.
  */
 export interface DeleteBranchModalDetail {
     /** The project's own id, as the server issued it. */
@@ -41,6 +41,8 @@ export interface DeleteBranchModalDetail {
     mainBranch?: string
     /** Whether the branch is protected; deleting one asks the server for the protection bypass. */
     branchProtected?: boolean
+    /** Whether this is the only branch holding the project, so deleting it deletes the project. */
+    lastBranch?: boolean
     onSuccess?: () => void
 }
 
@@ -60,8 +62,6 @@ export const DeleteBranchModal: React.FC = () => {
     const [deleting, setDeleting] = useState(false)
     const [modified, setModified] = useState(false)
     const [mergedIntoMain, setMergedIntoMain] = useState(true)
-    // No other branch holds the project, so deleting this branch deletes the project.
-    const [lastBranch, setLastBranch] = useState(false)
 
     const projectId = detail ? detail.projectId ?? encodeProjectId(detail.repositoryId, detail.projectName) : ''
 
@@ -80,7 +80,6 @@ export const DeleteBranchModal: React.FC = () => {
         let cancelled = false
         setModified(false)
         setMergedIntoMain(true)
-        setLastBranch(false)
         setLoading(true)
         const id = detail.projectId ?? encodeProjectId(detail.repositoryId, detail.projectName)
         const resolve = async () => {
@@ -90,17 +89,6 @@ export const DeleteBranchModal: React.FC = () => {
             }
             const isModified = project?.status === ProjectStatus.Editing
             setModified(isModified)
-            // Only the branches that hold the project are listed, so a single entry means this branch keeps
-            // the last copy of it. Left unset when the list cannot be read: the server refuses the deletion
-            // anyway unless the user may delete the project.
-            try {
-                const branches = (await apiCall(`/projects/${id}/branches`, { method: 'GET' }, CHECK_API_OPTIONS)) as unknown[]
-                if (!cancelled) {
-                    setLastBranch(Array.isArray(branches) && branches.length <= 1)
-                }
-            } catch {
-                // Keep the warning off rather than claim a deletion that may not happen.
-            }
             if (isModified || !detail.mainBranch || detail.mainBranch === detail.branch) {
                 return
             }
@@ -161,7 +149,7 @@ export const DeleteBranchModal: React.FC = () => {
         })
     }, [detail, projectId, handleClose, runWithCommitInfo])
 
-    const unsafe = modified || !mergedIntoMain || lastBranch
+    const unsafe = modified || !mergedIntoMain || !!detail?.lastBranch
 
     return (
         <>
@@ -199,7 +187,7 @@ export const DeleteBranchModal: React.FC = () => {
                             type="warning"
                         />
                     )}
-                    {lastBranch && (
+                    {detail?.lastBranch && (
                         <Alert
                             showIcon
                             data-testid="delete-branch-last-branch-warning"

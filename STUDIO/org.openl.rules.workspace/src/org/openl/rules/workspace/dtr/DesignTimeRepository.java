@@ -70,6 +70,19 @@ public interface DesignTimeRepository extends ProjectsContainer {
     }
 
     /**
+     * Whether the branch is the only one holding the project, so deleting that branch deletes the project.
+     *
+     * <p>A project the index does not know is treated as held by that branch alone: nothing says otherwise, and
+     * the caller is about to remove content. The answer describes the repository, not what the caller may see,
+     * so it counts every branch holding the project.
+     */
+    default boolean isLastProjectBranch(String repositoryId, String name, String branch) {
+        return getBranchedProject(repositoryId, name)
+                .map(project -> project.heldOnlyBy(branch))
+                .orElse(true);
+    }
+
+    /**
      * Returns the current background-index health for a branch-capable repository.
      */
     default Optional<BranchedProjectIndexService.IndexHealth> getProjectIndexHealth(String repositoryId) {

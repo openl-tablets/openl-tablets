@@ -11,8 +11,6 @@ interface ProjectActionMeta {
     labelKey: string
     /** The server-computed capabilities that gate this action; any one of them is enough. */
     caps: Array<keyof NonNullable<Project['capabilities']>>
-    /** An extra condition on the project state, on top of the capability. */
-    enabled?: (project: Project) => boolean
     /** Destroys the project itself, unlike deleting a branch of it — shown in red, confirmed first. */
     danger?: boolean
 }
@@ -47,7 +45,7 @@ export const PROJECT_ACTIONS: Record<ActionId, ProjectActionMeta> = {
 /** Whether the current user may perform the action on this project right now. */
 export const isActionAvailable = (project: Project, id: ActionId): boolean => {
     const action = PROJECT_ACTIONS[id]
-    return action.caps.some(cap => !!project.capabilities?.[cap]) && (action.enabled?.(project) ?? true)
+    return action.caps.some(cap => !!project.capabilities?.[cap])
 }
 
 /** The given actions, in the given order, keeping only those the project currently offers. */

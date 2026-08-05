@@ -10,6 +10,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.model.Capabilities;
 import org.openl.studio.projects.model.ProjectCapabilities;
 import org.openl.studio.projects.validator.ProjectStateValidator;
@@ -36,6 +37,7 @@ public class ProjectAccessService {
     private final DeploymentRepositoryService deploymentRepositoryService;
     private final DesignTimeRepositoryService designTimeRepositoryService;
     private final ProjectListingContext listingContext;
+    private final DesignTimeRepository designTimeRepository;
 
     public ProjectCapabilities computeCapabilities(AProject project) {
         var read = aclProjectsHelper.hasPermission(project, BasePermission.READ);
@@ -76,13 +78,24 @@ public class ProjectAccessService {
                 // to a user who may not create projects at all. The exact per-artefact check, the branch
                 // protection and the base-branch rule are enforced when the operation runs.
                 .canManageBranches(flag(!localOnly && workspaceProject.isSupportsBranches() && write))
-                // The base branch and a protected branch without the bypass right are refused when the deletion
-                // runs, so the action is not offered for them. Deleting the only branch that holds the project
-                // deletes the project, which takes the right to delete a project rather than to manage branches.
-                .canDeleteBranch(flag(write && workspaceProject instanceof RulesProject rulesProject
-                        && projectStateValidator.canDeleteBranch(rulesProject)
-                        && (delete || !projectStateValidator.isLastProjectBranch(rulesProject))))
+                .canDeleteBranch(flag(canDeleteBranch(workspaceProject, write, delete)))
                 .canExport(flag(readShared))
                 .build();
+    }
+
+    /**
+     * Whether the branch the project sits on can be deleted. The base branch and a protected branch without the
+     * bypass right are refused when the deletion runs, so the action is not offered for them either. Deleting the
+     * only branch that holds the project deletes the project, which takes the right to delete a project rather
+     * than the right to manage branches.
+     */
+    private boolean canDeleteBranch(UserWorkspaceProject project, boolean write, boolean delete) {
+        if (!write || !(project instanceof RulesProject rulesProject)
+                || !projectStateValidator.canDeleteBranch(rulesProject)) {
+            return false;
+        }
+        return delete || !designTimeRepository.isLastProjectBranch(rulesProject.getDesignRepository().getId(),
+                rulesProject.getDesignProjectName(),
+                rulesProject.getBranch());
     }
 }

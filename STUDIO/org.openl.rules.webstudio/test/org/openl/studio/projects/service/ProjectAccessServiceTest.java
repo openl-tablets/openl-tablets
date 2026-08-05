@@ -11,9 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.repositories.service.DeploymentRepositoryService;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
@@ -25,6 +28,7 @@ class ProjectAccessServiceTest {
     private DeploymentRepositoryService deploymentRepositoryService;
     private DesignTimeRepositoryService designTimeRepositoryService;
     private ProjectListingContext listingContext;
+    private DesignTimeRepository designTimeRepository;
     private UserWorkspaceProject project;
     private ProjectAccessService service;
 
@@ -35,10 +39,11 @@ class ProjectAccessServiceTest {
         deploymentRepositoryService = mock(DeploymentRepositoryService.class);
         designTimeRepositoryService = mock(DesignTimeRepositoryService.class);
         listingContext = mock(ProjectListingContext.class);
+        designTimeRepository = mock(DesignTimeRepository.class);
         project = mock(UserWorkspaceProject.class);
         when(project.getRepository()).thenReturn(mock(Repository.class));
         service = new ProjectAccessService(aclProjectsHelper, stateValidator, deploymentRepositoryService,
-                designTimeRepositoryService, listingContext);
+                designTimeRepositoryService, listingContext, designTimeRepository);
     }
 
     private void grant(Permission... permissions) {
@@ -146,5 +151,32 @@ class ProjectAccessServiceTest {
         when(listingContext.canCreateInAnyRepository(any())).thenReturn(true);
         when(project.isLocalOnly()).thenReturn(true);
         assertNull(service.computeCapabilities(project).canCopy());
+    }
+
+    @Test
+    void deleting_the_last_branch_of_a_project_takes_the_permission_to_delete_the_project() {
+        var rulesProject = mock(RulesProject.class);
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(rulesProject.getDesignRepository()).thenReturn(repository);
+        when(rulesProject.getDesignProjectName()).thenReturn("Rates");
+        when(rulesProject.getBranch()).thenReturn("feature");
+        when(aclProjectsHelper.hasPermission(rulesProject, BasePermission.WRITE)).thenReturn(true);
+        when(stateValidator.canDeleteBranch(rulesProject)).thenReturn(true);
+
+        // Another branch still holds the project, so deleting this one only deletes a branch.
+        when(designTimeRepository.isLastProjectBranch("design", "Rates", "feature")).thenReturn(false);
+        assertEquals(Boolean.TRUE, service.computeCapabilities(rulesProject).canDeleteBranch());
+
+        // It is the last branch: the deletion removes the project, which write access alone must not do.
+        when(designTimeRepository.isLastProjectBranch("design", "Rates", "feature")).thenReturn(true);
+        assertNull(service.computeCapabilities(rulesProject).canDeleteBranch());
+
+        when(aclProjectsHelper.hasPermission(rulesProject, BasePermission.DELETE)).thenReturn(true);
+        assertEquals(Boolean.TRUE, service.computeCapabilities(rulesProject).canDeleteBranch());
+
+        // The branch itself must be deletable in the first place — the base branch never is.
+        when(stateValidator.canDeleteBranch(rulesProject)).thenReturn(false);
+        assertNull(service.computeCapabilities(rulesProject).canDeleteBranch());
     }
 }

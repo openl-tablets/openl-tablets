@@ -78,7 +78,6 @@ describe('DeleteBranchModal', () => {
     it('confirms deletion of a merged, unmodified branch and refreshes', async () => {
         mockApiCall
             .mockResolvedValueOnce({ status: 'VIEWING' } as never) // getProject -> not modified
-            .mockResolvedValueOnce([{ name: 'main' }, { name: 'feature' }] as never) // branches holding the project
             .mockResolvedValueOnce({ status: 'up-to-date' } as never) // merge check -> merged
         mockDeleteBranch.mockResolvedValueOnce(true)
         const detail = createDetail()
@@ -106,7 +105,6 @@ describe('DeleteBranchModal', () => {
     it('warns and uses the unsafe button when the project is modified', async () => {
         mockApiCall
             .mockResolvedValueOnce({ status: 'EDITING' } as never) // modified -> skip merge check
-            .mockResolvedValueOnce([{ name: 'main' }, { name: 'feature' }] as never) // branches holding the project
 
         render(<DeleteBranchModal />)
         await dispatchOpen(createDetail())
@@ -120,11 +118,10 @@ describe('DeleteBranchModal', () => {
     it('warns that deleting the only branch holding the project deletes the project', async () => {
         mockApiCall
             .mockResolvedValueOnce({ status: 'VIEWING' } as never) // not modified
-            .mockResolvedValueOnce([{ name: 'feature' }] as never) // the only branch holding the project
             .mockResolvedValueOnce({ status: 'up-to-date' } as never) // merged
 
         render(<DeleteBranchModal />)
-        await dispatchOpen(createDetail())
+        await dispatchOpen({ ...createDetail(), lastBranch: true })
 
         expect(await screen.findByText('repository:delete_branch.last_branch_warning')).toBeInTheDocument()
         // Losing the project is destructive, so the deliberate confirmation is required.
@@ -134,7 +131,6 @@ describe('DeleteBranchModal', () => {
     it('warns when the branch is not merged into main', async () => {
         mockApiCall
             .mockResolvedValueOnce({ status: 'VIEWING' } as never) // not modified
-            .mockResolvedValueOnce([{ name: 'main' }, { name: 'feature' }] as never) // branches holding the project
             .mockResolvedValueOnce({ status: 'mergeable' } as never) // not merged
 
         render(<DeleteBranchModal />)
@@ -149,7 +145,6 @@ describe('DeleteBranchModal', () => {
     it('trusts the merge check even when the user may not merge into a protected main branch', async () => {
         mockApiCall
             .mockResolvedValueOnce({ status: 'VIEWING' } as never) // not modified
-            .mockResolvedValueOnce([{ name: 'main' }, { name: 'feature' }] as never) // branches holding the project
             // The main branch is protected: the merge is refused, the branches are still up to date.
             .mockResolvedValueOnce({ status: 'up-to-date', canMerge: false, blockedBy: 'protected-branch' } as never)
 
