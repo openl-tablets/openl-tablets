@@ -833,7 +833,7 @@ describe('ProjectsHome row actions', () => {
 
         await userEvent.click(screen.getByTestId('project-action-open-p1'))
 
-        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', true))
+        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true }))
     })
 
     it('says a status change failed instead of failing silently', async () => {

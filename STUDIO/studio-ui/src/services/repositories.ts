@@ -371,14 +371,12 @@ async function patchProject(projectId: string, body: Record<string, unknown>): P
 export async function setProjectStatus(
     projectId: string,
     status: ProjectStatusToSet,
-    options: boolean | SetProjectStatusOptions = {}
+    options: SetProjectStatusOptions = {}
 ): Promise<void> {
-    const resolvedOptions = typeof options === 'boolean' ? { openDependencies: options } : options
-    // Opening a project also opens its dependency projects (matches the legacy tab's default).
     await patchProject(projectId, {
         status,
-        ...(resolvedOptions.openDependencies ? { openDependencies: true } : {}),
-        ...(resolvedOptions.discardChanges ? { discardChanges: true } : {}),
+        ...(options.openDependencies ? { openDependencies: true } : {}),
+        ...(options.discardChanges ? { discardChanges: true } : {}),
     })
 }
 

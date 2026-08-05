@@ -37,6 +37,7 @@ import { CopyProjectModal } from './projects/CopyProjectModal'
 import { ExportProjectModal } from './projects/ExportProjectModal'
 import { OpenRevisionModal } from './projects/OpenRevisionModal'
 import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
+import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { openCompareWindow } from './projects/compare'
 import { loadProjectFilters, saveProjectFilters } from './projects/filterStorage'
 import { SaveProjectModal } from './projects/SaveProjectModal'
@@ -569,8 +570,21 @@ export const ProjectsHome = () => {
     // Hoisted so the dialog-opening handlers below hand it over instead of nesting one more callback.
     const reloadAll = useCallback(() => void load(true), [load])
 
+    // The dialog is mounted above the routes and answers back into this screen, so leaving the page takes
+    // its question along instead of letting it confirm into a tree that is gone.
+    useEffect(() => closeProjectDialog, [])
+
     const handlers: ProjectListHandlers = useMemo(() => ({
-        onOpen: project => runAction(project, 'open', () => setProjectStatus(project.id, 'OPENED', true), 'browser.status_change_failed'),
+        // The list response carries the dependencies, so the dialog never reads them again.
+        onOpen: project => openProjectDialog(
+            { ...project, dependencies: project.dependencies ?? []},
+            openDependencies => runAction(
+                project,
+                'open',
+                () => setProjectStatus(project.id, 'OPENED', { openDependencies }),
+                'browser.status_change_failed'
+            )
+        ),
         onClose: project => {
             if (project.status === ProjectStatus.Editing) {
                 setDiscardCloseTarget(project)
