@@ -338,10 +338,8 @@ None. Open the next one from a fresh branch off the current `main`.
   `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
   entry on runtime wiring.
-- Incremental `main` scope (SHA reached is in *Resume point*): studio-ui TraceView, EPBDS-8537 branch marking,
-  EPBDS-16358 server-side table copy, EPBDS-16355 sheet-name clipping and the EPBDS-16363/16364/16365 migration
-  refactor — each author's own deletion was already complete, leaving no orphaned export, locale key, bundle key or
-  helper. Dependabot bumps, lock-file-only npm group bumps and Spotless pom tuning add no surface.
+- Incremental `main` scope up to the *Resume point* SHA: every author's own deletion was already complete, leaving no
+  orphaned export, locale key, bundle key or helper. Dependabot and npm lock-file bumps add no surface at all.
 - Every `org.openl.*` class name referenced from `.xml`, `.xhtml`, `.properties`, `.tld`, `.yaml`, `.json` and
   `.txt`, resolved against the source tree. The ~90 with no `.java` are all runtime-generated datatype and
   spreadsheet-result beans or rule-project fixtures under test resources. No stale configuration exists.
@@ -372,6 +370,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run forty-four. Idle at the same head, no `dead-code/*` PR; nothing changed but this line.
 - 08-04 — run forty-five. Third consecutive idle run: `main` still at the converged head, no `dead-code/*` PR.
 - 08-05 — run forty-six. Fourth consecutive idle run, same head, no `dead-code/*` PR; ledger 377 lines, in budget.
+- 08-05 — run forty-seven. Fifth consecutive idle run, same head; compacted the incremental-scope vein to 375 lines.
