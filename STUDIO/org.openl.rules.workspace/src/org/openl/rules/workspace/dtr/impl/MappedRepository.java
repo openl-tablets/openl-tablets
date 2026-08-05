@@ -880,7 +880,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         return ProjectDescriptor.resolveName(getProjectName(inputStream), FileUtils.getName(folderPath));
     }
 
-    private boolean isUpdateConfigNeeded(FileData folderData) throws IOException {
+    private boolean isUpdateConfigNeeded(FileData folderData) {
         var mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {
             var internalPath = mappingData.getInternalPath();
