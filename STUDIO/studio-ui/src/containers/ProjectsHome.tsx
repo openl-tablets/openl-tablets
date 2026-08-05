@@ -3,7 +3,7 @@ import { errorMessage } from '../utils/errorMessage'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Alert, Button, Empty, notification, Pagination, Skeleton, Spin, type InputRef } from 'antd'
-import { ClearOutlined, PlusOutlined } from '@ant-design/icons'
+import { ClearOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import {
     getDesignRepositories,
@@ -75,6 +75,16 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     compileTotal: css`
         color: ${token.colorTextTertiary};
+    `,
+    /** The indexing note sits in the summary line, so it reads as part of it rather than as a button. */
+    indexingToggle: css`
+        height: auto;
+        padding: 0;
+        font-size: 12px;
+    `,
+    /** Keeps the indexing notice off the search box below it, in the header's own rhythm. */
+    indexingBanner: css`
+        margin-bottom: 12px;
     `,
     content: css`
         position: relative;
@@ -240,6 +250,24 @@ export const ProjectsHome = () => {
         (id: string) => repositories.find(repo => repo.id === id)?.name ?? id,
         [repositories]
     )
+    // Repositories whose cross-branch index is still building: their projects show only the base branch so far.
+    const indexingRepositories = useMemo(
+        () => Object.entries(projectIndexHealth)
+            .filter(([, health]) => health.state === 'indexing')
+            .map(([id]) => repositoryName(id)),
+        [projectIndexHealth, repositoryName]
+    )
+    // The summary line only counts the repositories; their names are shown on demand, so the note stays out of
+    // the way of a screen the user came to for the list. With nothing listed yet the full-screen indexing
+    // state (see content()) already says it, so the note would only repeat it.
+    const [indexingShown, setIndexingShown] = useState(false)
+    const showIndexingNote = indexingRepositories.length > 0 && allProjects.length > 0
+    // Indexing finished: forget that the names were open, so a later round does not expand itself unasked.
+    useEffect(() => {
+        if (indexingRepositories.length === 0) {
+            setIndexingShown(false)
+        }
+    }, [indexingRepositories.length])
 
     // The search scope, shared by the facet counts and the list so the text search runs only once.
     const searched = useMemo(() => searchProjects(allProjects, debouncedSearch), [allProjects, debouncedSearch])
@@ -601,16 +629,9 @@ export const ProjectsHome = () => {
             )
         }
         if (totalProjects === 0) {
-            if (Object.values(projectIndexHealth).some(health => health.state === 'indexing')) {
-                return (
-                    <div className={shared.stateBox} data-testid="projects-indexing">
-                        <Spin />
-                        <span>{t('home.indexing')}</span>
-                    </div>
-                )
-            }
-            // Nothing matched. When the workspace still holds projects, filters (or search) hid them all,
-            // so offer a prominent one-click reset; with no projects at all there is nothing to reveal.
+            // Nothing matched. When the workspace still holds projects, filters (or search) hid them all, so
+            // offer a prominent one-click reset — say so even while a repository is still being indexed, or the
+            // screen would look like it is still loading. With no projects at all there is nothing to reveal.
             if (allProjects.length > 0) {
                 return (
                     <div className={shared.stateBox}>
@@ -619,6 +640,14 @@ export const ProjectsHome = () => {
                                 {t('home.clear_filters')}
                             </Button>
                         </Empty>
+                    </div>
+                )
+            }
+            if (indexingRepositories.length > 0) {
+                return (
+                    <div className={shared.stateBox} data-testid="projects-indexing">
+                        <Spin />
+                        <span>{t('home.indexing')}</span>
                     </div>
                 )
             }
@@ -718,6 +747,19 @@ export const ProjectsHome = () => {
                                         </span>
                                     ))}
                                     <span className={styles.compileTotal}>{t('home.summary_total', { total: totalProjects })}</span>
+                                    {showIndexingNote && (
+                                        <Button
+                                            aria-expanded={indexingShown}
+                                            className={styles.indexingToggle}
+                                            data-testid="projects-indexing-toggle"
+                                            icon={<LoadingOutlined spin />}
+                                            onClick={() => setIndexingShown(shown => !shown)}
+                                            size="small"
+                                            type="link"
+                                        >
+                                            {t('home.indexing_repositories', { count: indexingRepositories.length })}
+                                        </Button>
+                                    )}
                                 </span>
                             </div>
                         </div>
@@ -734,6 +776,16 @@ export const ProjectsHome = () => {
                             </div>
                         )}
                     </div>
+                    {showIndexingNote && indexingShown && (
+                        <Alert
+                            showIcon
+                            className={styles.indexingBanner}
+                            closable={{ onClose: () => setIndexingShown(false) }}
+                            data-testid="projects-indexing-banner"
+                            title={t('home.indexing_banner', { repos: indexingRepositories.join(', ') })}
+                            type="info"
+                        />
+                    )}
                     <ProjectsToolbar
                         onSearch={value => setParam('q', value, true)}
                         onSort={sortBy}
