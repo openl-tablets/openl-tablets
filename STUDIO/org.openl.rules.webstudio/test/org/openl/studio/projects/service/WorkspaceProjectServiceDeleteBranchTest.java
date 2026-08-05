@@ -199,10 +199,22 @@ class WorkspaceProjectServiceDeleteBranchTest {
         verify(repository).deleteRepositoryBranch(BRANCH);
     }
 
-    /** The index reports that no other branch holds the project. */
-    private void heldOnlyBy(String branch) {
+    @Test
+    void unindexedProjectStillNeedsThePermissionToDeleteTheProject() throws IOException {
+        // The index lists no holders while it has no entry for the project. That silence must not read as
+        // "another branch holds it": the branch may keep the last copy, so the deletion stays permission-gated.
+        when(userWorkspace.getDesignTimeRepository().isLastProjectBranch("design", "P1", BRANCH)).thenReturn(true);
         when(project.getDesignProjectName()).thenReturn("P1");
-        when(userWorkspace.getDesignTimeRepository().isLastProjectBranch("design", "P1", branch)).thenReturn(true);
+
+        assertThrows(ForbiddenException.class, () -> service.deleteBranch(project, BRANCH, false));
+
+        verify(repository, never()).deleteRepositoryBranch(anyString());
+    }
+
+    /** The index reports a project that no branch other than this one holds. */
+    private void heldOnlyBy(String branch) {
+        when(userWorkspace.getDesignTimeRepository().getProjectsHeldOnlyBy("design", branch))
+                .thenReturn(List.of(project));
     }
 
     @Test

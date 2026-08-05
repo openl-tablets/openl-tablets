@@ -230,6 +230,22 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
+    public List<AProject> getProjectsHeldOnlyBy(String repositoryId, String branch) {
+        synchronized (projects) {
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
+            return branchedProjects.values()
+                    .stream()
+                    .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
+                    .filter(project -> project.heldOnlyBy(branch))
+                    .map(project -> project.entry(branch).map(BranchEntry::project).orElse(null))
+                    .filter(Objects::nonNull)
+                    .toList();
+        }
+    }
+
+    @Override
     public Optional<BranchedProjectIndexService.IndexHealth> getProjectIndexHealth(String repositoryId) {
         var repository = getRepository(repositoryId);
         if (!isBranchRepository(repository)) {

@@ -1310,6 +1310,36 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .toList();
     }
 
+    /**
+     * Refuses the branch deletion unless the caller may delete every project that no other branch holds.
+     *
+     * <p>Deleting a branch removes those projects for good, which is what deleting a project is for and what the
+     * delete permission guards. The branch is deleted repository-wide, so the check covers every project it holds
+     * alone, not only the one the request addressed.
+     *
+     * <p>The holders come from the project index. An index that has no entry for the addressed project — a
+     * repository still being indexed, or a branch it failed to read — answers "not known", not "no holders", so
+     * the addressed project counts as held alone and the deletion still asks for the delete permission.
+     */
+    // Spring overrides the @Lookup method at runtime. Sonar reads its `return null` stub instead and reports a
+    // null dereference on the workspace.
+    @SuppressWarnings("java:S2259")
+    private void requireDeletionOfProjectsHeldOnlyBy(RulesProject project, String repositoryId, String branch) {
+        var designTimeRepository = getUserWorkspace().getDesignTimeRepository();
+        if (designTimeRepository.isLastProjectBranch(repositoryId, project.getDesignProjectName(), branch)) {
+            requireDeletePermission(project);
+        }
+        for (AProject held : designTimeRepository.getProjectsHeldOnlyBy(repositoryId, branch)) {
+            requireDeletePermission(held);
+        }
+    }
+
+    private void requireDeletePermission(AProject project) {
+        if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
+            throw new ForbiddenException("project.branch.delete.last.message");
+        }
+    }
+
     private List<String> projectBranches(RulesProject project) {
         var workspace = getUserWorkspace();
         if (workspace != null) {
@@ -1359,13 +1389,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             if (repository.getBaseBranch().equalsIgnoreCase(branch)) {
                 throw new ConflictException("project.branch.delete.base.message");
             }
-            // Deleting the only branch that holds the project deletes the project itself, so it takes the right
-            // to delete a project. Managing branches alone must not become a way around that permission.
-            if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)
-                    && getUserWorkspace().getDesignTimeRepository()
-                            .isLastProjectBranch(repositoryId, project.getDesignProjectName(), branch)) {
-                throw new ForbiddenException("project.branch.delete.last.message");
-            }
+            requireDeletionOfProjectsHeldOnlyBy(project, repositoryId, branch);
             requireNotLockedByAnotherUser(project, repository, branch);
             bypassService.requireBypassOrThrow(repository, branch, project, force);
             var restoreOpenedState = releaseProjectOnBranch(project, branch);

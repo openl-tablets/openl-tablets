@@ -56,9 +56,10 @@ export const openDeleteBranchDialog = async (project: BranchProject, onSuccess: 
                 ?? branches.find(branch => branch.name === project.branch)?.protected
                 ?? false,
             // Only the branches holding the project are listed, so a single entry means this branch keeps its
-            // last copy and deleting it deletes the project. A failed listing is empty, and warning about a
-            // deletion that may not happen would be worse than staying quiet — the server refuses it anyway.
-            lastBranch: branches.length === 1,
+            // last copy and deleting it deletes the project. A failed listing is empty and answers the same
+            // way: like every other unknown in this dialog, it asks for the deliberate confirmation rather
+            // than presenting an irreversible deletion as routine branch cleanup.
+            lastBranch: branches.length <= 1,
             onSuccess,
         },
     }))

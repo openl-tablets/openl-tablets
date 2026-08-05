@@ -97,6 +97,22 @@ class SecureDesignTimeRepositoryImplTest {
     }
 
     @Test
+    void countsBranchesThatHoldAProjectWithoutHidingTheUnreadableOnes() {
+        var delegate = mock(DesignTimeRepository.class);
+        var aclService = mock(RepositoryAclService.class);
+        var denied = project("main", "DESIGN/Denied/Rates");
+        when(aclService.isGranted(any(AProject.class), anyList())).thenReturn(false);
+        when(delegate.isLastProjectBranch("design", "Rates", "feature/rates")).thenReturn(false);
+        when(delegate.getProjectsHeldOnlyBy("design", "feature/rates")).thenReturn(List.of(denied));
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
+
+        // Deleting a branch removes content the caller may not read, so the guard must see every holder:
+        // filtering them out would report the last branch where there is none and let the deletion through.
+        assertFalse(secured.isLastProjectBranch("design", "Rates", "feature/rates"));
+        assertEquals(List.of(denied), secured.getProjectsHeldOnlyBy("design", "feature/rates"));
+    }
+
+    @Test
     void hidesRepositoryHealthWithoutRepositoryReadPermission() {
         var delegate = mock(DesignTimeRepository.class);
         var aclService = mock(RepositoryAclService.class);
