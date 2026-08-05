@@ -372,6 +372,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-04 — run forty-three. Idle at the same head, no `dead-code/*` PR; compaction only, 383 to 378 lines.
 - 08-04 — run forty-four. Idle at the same head, no `dead-code/*` PR; nothing changed but this line.
 - 08-04 — run forty-five. Third consecutive idle run: `main` still at the converged head, no `dead-code/*` PR.
+- 08-05 — run forty-six. Fourth consecutive idle run, same head, no `dead-code/*` PR; ledger 377 lines, in budget.
