@@ -2623,17 +2623,30 @@ public class GitRepository implements BranchRepository, Closeable {
             log.debug("forBranch(): read: lock");
             initLfsCredentials();
 
-            if (!branchRefExists(git.getRepository(), branch) && !isEmpty()) {
+            var empty = isEmpty();
+            if (!branchRefExists(git.getRepository(), branch) && !empty) {
                 throw new IOException("Cannot find branch '%s'".formatted(branch));
             }
+            if (localBranchExists(branch) || empty) {
+                // Nothing to create, so building the view writes nothing. Doing it under the shared read lock keeps
+                // a repository-wide branch scan from blocking concurrent readers on the write lock.
+                return createRepository(branch);
+            }
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
         } finally {
+            resetLfsCredentials();
             readLock.unlock();
             log.debug("forBranch(): read: unlock");
         }
+        // A local tracking branch must be created for the requested branch, which is a write.
         var writeLock = repositoryLock.writeLock();
         try {
             log.debug("forBranch(): write: lock");
             writeLock.lock();
+            initLfsCredentials();
 
             return createRepository(branch);
         } catch (IOException e) {
@@ -2651,6 +2664,13 @@ public class GitRepository implements BranchRepository, Closeable {
         return findBranchRef(repository, branch) != null;
     }
 
+    /**
+     * Whether the branch is checked out locally. A branch known only as a remote ref is not.
+     */
+    private boolean localBranchExists(String branch) throws IOException {
+        return git.getRepository().exactRef(Constants.R_HEADS + branch) != null;
+    }
+
     private static @Nullable Ref findBranchRef(Repository repository, String branch) throws IOException {
         var local = repository.exactRef(Constants.R_HEADS + branch);
         return local != null
@@ -2659,7 +2679,7 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private GitRepository createRepository(String branch) throws IOException, GitAPIException {
-        if (git.getRepository().exactRef(Constants.R_HEADS + branch) == null && !isEmpty()) {
+        if (!localBranchExists(branch) && !isEmpty()) {
             createRemoteTrackingBranch(git, branch);
         }
 
