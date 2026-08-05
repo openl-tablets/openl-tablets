@@ -22,6 +22,10 @@ export interface ProjectIndex {
 let pending: Promise<ProjectIndex> | undefined
 /** When the snapshot was asked for; the staleness policy counts from here. */
 let takenAt = 0
+/** A read is on the wire right now. */
+let inFlight = false
+/** A change landed while the read was on the wire, so the answer it brings back is already out of date. */
+let changedWhileReading = false
 
 /**
  * How long a read is trusted without any invalidation. Changes normally arrive as server pings
@@ -38,13 +42,23 @@ export const PROJECT_INDEX_TTL_MS = 5 * 60_000
  * The read never blocks a screen: callers render what they have and fill in when it arrives.
  */
 export const getProjectIndex = (): Promise<ProjectIndex> => {
-    if (pending && isProjectIndexStale()) {
+    // A read already on the wire is never dropped for age: waiting for it beats racing it with a second one.
+    if (pending && !inFlight && isProjectIndexStale()) {
         pending = undefined
     }
-    if (!pending) {
-        takenAt = Date.now()
-    }
-    pending ??= getProjects(
+    pending ??= read()
+    return pending
+}
+
+/**
+ * Reads the workspace, and re-reads once more when a change landed while the read was on the wire — so the
+ * answer every caller shares reflects that change, without a request per change piling up behind a slow read.
+ */
+const read = (): Promise<ProjectIndex> => {
+    takenAt = Date.now()
+    inFlight = true
+    changedWhileReading = false
+    return getProjects(
         // Deleted projects come along so the status facet can show them without another read. The
         // compile states come along too: the server reads them from its compilation registry without
         // compiling anything, and only a project that is open has one.
@@ -54,17 +68,31 @@ export const getProjectIndex = (): Promise<ProjectIndex> => {
         projects: page.content,
         statuses: page.statuses ?? [],
         projectIndexHealth: page.projectIndexHealth ?? {},
-    })).catch(error => {
+    })).then(index => {
+        inFlight = false
+        if (!changedWhileReading) {
+            return index
+        }
+        const refreshed = read()
+        pending = refreshed
+        // A follow-up that fails must not take a good snapshot down with it: the screens keep what this read
+        // brought, and the failed follow-up leaves nothing cached, so the next read tries again.
+        return refreshed.catch(() => index)
+    }, error => {
         // A failed read must not be remembered as the answer: the next open tries again.
+        inFlight = false
         pending = undefined
         throw error
     })
-    return pending
 }
 
 /** Drops the snapshot, so the next read sees the workspace as it is now. */
 export const invalidateProjectIndex = (): void => {
-    pending = undefined
+    if (inFlight) {
+        changedWhileReading = true
+    } else {
+        pending = undefined
+    }
 }
 
 /**

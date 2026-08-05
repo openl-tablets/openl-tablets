@@ -34,6 +34,52 @@ describe('the projects snapshot', () => {
         expect(reread.projects.map(project => project.name)).toEqual(['Alpha', 'Beta'])
     })
 
+    it('coalesces changes that land while a read is on the wire into a single re-read', async () => {
+        let answerFirst: (page: unknown) => void = () => undefined
+        vi.mocked(getProjects).mockReturnValueOnce(new Promise(resolve => {
+            answerFirst = resolve
+        }) as never)
+
+        // A read is on the wire; two changes land before it answers. They must not each start their own
+        // request — but the answer must still reflect them.
+        const inflight = getProjectIndex()
+        window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
+        window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
+        expect(getProjectIndex()).toBe(inflight)
+        expect(getProjects).toHaveBeenCalledTimes(1)
+
+        vi.mocked(getProjects).mockResolvedValue(page('Alpha', 'Beta') as never)
+        answerFirst(page('Alpha'))
+
+        // The caller that asked during the read is answered with the workspace as it is after the changes,
+        // not with what was on the wire before them.
+        expect((await inflight).projects.map(project => project.name)).toEqual(['Alpha', 'Beta'])
+        expect(getProjects).toHaveBeenCalledTimes(2)
+
+        // The re-read is the shared snapshot now, so a later reader costs nothing.
+        await getProjectIndex()
+        expect(getProjects).toHaveBeenCalledTimes(2)
+    })
+
+    it('keeps the snapshot it already read when the coalesced re-read fails', async () => {
+        let answerFirst: (page: unknown) => void = () => undefined
+        vi.mocked(getProjects).mockReturnValueOnce(new Promise(resolve => {
+            answerFirst = resolve
+        }) as never)
+
+        const inflight = getProjectIndex()
+        window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
+        vi.mocked(getProjects).mockRejectedValueOnce(new Error('offline'))
+        answerFirst(page('Alpha'))
+
+        // The re-read failed, but the workspace was read successfully a moment ago: show that rather than an error.
+        expect((await inflight).projects.map(project => project.name)).toEqual(['Alpha'])
+
+        // The failure is not remembered as the answer either — the next read asks again.
+        vi.mocked(getProjects).mockResolvedValue(page('Alpha', 'Beta') as never)
+        expect((await getProjectIndex()).projects.map(project => project.name)).toEqual(['Alpha', 'Beta'])
+    })
+
     it('does not remember a failed read as the answer', async () => {
         vi.mocked(getProjects).mockRejectedValueOnce(new Error('offline'))
 
