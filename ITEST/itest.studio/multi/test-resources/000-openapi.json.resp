@@ -23118,6 +23118,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "canDeleteBranch": {
+            "type": "boolean",
+            "description": "***"
+          },
           "canDeploy": {
             "type": "boolean",
             "description": "***"
@@ -23175,6 +23179,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "canDeleteBranch": {
+            "type": "boolean",
+            "description": "***"
+          },
           "canDeploy": {
             "type": "boolean",
             "description": "***"
@@ -23229,6 +23237,10 @@ Content-Type: application/json
             "description": "***"
           },
           "canDelete": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canDeleteBranch": {
             "type": "boolean",
             "description": "***"
           },

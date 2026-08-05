@@ -33,5 +33,6 @@ public record ProjectCapabilities(
         @Parameter(description = "Whether the user can manage the project access rights") Boolean canManage,
         @Parameter(description = "Whether the project can be copied into a new project") Boolean canCopy,
         @Parameter(description = "Whether the project branches can be managed — created, merged and deleted") Boolean canManageBranches,
+        @Parameter(description = "Whether the branch the project sits on can be deleted, which requires another branch to still hold the project") Boolean canDeleteBranch,
         @Parameter(description = "Whether the project can be exported as an archive") Boolean canExport) {
 }

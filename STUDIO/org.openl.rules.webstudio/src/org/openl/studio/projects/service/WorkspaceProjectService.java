@@ -1359,6 +1359,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             if (repository.getBaseBranch().equalsIgnoreCase(branch)) {
                 throw new ConflictException("project.branch.delete.base.message");
             }
+            // Deleting the only branch that holds the project deletes the project itself, so it takes the right
+            // to delete a project. Managing branches alone must not become a way around that permission.
+            if (projectBranches(project).stream().noneMatch(other -> !other.equalsIgnoreCase(branch))
+                    && !aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
+                throw new ForbiddenException("project.branch.delete.last.message");
+            }
             requireNotLockedByAnotherUser(project, repository, branch);
             bypassService.requireBypassOrThrow(repository, branch, project, force);
             var restoreOpenedState = releaseProjectOnBranch(project, branch);

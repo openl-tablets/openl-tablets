@@ -92,6 +92,7 @@ describe('ProjectRowActions', () => {
             canSave: true,
             canCopy: true,
             canManageBranches: true,
+            canDeleteBranch: true,
             canViewHistory: true,
             canDeploy: true,
             canCompare: true,
@@ -136,34 +137,17 @@ describe('ProjectRowActions', () => {
         expect(screen.getByTestId('project-menu-delete-p1')).toBeTruthy()
     })
 
-    it('never offers to delete the repository main branch', () => {
-        render(
-            <ProjectRowActions
-                handlers={makeHandlers()}
-                pendingActionId={null}
-                project={{ ...everything, branchDefault: true }}
-            />
-        )
-
-        expect(screen.queryByTestId('project-action-deleteBranch-p1')).toBeNull()
-    })
-
-    it('offers to delete a protected branch only to a project administrator', () => {
-        // The server grants the protection bypass to administrators; anyone else would only reach a 403.
-        const onProtected = { ...everything, branchProtected: true }
+    it('offers branch deletion only where the server allows it', () => {
+        // The main branch, a protected branch without the bypass right and the last branch holding the
+        // project are all refused when the deletion runs, and the server withholds the capability for them.
+        const withheld = { ...everything, capabilities: { ...everything.capabilities, canDeleteBranch: false } }
         const { rerender } = render(
-            <ProjectRowActions handlers={makeHandlers()} pendingActionId={null} project={onProtected} />
+            <ProjectRowActions handlers={makeHandlers()} pendingActionId={null} project={withheld} />
         )
 
         expect(screen.queryByTestId('project-action-deleteBranch-p1')).toBeNull()
 
-        rerender(
-            <ProjectRowActions
-                handlers={makeHandlers()}
-                pendingActionId={null}
-                project={{ ...onProtected, capabilities: { ...onProtected.capabilities, canManage: true } }}
-            />
-        )
+        rerender(<ProjectRowActions handlers={makeHandlers()} pendingActionId={null} project={everything} />)
         expect(screen.getByTestId('project-action-deleteBranch-p1')).toBeTruthy()
     })
 

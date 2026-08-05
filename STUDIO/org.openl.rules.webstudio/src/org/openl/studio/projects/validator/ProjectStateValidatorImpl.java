@@ -11,6 +11,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 
 /**
@@ -22,6 +23,7 @@ import org.openl.studio.projects.service.protection.ProtectedBranchBypassService
 public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
     private final ProtectedBranchBypassService bypassService;
+    private final DesignTimeRepository designTimeRepository;
 
     @Override
     public boolean canSave(UserWorkspaceProject project) {
@@ -109,6 +111,34 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
         }
 
         return !project.isModified() && hasMergeTarget(project);
+    }
+
+    @Override
+    public boolean canDeleteBranch(RulesProject project) {
+        if (project == null || project.isLocalOnly() || !project.isSupportsBranches()) {
+            return false;
+        }
+        var branch = project.getBranch();
+        var repository = (BranchRepository) project.getDesignRepository();
+        if (branch == null || branch.equalsIgnoreCase(repository.getBaseBranch())) {
+            return false;
+        }
+        return !isCurrentBranchProtectionEnforced(project);
+    }
+
+    @Override
+    public boolean isLastProjectBranch(RulesProject project) {
+        if (project == null || project.isLocalOnly() || !project.isSupportsBranches()) {
+            return false;
+        }
+        var branch = project.getBranch();
+        return branch != null && designTimeRepository
+                .getBranchedProject(project.getDesignRepository().getId(), project.getDesignProjectName())
+                .filter(branchedProject -> branchedProject.entries()
+                        .keySet()
+                        .stream()
+                        .anyMatch(other -> !other.equalsIgnoreCase(branch)))
+                .isEmpty();
     }
 
     private boolean hasMergeTarget(RulesProject project) {

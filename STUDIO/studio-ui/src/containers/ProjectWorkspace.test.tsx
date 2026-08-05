@@ -545,7 +545,7 @@ describe('ProjectWorkspace', () => {
     })
 
     it('opens the delete-branch dialog via the Delete Branch action', async () => {
-        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true } }) as never)
+        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canDeleteBranch: true } }) as never)
         const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
         await renderWorkspace()
 
@@ -557,6 +557,8 @@ describe('ProjectWorkspace', () => {
     })
 
     it('offers no Delete Branch action on the repository main branch', async () => {
+        // The main branch cannot be deleted, so the server withholds the capability while still allowing
+        // the other branch operations.
         vi.mocked(getProject)
             .mockResolvedValue(project({ branchDefault: true, capabilities: { canManageBranches: true } }) as never)
         await renderWorkspace()

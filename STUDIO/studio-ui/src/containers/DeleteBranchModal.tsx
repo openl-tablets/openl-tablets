@@ -60,6 +60,8 @@ export const DeleteBranchModal: React.FC = () => {
     const [deleting, setDeleting] = useState(false)
     const [modified, setModified] = useState(false)
     const [mergedIntoMain, setMergedIntoMain] = useState(true)
+    // No other branch holds the project, so deleting this branch deletes the project.
+    const [lastBranch, setLastBranch] = useState(false)
 
     const projectId = detail ? detail.projectId ?? encodeProjectId(detail.repositoryId, detail.projectName) : ''
 
@@ -78,6 +80,7 @@ export const DeleteBranchModal: React.FC = () => {
         let cancelled = false
         setModified(false)
         setMergedIntoMain(true)
+        setLastBranch(false)
         setLoading(true)
         const id = detail.projectId ?? encodeProjectId(detail.repositoryId, detail.projectName)
         const resolve = async () => {
@@ -87,6 +90,17 @@ export const DeleteBranchModal: React.FC = () => {
             }
             const isModified = project?.status === ProjectStatus.Editing
             setModified(isModified)
+            // Only the branches that hold the project are listed, so a single entry means this branch keeps
+            // the last copy of it. Left unset when the list cannot be read: the server refuses the deletion
+            // anyway unless the user may delete the project.
+            try {
+                const branches = (await apiCall(`/projects/${id}/branches`, { method: 'GET' }, CHECK_API_OPTIONS)) as unknown[]
+                if (!cancelled) {
+                    setLastBranch(Array.isArray(branches) && branches.length <= 1)
+                }
+            } catch {
+                // Keep the warning off rather than claim a deletion that may not happen.
+            }
             if (isModified || !detail.mainBranch || detail.mainBranch === detail.branch) {
                 return
             }
@@ -147,7 +161,7 @@ export const DeleteBranchModal: React.FC = () => {
         })
     }, [detail, projectId, handleClose, runWithCommitInfo])
 
-    const unsafe = modified || !mergedIntoMain
+    const unsafe = modified || !mergedIntoMain || lastBranch
 
     return (
         <>
@@ -182,6 +196,15 @@ export const DeleteBranchModal: React.FC = () => {
                             data-testid="delete-branch-protected-warning"
                             style={{ marginBottom: 8 }}
                             title={t('repository:delete_branch.protected_warning')}
+                            type="warning"
+                        />
+                    )}
+                    {lastBranch && (
+                        <Alert
+                            showIcon
+                            data-testid="delete-branch-last-branch-warning"
+                            style={{ marginBottom: 8 }}
+                            title={t('repository:delete_branch.last_branch_warning')}
                             type="warning"
                         />
                     )}

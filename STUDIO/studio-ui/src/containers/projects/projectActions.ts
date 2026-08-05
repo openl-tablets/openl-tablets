@@ -30,15 +30,10 @@ export const PROJECT_ACTIONS: Record<ActionId, ProjectActionMeta> = {
     close: { labelKey: 'browser.close', caps: ['canClose']},
     // Copy covers both branching the project and copying it into a new one; the two are granted separately.
     copy: { labelKey: 'browser.copy', caps: ['canCopy', 'canManageBranches']},
-    deleteBranch: {
-        labelKey: 'browser.delete_branch_action',
-        caps: ['canManageBranches'],
-        // The branch the project sits on can go; the repository main branch cannot. Deleting a protected
-        // branch needs the bypass right, which the server grants to project administrators — so the action
-        // only shows where confirming it can succeed.
-        enabled: project => !project.branchDefault
-            && (!project.branchProtected || !!project.capabilities?.canManage),
-    },
+    // The server decides: the main branch, a protected branch without the bypass right, and the last branch
+    // holding the project are all refused when the deletion runs. The last of these would delete the project
+    // itself, which the delete permission — not branch management — guards.
+    deleteBranch: { labelKey: 'browser.delete_branch_action', caps: ['canDeleteBranch']},
     // Reading the project is enough to open any of its revisions.
     openRevision: { labelKey: 'browser.open_revision', caps: ['canViewHistory']},
     sync: { labelKey: 'browser.sync', caps: ['canManageBranches']},
