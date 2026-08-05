@@ -371,10 +371,10 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-05 — run fifty. `main` advanced six commits; four purely additive, the two with deletions replace in place with
-  the freed imports already dropped. No scope. Resume point moved to `a80067f2`; ledger 377 lines.
 - 08-05 — run fifty-one. `main` still `a80067f2` and no `dead-code/*` PR, so the idle pass ended after its two
   calls; nothing built, nothing read beyond the ledger. Ledger 377 lines.
 - 08-05 — run fifty-two. `main` advanced five commits (a dropped `throws`, four EPBDS-16375 indexing commits). Every
   deletion is replaced in place; all twelve freed-symbol candidates proved alive, including a two-caller private
   helper and a locale key whose block only moved. No scope. Resume point moved to `8ace3b69`; ledger 380 lines.
+- 08-05 — run fifty-three. `main` still `8ace3b69` and no `dead-code/*` PR; idle pass ended after its two calls.
+  Ledger 380 lines.
