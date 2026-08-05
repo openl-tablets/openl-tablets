@@ -370,26 +370,14 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     public BranchRepository forBranch(String branch) throws IOException {
         var delegateForBranch = ((BranchRepository) delegate).forBranch(branch);
 
-        MappedRepository mappedRepository = null;
-        try {
-            mappedRepository = new MappedRepository();
-            mappedRepository.setDelegate(delegateForBranch);
-            mappedRepository.setBaseFolder(baseFolder);
-            mappedRepository.indexesByTreeRevision = indexesByTreeRevision;
-            mappedRepository.projectNamesByDescriptorRevision = projectNamesByDescriptorRevision;
-            mappedRepository.initialize();
-        } catch (Exception e) {
-            // If exception is thrown, we must close repository in this method and rethrow exception.
-            // If no exception, repository will be closed later.
-            if (mappedRepository != null) {
-                // We don't close delegate in forBranch() method for now, because it can break main branch repository
-                // (for delegate).
-                mappedRepository.setDelegate(null);
-                IOUtils.closeQuietly(mappedRepository);
-            }
-            throw e;
-        }
-
+        var mappedRepository = new MappedRepository();
+        mappedRepository.setDelegate(delegateForBranch);
+        mappedRepository.setBaseFolder(baseFolder);
+        // Share the caches so a lazy refresh can reuse a mapping already built for the same tree.
+        mappedRepository.indexesByTreeRevision = indexesByTreeRevision;
+        mappedRepository.projectNamesByDescriptorRevision = projectNamesByDescriptorRevision;
+        // The project mapping is built lazily on first access (see getUpToDateMapping), so selecting a branch
+        // stays cheap. Eagerly scanning every branch on startup froze repositories that hold many branches.
         return mappedRepository;
     }
 

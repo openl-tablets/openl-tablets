@@ -26,6 +26,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,7 +57,7 @@ class BranchedProjectIndexServiceTest {
                 "DESIGN/Rates");
 
         try (var service = new BranchedProjectIndexService()) {
-            var snapshot = await(service.register(repository.repository(), "DESIGN/"));
+            var snapshot = await(register(service, repository));
 
             assertEquals(IndexState.READY, snapshot.health().state());
             assertEquals(Set.of("main", "feature/rates"), snapshot.project("Common").orElseThrow().branches());
@@ -64,8 +65,81 @@ class BranchedProjectIndexServiceTest {
             assertEquals("feature/rates", snapshot.project("Rates").orElseThrow().homeBranch());
             assertEquals("DESIGN/Rates",
                     snapshot.project("Rates").orElseThrow().homeEntry().internalPath());
-            assertEquals(Set.of("DESIGN"), repository.revisionPaths());
+            // "DESIGN" scopes the candidate tree revisions; "DESIGN/Common" maps the base project across branches.
+            assertEquals(Set.of("DESIGN", "DESIGN/Common"), repository.revisionPaths());
             assertThrows(UnsupportedOperationException.class, snapshot.projects()::clear);
+        }
+    }
+
+    @Test
+    void mapsDefaultBranchProjectsAcrossBranchesBeforeDiscoveringTheRest() throws Exception {
+        var repository = new TestBranchRepository();
+        repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Common");
+        repository.put("feature", "feature-1", "tree-feature", NOW, "DESIGN/Common", "DESIGN/Rates");
+        var scanReached = new CountDownLatch(1);
+        var releaseScan = new CountDownLatch(1);
+        repository.beforeScanReturns("feature", () -> {
+            scanReached.countDown();
+            try {
+                assertTrue(releaseScan.await(5, TimeUnit.SECONDS));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        try (var service = new BranchedProjectIndexService()) {
+            var build = register(service, repository);
+
+            // The default branch is indexed and its projects mapped across their branches before the rest is scanned.
+            assertTrue(scanReached.await(5, TimeUnit.SECONDS));
+            var early = service.getSnapshot("design");
+            assertEquals(IndexState.INDEXING, early.health().state());
+            assertEquals(Set.of("main", "feature"), early.project("Common").orElseThrow().branches());
+            assertTrue(early.project("Rates").isEmpty(), "A non-default-branch project is discovered only later.");
+
+            releaseScan.countDown();
+            var complete = await(build);
+            assertEquals(IndexState.READY, complete.health().state());
+            assertEquals(Set.of("feature"), complete.project("Rates").orElseThrow().branches());
+        }
+    }
+
+    @Test
+    void abandonsThePassWhenTheThreadCarryingItIsInterrupted() throws Exception {
+        var repository = new TestBranchRepository();
+        repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Common");
+        repository.put("feature", "feature-1", "tree-feature", NOW, "DESIGN/Rates");
+        // The hook runs on the thread that carries the scan, so it can interrupt the pass part-way through.
+        repository.beforeScanReturns("main", () -> Thread.currentThread().interrupt());
+
+        try (var service = new BranchedProjectIndexService()) {
+            var build = register(service, repository);
+
+            assertThrows(TimeoutException.class, () -> build.toCompletableFuture().get(1, TimeUnit.SECONDS));
+            assertEquals(0, repository.scanCount("feature"), "An abandoned pass must not scan further branches.");
+            assertFalse(service.getSnapshot("design").published(),
+                    "A pass that stopped part-way describes less than the repository holds.");
+        }
+    }
+
+    @Test
+    void keepsIndexingWhenTheReaderOfAPublishedSnapshotFails() throws Exception {
+        var repository = new TestBranchRepository();
+        repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Common");
+        var reads = new AtomicInteger();
+
+        try (var service = new BranchedProjectIndexService()) {
+            await(service.register(repository.repository(), "DESIGN/", () -> {
+                reads.incrementAndGet();
+                throw new IllegalStateException("The reader cannot take the snapshot.");
+            }));
+            repository.put("main", "main-2", "tree-main-2", NOW.plusSeconds(60), "DESIGN/Common", "DESIGN/Rates");
+
+            // A reader that fails must not stop the repository from being indexed.
+            var refreshed = await(service.invalidateRepository("design"));
+
+            assertTrue(refreshed.project("Rates").isPresent());
+            assertTrue(reads.get() >= 2, "Every published snapshot must still be offered to the reader.");
         }
     }
 
@@ -81,7 +155,7 @@ class BranchedProjectIndexServiceTest {
                 "DESIGN/Common");
 
         try (var service = new BranchedProjectIndexService()) {
-            var snapshot = await(service.register(repository.repository(), "DESIGN/"));
+            var snapshot = await(register(service, repository));
 
             assertEquals("main", snapshot.project("Common").orElseThrow().homeBranch());
         }
@@ -95,7 +169,7 @@ class BranchedProjectIndexServiceTest {
         repository.put("feature/a", "a-1", "tree-a", NOW.plusSeconds(60), "DESIGN/Rates");
 
         try (var service = new BranchedProjectIndexService()) {
-            var snapshot = await(service.register(repository.repository(), "DESIGN/"));
+            var snapshot = await(register(service, repository));
 
             assertEquals("feature/a", snapshot.project("rates").orElseThrow().homeBranch());
         }
@@ -107,7 +181,7 @@ class BranchedProjectIndexServiceTest {
         repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Project");
 
         try (var service = new BranchedProjectIndexService()) {
-            await(service.register(repository.repository(), "DESIGN/"));
+            await(register(service, repository));
 
             assertEquals(Set.of(""), repository.revisionPaths());
         }
@@ -125,7 +199,7 @@ class BranchedProjectIndexServiceTest {
         repository.put("feature", "feature-1", "tree-feature", NOW, "DESIGN/Rates:path-one");
 
         try (var service = new BranchedProjectIndexService()) {
-            var snapshot = await(service.register(repository.repository(), "DESIGN/"));
+            var snapshot = await(register(service, repository));
 
             assertEquals(Set.of("main", "feature"), snapshot.project("Rates:path-one").orElseThrow().branches());
             assertEquals(Set.of("main"), snapshot.project("Rates:path-two").orElseThrow().branches());
@@ -140,7 +214,7 @@ class BranchedProjectIndexServiceTest {
         repository.put("feature", "feature-1", "tree-feature", NOW, "DESIGN/Feature");
 
         try (var service = new BranchedProjectIndexService()) {
-            await(service.register(repository.repository(), "DESIGN/"));
+            await(register(service, repository));
             assertEquals(1, repository.scanCount("main"));
             assertEquals(1, repository.scanCount("feature"));
 
@@ -162,7 +236,7 @@ class BranchedProjectIndexServiceTest {
         repository.put("feature", "feature-1", "tree-feature", NOW, "DESIGN/Feature");
 
         try (var service = new BranchedProjectIndexService()) {
-            var initial = await(service.register(repository.repository(), "DESIGN/"));
+            var initial = await(register(service, repository));
             assertEquals("feature-1",
                     initial.project("Feature").orElseThrow().entry("feature").orElseThrow().fileData().getVersion());
 
@@ -192,7 +266,7 @@ class BranchedProjectIndexServiceTest {
         repository.put("feature", "feature-1", "tree-1", NOW, "DESIGN/Old");
 
         try (var service = new BranchedProjectIndexService()) {
-            await(service.register(repository.repository(), "DESIGN/"));
+            await(register(service, repository));
             repository.put("feature", "feature-2", "tree-2", NOW.plusSeconds(60), "DESIGN/New");
             repository.failScan("feature");
 
@@ -219,7 +293,7 @@ class BranchedProjectIndexServiceTest {
         repository.put("feature", "feature-1", "tree-1", NOW, "DESIGN/Old");
 
         try (var service = new BranchedProjectIndexService()) {
-            await(service.register(repository.repository(), "DESIGN/"));
+            await(register(service, repository));
             repository.put("feature", "feature-2", "tree-2", NOW.plusSeconds(60), "DESIGN/New");
 
             repository.omitStatus("feature");
@@ -245,7 +319,7 @@ class BranchedProjectIndexServiceTest {
         repository.failBranchListing();
 
         try (var service = new BranchedProjectIndexService()) {
-            assertThrows(ExecutionException.class, () -> await(service.register(repository.repository(), "DESIGN/")));
+            assertThrows(ExecutionException.class, () -> await(register(service, repository)));
             var degraded = service.getSnapshot("design");
             assertEquals(IndexState.DEGRADED, degraded.health().state());
             assertEquals("Repository branches cannot be indexed.", degraded.health().lastError());
@@ -265,7 +339,7 @@ class BranchedProjectIndexServiceTest {
         repository.put("feature", "feature-1", "tree-1", NOW, "DESIGN/Old");
 
         try (var service = new BranchedProjectIndexService()) {
-            await(service.register(repository.repository(), "DESIGN/"));
+            await(register(service, repository));
             repository.put("feature", "feature-2", "tree-2", NOW.plusSeconds(60), "DESIGN/Old");
             repository.beforeScanReturns("feature",
                     () -> repository.put(
@@ -292,7 +366,7 @@ class BranchedProjectIndexServiceTest {
         repository.put("feature", "feature-1", "tree-1", NOW, "DESIGN/Project");
 
         try (var service = new BranchedProjectIndexService()) {
-            await(service.register(repository.repository(), "DESIGN/"));
+            await(register(service, repository));
             repository.put("feature", "feature-2", "tree-2", NOW.plusSeconds(60), "DESIGN/Project");
             var followUp = new AtomicReference<CompletionStage<BranchedProjectIndexService.RepositorySnapshot>>();
             repository.beforeScanReturns("feature", () -> {
@@ -329,7 +403,7 @@ class BranchedProjectIndexServiceTest {
         });
 
         try (var service = new BranchedProjectIndexService()) {
-            var refresh = service.register(repository.repository(), "DESIGN/");
+            var refresh = register(service, repository);
             assertTrue(scanStarted.await(5, TimeUnit.SECONDS));
             var callback = refresh.thenRun(() -> {
                 try {
@@ -361,7 +435,7 @@ class BranchedProjectIndexServiceTest {
         });
         var service = new BranchedProjectIndexService();
 
-        var initialBuild = service.register(repository.repository(), "DESIGN/");
+        var initialBuild = register(service, repository);
         assertTrue(scanStarted.await(5, TimeUnit.SECONDS));
         assertEquals(IndexState.INDEXING, service.getSnapshot("design").health().state());
         service.close();
@@ -369,6 +443,16 @@ class BranchedProjectIndexServiceTest {
 
         assertThrows(CancellationException.class, () -> await(initialBuild));
         assertThrows(IllegalStateException.class, () -> service.getSnapshot("design"));
+    }
+
+    /**
+     * Registers the repository under test. These tests read the published snapshot themselves, so they do not
+     * observe the publish callback.
+     */
+    private static CompletionStage<BranchedProjectIndexService.RepositorySnapshot> register(
+            BranchedProjectIndexService service, TestBranchRepository repository) {
+        return service.register(repository.repository(), "DESIGN/", () -> {
+        });
     }
 
     private static BranchedProjectIndexService.RepositorySnapshot await(
@@ -438,16 +522,21 @@ class BranchedProjectIndexServiceTest {
             });
             when(repository.getBranchTreeRevisions(anyCollection(), anyString())).thenAnswer(invocation -> {
                 Collection<String> requested = invocation.getArgument(0);
-                revisionPaths.add(invocation.getArgument(1));
+                String path = invocation.getArgument(1);
+                revisionPaths.add(path);
                 var result = new LinkedHashMap<String, BranchTreeRevision>();
                 requested.forEach(branch -> {
                     var data = branches.get(branch);
-                    if (data != null && !omittedRevisions.contains(branch)) {
-                        result.put(branch,
-                                new BranchTreeRevision(data.status().lastCommitRevision(),
-                                        data.treeRevision(),
-                                        data.tipAffectsPath()));
+                    if (data == null || omittedRevisions.contains(branch)) {
+                        return;
                     }
+                    // A project path (it names a folder) resolves only on branches that hold that project; a
+                    // discovery or root path always resolves. This mirrors a real path-scoped tree lookup.
+                    var present = path.indexOf('/') < 0 || data.projects().contains(path);
+                    result.put(branch,
+                            new BranchTreeRevision(data.status().lastCommitRevision(),
+                                    present ? data.treeRevision() : null,
+                                    data.tipAffectsPath()));
                 });
                 return result;
             });

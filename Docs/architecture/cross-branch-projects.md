@@ -176,7 +176,8 @@ registry or persistent index file.
 
 Repository index health must use these states:
 
-- `INDEXING` — the first complete snapshot has not been published.
+- `INDEXING` — the complete snapshot has not been published. An early snapshot that maps the default branch's
+  projects across their branches may already be served.
 - `READY` — every enumerated branch has a successful snapshot.
 - `DEGRADED` — at least one branch uses last-known-good data or has no successful snapshot.
 
@@ -191,7 +192,13 @@ names or repository diagnostics.
 Refreshes must run outside request threads and follow these rules:
 
 - Initialization must materialize the configured-branch listing and start the first branch-wide build.
-- The configured-branch listing must remain available while the first snapshot is building.
+- Until a snapshot exists, a build must publish a usable one before scanning every branch: it must index the
+  default (base) branch first and list its projects across the branches that still hold them, so those projects
+  are not confined to the default branch while the rest of the scan runs. Projects that live only on non-default
+  branches appear when that scan completes. A build that already has a published snapshot to serve must not
+  repeat this early pass.
+- The configured-branch listing must remain available only until the first snapshot is published; afterwards the
+  published snapshot is served even while its health is still `INDEXING`.
 - Repository change events must mark the repository dirty and schedule a batched status check.
 - A successful Studio write must invalidate the affected branch directly.
 - One coordinator per repository may run at a time.
@@ -211,8 +218,9 @@ A branch absent from `listBranches()` must be removed. If an enumerated branch h
 retain last-known-good data and skip an unindexed branch. A failed scan must likewise retain last-known-good data and
 mark health `DEGRADED`; it must not replace known membership with an empty listing.
 
-Publishing a generation must refresh the logical-project projection and send the project-change notification.
-Each OpenL Studio node must own its index and converge independently through repository change monitoring.
+Publishing a snapshot — both the early default-branch snapshot and the complete one — must refresh the
+logical-project projection and send the project-change notification. Each OpenL Studio node must own its index and
+converge independently through repository change monitoring.
 
 Project-list and project-read requests must never enumerate branches, create branch views or scan Git trees. A
 steady refresh must use one batched status lookup and scan only branches whose relevant state changed.
