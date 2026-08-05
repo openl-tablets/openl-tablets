@@ -1523,12 +1523,8 @@ class WorkspaceProjectServiceTest {
                 mock(ProjectStatusMapper.class),
                 environment(),
                 new ProjectTagsCache(mock(CacheManager.class)),
-                new ProjectListingContext()) {
-
-            @Override
-            public UserWorkspace getUserWorkspace() {
-                return userWorkspace;
-            }
+                new ProjectListingContext(),
+                () -> userWorkspace) {
 
             @Override
             public WebStudio getWebStudio() {

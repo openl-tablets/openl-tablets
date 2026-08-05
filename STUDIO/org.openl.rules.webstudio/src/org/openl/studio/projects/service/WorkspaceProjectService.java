@@ -29,6 +29,7 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
@@ -174,6 +175,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final Environment environment;
     private final ProjectTagsCache projectTagsCache;
     private final ProjectListingContext listingContext;
+    private final ObjectFactory<UserWorkspace> userWorkspaceFactory;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -201,7 +203,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectStatusMapper projectStatusMapper,
             Environment environment,
             ProjectTagsCache projectTagsCache,
-            ProjectListingContext listingContext) {
+            ProjectListingContext listingContext,
+            ObjectFactory<UserWorkspace> userWorkspaceFactory) {
         super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -226,11 +229,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.environment = environment;
         this.projectTagsCache = projectTagsCache;
         this.listingContext = listingContext;
+        this.userWorkspaceFactory = userWorkspaceFactory;
     }
 
-    @Lookup
+    /**
+     * The workspace of the current user.
+     *
+     * <p>The workspace lives for the session while this service is a singleton, so it is resolved on each call.
+     */
     public UserWorkspace getUserWorkspace() {
-        return null;
+        return userWorkspaceFactory.getObject();
     }
 
     @Lookup
@@ -1321,9 +1329,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * repository still being indexed, or a branch it failed to read — answers "not known", not "no holders", so
      * the addressed project counts as held alone and the deletion still asks for the delete permission.
      */
-    // Spring overrides the @Lookup method at runtime. Sonar reads its `return null` stub instead and reports a
-    // null dereference on the workspace.
-    @SuppressWarnings("java:S2259")
     private void requireDeletionOfProjectsHeldOnlyBy(RulesProject project, String repositoryId, String branch) {
         var designTimeRepository = getUserWorkspace().getDesignTimeRepository();
         if (designTimeRepository.isLastProjectBranch(repositoryId, project.getDesignProjectName(), branch)) {
