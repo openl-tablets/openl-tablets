@@ -836,6 +836,32 @@ describe('ProjectsHome row actions', () => {
         await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true }))
     })
 
+    it('hides the loading overlay when a ping echoes the action the user is still waiting for', async () => {
+        mockProjectSearch(single({ canOpen: true }))
+        vi.mocked(setProjectStatus).mockResolvedValue(undefined as never)
+        await renderHome()
+
+        // The re-read the action starts is held, so the backend's echo of that same action lands while
+        // the user is still waiting behind the overlay.
+        let answer: (() => void) | undefined
+        const held = new Promise<void>(resolve => { answer = resolve })
+        vi.mocked(getProjects).mockImplementationOnce(async () => {
+            await held
+            return projectsPage(single({ canOpen: true }), 1, false)
+        })
+
+        await userEvent.click(screen.getByTestId('project-action-open-p1'))
+        await waitFor(() => expect(screen.getByTestId('projects-loading-overlay')).toBeTruthy())
+
+        await act(async () => {
+            liveHandlers.workspaceChange?.()
+            answer?.()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        await waitFor(() => expect(screen.queryByTestId('projects-loading-overlay')).toBeNull())
+    })
+
     it('says a status change failed instead of failing silently', async () => {
         mockProjectSearch(single({ canOpen: true }))
         vi.mocked(setProjectStatus).mockRejectedValue(new Error('boom'))
