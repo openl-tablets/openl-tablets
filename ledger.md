@@ -369,8 +369,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-06 — run sixty-four: `main` moved three EPBDS-16384 studio-ui commits; swept, nothing orphaned, no commit.
 - 08-06 — run sixty-five: `main` moved one EPBDS-16323 commit; every name its deletions touched still has a live
   caller, nothing orphaned, no commit.
 - 08-06 — run sixty-six: `main` moved one EPBDS-16361 commit; additive but for two in-place replacements and a
   renamed local, nothing orphaned, no commit.
+- 08-06 — run sixty-seven: `main` unmoved at the resume-point SHA and no open PR; idle pass only, no commit.
