@@ -48,9 +48,12 @@ export const useSheetLoader = (errorTitle: string, initialSheetName = ''): Sheet
         setSheetName(current => !loaded.length || loaded.includes(current) ? current : loaded[0] ?? current)
     }, [])
 
+    // Priming is itself the answer, so it ends a request still in flight — including the spinner that
+    // request put up, which its own reply no longer hides once this call has taken the count over.
     const prime = useCallback((moduleName: string, loaded: string[]) => {
         cache.current.set(moduleName, loaded)
         token.current++
+        setLoading(false)
         setSheets(loaded)
         selectSheet(loaded)
     }, [selectSheet])
