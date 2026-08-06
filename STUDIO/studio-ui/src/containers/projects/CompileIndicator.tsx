@@ -108,6 +108,8 @@ interface LiveCompileDotProps {
     branch: string | null
     status: ProjectStatus
     compileStatus?: ProjectStatusUpdate | undefined
+    /** When the read carrying {@code compileStatus} started; an older push gives way to it. */
+    statusReadAt?: number | undefined
 }
 
 /**
@@ -115,10 +117,10 @@ interface LiveCompileDotProps {
  * detail already carries and kept live on the project's own status channel — the same dot, by the
  * same rules, as the list rows show.
  */
-export const LiveCompileDot = ({ projectId, branch, status, compileStatus }: LiveCompileDotProps) => {
+export const LiveCompileDot = ({ projectId, branch, status, compileStatus, statusReadAt }: LiveCompileDotProps) => {
     const { t } = useTranslation('repository')
     const live = COMPILE_RELEVANT_STATUSES.has(status)
-    const shown = useLiveProjectStatus(projectId, branch, live, compileStatus ?? null)
+    const shown = useLiveProjectStatus(projectId, branch, live, compileStatus ?? null, statusReadAt)
     const state = live ? shown?.compileState ?? 'idle' : 'idle'
     if (!isNoteworthyCompileState(state)) {
         return null

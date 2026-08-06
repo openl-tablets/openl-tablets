@@ -1,12 +1,14 @@
-import { useMemo, useRef } from 'react'
+import { useRef } from 'react'
 
-/** Tracks the reloads of one screen. See {@link useLoadGeneration}. */
-export interface LoadGeneration {
-    /** Begins a reload and returns the generation identifying it. */
-    start: (silent: boolean) => number
-    /** Whether that reload is still the newest one, and so may put its answer on the screen. */
+/** A reload in flight: which one it is, and when it started. */
+export interface Load {
+    generation: number
+    startedAt: number
+}
+
+interface LoadGeneration {
+    start: (silent: boolean) => Load
     isLatest: (generation: number) => boolean
-    /** Whether the spinner belongs to that reload, and so is hidden when it ends. */
     ownsSpinner: (generation: number) => boolean
 }
 
@@ -25,16 +27,19 @@ export interface LoadGeneration {
 export function useLoadGeneration(): LoadGeneration {
     const latest = useRef(0)
     const shown = useRef(0)
-
-    return useMemo(() => ({
+    // Built once and never rebuilt: both screens keep their `load` callback memoised on it, and a new
+    // identity would re-run the mount effect that calls it — a re-read of the whole workspace.
+    const api = useRef<LoadGeneration | undefined>(undefined)
+    api.current ??= {
         start: (silent: boolean) => {
             const generation = ++latest.current
             if (!silent) {
                 shown.current = generation
             }
-            return generation
+            return { generation, startedAt: Date.now() }
         },
         isLatest: (generation: number) => generation === latest.current,
         ownsSpinner: (generation: number) => generation === shown.current,
-    }), [])
+    }
+    return api.current
 }
