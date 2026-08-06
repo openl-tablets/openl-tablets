@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `f18570bc`**; every queue row done, every vein closed. New scope arrives only as new
+- **Converged at `main` = `22cb4cdc`**; every queue row done, every vein closed. New scope arrives only as new
   commits on `main` — never invent a detector to manufacture work. Expect idleness.
-- The idle pass is two calls: `git log f18570bc..origin/main` and the open-PR check. Read `build-quick.yml` only
+- The idle pass is two calls: `git log 22cb4cdc..origin/main` and the open-PR check. Read `build-quick.yml` only
   before committing code, and only once `main` has moved; never re-diagnose an unchanged SHA.
 - When scope arrives, sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and
   `.github/`. Read the **deleted** lines first — a purely additive commit orphans nothing, and one whose deletions are
@@ -110,7 +110,8 @@ None. Open the next one from a fresh branch off the current `main`.
   `convertRegexToGlobs`, and two inline `Pattern.compile` locals returned as constants. Search the added lines for the
   same stem, and a deleted local's body for a new constant, before calling either an orphan. It may also move into a
   shared module the same diff newly imports — a file-local `encodeProjectId` returned as `toUrlSafeId` in
-  `services/projectId` — so read the added imports too. A wholly deleted `import` or JSX line likewise usually
+  `services/projectId` — or into a new method of a collaborator the caller already constructs, which is where a
+  deleted **inline condition** goes, so read the added imports and the collaborator too. A deleted `import` or JSX line
   returns with one more name on it, so grep the post-image file, never the diff alone.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
@@ -368,7 +369,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-06 — run sixty-two: `main` moved three commits (two `org.openl.rules.workspace` project-identity refactors plus a
-  `cxf-bom` bump); swept their whole scope, nothing orphaned, no commit.
 - 08-06 — run sixty-three: idle; `main` unmoved at the resume SHA, no `dead-code/*` branch but the ledger.
 - 08-06 — run sixty-four: `main` moved three EPBDS-16384 studio-ui commits; swept, nothing orphaned, no commit.
+- 08-06 — run sixty-five: `main` moved one EPBDS-16323 commit; every name its deletions touched still has a live
+  caller, nothing orphaned, no commit.
