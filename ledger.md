@@ -369,7 +369,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-06 — run sixty-six: `main` moved one EPBDS-16361 commit; additive but for two in-place replacements and a
-  renamed local, nothing orphaned, no commit.
 - 08-06 — run sixty-seven: `main` unmoved at the resume-point SHA and no open PR; idle pass only, no commit.
 - 08-06 — run sixty-eight: third consecutive idle pass at the same SHA, no open PR; no commit.
+- 08-06 — run sixty-nine: fourth consecutive idle pass at the same SHA; only `dead-code/ledger` remains on the
+  remote, no open PR, no commit.
