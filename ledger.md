@@ -371,8 +371,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-05 — run fifty-five. `main` still `5d3020a4` and no `dead-code/*` PR; idle pass ended after its two calls.
 - 08-05 — run fifty-six. `main` advanced two EPBDS-16382 commits. Additive plus one extraction: `DependencyList` moved
   out of `OverviewPanel` and its remaining style keys into `sharedStyles`, so nothing was orphaned. No scope.
 - 08-05 — run fifty-seven. `main` unmoved at the resume SHA, no `dead-code/*` PR; idle pass, datepicker deferral merged
   into the Keep-list.
+- 08-06 — run fifty-eight. `main` unmoved at the resume SHA, no `dead-code/*` PR; idle pass, no scope.
