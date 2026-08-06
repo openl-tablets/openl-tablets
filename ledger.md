@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `f3b8c506`**; every queue row done, every vein closed. New scope arrives only as new
+- **Converged at `main` = `f18570bc`**; every queue row done, every vein closed. New scope arrives only as new
   commits on `main` — never invent a detector to manufacture work. Expect idleness.
-- The idle pass is two calls: `git log f3b8c506..origin/main` and the open-PR check. Read `build-quick.yml` only
+- The idle pass is two calls: `git log f18570bc..origin/main` and the open-PR check. Read `build-quick.yml` only
   before committing code, and only once `main` has moved; never re-diagnose an unchanged SHA.
 - When scope arrives, sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and
   `.github/`. Read the **deleted** lines first — a purely additive commit orphans nothing, and one whose deletions are
@@ -368,7 +368,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-05..08-06 — runs fifty-seven to sixty-one, all idle: `main` at the resume SHA, no `dead-code/*` PR, no new scope.
 - 08-06 — run sixty-two: `main` moved three commits (two `org.openl.rules.workspace` project-identity refactors plus a
   `cxf-bom` bump); swept their whole scope, nothing orphaned, no commit.
 - 08-06 — run sixty-three: idle; `main` unmoved at the resume SHA, no `dead-code/*` branch but the ledger.
+- 08-06 — run sixty-four: `main` moved three EPBDS-16384 studio-ui commits; swept, nothing orphaned, no commit.
