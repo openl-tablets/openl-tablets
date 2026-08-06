@@ -42,7 +42,6 @@ import org.openl.studio.projects.service.tables.write.RawTableWriter;
 import org.openl.studio.projects.service.tables.write.TableWriter;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -309,8 +308,7 @@ public class TableCreatorService {
         module.setName(moduleName);
         module.setRulesRootPath(modulePath);
         var descriptorManager = new ProjectDescriptorManager();
-        if (descriptorManager.isCoveredByWildcardModule(descriptor, module)
-                && module.getName().equals(FileUtils.getBaseName(modulePath))) {
+        if (descriptorManager.isAlreadyRegistered(descriptor, module)) {
             // The wildcard already names the module exactly as asked, so it stays auto-discovered.
             return;
         }
