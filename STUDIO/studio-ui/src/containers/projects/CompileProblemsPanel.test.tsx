@@ -5,7 +5,8 @@ import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
 
-vi.mock('../../services/projectStatus', () => ({
+vi.mock('../../services/projectStatus', async importOriginal => ({
+    ...(await importOriginal<typeof import('../../services/projectStatus')>()),
     subscribeProjectStatus: () => ({ unsubscribe: () => {} }),
 }))
 

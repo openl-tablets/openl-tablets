@@ -22,7 +22,8 @@ const { copyModalMock, navigateMock, routeParams, searchParamsMock, setSearchPar
     liveHandlers: { projectChange: undefined as ((files: string[]) => void) | undefined },
 }))
 
-vi.mock('../hooks', () => ({
+vi.mock('../hooks', async () => ({
+    ...(await vi.importActual<typeof import('../hooks/useLoadGeneration')>('../hooks/useLoadGeneration')),
     useLiveProjectChanges: (_projectId: string | undefined, onChange: (files: string[]) => void) => {
         liveHandlers.projectChange = onChange
     },
@@ -78,6 +79,12 @@ vi.mock('./projects/BranchSelector', () => ({ BranchSelector: () => null }))
 vi.mock('./projects/FilesToolbar', () => ({ FilesToolbar: () => null }))
 
 vi.mock('./projects/RevisionsPanel', () => ({ RevisionsPanel: () => null }))
+
+vi.mock('./projects/CompileProblemsPanel', () => ({
+    CompileProblemsPanel: ({ project }: { project: { compileStatus?: { compileState: string } } }) => (
+        <span data-testid="compile-state">{project.compileStatus?.compileState ?? 'none'}</span>
+    ),
+}))
 
 vi.mock('./projects/DeployConfigPanel', () => ({ DeployConfigPanel: () => null }))
 
@@ -334,6 +341,41 @@ describe('ProjectWorkspace', () => {
         expect(notification.info).not.toHaveBeenCalled()
         // Nothing changed, so nothing is applied: no tab reset, no re-fetch cascade — the user's
         // own action already reloaded the page once.
+        expect(screen.getByTestId('projects-rail').getAttribute('data-reload-token')).toBe('1')
+    })
+
+    it('takes the compile status of a ping that changed nothing else', async () => {
+        // A compile that finished while its completion push was lost: the project itself is untouched,
+        // so the re-read applies nothing - except the status, which is the server's latest word.
+        const compiling = { projectId: 'p1', branch: 'main', compileState: 'compiling' }
+        vi.mocked(getProject).mockResolvedValue(project({ status: 'OPENED', compileStatus: compiling }) as never)
+        await renderWorkspace()
+        expect(screen.getByTestId('compile-state').textContent).toBe('compiling')
+
+        vi.mocked(getProject).mockResolvedValue(project({
+            status: 'OPENED',
+            compileStatus: {
+                projectId: 'p1',
+                branch: 'main',
+                compileState: 'errors',
+                compilation: {
+                    messages: {
+                        total: 1,
+                        errors: 1,
+                        warnings: 0,
+                        items: [{ id: 1, summary: 'Cannot find type Foo', severity: 'ERROR', stacktrace: false }],
+                    },
+                },
+            },
+        }) as never)
+
+        await act(async () => {
+            liveHandlers.projectChange?.([])
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(screen.getByTestId('compile-state').textContent).toBe('errors')
+        // The page itself did not change, so the tabs and the tree beside them are left alone.
         expect(screen.getByTestId('projects-rail').getAttribute('data-reload-token')).toBe('1')
     })
 

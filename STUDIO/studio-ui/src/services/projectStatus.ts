@@ -192,6 +192,20 @@ export function subscribeProjectStatus(
 }
 
 /**
+ * Whether a status the channel pushed still outranks the one a read carries.
+ *
+ * A push and a read answer the same question from two sides, and the fresher one wins: a push beats
+ * a read that started before it arrived, and gives way to a read started after it. Both screens ask
+ * this — the list about each row, the project page about the one project — so they ask it here.
+ *
+ * @param pushedAt       when the pushed status arrived
+ * @param readStartedAt  when the read carrying the other status started
+ */
+export function isPushFresherThanRead(pushedAt: number, readStartedAt: number): boolean {
+    return pushedAt > readStartedAt
+}
+
+/**
  * The one status stream of the whole workspace, matching
  * {@code ProjectSocketNotificationService.notifyWorkspaceProjectStatus} on the backend.
  * Every update names its own project and branch, so a screen showing many projects — the projects

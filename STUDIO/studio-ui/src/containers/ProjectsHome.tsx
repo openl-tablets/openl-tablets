@@ -29,8 +29,7 @@ import { ProjectsGrid } from './projects/ProjectsGrid'
 import type { ProjectListHandlers, RowActionId } from './projects/ProjectRowActions'
 import { countFacets, refineProjects, searchProjects, sortProjects, type BranchFacetCount, type ProjectSort, type SortDirection } from './projects/projectListing'
 import { getProjectIndex, hasProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
-import { useWindowFocus, useWorkspaceChanges } from '../hooks'
-import { useLoadGeneration } from '../hooks/useLoadGeneration'
+import { useLoadGeneration, useWindowFocus, useWorkspaceChanges } from '../hooks'
 import { COMPILE_COLORS } from './projects/projectsTheme'
 import { useSharedStyles } from './projects/sharedStyles'
 import { NewProjectModal } from './projects/NewProjectModal'
@@ -43,7 +42,12 @@ import { openCompareWindow } from './projects/compare'
 import { loadProjectFilters, saveProjectFilters } from './projects/filterStorage'
 import { SaveProjectModal } from './projects/SaveProjectModal'
 import { DiscardChangesModal } from './DiscardChangesModal'
-import { subscribeWorkspaceProjectStatuses, type ProjectCompileState, type ProjectStatusUpdate } from '../services/projectStatus'
+import {
+    isPushFresherThanRead,
+    subscribeWorkspaceProjectStatuses,
+    type ProjectCompileState,
+    type ProjectStatusUpdate,
+} from '../services/projectStatus'
 
 /** The facet counts of the rail, counted in the browser from the projects it already holds. */
 interface ProjectFacets {
@@ -137,7 +141,7 @@ const overlayFreshStatuses = (
     pushedAt: Map<string, number>,
     readStartedAt: number
 ): ProjectStatusUpdate[] => {
-    const pushed = previous.filter(status => (pushedAt.get(status.projectId) ?? 0) > readStartedAt)
+    const pushed = previous.filter(status => isPushFresherThanRead(pushedAt.get(status.projectId) ?? 0, readStartedAt))
     const overridden = new Set(pushed.map(status => status.projectId))
     return [...snapshot.filter(status => !overridden.has(status.projectId)), ...pushed]
 }
@@ -352,8 +356,7 @@ export const ProjectsHome = () => {
     // here, so a facet click or a page step costs nothing and the server is not asked again. The facet
     // counts — the expensive part of the list response — are counted from the same snapshot.
     const load = useCallback((refresh = false, { silent = false } = {}) => {
-        const generation = loads.start(silent)
-        const startedAt = Date.now()
+        const { generation, startedAt } = loads.start(silent)
         if (!silent) {
             setLoading(true)
         }
@@ -375,7 +378,9 @@ export const ProjectsHome = () => {
             })
             .catch((e: unknown): Project[] | null => {
                 // A failed silent re-read keeps the snapshot on screen: it was the answer a moment ago.
-                if (loads.isLatest(generation) && !silent) {
+                // A reload the user waits for still reports its failure once a quiet one has overtaken
+                // it, because the quiet one reports nothing and the action would look successful.
+                if (loads.ownsSpinner(generation)) {
                     setError(errorMessage(e))
                 }
                 return null

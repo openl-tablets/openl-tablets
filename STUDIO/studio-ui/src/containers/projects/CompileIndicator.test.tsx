@@ -4,7 +4,9 @@ import { ProjectStatus } from '../../constants/project'
 import { subscribeProjectStatus, type ProjectStatusUpdate } from '../../services/projectStatus'
 import { LiveCompileDot, RowCompileDot } from './CompileIndicator'
 
-vi.mock('../../services/projectStatus', () => ({
+// Only the channel is stubbed; the freshness rule stays the one the screens use.
+vi.mock('../../services/projectStatus', async importOriginal => ({
+    ...(await importOriginal<typeof import('../../services/projectStatus')>()),
     subscribeProjectStatus: vi.fn(),
 }))
 

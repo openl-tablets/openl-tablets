@@ -14,8 +14,7 @@ import {
 } from '../services/repositories'
 import { NotFoundError } from '../services'
 import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS, projectSignature } from '../services/projectIndex'
-import { useLiveProjectChanges, useWindowFocus } from '../hooks'
-import { useLoadGeneration } from '../hooks/useLoadGeneration'
+import { useLiveProjectChanges, useLoadGeneration, useWindowFocus } from '../hooks'
 import { ProjectStatus } from '../constants/project'
 import type { Repository } from '../types/repositories'
 import type { Project } from '../types/projects'
@@ -103,6 +102,9 @@ export const ProjectWorkspace = () => {
     // Read only when the copy dialog first opens; `null` until then.
     const [repositories, setRepositories] = useState<Repository[] | null>(null)
     const [project, setProject] = useState<Project | null>(null)
+    // When the read behind the shown project started, so the compile dot can tell a pushed status
+    // that is newer than this answer from one this answer has already overtaken.
+    const [statusReadAt, setStatusReadAt] = useState(0)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [files, setFiles] = useState<FsNode[] | 'loading' | 'error'>()
@@ -118,8 +120,8 @@ export const ProjectWorkspace = () => {
     const [changedFiles, setChangedFiles] = useState<string[] | null>(null)
     // Bumped on every project-detail load so stale navigation responses cannot overwrite the current page.
     const loads = useLoadGeneration()
-    // Bumped on every reload so a stale files response never overwrites a fresh one.
-    const filesGeneration = useRef(0)
+    // Its own counter, so a stale files response never overwrites a fresh one.
+    const fileLoads = useLoadGeneration()
     // When the page last read its project — the staleness policy behind the pings counts from here.
     const loadedAt = useRef(0)
 
@@ -147,7 +149,7 @@ export const ProjectWorkspace = () => {
         if (!projectId) {
             return null
         }
-        const generation = loads.start(silent)
+        const { generation, startedAt } = loads.start(silent)
         if (!silent) {
             setLoading(true)
         }
@@ -157,26 +159,38 @@ export const ProjectWorkspace = () => {
                 return null
             }
             if (skipUnchangedFor !== undefined && touched === null && projectSignature(loaded) === skipUnchangedFor) {
+                // The tabs are left alone: nothing the signature covers changed. The compile status is
+                // not part of it and is the server's latest word, so it is taken anyway - otherwise a
+                // push that was lost would go on outranking every read that follows it.
                 loadedAt.current = Date.now()
+                setProject(current => {
+                    const { compileStatus } = loaded
+                    if (current === null) {
+                        return loaded
+                    }
+                    // A read carrying no status says nothing about it, and leaves the shown one alone.
+                    return compileStatus === undefined ? current : { ...current, compileStatus }
+                })
+                setStatusReadAt(startedAt)
                 return loaded
             }
             setProject(loaded)
+            setStatusReadAt(startedAt)
             setChangedFiles(touched)
             setReloadToken(token => token + 1)
-            filesGeneration.current += 1
+            fileLoads.start(true)
             loadedAt.current = Date.now()
             setFiles(undefined)
             setError(null)
             return loaded
         } catch (e) {
-            if (!loads.isLatest(generation)) {
-                return null
-            }
-            if (e instanceof NotFoundError) {
+            // A reload the user waits for reports its own failure even when a quiet one has overtaken
+            // it: the quiet one reports nothing, so the action would look as if it had succeeded.
+            if (!(e instanceof NotFoundError) && loads.ownsSpinner(generation)) {
+                setError(errorMessage(e))
+            } else if (loads.isLatest(generation) && e instanceof NotFoundError) {
                 setProject(null)
                 setError(null)
-            } else if (!silent) {
-                setError(errorMessage(e))
             }
         } finally {
             // The spinner is hidden by the reload it belongs to, even when a quiet re-read has started
@@ -259,20 +273,20 @@ export const ProjectWorkspace = () => {
         if (!project || files !== undefined) {
             return
         }
-        const generation = filesGeneration.current
+        const { generation } = fileLoads.start(true)
         setFiles('loading')
         getProjectFiles(project.id)
             .then(loaded => {
-                if (generation === filesGeneration.current) {
+                if (fileLoads.isLatest(generation)) {
                     setFiles(loaded)
                 }
             })
             .catch(() => {
-                if (generation === filesGeneration.current) {
+                if (fileLoads.isLatest(generation)) {
                     setFiles('error')
                 }
             })
-    }, [project, files])
+    }, [fileLoads, project, files])
 
     const runAction = useCallback(async (
         id: ActionId,
@@ -421,6 +435,7 @@ export const ProjectWorkspace = () => {
                             repoFeatures={repoInfo?.features}
                             repoLabel={repoLabel}
                             repoType={repoType}
+                            statusReadAt={statusReadAt}
                             headerPrefix={(
                                 <span className={styles.crumb}>
                                     <Link to="/projects">{t('home.title')}</Link>
@@ -440,6 +455,7 @@ export const ProjectWorkspace = () => {
                     {project && (
                         <CompileProblemsPanel
                             project={project}
+                            statusReadAt={statusReadAt}
                             supportsBranches={supportsBranches({ features: repoInfo?.features })}
                         />
                     )}

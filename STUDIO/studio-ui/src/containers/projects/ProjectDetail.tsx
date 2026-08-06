@@ -39,8 +39,12 @@ import { ValueText } from './ValueText'
 import { BranchSwitcher } from './BranchSwitcher'
 import { LocalChangesSummary } from './LocalChangesSummary'
 import { buildFileChangeMap, normalizeProjectFileChanges } from './fileChanges'
+import type { ProjectFileChange } from '../../services/projectStatus'
 import { SystemContext } from '../../contexts'
 import { supportsBranches, supportsRevisionSearch } from '../../utils/repositoryFeatures'
+
+/** One empty list for every project without pending changes, so the memos below it hold. */
+const NO_FILE_CHANGES: ProjectFileChange[] = []
 
 const useStyles = createStyles(({ css, token }) => ({
     root: css`
@@ -196,6 +200,8 @@ const useStyles = createStyles(({ css, token }) => ({
 
 interface ProjectDetailProps {
     project: Project | null
+    /** When the read behind the shown project started; the compile dot weighs pushed statuses against it. */
+    statusReadAt?: number | undefined
     repoLabel: string
     repoFeatures?: RepositoryFeatures | undefined
     repoType?: string | undefined
@@ -221,6 +227,7 @@ interface ProjectDetailProps {
  */
 export const ProjectDetail = ({
     project,
+    statusReadAt,
     repoLabel,
     repoFeatures,
     repoType,
@@ -288,7 +295,7 @@ export const ProjectDetail = ({
     const [fileFilter, setFileFilter] = useState('')
     const [treeWidth, setTreeWidth] = useState(288)
     const resizeCleanup = useRef<(() => void) | null>(null)
-    const pendingFileChanges = project?.compileStatus?.pendingChanges?.files ?? []
+    const pendingFileChanges = project?.compileStatus?.pendingChanges?.files ?? NO_FILE_CHANGES
     const localChanges = useMemo(
         () => normalizeProjectFileChanges(pendingFileChanges, project?.path, project?.name),
         [pendingFileChanges, project?.name, project?.path]
@@ -539,7 +546,13 @@ export const ProjectDetail = ({
                         >
                             {project.name}
                         </Typography.Title>
-                        <LiveCompileDot branch={project.branch ?? null} compileStatus={project.compileStatus} projectId={project.id} status={project.status} />
+                        <LiveCompileDot
+                            branch={project.branch ?? null}
+                            compileStatus={project.compileStatus}
+                            projectId={project.id}
+                            status={project.status}
+                            statusReadAt={statusReadAt}
+                        />
                     </div>
                     <ProjectActionBar handlers={handlers} pendingId={pendingId} project={project} />
                 </div>

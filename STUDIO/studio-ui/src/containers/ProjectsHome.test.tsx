@@ -21,7 +21,8 @@ const { copyModalMock, navigateMock, liveHandlers } = vi.hoisted(() => ({
     },
 }))
 
-vi.mock('../hooks', () => ({
+vi.mock('../hooks', async () => ({
+    ...(await vi.importActual<typeof import('../hooks/useLoadGeneration')>('../hooks/useLoadGeneration')),
     useWorkspaceChanges: (onChange: () => void) => {
         liveHandlers.workspaceChange = onChange
     },
@@ -30,7 +31,8 @@ vi.mock('../hooks', () => ({
     },
 }))
 
-vi.mock('../services/projectStatus', () => ({
+vi.mock('../services/projectStatus', async importOriginal => ({
+    ...(await importOriginal<typeof import('../services/projectStatus')>()),
     subscribeWorkspaceProjectStatuses: (onUpdate: (update: unknown) => void) => {
         liveHandlers.statusUpdate = onUpdate
         return { unsubscribe: vi.fn() }
