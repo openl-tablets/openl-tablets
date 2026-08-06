@@ -3007,7 +3007,9 @@ public class GitRepository implements BranchRepository, Closeable {
                         files.add(createFileData(rootWalk, baseFolder, start));
                     }
                 } else {
-                    if (rootWalk.getTreeCount() > 0) {
+                    // Only a folder holds files. A path that names one file is walked as a tree otherwise, and
+                    // Git answers that the blob is not a tree.
+                    if (rootWalk.getTreeCount() > 0 && FileMode.TREE.equals(rootWalk.getFileMode(0))) {
                         try (var dirWalk = new TreeWalk(repository)) {
                             dirWalk.addTree(rootWalk.getObjectId(0));
                             dirWalk.setRecursive(true);
@@ -3042,7 +3044,8 @@ public class GitRepository implements BranchRepository, Closeable {
                 if (rootWalk.getFilter() == TreeFilter.ALL) {
                     return collectFolderData(rootWalk, baseFolder);
                 } else {
-                    if (rootWalk.getTreeCount() > 0) {
+                    // Only a folder holds folders, and a path naming one file is walked as a tree otherwise.
+                    if (rootWalk.getTreeCount() > 0 && FileMode.TREE.equals(rootWalk.getFileMode(0))) {
                         try (var dirWalk = new TreeWalk(repository)) {
                             dirWalk.addTree(rootWalk.getObjectId(0));
                             return collectFolderData(dirWalk, baseFolder);

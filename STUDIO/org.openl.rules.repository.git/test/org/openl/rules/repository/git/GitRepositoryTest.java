@@ -169,6 +169,18 @@ class GitRepositoryTest {
     }
 
     @Test
+    void listOfAFileHasNoFoldersInIt() throws IOException {
+        assertEquals(List.of(), repo.listFolders("rules/project1/file1"));
+    }
+
+    @Test
+    void listOfAFileHasNoFilesInIt() throws IOException {
+        // A file holds no files. Walking it as a folder answered "Object ... is not a tree" instead, and the
+        // permission check a removal goes through asks exactly this question about the path being removed.
+        assertEquals(List.of(), repo.list("rules/project1/file1"));
+    }
+
+    @Test
     void listFolders() throws IOException {
         assertEquals(1, repo.listFolders("").size());
 
