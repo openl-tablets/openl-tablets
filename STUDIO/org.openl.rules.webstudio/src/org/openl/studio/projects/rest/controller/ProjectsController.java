@@ -28,6 +28,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.env.Environment;
@@ -120,6 +121,7 @@ import org.openl.util.StringUtils;
 @Tag(name = "Projects (BETA)", description = "Experimental projects API")
 @Validated
 @RequiredArgsConstructor
+@Slf4j
 public class ProjectsController {
 
     private static final String TAGS_PREFIX = "tags.";
@@ -254,6 +256,8 @@ public class ProjectsController {
                 getWebStudio().reset();
             }
         } catch (ProjectException e) {
+            // The answer carries a code only, so without this the failure leaves no trace anywhere.
+            log.error("Failed to update the status of project '{}'.", project.getName(), e);
             throw new ConflictException("project.status.update.failed.message");
         }
     }

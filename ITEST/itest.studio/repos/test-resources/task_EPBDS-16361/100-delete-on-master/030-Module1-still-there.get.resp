@@ -1,0 +1,27 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "rules",
+    "name": "rules",
+    "type": "folder"
+  },
+  {
+    "path": "rules/Module1.xlsx",
+    "name": "Module1.xlsx",
+    "type": "file",
+    "basePath": "rules",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "path": "rules.xml",
+    "name": "rules.xml",
+    "type": "file",
+    "extension": "xml",
+    "size": "*",
+    "lastModified": "*"
+  }
+]

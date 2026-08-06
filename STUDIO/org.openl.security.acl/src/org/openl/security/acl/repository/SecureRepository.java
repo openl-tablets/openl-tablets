@@ -198,27 +198,42 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     public FileData save(FileData folderData,
                          Iterable<FileItem> files,
                          ChangesetType changesetType) throws IOException {
-        var newContentFileItems = new ArrayList<FileItem>();
+        var checkedFileItems = new ArrayList<FileItem>();
         for (FileItem fileItem : files) {
             if (fileItem.getStream() != null) {
                 checkSavePermissions(fileItem.getData().getName());
-                newContentFileItems.add(fileItem);
             } else {
-                if (!repository.list(fileItem.getData().getName()).isEmpty()) {
-                    checkDeletePermission(fileItem.getData().getName());
+                if (exists(fileItem.getData().getName())) {
+                    checkDeletePermission(getName(fileItem.getData()));
+                }
+                // A full changeset says what the folder holds, and what it does not hold is removed by that
+                // alone. Only a changeset of the changes themselves carries a removal of its own.
+                if (changesetType != ChangesetType.DIFF) {
+                    continue;
                 }
             }
+            checkedFileItems.add(fileItem);
         }
         if (changesetType == ChangesetType.FULL) {
-            var existingContentFileData = repository.list(folderData.getName());
+            var existingContentFileData = repository.list(asFolder(folderData.getName()));
             for (FileData fileData : existingContentFileData) {
-                if (newContentFileItems.stream()
+                if (checkedFileItems.stream()
                         .noneMatch(e -> Objects.equals(e.getData().getName(), fileData.getName()))) {
-                    checkDeletePermission(fileData.getName());
+                    checkDeletePermission(getName(fileData));
                 }
             }
         }
-        return repository.save(folderData, newContentFileItems, changesetType);
+        return repository.save(folderData, checkedFileItems, changesetType);
+    }
+
+    /** Whether the repository holds anything at that path: one file, or a folder with content. */
+    private boolean exists(String path) throws IOException {
+        return repository.check(path) != null || !repository.list(asFolder(path)).isEmpty();
+    }
+
+    /** The path as a folder is named, which is what a listing answers about. */
+    private static String asFolder(String path) {
+        return path.isEmpty() || path.endsWith("/") ? path : path + "/";
     }
 
     @Override
