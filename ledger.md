@@ -368,4 +368,4 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-05..08-06 — runs fifty-seven to sixty, all idle: `main` at the resume SHA, no `dead-code/*` PR, no new scope.
+- 08-05..08-06 — runs fifty-seven to sixty-one, all idle: `main` at the resume SHA, no `dead-code/*` PR, no new scope.
