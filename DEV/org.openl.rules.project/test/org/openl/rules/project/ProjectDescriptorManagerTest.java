@@ -9,6 +9,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -89,6 +90,43 @@ class ProjectDescriptorManagerTest {
         manager.registerModule(descriptor, module("rules/New Module.xlsx"));
 
         assertEquals(2, descriptor.getModules().size());
+    }
+
+    @Test
+    void registerModuleAddsNothingForAPathTheDescriptorAlreadyDeclares() {
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
+        descriptor.setModules(new ArrayList<>(List.of(module("Rules", "rules/Algorithms.xlsx"))));
+
+        // The path is declared already, whatever the entry calls it: a second one would bind the same
+        // workbook twice, and every table in it would be defined twice.
+        manager.registerModule(descriptor, module("Algorithms", "rules/Algorithms.xlsx"));
+
+        assertEquals(1, descriptor.getModules().size());
+        assertEquals("Rules", descriptor.getModules().getFirst().getName());
+    }
+
+    @Test
+    void registerModuleAddsNothingForAWildcardAWiderOneAlreadyCovers() {
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
+        descriptor.setModules(new ArrayList<>(List.of(module(null, "rules/**/*.xlsx"))));
+
+        // A pattern under a pattern contributes nothing of its own, and it has no name to keep.
+        manager.registerModule(descriptor, module(null, "rules/sub/*.xlsx"));
+
+        assertEquals(1, descriptor.getModules().size());
+    }
+
+    @Test
+    void registerModuleAcceptsADescriptorHoldingAnImmutableModuleList() {
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
+        descriptor.setModules(List.of(module("Rules", "rules/Rules.xlsx")));
+
+        manager.registerModule(descriptor, module("Models", "rules/Models.xlsx"));
+
+        assertEquals(List.of("Rules", "Models"), descriptor.getModules().stream().map(Module::getName).toList());
     }
 
     @Test

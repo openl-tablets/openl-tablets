@@ -1,6 +1,8 @@
 package org.openl.rules.project;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -32,17 +34,44 @@ public class ProjectDescriptorManager {
      * Registers a new module in the descriptor while preserving the modules auto-discovered when rules.xml declares
      * none.
      *
-     * <p>Adds nothing when the file is already matched by a wildcard module, so it stays auto-discovered and the
-     * declared module list is left empty.
+     * <p>Adds nothing when the descriptor already leads to that module: it declares one for the same path, or a
+     * wildcard matches the file and names the module the way it is asked for. A wildcard names a module after its
+     * workbook, so a module asked for under any other name is declared, or that name would be lost; a wildcard
+     * covered by a wider one contributes nothing of its own and is left out.
      *
      * <p>Otherwise appends the module. When rules.xml declares no modules, the implicit default modules are
      * materialized first so adding one explicit module does not hide them.
      */
     public void registerModule(ProjectDescriptor descriptor, Module module) {
-        if (isCoveredByWildcardModule(descriptor, module)) {
+        if (isAlreadyRegistered(descriptor, module)) {
             return;
         }
         declareModule(descriptor, module);
+    }
+
+    /**
+     * Whether the descriptor already leads to that module, so registering it would write nothing.
+     *
+     * <p>A caller that writes rules.xml itself asks this first: an untouched descriptor is not worth saving.
+     */
+    public boolean isAlreadyRegistered(ProjectDescriptor descriptor, Module module) {
+        return isDeclared(descriptor, module) || isNamedByWildcard(descriptor, module);
+    }
+
+    /** Whether the descriptor already declares a module for that path, whatever it calls it. */
+    private static boolean isDeclared(ProjectDescriptor descriptor, Module module) {
+        return descriptor.getModules()
+                .stream()
+                .anyMatch(declared -> Objects.equals(declared.getRulesRootPath(), module.getRulesRootPath()));
+    }
+
+    /** Whether a wildcard already contributes that module, under the name it is asked for. */
+    private boolean isNamedByWildcard(ProjectDescriptor descriptor, Module module) {
+        if (!isCoveredByWildcardModule(descriptor, module)) {
+            return false;
+        }
+        return module.isModuleWithWildcard()
+                || FileUtils.getBaseName(module.getRulesRootPath()).equals(module.getName());
     }
 
     /**
@@ -52,10 +81,14 @@ public class ProjectDescriptorManager {
      * explicit module does not hide them.
      */
     public void declareModule(ProjectDescriptor descriptor, Module module) {
-        if (descriptor.getModules().isEmpty()) {
-            descriptor.getModules().addAll(ProjectDescriptor.defaultModules());
+        // Built as its own list: a descriptor may hold one that cannot be added to - the implicit defaults are
+        // immutable, and so is any list a caller assembled with List.of.
+        var modules = new ArrayList<>(descriptor.getModules());
+        if (modules.isEmpty()) {
+            modules.addAll(ProjectDescriptor.defaultModules());
         }
-        descriptor.getModules().add(module);
+        modules.add(module);
+        descriptor.setModules(modules);
     }
 
     private static List<Module> effectiveModules(ProjectDescriptor descriptor) {

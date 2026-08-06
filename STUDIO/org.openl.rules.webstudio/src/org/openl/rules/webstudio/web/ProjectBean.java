@@ -673,8 +673,11 @@ public class ProjectBean {
         Module newModule = new Module();
         newModule.setName(name);
         newModule.setRulesRootPath(path);
-        boolean moduleMatchesSomePathPattern = isModuleMatchesSomePathPattern(newModule);
-        if (!moduleMatchesSomePathPattern) {
+        // The same question the registration asks, so a copy named after itself stays auto-discovered while a
+        // copy the user named differently is declared and keeps that name.
+        boolean alreadyRegistered = projectDescriptorManager
+                .isAlreadyRegistered(getOriginalProjectDescriptor(), newModule);
+        if (!alreadyRegistered) {
             validatePermissionsForDescriptorFile(currentProject, false);
         }
 
@@ -698,7 +701,7 @@ public class ProjectBean {
         }
         currentProject.setModified();
 
-        if (!moduleMatchesSomePathPattern) {
+        if (!alreadyRegistered) {
             // Add new Module
             newModule.setProject(newProjectDescriptor);
             projectDescriptorManager.registerModule(newProjectDescriptor, newModule);
@@ -1236,6 +1239,9 @@ public class ProjectBean {
 
             boolean openAPIInfoChanged;
             boolean classPathChanged = false;
+            // The modules the import creates. They are declared on save: reading rules.xml back keeps the
+            // block the user wrote, and would otherwise drop the very modules just generated.
+            List<Module> generatedModules = new ArrayList<>();
 
             final OpenAPI existingOpenAPI = currentProjectDescriptor.getOpenapi();
             OpenAPI openAPI = new OpenAPI();
@@ -1269,6 +1275,7 @@ public class ProjectBean {
                 rulesModule.setRulesRootPath(algorithmModulePathParam);
                 rulesModule.setName(algorithmModuleNameParam);
                 modules.add(rulesModule);
+                generatedModules.add(rulesModule);
                 openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
                 openAPIInfoChanged = true;
             }
@@ -1283,6 +1290,7 @@ public class ProjectBean {
                 modelsModule.setRulesRootPath(modelModulePathParam);
                 modelsModule.setName(modelModuleNameParam);
                 modules.add(modelsModule);
+                generatedModules.add(modelsModule);
                 openAPI.setModelModuleName(modelModuleNameParam);
                 openAPIInfoChanged = true;
             }
@@ -1328,12 +1336,13 @@ public class ProjectBean {
 
             refreshProject(currentProject.getRepository().getId());
 
-            if (openAPIInfoChanged || classPathChanged) {
+            if (openAPIInfoChanged || classPathChanged || !generatedModules.isEmpty()) {
                 editDescriptorIfNeeded(currentProjectDescriptor,
                         openAPIInfoChanged,
                         classPathChanged,
                         openAPI,
-                        annotationTemplateClassesAreGenerated);
+                        annotationTemplateClassesAreGenerated,
+                        generatedModules);
             }
         } finally {
             studio.releaseProject(currentProjectDescriptor.getName());
@@ -1396,12 +1405,13 @@ public class ProjectBean {
                                         boolean openAPIInfoChanged,
                                         boolean classPathChanged,
                                         OpenAPI openAPI,
-                                        boolean annotationTemplateClassesAreGenerated) {
+                                        boolean annotationTemplateClassesAreGenerated,
+                                        List<Module> generatedModules) {
         RulesProject currentProject = studio.getCurrentProject();
         validatePermissionsForDescriptorFile(currentProject, true);
 
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentProjectDescriptor);
-        keepDeclaredModules(newProjectDescriptor);
+        keepDeclaredModules(newProjectDescriptor, generatedModules);
         clean(newProjectDescriptor);
         if (openAPIInfoChanged) {
             newProjectDescriptor.setOpenapi(openAPI);
@@ -1682,14 +1692,40 @@ public class ProjectBean {
     }
 
     /**
+     * Restores the modules declared in rules.xml, then declares the ones an import has just generated.
+     *
+     * <p>The restore alone would drop them: they are not in rules.xml yet, which is exactly why they have to be
+     * written. A generated module a declared wildcard already matches under the same name stays auto-discovered.
+     */
+    private void keepDeclaredModules(ProjectDescriptor target, List<Module> generated) {
+        applyDeclaredModules(target, readDeclaredDescriptor(), generated);
+    }
+
+    /**
      * Copies the modules declared in rules.xml onto the descriptor about to be saved.
      *
      * <p>Leaves the target modules unchanged when rules.xml cannot be read.
      */
     static void applyDeclaredModules(ProjectDescriptor target, @Nullable ProjectDescriptor declared) {
         if (declared != null) {
-            target.setModules(declared.getModules());
+            // A list of its own: what is declared next goes into the descriptor being saved, not into the one
+            // rules.xml was read into.
+            target.setModules(new ArrayList<>(declared.getModules()));
         }
+    }
+
+    /**
+     * Copies the modules declared in rules.xml onto the descriptor about to be saved, and adds the generated ones.
+     *
+     * <p>The declared block is what the user wrote, so it comes back as written. A module an import has generated
+     * is not in it yet, and is declared unless a wildcard already contributes it under the same name.
+     */
+    static void applyDeclaredModules(ProjectDescriptor target,
+                                     @Nullable ProjectDescriptor declared,
+                                     List<Module> generated) {
+        applyDeclaredModules(target, declared);
+        var descriptorManager = new ProjectDescriptorManager();
+        generated.forEach(module -> descriptorManager.registerModule(target, module));
     }
 
     public UIInput getPropertiesFileNameProcessorInput() {
