@@ -15,6 +15,7 @@ import {
 import { NotFoundError } from '../services'
 import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS, projectSignature } from '../services/projectIndex'
 import { useLiveProjectChanges, useWindowFocus } from '../hooks'
+import { useLoadGeneration } from '../hooks/useLoadGeneration'
 import { ProjectStatus } from '../constants/project'
 import type { Repository } from '../types/repositories'
 import type { Project } from '../types/projects'
@@ -116,7 +117,7 @@ export const ProjectWorkspace = () => {
     // What the reload behind the current token knows it touched; null means anything may have changed.
     const [changedFiles, setChangedFiles] = useState<string[] | null>(null)
     // Bumped on every project-detail load so stale navigation responses cannot overwrite the current page.
-    const loadGeneration = useRef(0)
+    const loads = useLoadGeneration()
     // Bumped on every reload so a stale files response never overwrites a fresh one.
     const filesGeneration = useRef(0)
     // When the page last read its project — the staleness policy behind the pings counts from here.
@@ -146,13 +147,13 @@ export const ProjectWorkspace = () => {
         if (!projectId) {
             return null
         }
-        const generation = ++loadGeneration.current
+        const generation = loads.start(silent)
         if (!silent) {
             setLoading(true)
         }
         try {
             const loaded = await getProject(projectId, { includes: ['status', 'descriptor']}, LOCAL_LOAD_API_OPTIONS)
-            if (generation !== loadGeneration.current) {
+            if (!loads.isLatest(generation)) {
                 return null
             }
             if (skipUnchangedFor !== undefined && touched === null && projectSignature(loaded) === skipUnchangedFor) {
@@ -168,7 +169,7 @@ export const ProjectWorkspace = () => {
             setError(null)
             return loaded
         } catch (e) {
-            if (generation !== loadGeneration.current) {
+            if (!loads.isLatest(generation)) {
                 return null
             }
             if (e instanceof NotFoundError) {
@@ -178,12 +179,14 @@ export const ProjectWorkspace = () => {
                 setError(errorMessage(e))
             }
         } finally {
-            if (!silent && generation === loadGeneration.current) {
+            // The spinner is hidden by the reload it belongs to, even when a quiet re-read has started
+            // behind it: a quiet one has no spinner to hide and would leave this one up.
+            if (loads.ownsSpinner(generation)) {
                 setLoading(false)
             }
         }
         return null
-    }, [projectId])
+    }, [loads, projectId])
 
     // Only the copy dialog's target picker needs the repository list — the screen itself lives off the
     // project's own repositoryInfo. So the list is read once, when the dialog first opens, and never at

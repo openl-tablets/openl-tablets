@@ -30,6 +30,7 @@ import type { ProjectListHandlers, RowActionId } from './projects/ProjectRowActi
 import { countFacets, refineProjects, searchProjects, sortProjects, type BranchFacetCount, type ProjectSort, type SortDirection } from './projects/projectListing'
 import { getProjectIndex, hasProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
 import { useWindowFocus, useWorkspaceChanges } from '../hooks'
+import { useLoadGeneration } from '../hooks/useLoadGeneration'
 import { COMPILE_COLORS } from './projects/projectsTheme'
 import { useSharedStyles } from './projects/sharedStyles'
 import { NewProjectModal } from './projects/NewProjectModal'
@@ -224,7 +225,7 @@ export const ProjectsHome = () => {
     const [discardCloseTarget, setDiscardCloseTarget] = useState<Project | null>(null)
     const searchRef = useRef<InputRef>(null)
     // Bumped on every load so a stale response never overwrites a fresher one.
-    const loadGeneration = useRef(0)
+    const loads = useLoadGeneration()
     // When each project's compile status last arrived by push — a load never overwrites a fresher push.
     const statusPushedAt = useRef(new Map<string, number>())
 
@@ -351,7 +352,7 @@ export const ProjectsHome = () => {
     // here, so a facet click or a page step costs nothing and the server is not asked again. The facet
     // counts — the expensive part of the list response — are counted from the same snapshot.
     const load = useCallback((refresh = false, { silent = false } = {}) => {
-        const generation = ++loadGeneration.current
+        const generation = loads.start(silent)
         const startedAt = Date.now()
         if (!silent) {
             setLoading(true)
@@ -362,7 +363,7 @@ export const ProjectsHome = () => {
         }
         return Promise.all([getDesignRepositories(LOCAL_LOAD_API_OPTIONS), getProjectIndex()])
             .then(([repos_, index]): Project[] | null => {
-                if (generation !== loadGeneration.current) {
+                if (!loads.isLatest(generation)) {
                     return null
                 }
                 setRepositories(repos_)
@@ -374,17 +375,19 @@ export const ProjectsHome = () => {
             })
             .catch((e: unknown): Project[] | null => {
                 // A failed silent re-read keeps the snapshot on screen: it was the answer a moment ago.
-                if (generation === loadGeneration.current && !silent) {
+                if (loads.isLatest(generation) && !silent) {
                     setError(errorMessage(e))
                 }
                 return null
             })
             .finally(() => {
-                if (generation === loadGeneration.current && !silent) {
+                // The spinner is hidden by the reload it belongs to, even when a quiet re-read has
+                // started behind it: a quiet one has no spinner to hide and would leave this one up.
+                if (loads.ownsSpinner(generation)) {
                     setLoading(false)
                 }
             })
-    }, [])
+    }, [loads])
 
     useEffect(() => {
         if (restoring) {
