@@ -371,3 +371,4 @@ None. Open the next one from a fresh branch off the current `main`.
 - 08-05..08-06 — runs fifty-seven to sixty-one, all idle: `main` at the resume SHA, no `dead-code/*` PR, no new scope.
 - 08-06 — run sixty-two: `main` moved three commits (two `org.openl.rules.workspace` project-identity refactors plus a
   `cxf-bom` bump); swept their whole scope, nothing orphaned, no commit.
+- 08-06 — run sixty-three: idle; `main` unmoved at the resume SHA, no `dead-code/*` branch but the ledger.
