@@ -19,6 +19,12 @@ public class SecureMappedRepository extends SecureBranchRepository implements Fo
         return mappedRepository.getDelegate();
     }
 
+    /** The folder the content really lives in: a mapped repository shows it under a name of its own. */
+    @Override
+    protected String aclPath(String externalPath) {
+        return getRealPath(externalPath);
+    }
+
     @Override
     public void addMapping(String internal) throws IOException {
         mappedRepository.addMapping(internal);

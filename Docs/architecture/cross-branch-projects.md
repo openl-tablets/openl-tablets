@@ -279,6 +279,9 @@ paths may differ by branch.
 - Membership responses must expose readable entries only.
 - Branch-aware accessors must return secured repository and project views.
 - Shared raw repository views from the index must not reach controllers or workspace callers.
+- Permission checks on a repository path must resolve the internal path. The external name of a mapped repository
+  pairs the declared name with the folder hash and is not an ACL identity, so reading, writing or deleting content
+  under it would answer only to a repository-level grant.
 
 Project creation must require repository `CREATE`. Ref creation must pass through the secured repository decorator and
 require repository-level `WRITE`. Protected-branch authorization must run against the resolved target branch and its

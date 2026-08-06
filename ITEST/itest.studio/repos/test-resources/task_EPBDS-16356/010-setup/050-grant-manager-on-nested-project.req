@@ -1,0 +1,7 @@
+PUT /rest/acls/projects/{NESTED_PROJECT_ID}?sid=EPBDS_16356&principal=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "role": "MANAGER"
+}
