@@ -144,8 +144,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Method rules
 
-- Prove non-reference with a plain repo-wide literal search excluding `target/`, `node_modules/` and `.git/` — every
-  file type, never a regex scoped to one attribute or one module.
 - **One detector rule is one change type**, so one PMD rule is one commit. The queue rows are coarser than that
   and group several rules per row — never squash two commits just because they share a queue row.
 - For a bundle key, search the full dotted path **and** the bare leaf name; either hit means keep.
@@ -260,8 +258,7 @@ None. Open the next one from a fresh branch off the current `main`.
   tool timeout on a cold clone; give it 300 s.
 - **The whole reactor installs in ~35 min from a cold `~/.m2` with `mvn install -Dquick -DnoPerf -T1C -fae
   -Dmaven.test.skip.exec=true`** — surefire skips execution while test sources still compile. The cache never
-  survives a container rebuild, so budget the download every run. `-DskipTests` must still not be used (this repo
-  maps it to `maven.test.skip=true`, dropping test compilation).
+  survives a container rebuild, so budget the download every run.
 - For a change confined to one module, `mvn test -pl <module> -am -Dquick -DnoPerf` is far cheaper than the reactor
   and never reaches webstudio, so the opensaml block does not apply to it.
 - That install still runs `studio-ui`'s `npm run test` through frontend-maven-plugin, which `maven.test.skip.exec`
@@ -371,7 +368,4 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-05 — run fifty-seven. Idle: `main` at the resume SHA, no `dead-code/*` PR; datepicker deferral merged into the
-  Keep-list.
-- 08-06 — run fifty-eight. Idle: `main` at the resume SHA, no `dead-code/*` PR.
-- 08-06 — run fifty-nine. Idle: `main` at the resume SHA for the third consecutive run, no `dead-code/*` PR.
+- 08-05..08-06 — runs fifty-seven to sixty, all idle: `main` at the resume SHA, no `dead-code/*` PR, no new scope.
