@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `22cb4cdc`**; every queue row done, every vein closed. New scope arrives only as new
+- **Converged at `main` = `dce16a0e`**; every queue row done, every vein closed. New scope arrives only as new
   commits on `main` — never invent a detector to manufacture work. Expect idleness.
-- The idle pass is two calls: `git log 22cb4cdc..origin/main` and the open-PR check. Read `build-quick.yml` only
+- The idle pass is two calls: `git log dce16a0e..origin/main` and the open-PR check. Read `build-quick.yml` only
   before committing code, and only once `main` has moved; never re-diagnose an unchanged SHA.
 - When scope arrives, sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and
   `.github/`. Read the **deleted** lines first — a purely additive commit orphans nothing, and one whose deletions are
@@ -369,7 +369,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-06 — run sixty-three: idle; `main` unmoved at the resume SHA, no `dead-code/*` branch but the ledger.
 - 08-06 — run sixty-four: `main` moved three EPBDS-16384 studio-ui commits; swept, nothing orphaned, no commit.
 - 08-06 — run sixty-five: `main` moved one EPBDS-16323 commit; every name its deletions touched still has a live
   caller, nothing orphaned, no commit.
+- 08-06 — run sixty-six: `main` moved one EPBDS-16361 commit; additive but for two in-place replacements and a
+  renamed local, nothing orphaned, no commit.
