@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
@@ -42,13 +43,23 @@ import org.openl.util.FileTypeHelper;
  * and {@code .xlsm} — under {@code rules/} and writes a {@code rules.xml}: an all-{@code .xlsx} project keeps
  * a bare descriptor and relies on the {@code rules/}/{@code tests/} defaults, while a moved {@code .xls} or
  * {@code .xlsm} — which no default matches — makes every workbook a declared module so none is lost. A
- * project that already has a {@code rules.xml} is migrated by running the same content migrations the goal
- * runs and rewriting the file. The method-filter migration runs as the goal's no-compile variant, lifting
- * module filters to a project-level {@code <exposed-methods>}.
+ * project that already has a {@code rules.xml} is migrated by running the goal's content migrations and
+ * rewriting the file. The method-filter migration runs as the goal's no-compile variant, lifting module
+ * filters to a project-level {@code <exposed-methods>}. Unlike the goal, Studio never drops the project
+ * {@code <name>}: the goal drops one that repeats the project folder, while in Studio the folder of a
+ * mapped repository is not the project's business name, so dropping it would rename the project.
  *
- * <p>A {@link MigrationScope#RULES_DEPLOY} migrate rewrites {@code rules-deploy.xml} the same way — the
- * deployment content migrations the goal runs, plus the empty-tag cleanup that re-serialization does for
- * free.
+ * <p>A {@link MigrationScope#RULES_DEPLOY} migrate rewrites {@code rules-deploy.xml} the same way, running
+ * the deployment content migrations the goal runs.
+ *
+ * <p>A migrate is offered only when a migration changes what the descriptor <em>declares</em>. The
+ * comparison is made between two canonical serializations — the descriptor as read and the descriptor after
+ * the migrations — so a file that merely carries an XML prolog, its own indentation, CRLF line endings or a
+ * comment is left alone instead of being rewritten for its formatting. Blank values and empty blocks are
+ * dropped by that same serialization on both sides, so they are cleaned up whenever the file is written but
+ * are no reason to write it; {@code openl:migrate} keeps its {@code config.empty-tag} migrator for them.
+ *
+ * <p>A rewrite writes the descriptor anew, so comments and layout in the file do not survive it.
  */
 @Service
 @RequiredArgsConstructor
@@ -65,6 +76,9 @@ public class ProjectMigrationService {
      * Reports what a migrate would do per scope: the root workbooks it would move when the project has no
      * {@code rules.xml}, whether it would rewrite an existing {@code rules.xml}, and whether it would
      * rewrite the {@code rules-deploy.xml}.
+     *
+     * <p>A descriptor that cannot be parsed reports nothing to migrate — reading the info must not fail the
+     * screen it is read for. The migrate itself says so instead.
      */
     public ProjectMigrationView migrationInfo(RulesProject project) {
         var root = fileRootFactory.of(project);
@@ -77,15 +91,18 @@ public class ProjectMigrationService {
             var movable = movableWorkbooks(rootFiles);
             return new RulesXmlSection(movable, !movable.isEmpty(), List.of());
         }
-        var original = readFile(root, RULES_XML);
-        var plan = planRulesXml(original, root);
-        // migratable keeps its meaning — the file would change; newModules records why a change that widens
-        // the module set is refused, so the UI can explain it instead of offering a doomed migrate.
-        return new RulesXmlSection(List.of(), changed(original, plan.migrated().toBytes()), plan.newModules());
+        var plan = planRulesXml(readFile(root, RULES_XML), root);
+        if (plan == null) {
+            return new RulesXmlSection(List.of(), false, List.of());
+        }
+        // newModules records why a change that widens the module set is refused, so the UI can explain it
+        // instead of offering a doomed migrate.
+        return new RulesXmlSection(List.of(), plan.migratable(), plan.newModules);
     }
 
     private RulesDeploySection rulesDeploySection(FileRoot root, List<FsNode> rootFiles) {
-        return new RulesDeploySection(wouldRewriteRulesDeploy(root, rootFiles));
+        var plan = hasFile(rootFiles, RULES_DEPLOY) ? planRulesDeploy(readFile(root, RULES_DEPLOY)) : null;
+        return new RulesDeploySection(plan != null && plan.migratable());
     }
 
     /**
@@ -93,6 +110,9 @@ public class ProjectMigrationService {
      * {@code rules/} and writes a {@code rules.xml} when the project has none, otherwise rewrites the
      * existing {@code rules.xml} to its minimal form. {@link MigrationScope#RULES_DEPLOY} rewrites the
      * {@code rules-deploy.xml}, or does nothing when the project has none.
+     *
+     * <p>A scope the migrations leave unchanged is not written, so nothing happens for a project that has
+     * nothing to migrate. A descriptor that cannot be parsed is reported as a conflict.
      */
     public void migrate(RulesProject project, MigrationScope scope) {
         var root = fileRootFactory.of(project);
@@ -108,14 +128,27 @@ public class ProjectMigrationService {
             migrateRootWorkbooks(root, rootFiles);
             return;
         }
-        var original = readFile(root, RULES_XML);
-        var plan = planRulesXml(original, root);
-        if (!plan.newModules().isEmpty()) {
+        migrateDescriptor(root, RULES_XML, planRulesXml(readFile(root, RULES_XML), root));
+    }
+
+    /**
+     * Writes the migrated descriptor, and only when a migration changes what it declares — a file that
+     * differs from the canonical form by its formatting alone is left as the author wrote it, matching the
+     * {@code migratable} flag the caller was offered the migrate by.
+     */
+    private void migrateDescriptor(FileRoot root, String name, @Nullable DescriptorPlan plan) {
+        if (plan == null) {
+            throw new ConflictException("projects.migration.unreadable.message", name);
+        }
+        if (!plan.newModules.isEmpty()) {
             // Collapsing a module to a folder wildcard would turn undeclared workbooks into modules. There is
             // no minimal form that keeps the behaviour, so the migrate is refused rather than silently widening.
-            throw new ConflictException("projects.migration.widens.message", String.join(", ", plan.newModules()));
+            throw new ConflictException("projects.migration.widens.message", String.join(", ", plan.newModules));
         }
-        writeIfChanged(root, RULES_XML, original, plan.migrated().toBytes());
+        var migrated = plan.migrated;
+        if (migrated != null) {
+            filesService.updateResource(root, name, new ByteArrayInputStream(migrated));
+        }
     }
 
     private void migrateRootWorkbooks(FileRoot root, List<FsNode> rootFiles) {
@@ -156,29 +189,73 @@ public class ProjectMigrationService {
 
     /**
      * Plans the {@code rules.xml} migration: parses the file, applies the content migrations in place, and
-     * reports the migrated bytes plus the workbooks the change would turn into modules. A non-empty
-     * {@code newModules} means the migrate would widen the module set and must be refused.
+     * reports what the descriptor declares today, what a migrate would write, and the workbooks the change
+     * would turn into modules. A non-empty {@code newModules} means the migrate would widen the module set
+     * and must be refused. Returns {@code null} when the file is not a descriptor that can be read.
      *
      * <p>The widening check — and the recursive file listing it needs — is skipped when the migration leaves
      * the {@code <modules>} declarations untouched, since the module set then cannot have grown. When they do
      * change, files are listed recursively so an undeclared workbook nested under {@code rules/} or
      * {@code tests/} is seen.
      */
-    private RulesXmlPlan planRulesXml(byte[] original, FileRoot root) {
+    private @Nullable DescriptorPlan planRulesXml(byte[] original, FileRoot root) {
         var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(original));
+        if (descriptor == null) {
+            return null;
+        }
+        var declared = descriptor.toBytes();
         var modulesBefore = declaredModulePaths(descriptor);
         RulesXmlMigrations.apply(descriptor);
+        var migrated = descriptor.toBytes();
         if (modulesBefore.equals(declaredModulePaths(descriptor))) {
-            return new RulesXmlPlan(descriptor, List.of());
+            return DescriptorPlan.of(declared, migrated);
         }
         var files = projectFiles(allFiles(root));
         var before = RulesXmlMigrations.resolveModuleWorkbooks(
-                ProjectDescriptor.read(new ByteArrayInputStream(original)), files);
+                ProjectDescriptor.read(new ByteArrayInputStream(declared)), files);
         var after = RulesXmlMigrations.resolveModuleWorkbooks(descriptor, files);
-        return new RulesXmlPlan(descriptor, RulesXmlMigrations.addedWorkbooks(before, after));
+        return DescriptorPlan.of(declared, migrated, RulesXmlMigrations.addedWorkbooks(before, after));
     }
 
-    private record RulesXmlPlan(ProjectDescriptor migrated, List<String> newModules) {
+    /** The {@code rules-deploy.xml} plan, or {@code null} when the file is not a descriptor that can be read. */
+    private static @Nullable DescriptorPlan planRulesDeploy(byte[] original) {
+        var rulesDeploy = RulesDeploy.read(new ByteArrayInputStream(original));
+        if (rulesDeploy == null) {
+            return null;
+        }
+        var declared = rulesDeploy.toBytes();
+        RulesDeployMigrations.apply(rulesDeploy);
+        return DescriptorPlan.of(declared, rulesDeploy.toBytes());
+    }
+
+    /**
+     * What a migrate would do to a descriptor: the bytes it would write, and the workbooks the change would
+     * turn into modules.
+     *
+     * <p>A plan is built from two canonical serializations of the descriptor — as read, and after the
+     * migrations. Both come from the same serializer, so it keeps bytes only where a migration changed the
+     * content; the formatting of the file on disk plays no part. No bytes means there is nothing to migrate.
+     */
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class DescriptorPlan {
+
+        /** The bytes a migrate writes, or {@code null} when the migrations changed nothing. */
+        private final byte @Nullable [] migrated;
+        /** The workbooks the change would turn into modules; empty unless the rewrite widens. */
+        private final List<String> newModules;
+
+        static DescriptorPlan of(byte[] declared, byte[] migrated) {
+            return of(declared, migrated, List.of());
+        }
+
+        static DescriptorPlan of(byte[] declared, byte[] migrated, List<String> newModules) {
+            return new DescriptorPlan(Arrays.equals(declared, migrated) ? null : migrated, newModules);
+        }
+
+        /** Whether a migration changes what the descriptor declares. */
+        boolean migratable() {
+            return migrated != null;
+        }
     }
 
     /** The declared module paths, in order — the shape the widening check compares before and after apply. */
@@ -205,40 +282,7 @@ public class ProjectMigrationService {
         if (!hasFile(rootFiles, RULES_DEPLOY)) {
             return;
         }
-        var original = readFile(root, RULES_DEPLOY);
-        writeIfChanged(root, RULES_DEPLOY, original, migratedRulesDeploy(original));
-    }
-
-    private boolean wouldRewriteRulesDeploy(FileRoot root, List<FsNode> rootFiles) {
-        if (!hasFile(rootFiles, RULES_DEPLOY)) {
-            return false;
-        }
-        var original = readFile(root, RULES_DEPLOY);
-        return changed(original, migratedRulesDeploy(original));
-    }
-
-    /** Writes the migrated bytes back only when the transform actually changed the file. */
-    private void writeIfChanged(FileRoot root, String name, byte[] original, byte @Nullable [] migrated) {
-        if (changed(original, migrated)) {
-            filesService.updateResource(root, name, new ByteArrayInputStream(migrated));
-        }
-    }
-
-    private static boolean changed(byte[] original, byte @Nullable [] migrated) {
-        return migrated != null && !Arrays.equals(original, migrated);
-    }
-
-    /** The {@code rules-deploy.xml} bytes after the content migrations, or {@code null} when it cannot be read. */
-    private static byte @Nullable [] migratedRulesDeploy(byte @Nullable [] original) {
-        if (original == null) {
-            return null;
-        }
-        var rulesDeploy = RulesDeploy.read(new ByteArrayInputStream(original));
-        if (rulesDeploy == null) {
-            return null;
-        }
-        RulesDeployMigrations.apply(rulesDeploy);
-        return rulesDeploy.toBytes();
+        migrateDescriptor(root, RULES_DEPLOY, planRulesDeploy(readFile(root, RULES_DEPLOY)));
     }
 
     private byte[] readFile(FileRoot root, String name) {

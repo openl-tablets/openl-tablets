@@ -112,6 +112,91 @@ class ProjectMigrationServiceTest {
         assertFalse(info.rulesXml().migratable());
     }
 
+    /** The descriptor of the test project, in every layout but the one Studio itself writes. */
+    private static final String FORMATTED_BY_HAND = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!-- kept for the 2020 rate set -->
+            <project>
+              <name>Pricing</name>
+            </project>
+            """.replace("\n", "\r\n");
+
+    @Test
+    void migration_info_reports_nothing_for_a_rules_xml_that_only_differs_in_formatting() {
+        rootFiles(file("rules.xml"), file("Pricing.xlsx"));
+        rulesXml(FORMATTED_BY_HAND);
+
+        var info = service.migrationInfo(project);
+
+        // A prolog, a comment, CRLF line endings and an indent of its own are how the author wrote the file,
+        // not legacy configuration — no migration would change what it declares.
+        assertFalse(info.rulesXml().migratable());
+    }
+
+    @Test
+    void migrate_leaves_a_rules_xml_that_only_differs_in_formatting_untouched() {
+        rootFiles(file("rules.xml"), file("Pricing.xlsx"));
+        rulesXml(FORMATTED_BY_HAND);
+
+        service.migrate(project, MigrationScope.RULES_XML);
+
+        // Rewriting it would serialize the descriptor anew and drop the comment for no gain.
+        verify(filesService, never()).updateResource(any(), any(), any());
+    }
+
+    @Test
+    void migration_info_reports_nothing_for_a_blank_value_the_serialization_drops_anyway() {
+        rootFiles(file("rules.xml"));
+        rulesXml("<project><name></name></project>");
+
+        var info = service.migrationInfo(project);
+
+        // An empty tag goes away whenever the descriptor is written — by Overview → Save as much as by a
+        // migrate — so it is no reason of its own to rewrite the file.
+        assertFalse(info.rulesXml().migratable());
+    }
+
+    @Test
+    void migration_info_reports_nothing_for_a_rules_xml_that_cannot_be_read() {
+        rootFiles(file("rules.xml"));
+        rulesXml("<project><modules>");
+
+        var info = service.migrationInfo(project);
+
+        // Reading the info must not fail the screen it is read for.
+        assertFalse(info.rulesXml().migratable());
+    }
+
+    @Test
+    void migrate_refuses_a_rules_xml_that_cannot_be_read() {
+        rootFiles(file("rules.xml"));
+        rulesXml("<project><modules>");
+
+        assertThrows(ConflictException.class, () -> service.migrate(project, MigrationScope.RULES_XML));
+
+        verify(filesService, never()).updateResource(any(), any(), any());
+    }
+
+    @Test
+    void migration_info_reports_nothing_for_a_rules_deploy_that_cannot_be_read() {
+        rootFiles(file("rules-deploy.xml"));
+        rulesDeploy("<rules-deploy><serviceName>");
+
+        var info = service.migrationInfo(project);
+
+        assertFalse(info.rulesDeploy().migratable());
+    }
+
+    @Test
+    void migrate_refuses_a_rules_deploy_that_cannot_be_read() {
+        rootFiles(file("rules-deploy.xml"));
+        rulesDeploy("<rules-deploy><serviceName>");
+
+        assertThrows(ConflictException.class, () -> service.migrate(project, MigrationScope.RULES_DEPLOY));
+
+        verify(filesService, never()).updateResource(any(), any(), any());
+    }
+
     @Test
     void migration_info_flags_a_rules_deploy_that_a_migrate_would_rewrite() {
         var minimal = new ProjectDescriptor();
@@ -342,6 +427,10 @@ class ProjectMigrationServiceTest {
 
     private void rulesXmlBytes(byte[] bytes) {
         mockResource("rules.xml", bytes);
+    }
+
+    private void rulesDeploy(String xml) {
+        rulesDeployBytes(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     private void rulesDeployBytes(byte[] bytes) {
