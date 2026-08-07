@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `a86c2521`**; every queue row done, every vein closed. Ten idle passes; expect more. New
+- **Converged at `main` = `e71bdf00`**; every queue row done, every vein closed. Eleven idle passes; expect more. New
   scope arrives only as new commits on `main` — never invent a detector to manufacture work.
-- The idle pass is two calls: `git log a86c2521..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log e71bdf00..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -148,8 +148,9 @@ None. Open the next one from a fresh branch off the current `main`.
 - **One detector rule is one change type**, so one PMD rule is one commit. The queue rows are coarser than that
   and group several rules per row — never squash two commits just because they share a queue row.
 - For a bundle key, search the full dotted path **and** the bare leaf name; either hit means keep.
-- Validate any new bulk detector by feeding it two fabricated names; if they come back "referenced", the search is
-  wrong, not the repository. For a linter, plant a violation and confirm it is reported.
+- Validate any bulk detector on two fabricated names *and* one known-live name — a fabricated hit or a live
+  miss means the search is wrong. Mixing `grep -E` with `-P` errors out, so hidden stderr reads every name dead.
+  For a linter, plant a violation and confirm it is reported.
 - For any deadness check on a type **or a member**, "appears in one file" is not enough — count occurrences
   **inside** that file too. This one rule killed every member candidate ever raised: a secondary top-level class
   used by its file's primary class, and a helper called only by its own file's other methods, both look orphaned.
@@ -369,7 +370,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-07 — run seventy-three: eighth idle pass, `main` unmoved, no open PR; no commit, 374 lines.
 - 08-07 — run seventy-four: ninth idle pass; `main` gained EPBDS-16356 plus a Dependabot bump, both
   replaced-in-place, every helper they re-signed still called. No commit, 375 lines.
 - 08-07 — run seventy-five: tenth idle pass, `main` unmoved, no sweep PR open; no commit, 375 lines.
+- 08-07 — run seventy-six: eleventh idle pass; `main` gained EPBDS-16357 and EPBDS-16359, both additive with
+  replaced-in-place edits. All 24 deleted lines resolved to live symbols. No commit, 377 lines.
