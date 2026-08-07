@@ -39,6 +39,7 @@ import {
     buildTableColumns,
     buildTableHeader,
     buildTableSource,
+    cellHoldsCondition,
     cellValueType,
     columnsGrow,
     defaultResultType,
@@ -620,7 +621,8 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                 return true
             }
             const declaredType = cellValueType(preset, context, rows, rowIndex, columnIndex)
-            return tableValueIsValid(declaredType, row[columnIndex] ?? '', context.vocabularyValues)
+            return tableValueIsValid(declaredType, row[columnIndex] ?? '', context.vocabularyValues,
+                cellHoldsCondition(preset, context, rowIndex, columnIndex))
         })), [columns, context, preset, rows])
     // The table exactly as it will be written: the editor always keeps a blank row (and a blank Free Form column)
     // for input, and OpenL reads a blank line as a table boundary, so none of them may be submitted.
@@ -968,6 +970,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             return (
                 <TypedTableValueInput
                     {...common}
+                    condition={cellHoldsCondition(preset, context, rowIndex, columnIndex)}
                     onChange={next => updateCellForEditor(rowIndex, columnIndex, next)}
                     type={cellValueType(preset, context, rows, rowIndex, columnIndex)}
                     value={value}

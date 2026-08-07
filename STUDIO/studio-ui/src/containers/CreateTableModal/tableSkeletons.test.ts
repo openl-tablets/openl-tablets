@@ -3,6 +3,7 @@ import {
     buildTableColumns,
     buildTableHeader,
     buildTableSource,
+    cellHoldsCondition,
     cellValueType,
     defaultResultType,
     deriveTableName,
@@ -355,6 +356,29 @@ describe('tableSkeletons', () => {
         expect(cellValueType('simpleLookup', lookup, [[], [], []], 1, 1)).toBe('Country')
         expect(cellValueType('simpleLookup', lookup, [[], [], []], 2, 0)).toBe('String')
         expect(cellValueType('simpleLookup', lookup, [[], [], []], 2, 1)).toBe('Double')
+    })
+
+    it('tells a condition cell from a value cell in every shape that conditions', () => {
+        const rules = context({ arguments: [{ type: 'Integer', name: 'age' }]})
+        expect(cellHoldsCondition('simpleRules', rules, 0, 0)).toBe(true)
+        expect(cellHoldsCondition('simpleRules', rules, 0, 1)).toBe(false)
+        expect(cellHoldsCondition('rules', context(), 0, 0)).toBe(true)
+        expect(cellHoldsCondition('rules', context(), 0, 1)).toBe(false)
+        expect(cellHoldsCondition('datatype', context(), 0, 2)).toBe(false)
+
+        // A lookup conditions on its top band and on its key columns, and on nothing in the corner between them.
+        const lookup = context({
+            arguments: [
+                { type: 'String', name: 'make' },
+                { type: 'Integer', name: 'year' },
+                { type: 'Country', name: 'country' },
+            ],
+        })
+        expect(cellHoldsCondition('simpleLookup', lookup, 0, 0)).toBe(false)
+        expect(cellHoldsCondition('simpleLookup', lookup, 0, 1)).toBe(true)
+        expect(cellHoldsCondition('simpleLookup', lookup, 1, 1)).toBe(true)
+        expect(cellHoldsCondition('simpleLookup', lookup, 2, 0)).toBe(true)
+        expect(cellHoldsCondition('simpleLookup', lookup, 2, 1)).toBe(false)
     })
 
     it('maps every preset to a table kind and reserves Other for Free Form', () => {

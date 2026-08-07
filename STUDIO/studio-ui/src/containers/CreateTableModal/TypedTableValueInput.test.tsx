@@ -80,11 +80,13 @@ const vocabularies = { Country: ['USA', 'Canada']}
 const renderValue = (
     type: string,
     value = '',
-    onChange = vi.fn()
+    onChange = vi.fn(),
+    condition = false
 ) => {
     render(
         <TypedTableValueInput
             aria-label="Value"
+            condition={condition}
             data-testid="value"
             onChange={onChange}
             type={type}
@@ -122,6 +124,7 @@ describe('TypedTableValueInput', () => {
         const { rerender } = render(
             <TypedTableValueInput
                 aria-label="Value"
+                condition={false}
                 data-testid="value"
                 onChange={vi.fn()}
                 type="Integer"
@@ -136,6 +139,7 @@ describe('TypedTableValueInput', () => {
         rerender(
             <TypedTableValueInput
                 aria-label="Value"
+                condition={false}
                 data-testid="value"
                 onChange={vi.fn()}
                 type="Date"
@@ -148,6 +152,7 @@ describe('TypedTableValueInput', () => {
         rerender(
             <TypedTableValueInput
                 aria-label="Value"
+                condition={false}
                 data-testid="value"
                 onChange={vi.fn()}
                 type="Character"
@@ -183,5 +188,38 @@ describe('TypedTableValueInput', () => {
         expect(tableValueIsValid('Date', '06/15/2026', vocabularies)).toBe(false)
         expect(tableValueIsValid('Country', 'Canada', vocabularies)).toBe(true)
         expect(tableValueIsValid('Country', 'Mexico', vocabularies)).toBe(false)
+    })
+
+    it('keeps a condition as typed, so a range survives the editor', async () => {
+        const onChange = renderValue('Integer', '18-3', vi.fn(), true)
+
+        // A number editor would drop the hyphen as it is typed, leaving 1830 — a single age, not the range.
+        await userEvent.type(screen.getByTestId('value'), '0')
+
+        expect(onChange).toHaveBeenLastCalledWith('18-30')
+    })
+
+    // A date is picked one day at a time and a Character value is capped at one character, so neither editor can
+    // hold the range its condition is matched by.
+    it.each(['Integer', 'Double', 'Date', 'Character'])('gives a %s condition a text editor', type => {
+        renderValue(type, '', vi.fn(), true)
+
+        expect(screen.getByTestId('value')).not.toHaveAttribute('type')
+        expect(screen.getByTestId('value')).not.toHaveAttribute('maxlength')
+    })
+
+    it('leaves the shape of a condition to the engine', () => {
+        // OpenL takes '18-30', '>=18', '[18 .. 30)' and more besides, and reports what it cannot read.
+        expect(tableValueIsValid('Integer', '18-30', vocabularies, true)).toBe(true)
+        expect(tableValueIsValid('Double', '>=1.5', vocabularies, true)).toBe(true)
+        expect(tableValueIsValid('Date', '01/01/2026 - 31/12/2026', vocabularies, true)).toBe(true)
+        // A character and a string have ranges of their own as well (CharRange, StringRange).
+        expect(tableValueIsValid('Character', 'A-C', vocabularies, true)).toBe(true)
+        expect(tableValueIsValid('String', 'apple - pear', vocabularies, true)).toBe(true)
+        // Only the range-capable types are let through: a condition on a Boolean is still one of two values.
+        expect(tableValueIsValid('Boolean', 'yes', vocabularies, true)).toBe(false)
+        expect(tableValueIsValid('Country', 'Mexico', vocabularies, true)).toBe(false)
+        // And a value of the same type is still a single number.
+        expect(tableValueIsValid('Integer', '18-30', vocabularies)).toBe(false)
     })
 })

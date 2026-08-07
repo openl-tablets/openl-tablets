@@ -1400,4 +1400,34 @@ describe('CreateTableModal', () => {
             expect(sheets.map(option => option.getAttribute('value'))).toEqual(['Regression'])
         })
     })
+
+    it('writes a range into a Simple Rules condition column', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
+
+        await enterTableName(user, 'RangeProbe')
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'simpleRules')
+        await user.type(screen.getByTestId('create-table-argument-type-0'), 'Integer')
+        await user.type(screen.getByTestId('create-table-argument-name-0'), 'age')
+
+        // The condition is matched by range, so the cell keeps what was typed instead of being read as one number.
+        const condition = screen.getByTestId('create-table-cell-0-0')
+        await user.clear(condition)
+        await user.type(condition, '18-30')
+        expect(condition).toHaveValue('18-30')
+        expect(createButton()).toBeEnabled()
+
+        await user.click(createButton())
+
+        await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
+        expect(mockCreateTable.mock.calls[0]![1].table.source.map(row => row.map(cell => cell.value)))
+            .toEqual([
+                // The header spans the table, so the cells it covers are written empty.
+                ['SimpleRules Boolean RangeProbe(Integer age)', null],
+                ['age', 'Output'],
+                ['18-30', 'TRUE'],
+            ])
+    })
 })

@@ -683,9 +683,16 @@ To create a table:
    - A value cell uses the editor for the type its table definition gives it. Boolean cells offer `TRUE`, `FALSE`
      and an empty value. Vocabulary cells use a closed dropdown that offers their declared values and empty, without
      accepting typed text. Numeric cells use a number input, Date cells a date picker that displays the user's locale
-     and stores ISO 8601 `yyyy-MM-dd`, and Character cells accept one character. Byte, Short, Integer and Long values
-     must stay within the range of the selected type. This applies to Datatype defaults and examples, Constants and
-     Vocabulary values, and generated Rules, lookup, Test, Run and Data cells.
+     and stores ISO 8601 `yyyy-MM-dd`, and Character cells accept one character. Byte, Short, Integer and Long
+     values must stay within the range of the selected type. This applies to Datatype defaults and examples,
+     Constants and Vocabulary values, and generated Rules, lookup, Test, Run and Data cells, except for the
+     condition cells described below.
+   - A condition cell of a Smart Rules, Simple Rules, Smart Lookup or Simple Lookup table is matched by range as
+     readily as by equality, so a condition of a numeric, Character, String or Date type is typed rather than
+     picked: it takes `18-30`, `>=18`, `[18 .. 30)` or `18 and more` as well as a single value, it is not held to
+     the range of its type, and a Character condition is not capped at one character. What OpenL cannot read is
+     reported when the table compiles. A Boolean or Vocabulary condition has no range of its own and keeps the
+     dropdown its type gives it.
    - Filling the last row automatically adds an empty row below it.
    - Point at a row to reveal its actions: insert a row above or below it, or delete it. A Free Form Table reveals
      the same actions for its columns, above the grid.
