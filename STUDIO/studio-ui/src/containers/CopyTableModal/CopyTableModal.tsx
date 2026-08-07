@@ -16,6 +16,7 @@ import {
     deleteAt,
     IDENTIFIER,
     insertAt,
+    isValidPropertyValue,
     isValidSheetName,
     type ModuleOption,
     sheetNameFrom,
@@ -51,6 +52,10 @@ const isEmptyProperty = (property: TablePropertyInput): boolean =>
 
 const isCompleteProperty = (property: TablePropertyInput): boolean =>
     Boolean(property.name.trim()) && propertyHasValue(property)
+
+/** A row the copy cannot be written with: the property is named, but the value is not one it accepts. */
+const isRejectedProperty = (property: TablePropertyInput): boolean =>
+    isCompleteProperty(property) && !isValidPropertyValue(property.name, property.value)
 
 const normalizeProperties = (properties: TablePropertyInput[]): TablePropertyInput[] =>
     withTrailingBlank(properties, isCompleteProperty, blankProperty)
@@ -138,6 +143,13 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
         () => asOptions(projectProperties.map(property => property.name)),
         [projectProperties]
     )
+    // The value the source already carries is let through as it stands: it was written when a shorter version was
+    // documented as valid, and refusing it would leave such a table impossible to copy at all.
+    const carriedOver = (property: TablePropertyInput) =>
+        (sourceInfo?.properties ?? []).some(source =>
+            source.name === property.name.trim() && source.value === String(property.value ?? ''))
+    const rejectedProperty = (property: TablePropertyInput) =>
+        isRejectedProperty(property) && !carriedOver(property)
     const partialProperty = properties.some(property =>
         !isEmptyProperty(property) && !isCompleteProperty(property))
     const submittedProperties = properties.filter(isCompleteProperty)
@@ -149,6 +161,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
         && moduleName
         && isValidSheetName(sheetName)
         && !partialProperty
+        && !properties.some(rejectedProperty)
         && propertyNamesUnique
         && !loading
         && !sheetLoader.loading
@@ -312,6 +325,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                                                 data-testid={`copy-table-property-value-${index}`}
                                                 onChange={value => updateProperty(index, 'value', value)}
                                                 placeholder={t('project:copy_table_modal.property_value')}
+                                                status={rejectedProperty(property) ? 'error' : ''}
                                                 value={property.value}
                                                 definition={projectProperties.find(
                                                     definition => definition.name === property.name

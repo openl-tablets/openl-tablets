@@ -340,4 +340,48 @@ describe('CopyTableModal', () => {
         await user.type(screen.getByTestId('copy-table-property-value-2'), '2.0.0')
         expect(copyButton).toBeDisabled()
     })
+
+    it('does not submit a version the engine cannot read', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal()
+        await screen.findByTestId('copy-table-property-row-2')
+        const copyButton = screen.getByRole('button', { name: 'project:copy_table_modal.copy' })
+
+        // The prefilled properties already carry a readable version, so the form starts submittable.
+        expect(copyButton).toBeEnabled()
+
+        const version = screen.getByTestId('copy-table-property-value-0')
+        await user.clear(version)
+        await user.type(version, 'v2')
+        expect(copyButton).toBeDisabled()
+
+        await user.clear(version)
+        await user.type(version, '2.0.0')
+        expect(copyButton).toBeEnabled()
+    })
+
+    it('lets the version the source carries through and checks any other', async () => {
+        // A table written when a shorter version was documented as valid: it must stay copyable as it stands.
+        mockGetInfo.mockResolvedValueOnce({
+            name: 'Eligibility',
+            kind: 'Rules',
+            properties: [{ name: 'version', value: '1.0' }],
+        })
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal()
+        await screen.findByTestId('copy-table-property-row-1')
+        const copyButton = screen.getByRole('button', { name: 'project:copy_table_modal.copy' })
+
+        // The prefilled '1.0' is the source's own, so it passes even though it is not three numbers.
+        expect(screen.getByTestId('copy-table-property-value-0')).toHaveValue('1.0')
+        expect(copyButton).toBeEnabled()
+
+        // Anything else is the author's own choice and has to be a version the engine reads.
+        const version = screen.getByTestId('copy-table-property-value-0')
+        await user.clear(version)
+        await user.type(version, '1.1')
+        expect(copyButton).toBeDisabled()
+    })
 })

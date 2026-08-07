@@ -23,7 +23,12 @@ public interface TableCopyService {
      * kept as they are; otherwise they replace the source's — an empty list removes them. The copy is written in one
      * pass, so a copy that keeps the source's name never exists as an indistinguishable duplicate.
      *
-     * @param source     the table being copied
+     * <p>A copy that keeps the source's name, answers the same requests and declares a version of its own is a new
+     * version of that table. Only one version is active at a time, so the source stops being the active one. That
+     * change is written into the source's workbook, which is the destination's own — the copy is a new version only
+     * where the two are compiled together — so the caller's save persists both.
+     *
+     * @param source     the table being copied, which stands down when the copy is a new version of it
      * @param newName    the name the copy is given
      * @param properties the copy's properties, or {@code null} to keep the source's
      * @param destGrid   the sheet the copy is written to

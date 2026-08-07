@@ -124,6 +124,11 @@ To create a variant of a rule that OpenL selects at runtime from the request con
 give the copy a different value for a dimensional property, such as **state** or **lob**. The copy is created with its
 properties already set, so the two same-named tables are told apart from the start.
 
+To create a new version of a rule, keep the source table's name and give the copy a **version** property, written as
+three numbers such as `0.0.2`. Only one version of a table is active at a time, so the version the copy replaces stops
+being the active one; a table that declared no version until then keeps `0.0.1`, and the copy becomes the version the
+rule runs. A value of any other form is refused, because versions are ordered by those three numbers.
+
 To add a new property for the selected table, perform the following steps:
 
 1.  In the **Properties** pane, click the **Add Property** link.

@@ -456,7 +456,7 @@ All 41 properties from `DefaultPropertyDefinitions.java`, ordered by group.
 | `modifiedOn`               | Modified On                | Info     | Date                        | ALL                      | sys: updated on each edit                                      |
 | `description`              | Description                | Info     | String                      | ALL                      | Free-text documentation                                        |
 | `tags`                     | Tags                       | Info     | String[]                    | ALL                      | Comma-separated search tags                                    |
-| `version`                  | Version                    | Version  | String                      | DT, SPR, TBASIC, CM, MTH | Format: `NN.NN[.NN]`                                           |
+| `version`                  | Version                    | Version  | String                      | DT, SPR, TBASIC, CM, MTH | Format: `NN.NN.NN`                                             |
 | `active`                   | Active                     | Version  | Boolean                     | DT, SPR, TBASIC, CM, MTH | Default: `true`; one active per group                          |
 | `effectiveDate`            | Effective Date             | Business | Date                        | DT, SPR, TBASIC, CM, MTH | Rule active from this date                                     |
 | `expirationDate`           | Expiration Date            | Business | Date                        | DT, SPR, TBASIC, CM, MTH | Rule inactive after this date                                  |
