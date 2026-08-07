@@ -4,7 +4,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `8aa0c16a`**; every queue row done, every vein closed. Fourteen idle passes; expect more. New
+- **Converged at `main` = `8aa0c16a`**; every queue row done, every vein closed. Fifteen idle passes; expect more. New
   scope arrives only as new commits on `main` — never invent a detector to manufacture work.
 - The idle pass is two calls: `git log 8aa0c16a..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
@@ -370,8 +370,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-07 — run seventy-seven: twelfth idle pass, `main` unmoved, no sweep PR open; no commit, 376 lines.
 - 08-07 — run seventy-eight: thirteenth idle pass, `main` unmoved, no sweep PR open; no commit, 376 lines.
 - 08-07 — run seventy-nine: fourteenth idle pass; `main` gained EPBDS-16408, a webstudio migration-service refactor
   plus ITEST fixtures and replaced-in-place locale and bundle text. Its four removed private helpers left zero
   repository-wide references, so nothing was orphaned. No commit, 376 lines.
+- 08-07 — run eighty: fifteenth idle pass, `main` unmoved at `8aa0c16a`, no sweep PR open; no commit, 377 lines.
