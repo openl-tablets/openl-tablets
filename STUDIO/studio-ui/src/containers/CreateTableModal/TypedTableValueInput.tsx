@@ -25,19 +25,38 @@ const BOOLEAN_OPTIONS = [
 interface TypedTableValueInputProps {
     'aria-label': string
     'data-testid': string
+    /** Whether the cell holds a condition, which OpenL matches by range as readily as by equality. */
+    condition: boolean
     onChange: (value: string) => void
     type: string | undefined
     value: TableCellValue
     vocabularyValues: Readonly<Record<string, string[]>>
 }
 
+/** Types that have a range of their own: OpenL compiles such a condition column as the matching range type. */
+const RANGE_TYPES = new Set([...INTEGER_TYPES, ...DECIMAL_TYPES, 'Character', 'String', 'Date'])
+
+/**
+ * The type whose editor and validation the cell takes, or none when it takes free text.
+ *
+ * <p>A condition is matched by range as readily as by equality, so one of a range-capable type is left as text:
+ * `18-30` is not a number and `[18 .. 30)` is not a day on a calendar. The column is compiled as `IntRange`,
+ * `DoubleRange`, `CharRange`, `StringRange` or `DateRange`, and the shape of the expression is the engine's to
+ * judge — it reports what it cannot read when the table compiles.
+ */
+const editorType = (type: string | undefined, condition: boolean): string => {
+    const declared = type?.trim() ?? ''
+    return condition && RANGE_TYPES.has(declared) ? '' : declared
+}
+
 /** Whether a value can be represented by the editor for its declared OpenL type. Empty is valid for every type. */
 export const tableValueIsValid = (
     type: string | undefined,
     value: TableCellValue,
-    vocabularyValues: Readonly<Record<string, string[]>>
+    vocabularyValues: Readonly<Record<string, string[]>>,
+    condition = false
 ): boolean => {
-    const declared = type?.trim()
+    const declared = editorType(type, condition)
     const text = String(value ?? '').trim()
     if (!declared || !text) {
         return true
@@ -78,13 +97,14 @@ export const tableValueIsValid = (
  * Types without a finite single-cell representation keep a text input, which also covers references to Data rows.
  */
 export const TypedTableValueInput: React.FC<TypedTableValueInputProps> = ({
+    condition,
     onChange,
     type,
     value,
     vocabularyValues,
     ...common
 }) => {
-    const declared = type?.trim() ?? ''
+    const declared = editorType(type, condition)
     const vocabulary = Object.hasOwn(vocabularyValues, declared) ? vocabularyValues[declared] ?? [] : null
     if (vocabulary) {
         return (

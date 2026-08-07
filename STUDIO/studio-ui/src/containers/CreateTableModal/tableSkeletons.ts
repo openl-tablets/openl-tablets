@@ -354,6 +354,34 @@ export const buildTableColumns = (
 }
 
 /**
+ * Whether the cell holds a condition matched against an argument rather than a value of its own.
+ *
+ * <p>A Rules table conditions on the columns its arguments title; a lookup conditions on its top band and on its
+ * key columns, and on nothing in the corner where the two meet.
+ */
+export const cellHoldsCondition = (
+    preset: TablePreset,
+    context: TableBuildContext,
+    row: number,
+    column: number
+): boolean => {
+    switch (preset) {
+        case 'smartRules':
+        case 'simpleRules':
+            return column < completeArguments(context.arguments).length
+        case 'smartLookup':
+        case 'simpleLookup': {
+            const { rows, keys } = headerBand(preset, context)
+            return row < rows ? column >= keys : column < keys
+        }
+        case 'rules':
+            return column === 0
+        default:
+            return false
+    }
+}
+
+/**
  * The OpenL type a value cell must accept.
  *
  * <p>Most generated tables declare one type per column. A lookup also declares types down its top band: each band
@@ -377,7 +405,7 @@ export const cellValueType = (
         case 'smartRules':
         case 'simpleRules': {
             const argumentsValue = completeArguments(context.arguments)
-            if (column < argumentsValue.length) {
+            if (cellHoldsCondition(preset, context, row, column)) {
                 return argumentsValue[column]?.type
             }
             const resultColumn = column - argumentsValue.length
@@ -388,11 +416,11 @@ export const cellValueType = (
         case 'smartLookup':
         case 'simpleLookup': {
             const argumentsValue = completeArguments(context.arguments)
-            const band = headerBand(preset, context)
-            if (row < band.rows) {
-                return column < band.keys ? undefined : argumentsValue[band.keys + row]?.type
+            const { rows: bandRows, keys } = headerBand(preset, context)
+            if (!cellHoldsCondition(preset, context, row, column)) {
+                return row < bandRows ? undefined : context.resultType
             }
-            return column < band.keys ? argumentsValue[column]?.type : context.resultType
+            return row < bandRows ? argumentsValue[keys + row]?.type : argumentsValue[column]?.type
         }
         case 'rules':
             return column === 0 ? 'Boolean' : context.resultType
