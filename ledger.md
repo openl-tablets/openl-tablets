@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `d91f756b`**; every queue row done, every vein closed. Eight idle passes; expect more. New
+- **Converged at `main` = `a86c2521`**; every queue row done, every vein closed. Nine idle passes; expect more. New
   scope arrives only as new commits on `main` — never invent a detector to manufacture work.
-- The idle pass is two calls: `git log d91f756b..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log a86c2521..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -369,6 +369,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-07 — run seventy-one: sixth idle pass; `main` moved by two Dependabot version bumps only, no commit.
 - 08-07 — run seventy-two: seventh idle pass, `main` unmoved; tightened the resume point, 374 lines.
 - 08-07 — run seventy-three: eighth idle pass, `main` unmoved, no open PR; no commit, 374 lines.
+- 08-07 — run seventy-four: ninth idle pass; `main` gained EPBDS-16356 plus a Dependabot bump, both
+  replaced-in-place, every helper they re-signed still called. No commit, 375 lines.
