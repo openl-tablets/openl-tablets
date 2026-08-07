@@ -1,6 +1,7 @@
 package org.openl.rules.workspace.dtr.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -86,6 +87,37 @@ class MappedRepositoryTest {
             assertEquals(List.of("catalog/quoting-core", "catalog/quoting-legacy"),
                     names.stream().map(((FolderMapper) mapped)::getRealPath).sorted().toList(),
                     "Each mapped name must lead back to its own folder");
+        } finally {
+            ((Closeable) mapped).close();
+        }
+    }
+
+    /** A folder that is gone is no longer one of the projects the repository maps. */
+    @Test
+    void aDeletedProjectIsNoLongerMapped() throws IOException {
+        writeProject("catalog/quoting-core", "<project><name>Quoting</name></project>");
+        writeProject("catalog/pricing", "<project><name>Pricing</name></project>");
+
+        var delegate = new FileSystemRepository();
+        delegate.setRoot(root);
+        delegate.initialize();
+
+        var mapped = MappedRepository.create(delegate, "DESIGN/");
+        try {
+            var quoting = mapped.listFolders("DESIGN/")
+                    .stream()
+                    .filter(data -> data.getName().startsWith("DESIGN/Quoting:"))
+                    .findFirst()
+                    .orElseThrow();
+
+            assertTrue(mapped.delete(quoting), "The project must be deleted");
+
+            assertNull(((FolderMapper) mapped).findMappedName("catalog/quoting-core"),
+                    "The folder must be dropped from the mapping, not just left unreadable");
+            var names = mapped.listFolders("DESIGN/").stream().map(FileData::getName).toList();
+            assertEquals(1, names.size(), "Only the project that stays must be mapped: " + names);
+            assertTrue(names.getFirst().startsWith("DESIGN/Pricing:"),
+                    "The project that stays must keep its mapped name, but was: " + names);
         } finally {
             ((Closeable) mapped).close();
         }

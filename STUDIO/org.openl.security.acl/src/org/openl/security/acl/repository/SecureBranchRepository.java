@@ -105,6 +105,8 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
         if (conflictResolveData != null) {
             for (FileItem fileItem : conflictResolveData.getResolvedFiles()) {
+                // A conflict names its files by the path they hold in the repository itself, which is the path
+                // the permissions are kept under.
                 if (!simpleRepositoryAclService
                         .isGranted(getId(), fileItem.getData().getName(), List.of(BasePermission.WRITE))) {
                     throw new AccessDeniedException("There is no permission for merging changes to a branch.");

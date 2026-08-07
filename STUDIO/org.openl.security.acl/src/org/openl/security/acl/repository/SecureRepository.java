@@ -46,10 +46,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        return repository.list(path)
-                .stream()
-                .filter(e -> simpleRepositoryAclService.isGranted(getId(), getName(e), List.of(BasePermission.READ)))
-                .collect(Collectors.toList());
+        return repository.list(path).stream().filter(this::isReadable).toList();
     }
 
     @Override
@@ -72,9 +69,24 @@ public class SecureRepository implements Repository, RepositoryDelegate {
         return repository.save(data, stream);
     }
 
+    /** The path the permissions for the content at that repository path are kept under. */
+    protected String aclPath(String path) {
+        return path;
+    }
+
+    /** The same, for content a listing reported: the listing itself answers with that path. */
+    private String aclPath(FileData fileData) {
+        var fileMappingData = fileData.getAdditionalData(FileMappingData.class);
+        return fileMappingData != null ? fileMappingData.getInternalPath() : aclPath(fileData.getName());
+    }
+
+    private boolean isReadable(FileData fileData) {
+        return simpleRepositoryAclService.isGranted(getId(), aclPath(fileData), List.of(BasePermission.READ));
+    }
+
     protected void checkSavePermissions(String name) throws IOException {
         if (repository.check(name) != null) {
-            if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(BasePermission.WRITE))) {
+            if (!simpleRepositoryAclService.isGranted(getId(), aclPath(name), List.of(BasePermission.WRITE))) {
                 throw new AccessDeniedException(
                         "There is no permission for modifying '%s' in '%s' repository.".formatted(name, getName()));
             }
@@ -84,30 +96,23 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     }
 
     protected void checkCreatePermissions(String name) throws IOException {
-        if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(BasePermission.CREATE))) {
+        if (!simpleRepositoryAclService.isGranted(getId(), aclPath(name), List.of(BasePermission.CREATE))) {
             throw new AccessDeniedException(
                     "There is no permission for creating '%s' in '%s' repository.".formatted(name, getName()));
         }
     }
 
     protected void checkReadPermission(String name) throws IOException {
-        if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(BasePermission.READ))) {
+        if (!simpleRepositoryAclService.isGranted(getId(), aclPath(name), List.of(BasePermission.READ))) {
             throw new AccessDeniedException(
                     "There is no permission for reading '%s' from '%s' repository.".formatted(name, getName()));
         }
     }
 
-    protected void checkDeletePermission(String name) throws IOException {
-        if (!simpleRepositoryAclService.isGranted(getId(), name, true, BasePermission.DELETE)) {
-            throw new AccessDeniedException(
-                    "There is no permission for deleting '%s' from '%s' repository.".formatted(name, getName()));
-        }
-    }
-
-    protected void checkDeleteHistoryPermission(String name) throws IOException {
-        if (!simpleRepositoryAclService.isGranted(getId(), name, true, BasePermission.DELETE)) {
-            throw new AccessDeniedException(
-                    "There is no permission for deleting '%s' from '%s' repository.".formatted(name, getName()));
+    private void checkDeletePermission(FileData fileData) throws IOException {
+        if (!simpleRepositoryAclService.isGranted(getId(), aclPath(fileData), true, BasePermission.DELETE)) {
+            throw new AccessDeniedException("There is no permission for deleting '%s' from '%s' repository."
+                    .formatted(fileData.getName(), getName()));
         }
     }
 
@@ -121,14 +126,14 @@ public class SecureRepository implements Repository, RepositoryDelegate {
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        checkDeletePermission(data.getName());
+        checkDeletePermission(data);
         return repository.delete(data);
     }
 
     @Override
     public boolean delete(List<FileData> data) throws IOException {
         for (FileData data1 : data) {
-            checkDeletePermission(data1.getName());
+            checkDeletePermission(data1);
         }
         return repository.delete(data);
     }
@@ -158,7 +163,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        checkDeleteHistoryPermission(data.getName());
+        checkDeletePermission(data);
         return repository.deleteHistory(data);
     }
 
@@ -171,27 +176,12 @@ public class SecureRepository implements Repository, RepositoryDelegate {
 
     @Override
     public List<FileData> listFolders(String path) throws IOException {
-        return repository.listFolders(path)
-                .stream()
-                .filter(e -> simpleRepositoryAclService.isGranted(getId(), getName(e), List.of(BasePermission.READ)))
-                .collect(Collectors.toList());
+        return repository.listFolders(path).stream().filter(this::isReadable).toList();
     }
 
     @Override
     public List<FileData> listFiles(String path, String version) throws IOException {
-        return repository.listFiles(path, version)
-                .stream()
-                .filter(e -> simpleRepositoryAclService.isGranted(getId(), getName(e), List.of(BasePermission.READ)))
-                .collect(Collectors.toList());
-    }
-
-    private static String getName(FileData fileData) {
-        var fileMappingData = fileData.getAdditionalData(FileMappingData.class);
-        if (fileMappingData != null) {
-            return fileMappingData.getInternalPath();
-        } else {
-            return fileData.getName();
-        }
+        return repository.listFiles(path, version).stream().filter(this::isReadable).toList();
     }
 
     @Override
@@ -200,26 +190,27 @@ public class SecureRepository implements Repository, RepositoryDelegate {
                          ChangesetType changesetType) throws IOException {
         var checkedFileItems = new ArrayList<FileItem>();
         for (FileItem fileItem : files) {
-            if (fileItem.getStream() != null) {
-                checkSavePermissions(fileItem.getData().getName());
-            } else {
-                if (exists(fileItem.getData().getName())) {
-                    checkDeletePermission(getName(fileItem.getData()));
-                }
+            if (fileItem.getStream() == null) {
                 // A full changeset says what the folder holds, and what it does not hold is removed by that
                 // alone. Only a changeset of the changes themselves carries a removal of its own.
                 if (changesetType != ChangesetType.DIFF) {
                     continue;
                 }
+                if (exists(fileItem.getData().getName())) {
+                    checkDeletePermission(fileItem.getData());
+                }
+            } else {
+                checkSavePermissions(fileItem.getData().getName());
             }
             checkedFileItems.add(fileItem);
         }
         if (changesetType == ChangesetType.FULL) {
-            var existingContentFileData = repository.list(asFolder(folderData.getName()));
-            for (FileData fileData : existingContentFileData) {
-                if (checkedFileItems.stream()
-                        .noneMatch(e -> Objects.equals(e.getData().getName(), fileData.getName()))) {
-                    checkDeletePermission(getName(fileData));
+            var keptNames = checkedFileItems.stream()
+                    .map(fileItem -> fileItem.getData().getName())
+                    .collect(Collectors.toSet());
+            for (FileData fileData : repository.list(asFolder(folderData.getName()))) {
+                if (!keptNames.contains(fileData.getName())) {
+                    checkDeletePermission(fileData);
                 }
             }
         }

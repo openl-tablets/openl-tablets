@@ -11,9 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Predicate;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -53,6 +55,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     private static final String SEPARATOR = ":";
     private static final int TREE_REVISION_CACHE_CAPACITY = 2_048;
     private static final int DESCRIPTOR_REVISION_CACHE_CAPACITY = 65_536;
+    private static final int FOLDER_HASH_CACHE_CAPACITY = 4_096;
 
     @Getter
     @Setter
@@ -64,6 +67,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             new BoundedCache<>(TREE_REVISION_CACHE_CAPACITY);
     private BoundedCache<String, Optional<String>> projectNamesByDescriptorRevision =
             new BoundedCache<>(DESCRIPTOR_REVISION_CACHE_CAPACITY);
+    private Map<String, String> hashesByPath = new ConcurrentHashMap<>();
 
     @Setter(AccessLevel.PRIVATE)
     private String baseFolder;
@@ -376,6 +380,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         // Share the caches so a lazy refresh can reuse a mapping already built for the same tree.
         mappedRepository.indexesByTreeRevision = indexesByTreeRevision;
         mappedRepository.projectNamesByDescriptorRevision = projectNamesByDescriptorRevision;
+        mappedRepository.hashesByPath = hashesByPath;
         // The project mapping is built lazily on first access (see getUpToDateMapping), so selecting a branch
         // stays cheap. Eagerly scanning every branch on startup froze repositories that hold many branches.
         return mappedRepository;
@@ -423,8 +428,12 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         indexLock.writeLock().lock();
         try {
             var externalToInternal = getUpToDateMapping(false);
-            externalToInternal.getProjects()
-                    .removeIf(projectInfo -> external.equals(baseFolder + getMappedName(projectInfo)));
+            Predicate<ProjectInfo> mapped = projectInfo -> external.equals(baseFolder + getMappedName(projectInfo));
+            var projects = externalToInternal.getProjects();
+            var discardedFolders = projects.stream().filter(mapped).map(ProjectInfo::getPath).toList();
+            projects.removeIf(mapped);
+            // Last, because naming the projects that stay is what tells them apart, and that names this one too.
+            discardedFolders.forEach(hashesByPath::remove);
 
             indexCache.set(new ProjectIndexCache(externalToInternal));
         } finally {
@@ -454,34 +463,44 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      * @return a copy of the current project index
      */
     private ProjectIndex getUpToDateMapping(boolean withLock) {
-        var projectIndex = indexCache.get();
-        if (projectIndex == null || projectIndex.isExpired()) {
-            if (withLock) {
-                indexLock.writeLock().lock();
-                try {
-                    projectIndex = indexCache.get();
-                    if (projectIndex == null || projectIndex.isExpired()) {
-                        refreshMapping();
-                    }
-                } finally {
-                    indexLock.writeLock().unlock();
-                }
-            } else {
+        if (!withLock) {
+            var projectIndex = indexCache.get();
+            if (projectIndex == null || projectIndex.isExpired()) {
                 refreshMapping();
             }
-        }
-
-        // Use read lock for reading the current index
-        if (withLock) {
-            indexLock.readLock().lock();
-            try {
-                return indexCache.get().getCopy();
-            } finally {
-                indexLock.readLock().unlock();
-            }
-        } else {
             return indexCache.get().getCopy();
         }
+
+        refreshExpiredMapping();
+        // Use read lock for reading the current index
+        indexLock.readLock().lock();
+        try {
+            return indexCache.get().getCopy();
+        } finally {
+            indexLock.readLock().unlock();
+        }
+    }
+
+    /** Rebuilds the mapping when it has expired. */
+    private void refreshExpiredMapping() {
+        var projectIndex = indexCache.get();
+        if (projectIndex == null || projectIndex.isExpired()) {
+            indexLock.writeLock().lock();
+            try {
+                projectIndex = indexCache.get();
+                if (projectIndex == null || projectIndex.isExpired()) {
+                    refreshMapping();
+                }
+            } finally {
+                indexLock.writeLock().unlock();
+            }
+        }
+    }
+
+    /** The mapping in use, shared with the caller, which must not change it. */
+    private ProjectIndex currentMapping() {
+        refreshExpiredMapping();
+        return indexCache.get().index();
     }
 
     private Iterable<FileItem> toInternal(final ProjectIndex mapping,
@@ -874,8 +893,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public String getRealPath(String externalPath) {
-        var mapping = getUpToDateMapping(true);
-        return toInternal(mapping, externalPath);
+        return toInternal(currentMapping(), externalPath);
     }
 
     @Override
@@ -915,11 +933,25 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         }).orElse(null);
     }
 
-    private String getHash(String s) {
-        if (StringUtils.isEmpty(s)) {
+    /**
+     * The hash a folder is named by, computed once per folder.
+     *
+     * <p>A repository holds far fewer folders than the cache admits. Beyond that the memo is starting to hold
+     * folders nobody asks about any more, so it is dropped and filled again.
+     */
+    private String getHash(String path) {
+        if (StringUtils.isEmpty(path)) {
             return "";
         }
-        return HashingUtils.sha256Hex(s);
+        var hash = hashesByPath.get(path);
+        if (hash == null) {
+            hash = HashingUtils.sha256Hex(path);
+            if (hashesByPath.size() >= FOLDER_HASH_CACHE_CAPACITY) {
+                hashesByPath.clear();
+            }
+            hashesByPath.put(path, hash);
+        }
+        return hash;
     }
 
     @Override

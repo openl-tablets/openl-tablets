@@ -1,0 +1,8 @@
+PATCH /rest/projects/{PROJECT} HTTP/1.1
+Authorization: ${GRANTEE_AUTH}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "status": "CLOSED"
+}

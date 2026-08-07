@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "AclRoleProbe",
+  "status": "CLOSED",
+  "capabilities": {
+    "canOpen": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canManageBranches": true,
+    "canExport": true
+  }
+}
