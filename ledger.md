@@ -4,16 +4,14 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `d91f756b`**; every queue row done, every vein closed. New scope arrives only as new
-  commits on `main` — never invent a detector to manufacture work. Six idle passes in a row; expect more.
-- The idle pass is two calls: `git log d91f756b..origin/main` and the open-PR check. Read `build-quick.yml` only
-  before committing code, and only once `main` has moved; never re-diagnose an unchanged SHA.
-- A feature PR lands as a maintainer-authored rebased commit, so GitHub reports it `merged: false` while its work
-  is on `main`. Judge scope from `git log` alone; the PR list says nothing about what landed.
-- When scope arrives, sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and
-  `.github/`. Read the **deleted** lines first — a purely additive commit orphans nothing, and one whose deletions are
-  replaced in place usually does too; a commit deleting a screen is the richest vein, so check its locale keys,
-  service functions, helper modules and dropped `throws` clauses before assuming the author cleaned up.
+- **Converged at `main` = `d91f756b`**; every queue row done, every vein closed. Seven idle passes; expect more. New
+  scope arrives only as new commits on `main` — never invent a detector to manufacture work.
+- The idle pass is two calls: `git log d91f756b..origin/main` and the open-PR check; never re-diagnose CI on an
+  unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
+  so judge scope from `git log` alone — the PR list says nothing about what landed.
+- New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
+  Read the **deleted** lines first — additive and replaced-in-place commits orphan nothing; a commit deleting a
+  screen is the richest vein, so check its locale keys, service functions, helper modules and dropped `throws`.
 
 ## Change-type queue
 
@@ -371,6 +369,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-06 — run sixty-nine: fourth idle pass at the same SHA; only `dead-code/ledger` on the remote, no commit.
 - 08-07 — run seventy: fifth idle pass at the same SHA; no open PR, no commit.
 - 08-07 — run seventy-one: sixth idle pass; `main` moved by two Dependabot version bumps only, no commit.
+- 08-07 — run seventy-two: seventh idle pass, `main` unmoved; tightened the resume point, 374 lines.
