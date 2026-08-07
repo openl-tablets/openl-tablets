@@ -300,7 +300,7 @@ i18next.addResourceBundle('en', 'repository', {
             invalid: 'rules-deploy.xml is malformed',
             none: 'This project has no rules-deploy.xml yet. Fill the fields and save to create one.',
             migrate: 'Migrate',
-            migrate_hint: 'Bring rules-deploy.xml to the current minimal form: drop the default runtime-context flag and rename the legacy template-class setting.',
+            migrate_hint: 'Bring rules-deploy.xml to the current minimal form: drop the default runtime-context flag and rename the legacy template-class setting. The file is written anew, so its comments and layout are not kept.',
             migrate_failed: 'Failed to migrate rules-deploy.xml',
         },
         compile: {
@@ -429,7 +429,7 @@ i18next.addResourceBundle('en', 'repository', {
             migrate_rewrite_hint: 'Bring rules.xml to the current minimal form.',
             migrate_move_confirm_one: 'This moves {{count}} workbook from the project root into the rules folder and creates a rules.xml so it is still found. Continue?',
             migrate_move_confirm_other: 'This moves {{count}} workbooks from the project root into the rules folder and creates a rules.xml so they are still found. Continue?',
-            migrate_rewrite_confirm: 'This rewrites rules.xml to its minimal modern form, keeping the project behaviour. Continue?',
+            migrate_rewrite_confirm: 'This rewrites rules.xml to its minimal modern form, keeping the project behaviour. The file is written anew, so its comments and layout are not kept. Continue?',
             migrate_blocked: 'Migration is blocked — these workbooks would become modules: {{modules}}. Declare them in rules.xml or remove them, then migrate.',
             migrate_failed: 'Migration failed',
             unlock: 'Release lock',

@@ -34,7 +34,8 @@ public record ProjectMigrationView(
      * @param movableRootModules the root-level workbooks a migrate would move into {@code rules/};
      *                           populated only when the project has no {@code rules.xml}
      * @param migratable         whether a migrate would change the {@code rules.xml} — move the root
-     *                           workbooks and write one, or rewrite an existing one
+     *                           workbooks and write one, or rewrite an existing one because a migration
+     *                           changes what it declares; the formatting of the file does not count
      * @param newModules         the workbooks a rewrite would turn into modules that {@code rules.xml} does
      *                           not declare today; when non-empty the migrate is refused, because it would
      *                           change which modules compile
@@ -47,7 +48,8 @@ public record ProjectMigrationView(
             List<String> movableRootModules,
             @Parameter(description = """
                     Whether a migrate would move the root workbooks and write a rules.xml, or rewrite \
-                    an existing one""")
+                    an existing one. An existing rules.xml counts only when a migration changes what it \
+                    declares; its formatting does not count.""")
             boolean migratable,
             @Parameter(description = """
                     Workbooks a rewrite would turn into modules that rules.xml does not declare today. \
@@ -59,14 +61,15 @@ public record ProjectMigrationView(
     /**
      * The {@code rules-deploy.xml} scope.
      *
-     * @param migratable whether the project has a {@code rules-deploy.xml} that a migrate would rewrite to
-     *                   the minimal modern form
+     * @param migratable whether the project has a {@code rules-deploy.xml} that a migration changes; the
+     *                   formatting of the file does not count
      */
     @Schema(description = "The rules-deploy.xml migration scope")
     public record RulesDeploySection(
             @Parameter(description = """
                     Whether the project has a rules-deploy.xml that a migrate would rewrite to the \
-                    minimal modern form""")
+                    minimal modern form. It counts only when a migration changes what the file \
+                    declares; its formatting does not count.""")
             boolean migratable) {
     }
 }
