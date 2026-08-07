@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `dce16a0e`**; every queue row done, every vein closed. New scope arrives only as new
-  commits on `main` — never invent a detector to manufacture work. Five idle passes in a row; expect more.
-- The idle pass is two calls: `git log dce16a0e..origin/main` and the open-PR check. Read `build-quick.yml` only
+- **Converged at `main` = `d91f756b`**; every queue row done, every vein closed. New scope arrives only as new
+  commits on `main` — never invent a detector to manufacture work. Six idle passes in a row; expect more.
+- The idle pass is two calls: `git log d91f756b..origin/main` and the open-PR check. Read `build-quick.yml` only
   before committing code, and only once `main` has moved; never re-diagnose an unchanged SHA.
 - A feature PR lands as a maintainer-authored rebased commit, so GitHub reports it `merged: false` while its work
   is on `main`. Judge scope from `git log` alone; the PR list says nothing about what landed.
@@ -371,6 +371,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-06 — run sixty-eight: third consecutive idle pass at the same SHA, no open PR; no commit.
 - 08-06 — run sixty-nine: fourth idle pass at the same SHA; only `dead-code/ledger` on the remote, no commit.
 - 08-07 — run seventy: fifth idle pass at the same SHA; no open PR, no commit.
+- 08-07 — run seventy-one: sixth idle pass; `main` moved by two Dependabot version bumps only, no commit.
