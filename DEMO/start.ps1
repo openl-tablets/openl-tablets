@@ -26,7 +26,7 @@ $MAVEN_URL = "https://repo1.maven.org/maven2"
 # JETTY_VERSION, POSTGRES_VERSION, ORACLE_VERSION and MSSQL_VERSION must match the matching root pom.xml properties.
 # Enforced by `mvn validate -N`.
 $JAVA_MAJOR_VERSION = "25"
-$JETTY_VERSION = "12.1.11"
+$JETTY_VERSION = "12.1.12"
 
 # JDBC Driver Versions
 $POSTGRES_VERSION = "42.7.13"
