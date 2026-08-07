@@ -13,6 +13,8 @@ interface PropertyValueInputProps {
     definition: ProjectProperty | undefined
     onChange: (value: EditedPropertyValue) => void
     placeholder: string
+    /** Marks the editor as holding a value the property does not accept. */
+    status?: '' | 'error'
     value: PropertyValue
 }
 
@@ -31,6 +33,7 @@ export const PropertyValueInput: React.FC<PropertyValueInputProps> = ({
     definition,
     onChange,
     placeholder,
+    status = '',
     value,
     'aria-label': ariaLabel = placeholder,
     'data-testid': testId,
@@ -44,6 +47,7 @@ export const PropertyValueInput: React.FC<PropertyValueInputProps> = ({
                 format={datePickerFormatForLocale()}
                 onChange={date => onChange(date ? date.format(ISO_DATE_FORMAT) : '')}
                 placeholder={placeholder}
+                status={status}
                 style={{ width: '100%' }}
                 value={parseDateValue(value)}
             />
@@ -75,6 +79,7 @@ export const PropertyValueInput: React.FC<PropertyValueInputProps> = ({
                     optionFilterProp="label"
                     options={options}
                     placeholder={placeholder}
+                    status={status}
                     style={{ width: '100%' }}
                     value={enumCodes(value)}
                 />
@@ -90,6 +95,7 @@ export const PropertyValueInput: React.FC<PropertyValueInputProps> = ({
                 options={options}
                 placeholder={placeholder}
                 showSearch={false}
+                status={status}
                 style={{ width: '100%' }}
                 value={String(value ?? '') || undefined}
             />
@@ -101,6 +107,7 @@ export const PropertyValueInput: React.FC<PropertyValueInputProps> = ({
             data-testid={testId}
             onChange={event => onChange(event.target.value)}
             placeholder={placeholder}
+            status={status}
             value={String(value ?? '')}
         />
     )

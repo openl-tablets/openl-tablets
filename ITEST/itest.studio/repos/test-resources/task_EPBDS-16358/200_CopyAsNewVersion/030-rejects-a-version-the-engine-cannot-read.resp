@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.copy.version.invalid.message",
+  "message": "The version 'v2' is not allowed. A version is written as three numbers, for example 1.0.0."
+}

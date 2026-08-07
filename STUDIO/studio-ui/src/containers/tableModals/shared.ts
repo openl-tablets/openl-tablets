@@ -7,6 +7,16 @@ import type { ProjectModule } from 'types/projects'
  * Cyrillic or Greek name, so a dialog must not be the only thing refusing one.
  */
 export const IDENTIFIER = /^[\p{L}_$][\p{L}\p{Nd}_$]*$/u
+/** A table version the engine can read, mirroring the format the server accepts. */
+const VERSION_FORMAT = /^\d+\.\d+\.\d+$/
+
+/** Whether the value is one the property accepts. Only the version property has a shape of its own. */
+export const isValidPropertyValue = (
+    name: string,
+    value: string | number | boolean | null | undefined
+): boolean =>
+    name.trim() !== 'version' || VERSION_FORMAT.test(String(value ?? '').trim())
+
 /** Characters Excel rejects in a worksheet name; sending one makes the workbook write fail. */
 const SHEET_NAME_FORBIDDEN = /[/\\*?[\]:]/
 /** An apostrophe quotes a sheet reference in a formula, so Excel refuses a name that opens or closes with one. */
