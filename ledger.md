@@ -4,7 +4,7 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `8aa0c16a`**; every queue row done, every vein closed. Twenty-four idle passes; expect more.
+- **Converged at `main` = `8aa0c16a`**; every queue row done, every vein closed. Twenty-five idle passes; expect more.
   New scope arrives only as new commits on `main` — never invent a detector to manufacture work.
 - The idle pass is two calls: `git log 8aa0c16a..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
@@ -370,6 +370,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-08 — run eighty-seven: twenty-second idle pass, `main` unmoved at `8aa0c16a`, no sweep PR open; no commit, 375 lines.
 - 08-08 — run eighty-eight: twenty-third idle pass, `main` unmoved at `8aa0c16a`, no sweep PR open; no commit, 375 lines.
 - 08-08 — run eighty-nine: twenty-fourth idle pass, `main` unmoved at `8aa0c16a`, no sweep PR open; no commit, 375 lines.
+- 08-08 — run ninety: twenty-fifth idle pass, `main` unmoved at `8aa0c16a`, no sweep PR open; no commit, 375 lines.
