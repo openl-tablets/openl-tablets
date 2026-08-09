@@ -2,42 +2,69 @@ package org.openl.studio.projects.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class ProjectIdModelTest {
 
+    /** A Cyrillic name whose standard Base64 form carries a slash. */
+    private static final String CYRILLIC_NAME = "Тарифный план";
+
+    /** A Cyrillic name whose standard Base64 form carries a plus instead — the other half of the mapping. */
+    private static final String CYRILLIC_NAME_WITH_PLUS = "Договор";
+
     @Test
-    void decodeAcceptsStandardBase64() {
-        var encoded = ProjectIdModel.builder().repository("design-flat").projectName("Proj").build().encode();
-        var decoded = ProjectIdModel.decode(encoded);
+    void encodeDecodeRoundTrips() {
+        var id = ProjectIdModel.builder().repository("design-flat").projectName("Proj").build();
+
+        var decoded = ProjectIdModel.decode(id.encode());
 
         assertEquals("design-flat", decoded.getRepository());
         assertEquals("Proj", decoded.getProjectName());
     }
 
-    @Test
-    void decodeAcceptsUrlSafeBase64() {
-        // "r:????" encodes to Base64 containing '/', so this exercises the URL-safe alphabet mapping
-        // that callers use to keep the id within a single URL path segment.
-        var standard = ProjectIdModel.builder().repository("r").projectName("????").build().encode();
-        assertTrue(standard.contains("/") || standard.contains("+"), "expected a Base64 id with '/' or '+'");
+    /**
+     * A project and a deployment configuration are addressed by the same id, and a name outside US-ASCII is
+     * what makes the slash likely — see EPBDS-16402 and EPBDS-16403.
+     */
+    @ParameterizedTest
+    @CsvSource({"r, ????",
+                "design, " + CYRILLIC_NAME,
+                "deployment, " + CYRILLIC_NAME,
+                "design, " + CYRILLIC_NAME_WITH_PLUS})
+    void encodeStaysWithinOnePathSegment(String repository, String projectName) {
+        var id = ProjectIdModel.builder().repository(repository).projectName(projectName).build();
 
-        var urlSafe = standard.replace('+', '-').replace('/', '_');
-        var decoded = ProjectIdModel.decode(urlSafe);
+        var encoded = id.encode();
 
-        assertEquals("r", decoded.getRepository());
-        assertEquals("????", decoded.getProjectName());
+        assertFalse(encoded.contains("/"), "an id must not contain '/'");
+        assertFalse(encoded.contains("+"), "an id must not contain '+'");
+        assertEquals(id, ProjectIdModel.decode(encoded));
+    }
+
+    /**
+     * An id issued before the URL-safe alphabet became the default still lives in bookmarks and in legacy
+     * pages that build one in the browser, so decoding must keep accepting it.
+     */
+    @ParameterizedTest
+    @CsvSource({"cjo/Pz8/, r, ????",
+                // '/' → '_'
+                "ZGVzaWduOtCi0LDRgNC40YTQvdGL0Lkg0L/Qu9Cw0L0=, design, " + CYRILLIC_NAME,
+                // '+' → '-', the other half of the mapping
+                "ZGVzaWduOtCU0L7Qs9C+0LLQvtGA, design, " + CYRILLIC_NAME_WITH_PLUS})
+    void decodeAcceptsAStandardId(String standardId, String repository, String projectName) {
+        var decoded = ProjectIdModel.decode(standardId);
+
+        assertEquals(repository, decoded.getRepository());
+        assertEquals(projectName, decoded.getProjectName());
     }
 
     @Test
-    void encodeUrlSafeStaysWithinOnePathSegment() {
-        var id = ProjectIdModel.builder().repository("r").projectName("????").build();
-        var urlSafe = id.encodeUrlSafe();
+    void encodeReadsTheNameAsUtf8() {
+        var id = ProjectIdModel.builder().repository("design").projectName(CYRILLIC_NAME).build();
 
-        assertFalse(urlSafe.contains("/"), "URL-safe id must not contain '/'");
-        assertFalse(urlSafe.contains("+"), "URL-safe id must not contain '+'");
-        assertEquals(id, ProjectIdModel.decode(urlSafe));
+        assertEquals("ZGVzaWduOtCi0LDRgNC40YTQvdGL0Lkg0L_Qu9Cw0L0=", id.encode());
     }
 }

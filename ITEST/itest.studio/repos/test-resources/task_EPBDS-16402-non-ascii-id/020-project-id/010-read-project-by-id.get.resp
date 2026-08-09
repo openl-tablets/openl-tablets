@@ -1,0 +1,33 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduOtCi0LDRgNC40YTQvdGL0Lkg0L_Qu9Cw0L0=",
+  "name": "Тарифный план",
+  "status": "CLOSED",
+  "repository": "design",
+  "modifiedBy": "admin",
+  "modifiedAt": "*",
+  "revision": "*",
+  "comment": "Create a project whose name is not US-ASCII",
+  "repositoryInfo": {
+    "id": "design",
+    "name": "H2",
+    "type": "repo-jdbc",
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false
+    }
+  },
+  "capabilities": {
+    "canDelete": true,
+    "canOpen": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
+}

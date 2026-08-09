@@ -51,6 +51,19 @@ Java `UPPER_SNAKE` `.name()`.
 - A shared core enum with its own dedicated converter (e.g. `ProjectStatus` via `ProjectStatusConverter`) is out of
   scope — do not add `@JsonProperty` to it here.
 
+## Ids in a URL Path
+
+A project and a deployment configuration are both addressed by `ProjectIdModel` — `repositoryId:name` in Base64 — and
+that id travels as a **path segment**, so it **MUST** stay within one.
+
+- `encode()` (the `@JsonValue`, so every id the API hands out) uses the **URL-safe** alphabet and reads the name as
+  UTF-8. The standard alphabet is forbidden here: its `/` is read as a path separator (404), and percent-encoding it
+  to `%2F` is rejected as an ambiguous separator (400). A name outside US-ASCII makes that `/` likely — Cyrillic
+  names hit it about a quarter of the time.
+- `decode()` accepts both alphabets, so ids kept in bookmarks and ids a legacy JSF page builds with `btoa` keep
+  working. Never tighten it to one alphabet.
+- Never hand a caller an id from anything but `encode()`. A hand-rolled `Base64.getEncoder()` reintroduces the slash.
+
 ## Request Validation
 
 - **A `@RequestBody` needs `@Valid`** for its bean constraints to run. Without it, `@ProjectNameConstraint`, `@NotBlank`,
