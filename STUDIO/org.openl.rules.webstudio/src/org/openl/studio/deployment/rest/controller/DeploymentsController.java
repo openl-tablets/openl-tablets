@@ -91,7 +91,7 @@ public class DeploymentsController {
     @JsonView(GenericView.Full.class)
     public DeploymentViewModel getDeployment(
             @Parameter(description = "deployments.get.param.id.desc") @PathVariable("id") String id) {
-        var deploymentId = ProjectIdModel.decode(id);
+        var deploymentId = decodeDeploymentId(id);
         var query = DeploymentCriteriaQuery.builder()
                 .repository(deploymentId.getRepository())
                 .build();
@@ -119,9 +119,24 @@ public class DeploymentsController {
     @CommitInfoRequired
     public void redeploy(@Parameter(description = "deployments.redeploy.param.id.desc") @PathVariable("id") String id,
                          @Valid @RequestBody RedeployProjectModel redeployProject) throws ProjectException {
-        var deploymentId = ProjectIdModel.decode(id);
+        var deploymentId = decodeDeploymentId(id);
         var projectToDeploy = projectConverter.convert(redeployProject.projectId.encode());
         deploymentService.deploy(deploymentId, projectToDeploy, redeployProject.comment);
+    }
+
+    /**
+     * Reads a deployment id from a URL path segment.
+     *
+     * <p>A truncated or hand-edited id is a client error, so it answers "not found" instead of failing
+     * the request as a server fault.
+     */
+    private static ProjectIdModel decodeDeploymentId(String id) {
+        try {
+            return ProjectIdModel.decode(id);
+        } catch (IllegalArgumentException e) {
+            log.debug("Malformed deployment id '{}'", id, e);
+            throw new NotFoundException("deployment.not-found.message");
+        }
     }
 
     private DeploymentViewModel mapToViewModel(Deployment deployment) {
