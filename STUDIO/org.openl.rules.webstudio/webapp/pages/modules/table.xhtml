@@ -894,7 +894,7 @@
         function startTestTableTrace(repositoryId, projectName, tableId, moduleName, downloadMode) {
             var testRanges = getTestRangesParam();
             var moduleOnlyCheckbox = document.getElementById('runTestModuleOnly');
-            var tempProjectId = btoa(repositoryId + ':' + projectName);
+            var tempProjectId = encodeProjectId(repositoryId, projectName);
 
             // Fetch real project ID from backend
             $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
@@ -922,7 +922,7 @@
          * Fetches real project ID from backend, then dispatches CustomEvent to React TraceExecutionModal.
          */
         function traceNoParamsMethod(repositoryId, projectName, tableId, moduleName) {
-            var tempProjectId = btoa(repositoryId + ':' + projectName);
+            var tempProjectId = encodeProjectId(repositoryId, projectName);
 
             // Fetch real project ID from backend
             $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
@@ -1038,7 +1038,7 @@
             _executableTraceContext = null;
 
             var moduleOnlyCheckbox = document.getElementById('runTestModuleOnlyInputArgs');
-            var tempProjectId = btoa(ctx.repositoryId + ':' + ctx.projectName);
+            var tempProjectId = encodeProjectId(ctx.repositoryId, ctx.projectName);
 
             // Fetch real project ID from backend
             $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))

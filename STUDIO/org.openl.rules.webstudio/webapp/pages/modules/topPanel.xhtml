@@ -376,7 +376,7 @@
         }
 
         function openProjectRedeployDialog(repositoryId, projectName) {
-            const projectId = btoa(repositoryId + ":" + projectName);
+            const projectId = encodeProjectId(repositoryId, projectName);
             const projectDataRequest = $j.get("#{contextPath}/web/projects/" + projectId);
             $j.when(projectDataRequest).done((projectDataRes) => {
                 window.dispatchEvent(new CustomEvent('openDeployModal', {detail: projectDataRes}))

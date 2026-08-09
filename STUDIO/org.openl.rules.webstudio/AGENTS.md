@@ -60,9 +60,11 @@ that id travels as a **path segment**, so it **MUST** stay within one.
   UTF-8. The standard alphabet is forbidden here: its `/` is read as a path separator (404), and percent-encoding it
   to `%2F` is rejected as an ambiguous separator (400). A name outside US-ASCII makes that `/` likely — Cyrillic
   names hit it about a quarter of the time.
-- `decode()` accepts both alphabets, so ids kept in bookmarks and ids a legacy JSF page builds with `btoa` keep
-  working. Never tighten it to one alphabet.
+- `decode()` accepts both alphabets, so an id kept in a bookmark or a script keeps working. Never tighten it to one
+  alphabet.
 - Never hand a caller an id from anything but `encode()`. A hand-rolled `Base64.getEncoder()` reintroduces the slash.
+- A browser that has to build an id itself uses `encodeProjectId` — `common.js` for a JSF page, `services/projectId.ts`
+  for React. Never call `btoa` directly: it rejects any name outside Latin-1 and emits the standard alphabet.
 
 ## Request Validation
 
