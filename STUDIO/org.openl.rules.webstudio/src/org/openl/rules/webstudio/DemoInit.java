@@ -33,6 +33,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.repositories.service.ProjectCreationService;
 
 /**
  * Creates demo projects in a repository.
@@ -52,18 +53,21 @@ public class DemoInit {
     private final DeploymentManager deploymentManager;
     private final UserManagementService userManagementService;
     private final AclProjectsHelper aclProjectsHelper;
+    private final ProjectCreationService projectCreationService;
 
     @Autowired
     public DemoInit(@Qualifier("zipFilter") PathFilter zipFilter,
                     MultiUserWorkspaceManager workspaceManager,
                     DeploymentManager deploymentManager,
                     UserManagementService userManagementService,
-                    AclProjectsHelper aclProjectsHelper) {
+                    AclProjectsHelper aclProjectsHelper,
+                    ProjectCreationService projectCreationService) {
         this.zipFilter = zipFilter;
         this.workspaceManager = workspaceManager;
         this.deploymentManager = deploymentManager;
         this.userManagementService = userManagementService;
         this.aclProjectsHelper = aclProjectsHelper;
+        this.projectCreationService = projectCreationService;
     }
 
     @PostConstruct
@@ -137,6 +141,13 @@ public class DemoInit {
                 log.error("Project: {}. Message: {}", projectName, e.getMessage(), e);
                 return;
             }
+            // A design write becomes resolvable by name only once the project index publishes it, so the demo
+            // waits for that as every other create path does. Without it the next lookup loses the race and the
+            // project is left neither opened nor deployed — see EPBDS-16409.
+            var designTimeRepository = userWorkspace.getDesignTimeRepository();
+            projectCreationService.awaitProjectVisibility(designTimeRepository,
+                    designTimeRepository.getRepository(repositoryId));
+
             var technicalName = projectCreator.getCreatedProjectName();
             var createdProject = userWorkspace.getProject(repositoryId, technicalName);
 

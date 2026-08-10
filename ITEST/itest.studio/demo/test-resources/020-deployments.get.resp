@@ -1,0 +1,10 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "ZGVwbG95bWVudDpFeGFtcGxlIDMgLSBBdXRvIFBvbGljeSBDYWxjdWxhdGlvbg==",
+    "name": "Example 3 - Auto Policy Calculation",
+    "repository": "deployment"
+  }
+]
