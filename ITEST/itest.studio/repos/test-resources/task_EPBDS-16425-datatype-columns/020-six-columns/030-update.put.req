@@ -1,0 +1,28 @@
+PUT /rest/projects/EPBDS-16425-Columns/tables/63b0b9422a946f587555c4d309d353c3 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Claim",
+  "fields": [
+    {
+      "name": "town",
+      "type": "String",
+      "defaultValue": "Lviv",
+      "mandatory": "false",
+      "description": "Renamed",
+      "example": "Odesa"
+    },
+    {
+      "name": "amount",
+      "type": "Double",
+      "defaultValue": "1.5",
+      "mandatory": "true",
+      "description": "How much",
+      "example": "2.5"
+    }
+  ]
+}
+

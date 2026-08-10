@@ -19988,11 +19988,19 @@ Content-Type: application/json
             "type": "object",
             "description": "***"
           },
-          "name": {
+          "description": {
             "type": "string",
             "description": "***"
           },
-          "required": {
+          "example": {
+            "type": "object",
+            "description": "***"
+          },
+          "mandatory": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
             "type": "string",
             "description": "***"
           },

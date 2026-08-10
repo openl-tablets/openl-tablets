@@ -1,0 +1,18 @@
+POST /rest/projects/EPBDS-16425-Columns/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Legacy",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Datatype",
+    "name": "LegacyType",
+    "source": [
+      [{"value": "Datatype LegacyType", "colspan": 3}, {"value": null, "covered": true}, {"value": null, "covered": true}],
+      [{"value": "String"}, {"value": "city"}, {"value": "Kyiv"}]
+    ]
+  }
+}
+

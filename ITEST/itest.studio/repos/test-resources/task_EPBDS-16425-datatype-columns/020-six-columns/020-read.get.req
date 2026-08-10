@@ -1,0 +1,3 @@
+GET /rest/projects/EPBDS-16425-Columns/tables/63b0b9422a946f587555c4d309d353c3 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

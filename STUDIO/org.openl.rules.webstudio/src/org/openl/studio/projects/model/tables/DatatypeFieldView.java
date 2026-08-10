@@ -3,7 +3,7 @@ package org.openl.studio.projects.model.tables;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 
 /**
  * Field model for datatype tables
@@ -13,23 +13,31 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonDeserialize(builder = DatatypeFieldView.Builder.class)
 public class DatatypeFieldView {
 
-    @Schema(description = "Name of the datatype field")
+    @Parameter(description = "Name of the datatype field")
     public final String name;
 
-    @Schema(description = "Data type of the datatype field (e.g., String, Integer, etc.)")
+    @Parameter(description = "Data type of the datatype field (e.g., String, Integer, etc.)")
     public final String type;
 
-    @Schema(description = "Default value of the datatype field")
+    @Parameter(description = "Default value of the datatype field")
     public final Object defaultValue;
 
-    @Schema(description = "Indicates whether the datatype field is required")
-    public final String required;
+    @Parameter(description = "Whether the datatype field must be filled in, from the Mandatory column")
+    public final String mandatory;
+
+    @Parameter(description = "Free-text description of the datatype field, from the Description column")
+    public final String description;
+
+    @Parameter(description = "Example value of the datatype field, from the Example column")
+    public final Object example;
 
     private DatatypeFieldView(Builder builder) {
         this.name = builder.name;
         this.type = builder.type;
         this.defaultValue = builder.defaultValue;
-        this.required = builder.required;
+        this.mandatory = builder.mandatory;
+        this.description = builder.description;
+        this.example = builder.example;
     }
 
     @JsonCreator
@@ -42,7 +50,9 @@ public class DatatypeFieldView {
         private String name;
         private String type;
         private Object defaultValue;
-        private String required;
+        private String mandatory;
+        private String description;
+        private Object example;
 
         private Builder() {
         }
@@ -62,8 +72,18 @@ public class DatatypeFieldView {
             return this;
         }
 
-        public Builder required(String required) {
-            this.required = required;
+        public Builder mandatory(String mandatory) {
+            this.mandatory = mandatory;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder example(Object example) {
+            this.example = example;
             return this;
         }
 
