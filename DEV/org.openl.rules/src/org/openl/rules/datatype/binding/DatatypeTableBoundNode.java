@@ -234,21 +234,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             return DEFAULT_COLUMN_TITLES_ORDER;
         }
 
-        // Check if both Name and Type column titles are present in the first row
-        var hasNameTitle = false;
-        var hasTypeTitle = false;
-        for (var i = 0; i < dataTable.getWidth(); i++) {
-            var cellSource = getCellSource(dataTable.getRow(0), cxt, i);
-            var title = cellSource.getCode();
-            if (NAME_COLUMN_TITLE.equals(title)) {
-                hasNameTitle = true;
-            } else if (TYPE_COLUMN_TITLE.equals(title)) {
-                hasTypeTitle = true;
-            }
-        }
-
-        // If both Name and Type titles are present, use new design with column headers
-        if (hasNameTitle && hasTypeTitle) {
+        // Whether the first row titles the columns is the one rule every reader of a datatype shares; only the
+        // way a cell's text is read is the binder's own.
+        var firstRow = dataTable.getRow(0);
+        if (DatatypeHelper.hasColumnTitles(dataTable.getWidth(),
+                i -> getCellSource(firstRow, cxt, i).getCode())) {
             var columnTitlesOrder = new HashMap<String, Integer>();
             for (var i = 0; i < dataTable.getWidth(); i++) {
                 var cellSource = getCellSource(dataTable.getRow(0), cxt, i);

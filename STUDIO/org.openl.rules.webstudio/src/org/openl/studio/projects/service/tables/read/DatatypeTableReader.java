@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.DatatypeFieldView;
 import org.openl.studio.projects.model.tables.DatatypeView;
@@ -32,15 +33,31 @@ public class DatatypeTableReader extends EditableTableReader<DatatypeView, Datat
         var table = tsn.getTableBody();
         var cellValueReader = new CellValueReader(metaInfoReader);
         if (table != null) {
+            // A datatype may title its columns, and then the first row names them instead of declaring a field.
+            // Which it is, is decided by the one rule the compiler uses — see DatatypeHelper.
+            //
+            // The table is read as it is written. A datatype may also be authored transposed, and the compiler
+            // then turns it upright before binding; no reader or writer here follows it there, because the
+            // orientation cannot be told apart for every table without compiling it, and a reader has to answer
+            // the same way whether or not the module compiled. Reading the compiled metadata instead would make
+            // every reader depend on a successful compilation, which is a different design than this one.
+            var titles = DatatypeHelper.getColumnTitlesOrder(table);
+            var typeColumn = titles.getOrDefault(DatatypeHelper.TYPE_COLUMN_TITLE, DatatypeTableWriter.TYPE_COLUMN);
+            var nameColumn = titles.getOrDefault(DatatypeHelper.NAME_COLUMN_TITLE, DatatypeTableWriter.NAME_COLUMN);
+            // Only a body that actually has a Default column carries defaults. A titled body that names none
+            // has something else in that position, which is not this field's default.
+            var defaultColumn = titles.isEmpty()
+                    ? DatatypeTableWriter.DEFAULT_VALUE_COLUMN
+                    : titles.getOrDefault(DatatypeHelper.DEFAULT_COLUMN_TITLE, -1);
+            var firstFieldRow = titles.isEmpty() ? 0 : 1;
             var fields = new ArrayList<DatatypeFieldView>();
-            for (var rowId = 0; rowId < table.getHeight(); rowId++) {
+            for (var rowId = firstFieldRow; rowId < table.getHeight(); rowId++) {
                 var row = table.getRow(rowId);
                 var fieldBuilder = DatatypeFieldView.builder()
-                        .type(row.getCell(DatatypeTableWriter.TYPE_COLUMN, 0).getStringValue())
-                        .name(row.getCell(DatatypeTableWriter.NAME_COLUMN, 0).getStringValue());
-                if (row.getWidth() > 2) {
-                    var defaultValueCell = row.getCell(DatatypeTableWriter.DEFAULT_VALUE_COLUMN, 0);
-                    fieldBuilder.defaultValue(cellValueReader.apply(defaultValueCell));
+                        .type(row.getCell(typeColumn, 0).getStringValue())
+                        .name(row.getCell(nameColumn, 0).getStringValue());
+                if (defaultColumn >= 0 && row.getWidth() > defaultColumn) {
+                    fieldBuilder.defaultValue(cellValueReader.apply(row.getCell(defaultColumn, 0)));
                 }
                 fields.add(fieldBuilder.build());
             }

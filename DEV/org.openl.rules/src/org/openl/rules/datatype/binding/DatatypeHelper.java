@@ -1,6 +1,9 @@
 package org.openl.rules.datatype.binding;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.IntFunction;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -140,6 +143,78 @@ public class DatatypeHelper {
             cxt.popErrors();
         }
         return count;
+    }
+
+    /**
+     * Whether the data part opens with a row of column titles rather than with a field.
+     *
+     * <p>A datatype declares its columns by naming them, and it does so only when the first row names both
+     * {@code Type} and {@code Name} — anything else is the legacy positional layout, whose first row is already
+     * a field. Everything that reads a datatype asks this, so they agree on where the fields start.
+     *
+     * <p>The answer is about the table as it is given. A caller that also normalizes orientation, as the binder
+     * does, passes the upright table; one that reads a table as written passes it as written.
+     *
+     * @param dataPart the body of the table below its header, normalized
+     * @return {@code true} when the first row titles the columns
+     */
+    public static boolean hasColumnTitles(ILogicalTable dataPart) {
+        return dataPart != null && hasColumnTitles(dataPart.getWidth(), cellTextOf(dataPart));
+    }
+
+    /**
+     * The same rule, for a caller that reads a cell's text its own way.
+     *
+     * <p>The binder reads it as a source code module, so that a cell OpenL cannot parse is reported where it
+     * sits; the editor reads the plain value. What counts as a title row must not depend on which of the two
+     * is asking.
+     *
+     * @param width     number of columns in the data part
+     * @param titleAt   the text of the first row's cell at the given column
+     */
+    public static boolean hasColumnTitles(int width, IntFunction<String> titleAt) {
+        var hasType = false;
+        var hasName = false;
+        for (var i = 0; i < width; i++) {
+            var title = titleAt.apply(i);
+            hasType = hasType || TYPE_COLUMN_TITLE.equals(title);
+            hasName = hasName || NAME_COLUMN_TITLE.equals(title);
+        }
+        return hasType && hasName;
+    }
+
+    private static IntFunction<String> cellTextOf(ILogicalTable dataPart) {
+        if (dataPart.getHeight() == 0) {
+            return column -> null;
+        }
+        var row = dataPart.getRow(0);
+        return column -> row.getCell(column, 0).getStringValue();
+    }
+
+    /**
+     * Where each column the data part names sits, or no entry at all when it names none.
+     *
+     * <p>A titled body may write its columns in any order, so a reader takes the position from the title rather
+     * than from the column's place.
+     *
+     * @param dataPart the body of the table below its header, normalized
+     * @return the index of every recognized title, empty for the legacy positional layout
+     */
+    public static Map<String, Integer> getColumnTitlesOrder(ILogicalTable dataPart) {
+        return hasColumnTitles(dataPart) ? titlesOfFirstRow(dataPart) : Map.of();
+    }
+
+    private static Map<String, Integer> titlesOfFirstRow(ILogicalTable dataPart) {
+        var titles = new LinkedHashMap<String, Integer>();
+        var row = dataPart.getRow(0);
+        for (var i = 0; i < dataPart.getWidth(); i++) {
+            var code = row.getCell(i, 0).getStringValue();
+            // A title row may leave a cell blank, and the immutable list refuses to be asked about null.
+            if (code != null && COLUMN_TITLES.contains(code)) {
+                titles.putIfAbsent(code, i);
+            }
+        }
+        return titles;
     }
 
     private static int countTitles(ILogicalTable table) {

@@ -1,0 +1,12 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "bbc50931e5dc019793eb6c9300ab6c25",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "ReorderedType",
+  "file": "EPBDS-16418-Titles/Main.xlsx",
+  "pos": "B9:D11"
+}
+
