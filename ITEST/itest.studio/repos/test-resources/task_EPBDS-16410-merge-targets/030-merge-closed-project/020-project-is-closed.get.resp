@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "EPBDS-16410-InBranch",
+  "branch": "EPBDS-16410-feature",
+  "status": "CLOSED"
+}
+
