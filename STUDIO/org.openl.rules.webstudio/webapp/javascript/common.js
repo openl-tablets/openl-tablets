@@ -247,17 +247,3 @@ function is4xxStatus(code) {
 String.prototype.replaceString = function (regex, string) {
     return this.replace(regex, () => string);
 }
-
-/**
- * Builds the REST id of a project — "repositoryId:projectName" in URL-safe Base64.
- *
- * Mirrors ProjectIdModel.encode() on the server. Do not call btoa() directly: it only accepts
- * Latin-1, so it throws on a name outside US-ASCII, and its '/' would break the URL path segment.
- */
-function encodeProjectId(repositoryId, projectName) {
-    var utf8 = new TextEncoder().encode(repositoryId + ":" + projectName);
-    var latin1 = Array.from(utf8, function (byte) {
-        return String.fromCharCode(byte);
-    }).join("");
-    return btoa(latin1).replace(/\+/g, "-").replace(/\//g, "_");
-}

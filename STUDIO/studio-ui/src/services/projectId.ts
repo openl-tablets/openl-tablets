@@ -16,7 +16,8 @@ export const toUrlSafeId = (id: string): string => id.replaceAll('+', '-').repla
  * Prefer the id the server issued; rebuild one only when no request has returned it yet.
  */
 export const encodeProjectId = (repositoryId: string, projectName: string): string => {
-    // btoa() only accepts Latin-1, so a name outside US-ASCII has to be read as UTF-8 first.
+    // btoa() reads a string as Latin-1: it throws above U+00FF and silently mis-encodes the range
+    // below it, so the name is turned into UTF-8 bytes first and handed over one byte per char.
     const utf8 = new TextEncoder().encode(`${repositoryId}:${projectName}`)
     return toUrlSafeId(btoa(String.fromCharCode(...utf8)))
 }

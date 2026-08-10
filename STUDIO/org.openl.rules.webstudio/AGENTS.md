@@ -63,8 +63,9 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 - `decode()` accepts both alphabets, so an id kept in a bookmark or a script keeps working. Never tighten it to one
   alphabet.
 - Never hand a caller an id from anything but `encode()`. A hand-rolled `Base64.getEncoder()` reintroduces the slash.
-- A browser that has to build an id itself uses `encodeProjectId` — `common.js` for a JSF page, `services/projectId.ts`
-  for React. Never call `btoa` directly: it rejects any name outside Latin-1 and emits the standard alphabet.
+- A browser that has to build an id itself uses `encodeProjectId` from `studio-ui`'s `services/projectId.ts`; a legacy
+  JSF page reaches the same function as `globalThis.openl.encodeProjectId`. Never call `btoa` directly: it reads a
+  string as Latin-1, so it throws above U+00FF and mis-encodes the range below it, and it emits the standard alphabet.
 
 ## Request Validation
 
