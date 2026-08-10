@@ -580,7 +580,40 @@ describe('CreateTableModal', () => {
         ])
     })
 
-    it('refuses a Lookup that has nothing to look up by', async () => {
+    // A greyed-out button with a dozen fields above it leaves the author guessing which one it means.
+    it('names the reason while Create is unavailable, and drops it once it is not', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
+
+        // Nothing typed yet: the name is what stands between the author and the table.
+        expect(createButton()).toBeDisabled()
+        expect(screen.getByTestId('create-table-blocked'))
+            .toHaveTextContent('project:create_table_modal.blocked.table_name')
+
+        await enterTableName(user)
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'simpleRules')
+
+        // The signature is next, and it is named as soon as it is what blocks.
+        await user.clear(screen.getByTestId('create-table-result-type'))
+        await waitFor(() => expect(screen.getByTestId('create-table-blocked'))
+            .toHaveTextContent('project:create_table_modal.blocked.result_type'))
+
+        await user.type(screen.getByTestId('create-table-result-type'), 'Integer')
+
+        // A type with no name beside it is not an argument yet, and the dialog says which half is missing.
+        await user.type(screen.getByTestId('create-table-argument-type-0'), 'String')
+        await waitFor(() => expect(screen.getByTestId('create-table-blocked'))
+            .toHaveTextContent('project:create_table_modal.blocked.partial_argument'))
+
+        await user.type(screen.getByTestId('create-table-argument-name-0'), 'a')
+        await waitFor(() => expect(createButton()).toBeEnabled())
+        expect(screen.queryByTestId('create-table-blocked')).not.toBeInTheDocument()
+    })
+
+    // What reaches the server is the shape OpenL reads back: no title row, every row a rule from the first.
+    it('submits a one-argument Lookup without a row of column titles', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)
         await openModal()
@@ -588,11 +621,55 @@ describe('CreateTableModal', () => {
 
         await enterTableName(user)
         await user.selectOptions(screen.getByTestId('create-table-type'), 'simpleLookup')
-        // One argument cannot span two axes.
+        await user.clear(screen.getByTestId('create-table-result-type'))
+        await user.type(screen.getByTestId('create-table-result-type'), 'Integer')
+        await user.type(screen.getByTestId('create-table-argument-type-0'), 'String')
+        await user.type(screen.getByTestId('create-table-argument-name-0'), 'dd')
+
+        for (const [testid, value] of [['create-table-cell-0-0', 'Text1'], ['create-table-cell-0-1', '1']]) {
+            await user.clear(screen.getByTestId(testid!))
+            await user.type(screen.getByTestId(testid!), value!)
+        }
+        await user.click(createButton())
+
+        await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
+        expect(mockCreateTable.mock.calls[0]![1].table.source).toEqual([
+            [{ value: 'SimpleLookup Integer NewTable(String dd)', colspan: 2 }, { value: null, covered: true }],
+            [{ value: 'Text1' }, { value: '1' }],
+        ])
+    })
+
+    // A lookup looks its result up by its arguments; with none there is nothing to look up by at all.
+    it('refuses a Lookup with no arguments, and says so', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
+
+        await enterTableName(user)
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'simpleLookup')
+
+        expect(createButton()).toBeDisabled()
+        await waitFor(() => expect(screen.getByTestId('create-table-blocked'))
+            .toHaveTextContent('project:create_table_modal.blocked.lookup_arguments'))
+
+        await user.type(screen.getByTestId('create-table-argument-type-0'), 'String')
+        await user.type(screen.getByTestId('create-table-argument-name-0'), 'a')
+        await waitFor(() => expect(createButton()).toBeEnabled())
+    })
+
+    it('refuses a Lookup whose band has nothing to look up by', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
+
+        await enterTableName(user)
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'simpleLookup')
         await user.type(screen.getByTestId('create-table-argument-type-0'), 'String')
         await user.type(screen.getByTestId('create-table-argument-name-0'), 'make')
-        expect(createButton()).toBeDisabled()
 
+        // A second argument spreads the table over both axes, and the band appears with it.
         await user.type(screen.getByTestId('create-table-argument-type-1'), 'String')
         await user.type(screen.getByTestId('create-table-argument-name-1'), 'year')
         expect(createButton()).toBeEnabled()
