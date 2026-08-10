@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `6d08015a`**; every queue row done, every vein closed. Forty-six idle passes; expect
+- **Converged at `main` = `d03fb79d`**; every queue row done, every vein closed. Forty-seven idle passes; expect
   more. New scope arrives only as new commits on `main` — never invent a detector to manufacture work.
-- The idle pass is two calls: `git log 6d08015a..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log d03fb79d..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -80,7 +80,9 @@ None. Open the next one from a fresh branch off the current `main`.
 - **Search an accessor by the property name — the field's own name may never appear as a read.** Lombok
   `@Getter`/`@Setter` generate it, so `TablePart.partName` is reached only as `getPartName`; and a private field can
   exist solely to make a bean property writable — `JavaOpenClassTest.BeanA.gg` is read by no code, but `setGg` is
-  what makes the asserted `gg` property work.
+  what makes the asserted `gg` property work. Lombok also *replaces* deleted code: a diff dropping a hand-written
+  `@Autowired` constructor plus its import orphans none of its parameters once `@RequiredArgsConstructor` is on the
+  class, with any `@Qualifier` moved onto the field.
 - **A test bean is usually named from inside an `.xlsx`/`.xls`, which no text search can see** — `Bean1`, `Bean2`,
   `EPBDS7956`, `IChildBean`, `MyProp`. Unzip every Excel resource and search as UTF-8 and UTF-16LE first. A
   deliberately malformed bean is worse: `epbds6830.BeanA` feeds
@@ -371,7 +373,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-10 — run one hundred nine: forty-fourth idle pass, `main` unmoved at `b87a57e4`, no sweep PR open; no commit, 376 lines.
 - 08-10 — run one hundred ten: forty-fifth idle pass, `main` advanced to `6d08015a` by a URL-safe id fix, a demo
   index wait and a react-router bump — all additive or renamed in place, no orphan; no commit, 377 lines.
 - 08-10 — run one hundred eleven: forty-sixth idle pass, `main` unmoved at `6d08015a`, no sweep PR open; no commit, 377 lines.
+- 08-10 — run one hundred twelve: forty-seventh idle pass, `main` advanced to `d03fb79d` by a lazy design-repository
+  supplier, a Lombok constructor and an ITEST server-start helper — no orphan; no commit, 380 lines.
