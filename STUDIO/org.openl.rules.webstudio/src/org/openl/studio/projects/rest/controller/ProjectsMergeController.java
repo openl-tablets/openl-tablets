@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -129,8 +131,9 @@ public class ProjectsMergeController {
         validateUnresolvedConflict(project);
         // Refuse before opening the project: a merge that is not allowed must not pause the compilation.
         mergeService.validateMergeAllowed(project, request.otherBranch(), request.mode(), force);
-        var model = projectService.openProject(project).awaitCompiled();
-        var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
+        var wasOpened = project.isOpened();
+        var model = editorModelOf(project);
+        var dependencyManager = model == null ? null : model.getWebStudioWorkspaceDependencyManager();
         if (dependencyManager != null) {
             dependencyManager.pause();
         }
@@ -139,7 +142,6 @@ public class ProjectsMergeController {
         var nameAfterMerge = nameBeforeMerge;
         var realPath = project.getRealPath();
         var currentBranch = project.getBranch();
-        var wasOpened = project.isOpened();
         var repoId = project.getDesignRepository().getId();
         var shouldResumeDependencies = false;
         try {
@@ -166,7 +168,9 @@ public class ProjectsMergeController {
                     }
                 }
                 studio.reset();
-                model.clearModuleInfo();
+                if (model != null) {
+                    model.clearModuleInfo();
+                }
                 if (!nameAfterMerge.equals(nameBeforeMerge)) {
                     studio.init(repoId, currentBranch, nameAfterMerge, null);
                 }
@@ -216,9 +220,9 @@ public class ProjectsMergeController {
                 });
 
         var mergeOperation = mergeConflictInfo.isMerging();
-        var model = projectService.openProject(project).awaitCompiled();
-        var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
         var wasOpened = project.isOpened();
+        var model = editorModelOf(project);
+        var dependencyManager = model == null ? null : model.getWebStudioWorkspaceDependencyManager();
         var repositoryId = project.getDesignRepository().getId();
         var realPath = project.getRealPath();
         var currentBranch = project.getBranch();
@@ -257,7 +261,9 @@ public class ProjectsMergeController {
                     }
                 }
                 studio.reset();
-                model.clearModuleInfo();
+                if (model != null) {
+                    model.clearModuleInfo();
+                }
             } else {
                 shouldResumeDependencies = true;
             }
@@ -285,6 +291,20 @@ public class ProjectsMergeController {
         }
 
         conflictsSessionHolder.remove(projectId);
+    }
+
+    /**
+     * The editor model a merge has to keep consistent, or {@code null} when the project has none.
+     *
+     * <p>A merge is performed in the repository, so a closed project is merged just as well as an opened one.
+     * Only an opened project carries editor state — a compiled model, a dependency manager to pause, modules
+     * on screen — and only it is reopened afterwards.
+     *
+     * <p>Opening the project here instead would compile a project nobody is looking at, and it used to fail
+     * outright: the merge answered "the project is not opened" and refused — see EPBDS-16420.
+     */
+    private @Nullable ProjectModel editorModelOf(RulesProject project) {
+        return project.isOpened() ? projectService.openProject(project).awaitCompiled() : null;
     }
 
     private void validateUnresolvedConflict(RulesProject project) {
