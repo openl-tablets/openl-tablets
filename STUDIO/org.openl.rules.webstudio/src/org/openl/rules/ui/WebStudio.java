@@ -78,6 +78,7 @@ import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
@@ -162,6 +163,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProtectedBranchBypassService bypassService;
     private final ProjectIdentifierMapper projectIdentifierMapper;
+    private final ProjectStateValidator projectStateValidator;
 
     public WebStudio(RulesUserSession rulesUserSession,
                      TestSuiteExecutor testSuiteExecutor,
@@ -174,7 +176,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      ApplicationEventPublisher eventPublisher,
                      ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
                      ProtectedBranchBypassService bypassService,
-                     ProjectIdentifierMapper projectIdentifierMapper
+                     ProjectIdentifierMapper projectIdentifierMapper,
+                     ProjectStateValidator projectStateValidator
 
     ) {
         model = new ProjectModel(this, testSuiteExecutor);
@@ -189,6 +192,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.conflictsSessionHolder = conflictsSessionHolder;
         this.bypassService = bypassService;
         this.projectIdentifierMapper = projectIdentifierMapper;
+        this.projectStateValidator = projectStateValidator;
         authentication = SecurityContextHolder.getContext().getAuthentication();
         initWorkspace(rulesUserSession.getUserWorkspace());
         initUserSettings();
@@ -1112,15 +1116,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         try {
-            if (project.isModified()) {
-                return false;
-            }
-            var branchCount = rulesUserSession.getUserWorkspace()
-                    .getDesignTimeRepository()
-                    .getBranchedProject(project.getDesignRepository().getId(), project.getDesignProjectName())
-                    .map(branchedProject -> branchedProject.entries().size())
-                    .orElse(0);
-            if (branchCount < 2) {
+            // A merge target is any other branch of the repository, not only a branch that already holds the
+            // project: a project created in its own branch is merged into the base branch, which has never
+            // seen it. The server-side guard reads it the same way — see EPBDS-16410.
+            if (!projectStateValidator.canMerge(project)) {
                 return false;
             }
             // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
