@@ -113,7 +113,7 @@
         <kafka.version>4.3.1</kafka.version>
         <!-- Newer lz4-java than kafka-clients pulls in by default, fixing CVE-2026-59949.
              Remove once Kafka ships this version by default. -->
-        <lz4.version>1.11.1</lz4.version>
+        <lz4.version>1.11.2</lz4.version>
 
         <!-- Open Telemetry -->
         <!-- !!! also in the Dockerfile !!! -->
