@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import jakarta.annotation.PostConstruct;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
@@ -43,32 +43,19 @@ import org.openl.studio.repositories.service.ProjectCreationService;
 @Component
 @ConditionalOnProperty(name = "demo.init", havingValue = "true")
 @DependsOn("singleUserModeInit")
+@RequiredArgsConstructor
 @Slf4j
 public class DemoInit {
 
     private final TemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
 
+    @Qualifier("zipFilter")
     private final PathFilter zipFilter;
     private final MultiUserWorkspaceManager workspaceManager;
     private final DeploymentManager deploymentManager;
     private final UserManagementService userManagementService;
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectCreationService projectCreationService;
-
-    @Autowired
-    public DemoInit(@Qualifier("zipFilter") PathFilter zipFilter,
-                    MultiUserWorkspaceManager workspaceManager,
-                    DeploymentManager deploymentManager,
-                    UserManagementService userManagementService,
-                    AclProjectsHelper aclProjectsHelper,
-                    ProjectCreationService projectCreationService) {
-        this.zipFilter = zipFilter;
-        this.workspaceManager = workspaceManager;
-        this.deploymentManager = deploymentManager;
-        this.userManagementService = userManagementService;
-        this.aclProjectsHelper = aclProjectsHelper;
-        this.projectCreationService = projectCreationService;
-    }
 
     @PostConstruct
     public void init() {
