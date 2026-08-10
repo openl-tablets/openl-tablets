@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `b87a57e4`**; every queue row done, every vein closed. Forty-four idle passes; expect
+- **Converged at `main` = `6d08015a`**; every queue row done, every vein closed. Forty-five idle passes; expect
   more. New scope arrives only as new commits on `main` — never invent a detector to manufacture work.
-- The idle pass is two calls: `git log b87a57e4..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log 6d08015a..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -112,7 +112,8 @@ None. Open the next one from a fresh branch off the current `main`.
   shared module the same diff newly imports — a file-local `encodeProjectId` returned as `toUrlSafeId` in
   `services/projectId` — or into a new method of a collaborator the caller already constructs, which is where a
   deleted **inline condition** goes, so read the added imports and the collaborator too. A deleted `import` or JSX line
-  returns with one more name on it, so grep the post-image file, never the diff alone.
+  returns with one more name on it, so grep the post-image file, never the diff alone. Two siblings also swap: the
+  whole of `ProjectIdModel.encode` was deleted while `encodeUrlSafe` took over its name and its `@JsonValue`.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
@@ -370,7 +371,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-10 — run one hundred seven: forty-second idle pass, `main` advanced to `b87a57e4` by four root-pom version
-  bumps only; no sweep PR open; no commit, 376 lines.
 - 08-10 — run one hundred eight: forty-third idle pass, `main` unmoved at `b87a57e4`, no sweep PR open; no commit, 376 lines.
 - 08-10 — run one hundred nine: forty-fourth idle pass, `main` unmoved at `b87a57e4`, no sweep PR open; no commit, 376 lines.
+- 08-10 — run one hundred ten: forty-fifth idle pass, `main` advanced to `6d08015a` by a URL-safe id fix, a demo
+  index wait and a react-router bump — all additive or renamed in place, no orphan; no commit, 377 lines.
