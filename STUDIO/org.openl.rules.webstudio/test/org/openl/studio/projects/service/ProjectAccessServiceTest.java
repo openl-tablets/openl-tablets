@@ -1,7 +1,9 @@
 package org.openl.studio.projects.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -178,5 +180,35 @@ class ProjectAccessServiceTest {
         // The branch itself must be deletable in the first place — the base branch never is.
         when(stateValidator.canDeleteBranch(rulesProject)).thenReturn(false);
         assertNull(service.computeCapabilities(rulesProject).canDeleteBranch());
+    }
+
+    // The Copy dialog offers a new project, a new branch, or both, so either right opens it — and it answers
+    // the same as the capabilities it is derived from.
+    @Test
+    void copying_needs_either_a_repository_to_create_in_or_a_branch_to_cut() {
+        assertFalse(service.canCopyOrBranch(project));
+
+        when(listingContext.canCreateInAnyRepository(any())).thenReturn(true);
+        assertTrue(service.canCopyOrBranch(project));
+        assertEquals(Boolean.TRUE, service.computeCapabilities(project).canCopy());
+
+        // No repository to create in, but the project may be branched instead.
+        when(listingContext.canCreateInAnyRepository(any())).thenReturn(false);
+        when(project.isSupportsBranches()).thenReturn(true);
+        grant(BasePermission.WRITE);
+        assertTrue(service.canCopyOrBranch(project));
+        assertEquals(Boolean.TRUE, service.computeCapabilities(project).canManageBranches());
+    }
+
+    @Test
+    void a_local_only_project_is_neither_copied_nor_branched() {
+        when(project.isLocalOnly()).thenReturn(true);
+        when(listingContext.canCreateInAnyRepository(any())).thenReturn(true);
+        when(project.isSupportsBranches()).thenReturn(true);
+        grant(BasePermission.WRITE);
+
+        assertFalse(service.canCopyOrBranch(project));
+        assertNull(service.computeCapabilities(project).canCopy());
+        assertNull(service.computeCapabilities(project).canManageBranches());
     }
 }

@@ -73,6 +73,7 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
+import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
@@ -164,6 +165,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final ProtectedBranchBypassService bypassService;
     private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ProjectStateValidator projectStateValidator;
+    private final ProjectAccessService projectAccessService;
 
     public WebStudio(RulesUserSession rulesUserSession,
                      TestSuiteExecutor testSuiteExecutor,
@@ -177,7 +179,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
                      ProtectedBranchBypassService bypassService,
                      ProjectIdentifierMapper projectIdentifierMapper,
-                     ProjectStateValidator projectStateValidator
+                     ProjectStateValidator projectStateValidator,
+                     ProjectAccessService projectAccessService
 
     ) {
         model = new ProjectModel(this, testSuiteExecutor);
@@ -193,6 +196,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.bypassService = bypassService;
         this.projectIdentifierMapper = projectIdentifierMapper;
         this.projectStateValidator = projectStateValidator;
+        this.projectAccessService = projectAccessService;
         authentication = SecurityContextHolder.getContext().getAuthentication();
         initWorkspace(rulesUserSession.getUserWorkspace());
         initUserSettings();
@@ -1105,6 +1109,27 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Whether the editor offers Copy for the project it has open.
+     *
+     * <p>The question is answered by the service the REST capabilities are built from, so the button and the
+     * dialog are offered on one rule rather than on two that can drift apart — see EPBDS-16414.
+     */
+    public boolean getCanCopy() {
+        RulesProject project = getCurrentProject();
+        if (project == null) {
+            return false;
+        }
+        try {
+            return projectAccessService.canCopyOrBranch(project);
+        } catch (RuntimeException e) {
+            // A page renders this on every request, and an unreachable repository fails it every time, so the
+            // cause is logged once per render at a level that does not bury the errors worth reading.
+            log.warn("Cannot tell whether project '{}' can be copied: {}", project.getName(), e.getMessage());
+            return false;
         }
     }
 

@@ -176,6 +176,8 @@ i18next.addResourceBundle('en', 'repository', {
         },
         copy_dialog: {
             title: 'Copy project',
+            load_failed: 'Failed to load the project to copy',
+            repositories_failed: 'Failed to load the repositories to copy into. Only a new branch can be created.',
             project_name: 'Project Name',
             as_new_project: 'Create a New Project',
             current_branch: 'Current Branch',

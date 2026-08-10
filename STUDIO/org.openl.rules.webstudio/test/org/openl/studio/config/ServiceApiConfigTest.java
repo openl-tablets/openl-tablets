@@ -33,6 +33,7 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
@@ -82,6 +83,7 @@ class ServiceApiConfigTest {
                 mock(ProtectedBranchBypassService.class),
                 mock(ProjectIdentifierMapper.class),
                 mock(ProjectStateValidator.class),
+                mock(ProjectAccessService.class),
                 session);
 
         assertSame(rulesUserSession, session.getAttribute(Constants.RULES_USER_SESSION));

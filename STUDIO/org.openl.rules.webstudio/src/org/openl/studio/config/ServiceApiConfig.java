@@ -26,6 +26,7 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
@@ -71,6 +72,7 @@ public class ServiceApiConfig {
                                              ProtectedBranchBypassService bypassService,
                                              ProjectIdentifierMapper projectIdentifierMapper,
                                              ProjectStateValidator projectStateValidator,
+                                             ProjectAccessService projectAccessService,
                                              HttpSession httpSession) {
         var rulesUserSession = new RulesUserSession();
         rulesUserSession.setUserName(currentUserInfo.getUserName());
@@ -89,7 +91,8 @@ public class ServiceApiConfig {
                 conflictsSessionHolder,
                 bypassService,
                 projectIdentifierMapper,
-                projectStateValidator);
+                projectStateValidator,
+                projectAccessService);
         rulesUserSession.setWebStudio(webStudio);
         WebStudioUtils.registerRulesUserSession(httpSession, rulesUserSession);
         return rulesUserSession;

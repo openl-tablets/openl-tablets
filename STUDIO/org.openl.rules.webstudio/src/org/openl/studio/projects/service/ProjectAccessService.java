@@ -69,18 +69,46 @@ public class ProjectAccessService {
                 .canViewHistory(flag(readShared))
                 .canManage(flag(administer && !localOnly))
                 // Copy creates a new project in a repository the user picks, so it mirrors the copy dialog's
-                // repository list: available when the user can create a project in any repository (permission
-                // and, for branch repositories, an unprotected branch) — not just the source repository.
-                .canCopy(flag(!localOnly && listingContext.canCreateInAnyRepository(
-                        designTimeRepositoryService::canCreateInAnyRepository)))
-                // Branching, merging and deleting a branch are governed by write access to the project
-                // itself, not by the permission to create a project, so the Copy dialog can offer a branch
-                // to a user who may not create projects at all. The exact per-artefact check, the branch
-                // protection and the base-branch rule are enforced when the operation runs.
-                .canManageBranches(flag(!localOnly && workspaceProject.isSupportsBranches() && write))
+                // repository list — not just the source repository.
+                .canCopy(flag(!localOnly && canCreateSomewhere()))
+                .canManageBranches(flag(!localOnly && canBranch(workspaceProject, write)))
                 .canDeleteBranch(flag(canDeleteBranch(workspaceProject, write, delete)))
                 .canExport(flag(readShared))
                 .build();
+    }
+
+    /**
+     * Whether the Copy dialog has anything to offer for this project.
+     *
+     * <p>A copy is either a new project in some repository or a new branch of this one, so either right is
+     * enough. A local-only project is neither copied nor branched.
+     *
+     * <p>Answering this alone, rather than through {@link #computeCapabilities(AProject)}, keeps the two
+     * flags it reads from costing the eleven it does not — this is asked while a page renders.
+     */
+    public boolean canCopyOrBranch(UserWorkspaceProject project) {
+        if (project.isLocalOnly()) {
+            return false;
+        }
+        // One permission probe on the project, so it is asked before the repository scan: a page evaluates
+        // this on every render, and whoever is editing the project usually answers it here.
+        return canBranch(project, aclProjectsHelper.hasPermission(project, BasePermission.WRITE))
+                || canCreateSomewhere();
+    }
+
+    /** Whether a project may be created in any repository at all — the target list a copy picks from. */
+    private boolean canCreateSomewhere() {
+        return listingContext.canCreateInAnyRepository(designTimeRepositoryService::canCreateInAnyRepository);
+    }
+
+    /**
+     * Whether branches of this project may be managed. Branching is governed by write access to the project
+     * itself, not by the permission to create a project, so a user who may not create projects can still
+     * branch. The per-artefact check, the branch protection and the base-branch rule are enforced when the
+     * operation runs.
+     */
+    private boolean canBranch(UserWorkspaceProject project, boolean write) {
+        return project.isSupportsBranches() && write;
     }
 
     /**

@@ -209,5 +209,13 @@ const apiCall = async (
 /** Coerce an unknown API response to an array, defaulting to empty when it is not one. */
 export const asArray = <T>(value: unknown): T[] => (Array.isArray(value) ? value : [])
 
+/**
+ * Options for a read whose failure the caller reports itself.
+ *
+ * <p>Without them a 403, 404 or 500 also flips the application store and paints the full-page error screen
+ * over whatever the user was doing, so a locally handled failure would be reported twice.
+ */
+export const LOCAL_LOAD_API_OPTIONS = { throwError: true, suppressErrorPages: true } satisfies ApiCallOptions
+
 export { ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError }
 export default apiCall

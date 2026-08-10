@@ -123,6 +123,11 @@
                                title="Deploy the project"
                                rendered="#{studio.canRedeploy}">
                 </h:commandLink>
+                <h:commandLink styleClass="changes-listener"
+                               onclick="openCopyProjectDialog(); return false;"
+                               id="copyProjectButton"
+                               value="Copy" title="Copy project"
+                               rendered="#{studio.canCopy}"/>
                 <h:commandLink
                         onclick="if (!canOverwriteRevision()) return false; openUpdateProjectDialog();return false;"
                         id="updateProjectButton"
@@ -383,6 +388,17 @@
             }).fail(() => {
                 alert("Failed to load project information.");
             });
+        }
+
+        // Opens the React copy-project modal, the same one the Projects tab uses. Only the project id
+        // travels: the modal reads the project and the repositories it may copy into by itself.
+        function openCopyProjectDialog() {
+            globalThis.dispatchEvent(new CustomEvent('openCopyProjectModal', {
+                detail: {
+                    projectId: '#{studio.currentProjectId}',
+                    onSuccess: () => ws.nav.reload(true)
+                }
+            }));
         }
 
         // Opens the React update-project modal (mounted by studio-ui in #appRoot). The projectId

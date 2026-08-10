@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react'
 import { errorMessage } from '../utils/errorMessage'
+import { creatableRepositories } from '../utils/repositoryFeatures'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Alert, Button, Empty, notification, Pagination, Skeleton, Spin, type InputRef } from 'antd'
@@ -11,6 +12,7 @@ import {
     setProjectStatus,
 } from '../services/repositories'
 import { ProjectStatus } from '../constants/project'
+import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
 import type { Repository, RepositoryInfo } from '../types/repositories'
 import type {
@@ -58,7 +60,6 @@ interface ProjectFacets {
 }
 
 const SEARCH_DEBOUNCE_MS = 300
-const LOCAL_LOAD_API_OPTIONS = { throwError: true, suppressErrorPages: true } as const
 
 const useStyles = createStyles(({ css, token }) => ({
     compileStrip: css`
@@ -467,10 +468,7 @@ export const ProjectsHome = () => {
         () => ({ features: { branches: false, searchable: false, mappedFolders: false }, name: t('home.local'), type: 'repo-file' }),
         [t]
     )
-    const creatableRepos = useMemo(
-        () => repositories.filter(repo => repo.capabilities?.canCreateProject),
-        [repositories]
-    )
+    const creatableRepos = useMemo(() => creatableRepositories(repositories), [repositories])
     const compileStatusByProject = useMemo(
         () => new Map<string, ProjectStatusUpdate>(compileStatuses.map(status => [status.projectId, status])),
         [compileStatuses]

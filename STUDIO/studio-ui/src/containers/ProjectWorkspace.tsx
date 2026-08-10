@@ -16,12 +16,13 @@ import { NotFoundError } from '../services'
 import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS, projectSignature } from '../services/projectIndex'
 import { useLiveProjectChanges, useLoadGeneration, useWindowFocus } from '../hooks'
 import { ProjectStatus } from '../constants/project'
+import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import type { Repository } from '../types/repositories'
 import type { Project } from '../types/projects'
 import type { FsNode } from '../types/files'
 import { ProjectDetail } from './projects/ProjectDetail'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
-import { supportsBranches } from '../utils/repositoryFeatures'
+import { creatableRepositories, supportsBranches } from '../utils/repositoryFeatures'
 import { SaveProjectModal } from './projects/SaveProjectModal'
 import { CopyProjectModal } from './projects/CopyProjectModal'
 import { ExportProjectModal } from './projects/ExportProjectModal'
@@ -35,7 +36,6 @@ import { ProjectsRail } from './projects/ProjectsRail'
 import type { NodeFilters } from './projects/projectGrouping'
 import { toUrlSafeId } from '../services/projectId'
 
-const LOCAL_LOAD_API_OPTIONS = { throwError: true, suppressErrorPages: true } as const
 
 const useStyles = createStyles(({ css, token }) => ({
     page: css`
@@ -262,10 +262,7 @@ export const ProjectWorkspace = () => {
         repoLabel = repoInfo?.name ?? (local ? t('home.local') : project.repository)
         repoType = repoInfo?.type ?? (local ? 'repo-file' : undefined)
     }
-    const creatableRepos = useMemo(
-        () => (repositories ?? []).filter(repo => repo.capabilities?.canCreateProject),
-        [repositories]
-    )
+    const creatableRepos = useMemo(() => creatableRepositories(repositories), [repositories])
 
     // Fetch the project's files only when the Files tab becomes visible. A failed fetch shows an error state,
     // retried on the next project reload.

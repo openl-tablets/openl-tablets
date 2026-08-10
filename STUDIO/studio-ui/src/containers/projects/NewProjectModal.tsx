@@ -34,7 +34,7 @@ import { branchMarksFromConfig } from './configBranchMarks'
 import { RepoFolderInput } from './RepoFolderInput'
 import { ProjectStatus } from '../../constants/project'
 import { useSharedStyles } from './sharedStyles'
-import { supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
+import { creatableRepositories, supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
 import { inspectOpenLArchive, zipProjectFolder, type OpenLArchiveInfo } from '../../utils/openlArchive'
 import { useCommitInfoGuard, useRepositoryConfig } from '../../hooks'
 import { suggestComment, validateBranchName } from '../../utils/repositoryConfig'
@@ -298,10 +298,7 @@ export const NewProjectModal = ({
     const inspectSeq = useRef(0)
     const templatesLoaded = useRef(false)
 
-    const creatableRepos = useMemo(
-        () => repositories.filter(repo => repo.capabilities?.canCreateProject),
-        [repositories]
-    )
+    const creatableRepos = useMemo(() => creatableRepositories(repositories), [repositories])
     const repoOptions = creatableRepos
     const repository = useMemo(() => creatableRepos.find(repo => repo.id === repoId) ?? null, [creatableRepos, repoId])
     const repositorySupportsFolders = supportsMappedFolders(repository)
