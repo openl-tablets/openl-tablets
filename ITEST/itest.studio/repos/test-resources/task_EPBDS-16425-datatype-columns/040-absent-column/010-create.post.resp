@@ -1,0 +1,12 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "5f742658453772e447fa335f60edb8ce",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "LegacyType",
+  "file": "EPBDS-16425-Columns/Main.xlsx",
+  "pos": "B2:D3"
+}
+

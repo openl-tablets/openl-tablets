@@ -9,7 +9,8 @@ Content-Type: application/json
   "fields": [
     {
       "name": "code",
-      "type": "String"
+      "type": "String",
+      "description": "a description, not a default"
     }
   ]
 }
