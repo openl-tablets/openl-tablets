@@ -4,9 +4,9 @@ State memory for the daily sweep of openl-tablets. Read in full at the start of 
 
 ## Resume point
 
-- **Converged at `main` = `d03fb79d`**; every queue row done, every vein closed. Forty-seven idle passes; expect
+- **Converged at `main` = `88f0f8ad`**; every queue row done, every vein closed. Forty-eight idle passes; expect
   more. New scope arrives only as new commits on `main` — never invent a detector to manufacture work.
-- The idle pass is two calls: `git log d03fb79d..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log 88f0f8ad..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -113,7 +113,9 @@ None. Open the next one from a fresh branch off the current `main`.
   same stem, and a deleted local's body for a new constant, before calling either an orphan. It may also move into a
   shared module the same diff newly imports — a file-local `encodeProjectId` returned as `toUrlSafeId` in
   `services/projectId` — or into a new method of a collaborator the caller already constructs, which is where a
-  deleted **inline condition** goes, so read the added imports and the collaborator too. A deleted `import` or JSX line
+  deleted **inline condition** goes, so read the added imports and the collaborator too. When one diff deletes the
+  *same* lines from several files, a const or a duplicated hook body has been promoted to one new named export.
+  A deleted `import` or JSX line
   returns with one more name on it, so grep the post-image file, never the diff alone. Two siblings also swap: the
   whole of `ProjectIdModel.encode` was deleted while `encodeUrlSafe` took over its name and its `@JsonValue`.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
@@ -156,7 +158,8 @@ None. Open the next one from a fresh branch off the current `main`.
   For a linter, plant a violation and confirm it is reported.
 - For any deadness check on a type **or a member**, "appears in one file" is not enough — count occurrences
   **inside** that file too. This one rule killed every member candidate ever raised: a secondary top-level class
-  used by its file's primary class, and a helper called only by its own file's other methods, both look orphaned.
+  used by its file's primary class, a helper called only by its own file's other methods, and a TS type alias read
+  only by a sibling interface's field, all look orphaned.
 - **Run two independent Java detectors and resolve the union.** A brace-tracking parser silently drops members behind
   an annotation or a multi-line signature; an indent-based one drops nested members and reports interface members,
   which are implicitly public. Their disagreement is where the bugs are.
@@ -373,8 +376,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-10 — run one hundred ten: forty-fifth idle pass, `main` advanced to `6d08015a` by a URL-safe id fix, a demo
-  index wait and a react-router bump — all additive or renamed in place, no orphan; no commit, 377 lines.
 - 08-10 — run one hundred eleven: forty-sixth idle pass, `main` unmoved at `6d08015a`, no sweep PR open; no commit, 377 lines.
 - 08-10 — run one hundred twelve: forty-seventh idle pass, `main` advanced to `d03fb79d` by a lazy design-repository
   supplier, a Lombok constructor and an ITEST server-start helper — no orphan; no commit, 380 lines.
+- 08-10 — run one hundred thirteen: forty-eighth idle pass, `main` advanced to `88f0f8ad` by four merge-and-copy
+  feature commits — every deletion a promotion into a shared helper or a signature gaining a parameter; no commit, 383 lines.
