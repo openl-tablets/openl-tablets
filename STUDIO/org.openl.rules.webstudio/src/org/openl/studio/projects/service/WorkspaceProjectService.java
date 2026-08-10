@@ -87,6 +87,7 @@ import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.model.BranchScope;
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.DescriptorViewModel;
 import org.openl.studio.projects.model.ModuleViewModel;
@@ -130,6 +131,7 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -1303,14 +1305,18 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 new RepositoryFeatures(repository.supports()));
     }
 
-    public List<ProjectBranchInfo> getBranches(RulesProject project) {
+    /**
+     * Lists the branches of a project, in the given {@link BranchScope}, each marked as protected and as the
+     * repository base branch.
+     */
+    public List<ProjectBranchInfo> getBranches(RulesProject project, BranchScope scope) {
         if (!project.isSupportsBranches()) {
             throw new ConflictException("project.branch.unsupported.message");
         }
         requireGranted(project, BasePermission.READ);
         var repository = unwrapBranchRepository(project.getDesignRepository());
         var baseBranch = repository.getBaseBranch();
-        return projectBranches(project).stream()
+        return branchNames(repository, project, scope).stream()
                 .map(branch -> ProjectBranchInfo.builder()
                         .name(branch)
                         .protectedFlag(repository.isBranchProtected(branch))
@@ -1343,6 +1349,30 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private void requireDeletePermission(AProject project) {
         if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
             throw new ForbiddenException("project.branch.delete.last.message");
+        }
+    }
+
+    private List<String> branchNames(BranchRepository repository, RulesProject project, BranchScope scope) {
+        var projectBranches = projectBranches(project);
+        return switch (scope) {
+            case PROJECT -> projectBranches;
+            case REPOSITORY -> repositoryBranches(repository, projectBranches);
+        };
+    }
+
+    /**
+     * Every branch of the repository, ordered case-insensitively.
+     *
+     * <p>A repository that cannot be read answers with the branches holding the project, so a project never
+     * loses the branch it is on.
+     */
+    private List<String> repositoryBranches(BranchRepository repository, List<String> projectBranches) {
+        try {
+            return List.copyOf(Stream.concat(repository.listBranches().stream(), projectBranches.stream())
+                    .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER)));
+        } catch (IOException e) {
+            log.warn("Cannot list the branches of repository '{}'.", repository.getId(), e);
+            return projectBranches;
         }
     }
 

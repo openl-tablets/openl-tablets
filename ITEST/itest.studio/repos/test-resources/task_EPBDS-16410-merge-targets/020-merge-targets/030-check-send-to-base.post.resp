@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "sourceBranch": "EPBDS-16410-feature",
+  "targetBranch": "master",
+  "status": "mergeable",
+  "canMerge": true
+}

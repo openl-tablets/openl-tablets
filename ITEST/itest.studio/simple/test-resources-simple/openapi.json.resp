@@ -6979,6 +6979,20 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "scope",
+            "schema": {
+              "type": "string",
+              "default": "project",
+              "description": "***",
+              "enum": [
+                "project",
+                "repository"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {

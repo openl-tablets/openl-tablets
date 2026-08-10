@@ -33,6 +33,17 @@ describe('branch dialogs', () => {
         remove.stop()
     })
 
+    // The dialogs seed with the branches that hold the project; the merge dialog widens the list to the
+    // whole repository on demand, from inside the modal — see EPBDS-16411.
+    it('seeds the dialogs with the branches holding the project', async () => {
+        await openMergeDialog(project, vi.fn())
+        await openDeleteBranchDialog(project, vi.fn())
+
+        expect(getProjectBranches).toHaveBeenCalledTimes(2)
+        expect(getProjectBranches).toHaveBeenNthCalledWith(1, 'p1')
+        expect(getProjectBranches).toHaveBeenNthCalledWith(2, 'p1')
+    })
+
     it('opens the merge dialog seeded with the project branches', async () => {
         const onSuccess = vi.fn()
 

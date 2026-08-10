@@ -515,9 +515,22 @@ export async function openProjectRevision(
     await patchProject(projectId, body)
 }
 
-/** List the branches available for a project (only meaningful for repositories that support branches). */
-export async function getProjectBranches(projectId: string): Promise<ProjectBranch[]> {
-    const response = await apiCall(`/projects/${encodeURIComponent(projectId)}/branches`, undefined, { throwError: true })
+/**
+ * List the branches available for a project (only meaningful for repositories that support branches).
+ *
+ * `project` scope answers with the branches that hold the project; `repository` scope answers with every
+ * branch, which is what a merge target list needs.
+ */
+export async function getProjectBranches(
+    projectId: string,
+    scope: 'project' | 'repository' = 'project',
+    options: ApiCallOptions = {}
+): Promise<ProjectBranch[]> {
+    const response = await apiCall(
+        `/projects/${encodeURIComponent(projectId)}/branches?scope=${scope}`,
+        undefined,
+        { throwError: true, ...options }
+    )
     return asArray(response)
 }
 
