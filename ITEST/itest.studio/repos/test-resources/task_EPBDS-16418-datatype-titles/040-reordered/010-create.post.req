@@ -1,0 +1,19 @@
+POST /rest/projects/EPBDS-16418-Titles/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Datatypes",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Datatype",
+    "name": "ReorderedType",
+    "source": [
+      [{"value": "Datatype ReorderedType", "colspan": 3}, {"value": null, "covered": true}, {"value": null, "covered": true}],
+      [{"value": "Name"}, {"value": "Type"}, {"value": "Description"}],
+      [{"value": "code"}, {"value": "String"}, {"value": "a description, not a default"}]
+    ]
+  }
+}
+

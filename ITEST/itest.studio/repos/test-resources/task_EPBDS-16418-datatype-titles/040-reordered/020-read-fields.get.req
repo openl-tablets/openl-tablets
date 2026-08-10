@@ -1,0 +1,3 @@
+GET /rest/projects/EPBDS-16418-Titles/tables/bbc50931e5dc019793eb6c9300ab6c25 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+
