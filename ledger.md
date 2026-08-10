@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- **Converged at `main` = `e0db8f94`**; every queue row done, every vein closed. Fifty-one idle passes; expect
+- **Converged at `main` = `1c6ad54d`**; every queue row done, every vein closed. Fifty-two idle passes; expect
   more. New scope arrives only as new commits on `main` — never invent a detector to manufacture work.
-- The idle pass is two calls: `git log e0db8f94..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log 1c6ad54d..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -376,7 +376,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-10 — run 114: forty-ninth idle pass, `main` unmoved at `88f0f8ad`, no sweep PR open; no commit.
 - 08-10 — run 115: fiftieth idle pass, `main` to `5acdedc6` by one lookup-dialog commit, deletions replaced in place.
 - 08-10 — run 116: fifty-first idle pass, `main` to `e0db8f94` by one datatype-titles commit that promoted the
   title-row rule into `DatatypeHelper`, orphaning nothing; no commit, 382 lines.
+- 08-10 — run 117: fifty-second idle pass, `main` to `1c6ad54d` by one datatype-columns commit; its deletions all
+  returned — the writer's column constants into a new `DatatypeLayout`, the `required` field as `mandatory`.
