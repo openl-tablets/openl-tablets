@@ -94,8 +94,15 @@ the branch menu is opened. Proceed as follows:
     | Receive their updates | Changes from a selected branch are copied to the currently active branch.     |
     | Send your updates     | Changes from the currently active branch are uploaded to the selected branch. |
 
-    The selected target does not have to contain the project yet. Synchronizing a clean project can introduce it into
-    another repository branch.
+    **Merge with branch** lists the branches that hold the project. To merge into a branch that does not hold it
+    yet — the main branch, for a project created in its own branch — select **Show every branch of the
+    repository**. A project whose only branch is the current one offers that wider list right away, so the
+    target can always be selected. Synchronizing a clean project introduces it into the selected branch, and the
+    dialog says so when the selected branch does not hold the project yet.
+
+    ![](images/sync-merge-with-branch.png)
+
+    *Selecting a branch that does not hold the project yet*
 
     If upon saving there is a conflict due to updates in the same module sheet, the **Resolve Conflicts** dialog appears.
 

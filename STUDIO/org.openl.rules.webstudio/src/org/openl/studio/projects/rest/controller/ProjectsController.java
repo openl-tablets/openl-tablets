@@ -66,6 +66,7 @@ import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
+import org.openl.studio.projects.model.BranchScope;
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.MigrationScope;
 import org.openl.studio.projects.model.ModuleViewModel;
@@ -315,8 +316,11 @@ public class ProjectsController {
 
     @GetMapping("/{projectId}/branches")
     @Operation(summary = "projects.branch.list.summary")
-    public List<ProjectBranchInfo> getBranches(@ProjectId @PathVariable("projectId") RulesProject project) {
-        return projectService.getBranches(project);
+    public List<ProjectBranchInfo> getBranches(@ProjectId @PathVariable("projectId") RulesProject project,
+                                               @Parameter(description = "projects.branch.list.param.scope.desc")
+                                               @RequestParam(value = "scope", required = false,
+                                                       defaultValue = "project") BranchScope scope) {
+        return projectService.getBranches(project, scope);
     }
 
     @DeleteMapping("/{projectId}/branches/{*branch}")

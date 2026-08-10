@@ -7,6 +7,13 @@ i18next.addResourceBundle('en', 'merge', {
         current: 'Current branch',
         target: 'Merge with branch',
         select_placeholder: 'Select a branch',
+        show_all: 'Show every branch of the repository',
+        load_failed: 'Could not read the branches of the repository.',
+        target_without_project: 'Branch "{{branch}}" does not hold this project yet. '
+            + 'Sending your updates creates the project there.',
+        show_all_hint: 'By default only the branches that hold this project are offered. '
+            + 'Turn this on to merge into a branch that does not hold it yet, such as the main branch '
+            + 'for a project created in its own branch.',
     },
 
     actions: {

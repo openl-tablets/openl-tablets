@@ -7,7 +7,7 @@ import { apiCall, NotFoundError } from '../../services'
 import { errorMessage } from '../../utils/errorMessage'
 import { MergeBranchesStep } from './MergeBranchesStep'
 import { ConflictResolutionStep } from './ConflictResolutionStep'
-import { ConflictDetails, ConflictGroup, MergeModalDetail, MergeResultResponse, MergeStep } from './types'
+import { BranchInfo, ConflictDetails, ConflictGroup, MergeModalDetail, MergeResultResponse, MergeStep } from './types'
 import { openMergeConflictCompare } from './mergeConflictCompare'
 
 /**
@@ -26,6 +26,9 @@ export const MergeModal: React.FC = () => {
 
     // Conflict state
     const [conflictGroups, setConflictGroups] = useState<ConflictGroup[]>([])
+    // The branch list the opener seeded, kept in state so a list widened inside the branches step also
+    // carries its marks into the conflict step.
+    const [branches, setBranches] = useState<BranchInfo[]>([])
 
     // Check for existing conflicts when modal opens
     // 404 means no conflicts - this is expected, so we suppress error pages
@@ -60,6 +63,7 @@ export const MergeModal: React.FC = () => {
             // Reset state when modal opens
             setCurrentStep('branches')
             setConflictGroups([])
+            setBranches(detail.branches)
             // Check for existing unresolved conflicts
             checkExistingConflicts(detail.projectId).then((hasConflicts) => {
                 if (!hasConflicts && detail.initialStep !== 'conflicts') {
@@ -161,6 +165,7 @@ export const MergeModal: React.FC = () => {
                     <MergeBranchesStep
                         branches={detail.branches}
                         currentBranch={detail.currentBranch}
+                        onBranchesWidened={setBranches}
                         onCheckCommitInfo={handleCheckCommitInfo}
                         onMergeConflicts={handleMergeConflicts}
                         onMergeSuccess={handleMergeSuccess}
@@ -172,7 +177,7 @@ export const MergeModal: React.FC = () => {
                 )}
                 {detail && currentStep === 'conflicts' && (
                     <ConflictResolutionStep
-                        branches={detail.branches}
+                        branches={branches}
                         conflictGroups={conflictGroups}
                         onCancel={handleCancelMerge}
                         onCompare={handleCompare}

@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,6 +81,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.model.BranchScope;
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
@@ -127,13 +129,63 @@ class WorkspaceProjectServiceTest {
         when(repository.getBaseBranch()).thenReturn("main");
         when(repository.isBranchProtected("main")).thenReturn(true);
 
-        var result = service.getBranches(project);
+        var result = service.getBranches(project, BranchScope.PROJECT);
 
         assertEquals(List.of("feature", "main"), result.stream().map(ProjectBranchInfo::name).toList());
         assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::base).toList());
         assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::protectedFlag).toList());
         verify(repository, never()).listBranches();
         verify(repository, never()).getBranchStatuses(any());
+    }
+
+    /**
+     * A project created in its own branch is merged into the base branch, which has never held it, so the
+     * merge target list covers the whole repository — see EPBDS-16410 and EPBDS-16411.
+     */
+    @Test
+    void get_branches_of_the_repository_offers_a_branch_that_does_not_hold_the_project() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var project = mock(RulesProject.class);
+        var repository = mock(BranchRepository.class);
+        var workspace = workspaceFor(project);
+
+        when(project.isSupportsBranches()).thenReturn(true);
+        when(project.getDesignRepository()).thenReturn(repository);
+        when(repository.getId()).thenReturn("design");
+        mockMembership(workspace, project, "feature");
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), workspace);
+        when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
+        when(repository.getBaseBranch()).thenReturn("main");
+        when(repository.listBranches()).thenReturn(List.of("main", "feature"));
+
+        var result = service.getBranches(project, BranchScope.REPOSITORY);
+
+        assertEquals(List.of("feature", "main"), result.stream().map(ProjectBranchInfo::name).toList());
+        assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::base).toList());
+    }
+
+    /**
+     * The repository listing keeps the branch the project is on even when the repository cannot be read.
+     */
+    @Test
+    void get_branches_of_the_repository_falls_back_to_the_branches_holding_the_project() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var project = mock(RulesProject.class);
+        var repository = mock(BranchRepository.class);
+        var workspace = workspaceFor(project);
+
+        when(project.isSupportsBranches()).thenReturn(true);
+        when(project.getDesignRepository()).thenReturn(repository);
+        when(repository.getId()).thenReturn("design");
+        mockMembership(workspace, project, "feature");
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), workspace);
+        when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
+        when(repository.getBaseBranch()).thenReturn("main");
+        when(repository.listBranches()).thenThrow(new IOException("repository is unreachable"));
+
+        var result = service.getBranches(project, BranchScope.REPOSITORY);
+
+        assertEquals(List.of("feature"), result.stream().map(ProjectBranchInfo::name).toList());
     }
 
     @Test
