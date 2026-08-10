@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 
@@ -128,7 +129,9 @@ public class ProjectCreationService {
      * <p>A normal response therefore guarantees that subsequent project reads can resolve the new content.
      */
     public void awaitProjectVisibility(Repository repository) {
-        awaitProjectVisibility(getUserWorkspace().getDesignTimeRepository(), repository);
+        // The design-time repository is resolved only when there is something to wait for: a repository
+        // without branches needs no wait, and looking one up requires a user workspace the caller may not have.
+        awaitProjectVisibility(() -> getUserWorkspace().getDesignTimeRepository(), repository);
     }
 
     /**
@@ -138,11 +141,15 @@ public class ProjectCreationService {
      * <p>A start-up task has no user workspace to look up, so it supplies the repository it works with.
      */
     public void awaitProjectVisibility(DesignTimeRepository designTimeRepository, Repository repository) {
+        awaitProjectVisibility(() -> designTimeRepository, repository);
+    }
+
+    private void awaitProjectVisibility(Supplier<DesignTimeRepository> designTimeRepository, Repository repository) {
         if (!(repository instanceof BranchRepository branchRepository) || !repository.supports().branches()) {
             return;
         }
         try {
-            designTimeRepository
+            designTimeRepository.get()
                     .refreshBranch(repository.getId(), branchRepository.getBranch())
                     .toCompletableFuture()
                     .get(PROJECT_INDEX_TIMEOUT_SECONDS, TimeUnit.SECONDS);

@@ -8,8 +8,6 @@ class WebStudioTest {
 
     @Test
     void demo() throws Exception {
-        try (var client = JettyServer.get().start()) {
-            client.test("test-resources");
-        }
+        JettyServer.get().test();
     }
 }
