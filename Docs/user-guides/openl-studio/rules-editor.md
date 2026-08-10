@@ -603,8 +603,11 @@ To create a table:
      leading arguments run down the left, one column each, and the trailing ones across the top, one row each. The
      corner where the two meet is kept as square as it can be and gains a row before a column: two arguments give
      one of each, three give two rows and one column, five give three and two. That corner is written as a merged
-     cell, because its height is what tells OpenL how many arguments run across the top. A lookup takes at least
-     two arguments.
+     cell, because its height is what tells OpenL how many arguments run across the top.
+
+     A lookup of one argument has no second axis to spread over, so it is laid out exactly like a Simple Rules
+     table — the argument down the left, the result beside it, and no corner at all. Every row is a rule from
+     the first one, so no title row is written above them.
 
      ![Smart Lookup Skeleton](images/create-table-lookup.png)
 
@@ -707,12 +710,14 @@ To create a table:
      it.
    - Blank rows are not written. OpenL reads a blank row as the end of a table, so an empty row left in the middle of
      the skeleton is dropped together with the trailing one kept for input.
+   - While **Create** is unavailable, the dialog names what is missing, one thing at a time and in the order the
+     fields are laid out, so the first thing shown is the first thing to fix.
    - A Spreadsheet needs at least one filled row, because OpenL rejects a table with no body. **Create** stays
      disabled until one is entered.
-   - A lookup needs a value in every row of its top band — one for each argument running across the top — and at
-     least one row below to look up by. A blank row is never written, so a top row left empty would shorten the
-     merged corner and change how many arguments OpenL reads as horizontal. **Create** stays disabled until both
-     are filled.
+   - A lookup of two or more arguments needs a value in every row of its top band — one for each argument running
+     across the top — and at least one row below to look up by. A blank row is never written, so a top row left
+     empty would shorten the merged corner and change how many arguments OpenL reads as horizontal. **Create**
+     stays disabled until both are filled. A lookup of one argument has no band, so it needs only a filled row.
    - A lookup's top band and the argument titles beside it belong to the table type and carry no row controls.
 
 7. Click **Create**.

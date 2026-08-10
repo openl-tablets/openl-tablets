@@ -5,6 +5,7 @@ import {
     buildTableSource,
     cellHoldsCondition,
     cellValueType,
+    columnsGrow,
     defaultResultType,
     deriveTableName,
     dropEmptyRows,
@@ -257,8 +258,38 @@ describe('tableSkeletons', () => {
 
         // The corner stays as square as it can be, and its rows and columns always add up to the signature.
         expect([2, 3, 4, 5, 6].map(shapeOf)).toEqual(['1x1', '2x1', '2x2', '3x2', '3x3'])
-        // A signature too short to look anything up still renders, on the smallest shape there is.
-        expect([0, 1].map(shapeOf)).toEqual(['1x1', '1x1'])
+        // One argument has no second axis to spread over, so the table carries no band: OpenL reads every row
+        // from the first as a rule, and a band above them would be read as one too — see EPBDS-16417.
+        expect([0, 1].map(shapeOf)).toEqual(['0x0', '0x0'])
+    })
+
+    // A lookup of one argument is laid out exactly like a rules table, so it must be seeded and titled like one:
+    // the argument example on the left, the result beside it — not the result alone in the argument column.
+    it('lays a one-argument Lookup out like a rules table', () => {
+        const oneArgument = context({ arguments: args('a'), resultType: 'Integer' })
+
+        expect(buildTableColumns('simpleLookup', oneArgument).map(column => column.label))
+            .toEqual(buildTableColumns('simpleRules', oneArgument).map(column => column.label))
+        expect(initialRows('simpleLookup', oneArgument))
+            .toEqual(initialRows('simpleRules', oneArgument))
+        // The column still knows which type it holds: the argument on the left, the result beside it.
+        expect(cellValueType('simpleLookup', oneArgument, [['', '']], 0, 0)).toBe('String')
+        expect(cellValueType('simpleLookup', oneArgument, [['', '']], 0, 1)).toBe('Integer')
+        // And it stops growing like a value matrix.
+        expect(columnsGrow('simpleLookup', oneArgument)).toBe(false)
+    })
+
+    // The dialog heads the grid with the argument and result names, but a one-argument lookup carries no title
+    // row: OpenL reads the first row as a rule, so a written title row fails to parse as the result type.
+    it('writes a one-argument Lookup without a row of column titles', () => {
+        const oneArgument = context({ arguments: args('dd'), resultType: 'Integer' })
+        const header = 'SimpleLookup Integer wewe(String dd)'
+
+        expect(buildTableSource('simpleLookup', header, oneArgument, [['Text1', '1'], ['Text2', '2']])).toEqual([
+            [header],
+            ['Text1', '1'],
+            ['Text2', '2'],
+        ])
     })
 
     it('titles a Lookup down the left with its leading arguments', () => {

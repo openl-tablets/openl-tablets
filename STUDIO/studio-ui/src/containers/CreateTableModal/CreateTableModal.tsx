@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import {
+    Alert,
     Checkbox,
     Input,
     Modal,
@@ -282,7 +283,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         nextContext: TableBuildContext,
         current: TableCellValue[][]
     ): TableCellValue[][] => {
-        const grows = columnsGrow(forPreset)
+        const grows = columnsGrow(forPreset, nextContext)
         const grown = grows ? normalizeFreeFormColumns(current, minimumColumns(forPreset, nextContext)) : current
         // Re-measuring the grid already on screen — what every keystroke does — is the memoized column list itself.
         // Only a growing type widens with the grid, and this branch is not one, so the memo's `gridWidth` cannot
@@ -603,14 +604,6 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     // them may share one. Either way OpenL cannot bind the signature the header declares.
     const argumentNamesValid = declaredArguments.every(argument => IDENTIFIER.test(argument.name.trim()))
         && new Set(declaredArguments.map(argument => argument.name.trim())).size === declaredArguments.length
-    const typeSpecificValid = !partialArgument
-        && argumentNamesValid
-        && (!SIGNATURE_PRESETS.has(preset) || Boolean(resultType.trim()))
-        // A lookup spreads its arguments over two axes, so it takes two before there is anything to look up by.
-        && (!isLookup(preset) || declaredArguments.length >= 2)
-        && (preset !== 'vocabulary' || Boolean(vocabularyType))
-        && (preset !== 'data' || Boolean(datatypeName && context.dataFields.length))
-        && (!isTargeted(preset) || Boolean(target?.columns.length))
     // A compiled table's name becomes an OpenL identifier; a type that carries no name imposes nothing.
     const tableNameValid = !hasTableName(preset) || IDENTIFIER.test(tableName.trim())
     // Blank rows are stripped before the table is written, so a preset that needs a body needs a filled row.
@@ -627,26 +620,46 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     // The table exactly as it will be written: the editor always keeps a blank row (and a blank Free Form column)
     // for input, and OpenL reads a blank line as a table boundary, so none of them may be submitted.
     const submittedBody = useMemo(() => {
-        if (columnsGrow(preset)) {
+        if (columnsGrow(preset, context)) {
             return dropEmptyTrailingColumns(dropEmptyRows(rows))
         }
         // A free-text type can temporarily narrow the rendered columns without resizing the rows. Only cells the
         // current table shape exposes belong to the submitted table; stale hidden cells must not reach the workbook.
         return dropEmptyRows(rows.map(row => row.slice(0, columns.length)))
-    }, [columns.length, preset, rows])
+    }, [columns.length, context, preset, rows])
     // The name OpenL will compile, read from the generated header the same way the compiler reads it. A Free Form
     // table has no header of its own, so OpenL names it after the first cell instead.
     const submittedName = deriveTableName(preset,
         hasTableHeader(preset) ? generatedHeader : String(submittedBody[0]?.[0] ?? ''))
-    const valid = Boolean(
-        moduleName
-        && tableNameValid
-        && isValidSheetName(sheetName)
-        && submittedName
-        && typeSpecificValid
-        && bodyValid
-        && typedValuesValid
-    )
+
+
+    /**
+     * Why the table cannot be written yet, or `null` when it can.
+     *
+     * <p>The one list the dialog gates on: `valid` is read off it, so a rule can never disable Create without
+     * naming itself, or name itself while Create stays enabled. Ordered the way the fields are laid out, so the
+     * first thing the author reads is the first thing to fix.
+     */
+    const blocking = ([
+        [!moduleName, 'module'],
+        [!tableNameValid, 'table_name'],
+        [!isValidSheetName(sheetName), 'sheet'],
+        [SIGNATURE_PRESETS.has(preset) && !resultType.trim(), 'result_type'],
+        [partialArgument, 'partial_argument'],
+        [!argumentNamesValid, 'argument_names'],
+        // A lookup looks a value up by its arguments, so it takes at least one. One is enough: OpenL then reads
+        // the table as rules, which is what the geometry above builds — see EPBDS-16417.
+        [isLookup(preset) && !declaredArguments.length, 'lookup_arguments'],
+        [preset === 'vocabulary' && !vocabularyType, 'vocabulary_type'],
+        [preset === 'data' && !(datatypeName && context.dataFields.length), 'datatype'],
+        [isTargeted(preset) && !target?.columns.length, 'target'],
+        [!bodyValid, 'body'],
+        // A Free Form table is named after its first cell, so an empty grid leaves it nameless.
+        [!submittedName, 'body'],
+        [!typedValuesValid, 'values'],
+    ] as const).find(([blocked]) => blocked)?.[1]
+    const valid = !blocking
+    const blockingReason = blocking && t(`project:create_table_modal.blocked.${blocking}`)
 
     const moduleOptions = useMemo(() => toSortedOptions(modules), [modules])
 
@@ -1499,6 +1512,14 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                             )}
                         </table>
                     </div>
+                    {!busy && blockingReason && (
+                        <Alert
+                            showIcon
+                            data-testid="create-table-blocked"
+                            title={blockingReason}
+                            type="info"
+                        />
+                    )}
                 </div>
             </Spin>
         </Modal>

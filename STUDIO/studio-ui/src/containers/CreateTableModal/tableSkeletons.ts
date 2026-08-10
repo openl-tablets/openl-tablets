@@ -168,14 +168,28 @@ export interface HeaderBand {
 const NO_BAND: HeaderBand = { rows: 0, keys: 0, titles: [], hints: []}
 
 /**
+ * The table type whose *layout* the preset takes.
+ *
+ * <p>A lookup of one argument has no second axis to spread over, so OpenL lays it out exactly like a rules
+ * table — arguments down the left, result beside them, every row a rule from the first. Only the header keyword
+ * stays a lookup's. Naming that here keeps the columns, the example row, the cell types and the growth rule
+ * from each deciding it again — see EPBDS-16417.
+ */
+const geometryOf = (preset: TablePreset, context: TableBuildContext): TablePreset =>
+    isLookup(preset) && completeArguments(context.arguments).length < 2 ? 'simpleRules' : preset
+
+/**
  * The rows at the top of the body that belong to the table type rather than to the author.
  *
  * <p>A lookup opens with one row for each argument running across the top, titled down the left by the arguments
  * running down it. The leading arguments take the columns, the trailing ones the rows. OpenL reads the number of
  * horizontal arguments off the height of the top-left cell and takes the columns left of it as the vertical ones,
  * so the corner spans `rows` rows and `keys` columns and the two always add up to the signature. That corner is
- * kept as square as it can be, gaining a row before a column: two arguments give 1x1, three 2x1, five 3x2. Below
- * two arguments there is no lookup to build, and the smallest shape stands in while the signature is written.
+ * kept as square as it can be, gaining a row before a column: two arguments give 1x1, three 2x1, five 3x2.
+ *
+ * <p>One argument has no second axis to spread over, so such a lookup opens with no band at all and is laid out
+ * like a rules table: OpenL reads every row from the first as a rule, the argument down the left and the result
+ * beside it. A band written above them would be read as a rule too — see EPBDS-16417.
  *
  * <p>A Spreadsheet opens with the row that names its columns, which the author writes and OpenL reads.
  *
@@ -184,9 +198,11 @@ const NO_BAND: HeaderBand = { rows: 0, keys: 0, titles: [], hints: []}
 export const headerBand = (preset: TablePreset, context: TableBuildContext): HeaderBand => {
     if (isLookup(preset)) {
         const declared = completeArguments(context.arguments)
-        const total = Math.max(2, declared.length)
-        const rows = Math.ceil(total / 2)
-        const keys = total - rows
+        if (declared.length < 2) {
+            return NO_BAND
+        }
+        const rows = Math.ceil(declared.length / 2)
+        const keys = declared.length - rows
         return {
             rows,
             keys,
@@ -198,12 +214,16 @@ export const headerBand = (preset: TablePreset, context: TableBuildContext): Hea
 }
 
 /** Tells whether the grid grows a column of its own once the last one is filled. */
-export const columnsGrow = (preset: TablePreset): boolean =>
-    preset === 'freeForm' || preset === 'spreadsheet' || isLookup(preset)
+export const columnsGrow = (preset: TablePreset, context: TableBuildContext): boolean => {
+    const geometry = geometryOf(preset, context)
+    return geometry === 'freeForm' || geometry === 'spreadsheet' || isLookup(geometry)
+}
 
 /** Columns a growing grid never shrinks below: enough to show that the table has two dimensions. */
-export const minimumColumns = (preset: TablePreset, context: TableBuildContext): number =>
-    isLookup(preset) || preset === 'spreadsheet' ? headerBand(preset, context).keys + 2 : 1
+export const minimumColumns = (preset: TablePreset, context: TableBuildContext): number => {
+    const geometry = geometryOf(preset, context)
+    return isLookup(geometry) || geometry === 'spreadsheet' ? headerBand(geometry, context).keys + 2 : 1
+}
 
 const named = (keyword: string, name: string): string => (name.trim() ? `${keyword} ${name.trim()}` : keyword)
 
@@ -278,10 +298,11 @@ const columnLetter = (index: number): string => {
 }
 
 export const buildTableColumns = (
-    preset: TablePreset,
+    forPreset: TablePreset,
     context: TableBuildContext,
     gridWidth = 1
 ): TableColumn[] => {
+    const preset = geometryOf(forPreset, context)
     switch (preset) {
         case 'datatype':
             return [
@@ -360,11 +381,12 @@ export const buildTableColumns = (
  * key columns, and on nothing in the corner where the two meet.
  */
 export const cellHoldsCondition = (
-    preset: TablePreset,
+    forPreset: TablePreset,
     context: TableBuildContext,
     row: number,
     column: number
 ): boolean => {
+    const preset = geometryOf(forPreset, context)
     switch (preset) {
         case 'smartRules':
         case 'simpleRules':
@@ -389,12 +411,13 @@ export const cellHoldsCondition = (
  * remaining matrix holds the result type.
  */
 export const cellValueType = (
-    preset: TablePreset,
+    forPreset: TablePreset,
     context: TableBuildContext,
     rows: TableCellValue[][],
     row: number,
     column: number
 ): string | undefined => {
+    const preset = geometryOf(forPreset, context)
     switch (preset) {
         case 'datatype':
             return column === 2 || column === 5 ? String(rows[row]?.[0] ?? '') : undefined
@@ -505,8 +528,9 @@ const EXAMPLE_ROWS = {
 } as const satisfies Partial<Record<TablePreset, readonly TableCellValue[]>>
 
 /** The example values one row of the table type carries, in column order. */
-const exampleCells = (preset: TablePreset, context: TableBuildContext): TableCellValue[] => {
+const exampleCells = (forPreset: TablePreset, context: TableBuildContext): TableCellValue[] => {
     const known = context.vocabularyValues
+    const preset = geometryOf(forPreset, context)
     switch (preset) {
         case 'vocabulary':
             return [exampleValue(context.vocabularyType, 'value', known)]
@@ -543,7 +567,8 @@ const exampleCells = (preset: TablePreset, context: TableBuildContext): TableCel
  * <p>A Properties table is the exception: `scope` is not an example but the row without which OpenL rejects the
  * table.
  */
-export const initialRows = (preset: TablePreset, context: TableBuildContext): TableCellValue[][] => {
+export const initialRows = (forPreset: TablePreset, context: TableBuildContext): TableCellValue[][] => {
+    const preset = geometryOf(forPreset, context)
     if (isLookup(preset)) {
         const { rows, keys } = headerBand(preset, context)
         const declared = completeArguments(context.arguments)
@@ -717,12 +742,16 @@ export const title = (name: string): string => name
  * rows the author filled in. The generated header is passed in so the preview and submitted source share one value.
  */
 export const buildTableSource = (
-    preset: TablePreset,
+    forPreset: TablePreset,
     headerText: string,
     context: TableBuildContext,
     rows: TableCellValue[][],
     transposed = false
 ): TableCellValue[][] => {
+    // Deliberately NOT the normalized geometry: a rules table writes a row of column titles under its header,
+    // and a lookup of one argument must not have one — OpenL reads that row as a rule and fails on it. What the
+    // grid shows above the body is the dialog's own heading, not a row of the table.
+    const preset = forPreset
     if (!hasTableHeader(preset)) {
         return rows
     }

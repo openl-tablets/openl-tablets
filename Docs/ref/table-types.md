@@ -171,6 +171,14 @@ Decision table with both vertical (left) and horizontal (top) conditions.
 - Left columns: vertical conditions (like `C1`, `C2`)
 - Top row(s): horizontal conditions (like `HC1`)
 - Intersection cell: the return value
+- **One argument has no second axis, so the table carries no title row**: every row from the first is a rule,
+  the argument value on the left and the result beside it. A title row written above them is read as a rule too.
+
+```text
+| SimpleLookup Integer OneArg(String a) |
+| Text1 | 1 |  <- already rule R1, not a header
+| Text2 | 2 |
+```
 
 ```text
 | SimpleLookup Double IsAdequate(CountryCode country, Boolean adequate) |
@@ -187,6 +195,8 @@ Same as Simple Lookup but with smart condition matching (ranges, wildcards, coll
 - Leading arguments run down the left, trailing ones across the top
 - The top-left cell spans as many rows as there are arguments across the top, and as many columns as there are
   down the left — its height is how OpenL counts them
+- **How the arguments split between the two axes is the author's**: OpenL reads the split off that corner, so
+  three arguments work as one down and two across, or as two down and one across
 - A corner title of the form `<vertical>/<horizontal>` names both axes in one cell
 
 ```text
