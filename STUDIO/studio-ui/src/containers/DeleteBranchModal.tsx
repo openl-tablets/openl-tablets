@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
 import { deleteBranch } from '../services/branches'
-import { toUrlSafeId } from '../services/projectId'
+import { encodeProjectId, toUrlSafeId } from '../services/projectId'
 import { ProjectStatus } from '../constants/project'
 
 // Only reads here — a project fetch and a merge check — so the merge-check POST must not drop the snapshot.
@@ -35,13 +35,13 @@ export interface DeleteBranchModalDetail {
 /**
  * The project id every request of this dialog puts in its URL path, in the URL-safe Base64 alphabet.
  *
- * The server issues ids in the standard alphabet, whose `/` a servlet container rejects once percent-encoded,
- * so the id is normalized here as it is everywhere else. An opener that knows only the repository and the
- * project name gets the id rebuilt from them: that encoding covers Latin-1 names, which is all the legacy
- * screens address.
+ * An id saved before the server switched to that alphabet is normalized here, as it is everywhere else. An
+ * opener that knows only the repository and the project name gets the id rebuilt from them.
  */
 const resolveProjectId = (detail: DeleteBranchModalDetail): string =>
-    toUrlSafeId(detail.projectId ?? btoa(`${detail.repositoryId}:${detail.projectName}`))
+    detail.projectId
+        ? toUrlSafeId(detail.projectId)
+        : encodeProjectId(detail.repositoryId, detail.projectName)
 
 /**
  * DeleteBranchModal component.

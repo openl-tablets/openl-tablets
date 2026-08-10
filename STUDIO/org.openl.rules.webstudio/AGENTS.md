@@ -51,6 +51,22 @@ Java `UPPER_SNAKE` `.name()`.
 - A shared core enum with its own dedicated converter (e.g. `ProjectStatus` via `ProjectStatusConverter`) is out of
   scope — do not add `@JsonProperty` to it here.
 
+## Ids in a URL Path
+
+A project and a deployment configuration are both addressed by `ProjectIdModel` — `repositoryId:name` in Base64 — and
+that id travels as a **path segment**, so it **MUST** stay within one.
+
+- `encode()` (the `@JsonValue`, so every id the API hands out) uses the **URL-safe** alphabet and reads the name as
+  UTF-8. The standard alphabet is forbidden here: its `/` is read as a path separator (404), and percent-encoding it
+  to `%2F` is rejected as an ambiguous separator (400). A name outside US-ASCII makes that `/` likely — Cyrillic
+  names hit it about a quarter of the time.
+- `decode()` accepts both alphabets, so an id kept in a bookmark or a script keeps working. Never tighten it to one
+  alphabet.
+- Never hand a caller an id from anything but `encode()`. A hand-rolled `Base64.getEncoder()` reintroduces the slash.
+- A browser that has to build an id itself uses `encodeProjectId` from `studio-ui`'s `services/projectId.ts`; a legacy
+  JSF page reaches the same function as `globalThis.openl.encodeProjectId`. Never call `btoa` directly: it reads a
+  string as Latin-1, so it throws above U+00FF and mis-encodes the range below it, and it emits the standard alphabet.
+
 ## Request Validation
 
 - **A `@RequestBody` needs `@Valid`** for its bean constraints to run. Without it, `@ProjectNameConstraint`, `@NotBlank`,

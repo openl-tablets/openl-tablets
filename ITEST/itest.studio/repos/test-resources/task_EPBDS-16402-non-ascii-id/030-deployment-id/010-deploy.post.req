@@ -1,0 +1,10 @@
+POST /rest/deployments HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "productionRepositoryId": "production",
+  "deploymentName": "Тарифный план",
+  "projectId": "ZGVzaWduOtCi0LDRgNC40YTQvdGL0Lkg0L_Qu9Cw0L0=",
+  "comment": "Deploy a project whose name is not US-ASCII"
+}

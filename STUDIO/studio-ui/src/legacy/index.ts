@@ -11,6 +11,7 @@
  */
 import './loaderBridge'
 import './notificationBridge'
+import './projectIdBridge'
 import './projectStatusBridge'
 
 document.dispatchEvent(new CustomEvent('openl:ready'))

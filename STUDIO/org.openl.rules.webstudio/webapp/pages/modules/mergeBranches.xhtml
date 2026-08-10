@@ -5,7 +5,7 @@
         //<![CDATA[
 
         function openMergeBranchesDialog(repositoryId, repositoryType, projectName) {
-            const projectId = btoa(repositoryId + ":" + projectName);
+            const projectId = globalThis.openl.encodeProjectId(repositoryId, projectName);
             $j.get("#{contextPath}/web/projects/" + projectId).then(function(project) {
                 return $j.get("#{contextPath}/web/projects/" + projectId + "/branches").then(function(branches) {
                     window.dispatchEvent(new CustomEvent('openMergeModal', {

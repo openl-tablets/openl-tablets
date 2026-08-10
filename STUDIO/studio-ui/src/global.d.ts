@@ -10,6 +10,7 @@ declare global {
         projectStatus?: import('./services/projectStatus').ProjectStatusBridge
         notification?: import('./legacy/notificationBridge').NotificationBridge
         loader?: import('./legacy/loaderBridge').LoaderBridge
+        encodeProjectId?: import('./legacy/projectIdBridge').EncodeProjectId
     } | undefined
 }
 

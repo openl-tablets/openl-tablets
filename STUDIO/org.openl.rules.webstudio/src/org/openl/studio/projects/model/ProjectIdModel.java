@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
 
@@ -21,28 +22,24 @@ public class ProjectIdModel {
         this.projectName = builder.projectName;
     }
 
+    /**
+     * Encodes this id into a single URL path segment, reading the name as UTF-8.
+     *
+     * <p>The alphabet is URL-safe: a standard Base64 id may carry a slash, which breaks the segment. See the
+     * module {@code AGENTS.md}, section "Ids in a URL Path".
+     */
     @JsonValue
     public String encode() {
         var src = repository + ID_SEPARATOR + projectName;
-        return Base64.getEncoder().encodeToString(src.getBytes());
-    }
-
-    /**
-     * Encodes this id with the URL-safe Base64 alphabet for use in a URL path segment.
-     * {@link #decode(String)} accepts both this and the standard {@link #encode()} form.
-     */
-    public String encodeUrlSafe() {
-        var src = repository + ID_SEPARATOR + projectName;
-        return Base64.getUrlEncoder().encodeToString(src.getBytes());
+        return Base64.getUrlEncoder().encodeToString(src.getBytes(StandardCharsets.UTF_8));
     }
 
     @JsonCreator
     public static ProjectIdModel decode(String encoded) {
-        // Accept both the standard and the URL-safe Base64 alphabets. Callers that put the id in a URL path
-        // segment use '-'/'_' instead of '+'/'/' to avoid an encoded slash, which servlet containers reject.
-        // Standard ids never contain '-'/'_', so this mapping is a no-op for them and stays backward compatible.
+        // Both alphabets are accepted: ids issued before the URL-safe form became the default still live in
+        // bookmarks and in legacy pages. A standard id never contains '-'/'_', so this mapping is a no-op for it.
         var normalized = encoded.replace('-', '+').replace('_', '/');
-        var decoded = new String(Base64.getDecoder().decode(normalized));
+        var decoded = new String(Base64.getDecoder().decode(normalized), StandardCharsets.UTF_8);
         var parts = decoded.indexOf(ID_SEPARATOR);
         if (parts == -1) {
             throw new IllegalArgumentException("Invalid projectId: " + encoded);
