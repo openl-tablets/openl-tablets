@@ -1,10 +1,8 @@
 # Dead-code sweep ledger
 
-State memory for the daily sweep of openl-tablets. Read in full at the start of every run.
-
 ## Resume point
 
-- **Converged at `main` = `88f0f8ad`**; every queue row done, every vein closed. Forty-eight idle passes; expect
+- **Converged at `main` = `88f0f8ad`**; every queue row done, every vein closed. Forty-nine idle passes; expect
   more. New scope arrives only as new commits on `main` — never invent a detector to manufacture work.
 - The idle pass is two calls: `git log 88f0f8ad..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
@@ -376,8 +374,9 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-10 — run one hundred eleven: forty-sixth idle pass, `main` unmoved at `6d08015a`, no sweep PR open; no commit, 377 lines.
 - 08-10 — run one hundred twelve: forty-seventh idle pass, `main` advanced to `d03fb79d` by a lazy design-repository
   supplier, a Lombok constructor and an ITEST server-start helper — no orphan; no commit, 380 lines.
 - 08-10 — run one hundred thirteen: forty-eighth idle pass, `main` advanced to `88f0f8ad` by four merge-and-copy
   feature commits — every deletion a promotion into a shared helper or a signature gaining a parameter; no commit, 383 lines.
+- 08-10 — run one hundred fourteen: forty-ninth idle pass, `main` unmoved at `88f0f8ad`, no sweep PR open; dropped the
+  ledger's restated-preamble line; no commit, 382 lines.
