@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- **Converged at `main` = `5acdedc6`**; every queue row done, every vein closed. Fifty idle passes; expect
+- **Converged at `main` = `e0db8f94`**; every queue row done, every vein closed. Fifty-one idle passes; expect
   more. New scope arrives only as new commits on `main` — never invent a detector to manufacture work.
-- The idle pass is two calls: `git log 5acdedc6..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log e0db8f94..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -262,6 +262,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 - No `gh` CLI. Use the GitHub MCP tools for every PR operation. `git fetch --prune origin` can exceed a 2-minute
   tool timeout on a cold clone; give it 300 s.
+- **The working tree never starts at `origin/main`** — the session opens on a `claude/*` branch and local `main` sits
+  at the container's checkout base, an ancestor. Fast-forward first, or a grep answers about the wrong revision.
 - **The whole reactor installs in ~35 min from a cold `~/.m2` with `mvn install -Dquick -DnoPerf -T1C -fae
   -Dmaven.test.skip.exec=true`** — surefire skips execution while test sources still compile. The cache never
   survives a container rebuild, so budget the download every run.
@@ -374,9 +376,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-10 — run one hundred thirteen: forty-eighth idle pass, `main` advanced to `88f0f8ad` by four merge-and-copy
-  feature commits — every deletion a promotion into a shared helper or a signature gaining a parameter; no commit, 383 lines.
-- 08-10 — run one hundred fourteen: forty-ninth idle pass, `main` unmoved at `88f0f8ad`, no sweep PR open; dropped the
-  ledger's restated-preamble line; no commit, 382 lines.
-- 08-10 — run one hundred fifteen: fiftieth idle pass, `main` advanced to `5acdedc6` by one lookup-dialog commit —
-  its deletions all replaced in place, every touched export still consumed; no commit, 382 lines.
+- 08-10 — run 114: forty-ninth idle pass, `main` unmoved at `88f0f8ad`, no sweep PR open; no commit.
+- 08-10 — run 115: fiftieth idle pass, `main` to `5acdedc6` by one lookup-dialog commit, deletions replaced in place.
+- 08-10 — run 116: fifty-first idle pass, `main` to `e0db8f94` by one datatype-titles commit that promoted the
+  title-row rule into `DatatypeHelper`, orphaning nothing; no commit, 382 lines.
