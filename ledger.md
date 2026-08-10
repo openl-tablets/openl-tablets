@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- **Converged at `main` = `88f0f8ad`**; every queue row done, every vein closed. Forty-nine idle passes; expect
+- **Converged at `main` = `5acdedc6`**; every queue row done, every vein closed. Fifty idle passes; expect
   more. New scope arrives only as new commits on `main` — never invent a detector to manufacture work.
-- The idle pass is two calls: `git log 88f0f8ad..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log 5acdedc6..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -374,9 +374,9 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-10 — run one hundred twelve: forty-seventh idle pass, `main` advanced to `d03fb79d` by a lazy design-repository
-  supplier, a Lombok constructor and an ITEST server-start helper — no orphan; no commit, 380 lines.
 - 08-10 — run one hundred thirteen: forty-eighth idle pass, `main` advanced to `88f0f8ad` by four merge-and-copy
   feature commits — every deletion a promotion into a shared helper or a signature gaining a parameter; no commit, 383 lines.
 - 08-10 — run one hundred fourteen: forty-ninth idle pass, `main` unmoved at `88f0f8ad`, no sweep PR open; dropped the
   ledger's restated-preamble line; no commit, 382 lines.
+- 08-10 — run one hundred fifteen: fiftieth idle pass, `main` advanced to `5acdedc6` by one lookup-dialog commit —
+  its deletions all replaced in place, every touched export still consumed; no commit, 382 lines.
