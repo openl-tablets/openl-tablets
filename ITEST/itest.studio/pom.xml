@@ -13,6 +13,7 @@
 
     <modules>
         <module>acl</module>
+        <module>demo</module>
         <module>disabled-settings</module>
         <module>dtr</module>
         <module>multi</module>

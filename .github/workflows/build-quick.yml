@@ -148,7 +148,7 @@ jobs:
           - name: studio-sso
             modules: ITEST/server-core,ITEST/itest.studio/sso
           - name: studio
-            modules: ITEST/server-core,ITEST/itest.studio/users,ITEST/itest.studio/simple,ITEST/itest.studio/multi,ITEST/itest.studio/repos,ITEST/itest.studio/dtr,ITEST/itest.studio/disabled-settings
+            modules: ITEST/server-core,ITEST/itest.studio/users,ITEST/itest.studio/simple,ITEST/itest.studio/multi,ITEST/itest.studio/repos,ITEST/itest.studio/dtr,ITEST/itest.studio/disabled-settings,ITEST/itest.studio/demo
           - name: services
             modules: ITEST/server-core,ITEST/itest.WebService,ITEST/itest.BigServiceDeploy,ITEST/itest.ruleServices-large-response
           - name: services-smoke

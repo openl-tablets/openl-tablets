@@ -1,0 +1,22 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    { "name": "Example 1 - Bank Rating", "status": "OPENED" },
+    { "name": "Example 2 - Corporate Rating", "status": "OPENED" },
+    { "name": "Example 3 - Auto Policy Calculation", "status": "CLOSED" },
+    { "name": "Tutorial 1 - Introduction to Decision Tables", "status": "OPENED" },
+    { "name": "Tutorial 2 - Introduction to Data Tables", "status": "OPENED" },
+    { "name": "Tutorial 3 - More Advanced Decision and Data Tables", "status": "OPENED" },
+    { "name": "Tutorial 4 - Introduction to Column Match Tables", "status": "CLOSED" },
+    { "name": "Tutorial 5 - Introduction to TBasic Tables", "status": "CLOSED" },
+    { "name": "Tutorial 6 - Introduction to Spreadsheet Tables", "status": "CLOSED" },
+    { "name": "Tutorial 7 - Introduction to Table Properties", "status": "CLOSED" },
+    { "name": "Tutorial 8 - Introduction to Smart Rules and Smart Lookup Tables", "status": "OPENED" }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 11,
+  "total": 11
+}

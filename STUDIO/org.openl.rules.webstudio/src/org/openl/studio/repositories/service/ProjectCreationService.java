@@ -128,11 +128,21 @@ public class ProjectCreationService {
      * <p>A normal response therefore guarantees that subsequent project reads can resolve the new content.
      */
     public void awaitProjectVisibility(Repository repository) {
+        awaitProjectVisibility(getUserWorkspace().getDesignTimeRepository(), repository);
+    }
+
+    /**
+     * Waits until a branch-scoped design write is visible through the project index, for a caller that already
+     * holds the design-time repository.
+     *
+     * <p>A start-up task has no user workspace to look up, so it supplies the repository it works with.
+     */
+    public void awaitProjectVisibility(DesignTimeRepository designTimeRepository, Repository repository) {
         if (!(repository instanceof BranchRepository branchRepository) || !repository.supports().branches()) {
             return;
         }
         try {
-            getUserWorkspace().getDesignTimeRepository()
+            designTimeRepository
                     .refreshBranch(repository.getId(), branchRepository.getBranch())
                     .toCompletableFuture()
                     .get(PROJECT_INDEX_TIMEOUT_SECONDS, TimeUnit.SECONDS);

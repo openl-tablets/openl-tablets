@@ -1,0 +1,2 @@
+GET /rest/projects?fields=name,status HTTP/1.1
+
