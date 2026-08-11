@@ -38,6 +38,7 @@ import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
+import org.openl.studio.repositories.service.ProjectRevisionService;
 import org.openl.studio.repositories.service.RepositoryConfigService;
 
 class ProjectsControllerTest {
@@ -204,7 +205,8 @@ class ProjectsControllerTest {
                 mock(ProjectTablesGraphService.class),
                 mock(RepositoryConfigService.class),
                 metadataService,
-                mock(ProjectMigrationService.class)) {
+                mock(ProjectMigrationService.class),
+                mock(ProjectRevisionService.class)) {
             @Override
             public WebStudio getWebStudio() {
                 return webStudio;

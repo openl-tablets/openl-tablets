@@ -324,7 +324,8 @@ describe('getProjects', () => {
 
         await expect(getProjectBranches('abc')).resolves.toEqual([{ name: 'main', base: true }])
 
-        await expect(getProjectRevisions('design', 'Alpha', 'feature/1', {
+        // EPBDS-16432: the history is asked for by project id, which survives an unsaved rename.
+        await expect(getProjectRevisions('a+b/c', {
             search: ' fix ',
             techRevs: true,
             page: 1,
@@ -336,6 +337,11 @@ describe('getProjects', () => {
             numberOfElements: 1,
             total: 1,
         })
+        expect(apiCall).toHaveBeenCalledWith(
+            '/projects/a%2Bb%2Fc/history?search=fix&techRevs=true&page=1&size=10',
+            undefined,
+            { throwError: true }
+        )
 
         vi.mocked(apiCall).mockResolvedValue([{ name: 'Team', extensible: true, nullable: false, values: []}])
         await expect(getTagTypes()).resolves.toEqual([{ name: 'Team', extensible: true, nullable: false, values: []}])

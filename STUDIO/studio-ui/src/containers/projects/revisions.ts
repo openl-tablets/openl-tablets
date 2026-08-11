@@ -51,7 +51,7 @@ export const useProjectRevisions = (project: Project | null, enabled: boolean): 
         let current = true
         setRevisions(null)
         setError(null)
-        getProjectRevisions(project.repository, project.name, project.branch || null, { size: REVISIONS_PAGE_SIZE })
+        getProjectRevisions(project.id, { size: REVISIONS_PAGE_SIZE })
             .then(page => current && setRevisions(page.content))
             .catch(e => {
                 if (current) {
@@ -63,7 +63,7 @@ export const useProjectRevisions = (project: Project | null, enabled: boolean): 
         return () => {
             current = false
         }
-    }, [enabled, project])
+    }, [enabled, project?.id])
 
     return {
         revisions,

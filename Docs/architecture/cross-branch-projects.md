@@ -328,6 +328,17 @@ History, comparison, archive/export and version-cache consumers must resolve pro
 and index APIs. A historical lookup must retain its requested branch even when that branch has no project membership
 at its tip.
 
+`GET /projects/{projectId}/history` must read the history of the folder the project occupies, in the branch the
+project is on. A workspace screen must ask for a project's history through it, never by the name the project is
+displayed under: that name follows a rename in `rules.xml` before the project is saved, while the repository still
+holds the project under the name it was published with.
+
+`GET /repos/{repo-name}/projects/{project-name}/history`, in both its plain and its `/branches/{branch-name}/`
+form, is deprecated. It was the Revisions tab's own endpoint, written before a project API existed and when naming
+a project to the repository was the only way to reach its history; its branch segment pinned the branch that
+project was on, never another one. It names the project by the name its repository published it under, so it is
+superseded by the project-scoped endpoint above.
+
 ## Project Creation and Copy
 
 ### Request model

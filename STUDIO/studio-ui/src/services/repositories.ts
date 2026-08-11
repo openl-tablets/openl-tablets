@@ -470,15 +470,15 @@ export interface RevisionQuery {
 export const REVISIONS_PAGE_SIZE = 20
 
 /**
- * A page of a project's revision history (newest first) via the design-repository history API — the same
- * endpoint the legacy UI uses. Supports a text search, the technical-revisions toggle and paging. For
- * branch-capable repositories the branch is part of the path (with '/' replaced by a space, as the legacy
- * UI does).
+ * A page of a project's revision history (newest first). Supports a text search, the technical-revisions
+ * toggle and paging.
+ *
+ * Asked by project id rather than by name: a rename in rules.xml that is not saved yet renames the project
+ * for the user while the repository still holds it under the name it was published with, and the id is the
+ * one identifier that survives that.
  */
 export async function getProjectRevisions(
-    repositoryId: string,
-    projectName: string,
-    branch: string | null,
+    projectId: string,
     query: RevisionQuery = {}
 ): Promise<RevisionPage> {
     const params = new URLSearchParams()
@@ -490,8 +490,7 @@ export async function getProjectRevisions(
     }
     params.set('page', String(query.page ?? 0))
     params.set('size', String(query.size ?? REVISIONS_PAGE_SIZE))
-    const branchSegment = branch ? `/branches/${encodeURIComponent(branch.replaceAll('/', ' '))}` : ''
-    const url = `/repos/${encodeURIComponent(repositoryId)}${branchSegment}/projects/${encodeURIComponent(projectName)}/history?${params.toString()}`
+    const url = `/projects/${encodeURIComponent(projectId)}/history?${params.toString()}`
     const response = await apiCall(url, undefined, { throwError: true })
     return {
         content: asArray(response?.content),

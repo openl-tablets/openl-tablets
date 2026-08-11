@@ -404,11 +404,10 @@ describe('ProjectDetail', () => {
         expect(screen.getByTestId('history-panel')).toBeTruthy()
         expect(revisionsPanelMock).toHaveBeenCalledWith(expect.objectContaining({
             projectId: PROJECT.id,
-            repositoryId: PROJECT.repository,
         }))
     })
 
-    it('does not pass a branch to history when the repository does not support branches', () => {
+    it('turns off the history search for a repository that cannot search', () => {
         setParams('tab=history')
         renderProjectDetail({
             project: {
@@ -419,7 +418,6 @@ describe('ProjectDetail', () => {
         })
 
         expect(revisionsPanelMock).toHaveBeenCalledWith(expect.objectContaining({
-            branch: null,
             searchable: false,
         }))
     })

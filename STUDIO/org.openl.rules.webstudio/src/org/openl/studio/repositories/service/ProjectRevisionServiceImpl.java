@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
@@ -73,6 +74,21 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
 
         // Retrieve and return project history
         return getHistoryRepositoryMapper(repository).getProjectHistory(fullPath, searchTerm, techRevs, page);
+    }
+
+    @Override
+    public PageResponse<ProjectRevision> getProjectRevision(RulesProject project,
+                                                            String searchTerm,
+                                                            boolean techRevs,
+                                                            Pageable page) throws IOException {
+        if (project.isLocalOnly()) {
+            // Never published, so no repository holds a history of it.
+            return PageResponse.of(List.of(), page, 0L);
+        }
+        // The project carries the folder its repository holds it under, which is the folder its own history
+        // is read from. No name is resolved, so a rename that is not saved yet changes nothing here.
+        return getHistoryRepositoryMapper(project.getDesignRepository())
+                .getProjectHistory(project.getDesignFolderName(), searchTerm, techRevs, page);
     }
 
     /**

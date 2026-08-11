@@ -110,12 +110,9 @@ async function renderPanel(props: {
     await act(async () => {
         render(
             <RevisionsPanel
-                branch="main"
                 currentRevision={props.currentRevision === undefined ? REVS[0]!.revisionNo : props.currentRevision}
                 onOpened={props.onOpened ?? vi.fn()}
                 projectId="p1"
-                projectName="Proj"
-                repositoryId="repo1"
                 searchable={props.searchable}
             />
         )
@@ -126,7 +123,7 @@ async function renderPanel(props: {
 describe('RevisionsPanel', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(getProjectRevisions).mockImplementation((_repo, _name, _branch, query) => {
+        vi.mocked(getProjectRevisions).mockImplementation((_projectId, query) => {
             const search = query?.search
             const content = search ? REVS.filter(revision => revision.fullComment.includes(search)) : REVS
             return Promise.resolve(page(content))
@@ -136,7 +133,7 @@ describe('RevisionsPanel', () => {
 
     it('lists revisions from the history endpoint', async () => {
         await renderPanel()
-        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalledWith('repo1', 'Proj', 'main', expect.anything()))
+        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalledWith('p1', expect.anything()))
         expect(screen.getByTestId('revisions-p1')).toBeTruthy()
         expect(screen.getByText('Second')).toBeTruthy()
     })
@@ -248,9 +245,7 @@ describe('RevisionsPanel', () => {
         await userEvent.type(screen.getByTestId('revisions-search-p1'), 'First')
 
         await waitFor(() => expect(getProjectRevisions).toHaveBeenCalledWith(
-            'repo1',
-            'Proj',
-            'main',
+            'p1',
             expect.objectContaining({ search: 'First' })
         ))
         await waitFor(() => expect(screen.queryByText('Second')).toBeNull())
@@ -273,7 +268,7 @@ describe('RevisionsPanel', () => {
 
         await userEvent.click(screen.getByTestId('revisions-tech'))
 
-        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalledWith('repo1', 'Proj', 'main', expect.objectContaining({ techRevs: true })))
+        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalledWith('p1', expect.objectContaining({ techRevs: true })))
     })
 
     it('hides search, technical revisions and paging for non-searchable repositories', async () => {
@@ -281,12 +276,10 @@ describe('RevisionsPanel', () => {
 
         await renderPanel({ searchable: false })
         await waitFor(() => expect(getProjectRevisions).toHaveBeenCalledWith(
-            'repo1',
-            'Proj',
-            'main',
+            'p1',
             expect.objectContaining({ techRevs: false })
         ))
-        expect(vi.mocked(getProjectRevisions).mock.calls[0]?.[3]).not.toHaveProperty('search')
+        expect(vi.mocked(getProjectRevisions).mock.calls[0]?.[1]).not.toHaveProperty('search')
 
         expect(screen.queryByTestId('revisions-search-p1')).toBeNull()
         expect(screen.queryByTestId('revisions-tech')).toBeNull()
@@ -302,7 +295,7 @@ describe('RevisionsPanel', () => {
 
     it('does not append a stale page after the search changes', async () => {
         const stalePage = deferred<ReturnType<typeof page>>()
-        vi.mocked(getProjectRevisions).mockImplementation((_repo, _name, _branch, query) => {
+        vi.mocked(getProjectRevisions).mockImplementation((_projectId, query) => {
             if (query?.page === 1) {
                 return stalePage.promise
             }
@@ -318,9 +311,7 @@ describe('RevisionsPanel', () => {
         await userEvent.type(screen.getByTestId('revisions-search-p1'), 'First')
 
         await waitFor(() => expect(getProjectRevisions).toHaveBeenCalledWith(
-            'repo1',
-            'Proj',
-            'main',
+            'p1',
             expect.objectContaining({ search: 'First' })
         ))
         await waitFor(() => expect(screen.queryByText('Second')).toBeNull())

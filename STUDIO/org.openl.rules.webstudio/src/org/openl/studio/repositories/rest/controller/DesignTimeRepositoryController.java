@@ -156,10 +156,16 @@ public class DesignTimeRepositoryController {
         return designTimeRepositoryService.getBranches(repository);
     }
 
+    /**
+     * Superseded by {@code GET /projects/{projectId}/history}, which the Revisions tab — the only caller this ever
+     * had — now asks instead. A project is named here by the name the repository published it under, which stops
+     * being the name its own user knows it by once the project is renamed in {@code rules.xml}.
+     */
     @GetMapping({"/{repo-name}/projects/{project-name}/history",
             "/{repo-name}/branches/{branch-name}/projects/{project-name}/history"})
     @Operation(summary = "repos.get-project-revs.summary", description = "repos.get-project-revs.desc")
     @JsonView({UserInfoModel.View.Short.class})
+    @Deprecated(forRemoval = false)
     public PageResponse<ProjectRevision> getProjectRevision(@DesignRepository("repo-name") Repository repository,
                                                             @Parameter(description = "repo.param.branch-name.desc") @PathVariable(value = "branch-name") Optional<String> branch,
                                                             @Parameter(description = "repo.param.project-name.desc") @PathVariable("project-name") String projectName,
