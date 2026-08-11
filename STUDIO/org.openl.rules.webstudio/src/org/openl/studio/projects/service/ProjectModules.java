@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 import org.openl.rules.project.model.Module;
 import org.openl.studio.projects.model.ModuleViewModel;
-import org.openl.util.FileUtils;
-import org.openl.util.StringUtils;
 
 /**
  * The modules of a project as the screen shows them: what {@code rules.xml} declares, and what each
@@ -69,12 +67,8 @@ final class ProjectModules {
                 .toList();
     }
 
-    /** A module reads by its name; a declaration that leaves the name out is named after its file. */
+    /** A module reads by the name it is known by, which for a declaration without one is its file. */
     private static ModuleViewModel module(Module module) {
-        var path = module.getRulesRootPath();
-        var name = StringUtils.isNotBlank(module.getName()) || path == null
-                ? module.getName()
-                : FileUtils.getBaseName(path);
-        return ModuleViewModel.module(name, path);
+        return ModuleViewModel.module(module.getResolvedName(), module.getRulesRootPath());
     }
 }

@@ -17,7 +17,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
+import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -51,6 +53,22 @@ public class Module {
         if (MethodFilter.isEmpty(methodFilter)) {
             methodFilter = null;
         }
+    }
+
+    /**
+     * The name this module is known by.
+     *
+     * <p>A module that declares no name of its own is known by the base name of its path, which is the name the
+     * engine gives it when it reads the project.
+     *
+     * <p>A pattern names no single file, so a pattern that declares no name has none: the modules it stands for
+     * are named after the files it matched, not after the pattern.
+     */
+    public @Nullable String getResolvedName() {
+        if (StringUtils.isNotBlank(name)) {
+            return name;
+        }
+        return isModuleWithWildcard() ? null : FileUtils.getBaseName(rulesRootPath);
     }
 
     public Path getRulesPath() {

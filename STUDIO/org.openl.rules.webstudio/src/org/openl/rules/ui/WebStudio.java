@@ -690,12 +690,18 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return needRedirect;
     }
 
+    /**
+     * The module of the project known by that name.
+     *
+     * <p>A module is matched by the name it is known by, which for a module that declares none in rules.xml is the
+     * base name of its path. The descriptor read from rules.xml as written and the one the engine resolved
+     * therefore answer the same name.
+     */
     public Module getModule(ProjectDescriptor project, final String moduleName) {
-        if (project == null) {
+        if (project == null || moduleName == null) {
             return null;
         }
-        return CollectionUtils.findFirst(project.getModules(),
-                module -> module.getName() != null && module.getName().equals(moduleName));
+        return CollectionUtils.findFirst(project.getModules(), module -> moduleName.equals(module.getResolvedName()));
     }
 
     public void storeProjectHistory() {

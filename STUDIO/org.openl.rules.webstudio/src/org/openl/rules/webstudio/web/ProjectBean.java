@@ -602,57 +602,80 @@ public class ProjectBean {
                     moduleWasRenamed = true;
                 }
             } else {
-                module = newProjectDescriptor.getModules().get(Integer.parseInt(index));
+                module = moduleAt(newProjectDescriptor, index);
             }
         }
 
-        if (module != null) {
-            module.setName(name);
-            module.setRulesRootPath(path);
+        if (module == null) {
+            // Saying nothing here passes for a successful edit: nothing is written, yet the screen goes on to the
+            // module the user asked for and answers that it does not exist.
+            var reference = StringUtils.isNotBlank(oldName) ? oldName : "#" + index;
+            throw new Message("Module '%s' is not found in the project.".formatted(reference));
+        }
+        // The name a module declaring none is known by. Leaving that name as it is asks for no name at all, so it
+        // stays out of rules.xml and the module goes on following its workbook.
+        var implicitName = addNewModule || StringUtils.isNotBlank(module.getName()) ? null : module.getResolvedName();
+        module.setRulesRootPath(path);
+        module.setName(Objects.equals(name, implicitName) ? null : name);
 
-            MethodFilter filter = module.getMethodFilter();
-            if (filter == null) {
-                filter = new MethodFilter();
-                module.setMethodFilter(filter);
-            }
-            filter.setIncludes(null);
-            filter.setExcludes(null);
+        MethodFilter filter = module.getMethodFilter();
+        if (filter == null) {
+            filter = new MethodFilter();
+            module.setMethodFilter(filter);
+        }
+        filter.setIncludes(null);
+        filter.setExcludes(null);
 
-            if (StringUtils.isNotBlank(includes)) {
-                filter.addIncludePattern(StringUtils.toLines(includes));
-            }
-            if (StringUtils.isNotBlank(excludes)) {
-                filter.addExcludePattern(StringUtils.toLines(excludes));
-            }
+        if (StringUtils.isNotBlank(includes)) {
+            filter.addIncludePattern(StringUtils.toLines(includes));
+        }
+        if (StringUtils.isNotBlank(excludes)) {
+            filter.addExcludePattern(StringUtils.toLines(excludes));
+        }
 
-            if (moduleWasRenamed) {
-                OpenAPI descriptorOpenAPI = newProjectDescriptor.getOpenapi();
-                if (descriptorOpenAPI != null) {
-                    String algorithmsModuleName = descriptorOpenAPI.getAlgorithmModuleName();
-                    String modelsModuleName = descriptorOpenAPI.getModelModuleName();
-                    boolean moduleNamesExists = StringUtils.isNotBlank(algorithmsModuleName) || StringUtils
-                            .isNotBlank(modelsModuleName);
-                    if (moduleNamesExists) {
-                        if (oldName.equals(algorithmsModuleName)) {
-                            descriptorOpenAPI.setAlgorithmModuleName(name);
-                        } else if (oldName.equals(modelsModuleName)) {
-                            descriptorOpenAPI.setModelModuleName(name);
-                        }
+        if (moduleWasRenamed) {
+            OpenAPI descriptorOpenAPI = newProjectDescriptor.getOpenapi();
+            if (descriptorOpenAPI != null) {
+                String algorithmsModuleName = descriptorOpenAPI.getAlgorithmModuleName();
+                String modelsModuleName = descriptorOpenAPI.getModelModuleName();
+                boolean moduleNamesExists = StringUtils.isNotBlank(algorithmsModuleName) || StringUtils
+                        .isNotBlank(modelsModuleName);
+                if (moduleNamesExists) {
+                    if (oldName.equals(algorithmsModuleName)) {
+                        descriptorOpenAPI.setAlgorithmModuleName(name);
+                    } else if (oldName.equals(modelsModuleName)) {
+                        descriptorOpenAPI.setModelModuleName(name);
                     }
                 }
             }
-            WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
-            if ("on".equals(compileThisModuleOnly)) {
-                webstudioConfiguration.setCompileThisModuleOnly(true);
-            }
-            module.setWebstudioConfiguration(webstudioConfiguration);
+        }
+        WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
+        if ("on".equals(compileThisModuleOnly)) {
+            webstudioConfiguration.setCompileThisModuleOnly(true);
+        }
+        module.setWebstudioConfiguration(webstudioConfiguration);
 
-            if (addNewModule) {
-                projectDescriptorManager.registerModule(newProjectDescriptor, module);
-            }
+        if (addNewModule) {
+            projectDescriptorManager.registerModule(newProjectDescriptor, module);
+        }
 
-            clean(newProjectDescriptor);
-            save(newProjectDescriptor);
+        clean(newProjectDescriptor);
+        save(newProjectDescriptor);
+    }
+
+    /**
+     * The module the screen points at by its position, or {@code null} when the project no longer has one there.
+     *
+     * <p>The position comes from a rendered page, while the modules are re-read from rules.xml, so the two can
+     * disagree when the file changed in between.
+     */
+    private static @Nullable Module moduleAt(ProjectDescriptor projectDescriptor, String index) {
+        var modules = projectDescriptor.getModules();
+        try {
+            var position = Integer.parseInt(index);
+            return position >= 0 && position < modules.size() ? modules.get(position) : null;
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
