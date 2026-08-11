@@ -171,13 +171,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         // key: name of the field, value: field type.
         //
         fields = new LinkedHashMap<>();
-        var useTransientSuffix = true;
-        for (var i = 0; i < tableHeight; i++) {
-            if (fieldNameEndsWithNonTransientSuffix(dataTable.getRow(i), bindingContext)) {
-                useTransientSuffix = false;
-                break;
-            }
-        }
         bindingContext.pushErrors();
         List<SyntaxNodeException> errors;
         try {
@@ -190,6 +183,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             // - New design: both headers are present (checked in getDatatypeColumnOrder)
             // - Legacy design: DEFAULT_COLUMN_TITLES_ORDER is returned which has them at positions 0 and 1
             int firstRow = columnTitlesOrder == DEFAULT_COLUMN_TITLES_ORDER ? 0 : 1;
+            int nameColumn = columnTitlesOrder.getOrDefault(NAME_COLUMN_TITLE, 1);
+            var useTransientSuffix = !anyFieldMarkedNonTransient(dataTable, firstRow, tableHeight, nameColumn,
+                    bindingContext);
             for (var i = firstRow; i < tableHeight; i++) {
                 processRow(dataTable, dataTable.getRow(i), bindingContext, fields, columnTitlesOrder, i == 0, useTransientSuffix);
             }
@@ -560,10 +556,50 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    private static boolean fieldNameEndsWithNonTransientSuffix(ILogicalTable row, IBindingContext bindingContext) {
-        GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, 1);
-        var rawFieldName = nameCellSource.getCode();
-        return rawFieldName.matches("^[^\\s]+\\*(\\s*:\\s*context.*)?$");
+    /**
+     * Whether any field of the datatype is marked with the non-transient suffix ({@code name*}).
+     *
+     * <p>A single marked field inverts the marking of the whole datatype: the marked fields are the ones the bean
+     * keeps, and every unmarked field becomes transient.
+     *
+     * <p>The name is read from the column the table gives to {@code Name}, which a titled table may put anywhere.
+     * Only the rows that declare a field are looked at, so neither a title row nor a commented row can invert a
+     * datatype.
+     */
+    private static boolean anyFieldMarkedNonTransient(ILogicalTable dataTable,
+                                                      int firstRow,
+                                                      int tableHeight,
+                                                      int nameColumn,
+                                                      IBindingContext cxt) {
+        for (var i = firstRow; i < tableHeight; i++) {
+            var row = dataTable.getRow(i);
+            if (!declaresNoField(dataTable, row, cxt) && isMarkedNonTransient(getCellSource(row, cxt, nameColumn)
+                    .getCode())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether a row of the body declares no field at all.
+     *
+     * <p>A commented row never declares one. A table without the columns beyond {@code Default} may also leave a
+     * row blank.
+     */
+    private static boolean declaresNoField(ILogicalTable dataTable, ILogicalTable row, IBindingContext cxt) {
+        var firstCellCode = getCellSource(row, cxt, 0).getCode();
+        return dataTable.getWidth() > 3 ? ParserUtils.isCommented(firstCellCode)
+                : ParserUtils.isBlankOrCommented(firstCellCode);
+    }
+
+    /**
+     * Whether a name cell marks its field with the non-transient suffix ({@code name*}).
+     *
+     * <p>The name may carry a runtime context property, which the suffix precedes.
+     */
+    private static boolean isMarkedNonTransient(String nameCellCode) {
+        return CONTEXT_SPLITTER.split(nameCellCode, 2)[0].endsWith(NON_TRANSIENT_FIELD_SUFFIX);
     }
 
     private void handleExampleValueError(String fieldName, IOpenClass fieldType, GridCellSourceCodeModule exampleValueCellSource, IBindingContext bindingContext) {
@@ -583,8 +619,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                             Map<String, Integer> columnTitlesOrder,
                             boolean firstRow,
                             boolean useTransientSuffix) {
-        GridCellSourceCodeModule firstCellSource = getCellSource(row, bindingContext, 0);
-        if (dataTable.getWidth() > 3 && ParserUtils.isCommented(firstCellSource.getCode()) || dataTable.getWidth() <= 3 && ParserUtils.isBlankOrCommented(firstCellSource.getCode())) {
+        if (declaresNoField(dataTable, row, bindingContext)) {
             return;
         }
         GridCellSourceCodeModule typeCellSource = getCellSource(row, bindingContext, columnTitlesOrder.getOrDefault(TYPE_COLUMN_TITLE, 0));
