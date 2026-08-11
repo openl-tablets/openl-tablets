@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- **Converged at `main` = `e761e710`**; every queue row done, every vein closed. Idle for dozens of consecutive
+- **Converged at `main` = `834ad673`**; every queue row done, every vein closed. Idle for dozens of consecutive
   passes; expect more. New scope arrives only as new commits on `main` — never invent a detector to make work.
-- The idle pass is two calls: `git log e761e710..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log 834ad673..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -102,7 +102,9 @@ None. Open the next one from a fresh branch off the current `main`.
   activates it (`quick`, `skipTests`, `!noPerf`, `noDocker`, `sonar`, `!sonar`, `!skipTests`, `env.CI`) or when it is
   documented tooling — `owasp`, named by `SECURITY.md`, is the only one with neither. An `<exclusions>` entry is
   defensive and stays correct even when the excluded artifact is absent today, because a transitive upgrade can
-  reintroduce it; removing one is a latent classpath change, not a deletion.
+  reintroduce it; removing one is a latent classpath change, not a deletion. A hand-written CVE pin looks superseded
+  once Dependabot bumps its property, but the `dependencyManagement` import is what overrides the parent BOM and both
+  it and its comment stay live; the comment names the fix condition, not the version, so a bump leaves it accurate.
 - **A pom outside the root aggregator's `<module>` graph is normally a fixture, not an orphan.** All 120 unreachable
   poms are maven-invoker projects under `Util/openl-maven-plugin/it/**` or documentation examples under `Docs/`.
   Only a `<module>` naming a missing directory would be deletable, and there are none.
@@ -378,8 +380,9 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-11 — run 123: `main` advanced to `bf9c2f8e` (EPBDS-16229), deletions replaced-in-place only; ledger, 381 lines.
 - 08-11 — run 124: `main` advanced to `861f2e9a` (EPBDS-16426/16428/16429); the datatype-binding deletions are all
   renamed-in-place helpers and the rest is ITEST fixtures, so nothing orphaned. No PR open; ledger, 382 lines.
 - 08-11 — run 125: `main` advanced to `e761e710` (EPBDS-16430); the identifier screen came back empty for every
   changed file, so nothing orphaned. No PR open; ledger, 385 lines.
+- 08-11 — run 126: `main` advanced to `834ad673` (Micrometer CVE pin plus its Dependabot bump), root pom only and
+  purely additive, so nothing orphaned. No PR open; ledger, 388 lines.
