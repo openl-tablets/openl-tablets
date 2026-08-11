@@ -186,8 +186,25 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             int nameColumn = columnTitlesOrder.getOrDefault(NAME_COLUMN_TITLE, 1);
             var useTransientSuffix = !anyFieldMarkedNonTransient(dataTable, firstRow, tableHeight, nameColumn,
                     bindingContext);
+            var indexFieldDeclared = false;
             for (var i = firstRow; i < tableHeight; i++) {
-                processRow(dataTable, dataTable.getRow(i), bindingContext, fields, columnTitlesOrder, i == 0, useTransientSuffix);
+                var field = processRow(dataTable, dataTable.getRow(i), bindingContext, fields, columnTitlesOrder, useTransientSuffix);
+                if (field != null && !indexFieldDeclared) {
+                    // This is done for operations like people["john"] in OpenL
+                    // rules to access one instance of datatype from array by
+                    // user defined index.
+                    // If first field type of Datatype is int, for calling the
+                    // instance, wrap it
+                    // with quotes, e.g. vehicle["23"].
+                    // Calling the instance like: drivers[7], you will get the 8
+                    // element of array.
+                    //
+                    // See DynamicArrayAggregateInfo#getIndex(IOpenClass
+                    // aggregateType, IOpenClass indexType)
+                    // and DatatypeArrayTest
+                    dataType.setIndexField(field);
+                    indexFieldDeclared = true;
+                }
             }
             validateInheritedFieldsDuplication(bindingContext);
             validateContextPropertyFields(bindingContext);
@@ -612,15 +629,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         BindHelper.processError(errorMessage, defaultValueCellSource, bindingContext);
     }
 
-    private void processRow(ILogicalTable dataTable,
-                            ILogicalTable row,
-                            IBindingContext bindingContext,
-                            Map<String, FieldDescription> fields,
-                            Map<String, Integer> columnTitlesOrder,
-                            boolean firstRow,
-                            boolean useTransientSuffix) {
+    /**
+     * Declares the field a row of the body carries.
+     *
+     * @return the declared field, or {@code null} when the row carries none
+     */
+    private DatatypeOpenField processRow(ILogicalTable dataTable,
+                                         ILogicalTable row,
+                                         IBindingContext bindingContext,
+                                         Map<String, FieldDescription> fields,
+                                         Map<String, Integer> columnTitlesOrder,
+                                         boolean useTransientSuffix) {
         if (declaresNoField(dataTable, row, bindingContext)) {
-            return;
+            return null;
         }
         GridCellSourceCodeModule typeCellSource = getCellSource(row, bindingContext, columnTitlesOrder.getOrDefault(TYPE_COLUMN_TITLE, 0));
         IOpenClass fieldType = OpenLManager
@@ -639,7 +660,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (TableNameChecker.isInvalidJavaIdentifier(fieldName)) {
             var errorMessage = "Bad field name: '%s'.".formatted(fieldName);
             BindHelper.processError(errorMessage, nameCellSource, bindingContext);
-            return;
+            return null;
         }
         if (parts.length > 1) {
             contextProperty = parts[1];
@@ -650,7 +671,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 if (TableNameChecker.isInvalidJavaIdentifier(contextProperty)) {
                     var errorMessage = "Bad context property name: '%s'.".formatted(contextProperty);
                     BindHelper.processError(errorMessage, nameCellSource, bindingContext);
-                    return;
+                    return null;
                 }
             }
             String errorMessage = ContextPropertyBinderUtils
@@ -668,7 +689,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (fields.containsKey(fieldName)) {
             var errorMessage = "Field '%s' is already declared.".formatted(fieldName);
             BindHelper.processError(errorMessage, nameCellSource, bindingContext);
-            return;
+            return null;
         } else if (fields.containsKey(ClassUtils.decapitalize(fieldName)) || fields
                 .containsKey(ClassUtils.capitalize(fieldName))) {
             String f = null;
@@ -808,21 +829,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
         var field = new DatatypeOpenField(dataType, fieldName, fieldType, contextProperty, isTransient);
         dataType.addField(field);
-        if (firstRow) {
-            // This is done for operations like people["john"] in OpenL
-            // rules to access one instance of datatype from array by
-            // user defined index.
-            // If first field type of Datatype is int, for calling the
-            // instance, wrap it
-            // with quotes, e.g. vehicle["23"].
-            // Calling the instance like: drivers[7], you will get the 8
-            // element of array.
-            //
-            // See DynamicArrayAggregateInfo#getIndex(IOpenClass
-            // aggregateType, IOpenClass indexType)
-            // and DatatypeArrayTest
-            dataType.setIndexField(field);
-        }
+        return field;
     }
 
     private static String extractFieldName(String fieldName) {
