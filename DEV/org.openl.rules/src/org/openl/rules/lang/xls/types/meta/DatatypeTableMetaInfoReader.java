@@ -104,7 +104,8 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
     }
 
     private IOpenField getField(ILogicalTable logicalRow) throws OpenLCompilationException {
-        String fieldName = getName(logicalRow);
+        var nameColumn = getBoundNode().getColumnTitlesOrder().getOrDefault(DatatypeHelper.NAME_COLUMN_TITLE, 1);
+        String fieldName = getName(logicalRow, nameColumn);
         if (fieldName == null) {
             return null;
         }
@@ -129,8 +130,8 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         return new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage));
     }
 
-    private static String getName(ILogicalTable row) throws OpenLCompilationException {
-        GridCellSourceCodeModule nameCellSource = getCellSource(row, null, 1);
+    private static String getName(ILogicalTable row, int nameColumn) throws OpenLCompilationException {
+        GridCellSourceCodeModule nameCellSource = getCellSource(row, null, nameColumn);
         IdentifierNode[] idn = Tokenizer.tokenize(nameCellSource, " \r\n");
         if (idn.length != 1) {
             // Table with error. Skip it
