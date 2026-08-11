@@ -90,6 +90,10 @@
         <spring.framework.version>6.2.19</spring.framework.version>
         <spring.boot.version>3.5.16</spring.boot.version>
         <spring.integration.version>6.5.10</spring.integration.version>
+        <!-- Newer than Spring Boot 3.5.16 manages by default, fixing CVE-2026-40984 (GHSA-g3pr-3p32-fp23),
+             a denial-of-service vulnerability in Micrometer's HTTP server instrumentation.
+             Remove once Spring Boot ships this version by default. -->
+        <micrometer.version>1.15.12</micrometer.version>
 
         <!-- Security -->
         <spring.security.version>6.5.11</spring.security.version>
@@ -457,6 +461,15 @@
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring.boot.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <!-- Override the micrometer-core (and micrometer-jetty11/micrometer-jetty12) that Spring Boot drags
+                 in with a newer release. Remove once Spring Boot ships this version by default. -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-bom</artifactId>
+                <version>${micrometer.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <!-- Spring Security -->
             <dependency>
