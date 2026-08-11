@@ -115,14 +115,10 @@ const useStyles = createStyles(({ css, token }) => ({
 }))
 
 interface RevisionsPanelProps {
-    /** URL-safe project id, used for opening a revision. */
+    /** URL-safe project id — what the history is asked about and what opens a revision. */
     projectId: string
-    /** Design repository id, project name and current branch — the history endpoint's coordinates. */
-    repositoryId: string
-    projectName: string
     /** Revision currently opened by the project. */
     currentRevision?: string | null
-    branch?: string | null
     searchable?: boolean | undefined
     onOpened: () => void
     /** Bumped when the project reloads (e.g. after a save), forcing the history to refetch. */
@@ -133,17 +129,14 @@ const authorName = (revision: ProjectRevision): string =>
     revision.author?.displayName || revision.author?.email || '—'
 
 /**
- * A project's revision history as a timeline, backed by the design-repository history API (the same one
- * the legacy UI uses). Supports a text search, a technical-revisions toggle and incremental paging. Any
- * revision can be opened for viewing, mirroring the legacy UI. History refetches whenever the project
- * reloads, so a new revision from a save appears immediately.
+ * A project's revision history as a timeline, backed by the project history API. Supports a text search, a
+ * technical-revisions toggle and incremental paging. Any revision can be opened for viewing, mirroring the
+ * legacy UI. History refetches whenever the project reloads, so a new revision from a save appears
+ * immediately.
  */
 export const RevisionsPanel = ({
     projectId,
-    repositoryId,
-    projectName,
     currentRevision,
-    branch,
     searchable = true,
     onOpened,
     reloadToken,
@@ -181,7 +174,7 @@ export const RevisionsPanel = ({
         setStatus('loading')
         setPage(0)
         setLoadingMore(false)
-        getProjectRevisions(repositoryId, projectName, branch ?? null, revisionQuery(0))
+        getProjectRevisions(projectId, revisionQuery(0))
             .then(response => {
                 if (cancelled || generation !== fetchGeneration.current) {
                     return
@@ -192,7 +185,7 @@ export const RevisionsPanel = ({
             })
             .catch(() => { if (!cancelled && generation === fetchGeneration.current) setStatus('error') })
         return () => { cancelled = true }
-    }, [repositoryId, projectName, branch, reloadToken, revisionQuery])
+    }, [projectId, reloadToken, revisionQuery])
 
     const hasMore = searchable && (pageInfo.total !== null
         ? items.length < pageInfo.total
@@ -203,7 +196,7 @@ export const RevisionsPanel = ({
         const generation = fetchGeneration.current
         setLoadingMore(true)
         try {
-            const response = await getProjectRevisions(repositoryId, projectName, branch ?? null, revisionQuery(next))
+            const response = await getProjectRevisions(projectId, revisionQuery(next))
             if (generation !== fetchGeneration.current) {
                 return
             }

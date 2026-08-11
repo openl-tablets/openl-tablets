@@ -56,6 +56,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
 import org.openl.rules.ui.WebStudio;
@@ -107,7 +108,9 @@ import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
+import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.studio.repositories.model.RepositoryConfigModel;
+import org.openl.studio.repositories.service.ProjectRevisionService;
 import org.openl.studio.repositories.service.RepositoryConfigService;
 import org.openl.studio.rest.resolver.PaginationDefault;
 import org.openl.util.StringUtils;
@@ -141,6 +144,7 @@ public class ProjectsController {
     private final RepositoryConfigService repositoryConfigService;
     private final ProjectMetadataService metadataService;
     private final ProjectMigrationService migrationService;
+    private final ProjectRevisionService projectRevisionService;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -312,6 +316,16 @@ public class ProjectsController {
         return project.isLocalOnly()
                 ? RepositoryConfigModel.none()
                 : repositoryConfigService.getConfig(project.getDesignRepository().getId());
+    }
+
+    @GetMapping("/{projectId}/history")
+    @Operation(summary = "projects.history.list.summary", description = "projects.history.list.desc")
+    @JsonView(UserInfoModel.View.Short.class)
+    public PageResponse<ProjectRevision> getHistory(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                    @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String search,
+                                                    @Parameter(description = "repo.param.techRevs.desc") @RequestParam(value = "techRevs", required = false, defaultValue = "false") boolean techRevs,
+                                                    @PaginationDefault Pageable page) throws IOException {
+        return projectRevisionService.getProjectRevision(project, search, techRevs, page);
     }
 
     @GetMapping("/{projectId}/branches")

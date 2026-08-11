@@ -435,13 +435,10 @@ export const ProjectDetail = ({
             label: <><HistoryOutlined /> {t('browser.tab_history')}</>,
             children: activeTab === 'history' && (
                 <RevisionsPanel
-                    branch={repositorySupportsBranches ? project.branch : null}
                     currentRevision={project.revision}
                     onOpened={() => onChanged?.()}
                     projectId={project.id}
-                    projectName={project.name}
                     reloadToken={reloadToken}
-                    repositoryId={project.repository}
                     searchable={repositorySupportsRevisionSearch}
                 />
             ),

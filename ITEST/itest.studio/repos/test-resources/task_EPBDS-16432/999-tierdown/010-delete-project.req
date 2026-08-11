@@ -1,0 +1,3 @@
+DELETE /rest/projects/{PROJECT_ID}?comment=EPBDS-16432%20Delete%20a%20project%20renamed%20but%20not%20saved HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+
