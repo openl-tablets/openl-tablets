@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- **Converged at `main` = `861f2e9a`**; every queue row done, every vein closed. Idle for dozens of consecutive
+- **Converged at `main` = `e761e710`**; every queue row done, every vein closed. Idle for dozens of consecutive
   passes; expect more. New scope arrives only as new commits on `main` — never invent a detector to make work.
-- The idle pass is two calls: `git log 861f2e9a..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log e761e710..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -150,6 +150,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 - **One detector rule is one change type**, so one PMD rule is one commit. The queue rows are coarser than that
   and group several rules per row — never squash two commits just because they share a queue row.
+- **Screen an incremental commit mechanically**: per changed file, take the identifiers of its deleted lines minus
+  the identifiers of its post-image; an empty result proves the file orphaned nothing and needs no reading.
 - For a bundle key, search the full dotted path **and** the bare leaf name; either hit means keep.
 - Validate any bulk detector on two fabricated names *and* one known-live name — a fabricated hit or a live
   miss means the search is wrong. Mixing `grep -E` with `-P` errors out, so hidden stderr reads every name dead.
@@ -376,7 +378,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-11 — run 122: fifty-seventh idle pass, `main` still `2c8e3ed8`, no dead-code PR open; ledger only, 381 lines.
 - 08-11 — run 123: `main` advanced to `bf9c2f8e` (EPBDS-16229), deletions replaced-in-place only; ledger, 381 lines.
 - 08-11 — run 124: `main` advanced to `861f2e9a` (EPBDS-16426/16428/16429); the datatype-binding deletions are all
   renamed-in-place helpers and the rest is ITEST fixtures, so nothing orphaned. No PR open; ledger, 382 lines.
+- 08-11 — run 125: `main` advanced to `e761e710` (EPBDS-16430); the identifier screen came back empty for every
+  changed file, so nothing orphaned. No PR open; ledger, 385 lines.
