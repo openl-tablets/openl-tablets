@@ -380,9 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-11 — run 124: `main` advanced to `861f2e9a` (EPBDS-16426/16428/16429); the datatype-binding deletions are all
-  renamed-in-place helpers and the rest is ITEST fixtures, so nothing orphaned. No PR open; ledger, 382 lines.
-- 08-11 — run 125: `main` advanced to `e761e710` (EPBDS-16430); the identifier screen came back empty for every
-  changed file, so nothing orphaned. No PR open; ledger, 385 lines.
-- 08-11 — run 126: `main` advanced to `834ad673` (Micrometer CVE pin plus its Dependabot bump), root pom only and
-  purely additive, so nothing orphaned. No PR open; ledger, 388 lines.
+- 08-11 — run 125: `main` → `e761e710` (EPBDS-16430); identifier screen empty for every changed file. No PR open.
+- 08-11 — run 126: `main` → `834ad673` (Micrometer CVE pin plus its Dependabot bump), root pom only and additive.
+- 08-11 — run 127: `main` unchanged at `834ad673`; no sweep branch, no PR open. Idle pass; ledger compacted to 385.
