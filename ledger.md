@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- **Converged at `main` = `834ad673`**; every queue row done, every vein closed. Idle for dozens of consecutive
+- **Converged at `main` = `fdeabeba3`**; every queue row done, every vein closed. Idle for dozens of consecutive
   passes; expect more. New scope arrives only as new commits on `main` — never invent a detector to make work.
-- The idle pass is two calls: `git log 834ad673..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log fdeabeba3..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -380,6 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-11 — run 125: `main` → `e761e710` (EPBDS-16430); identifier screen empty for every changed file. No PR open.
 - 08-11 — run 126: `main` → `834ad673` (Micrometer CVE pin plus its Dependabot bump), root pom only and additive.
 - 08-11 — run 127: `main` unchanged at `834ad673`; no sweep branch, no PR open. Idle pass; ledger compacted to 385.
+- 08-11 — run 128: `main` → `fdeabeba3` (EPBDS-16432); a narrowed service signature orphaned only a local. No PR.
