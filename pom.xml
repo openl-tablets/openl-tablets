@@ -91,8 +91,9 @@
         <spring.boot.version>3.5.16</spring.boot.version>
         <spring.integration.version>6.5.10</spring.integration.version>
         <!-- Newer than Spring Boot 3.5.16 manages by default, fixing CVE-2026-40984 (GHSA-g3pr-3p32-fp23),
-             a denial-of-service vulnerability in Micrometer's HTTP server instrumentation.
-             Remove once Spring Boot ships this version by default. -->
+             a denial-of-service vulnerability in Micrometer's HTTP server instrumentation. micrometer-core
+             is a required (compile-scope) dependency of spring-ldap-core, not an optional add-on.
+             Remove once spring-ldap-core 4.x (requires Spring Framework 7.x) manages a fixed version by default. -->
         <micrometer.version>1.15.12</micrometer.version>
 
         <!-- Security -->
@@ -462,8 +463,9 @@
                 <version>${spring.boot.version}</version>
                 <scope>test</scope>
             </dependency>
-            <!-- Override the micrometer-core (and micrometer-jetty11/micrometer-jetty12) that Spring Boot drags
-                 in with a newer release. Remove once Spring Boot ships this version by default. -->
+            <!-- Override the micrometer-core that spring-ldap-core requires as a compile-scope dependency,
+                 with a newer release fixing CVE-2026-40984. Remove once spring-ldap-core 4.x (requires
+                 Spring Framework 7.x) manages a fixed version by default. -->
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-bom</artifactId>
