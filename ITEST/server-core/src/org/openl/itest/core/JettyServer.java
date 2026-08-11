@@ -93,6 +93,19 @@ public class JettyServer {
         return withInitParam("spring.profiles.active", profile);
     }
 
+    /**
+     * Deploys the webapp under a context path instead of the server root.
+     *
+     * <p>A request for the context path itself, without the trailing slash, is handed to the webapp as it is. That
+     * is what a container does when the webapp maps a servlet to {@code /*}: the servlet is called with no path
+     * info instead of the container answering a redirect of its own.
+     */
+    public JettyServer withContextPath(String contextPath) {
+        webAppContext.setContextPath(contextPath);
+        webAppContext.setAllowNullPathInContext(true);
+        return this;
+    }
+
     public void test() throws Exception {
         var profile = this.webAppContext.getInitParams().get("spring.profiles.active");
         try (var client = start()) {
