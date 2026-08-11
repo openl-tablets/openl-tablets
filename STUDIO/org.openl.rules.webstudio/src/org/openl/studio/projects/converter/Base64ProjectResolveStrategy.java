@@ -17,7 +17,12 @@ import org.openl.studio.projects.model.ProjectIdModel;
  *
  * <p>A cached workspace project is reused only while the current secured design-repository view still contains it and
  * its opened state matches the authoritative local metainfo registry. A cache miss or stale entry refreshes the
- * workspace. For mapped repositories, lookup is retried with the business name when the direct lookup fails.
+ * workspace.
+ *
+ * <p>The id names a project by its design folder, while the workspace indexes an opened project by the folder its
+ * copy occupies. The two agree until the project is renamed in {@code rules.xml}: until that rename is saved, the
+ * design folder keeps the old name and the workspace copy already carries the new one. For a mapped repository the
+ * folder the id names is therefore looked up directly, and only then, as before, by the business name.
  *
  * @author Vladyslav Pikus
  */
@@ -42,14 +47,30 @@ public class Base64ProjectResolveStrategy implements ProjectResolveStrategy {
         }
     }
 
+    /**
+     * The project the id names in a mapped repository.
+     *
+     * <p>A name the mapper leaves untouched is not a mapped name and names no folder here. Otherwise the folder the
+     * id names is matched first, because it identifies exactly one project. The business name is only tried
+     * afterwards: more than one project can carry it, so it may answer with a different project that currently
+     * occupies the name.
+     */
     private List<RulesProject> mappedFolderFallback(UserWorkspace workspace, String repoId, String projectName) {
-        var repository = workspace.getDesignTimeRepository().getRepository(repoId);
+        var designTimeRepository = workspace.getDesignTimeRepository();
+        var repository = designTimeRepository.getRepository(repoId);
         if (repository == null || !repository.supports().mappedFolders()) {
             return List.of();
         }
-        var businessName = ((FolderMapper) repository).getBusinessName(projectName);
+        var folderMapper = (FolderMapper) repository;
+        var businessName = folderMapper.getBusinessName(projectName);
         if (Objects.equals(businessName, projectName)) {
             return List.of();
+        }
+        // The mapper reads a whole external path, while an id carries only its last segment.
+        var externalPath = designTimeRepository.getRulesLocation() + projectName;
+        var byDesignFolder = workspace.getProjectByPath(repoId, folderMapper.getRealPath(externalPath));
+        if (byDesignFolder.isPresent()) {
+            return List.of(byDesignFolder.get());
         }
         try {
             return List.of(resolveProject(workspace, repoId, businessName));

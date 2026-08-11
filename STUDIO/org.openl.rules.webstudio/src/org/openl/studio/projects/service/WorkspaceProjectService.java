@@ -1072,9 +1072,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     /**
      * Closes a project in every user workspace before it is removed from the design repository.
+     *
+     * <p>A workspace holds the project in a folder named after it. That name is usually the same everywhere, but a
+     * rename in {@code rules.xml} that is not saved yet moves only the folder of the user who made it. Both names
+     * are therefore closed, so no user is left with a copy of a project that no longer exists.
      */
     private void closeProjectForAllUsers(RulesProject project) {
         var businessName = project.getBusinessName();
+        var mainBusinessName = project.getMainBusinessName();
         var branch = project.getBranch();
         var repoId = project.getRepository().getId();
 
@@ -1094,6 +1099,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         for (File file : files) {
             closeProjectInWorkspace(file, repoId, businessName, branch);
+            if (!Objects.equals(mainBusinessName, businessName)) {
+                closeProjectInWorkspace(file, repoId, mainBusinessName, branch);
+            }
         }
     }
 

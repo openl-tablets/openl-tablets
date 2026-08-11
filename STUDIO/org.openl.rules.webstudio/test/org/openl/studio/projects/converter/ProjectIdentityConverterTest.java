@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,7 @@ import org.openl.studio.projects.service.ProjectIdentifierMapperImpl;
 class ProjectIdentityConverterTest {
 
     private static final String ID_SEPARATOR = ":";
+    private static final String RULES_LOCATION = "DESIGN/rules/";
 
     @Autowired
     private ProjectIdentityConverter projectConverter;
@@ -169,6 +171,25 @@ class ProjectIdentityConverterTest {
         assertEquals("openl.error.404.project.identifier.message", ex2.getErrorCode());
     }
 
+    /**
+     * Stubs a design repository that maps folders: the id's mapped name resolves back to the business name and to
+     * the folder the design repository holds.
+     */
+    private DesignTimeRepository mockMappedRepository(String repoId,
+                                                      String mappedName,
+                                                      String businessName,
+                                                      String realPath) {
+        var designRepo = mock(DesignTimeRepository.class);
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designRepo);
+        when(designRepo.getRulesLocation()).thenReturn(RULES_LOCATION);
+        var repo = mock(Repository.class, withSettings().extraInterfaces(FolderMapper.class));
+        when(designRepo.getRepository(repoId)).thenReturn(repo);
+        when(repo.supports()).thenReturn(new FeaturesBuilder(repo).setMappedFolders(true).build());
+        when(((FolderMapper) repo).getBusinessName(mappedName)).thenReturn(businessName);
+        when(((FolderMapper) repo).getRealPath(RULES_LOCATION + mappedName)).thenReturn(realPath);
+        return designRepo;
+    }
+
     @Test
     void convert_notFound() throws ProjectException {
         var repositoryId = "design-repo";
@@ -176,12 +197,7 @@ class ProjectIdentityConverterTest {
         var projectId = encode(repositoryId, projectName);
 
         when(userWorkspace.getProject(repositoryId, projectName)).thenThrow(new ProjectException("Not found"));
-        var designRepo = mock(DesignTimeRepository.class);
-        when(userWorkspace.getDesignTimeRepository()).thenReturn(designRepo);
-        var repo = mock(Repository.class, withSettings().extraInterfaces(FolderMapper.class));
-        when(designRepo.getRepository(repositoryId)).thenReturn(repo);
-        when(repo.supports()).thenReturn(new FeaturesBuilder(repo).setMappedFolders(true).build());
-        when(((FolderMapper) repo).getBusinessName(projectName)).thenReturn(projectName);
+        var designRepo = mockMappedRepository(repositoryId, projectName, projectName, projectName);
         when(designRepo.getRepositories()).thenReturn(List.of());
         when(userWorkspace.getProjectsByName(projectName)).thenReturn(List.of());
 
@@ -197,12 +213,7 @@ class ProjectIdentityConverterTest {
         var projectId = encode(repoId, projectMappedName);
 
         when(userWorkspace.getProject(repoId, projectMappedName)).thenThrow(new ProjectException("Not found"));
-        var designRepo = mock(DesignTimeRepository.class);
-        when(userWorkspace.getDesignTimeRepository()).thenReturn(designRepo);
-        var repo = mock(Repository.class, withSettings().extraInterfaces(FolderMapper.class));
-        when(designRepo.getRepository(repoId)).thenReturn(repo);
-        when(repo.supports()).thenReturn(new FeaturesBuilder(repo).setMappedFolders(true).build());
-        when(((FolderMapper) repo).getBusinessName(projectMappedName)).thenReturn(projectBusinessName);
+        mockMappedRepository(repoId, projectMappedName, projectBusinessName, "path/to/projectName");
 
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProject(repoId, projectBusinessName)).thenReturn(rulesProject);
@@ -220,18 +231,36 @@ class ProjectIdentityConverterTest {
         var projectId = encode(repoId, projectMappedName);
 
         when(userWorkspace.getProject(repoId, projectMappedName)).thenThrow(new ProjectException("Not found"));
-        var designRepo = mock(DesignTimeRepository.class);
-        when(userWorkspace.getDesignTimeRepository()).thenReturn(designRepo);
-        var repo = mock(Repository.class, withSettings().extraInterfaces(FolderMapper.class));
-        when(designRepo.getRepository(repoId)).thenReturn(repo);
-        when(repo.supports()).thenReturn(new FeaturesBuilder(repo).setMappedFolders(true).build());
-        when(((FolderMapper) repo).getBusinessName(projectMappedName)).thenReturn(projectBusinessName);
+        var designRepo = mockMappedRepository(repoId, projectMappedName, projectBusinessName, "path/to/projectName");
         when(userWorkspace.getProject(repoId, projectBusinessName)).thenThrow(new ProjectException("Not found 2"));
         when(designRepo.getRepositories()).thenReturn(List.of());
         when(userWorkspace.getProjectsByName(projectMappedName)).thenReturn(List.of());
 
         var ex = assertThrows(NotFoundException.class, () -> projectConverter.convert(projectId));
         assertEquals("openl.error.404.project.identifier.message", ex.getErrorCode());
+    }
+
+    @Test
+    void convert_mappedName_unsavedRename_resolvesByDesignFolder() throws ProjectException {
+        var repoId = "design-repo";
+        var projectBusinessName = "projectName";
+        var projectMappedName = projectBusinessName + ":123456789";
+        var projectRealPath = "path/to/projectName";
+        var projectId = encode(repoId, projectMappedName);
+
+        when(userWorkspace.getProject(repoId, projectMappedName)).thenThrow(new ProjectException("Not found"));
+        mockMappedRepository(repoId, projectMappedName, projectBusinessName, projectRealPath);
+
+        // The rename in rules.xml is not saved yet: the workspace copy left the business-name folder, and another
+        // project of that business name occupies it now. The folder the id names must win.
+        var renamedProject = mock(RulesProject.class);
+        when(userWorkspace.getProjectByPath(repoId, projectRealPath)).thenReturn(Optional.of(renamedProject));
+        when(userWorkspace.getProject(repoId, projectBusinessName)).thenReturn(mock(RulesProject.class));
+        when(designRepositoryAclService.isGranted(renamedProject, List.of(BasePermission.READ))).thenReturn(true);
+
+        assertSame(renamedProject, projectConverter.convert(projectId));
+        verify(userWorkspace, never()).getProject(repoId, projectBusinessName);
+        verify(userWorkspace, never()).getProject(repoId, projectBusinessName, false);
     }
 
     @Test

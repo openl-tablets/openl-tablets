@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYyMjk6YWIyNzhkNWNkYjkyYjFlMTYyZTAyYTZlMTNjNzM4OTA3NGNmYTkzNTNjYjY3MWNiNDczMzkyZmM2ZGFmOTBiOQ==",
+  "name": "EPBDS-16229-Renamed",
+  "status": "EDITING"
+}
