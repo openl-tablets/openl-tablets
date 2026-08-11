@@ -388,9 +388,7 @@ public class ProjectDescriptor {
                 continue;
             }
             var path = module.getRulesRootPath();
-            if (StringUtils.isBlank(module.getName())) {
-                module.setName(FileUtils.getBaseName(path));
-            }
+            module.setName(module.getResolvedName());
             Path modulePath = Path.of(path);
             if (modulePath.isAbsolute()) {
                 modulePath = projectFolder.relativize(modulePath);
