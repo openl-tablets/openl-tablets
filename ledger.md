@@ -380,6 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-11 — run 126: `main` → `834ad673` (Micrometer CVE pin plus its Dependabot bump), root pom only and additive.
 - 08-11 — run 127: `main` unchanged at `834ad673`; no sweep branch, no PR open. Idle pass; ledger compacted to 385.
 - 08-11 — run 128: `main` → `fdeabeba3` (EPBDS-16432); a narrowed service signature orphaned only a local. No PR.
+- 08-11 — run 129: `main` unchanged at `fdeabeba3`, no PR open. Idle pass; the two-call check cost nothing else.
