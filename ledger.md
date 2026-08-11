@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- **Converged at `main` = `bf9c2f8e`**; every queue row done, every vein closed. Idle for dozens of consecutive
+- **Converged at `main` = `861f2e9a`**; every queue row done, every vein closed. Idle for dozens of consecutive
   passes; expect more. New scope arrives only as new commits on `main` — never invent a detector to make work.
-- The idle pass is two calls: `git log bf9c2f8e..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log 861f2e9a..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -376,7 +376,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-11 — run 121: fifty-sixth idle pass, `main` still `2c8e3ed8`, no dead-code PR open; ledger only, 382 lines.
 - 08-11 — run 122: fifty-seventh idle pass, `main` still `2c8e3ed8`, no dead-code PR open; ledger only, 381 lines.
-- 08-11 — run 123: `main` advanced to `bf9c2f8e` (EPBDS-16229); its only deletions are replaced-in-place mocks and
-  a reworded JavaDoc, so nothing orphaned. No dead-code PR open; ledger only, 381 lines.
+- 08-11 — run 123: `main` advanced to `bf9c2f8e` (EPBDS-16229), deletions replaced-in-place only; ledger, 381 lines.
+- 08-11 — run 124: `main` advanced to `861f2e9a` (EPBDS-16426/16428/16429); the datatype-binding deletions are all
+  renamed-in-place helpers and the rest is ITEST fixtures, so nothing orphaned. No PR open; ledger, 382 lines.
