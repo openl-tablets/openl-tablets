@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- **Converged at `main` = `2c8e3ed8`**; every queue row done, every vein closed. Fifty-five idle passes; expect
-  more. New scope arrives only as new commits on `main` — never invent a detector to manufacture work.
+- **Converged at `main` = `2c8e3ed8`**; every queue row done, every vein closed. Idle for dozens of consecutive
+  passes; expect more. New scope arrives only as new commits on `main` — never invent a detector to make work.
 - The idle pass is two calls: `git log 2c8e3ed8..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
@@ -376,7 +376,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-11 — run 118: fifty-third idle pass, `main` still `1c6ad54d`, no dead-code PR open; ledger only, 383 lines.
 - 08-11 — run 119: fifty-fourth idle pass, `main` to `2c8e3ed8` by three Dependabot bumps touching only root-pom
   version properties; no new surface, no commit, 383 lines.
 - 08-11 — run 120: fifty-fifth idle pass, `main` still `2c8e3ed8`, no dead-code PR open; ledger only, 382 lines.
+- 08-11 — run 121: fifty-sixth idle pass, `main` still `2c8e3ed8`, no dead-code PR open; ledger only, 382 lines.
