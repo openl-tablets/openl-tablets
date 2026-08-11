@@ -231,6 +231,14 @@ When REST controllers or OpenAPI annotations change, the large OpenAPI `.resp` f
 
 Some flows need logic the declarative framework can't express (WebSocket streams, async waits, computed assertions). Write a JUnit class in `test/` and drive the server through `HttpClient`: `getForObject` / `postForObject` for ad-hoc calls, or `client.test(folder)` to replay a `.req`/`.resp` folder for setup.
 
+### Deploying under a context path
+
+`JettyServer.get().withContextPath("/openl-studio")` deploys the webapp under a context path instead of the server
+root, and every `.req` URL then carries that prefix. Use it for what only a non-root deployment reaches — a page
+that builds absolute links, or the context root requested **without** the trailing slash, which reaches a `/*`
+servlet with no path info at all. The container does not answer that request itself, exactly as a container that
+maps the context root to a servlet does.
+
 ### One server per class (performance)
 
 Starting the embedded Jetty + Spring context costs several seconds. Start it **once per class**, not per test/parameter:

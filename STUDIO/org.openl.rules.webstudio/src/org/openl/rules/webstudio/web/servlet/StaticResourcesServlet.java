@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElse;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +33,8 @@ public class StaticResourcesServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        var path = req.getPathInfo();
+        // The context root requested without the trailing slash carries no path, and names the same page as "/".
+        var path = requireNonNullElse(req.getPathInfo(), "/");
         // Check if the request is for a static resource
         if (path.startsWith("/css/")
                 || path.startsWith("/assets/")
