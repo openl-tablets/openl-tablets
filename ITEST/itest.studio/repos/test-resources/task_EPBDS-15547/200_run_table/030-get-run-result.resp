@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "tableName": "Virtual test suite",
+  "tableName": "BaseRate",
   "tableId": "f7e9e48351f56988a3847fd05446f305",
   "executionTimeMs": "##.##",
   "result": 270.0,

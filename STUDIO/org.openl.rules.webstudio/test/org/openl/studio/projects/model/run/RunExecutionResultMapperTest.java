@@ -19,15 +19,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 
 @ExtendWith(MockitoExtension.class)
 class RunExecutionResultMapperTest {
@@ -46,6 +44,9 @@ class RunExecutionResultMapperTest {
     @Mock
     private TestSuite testSuite;
 
+    @Mock
+    private IOpenMethod executedMethod;
+
     private RunExecutionResultMapper mapper;
 
     @BeforeEach
@@ -53,12 +54,13 @@ class RunExecutionResultMapperTest {
         mapper = new RunExecutionResultMapper(objectMapper, schemaGenerator, null);
         when(results.getTestSuite()).thenReturn(testSuite);
         when(testSuite.getUri()).thenReturn(TABLE_URI);
+        when(testSuite.getTestedMethod()).thenReturn(executedMethod);
+        when(executedMethod.getName()).thenReturn(TABLE_NAME);
     }
 
     @Test
     void mapResult_emptyTestUnits() {
         when(results.getTestUnits()).thenReturn(List.of());
-        when(results.getName()).thenReturn(TABLE_NAME);
         when(results.getExecutionTime()).thenReturn(2_000_000L);
 
         var result = mapper.mapResult(results);
@@ -82,11 +84,9 @@ class RunExecutionResultMapperTest {
         var actualParam = mock(ParameterWithValueDeclaration.class);
 
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
-        when(results.getName()).thenReturn(TABLE_NAME);
         when(results.getExecutionTime()).thenReturn(5_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
         when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
-        when(testSuite.getTestSuiteMethod()).thenReturn(null);
 
         when(testUnit.getActualResult()).thenReturn(42);
         when(testUnit.getActualParam()).thenReturn(actualParam);
@@ -117,11 +117,9 @@ class RunExecutionResultMapperTest {
         var testDescription = mock(TestDescription.class);
 
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
-        when(results.getName()).thenReturn(TABLE_NAME);
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
         when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
-        when(testSuite.getTestSuiteMethod()).thenReturn(null);
 
         when(testUnit.getActualResult()).thenReturn(new RuntimeException("error"));
         when(testUnit.getTest()).thenReturn(testDescription);
@@ -141,11 +139,9 @@ class RunExecutionResultMapperTest {
         var testDescription = mock(TestDescription.class);
 
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
-        when(results.getName()).thenReturn(TABLE_NAME);
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
         when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
-        when(testSuite.getTestSuiteMethod()).thenReturn(null);
 
         when(testUnit.getActualResult()).thenReturn(null);
         when(testUnit.getActualParam()).thenReturn(null);
@@ -173,11 +169,9 @@ class RunExecutionResultMapperTest {
         when(param.getType()).thenReturn(paramType);
 
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
-        when(results.getName()).thenReturn(TABLE_NAME);
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[]{"Age"});
         when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
-        when(testSuite.getTestSuiteMethod()).thenReturn(null);
 
         when(testUnit.getActualResult()).thenReturn(new RuntimeException("skip"));
         when(testUnit.getTest()).thenReturn(testDescription);
@@ -206,11 +200,9 @@ class RunExecutionResultMapperTest {
         when(ctxParam.getValue()).thenReturn("2025-01-01");
 
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
-        when(results.getName()).thenReturn(TABLE_NAME);
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
         when(results.getContextColumnDisplayNames()).thenReturn(new String[]{"Current Date"});
-        when(testSuite.getTestSuiteMethod()).thenReturn(null);
 
         when(testUnit.getActualResult()).thenReturn(new RuntimeException("skip"));
         when(testUnit.getTest()).thenReturn(testDescription);
@@ -237,11 +229,9 @@ class RunExecutionResultMapperTest {
         var warning = new OpenLMessage("Warning", Severity.WARN);
 
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
-        when(results.getName()).thenReturn(TABLE_NAME);
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
         when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
-        when(testSuite.getTestSuiteMethod()).thenReturn(null);
 
         when(testUnit.getActualResult()).thenReturn(new RuntimeException("skip"));
         when(testUnit.getTest()).thenReturn(testDescription);
@@ -258,33 +248,35 @@ class RunExecutionResultMapperTest {
         assertEquals(Severity.ERROR, result.errors().get(2).severity());
     }
 
+    /**
+     * A run wraps the requested table into a virtual suite whose own name is a placeholder, so the result is named
+     * after the executed table. The suite name is never consulted.
+     */
     @Test
-    void mapResult_withTestSuiteMethod() {
+    void mapResult_namesExecutedTable() {
+        mockSingleUnit();
+
+        var result = mapper.mapResult(results);
+
+        assertEquals(TABLE_NAME, result.tableName());
+    }
+
+    /**
+     * Mocks a single failed test unit, so that only the result metadata is mapped.
+     */
+    private void mockSingleUnit() {
         var testUnit = mock(ITestUnit.class);
         var testDescription = mock(TestDescription.class);
-        var testSuiteMethod = mock(org.openl.rules.testmethod.TestSuiteMethod.class);
-        var memberMetaInfo = mock(IMemberMetaInfo.class);
-        var syntaxNode = mock(TableSyntaxNode.class);
 
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
         when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
-        when(testSuite.getTestSuiteMethod()).thenReturn(testSuiteMethod);
-        var tableProperties = mock(ITableProperties.class);
-        when(testSuiteMethod.getInfo()).thenReturn(memberMetaInfo);
-        when(memberMetaInfo.getSyntaxNode()).thenReturn(syntaxNode);
-        when(syntaxNode.getTableProperties()).thenReturn(tableProperties);
-        when(tableProperties.getName()).thenReturn("myTestMethod");
 
         when(testUnit.getActualResult()).thenReturn(new RuntimeException("skip"));
         when(testUnit.getTest()).thenReturn(testDescription);
         when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         when(testUnit.getErrors()).thenReturn(List.of());
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
-
-        var result = mapper.mapResult(results);
-
-        assertNotNull(result.tableName());
     }
 }
