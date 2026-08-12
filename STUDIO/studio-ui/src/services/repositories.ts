@@ -194,10 +194,13 @@ export async function unlockProject(projectId: string): Promise<void> {
  * Copy a project into the target repository under a new name. The copy happens entirely server-side:
  * the backend copies the project folder, renames the descriptor, grants access and re-indexes the
  * workspace. No download/re-upload round-trip.
+ *
+ * The source is addressed by its id: a repository may hold the same project name in more than one
+ * folder, and only the id tells those folders apart.
  */
 export async function copyProject(
     sourceRepositoryId: string,
-    sourceProjectName: string,
+    sourceProjectId: string,
     targetRepositoryId: string,
     newName: string,
     comment?: string,
@@ -212,7 +215,7 @@ export async function copyProject(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 sourceRepositoryId,
-                sourceProjectName,
+                sourceProject: sourceProjectId,
                 ...(comment?.trim() ? { comment: comment.trim() } : {}),
                 ...(path?.trim() ? { path: path.trim() } : {}),
                 ...(revision?.trim() ? { revision: revision.trim() } : {}),

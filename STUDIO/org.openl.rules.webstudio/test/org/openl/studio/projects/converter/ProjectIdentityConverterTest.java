@@ -1,6 +1,7 @@
 package org.openl.studio.projects.converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
@@ -277,16 +278,8 @@ class ProjectIdentityConverterTest {
     @Test
     void convert_byName_ambiguous() {
         var name = "MyProject";
-        var p1 = mock(RulesProject.class);
-        var p2 = mock(RulesProject.class);
-        var repo1 = mock(Repository.class);
-        var repo2 = mock(Repository.class);
-        when(repo1.getId()).thenReturn("repo-1");
-        when(repo2.getId()).thenReturn("repo-2");
-        when(p1.getRepository()).thenReturn(repo1);
-        when(p2.getRepository()).thenReturn(repo2);
-        when(p1.getName()).thenReturn(name);
-        when(p2.getName()).thenReturn(name);
+        var p1 = projectIn("repo-1", name);
+        var p2 = projectIn("repo-2", name);
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of(p1, p2));
 
         var ex = assertThrows(ConflictException.class, () -> projectConverter.convert(name));
@@ -295,6 +288,42 @@ class ProjectIdentityConverterTest {
         var encoded1 = encode("repo-1", name);
         var encoded2 = encode("repo-2", name);
         assertEquals(encoded1 + ", " + encoded2, ex.getArgs()[1]);
+    }
+
+    @Test
+    void resolve_byName_narrowedToOneRepository() {
+        var name = "MyProject";
+        var wanted = projectIn("repo-1", name);
+        var sameNameElsewhere = projectIn("repo-2", name);
+        when(userWorkspace.getProjectsByName(name)).thenReturn(List.of(wanted, sameNameElsewhere));
+
+        assertSame(wanted, projectConverter.resolveProjectIdentity(name, "repo-1"));
+    }
+
+    @Test
+    void resolve_byName_narrowingCannotSettleOneRepositoryHoldingTheNameTwice() {
+        // A non-flat repository tells its projects apart by the folder they live in, so it may carry one name
+        // in several folders. Only an id picks one of those; the answer names them.
+        var name = "MyProject";
+        var first = projectIn("repo-1", name);
+        var second = projectIn("repo-1", name);
+        when(userWorkspace.getProjectsByName(name)).thenReturn(List.of(first, second));
+
+        var ex = assertThrows(ConflictException.class,
+                () -> projectConverter.resolveProjectIdentity(name, "repo-1"));
+        assertEquals("openl.error.409.project.identifier.ambiguous.message", ex.getErrorCode());
+    }
+
+    @Test
+    void resolve_isNotHandedOnWhenTheAnsweringStrategyNamesAnotherRepository() {
+        // The strategy that answers stays authoritative: the identity names no project of this repository, so
+        // the next strategy must not be asked to read it as something else.
+        var name = "MyProject";
+        var elsewhere = projectIn("repo-2", name);
+        when(userWorkspace.getProjectsByName(name)).thenReturn(List.of(elsewhere));
+
+        assertNull(projectConverter.resolveProjectIdentity(name, "repo-1"));
+        verify(userWorkspace, never()).getDesignTimeRepository();
     }
 
     @Test
@@ -386,6 +415,19 @@ class ProjectIdentityConverterTest {
 
         var ex = assertThrows(NotFoundException.class, () -> projectConverter.convert(name));
         assertEquals("openl.error.404.project.identifier.message", ex.getErrorCode());
+    }
+
+    /** A workspace project of one repository, named as the workspace and the id mapper report it. */
+    private static RulesProject projectIn(String repositoryId, String name) {
+        var repository = mock(Repository.class);
+        when(repository.getId()).thenReturn(repositoryId);
+        // The id mapper asks the design repository whether it maps folders before it names the project.
+        lenient().when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
+        var project = mock(RulesProject.class);
+        lenient().when(project.getRepository()).thenReturn(repository);
+        when(project.getDesignRepository()).thenReturn(repository);
+        lenient().when(project.getName()).thenReturn(name);
+        return project;
     }
 
     private String encode(String repoId, String projectName) {

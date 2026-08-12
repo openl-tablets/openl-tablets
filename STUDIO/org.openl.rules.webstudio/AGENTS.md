@@ -75,6 +75,16 @@ that id travels as a **path segment**, so it **MUST** stay within one.
   `UserWorkspace.getProjectByPath`. **Resolve by folder before resolving by business name**: a business name is
   carried by more than one project, so it can answer with a different project and let a destructive endpoint act on
   the wrong one.
+- **A design project named in a request body goes through the same resolver as one named in the path.** A non-flat
+  repository tells its projects apart by the folder they live in, so it may carry one name in several folders;
+  resolving a body field by business name therefore picks the wrong folder or none at all (EPBDS-16328). Call
+  `ProjectIdentityConverter.resolveProjectIdentity(identity, repositoryId)` — the same strategy chain the
+  `@ProjectId` path parameter uses, narrowed to one repository — instead of reaching for
+  `UserWorkspace.getProjectsByName` or for a single `ProjectResolveStrategy`. Leave reading the project to the
+  endpoint, so its own refusal message survives. An identity more than one project answers to is reported as
+  `project.identifier.ambiguous.message`, naming the ids to choose from. A body that names a project of the
+  user's own workspace (`createProjectsFromWorkspace`) is not covered — a local project has no design folder to
+  tell apart.
 
 ## Request Validation
 

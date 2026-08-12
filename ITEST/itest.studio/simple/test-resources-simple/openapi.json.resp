@@ -19874,7 +19874,7 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "sourceProjectName": {
+          "sourceProject": {
             "type": "string",
             "description": "***",
             "minLength": 1
@@ -19886,7 +19886,7 @@ Content-Type: application/json
           }
         },
         "required": [
-          "sourceProjectName",
+          "sourceProject",
           "sourceRepositoryId"
         ]
       },

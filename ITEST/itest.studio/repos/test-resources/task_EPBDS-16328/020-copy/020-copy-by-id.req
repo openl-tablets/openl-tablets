@@ -1,0 +1,10 @@
+POST /rest/repos/design-non-flat/projects/EPBDS16328%20Rates%20Lookup%20Copy/from-project HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "sourceRepositoryId": "design-non-flat",
+  "sourceProject": "ZGVzaWduLW5vbi1mbGF0OkVQQkRTMTYzMjggUmF0ZXMgTG9va3VwOmZlNDAzNTQwMTY3MzA4NTQzZDg1Y2YwZTMyYzczYmFhNGQ4NzI0Nzc1MWM3ODczYThhYTAwMjdkYWZhYzEyYTE=",
+  "comment": "EPBDS-16328: Copy the source by identifier"
+}
+

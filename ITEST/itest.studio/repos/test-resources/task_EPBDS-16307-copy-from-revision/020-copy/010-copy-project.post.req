@@ -2,4 +2,4 @@ POST /rest/repos/design/projects/EPBDS_CopyRevOld/from-project HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
-{"sourceRepositoryId":"design","sourceProjectName":"EPBDS_CopyRev"}
+{"sourceRepositoryId":"design","sourceProject":"EPBDS_CopyRev"}
