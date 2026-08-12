@@ -17,6 +17,12 @@ OpenL Studio introduces a **completely redesigned access control system** with a
 
 The new system supports **granular, resource-level access control** through role assignments, with a reduced and streamlined set of permissions for improved clarity and maintainability.
 
+The following videocast demonstrates the new access control model and the redesigned Groups and Users management in OpenL Studio.
+
+<p><iframe width="560" height="315" src="https://www.youtube.com/embed/YVwvwU9FIzo" title="OpenL Studio 6.0.0 Simplified Access Control" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></p>
+
+[Watch on YouTube](https://youtu.be/YVwvwU9FIzo)
+
 #### Role-Based Access Control
 
 Access is now managed through three predefined roles:
