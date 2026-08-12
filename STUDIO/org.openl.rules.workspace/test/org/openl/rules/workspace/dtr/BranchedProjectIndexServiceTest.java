@@ -123,28 +123,32 @@ class BranchedProjectIndexServiceTest {
     }
 
     @Test
-    void staysQuietWhenARebuildFindsTheRepositoryUnchanged() throws Exception {
+    void reportsAsChangedOnlyWhatTheRepositoryDidNotHoldBefore() throws Exception {
         var repository = new TestBranchRepository();
         repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Common");
         var reads = new AtomicInteger();
 
         try (var service = new BranchedProjectIndexService()) {
-            await(service.register(repository.repository(), "DESIGN/", reads::incrementAndGet));
-            // The first build reaches the reader; how often is its own business (it publishes an early
+            await(service.register(repository.repository(), "DESIGN/", changed -> {
+                if (changed) {
+                    reads.incrementAndGet();
+                }
+            }));
+            // The first build reports a change; how often is its own business (it publishes an early
             // snapshot of the base branch before the slower discovery of the rest).
             var afterFirstBuild = reads.get();
-            assertTrue(afterFirstBuild >= 1, "The first snapshot is new to the reader.");
+            assertTrue(afterFirstBuild >= 1, "The first snapshot holds what the reader had not seen.");
 
             // Anything the repository reports rebuilds the index, including work that leaves its content
-            // alone. The reader turns a notification into a change ping every session answers by re-reading
-            // the whole workspace, so republishing the same content must tell it nothing.
+            // alone. A reader that turns a change into a ping every session answers by re-reading the
+            // whole workspace, so republishing the same content must not read as a change.
             await(service.invalidateRepository("design"));
-            assertEquals(afterFirstBuild, reads.get(), "A snapshot describing no change must not reach the reader.");
+            assertEquals(afterFirstBuild, reads.get(), "A republished snapshot is not a change.");
 
             repository.put("main", "main-2", "tree-main-2", NOW.plusSeconds(60), "DESIGN/Common", "DESIGN/Rates");
             await(service.invalidateRepository("design"));
 
-            assertEquals(afterFirstBuild + 1, reads.get(), "A snapshot holding a new project must reach the reader.");
+            assertEquals(afterFirstBuild + 1, reads.get(), "A snapshot holding a new project is a change.");
         }
     }
 
@@ -155,7 +159,7 @@ class BranchedProjectIndexServiceTest {
         var reads = new AtomicInteger();
 
         try (var service = new BranchedProjectIndexService()) {
-            await(service.register(repository.repository(), "DESIGN/", () -> {
+            await(service.register(repository.repository(), "DESIGN/", changed -> {
                 reads.incrementAndGet();
                 throw new IllegalStateException("The reader cannot take the snapshot.");
             }));
@@ -476,7 +480,7 @@ class BranchedProjectIndexServiceTest {
      */
     private static CompletionStage<BranchedProjectIndexService.RepositorySnapshot> register(
             BranchedProjectIndexService service, TestBranchRepository repository) {
-        return service.register(repository.repository(), "DESIGN/", () -> {
+        return service.register(repository.repository(), "DESIGN/", changed -> {
         });
     }
 

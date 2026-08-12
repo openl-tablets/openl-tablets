@@ -23,7 +23,7 @@ class NotificationDebouncerTest {
     }
 
     private static ChangeNotes files(String... paths) {
-        return ChangeNotes.of(List.of(paths), null);
+        return ChangeNotes.of(List.of(paths), Set.of());
     }
 
     /**
@@ -81,11 +81,11 @@ class NotificationDebouncerTest {
         var delivered = new ConcurrentLinkedQueue<ChangeNotes>();
         var latch = new CountDownLatch(1);
 
-        debouncer.debounce("user|p", ChangeNotes.of(List.of("rules/A.xlsx"), "tab-1"), notes -> {
+        debouncer.debounce("user|p", ChangeNotes.of(List.of("rules/A.xlsx"), Set.of("tab-1")), notes -> {
             delivered.add(notes);
             latch.countDown();
         });
-        debouncer.debounce("user|p", ChangeNotes.of(List.of("rules/B.xlsx"), "tab-2"), notes -> {
+        debouncer.debounce("user|p", ChangeNotes.of(List.of("rules/B.xlsx"), Set.of("tab-2")), notes -> {
             delivered.add(notes);
             latch.countDown();
         });
@@ -95,6 +95,25 @@ class NotificationDebouncerTest {
         // One ping stands for both changes, so it must name both clients that made them.
         assertEquals(List.of(new ChangeNotes(Set.of("rules/A.xlsx", "rules/B.xlsx"), Set.of("tab-1", "tab-2"))),
                 List.copyOf(delivered));
+    }
+
+    @Test
+    void a_signal_that_names_no_client_takes_the_names_of_the_window_with_it() throws Exception {
+        var delivered = new ConcurrentLinkedQueue<ChangeNotes>();
+        var latch = new CountDownLatch(1);
+
+        debouncer.debounce("user", ChangeNotes.of(List.of(), Set.of("tab-1")), notes -> {
+            delivered.add(notes);
+            latch.countDown();
+        });
+        // A change nobody can be named for — an external write into the workspace — merged into the
+        // same window. One ping now stands for it too, so it must name nobody: a client reading its
+        // own name on it would skip a change it did not make.
+        debouncer.debounce("user", ChangeNotes.of(List.of("rules/A.xlsx"), Set.of()), notes -> {
+        });
+
+        assertTrue(latch.await(5, TimeUnit.SECONDS));
+        assertEquals(List.of(new ChangeNotes(Set.of("rules/A.xlsx"), Set.of())), List.copyOf(delivered));
     }
 
     @Test

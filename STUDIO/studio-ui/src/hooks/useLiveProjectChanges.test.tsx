@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { WORKSPACE_CHANGED_EVENT } from '../services/apiCall'
 import type { ChangePing } from '../services/changePing'
 import { CLIENT_ID } from '../services/clientId'
 import { subscribeProjectChanges } from '../services/projectChanges'
@@ -8,7 +9,7 @@ import { useLiveProjectChanges } from './useLiveProjectChanges'
 vi.mock('../services/projectChanges', () => ({ subscribeProjectChanges: vi.fn() }))
 
 /** A ping of somebody else's change, naming the files it touched. */
-const changed = (...files: string[]): ChangePing => ({ files, origins: ['another-tab']})
+const changed = (...files: string[]): ChangePing => ({ files, origins: ['another-tab'], scope: 'project' })
 
 const Probe = ({ projectId, onChange }: { projectId: string | undefined, onChange: (files: string[]) => void }) => {
     useLiveProjectChanges(projectId, onChange)
@@ -46,18 +47,34 @@ describe('useLiveProjectChanges', () => {
     })
 
     it('ignores the echo of a change this tab made itself', () => {
+        vi.setSystemTime(new Date('2000-07-01T00:00:00Z'))
         const onChange = vi.fn()
         render(<Probe onChange={onChange} projectId="p1" />)
 
-        // The page reloaded itself when the action finished; the ping only repeats what it read.
-        ping({ files: ['rules/A.xlsx'], origins: [CLIENT_ID]})
+        // The page reloaded itself when its own mutation succeeded; the ping only repeats that.
+        window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
+        ping({ files: ['rules/A.xlsx'], origins: [CLIENT_ID], scope: 'project' })
         vi.advanceTimersByTime(3000)
         expect(onChange).not.toHaveBeenCalled()
 
         // A ping standing for this tab's change and another session's is not an echo: dropping it
         // would drop the other session's change with it.
-        ping({ files: ['rules/A.xlsx'], origins: [CLIENT_ID, 'another-tab']})
+        ping({ files: ['rules/A.xlsx'], origins: [CLIENT_ID, 'another-tab'], scope: 'project' })
         vi.advanceTimersByTime(500)
+        expect(onChange).toHaveBeenCalledWith(['rules/A.xlsx'])
+    })
+
+    it('keeps the named files when the id-free workspace ping rides in the same batch', () => {
+        // Every change of a project pings twice — its own ping names the files, the workspace ping
+        // never names any — and both land in one batch. Reading the second as "anything changed"
+        // would throw the file names away on every change there is.
+        const onChange = vi.fn()
+        render(<Probe onChange={onChange} projectId="p1" />)
+
+        ping({ files: ['rules/A.xlsx'], origins: ['another-tab'], scope: 'project' })
+        ping({ files: [], origins: ['another-tab'], scope: 'workspace' })
+        vi.advanceTimersByTime(500)
+
         expect(onChange).toHaveBeenCalledWith(['rules/A.xlsx'])
     })
 
@@ -89,5 +106,17 @@ describe('useLiveProjectChanges', () => {
 
         expect(unsubscribe).toHaveBeenCalledTimes(1)
         expect(subscribeProjectChanges).toHaveBeenLastCalledWith('p2', expect.any(Function))
+    })
+
+    it('leaves the batch of the project it watched behind when the page moves to another', () => {
+        const onChange = vi.fn()
+        const { rerender } = render(<Probe onChange={onChange} projectId="p1" />)
+
+        // Gathered for p1 and still waiting out the coalesce window when the page navigates.
+        ping(changed('rules/A.xlsx'))
+        rerender(<Probe onChange={onChange} projectId="p2" />)
+        vi.advanceTimersByTime(3000)
+
+        expect(onChange).not.toHaveBeenCalled()
     })
 })

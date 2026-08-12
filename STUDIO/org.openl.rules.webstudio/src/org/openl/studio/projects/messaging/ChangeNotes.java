@@ -1,9 +1,7 @@
 package org.openl.studio.projects.messaging;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Set;
-import jakarta.annotation.Nullable;
 
 /**
  * What a change ping stands for: the files the change touched, and the clients whose requests made it.
@@ -17,22 +15,8 @@ import jakarta.annotation.Nullable;
  */
 public record ChangeNotes(Set<String> files, Set<String> origins) {
 
-    /** The notes of one change: the files it touched, and the client that asked for it, if any. */
-    public static ChangeNotes of(Collection<String> files, @Nullable String origin) {
-        return new ChangeNotes(Set.copyOf(files), origin == null ? Set.of() : Set.of(origin));
-    }
-
-    /** The notes of two changes as one. */
-    public ChangeNotes merge(ChangeNotes other) {
-        return new ChangeNotes(union(files, other.files), union(origins, other.origins));
-    }
-
-    private static Set<String> union(Set<String> first, Set<String> second) {
-        if (first.isEmpty() || second.isEmpty()) {
-            return first.isEmpty() ? second : first;
-        }
-        var merged = new LinkedHashSet<>(first);
-        merged.addAll(second);
-        return Set.copyOf(merged);
+    /** The notes of one change: the files it touched, and the clients it can be attributed to. */
+    public static ChangeNotes of(Collection<String> files, Collection<String> origins) {
+        return new ChangeNotes(Set.copyOf(files), Set.copyOf(origins));
     }
 }

@@ -3,6 +3,7 @@ package org.openl.studio.projects.messaging;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.user.SimpUser;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.studio.projects.model.ProjectIdModel;
@@ -38,6 +41,9 @@ class ProjectSocketNotificationServiceTest {
     @Mock
     private CommonUser user;
 
+    @Mock
+    private SimpUserRegistry userRegistry;
+
     private ProjectSocketNotificationService service;
     private ProjectIdModel projectId;
 
@@ -45,7 +51,7 @@ class ProjectSocketNotificationServiceTest {
     void setUp() {
         // Lenient: the workspace-ping tests never read the user mock.
         lenient().when(user.getUserName()).thenReturn(USER_NAME);
-        service = new ProjectSocketNotificationService(messagingTemplate);
+        service = new ProjectSocketNotificationService(messagingTemplate, userRegistry);
         projectId = ProjectIdModel.builder()
                 .repository(REPO_ID)
                 .projectName(PROJECT_NAME)
@@ -158,11 +164,25 @@ class ProjectSocketNotificationServiceTest {
     }
 
     @Test
-    void notifyProjectsChanged_broadcasts_a_ping_carrying_nothing_but_its_origins() {
-        service.notifyProjectsChanged(new ChangeNotes(Set.of(), Set.of("tab-1")));
+    void notifyProjectsChanged_tells_each_user_about_clients_of_their_own_only() {
+        // Built before the stubbing below: a mock made inside when(...) leaves it unfinished.
+        var connected = Set.of(simpUser("jane"), simpUser("john"));
+        when(userRegistry.getUsers()).thenReturn(connected);
 
-        // No project data rides along: every subscriber re-reads the list under its own ACL.
-        verify(messagingTemplate).convertAndSend("/topic/projects/changed", Map.of("origins", List.of("tab-1")));
+        service.notifyProjectsChanged(Map.of("jane", Set.of("tab-1")));
+
+        // Jane's session that committed recognises its own echo; John is named nothing and re-reads,
+        // and no name is carried to a user who could not have set it.
+        verify(messagingTemplate).convertAndSendToUser("jane", "/topic/projects/changed",
+                Map.of("origins", List.of("tab-1")));
+        verify(messagingTemplate).convertAndSendToUser("john", "/topic/projects/changed",
+                Map.of("origins", List.of()));
+    }
+
+    private static SimpUser simpUser(String name) {
+        var user = mock(SimpUser.class);
+        lenient().when(user.getName()).thenReturn(name);
+        return user;
     }
 
     @Test

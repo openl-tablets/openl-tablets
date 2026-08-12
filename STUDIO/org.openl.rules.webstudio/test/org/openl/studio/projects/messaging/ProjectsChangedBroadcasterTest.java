@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -41,21 +42,14 @@ class ProjectsChangedBroadcasterTest {
     }
 
     @Test
-    void sends_one_debounced_broadcast_whatever_the_source() {
+    void sends_one_ping_per_burst_naming_the_clients_that_were_writing() {
+        when(changeOrigin.recentWritersByUser()).thenReturn(Map.of("jane", Set.of("tab-1")));
+
         broadcaster.broadcastChanged();
 
-        // One shared key: bursts from every source (commits, locks) collapse into one ping.
+        // One shared key: bursts from every source (commits, locks) collapse into one ping, and it
+        // tells each user about clients of their own.
         verify(debouncer).debounce(eq("/topic/projects/changed"), any(ChangeNotes.class), any());
-        verify(notificationService).notifyProjectsChanged(new ChangeNotes(Set.of(), Set.of()));
-    }
-
-    @Test
-    void a_commit_made_by_a_request_names_the_client_behind_it() {
-        when(changeOrigin.current()).thenReturn("tab-1");
-
-        broadcaster.broadcastChanged();
-
-        // The tab that committed already re-read; every other session still gets the broadcast.
-        verify(notificationService).notifyProjectsChanged(new ChangeNotes(Set.of(), Set.of("tab-1")));
+        verify(notificationService).notifyProjectsChanged(Map.of("jane", Set.of("tab-1")));
     }
 }

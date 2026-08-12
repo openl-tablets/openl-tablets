@@ -38,8 +38,9 @@ public class WorkspaceChangesWebSocketPublisher {
     public void onProjectStateChanged(ProjectStateChangedEvent event) {
         var userName = event.userName();
         // Read on the publishing thread: the event travels synchronously, so a change made by a
-        // request is still on that request's thread here. A change made off one names no origin.
-        var origin = changeOrigin.current();
+        // request is still on that request's thread here. The files watcher publishes from its own
+        // thread instead, and falls back to the clients of this user that were writing a moment ago.
+        var origin = changeOrigin.origins(userName);
         debouncer.debounce(userName, ChangeNotes.of(Set.of(), origin),
                 notes -> notificationService.notifyWorkspaceChanged(userName, notes));
         try {
