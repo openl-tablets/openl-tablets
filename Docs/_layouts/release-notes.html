@@ -2,14 +2,26 @@
 layout: single
 ---
 
-{%- assign migration_url = page.url | append: "migration/" -%}
+{%- comment -%}
+  Locate <version>/migration.md among site.pages. Match on the source path, which does not depend on
+  the permalink style: this site sets `permalink: /:categories/:title`, so Jekyll adds no suffix to page
+  URLs and the migration page is served at .../migration (no extension, no trailing slash). The URL
+  comparison is kept as a second, equivalent check. `release-notes` pages, including migration.md itself,
+  all use this same layout, so skip the lookup on the migration page to avoid it embedding its own content.
+{%- endcomment -%}
+{%- assign migration_path = page.dir | append: "migration.md" -%}
+{%- assign migration_url = page.url | append: "migration" -%}
+{%- assign current_path = page.path | prepend: "/" -%}
 {%- assign migration_page = nil -%}
-{%- for p in site.pages -%}
-  {%- if p.url == migration_url -%}
-    {%- assign migration_page = p -%}
-    {%- break -%}
-  {%- endif -%}
-{%- endfor -%}
+{%- if current_path != migration_path -%}
+  {%- for p in site.pages -%}
+    {%- assign p_path = p.path | prepend: "/" -%}
+    {%- if p_path == migration_path or p.url == migration_url -%}
+      {%- assign migration_page = p -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
 
 {%- assign sections = content | split: '<h2 ' -%}
 {%- assign toc_count = sections.size | minus: 1 -%}
