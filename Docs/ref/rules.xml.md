@@ -81,7 +81,7 @@
     </exposed-methods>
 
     <!-- Business dimension property file resolution -->
-    <properties-file-name-pattern>{lob}</properties-file-name-pattern>
+    <properties-file-name-pattern>%lob%-%state%</properties-file-name-pattern>
     <!-- Custom Java class for advanced property file name resolution logic; must implement a specific interface defined by OpenL. -->
     <properties-file-name-processor>com.example.CustomPropertiesFileNameProcessor</properties-file-name-processor>
 
@@ -99,6 +99,27 @@
     </openapi>
 </project>
 ```
+
+## Validation on Save
+
+OpenL Studio checks the properties file name settings when a `rules.xml` is written to a project through the project
+files API — the project overview, the file editor, or a direct call. The descriptor is rejected when
+
+- `properties-file-name-processor` names a class the project cannot provide, or one that is not a
+  `PropertiesFileNameProcessor`;
+- `properties-file-name-pattern` names an unknown property, repeats a property, groups properties of different types,
+  or carries a date format the engine cannot use.
+
+Only the settings a write changes are checked, so a descriptor rewritten for another reason — a module registered, a
+project migrated — is never rejected for settings it inherited. An upload of several files or of an archive brings
+its own libraries with it, and its descriptor is written unchecked for the same reason.
+
+A pattern that carries no `%property%` is a plain file name mask and is accepted — it assigns no properties to the
+modules it matches.
+
+The processor class is looked up on the project's own classpath, so a class shipped in the project's `lib/` is found.
+A project that is not open in the workspace has no working copy from which those libraries can be read, so a declared
+processor — and the patterns that processor interprets — are left unchecked.
 
 ## Multi-Module Projects
 

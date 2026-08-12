@@ -1,0 +1,3 @@
+GET /rest/projects?repository=design-flat&name=EPBDS-16433&include=deleted&fields=id,name HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

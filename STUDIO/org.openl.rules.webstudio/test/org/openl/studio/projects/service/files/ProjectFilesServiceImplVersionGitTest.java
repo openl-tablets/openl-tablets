@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -29,6 +30,7 @@ import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.util.IOUtils;
 
 /**
@@ -70,7 +72,8 @@ class ProjectFilesServiceImplVersionGitTest {
                 new ProjectFileLookupServiceImpl(aclProjectsHelper, mock(RepositoryAclServiceProvider.class)),
                 mock(ProjectLockGuard.class));
         service = new ProjectFilesServiceImpl(aclProjectsHelper, mock(FileNodeMapper.class),
-                mock(FileSearchSupport.class), mock(FileArchiveSupport.class), mock(ProjectDescriptorCleaner.class));
+                mock(FileSearchSupport.class), mock(FileArchiveSupport.class), mock(ProjectDescriptorCleaner.class),
+                new BeanValidationProvider(List.of()));
     }
 
     @AfterEach
