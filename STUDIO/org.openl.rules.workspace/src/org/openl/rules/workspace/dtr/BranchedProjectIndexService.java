@@ -415,17 +415,18 @@ public final class BranchedProjectIndexService implements AutoCloseable {
 
                 var outcome = build(work);
                 List<WaiterCompletion> completions;
+                RepositorySnapshot previous;
                 synchronized (monitor) {
                     // An abandoned pass stopped part-way through the branches, so its result describes less than
                     // the repository holds and must never replace the published snapshot.
                     if (stopped || abandoned() || generation != work.generation()) {
                         continue;
                     }
-                    snapshot.set(outcome.snapshot());
+                    previous = snapshot.getAndSet(outcome.snapshot());
                     dirtyBranches.addAll(outcome.retryBranches());
                     completions = collectWaiterCompletions(work, outcome);
                 }
-                notifyPublished();
+                notifyPublished(previous, outcome.snapshot());
                 completions.forEach(WaiterCompletion::complete);
             }
         }
@@ -442,10 +443,21 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         }
 
         /**
-         * Tells the reader that a snapshot is available. A reader that fails to take it must not stop the
-         * repository from being indexed, so its failure is reported and the pass continues.
+         * Tells the reader that a snapshot is available, unless the pass republished what the reader already
+         * holds.
+         *
+         * <p>A rebuild runs on everything the repository reports, including work that leaves its content
+         * alone — opening a project in a workspace re-indexes and finds the same trees. The reader turns
+         * every notification into a change ping for every session, and each session answers it by re-reading
+         * the whole workspace, so a snapshot describing no change stays quiet.
+         *
+         * <p>A reader that fails to take a snapshot must not stop the repository from being indexed, so its
+         * failure is reported and the pass continues.
          */
-        private void notifyPublished() {
+        private void notifyPublished(RepositorySnapshot previous, RepositorySnapshot published) {
+            if (published.equals(previous)) {
+                return;
+            }
             try {
                 onPublished.run();
             } catch (RuntimeException e) {
@@ -673,13 +685,14 @@ public final class BranchedProjectIndexService implements AutoCloseable {
                 // Nothing to show yet: keep the placeholder so readers stay on the configured-branch listing.
                 return;
             }
+            RepositorySnapshot previous;
             synchronized (monitor) {
                 if (stopped || abandoned() || generation != work.generation()) {
                     return;
                 }
-                snapshot.set(intermediate);
+                previous = snapshot.getAndSet(intermediate);
             }
-            notifyPublished();
+            notifyPublished(previous, intermediate);
         }
 
         private String resolveBaseBranch(List<String> branchNames) {

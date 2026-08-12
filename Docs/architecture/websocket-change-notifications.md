@@ -78,6 +78,12 @@ flowchart LR
 - Compile-status transitions never feed the change pings: a compile changes nothing they stand
   for, and it already streams on the status destinations. Without this split a compile cycle would
   ping every second and provoke pointless refreshes.
+- The design-repository broadcast rides the cross-branch index: a rebuild that republishes the same
+  content notifies nobody (`BranchedProjectIndexService`). A rebuild runs on everything the
+  repository reports, including work that changes nothing in it — opening a project re-indexes and
+  finds the same trees — and that rebuild happens on the index executor, where there is no request
+  to name an origin. Without the check every action would broadcast a ping no session could
+  recognise as its own, and every screen would re-read the whole workspace for nothing.
 - Project locks are files under the workspace root (`.locks/`), written when a user starts editing
   and removed when they stop. The watcher routes their changes to the broadcast — a lock concerns
   every user, not the workspace of one — through the same debounced sender the repository listener
