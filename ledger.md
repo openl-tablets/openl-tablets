@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- **Converged at `main` = `8dbc23120`**; every queue row done, every vein closed. Idle for dozens of consecutive
+- **Converged at `main` = `ce30f0196`**; every queue row done, every vein closed. Idle for dozens of consecutive
   passes; expect more. New scope arrives only as new commits on `main` — never invent a detector to make work.
 - The idle pass is two calls: `git log 8dbc23120..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
@@ -380,6 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-12 — run 133: `main` unchanged at `fdeabeba3`, zero open PRs. Idle pass; ledger at 385 of 400 lines.
 - 08-12 — run 134: `main` unchanged at `fdeabeba3`, zero open PRs. Idle pass; ledger at 385 of 400 lines.
 - 08-12 — run 135: `main` advanced to `8dbc23120` (EPBDS-16328 copy-by-id); screened, orphaned nothing. Idle.
+- 08-12 — run 136: `main` advanced to `ce30f0196` (EPBDS-16275 transient shell view); screened, orphaned nothing.
