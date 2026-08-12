@@ -2,8 +2,9 @@
 
 ## Resume point
 
-- **Converged at `main` = `71e2caea5c` (EPBDS-16407 Name the executed table in the run result)**; every queue row and
-  every vein done. Idle for dozens of passes; new scope arrives only as new commits on `main` — never invent a detector.
+- **Converged at `main` = `742d59d467` (EPBDS-16386 Name a change published off the request by the client that was just
+  writing)**; every queue row and every vein done. Idle for dozens of passes; new scope arrives only as new commits on
+  `main` — never invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
   unchanged SHA. **The recorded SHA is usually gone from the next clone** (a merged PR lands rebased, only 50 commits
   fetched), so match its *subject* in `git log --oneline -25 origin/main` and take every commit above it.
@@ -381,6 +382,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-12 — run 138: `main` at `b95d12f8ff`, +2 EPBDS-16406 breakpoint commits; additive plus prose only. Idle.
 - 08-12 — run 139: `main` at `71e2caea5c`, +1 EPBDS-16407 commit; the calls it dropped keep many other callers. Idle.
 - 08-12 — run 140: `main` still `71e2caea5c`, zero new commits, no dead-code PR open. Idle, no build run.
+- 08-12 — run 141: `main` at `742d59d467`, +4 EPBDS-16386/16392 websocket-ping commits, 249 deleted lines but zero
+  deleted files; every removed name is a rename into a new module or a widened callback type. Idle, no build run.
