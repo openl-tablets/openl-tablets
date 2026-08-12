@@ -123,6 +123,32 @@ class BranchedProjectIndexServiceTest {
     }
 
     @Test
+    void staysQuietWhenARebuildFindsTheRepositoryUnchanged() throws Exception {
+        var repository = new TestBranchRepository();
+        repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Common");
+        var reads = new AtomicInteger();
+
+        try (var service = new BranchedProjectIndexService()) {
+            await(service.register(repository.repository(), "DESIGN/", reads::incrementAndGet));
+            // The first build reaches the reader; how often is its own business (it publishes an early
+            // snapshot of the base branch before the slower discovery of the rest).
+            var afterFirstBuild = reads.get();
+            assertTrue(afterFirstBuild >= 1, "The first snapshot is new to the reader.");
+
+            // Anything the repository reports rebuilds the index, including work that leaves its content
+            // alone. The reader turns a notification into a change ping every session answers by re-reading
+            // the whole workspace, so republishing the same content must tell it nothing.
+            await(service.invalidateRepository("design"));
+            assertEquals(afterFirstBuild, reads.get(), "A snapshot describing no change must not reach the reader.");
+
+            repository.put("main", "main-2", "tree-main-2", NOW.plusSeconds(60), "DESIGN/Common", "DESIGN/Rates");
+            await(service.invalidateRepository("design"));
+
+            assertEquals(afterFirstBuild + 1, reads.get(), "A snapshot holding a new project must reach the reader.");
+        }
+    }
+
+    @Test
     void keepsIndexingWhenTheReaderOfAPublishedSnapshotFails() throws Exception {
         var repository = new TestBranchRepository();
         repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Common");
