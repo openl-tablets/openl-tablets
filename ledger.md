@@ -2,16 +2,14 @@
 
 ## Resume point
 
-- **Converged at `main` = `b95d12f8ff` (EPBDS-16406 sub-step breakpoint by table name)**; every queue row done,
-  every vein closed. Idle for dozens of consecutive passes; expect more. New scope arrives only as new commits on
-  `main` — never invent a detector to make work.
-- The idle pass is two calls: `git log <resume SHA>..origin/main` and the open-PR check; never re-diagnose CI on an
-  unchanged SHA. **The recorded SHA is usually gone from the next clone** — a merged PR lands rebased (GitHub still
-  reports `merged: false`) and only 50 commits are fetched, so `git log SHA..` dies on "ambiguous argument". Match
-  the recorded *subject* in `git log --oneline -25 origin/main` and take every commit above it.
-- New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
-  Read the **deleted** lines first — additive and replaced-in-place commits orphan nothing; a commit deleting a
-  screen is the richest vein, so check its locale keys, service functions, helper modules and dropped `throws`.
+- **Converged at `main` = `71e2caea5c` (EPBDS-16407 Name the executed table in the run result)**; every queue row and
+  every vein done. Idle for dozens of passes; new scope arrives only as new commits on `main` — never invent a detector.
+- The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
+  unchanged SHA. **The recorded SHA is usually gone from the next clone** (a merged PR lands rebased, only 50 commits
+  fetched), so match its *subject* in `git log --oneline -25 origin/main` and take every commit above it.
+- Sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Read the
+  **deleted** lines first — additive commits orphan nothing; a commit deleting a screen is the richest vein, so check
+  its locale keys, service functions, helper modules and dropped `throws`.
 
 ## Change-type queue
 
@@ -383,6 +381,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-12 — run 136: `main` advanced to `ce30f0196` (EPBDS-16275 transient shell view); screened, orphaned nothing.
 - 08-12 — run 137: `main` at `5b1b4fc153`, +2 commits (EPBDS-16433 and a release-notes edit); orphaned nothing. Idle.
 - 08-12 — run 138: `main` at `b95d12f8ff`, +2 EPBDS-16406 breakpoint commits; additive plus prose only. Idle.
+- 08-12 — run 139: `main` at `71e2caea5c`, +1 EPBDS-16407 commit; the calls it dropped keep many other callers. Idle.
