@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- **Converged at `main` = `fdeabeba3`**; every queue row done, every vein closed. Idle for dozens of consecutive
+- **Converged at `main` = `8dbc23120`**; every queue row done, every vein closed. Idle for dozens of consecutive
   passes; expect more. New scope arrives only as new commits on `main` — never invent a detector to make work.
-- The idle pass is two calls: `git log fdeabeba3..origin/main` and the open-PR check; never re-diagnose CI on an
+- The idle pass is two calls: `git log 8dbc23120..origin/main` and the open-PR check; never re-diagnose CI on an
   unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
   so judge scope from `git log` alone — the PR list says nothing about what landed.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
@@ -380,6 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-12 — run 132: `main` unchanged at `fdeabeba3`, zero open PRs, no `dead-code/*` branch but the ledger. Idle.
 - 08-12 — run 133: `main` unchanged at `fdeabeba3`, zero open PRs. Idle pass; ledger at 385 of 400 lines.
 - 08-12 — run 134: `main` unchanged at `fdeabeba3`, zero open PRs. Idle pass; ledger at 385 of 400 lines.
+- 08-12 — run 135: `main` advanced to `8dbc23120` (EPBDS-16328 copy-by-id); screened, orphaned nothing. Idle.
