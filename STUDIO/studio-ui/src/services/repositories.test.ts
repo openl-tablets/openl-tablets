@@ -233,7 +233,8 @@ describe('getProjects', () => {
     it('copies projects into another repository', async () => {
         vi.mocked(apiCall).mockResolvedValue(undefined)
 
-        await copyProject('source', 'Alpha', 'target', 'Beta', '  copied  ', ' folder ', undefined, 'feature/rates')
+        await copyProject('source', 'c291cmNlOkFscGhh', 'target', 'Beta', '  copied  ', ' folder ', undefined,
+            'feature/rates')
 
         expect(apiCall).toHaveBeenCalledWith(
             '/repos/target/projects/Beta/from-project',
@@ -242,7 +243,7 @@ describe('getProjects', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     sourceRepositoryId: 'source',
-                    sourceProjectName: 'Alpha',
+                    sourceProject: 'c291cmNlOkFscGhh',
                     comment: 'copied',
                     path: 'folder',
                     branch: 'feature/rates',

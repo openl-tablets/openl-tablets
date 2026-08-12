@@ -484,28 +484,15 @@ public class ProjectCreationService {
      * renamed, the creator is granted a CONTRIBUTOR ACL, and the workspace is refreshed so the copy is
      * indexed.
      *
-     * <p>The source name is its business name. It must identify one readable project in the source repository.
-     * This also resolves projects whose mapped repository identity contains a path-derived suffix.
-     *
      * @return the created copy's file data (branch/revision)
      */
-    public FileData copyProject(String targetRepositoryId, String newName, String path,
-                                String sourceRepositoryId, String sourceProjectName, String comment,
-                                String revision) {
-        requireCreatePermission(targetRepositoryId);
-        return copyProject(getUserWorkspace().getDesignTimeRepository().getRepository(targetRepositoryId),
-                newName, path, sourceRepositoryId, sourceProjectName, comment, revision);
-    }
-
     public FileData copyProject(Repository targetRepository, String newName, String path,
-                                String sourceRepositoryId, String sourceProjectName, String comment,
-                                String revision) {
+                                RulesProject source, String comment, String revision) {
         var targetRepositoryId = targetRepository.getId();
         requireCreatePermission(targetRepositoryId);
         var workspace = getUserWorkspace();
         var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
         try {
-            var source = resolveSourceProject(workspace, sourceRepositoryId, sourceProjectName);
             if (!designRepoAclService.isGranted(source, List.of(BasePermission.READ))) {
                 throw new ForbiddenException("default.message");
             }
@@ -533,26 +520,10 @@ public class ProjectCreationService {
             refreshWorkspaceAfterDesignChange();
             return copied.getFileData();
         } catch (ProjectException e) {
+            // The answer carries a code only, so without this the failure leaves no trace anywhere.
+            log.error("Failed to copy project '{}' into repository '{}'.", newName, targetRepositoryId, e);
             throw new ConflictException("project.copy.failed.message");
         }
-    }
-
-    private RulesProject resolveSourceProject(UserWorkspace workspace,
-                                              String sourceRepositoryId,
-                                              String sourceProjectName) throws ProjectException {
-        var matches = workspace.getProjectsByName(sourceProjectName)
-                .stream()
-                .filter(project -> project.getDesignRepository() != null
-                        && sourceRepositoryId.equals(project.getDesignRepository().getId()))
-                .toList();
-        if (matches.size() != 1) {
-            throw new ProjectException(
-                    "Cannot uniquely resolve project ''{0}'' in repository ''{1}''.",
-                    null,
-                    sourceProjectName,
-                    sourceRepositoryId);
-        }
-        return matches.getFirst();
     }
 
     /**

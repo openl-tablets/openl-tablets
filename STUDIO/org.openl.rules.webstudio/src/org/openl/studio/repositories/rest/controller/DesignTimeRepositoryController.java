@@ -53,9 +53,11 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.utils.AclPathUtils;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.converter.ProjectIdentityConverter;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
@@ -98,6 +100,7 @@ public class DesignTimeRepositoryController {
     private final ProjectCreationService projectCreationService;
     private final ProjectCreationTargetResolver projectCreationTargetResolver;
     private final RepositoryConfigService repositoryConfigService;
+    private final ProjectIdentityConverter projectIdentityConverter;
 
     @Autowired
     public DesignTimeRepositoryController(@Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -112,7 +115,8 @@ public class DesignTimeRepositoryController {
                                           ProtectedBranchBypassService bypassService,
                                           ProjectCreationService projectCreationService,
                                           ProjectCreationTargetResolver projectCreationTargetResolver,
-                                          RepositoryConfigService repositoryConfigService) {
+                                          RepositoryConfigService repositoryConfigService,
+                                          ProjectIdentityConverter projectIdentityConverter) {
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
@@ -126,6 +130,7 @@ public class DesignTimeRepositoryController {
         this.projectCreationService = projectCreationService;
         this.projectCreationTargetResolver = projectCreationTargetResolver;
         this.repositoryConfigService = repositoryConfigService;
+        this.projectIdentityConverter = projectIdentityConverter;
     }
 
     @Lookup("commentService")
@@ -329,17 +334,24 @@ public class DesignTimeRepositoryController {
                                                      @Parameter(description = "repos.create-from-project.param.project-name.desc") @PathVariable("project-name") String projectName,
                                                      @Valid @RequestBody CreateFromProjectModel request) {
         requireCreatePermission(repository);
+        // The source is resolved first: the default comment names the project that is actually copied, not the
+        // identifier the request happened to address it by. Reading it is the copy's own check to make, so that a
+        // refusal carries the endpoint's message.
+        var source = projectIdentityConverter.resolveProjectIdentity(request.sourceProject(),
+                request.sourceRepositoryId());
+        if (source == null) {
+            throw new NotFoundException("project.identifier.message");
+        }
         // Validate the target name, comment and path before copying. An omitted comment falls back to the
         // repository "copied from" template rather than to the create-project one.
         String comment = StringUtils.isNotBlank(request.comment()) ? request.comment()
-                : getCommentsService(repository.getId()).copiedFrom(request.sourceProjectName());
+                : getCommentsService(repository.getId()).copiedFrom(source.getBusinessName());
         var model = validatedCreateModel(repository, projectName, request.path(), comment, request.branch());
         allowedToPushRequestedBranch(repository, request.branch(), false);
         var targetRepository = projectCreationTargetResolver.resolve(repository, request.branch());
         allowedToPush(targetRepository, false);
         var data = projectCreationService.copyProject(targetRepository, model.getProjectName(),
-                request.path(), request.sourceRepositoryId(), request.sourceProjectName(), model.getComment(),
-                request.revision());
+                request.path(), source, model.getComment(), request.revision());
         return mapFileDataResponse(data, repository.supports());
     }
 

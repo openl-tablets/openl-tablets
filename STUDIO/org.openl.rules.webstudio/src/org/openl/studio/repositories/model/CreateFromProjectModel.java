@@ -8,8 +8,10 @@ import io.swagger.v3.oas.annotations.Parameter;
  * Request to copy an existing project into a design repository under a new name.
  */
 public record CreateFromProjectModel(
-        @Parameter(description = "Repository id of the source project") @NotBlank String sourceRepositoryId,
-        @Parameter(description = "Name of the source project to copy") @NotBlank String sourceProjectName,
+        @Parameter(description = "Repository id of the source project")
+        @NotBlank String sourceRepositoryId,
+        @Parameter(description = "Identifier of the source project to copy: its id, or its name when one project of the source repository carries that name")
+        @NotBlank String sourceProject,
         @Parameter(description = "Path within the repository (non-flat repositories only)") String path,
         @Parameter(description = "Commit comment") String comment,
         @Parameter(description = "Revision of the source project to copy. The latest revision is copied when omitted")
@@ -18,10 +20,10 @@ public record CreateFromProjectModel(
         String branch) {
 
     public CreateFromProjectModel(String sourceRepositoryId,
-                                  String sourceProjectName,
+                                  String sourceProject,
                                   String path,
                                   String comment,
                                   String revision) {
-        this(sourceRepositoryId, sourceProjectName, path, comment, revision, null);
+        this(sourceRepositoryId, sourceProject, path, comment, revision, null);
     }
 }

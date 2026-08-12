@@ -612,7 +612,7 @@ export const NewProjectModal = ({
                     const source = copyableProjectSources.find(candidate => candidate.id === copySource)!
                     await copyProject(
                         source.repository,
-                        source.name,
+                        source.id,
                         repository.id,
                         trimmedName,
                         comment.trim() || undefined,

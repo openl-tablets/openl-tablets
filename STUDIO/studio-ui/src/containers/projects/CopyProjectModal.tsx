@@ -254,7 +254,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         }
         await copyProject(
             source.repository,
-            source.name,
+            source.id,
             targetRepositoryId,
             trimmed,
             comment.trim() || undefined,

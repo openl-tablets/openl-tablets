@@ -1,0 +1,14 @@
+PUT /rest/projects/{TWIN_ID}/files/rules.xml HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <name>EPBDS16328 Rates Lookup</name>
+    <modules>
+        <module>
+            <rules-root path="twin-rules/*.xlsx"/>
+        </module>
+    </modules>
+</project>
+

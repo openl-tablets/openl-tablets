@@ -155,8 +155,11 @@ class ProjectCreationServiceTest {
 
     @Test
     void copy_project_is_denied_without_create_permission() {
+        var targetRepository = mock(Repository.class);
+        when(targetRepository.getId()).thenReturn("design");
+        var source = mock(RulesProject.class);
         assertThrows(ForbiddenException.class,
-                () -> service.copyProject("design", "Copy", null, "design", "Source", "comment", null));
+                () -> service.copyProject(targetRepository, "Copy", null, source, "comment", null));
     }
 
 
@@ -177,17 +180,15 @@ class ProjectCreationServiceTest {
         var source = mock(RulesProject.class);
         when(source.getRepository()).thenReturn(repository);
         when(source.getFolderPath()).thenReturn("DESIGN/Source");
-        when(source.getDesignRepository()).thenReturn(repository);
 
         var workspace = mock(UserWorkspace.class);
-        when(workspace.getProjectsByName("Source")).thenReturn(List.of(source));
         service = serviceWithWorkspace(workspace);
         var targetRepository = mock(Repository.class);
         when(targetRepository.getId()).thenReturn("design");
         when(targetRepository.supports()).thenReturn(new FeaturesBuilder(targetRepository).build());
 
-        assertThrows(NotFoundException.class, () -> service.copyProject(targetRepository, "Copy", null, "design",
-                "Source", "comment", "does-not-exist"));
+        assertThrows(NotFoundException.class, () -> service.copyProject(targetRepository, "Copy", null, source,
+                "comment", "does-not-exist"));
     }
 
     @Test
@@ -205,78 +206,18 @@ class ProjectCreationServiceTest {
         var source = mock(RulesProject.class);
         when(source.getRepository()).thenReturn(repository);
         when(source.getFolderPath()).thenReturn("DESIGN/Source");
-        when(source.getDesignRepository()).thenReturn(repository);
 
         var workspace = mock(UserWorkspace.class);
-        when(workspace.getProjectsByName("Source")).thenReturn(List.of(source));
         service = serviceWithWorkspace(workspace);
         var targetRepository = mock(Repository.class);
         when(targetRepository.getId()).thenReturn("design");
         when(targetRepository.supports()).thenReturn(new FeaturesBuilder(targetRepository).build());
 
         // The target repository is not configured here, so the copy fails right after the source is read.
-        assertThrows(RuntimeException.class, () -> service.copyProject(targetRepository, "Copy", null, "design",
-                "Source", "comment", "5"));
+        assertThrows(RuntimeException.class, () -> service.copyProject(targetRepository, "Copy", null, source,
+                "comment", "5"));
 
         verify(repository).checkHistory("DESIGN/Source", "5");
-    }
-
-    @Test
-    void copy_project_resolves_a_mapped_source_by_business_name() throws Exception {
-        when(aclProjectsHelper.hasCreateProjectPermission("target")).thenReturn(true);
-        var acl = mock(RepositoryAclService.class);
-        when(acl.isGranted(any(RulesProject.class), anyList())).thenReturn(true);
-        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
-
-        var sourceRepository = mock(Repository.class);
-        when(sourceRepository.getId()).thenReturn("source");
-        when(sourceRepository.supports()).thenReturn(new FeaturesBuilder(sourceRepository).setVersions(true).build());
-        var latestSourceData = fileData("9");
-        latestSourceData.setName("DESIGN/Source:hash");
-        when(sourceRepository.check("DESIGN/Source:hash")).thenReturn(latestSourceData);
-        var sourceData = fileData("5");
-        sourceData.setName("DESIGN/Source:hash");
-        when(sourceRepository.checkHistory("DESIGN/Source:hash", "5")).thenReturn(sourceData);
-        var source = mock(RulesProject.class);
-        when(source.getRepository()).thenReturn(sourceRepository);
-        when(source.getDesignRepository()).thenReturn(sourceRepository);
-        when(source.getFolderPath()).thenReturn("DESIGN/Source:hash");
-
-        var workspace = mock(UserWorkspace.class);
-        when(workspace.getProjectsByName("Source")).thenReturn(List.of(source));
-        service = serviceWithWorkspace(workspace);
-        var targetRepository = mock(Repository.class);
-        when(targetRepository.getId()).thenReturn("target");
-        when(targetRepository.supports()).thenReturn(new FeaturesBuilder(targetRepository).build());
-
-        // The target repository is not configured here, so the copy fails after resolving and reading the source.
-        assertThrows(RuntimeException.class, () -> service.copyProject(targetRepository, "Copy", null, "source",
-                "Source", "comment", "5"));
-
-        verify(sourceRepository).checkHistory("DESIGN/Source:hash", "5");
-    }
-
-    @Test
-    void copy_project_rejects_an_ambiguous_business_name_in_the_source_repository() {
-        when(aclProjectsHelper.hasCreateProjectPermission("target")).thenReturn(true);
-        var acl = mock(RepositoryAclService.class);
-        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
-        var sourceRepository = mock(Repository.class);
-        when(sourceRepository.getId()).thenReturn("source");
-        var first = mock(RulesProject.class);
-        var second = mock(RulesProject.class);
-        when(first.getDesignRepository()).thenReturn(sourceRepository);
-        when(second.getDesignRepository()).thenReturn(sourceRepository);
-        var workspace = mock(UserWorkspace.class);
-        when(workspace.getProjectsByName("Source")).thenReturn(List.of(first, second));
-        service = serviceWithWorkspace(workspace);
-        var targetRepository = mock(Repository.class);
-        when(targetRepository.getId()).thenReturn("target");
-
-        assertThrows(ConflictException.class, () -> service.copyProject(targetRepository, "Copy", null, "source",
-                "Source", "comment", null));
-
-        verifyNoInteractions(acl);
     }
 
     @Test

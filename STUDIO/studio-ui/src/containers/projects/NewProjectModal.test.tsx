@@ -696,7 +696,7 @@ describe('NewProjectModal', () => {
         await waitFor(() => expect(copyProject).toHaveBeenCalledTimes(1))
         expect(copyProject).toHaveBeenCalledWith(
             'sourceRepo',
-            'Source',
+            'source',
             'design',
             'Copied',
             'copy comment',

@@ -29,7 +29,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -38,6 +40,7 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.converter.ProjectIdentityConverter;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
 import org.openl.studio.repositories.model.CreateFromWorkspaceModel;
@@ -66,6 +69,8 @@ class DesignTimeRepositoryControllerTest {
     private ProjectCreationService projectCreationService;
     private ProjectCreationTargetResolver projectCreationTargetResolver;
     private RepositoryConfigService repositoryConfigService;
+    private ProjectIdentityConverter projectIdentityConverter;
+    private Comments comments;
     private DesignTimeRepositoryController controller;
 
     @BeforeEach
@@ -75,6 +80,8 @@ class DesignTimeRepositoryControllerTest {
         validationProvider = mock(BeanValidationProvider.class);
         zipProjectSaveStrategy = mock(ZipProjectSaveStrategy.class);
         repositoryConfigService = mock(RepositoryConfigService.class);
+        projectIdentityConverter = mock(ProjectIdentityConverter.class);
+        comments = mock(Comments.class);
         aclProjectsHelper = mock(AclProjectsHelper.class);
         bypassService = mock(ProtectedBranchBypassService.class);
         projectCreationService = mock(ProjectCreationService.class);
@@ -101,7 +108,14 @@ class DesignTimeRepositoryControllerTest {
                 bypassService,
                 projectCreationService,
                 projectCreationTargetResolver,
-                repositoryConfigService);
+                repositoryConfigService,
+                projectIdentityConverter) {
+            // The comment service is a @Lookup bean, absent outside a Spring context.
+            @Override
+            protected Comments getCommentsService(String repoName) {
+                return comments;
+            }
+        };
 
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "password"));
     }
@@ -129,13 +143,29 @@ class DesignTimeRepositoryControllerTest {
 
     @Test
     void createProjectFromProjectRequiresBranchProtectionBypass() {
-        when(projectCreationService.copyProject(repository, "Copy", null, REPOSITORY_ID,
-                "Source", "comment", "rev-1")).thenReturn(new FileData());
+        var source = sourceProject("Source");
+        when(projectCreationService.copyProject(repository, "Copy", null, source, "comment", "rev-1"))
+                .thenReturn(new FileData());
 
         controller.createProjectFromProject(repository, "Copy",
                 new CreateFromProjectModel(REPOSITORY_ID, "Source", null, "comment", "rev-1"));
 
         verify(bypassService).requireBypassOrThrow(repository, BRANCH, REPOSITORY_ID, false);
+    }
+
+    @Test
+    void anOmittedCommentNamesTheProjectThatIsActuallyCopied() {
+        // The request may address its source by an identifier, which is no name to put in a commit comment.
+        var source = sourceProject("ZGVzaWduOlNvdXJjZTpoYXNo");
+        when(source.getBusinessName()).thenReturn("Source");
+        when(comments.copiedFrom("Source")).thenReturn("Copied from: Source.");
+        when(projectCreationService.copyProject(repository, "Copy", null, source, "Copied from: Source.", null))
+                .thenReturn(new FileData());
+
+        controller.createProjectFromProject(repository, "Copy",
+                new CreateFromProjectModel(REPOSITORY_ID, "ZGVzaWduOlNvdXJjZTpoYXNo", null, null, null));
+
+        verify(comments).copiedFrom("Source");
     }
 
     @Test
@@ -160,15 +190,14 @@ class DesignTimeRepositoryControllerTest {
         when(target.getId()).thenReturn(REPOSITORY_ID);
         when(target.supports()).thenReturn(new FeaturesBuilder(target).setBranches(true).build());
         when(projectCreationTargetResolver.resolve(repository, "feature/rates")).thenReturn(target);
-        when(projectCreationService.copyProject(target, "Copy", null, REPOSITORY_ID,
-                "Source", "comment", null)).thenReturn(data);
+        var source = sourceProject("Source");
+        when(projectCreationService.copyProject(target, "Copy", null, source, "comment", null)).thenReturn(data);
 
         controller.createProjectFromProject(repository, "Copy",
                 new CreateFromProjectModel(REPOSITORY_ID, "Source", null, "comment", null, "feature/rates"));
 
         verify(projectCreationTargetResolver).resolve(repository, "feature/rates");
-        verify(projectCreationService).copyProject(target, "Copy", null, REPOSITORY_ID,
-                "Source", "comment", null);
+        verify(projectCreationService).copyProject(target, "Copy", null, source, "comment", null);
     }
 
     @Test
@@ -185,6 +214,7 @@ class DesignTimeRepositoryControllerTest {
     @Test
     void copyChecksBranchProtectionBeforeResolvingTheTarget() {
         rejectRequestedBranch("protected/new");
+        sourceProject("Source");
         var request = new CreateFromProjectModel(REPOSITORY_ID,
                 "Source",
                 null,
@@ -196,8 +226,8 @@ class DesignTimeRepositoryControllerTest {
                 () -> controller.createProjectFromProject(repository, "Copy", request));
 
         verify(projectCreationTargetResolver, never()).resolve(repository, "protected/new");
-        verify(projectCreationService, never()).copyProject(any(Repository.class), any(), any(), any(), any(), any(),
-                any());
+        verify(projectCreationService, never()).copyProject(any(Repository.class), any(), any(),
+                any(RulesProject.class), any(), any());
     }
 
     @Test
@@ -312,6 +342,14 @@ class DesignTimeRepositoryControllerTest {
         assertNotNull(size);
         assertEquals(CreateFromWorkspaceModel.MAX_PROJECTS, size.max());
     }
+
+    /** The project the request names as its source, as the identity converter resolves it. */
+    private RulesProject sourceProject(String identifier) {
+        var source = mock(RulesProject.class);
+        when(projectIdentityConverter.resolveProjectIdentity(identifier, REPOSITORY_ID)).thenReturn(source);
+        return source;
+    }
+
 
     private void rejectRequestedBranch(String branch) {
         when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());

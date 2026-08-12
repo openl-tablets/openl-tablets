@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
   "sourceRepositoryId": "design-flat",
-  "sourceProjectName": "EPBDS_8537_SOURCE",
+  "sourceProject": "EPBDS_8537_SOURCE",
   "comment": "Copied from: EPBDS_8537_SOURCE.",
   "branch": "EPBDS-8537-copy-feature"
 }

@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 class CreateFromProjectModelTest {
 
     @Test
-    void sourceProjectFieldsAreRequired() {
+    void sourceProjectIsRequired() {
         var violations = propertyViolations(new CreateFromProjectModel(null, " ", null, null, null));
 
-        assertEquals(Set.of("sourceRepositoryId", "sourceProjectName"), violations);
+        assertEquals(Set.of("sourceRepositoryId", "sourceProject"), violations);
     }
 
     @Test

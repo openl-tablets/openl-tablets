@@ -1,0 +1,20 @@
+PUT /rest/repos/design-non-flat/projects/EPBDS16328%20Rates%20Lookup HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="Sample Project.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&../../git-non-flat/Sample Project.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="comment"
+
+EPBDS-16328: Create the source project
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="path"
+
+rules/regional/rates-lookup-rules-primary
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

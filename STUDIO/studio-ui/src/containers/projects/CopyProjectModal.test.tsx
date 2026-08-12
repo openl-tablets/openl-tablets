@@ -254,7 +254,7 @@ describe('CopyProjectModal', () => {
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
             'design',
-            'Alpha',
+            'p1',
             'design',
             'Beta',
             'Copied from: Alpha.',
@@ -275,7 +275,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', undefined, undefined, 'release/rates'
+            'design', 'p1', 'design', 'Beta', 'Copied from: Alpha.', undefined, undefined, 'release/rates'
         ))
     })
 
@@ -316,7 +316,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', undefined, undefined, 'master'
+            'design', 'p1', 'design', 'Beta', 'Copied from: Alpha.', undefined, undefined, 'master'
         ))
     })
 
@@ -345,7 +345,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', undefined, 'rev-1', 'master'
+            'design', 'p1', 'design', 'Beta', 'Copied from: Alpha.', undefined, 'rev-1', 'master'
         ))
     })
 
@@ -373,7 +373,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', 'folder', undefined, undefined
+            'design', 'p1', 'design', 'Beta', 'Copied from: Alpha.', 'folder', undefined, undefined
         ))
     })
 
