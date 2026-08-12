@@ -24,23 +24,27 @@ describe('subscribeProjectChanges', () => {
             // opens or turns local, and a ping to the new id would miss the old subscription.
             '/user/topic/workspace/changed',
         ])
-        vi.mocked(subscribeTopic).mock.calls.forEach(([, onBody]) => onBody('CHANGED'))
+        vi.mocked(subscribeTopic).mock.calls.forEach(([, onBody]) => onBody(JSON.stringify({ origins: []})))
         expect(onChange).toHaveBeenCalledTimes(3)
     })
 
-    it('hands over the files the project ping names, and nothing for other bodies', () => {
+    it('hands over the files and the origins the pings name, and nothing for other bodies', () => {
         vi.mocked(subscribeTopic).mockReturnValue({ unsubscribe: vi.fn() })
         const onChange = vi.fn()
         subscribeProjectChanges('p1', onChange)
         const onProjectBody = vi.mocked(subscribeTopic).mock.calls[0]![1]
         const onBroadcastBody = vi.mocked(subscribeTopic).mock.calls[1]![1]
 
-        onProjectBody(JSON.stringify({ files: ['rules/Main.xlsx']}))
+        onProjectBody(JSON.stringify({ files: ['rules/Main.xlsx'], origins: ['tab-1']}))
         // The broadcast never names files, and a malformed body reads as "unknown files".
-        onBroadcastBody('CHANGED')
+        onBroadcastBody(JSON.stringify({ origins: ['tab-2']}))
         onProjectBody('not json')
 
-        expect(onChange.mock.calls).toEqual([[['rules/Main.xlsx']], [[]], [[]]])
+        expect(onChange.mock.calls).toEqual([
+            [{ files: ['rules/Main.xlsx'], origins: ['tab-1']}],
+            [{ files: [], origins: ['tab-2']}],
+            [{ files: [], origins: []}],
+        ])
     })
 
     it('drops every subscription on unsubscribe', () => {

@@ -5,6 +5,7 @@ import apiCall, {
     isApiHttpError,
     WORKSPACE_CHANGED_EVENT,
 } from 'services/apiCall'
+import { CLIENT_ID } from 'services/clientId'
 import { notification } from 'antd'
 import * as storeModule from 'store'
 
@@ -245,6 +246,22 @@ describe('apiCall', () => {
 
         expect(changed).toHaveBeenCalledTimes(1)
         window.removeEventListener(WORKSPACE_CHANGED_EVENT, changed)
+    })
+
+    it('names this tab on a change it makes, so it can recognise the ping that echoes it', async () => {
+        fetchMock.mockResolvedValueOnce(mockResponse({ status: 204 }))
+        await apiCall('/projects/p1', { method: 'PATCH', headers: { 'Content-Type': 'application/json' } },
+            { throwError: true })
+
+        const headers = new Headers(fetchMock.mock.calls[0]![1].headers)
+        expect(headers.get('X-OpenL-Client-Id')).toBe(CLIENT_ID)
+        // The caller's own headers survive.
+        expect(headers.get('Content-Type')).toBe('application/json')
+
+        // A read changes nothing, so no ping can echo it.
+        fetchMock.mockResolvedValueOnce(mockResponse({ status: 200, jsonData: {} }))
+        await apiCall('/projects', undefined, { throwError: true })
+        expect(new Headers(fetchMock.mock.calls[1]![1].headers).get('X-OpenL-Client-Id')).toBeNull()
     })
 
     it('falls back to the default forbidden message when the body is not JSON', async () => {

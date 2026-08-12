@@ -1,3 +1,4 @@
+import { parseChangePing, type ChangePing } from './changePing'
 import { subscribeTopic, type TopicSubscription } from './stompTopic'
 
 /**
@@ -15,12 +16,13 @@ const PROJECTS_CHANGED_TOPIC = '/topic/projects/changed'
 
 /**
  * Watch for anything that can make a projects list stale: changes of the user's own workspace and
- * committed changes of any design repository. The pings carry no data — the caller re-reads what it
- * shows through the REST API.
+ * committed changes of any design repository. The pings carry no project data — the caller re-reads
+ * what it shows through the REST API — only the clients whose requests caused them.
  */
-export function subscribeWorkspaceChanges(onChange: () => void): TopicSubscription {
-    const own = subscribeTopic(WORKSPACE_CHANGED_TOPIC, onChange)
-    const everyone = subscribeTopic(PROJECTS_CHANGED_TOPIC, onChange)
+export function subscribeWorkspaceChanges(onChange: (ping: ChangePing) => void): TopicSubscription {
+    const onBody = (body: string) => onChange(parseChangePing(body))
+    const own = subscribeTopic(WORKSPACE_CHANGED_TOPIC, onBody)
+    const everyone = subscribeTopic(PROJECTS_CHANGED_TOPIC, onBody)
     return {
         unsubscribe: () => {
             own.unsubscribe()

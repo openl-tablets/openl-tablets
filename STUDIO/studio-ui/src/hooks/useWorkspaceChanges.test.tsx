@@ -1,6 +1,8 @@
 import { render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WORKSPACE_CHANGED_EVENT } from '../services/apiCall'
+import type { ChangePing } from '../services/changePing'
+import { CLIENT_ID } from '../services/clientId'
 import { subscribeWorkspaceChanges } from '../services/workspaceChanges'
 import { useWorkspaceChanges } from './useWorkspaceChanges'
 
@@ -11,8 +13,11 @@ const Probe = ({ onChange }: { onChange: () => void }) => {
     return null
 }
 
+/** A change made outside a request — the files watcher, a repository poll — attributed to nobody. */
+const UNATTRIBUTED: ChangePing = { files: [], origins: []}
+
 describe('useWorkspaceChanges', () => {
-    let ping: () => void
+    let ping: (ping: ChangePing) => void
     const unsubscribe = vi.fn()
 
     beforeEach(() => {
@@ -32,16 +37,16 @@ describe('useWorkspaceChanges', () => {
         const onChange = vi.fn()
         render(<Probe onChange={onChange} />)
 
-        ping()
-        ping()
-        ping()
+        ping(UNATTRIBUTED)
+        ping(UNATTRIBUTED)
+        ping(UNATTRIBUTED)
         expect(onChange).not.toHaveBeenCalled()
 
         vi.advanceTimersByTime(500)
         expect(onChange).toHaveBeenCalledTimes(1)
 
         // A ping after the window opens a new refresh.
-        ping()
+        ping(UNATTRIBUTED)
         vi.advanceTimersByTime(500)
         expect(onChange).toHaveBeenCalledTimes(2)
     })
@@ -52,7 +57,7 @@ describe('useWorkspaceChanges', () => {
         const { rerender } = render(<Probe onChange={first} />)
         rerender(<Probe onChange={second} />)
 
-        ping()
+        ping(UNATTRIBUTED)
         vi.advanceTimersByTime(500)
 
         expect(first).not.toHaveBeenCalled()
@@ -61,16 +66,45 @@ describe('useWorkspaceChanges', () => {
         expect(subscribeWorkspaceChanges).toHaveBeenCalledTimes(1)
     })
 
-    it('holds a ping close on the heels of the user\'s own change and delivers it after the echo window', () => {
+    it('drops a ping this tab caused itself, and keeps one that stands for another session too', () => {
+        const onChange = vi.fn()
+        render(<Probe onChange={onChange} />)
+
+        // The screen reloaded itself when the action finished — re-reading would only repeat it.
+        ping({ files: [], origins: [CLIENT_ID]})
+        vi.advanceTimersByTime(3000)
+        expect(onChange).not.toHaveBeenCalled()
+
+        // The debounce window coalesced another session's change into the same ping: not an echo.
+        ping({ files: [], origins: [CLIENT_ID, 'another-tab']})
+        vi.advanceTimersByTime(500)
+        expect(onChange).toHaveBeenCalledTimes(1)
+    })
+
+    it('lets a change of another session through at once, whatever the user is doing', () => {
+        vi.setSystemTime(new Date('2000-03-01T00:00:00Z'))
+        const onChange = vi.fn()
+        render(<Probe onChange={onChange} />)
+
+        // The user has just acted here, but the ping names its origin and it is not this tab —
+        // there is nothing to wait out.
+        window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
+        ping({ files: [], origins: ['another-tab']})
+        vi.advanceTimersByTime(500)
+
+        expect(onChange).toHaveBeenCalledTimes(1)
+    })
+
+    it('holds an unattributed ping close on the heels of the user\'s own change', () => {
         // Pinned to a distant date so the echo mark cannot leak into the other tests' clocks.
         vi.setSystemTime(new Date('2000-01-01T00:00:00Z'))
         const onChange = vi.fn()
         render(<Probe onChange={onChange} />)
 
-        // The user's own mutation announced itself; the ping right after it is likely its echo —
-        // but a real change of someone else can hide behind it, so it must not be dropped.
+        // A change made outside a request names no origin, so it may still be this tab's own action
+        // reaching the workspace disk — but a real change of someone else can hide behind it too.
         window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
-        ping()
+        ping(UNATTRIBUTED)
         vi.advanceTimersByTime(500)
         expect(onChange).not.toHaveBeenCalled()
 
@@ -78,9 +112,9 @@ describe('useWorkspaceChanges', () => {
         vi.advanceTimersByTime(2100)
         expect(onChange).toHaveBeenCalledTimes(1)
 
-        // A ping later on is someone else's change and goes through directly.
+        // A ping later on cannot be an echo of anything and goes through directly.
         vi.setSystemTime(new Date('2000-01-01T00:01:00Z'))
-        ping()
+        ping(UNATTRIBUTED)
         vi.advanceTimersByTime(500)
         expect(onChange).toHaveBeenCalledTimes(2)
     })
@@ -93,7 +127,7 @@ describe('useWorkspaceChanges', () => {
         render(<Probe onChange={onChange} />)
 
         window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
-        ping()
+        ping(UNATTRIBUTED)
         // Every 2 s another own mutation lands, keeping the echo window permanently open.
         for (let i = 0; i < 6; i++) {
             vi.advanceTimersByTime(2000)
@@ -108,7 +142,7 @@ describe('useWorkspaceChanges', () => {
         const onChange = vi.fn()
         const { unmount } = render(<Probe onChange={onChange} />)
 
-        ping()
+        ping(UNATTRIBUTED)
         unmount()
         vi.advanceTimersByTime(500)
 

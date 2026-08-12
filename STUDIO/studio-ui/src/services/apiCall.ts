@@ -1,5 +1,6 @@
 import { notification } from 'antd'
 import CONFIG from './config'
+import { CLIENT_ID, CLIENT_ID_HEADER } from './clientId'
 import { useAppStore } from 'store'
 
 const fetchInitialConfig = {
@@ -120,12 +121,20 @@ const apiCall = async (
         ...fetchInitialConfig,
         ...params,
     }
+    const mutating = (responseParams.method ?? 'GET').toUpperCase() !== 'GET'
+    if (mutating) {
+        // The change this request makes pings every session of the user back. Naming the tab that
+        // asked for it lets this one recognise its own echo instead of re-reading what it just read.
+        const headers = new Headers(responseParams.headers)
+        headers.set(CLIENT_ID_HEADER, CLIENT_ID)
+        responseParams.headers = headers
+    }
 
     return fetch(`${CONFIG.CONTEXT}/web${url}`, responseParams)
         .then(async response => {
             const { status } = response
             if (status >= 200 && status < 300) {
-                if ((responseParams.method ?? 'GET').toUpperCase() !== 'GET' && !opts.skipWorkspaceEvent) {
+                if (mutating && !opts.skipWorkspaceEvent) {
                     window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
                 }
                 if (opts.responseType === 'response') {

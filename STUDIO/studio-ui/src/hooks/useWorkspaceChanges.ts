@@ -6,8 +6,9 @@ import { useCoalescedChanges } from './useCoalescedChanges'
  * the user changed their workspace (from any session), or a design repository got new content.
  *
  * The subscription lives for the component's whole life; the latest callback is always the one
- * called, so callers may pass an inline closure. Bursts of pings collapse into one call.
+ * called, so callers may pass an inline closure. Bursts of pings collapse into one call, and a ping
+ * this tab caused itself never arrives — it has already read the change.
  */
 export function useWorkspaceChanges(onChange: () => void): void {
-    useCoalescedChanges<void>(subscribeWorkspaceChanges, onChange, [])
+    useCoalescedChanges(subscribeWorkspaceChanges, () => onChange(), [])
 }

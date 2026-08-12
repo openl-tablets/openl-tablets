@@ -17,9 +17,10 @@ describe('subscribeWorkspaceChanges', () => {
 
         const destinations = vi.mocked(subscribeTopic).mock.calls.map(([destination]) => destination)
         expect(destinations.sort()).toEqual(['/topic/projects/changed', '/user/topic/workspace/changed'])
-        // Whichever topic pings, the caller learns about it the same way.
-        vi.mocked(subscribeTopic).mock.calls.forEach(([, onBody]) => onBody('CHANGED'))
+        // Whichever topic pings, the caller learns about it the same way — and learns who caused it.
+        vi.mocked(subscribeTopic).mock.calls.forEach(([, onBody]) => onBody(JSON.stringify({ origins: ['tab-1']})))
         expect(onChange).toHaveBeenCalledTimes(2)
+        expect(onChange).toHaveBeenCalledWith({ files: [], origins: ['tab-1']})
     })
 
     it('drops both subscriptions on unsubscribe', () => {

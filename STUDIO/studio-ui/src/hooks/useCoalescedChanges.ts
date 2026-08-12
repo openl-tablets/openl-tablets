@@ -1,5 +1,6 @@
 import { useEffect, useRef, type DependencyList } from 'react'
 import { WORKSPACE_CHANGED_EVENT } from '../services/apiCall'
+import { isOwnEcho, type ChangePing } from '../services/changePing'
 import type { TopicSubscription } from '../services/stompTopic'
 
 /** A run of pings within this window collapses into one refresh. */
@@ -31,17 +32,21 @@ window.addEventListener(WORKSPACE_CHANGED_EVENT, () => {
  * life, collapse bursts into one call carrying everything the window gathered, and always call the
  * latest callback so callers may pass an inline closure.
  *
- * A ping arriving right after the user's own mutation is likely its echo — the screen has already
- * reloaded with data at least as fresh as what the ping stands for. Such a batch is not dropped
- * (someone else's real change can hide behind the echo): it is held until the echo window passes
- * and delivered then, so the screens run one quiet refresh instead of an immediate duplicate.
+ * A ping this tab caused itself is dropped at the door: the screen already reloaded when the action
+ * finished, and re-reading would only repeat that. The ping names its origins, so a change of
+ * another session hiding behind the echo is never dropped with it.
+ *
+ * A ping naming no origin at all was made outside a request — the files watcher, a repository poll —
+ * and may still be this tab's own action reaching the disk. Such a batch is held until the echo
+ * window of the last own mutation passes and delivered then, so the screens run one quiet refresh
+ * instead of an immediate duplicate.
  *
  * The subscription is renewed when {@code deps} change, and skipped entirely while {@code subscribe}
  * is {@code null} — e.g. before the screen knows what to watch.
  */
-export function useCoalescedChanges<T = void>(
-    subscribe: ((onPing: (payload: T) => void) => TopicSubscription) | null,
-    onChange: (payloads: T[]) => void,
+export function useCoalescedChanges(
+    subscribe: ((onPing: (ping: ChangePing) => void) => TopicSubscription) | null,
+    onChange: (pings: ChangePing[]) => void,
     deps: DependencyList
 ): void {
     const onChangeRef = useRef(onChange)
@@ -55,28 +60,33 @@ export function useCoalescedChanges<T = void>(
             return
         }
         let timer: ReturnType<typeof setTimeout> | undefined
-        let gathered: T[] = []
+        let gathered: ChangePing[] = []
         // When the pending batch started waiting; caps the hold so it cannot be extended forever.
         let heldSince = 0
         const deliver = () => {
             timer = undefined
-            // Still inside the echo window of the user's own action: hold the batch (it keeps
-            // gathering) and deliver once the window has passed — but never longer than the cap,
-            // or a user acting continuously would starve the delivery.
+            // A batch every ping of which names an origin needs no hold: this tab's own echo was
+            // dropped at the door, so what is left is somebody else's change and goes through at
+            // once. An unattributed ping keeps the old rule — hold it out of the echo window, but
+            // never longer than the cap, or a user acting continuously would starve the delivery.
+            const unattributed = gathered.some(ping => ping.origins.length === 0)
             const wait = ECHO_WINDOW_MS - (Date.now() - lastOwnMutationAt)
-            if (wait > 0 && Date.now() - heldSince < MAX_HOLD_MS) {
+            if (unattributed && wait > 0 && Date.now() - heldSince < MAX_HOLD_MS) {
                 timer = setTimeout(deliver, wait)
                 return
             }
-            const payloads = gathered
+            const pings = gathered
             gathered = []
-            onChangeRef.current(payloads)
+            onChangeRef.current(pings)
         }
-        const subscription = start(payload => {
+        const subscription = start(ping => {
+            if (isOwnEcho(ping)) {
+                return
+            }
             if (gathered.length === 0) {
                 heldSince = Date.now()
             }
-            gathered.push(payload)
+            gathered.push(ping)
             timer ??= setTimeout(deliver, COALESCE_MS)
         })
         return () => {
