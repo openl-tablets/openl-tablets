@@ -359,9 +359,9 @@ or at a **current-line change**:
 | --- | --- | --- |
 | `<uri>` | Entry of the table with this source URI | `file:/.../Rules.xlsx?sheet=Main&range=B2:D8` |
 | `<name>` | Entry of **any** table with this name (every overloaded or dimensional version) | `VehiclePremiumCalculation` |
-| `<uri>#R{r}C{c}` | A spreadsheet cell of that table becoming the current line | `file:/...#R0C1` |
-| `<uri>#rule` | **Any** rule of that decision table firing (all conditions matched) | `file:/...#rule` |
-| `<uri>#{ruleName}` | A **specific** rule of that decision table firing | `file:/...#SeniorDriver` |
+| `<table>#R{r}C{c}` | A spreadsheet cell of that table becoming the current line | `file:/...#R0C1` |
+| `<table>#rule` | **Any** rule of that decision table firing (all conditions matched) | `VehicleRating#rule` |
+| `<table>#{ruleName}` | A **specific** rule of that decision table firing | `VehicleRating#SeniorDriver` |
 | `<key>@N` | Any of the above, but only on the table's **N-th execution** (0-based) | `VehiclePremiumCalculation@3` |
 | `after:<key>` | Any of the above, but right **after** the target ran instead of before it | `after:file:/...#R48C0@3` |
 
@@ -377,6 +377,10 @@ separately. Without a suffix a cell breakpoint fires on **every** execution, fro
 An `after:` key does not suspend where its target would. It lets the target run and suspends right after:
 a table at its own exit, with its result on the stack, and a sub-step on the next line once it has
 computed its value. One resume then lands with the target's parameters and result both readable.
+
+`<table>` is either form of the owning table — its URI or its name. A sub-step key therefore works before
+the table has ever run, which matters because [`GET /breakpoint-tables`](#11-list-breakpoint-targets)
+offers targets **by name**: a URI only becomes known once the table appears in a live stack.
 
 ---
 

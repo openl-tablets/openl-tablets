@@ -273,14 +273,15 @@ All breakpoints ride one set of string keys, matched at a frame enter or a curre
 | --- | --- | --- |
 | `uri` | table | on the table's frame enter |
 | `name` | table | on the enter of **any** table with that name — every overloaded or dimensional version |
-| `uri#R{r}C{c}` | spreadsheet cell | when the cell becomes the current line |
-| `uri#rule` | decision table | when **any** rule fires (all its conditions matched), before its action runs |
-| `uri#{ruleName}` | decision table | when that **specific** rule fires |
+| `<table>#R{r}C{c}` | spreadsheet cell | when the cell becomes the current line; `<table>` is the owning table's `uri` or `name` |
+| `<table>#rule` | decision table | when **any** rule fires (all its conditions matched), before its action runs |
+| `<table>#{ruleName}` | decision table | when that **specific** rule fires |
 | `<key>@N` | any of the above | only on the table's **N-th execution** (0-based); the number `DebugFrameView.instance` and a watch series carry, so a `uri#ref@N` or `name@N` key matched-and-built (never parsed) reaches one iteration of a table that runs many times |
 | `after:<key>` | any of the above | right **after** the target ran instead of before it: a table at its own exit, a sub-step on the next line, so its result is on the stack |
 
 Keys are matched by set membership, never parsed: the matcher builds `key` and `key@instance` for each
-candidate and asks the set. A `#` form therefore only ever meets a table URI.
+candidate and asks the set: a sub-step builds `uri#ref` and `name#ref`, each also with `@instance`, so a
+key needs no parsing and a `@` or `#` occurring inside a URI or a rule name cannot confuse it.
 
 Breakpoints persist across runs in the session registry, so they can be set before a run and apply to the
 next one. `GET /breakpoint-tables` suggests targets by name: only tables **reachable** from the traced

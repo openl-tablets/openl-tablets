@@ -10,6 +10,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * {@code name} is the breakpoint key: execution suspends when any table with this name is entered, so a
  * breakpoint on an overloaded or dimensional rule stops on every version of it.
  *
+ * <p>A sub-step of the table is reached by appending {@code #ref} to the name — a spreadsheet cell such as
+ * {@code #R0C1} or a fired rule such as {@code #rule} — which is how a sub-step is addressed before the
+ * table has run and its URI is known.
+ *
  * @param name table name, the breakpoint key and the search term
  * @param kind kind of the table
  */

@@ -1,0 +1,75 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "suspended",
+  "frames": [
+    {
+      "index": 0,
+      "depth": 1,
+      "instance": 0,
+      "uri": "EPBDS-16406/rules.xlsx?sheet=Rules&range=A1:B5",
+      "tableId": "f7e431497224192f1a4c8b94ea288ea4",
+      "name": "Calculate",
+      "kind": "spreadsheet",
+      "location": {
+        "kind": "cell",
+        "row": 0,
+        "column": 0,
+        "ref": "R0C0",
+        "label": "$First"
+      },
+      "active": false,
+      "completed": false,
+      "error": false,
+      "steps": [
+        {
+          "ref": "R0C0",
+          "label": "$First",
+          "cell": "B3",
+          "status": "current"
+        },
+        {
+          "ref": "R1C0",
+          "label": "$Second",
+          "cell": "B4",
+          "status": "pending"
+        },
+        {
+          "ref": "R2C0",
+          "label": "$Third",
+          "cell": "B5",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "depth": 2,
+      "instance": 0,
+      "uri": "EPBDS-16406/rules.xlsx?sheet=Rules&range=A7:B9",
+      "tableId": "e62f2f47c67afbbfb39f880e7aad226a",
+      "name": "Iteration",
+      "kind": "spreadsheet",
+      "location": {
+        "kind": "cell",
+        "row": 0,
+        "column": 0,
+        "ref": "R0C0",
+        "label": "$Doubled"
+      },
+      "active": true,
+      "completed": false,
+      "error": false,
+      "steps": [
+        {
+          "ref": "R0C0",
+          "label": "$Doubled",
+          "cell": "B9",
+          "status": "current"
+        }
+      ]
+    }
+  ],
+  "sessionId": "***"
+}

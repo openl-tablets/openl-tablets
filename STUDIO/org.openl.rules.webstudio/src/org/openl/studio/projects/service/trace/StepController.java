@@ -25,7 +25,7 @@ final class StepController {
     private static final int NEVER = 0;
 
     /** Prefix marking an inclusive breakpoint, which suspends right after its target ran instead of before. */
-    static final String AFTER_PREFIX = "after:";
+    private static final String AFTER_PREFIX = "after:";
 
     private final AtomicReference<Set<String>> breakpoints = new AtomicReference<>(Set.of());
     private int threshold = NEVER;
@@ -70,17 +70,18 @@ final class StepController {
     /**
      * Whether execution should suspend at this event.
      *
-     * <p>A breakpoint is matched at table entry by URI (key {@code uri}) or by table name (key
-     * {@code name}), or at a sub-step (key {@code uri#ref}): a spreadsheet cell such as {@code uri#R2C3},
-     * any fired decision-table rule ({@code uri#rule}), or a specific fired rule by name such as
-     * {@code uri#R10}. A name breakpoint suspends on any same-named table, since every overloaded or
-     * dimensional version shares the plain method name.
+     * <p>A table is addressed by its URI (key {@code uri}) or by its name (key {@code name}), and a
+     * sub-step of it by appending {@code #ref}: a spreadsheet cell such as {@code uri#R2C3}, any fired
+     * decision-table rule ({@code uri#rule}), or a specific fired rule by name such as {@code MyDT#R10}.
+     * Both forms address a sub-step as they address the table, so a cell can be watched by name before the
+     * table's URI is known. A name suspends on any same-named table, since every overloaded or dimensional
+     * version shares the plain method name.
      *
      * <p>Any key — URI, name or sub-step — may be suffixed with {@code @N} to fire only on the table's
      * {@code N}-th execution (zero-based, the same numbering as a watch series), so a breakpoint can
-     * target one iteration of a table that runs many times — for example {@code uri#R48C0@3} or
-     * {@code Factorial@2}. Executions are counted per table version, so an indexed name key counts the
-     * runs of each same-named version separately.
+     * target one iteration of a table that runs many times — for example {@code uri#R48C0@3},
+     * {@code MyDT#R10@3} or {@code Factorial@2}. Executions are counted per table version, so an indexed
+     * name key counts the runs of each same-named version separately.
      *
      * <p>Any key may also be prefixed with {@code after:} to suspend right after the target has executed
      * instead of right before: a table at its own exit, with its result on the stack, and a sub-step on the
@@ -106,7 +107,7 @@ final class StepController {
                 return true;
             }
             if (event == DebugEvent.LOCATION && location != null
-                    && matchesLocationBreakpoint(active, "", uri, location, instance)) {
+                    && matchesLocationBreakpoint(active, "", uri, name, location, instance)) {
                 return true;
             }
             // An inclusive breakpoint arms instead of suspending: an entered table runs to its own exit
@@ -118,7 +119,7 @@ final class StepController {
                 return false;
             }
             if (event == DebugEvent.LOCATION && location != null
-                    && matchesLocationBreakpoint(active, AFTER_PREFIX, uri, location, instance)) {
+                    && matchesLocationBreakpoint(active, AFTER_PREFIX, uri, name, location, instance)) {
                 exitDepth = depth;
                 threshold = depth;
                 return false;
@@ -136,11 +137,12 @@ final class StepController {
         return matches(active, prefix + uri, instance) || (name != null && matches(active, prefix + name, instance));
     }
 
+    /** A sub-step stops on the {@code #ref} key of its table, addressed by URI or by name like the table itself. */
     private static boolean matchesLocationBreakpoint(Set<String> active, String prefix, String uri,
-                                                     CurrentLocation location, int instance) {
-        var table = prefix + uri;
+                                                     @Nullable String name, CurrentLocation location, int instance) {
         for (String ref : location.breakpointRefs()) {
-            if (matches(active, table + "#" + ref, instance)) {
+            var step = "#" + ref;
+            if (matchesTableBreakpoint(active, prefix, uri + step, name == null ? null : name + step, instance)) {
                 return true;
             }
         }
