@@ -69,6 +69,7 @@ The breakpoint set is a flat `string[]`. A key is one of these forms:
 | `<uri>#rule` | firing of **any** rule of a decision table |
 | `<uri>#<ruleName>` | firing of a **specific** rule (for example `…#R10`) |
 | `<key>@N` | any form above, but only on the **N-th execution** of the table (0-based) |
+| `after:<key>` | any form above, but right **after** the target ran — a table at its own exit, a sub-step on the next line |
 
 - `name` comes from `trace_breakpoints` (the target list) or from `frames[].name`.
 - `uri` comes from `frames[].uri`.
@@ -77,6 +78,7 @@ The breakpoint set is a flat `string[]`. A key is one of these forms:
   a spreadsheet). `N` is the same 0-based numbering as `frames[].instance` and the `instance` in a watch
   series: an outlier found by a watch at `instance:3` is reached with the key `<uri>#<ref>@3`. Without the
   suffix a cell breakpoint catches **every** pass starting from the first — target `@N` to avoid `resume` ×N.
+  It works on a name key too (`Factorial@2`), counting the runs of each same-named version separately.
 - Reserved: the `rule` suffix ("any rule") may conflict with a rule literally named `rule` — an edge case we
   ignore in practice.
 

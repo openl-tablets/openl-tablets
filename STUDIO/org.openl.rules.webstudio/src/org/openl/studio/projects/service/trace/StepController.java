@@ -24,12 +24,7 @@ final class StepController {
     /** Depth that never matches a real frame (frames are numbered from 1). */
     private static final int NEVER = 0;
 
-    /**
-     * Marker of an inclusive breakpoint: {@code after:<key>} does not suspend where {@code <key>} would.
-     * Instead it lets the target execute and suspends right after — a table at its own exit (its result
-     * on the stack), a sub-step on the next line once it has computed its value. One resume thus lands
-     * with the target's parameters and result both readable, with no follow-up step commands.
-     */
+    /** Prefix marking an inclusive breakpoint, which suspends right after its target ran instead of before. */
     static final String AFTER_PREFIX = "after:";
 
     private final AtomicReference<Set<String>> breakpoints = new AtomicReference<>(Set.of());
@@ -81,12 +76,16 @@ final class StepController {
      * {@code uri#R10}. A name breakpoint suspends on any same-named table, since every overloaded or
      * dimensional version shares the plain method name.
      *
-     * <p>Any table or sub-step key may be suffixed with {@code @N} to fire only on the table's
+     * <p>Any key — URI, name or sub-step — may be suffixed with {@code @N} to fire only on the table's
      * {@code N}-th execution (zero-based, the same numbering as a watch series), so a breakpoint can
-     * target one iteration of a table that runs many times — for example {@code uri#R48C0@3}.
+     * target one iteration of a table that runs many times — for example {@code uri#R48C0@3} or
+     * {@code Factorial@2}. Executions are counted per table version, so an indexed name key counts the
+     * runs of each same-named version separately.
      *
-     * <p>Any key may also be prefixed with {@code after:} to suspend right after the target has
-     * executed instead of right before (see {@link #AFTER_PREFIX}).
+     * <p>Any key may also be prefixed with {@code after:} to suspend right after the target has executed
+     * instead of right before: a table at its own exit, with its result on the stack, and a sub-step on the
+     * next line once it has computed its value. One resume thus lands with the target's parameters and
+     * result both readable, with no follow-up step commands.
      *
      * @param event    the kind of safepoint reached
      * @param depth    depth of the current frame (1 for the top-level call)
@@ -101,28 +100,29 @@ final class StepController {
             return true;
         }
         Set<String> active = breakpoints.get();
-        if (event == DebugEvent.ENTER && (matches(active, uri, instance)
-                || (name != null && active.contains(name)))) {
-            return true;
-        }
-        if (event == DebugEvent.LOCATION && location != null
-                && matchesLocationBreakpoint(active, uri, location, instance)) {
-            return true;
-        }
-        // An inclusive breakpoint arms instead of suspending: an entered table runs to its own exit
-        // (deeper events stay below the thresholds), a matched sub-step runs to the next line at its
-        // depth — both landing right after the target executed, with its values on the stack.
-        if (event == DebugEvent.ENTER && (matches(active, AFTER_PREFIX + uri, instance)
-                || (name != null && active.contains(AFTER_PREFIX + name)))) {
-            exitDepth = depth;
-            threshold = NEVER;
-            return false;
-        }
-        if (event == DebugEvent.LOCATION && location != null
-                && matchesLocationBreakpoint(active, AFTER_PREFIX + uri, location, instance)) {
-            exitDepth = depth;
-            threshold = depth;
-            return false;
+        // No breakpoints set: skip building candidate keys on every event of a plain run.
+        if (!active.isEmpty()) {
+            if (event == DebugEvent.ENTER && matchesTableBreakpoint(active, "", uri, name, instance)) {
+                return true;
+            }
+            if (event == DebugEvent.LOCATION && location != null
+                    && matchesLocationBreakpoint(active, "", uri, location, instance)) {
+                return true;
+            }
+            // An inclusive breakpoint arms instead of suspending: an entered table runs to its own exit
+            // (deeper events stay below the thresholds), a matched sub-step runs to the next line at its
+            // depth — both landing right after the target executed, with its values on the stack.
+            if (event == DebugEvent.ENTER && matchesTableBreakpoint(active, AFTER_PREFIX, uri, name, instance)) {
+                exitDepth = depth;
+                threshold = NEVER;
+                return false;
+            }
+            if (event == DebugEvent.LOCATION && location != null
+                    && matchesLocationBreakpoint(active, AFTER_PREFIX, uri, location, instance)) {
+                exitDepth = depth;
+                threshold = depth;
+                return false;
+            }
         }
         if (event == DebugEvent.EXIT) {
             return depth <= exitDepth;
@@ -130,14 +130,17 @@ final class StepController {
         return depth <= threshold;
     }
 
-    private static boolean matchesLocationBreakpoint(Set<String> active, String uri, CurrentLocation location,
-                                                     int instance) {
-        if (active.isEmpty()) {
-            // No breakpoints set: skip building "uri#ref" keys on every sub-step of a plain run.
-            return false;
-        }
+    /** A table stops on its URI key or on its name key, either of them optionally instance-qualified. */
+    private static boolean matchesTableBreakpoint(Set<String> active, String prefix, String uri,
+                                                  @Nullable String name, int instance) {
+        return matches(active, prefix + uri, instance) || (name != null && matches(active, prefix + name, instance));
+    }
+
+    private static boolean matchesLocationBreakpoint(Set<String> active, String prefix, String uri,
+                                                     CurrentLocation location, int instance) {
+        var table = prefix + uri;
         for (String ref : location.breakpointRefs()) {
-            if (matches(active, uri + "#" + ref, instance)) {
+            if (matches(active, table + "#" + ref, instance)) {
                 return true;
             }
         }

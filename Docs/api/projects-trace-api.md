@@ -362,7 +362,8 @@ or at a **current-line change**:
 | `<uri>#R{r}C{c}` | A spreadsheet cell of that table becoming the current line | `file:/...#R0C1` |
 | `<uri>#rule` | **Any** rule of that decision table firing (all conditions matched) | `file:/...#rule` |
 | `<uri>#{ruleName}` | A **specific** rule of that decision table firing | `file:/...#SeniorDriver` |
-| `<key>@N` | Any of the above, but only on the table's **N-th execution** (0-based) | `file:/...#R48C0@3` |
+| `<key>@N` | Any of the above, but only on the table's **N-th execution** (0-based) | `VehiclePremiumCalculation@3` |
+| `after:<key>` | Any of the above, but right **after** the target ran instead of before it | `after:file:/...#R48C0@3` |
 
 Rule-fired breakpoints suspend **before the rule's action runs**, with the evaluated conditions already
 captured — the decision panel shows which rule fired and which conditions matched.
@@ -370,7 +371,12 @@ captured — the decision panel shows which rule fired and which conditions matc
 The `@N` suffix targets one iteration of a table that runs many times (for example one coverage of a
 per-coverage spreadsheet). `N` is the same zero-based number as `DebugFrameView.instance` and a watch
 series' `instance` — so an outlier found on `instance: 3` in a watch is reached with `<uri>#<ref>@3`.
-Without a suffix a cell breakpoint fires on **every** execution, from the first.
+Executions are counted per table version, so `<name>@N` counts the runs of each same-named version
+separately. Without a suffix a cell breakpoint fires on **every** execution, from the first.
+
+An `after:` key does not suspend where its target would. It lets the target run and suspends right after:
+a table at its own exit, with its result on the stack, and a sub-step on the next line once it has
+computed its value. One resume then lands with the target's parameters and result both readable.
 
 ---
 
