@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.TestUnitsResults;
@@ -32,10 +31,7 @@ public class RunExecutionResultMapper {
     public RunExecutionResult mapResult(TestUnitsResults results) {
         var testUnits = results.getTestUnits();
         if (testUnits.isEmpty()) {
-            return RunExecutionResult.builder()
-                    .tableName(results.getName())
-                    .tableId(TableUtils.makeTableId(results.getTestSuite().getUri()))
-                    .executionTimeMs(results.getExecutionTime() / NANOS_IN_MILLISECOND)
+            return baseResult(results)
                     .parameters(List.of())
                     .contextParameters(List.of())
                     .errors(List.of())
@@ -91,19 +87,35 @@ public class RunExecutionResultMapper {
                 .sorted(Comparator.comparing(MessageDescription::severity).thenComparing(MessageDescription::id))
                 .forEach(errors::add);
 
-        String tableName = results.getTestSuite().getTestSuiteMethod() != null
-                ? TableSyntaxNodeUtils.getTestName(results.getTestSuite().getTestSuiteMethod())
-                : results.getName();
-
-        return RunExecutionResult.builder()
-                .tableName(tableName)
-                .tableId(TableUtils.makeTableId(results.getTestSuite().getUri()))
-                .executionTimeMs(results.getExecutionTime() / NANOS_IN_MILLISECOND)
+        return baseResult(results)
                 .result(resultValue)
                 .resultSchema(resultSchema)
                 .parameters(parameters)
                 .contextParameters(contextParameters)
                 .errors(errors)
                 .build();
+    }
+
+    /**
+     * Starts a result with the metadata every run carries: the executed table and the execution time.
+     */
+    private static RunExecutionResult.RunExecutionResultBuilder baseResult(TestUnitsResults results) {
+        return RunExecutionResult.builder()
+                .tableName(resolveTableName(results))
+                .tableId(TableUtils.makeTableId(results.getTestSuite().getUri()))
+                .executionTimeMs(results.getExecutionTime() / NANOS_IN_MILLISECOND);
+    }
+
+    /**
+     * Resolves the name of the executed table.
+     *
+     * <p>A run wraps the requested table into a virtual test suite, whose own name is a placeholder. The name is
+     * therefore taken from the executed method, which is the table the caller asked to run.</p>
+     *
+     * <p>The name is the table identifier, the same value the tables API reports, so that a caller can look the
+     * executed table up by it.</p>
+     */
+    private static String resolveTableName(TestUnitsResults results) {
+        return results.getTestSuite().getTestedMethod().getName();
     }
 }

@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "tableName": "Virtual test suite",
+  "tableName": "MyRule",
   "tableId": "197f9ad992135f46198fd44e540f0c7f",
   "executionTimeMs": "*",
   "result": {
