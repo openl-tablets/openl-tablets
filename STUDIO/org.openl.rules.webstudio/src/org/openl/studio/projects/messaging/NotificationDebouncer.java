@@ -1,11 +1,7 @@
 package org.openl.studio.projects.messaging;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,9 +33,8 @@ public class NotificationDebouncer {
                 return thread;
             });
 
-    /** Both guarded by {@code lock}: a window and its payload open and close as one. */
-    private final Set<String> pending = new HashSet<>();
-    private final Map<String, Set<String>> pendingPayloads = new HashMap<>();
+    /** The open windows and what they have gathered; guarded by {@code lock}. */
+    private final Map<String, ChangeNotes> pending = new HashMap<>();
     private final Object lock = new Object();
 
     private final long windowMs;
@@ -55,46 +50,37 @@ public class NotificationDebouncer {
     }
 
     /**
-     * Runs the action once per burst of calls sharing the key. The action delivered is the one of the
-     * call that opened the window; callers must pass an action that reads current state when it runs.
+     * Runs the action once per burst of calls sharing the key. The notes of a burst merge, and the
+     * delivery receives everything the window gathered — the files the changes touched and the
+     * clients that asked for them.
+     *
+     * <p>The notes are drained atomically with the window's close, so a signal arriving during a
+     * delivery opens a new window carrying its own notes — nothing is swept into the finished
+     * delivery or lost. The action delivered is the one of the call that opened the window; callers
+     * must pass an action that reads current state when it runs.
      *
      * @param key    what the burst is about — a user name, a topic
-     * @param action the delivery
+     * @param notes  what this signal adds; may be empty
+     * @param action the delivery, receiving the merged notes of the burst
      */
-    public void debounce(String key, Runnable action) {
-        debounce(key, Set.of(), ignored -> action.run());
-    }
-
-    /**
-     * Like {@link #debounce(String, Runnable)}, with a payload: the payloads of a burst merge, and
-     * the delivery receives everything the window gathered. The payload is drained atomically with
-     * the window's close, so a signal arriving during a delivery opens a new window carrying its own
-     * payload — nothing is swept into the finished delivery or lost.
-     *
-     * @param key     what the burst is about
-     * @param payload what this signal adds — e.g. the files a change touched; may be empty
-     * @param action  the delivery, receiving the merged payload of the burst
-     */
-    public void debounce(String key, Collection<String> payload, Consumer<Set<String>> action) {
+    public void debounce(String key, ChangeNotes notes, Consumer<ChangeNotes> action) {
         synchronized (lock) {
-            if (!payload.isEmpty()) {
-                pendingPayloads.computeIfAbsent(key, ignored -> new LinkedHashSet<>()).addAll(payload);
-            }
-            if (!pending.add(key)) {
+            var open = pending.get(key);
+            pending.put(key, open == null ? notes : open.merge(notes));
+            if (open != null) {
                 return;
             }
         }
         scheduler.schedule(() -> deliver(key, action), windowMs, TimeUnit.MILLISECONDS);
     }
 
-    private void deliver(String key, Consumer<Set<String>> action) {
-        Set<String> payload;
+    private void deliver(String key, Consumer<ChangeNotes> action) {
+        ChangeNotes notes;
         synchronized (lock) {
-            pending.remove(key);
-            payload = pendingPayloads.remove(key);
+            notes = pending.remove(key);
         }
         try {
-            action.accept(payload == null ? Set.of() : payload);
+            action.accept(notes);
         } catch (RuntimeException e) {
             log.warn("Failed to deliver a change notification for '{}'.", key, e);
         }

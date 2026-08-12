@@ -1,9 +1,14 @@
 import { render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { ChangePing } from '../services/changePing'
+import { CLIENT_ID } from '../services/clientId'
 import { subscribeProjectChanges } from '../services/projectChanges'
 import { useLiveProjectChanges } from './useLiveProjectChanges'
 
 vi.mock('../services/projectChanges', () => ({ subscribeProjectChanges: vi.fn() }))
+
+/** A ping of somebody else's change, naming the files it touched. */
+const changed = (...files: string[]): ChangePing => ({ files, origins: ['another-tab']})
 
 const Probe = ({ projectId, onChange }: { projectId: string | undefined, onChange: (files: string[]) => void }) => {
     useLiveProjectChanges(projectId, onChange)
@@ -11,7 +16,7 @@ const Probe = ({ projectId, onChange }: { projectId: string | undefined, onChang
 }
 
 describe('useLiveProjectChanges', () => {
-    let ping: (files: string[]) => void
+    let ping: (ping: ChangePing) => void
     const unsubscribe = vi.fn()
 
     beforeEach(() => {
@@ -32,12 +37,28 @@ describe('useLiveProjectChanges', () => {
         render(<Probe onChange={onChange} projectId="p1" />)
         expect(subscribeProjectChanges).toHaveBeenCalledWith('p1', expect.any(Function))
 
-        ping(['rules/A.xlsx'])
-        ping(['rules/B.xlsx'])
+        ping(changed('rules/A.xlsx'))
+        ping(changed('rules/B.xlsx'))
         vi.advanceTimersByTime(500)
 
         expect(onChange).toHaveBeenCalledTimes(1)
         expect(onChange).toHaveBeenCalledWith(['rules/A.xlsx', 'rules/B.xlsx'])
+    })
+
+    it('ignores the echo of a change this tab made itself', () => {
+        const onChange = vi.fn()
+        render(<Probe onChange={onChange} projectId="p1" />)
+
+        // The page reloaded itself when the action finished; the ping only repeats what it read.
+        ping({ files: ['rules/A.xlsx'], origins: [CLIENT_ID]})
+        vi.advanceTimersByTime(3000)
+        expect(onChange).not.toHaveBeenCalled()
+
+        // A ping standing for this tab's change and another session's is not an echo: dropping it
+        // would drop the other session's change with it.
+        ping({ files: ['rules/A.xlsx'], origins: [CLIENT_ID, 'another-tab']})
+        vi.advanceTimersByTime(500)
+        expect(onChange).toHaveBeenCalledWith(['rules/A.xlsx'])
     })
 
     it('waits until the page knows its project', () => {

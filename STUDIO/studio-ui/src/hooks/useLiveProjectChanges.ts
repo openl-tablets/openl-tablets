@@ -12,9 +12,9 @@ import { useCoalescedChanges } from './useCoalescedChanges'
  * watched. Bursts of pings collapse into one call, their files merged.
  */
 export function useLiveProjectChanges(projectId: string | undefined, onChange: (files: string[]) => void): void {
-    useCoalescedChanges<string[]>(
+    useCoalescedChanges(
         projectId === undefined ? null : onPing => subscribeProjectChanges(projectId, onPing),
-        batches => onChange(batches.flat()),
+        pings => onChange(pings.flatMap(ping => ping.files)),
         [projectId]
     )
 }

@@ -3,6 +3,7 @@ package org.openl.studio.projects.messaging;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.ParametersAreNonnullByDefault;
 import jakarta.annotation.Nullable;
@@ -35,12 +36,6 @@ public class ProjectSocketNotificationService {
     private static final String TOPIC_PROJECTS_CHANGED = "/topic/projects/changed";
     private static final String TOPIC_PROJECT_CHANGED = "/topic/projects/%s/changed";
     private static final String TOPIC_WORKSPACE_PROJECTS_STATUS = "/topic/workspace/projects/status";
-
-    /**
-     * The body of a change ping. The pings carry no data on purpose: the broadcast one goes to every
-     * authenticated session, so clients re-read what changed through the REST API under their own ACL.
-     */
-    private static final String CHANGE_PING = "CHANGED";
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -188,37 +183,55 @@ public class ProjectSocketNotificationService {
     /**
      * Tells the user's sessions that their workspace changed — a project was opened, closed, saved,
      * deleted, switched to another branch, or edited — so a projects list they show may be stale.
-     * A bare ping: the client re-reads the list through the REST API.
+     * The client re-reads the list through the REST API.
+     *
+     * <p>The body is {@code {"origins": [...]}}, naming the clients whose requests caused the ping.
+     * A client that finds itself the sole origin has already read the change and skips the re-read.
      *
      * @param userName destination user
+     * @param notes    what the ping stands for; only its origins ride the workspace-wide ping
      */
-    public void notifyWorkspaceChanged(String userName) {
-        messagingTemplate.convertAndSendToUser(userName, TOPIC_WORKSPACE_CHANGED, CHANGE_PING);
+    public void notifyWorkspaceChanged(String userName, ChangeNotes notes) {
+        messagingTemplate.convertAndSendToUser(userName, TOPIC_WORKSPACE_CHANGED, origins(notes));
     }
 
     /**
      * Tells every session that the content of a design repository changed — a commit, a merge, an
-     * external push — so any projects list may be stale. A bare ping broadcast to all authenticated
-     * subscribers; it carries no project data.
+     * external push — so any projects list may be stale. Broadcast to all authenticated subscribers;
+     * it carries no project data, only the origins of the requests behind it.
+     *
+     * @param notes what the ping stands for; only its origins ride the broadcast
      */
-    public void notifyProjectsChanged() {
-        messagingTemplate.convertAndSend(TOPIC_PROJECTS_CHANGED, CHANGE_PING);
+    public void notifyProjectsChanged(ChangeNotes notes) {
+        messagingTemplate.convertAndSend(TOPIC_PROJECTS_CHANGED, origins(notes));
     }
 
     /**
      * Tells the user's sessions that one project of their workspace changed — its state, its branch or
      * its content — so an open page of that project can re-read it.
      *
+     * <p>The body is {@code {"files": [...], "origins": [...]}}. The files are the project-relative
+     * ones the change touched, when known — a folder means anything under it; empty when the change
+     * is project-wide. The page re-reads through the REST API either way; the files let it refresh an
+     * open one precisely.
+     *
      * @param userName  destination user
      * @param projectId the project that changed
-     * @param files     the project-relative files the change touched, when known — a folder means
-     *                  anything under it; empty when the change is project-wide. The page re-reads
-     *                  through the REST API either way; the files let it refresh an open one precisely.
+     * @param notes     the files the change touched and the clients that asked for it
      */
-    public void notifyProjectChanged(String userName, ProjectIdModel projectId, Collection<String> files) {
+    public void notifyProjectChanged(String userName, ProjectIdModel projectId, ChangeNotes notes) {
         messagingTemplate.convertAndSendToUser(userName,
                 TOPIC_PROJECT_CHANGED.formatted(encodePathSegment(projectId.encode())),
-                Map.of("files", files.stream().sorted().toList()));
+                Map.of("files", sorted(notes.files()), "origins", sorted(notes.origins())));
+    }
+
+    private static Map<String, List<String>> origins(ChangeNotes notes) {
+        return Map.of("origins", sorted(notes.origins()));
+    }
+
+    /** The ping bodies list their sets in a stable order, so identical changes read identically. */
+    private static List<String> sorted(Collection<String> values) {
+        return values.stream().sorted().toList();
     }
 
     private String encodePathSegment(String segment) {

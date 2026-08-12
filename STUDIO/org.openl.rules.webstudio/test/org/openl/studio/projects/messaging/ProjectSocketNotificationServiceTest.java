@@ -149,18 +149,29 @@ class ProjectSocketNotificationServiceTest {
     }
 
     @Test
-    void notifyWorkspaceChanged_pings_the_user_only() {
-        service.notifyWorkspaceChanged(USER_NAME);
+    void notifyWorkspaceChanged_pings_the_user_only_naming_the_clients_behind_the_change() {
+        service.notifyWorkspaceChanged(USER_NAME, new ChangeNotes(Set.of(), Set.of("tab-2", "tab-1")));
 
-        verify(messagingTemplate).convertAndSendToUser(USER_NAME, "/topic/workspace/changed", "CHANGED");
+        // Sorted, so identical changes read identically; the files of the notes stay off this ping.
+        verify(messagingTemplate).convertAndSendToUser(USER_NAME, "/topic/workspace/changed",
+                Map.of("origins", List.of("tab-1", "tab-2")));
     }
 
     @Test
-    void notifyProjectsChanged_broadcasts_a_bare_ping() {
-        service.notifyProjectsChanged();
+    void notifyProjectsChanged_broadcasts_a_ping_carrying_nothing_but_its_origins() {
+        service.notifyProjectsChanged(new ChangeNotes(Set.of(), Set.of("tab-1")));
 
         // No project data rides along: every subscriber re-reads the list under its own ACL.
-        verify(messagingTemplate).convertAndSend("/topic/projects/changed", "CHANGED");
+        verify(messagingTemplate).convertAndSend("/topic/projects/changed", Map.of("origins", List.of("tab-1")));
+    }
+
+    @Test
+    void notifyWorkspaceChanged_names_no_origin_for_a_change_made_outside_a_request() {
+        service.notifyWorkspaceChanged(USER_NAME, new ChangeNotes(Set.of(), Set.of()));
+
+        // Nothing to attribute it to: no session may read it as its own echo.
+        verify(messagingTemplate).convertAndSendToUser(USER_NAME, "/topic/workspace/changed",
+                Map.of("origins", List.of()));
     }
 
     @Test
@@ -175,22 +186,23 @@ class ProjectSocketNotificationServiceTest {
 
     @Test
     void notifyProjectChanged_pings_the_project_page_of_the_user_naming_the_files() {
-        service.notifyProjectChanged(USER_NAME, projectId, Set.of("rules/B.xlsx", "rules/A.xlsx"));
+        service.notifyProjectChanged(USER_NAME, projectId,
+                new ChangeNotes(Set.of("rules/B.xlsx", "rules/A.xlsx"), Set.of("tab-1")));
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
                 "/topic/projects/%s/changed".formatted(encodedProjectId()),
-                Map.of("files", List.of("rules/A.xlsx", "rules/B.xlsx")));
+                Map.of("files", List.of("rules/A.xlsx", "rules/B.xlsx"), "origins", List.of("tab-1")));
     }
 
     @Test
     void notifyProjectChanged_sends_an_empty_file_list_for_a_project_wide_change() {
-        service.notifyProjectChanged(USER_NAME, projectId, Set.of());
+        service.notifyProjectChanged(USER_NAME, projectId, new ChangeNotes(Set.of(), Set.of()));
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
                 "/topic/projects/%s/changed".formatted(encodedProjectId()),
-                Map.of("files", List.of()));
+                Map.of("files", List.of(), "origins", List.of()));
     }
 
     private String encodedProjectId() {
