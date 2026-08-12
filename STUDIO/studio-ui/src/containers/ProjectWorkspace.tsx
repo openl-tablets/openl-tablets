@@ -229,7 +229,7 @@ export const ProjectWorkspace = () => {
     // The files the ping names flow to the open-file pane, so it refreshes only when touched.
     // The user is told only when the refresh actually changed the project: a ping echoing their own
     // action lands on an already-fresh page and stays quiet.
-    useLiveProjectChanges(project?.id, pingedFiles => {
+    const refreshFromPing = useCallback((pingedFiles: string[]) => {
         const before = projectSignature(project)
         invalidateProjectIndex()
         void load({
@@ -241,7 +241,11 @@ export const ProjectWorkspace = () => {
                 notification.info({ title: t('browser.live_project_synced') })
             }
         })
-    })
+    }, [load, project, t])
+
+    // A ping landing while the user's action runs answers the question the action is already asking,
+    // so the hook holds it until the action's own answer is on screen.
+    useLiveProjectChanges(project?.id, refreshFromPing, { holdWhile: pendingId !== null })
 
     // The staleness policy behind the pings: coming back to a tab whose page outlived the trust
     // window (pings can be lost while a laptop sleeps) re-reads it quietly.

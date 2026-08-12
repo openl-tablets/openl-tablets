@@ -414,6 +414,8 @@ export const ProjectsHome = () => {
     // user, another client. The list re-reads behind the scenes and swaps the fresh answer in. The user is
     // told only when the refresh actually changed the list: a ping echoing their own action lands on
     // an already-fresh snapshot and stays quiet.
+    // A ping landing while a row action runs waits for it: the refresh would otherwise supersede the
+    // read the action is waiting for and unlock the row over the state before it.
     useWorkspaceChanges(() => {
         const before = listSignature(allProjects)
         void load(true, { silent: true }).then(loaded => {
@@ -421,7 +423,7 @@ export const ProjectsHome = () => {
                 notification.info({ title: t('home.live_synced') })
             }
         })
-    })
+    }, { holdWhile: Object.keys(pending).length > 0 })
 
     // The staleness policy behind the pings: coming back to a tab whose snapshot outlived its trust
     // window (pings can be lost while a laptop sleeps) re-reads it quietly.

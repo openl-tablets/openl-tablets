@@ -41,18 +41,27 @@ window.addEventListener(WORKSPACE_CHANGED_EVENT, () => {
  * window of the last own mutation passes and delivered then, so the screens run one quiet refresh
  * instead of an immediate duplicate.
  *
+ * While {@code hold} is true the caller is running an action of its own, and the batch waits for it.
+ * The screen must show the answer to the action the user is waiting for, and a refresh started
+ * beside it would supersede that answer and leave the page on its pre-action state. The batch is not
+ * dropped — a change of another session can hide behind the ping — it is delivered once the action
+ * has finished.
+ *
  * The subscription is renewed when {@code deps} change, and skipped entirely while {@code subscribe}
  * is {@code null} — e.g. before the screen knows what to watch.
  */
 export function useCoalescedChanges(
     subscribe: ((onPing: (ping: ChangePing) => void) => TopicSubscription) | null,
     onChange: (pings: ChangePing[]) => void,
-    deps: DependencyList
+    deps: DependencyList,
+    hold = false
 ): void {
     const onChangeRef = useRef(onChange)
     onChangeRef.current = onChange
     const subscribeRef = useRef(subscribe)
     subscribeRef.current = subscribe
+    const holdRef = useRef(hold)
+    holdRef.current = hold
 
     useEffect(() => {
         const start = subscribeRef.current
@@ -65,6 +74,11 @@ export function useCoalescedChanges(
         let heldSince = 0
         const deliver = () => {
             timer = undefined
+            // An action of the caller's own is in flight; ask again when it may have finished.
+            if (holdRef.current) {
+                timer = setTimeout(deliver, COALESCE_MS)
+                return
+            }
             // A batch every ping of which names an origin needs no hold: this tab's own echo was
             // dropped at the door, so what is left is somebody else's change and goes through at
             // once. An unattributed ping keeps the old rule — hold it out of the echo window, but

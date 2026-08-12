@@ -9,12 +9,20 @@ import { useCoalescedChanges } from './useCoalescedChanges'
  * for anything under it, an empty list means a project-wide change or unknown files.
  *
  * Waits until the page knows its project: while {@code projectId} is {@code undefined} nothing is
- * watched. Bursts of pings collapse into one call, their files merged.
+ * watched. Bursts of pings collapse into one call, their files merged. With
+ * {@code holdWhile} the page tells the hook it is running an action of its own, and the refresh
+ * waits for it instead of racing the read the user is waiting for.
  */
-export function useLiveProjectChanges(projectId: string | undefined, onChange: (files: string[]) => void): void {
+export function useLiveProjectChanges(
+    projectId: string | undefined,
+    onChange: (files: string[]) => void,
+    { holdWhile = false }: { holdWhile?: boolean } = {}
+): void {
     useCoalescedChanges(
         projectId === undefined ? null : onPing => subscribeProjectChanges(projectId, onPing),
-        pings => onChange(pings.flatMap(ping => ping.files)),
-        [projectId]
+        // A ping that names no file stands for anything, so it swallows the files of the others.
+        pings => onChange(pings.some(ping => ping.files.length === 0) ? [] : pings.flatMap(ping => ping.files)),
+        [projectId],
+        holdWhile
     )
 }
