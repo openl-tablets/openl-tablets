@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- **Converged at `main` = `5b1b4fc153` (EPBDS-16433 rules.xml properties-name validation)**; every queue row done,
+- **Converged at `main` = `b95d12f8ff` (EPBDS-16406 sub-step breakpoint by table name)**; every queue row done,
   every vein closed. Idle for dozens of consecutive passes; expect more. New scope arrives only as new commits on
   `main` — never invent a detector to make work.
 - The idle pass is two calls: `git log <resume SHA>..origin/main` and the open-PR check; never re-diagnose CI on an
@@ -15,10 +15,8 @@
 
 ## Change-type queue
 
-All 19 change types are **done** and *Exhausted veins* records the scope each covered — resources, Java at every
-visibility, and Maven configuration. Only three rows left anything behind, all in *Deferred findings*: `.te_hidden`,
-the 20 tableeditor taglib fields, and the `MergeModal` contract mirrors. A new row is warranted only by a detector
-this ledger has never run — not by re-running one of these.
+All 19 change types are **done**; *Exhausted veins* records the scope each covered. A new row is warranted only by a
+detector this ledger has never run — not by re-running one of these.
 
 ## Open PR
 
@@ -31,9 +29,9 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Module coverage
 
-- `STUDIO/org.openl.rules.webstudio` Java is the one unswept surface — uncompilable here (see *Container facts*),
-  though its resources are already covered by the repo-wide resource veins.
-- Every other module is fully swept and has nothing left but the entries in *Deferred findings*.
+- `STUDIO/org.openl.rules.webstudio` Java is the one unswept surface — uncompilable here (see *Container facts*);
+  its resources are covered by the repo-wide resource veins. Every other module is fully swept, leaving only
+  *Deferred findings*.
 
 ## Deferred findings
 
@@ -155,7 +153,10 @@ None. Open the next one from a fresh branch off the current `main`.
 - **One detector rule is one change type**, so one PMD rule is one commit. The queue rows are coarser than that
   and group several rules per row — never squash two commits just because they share a queue row.
 - **Screen an incremental commit mechanically**: per changed file, take the identifiers of its deleted lines minus
-  the identifiers of its post-image; an empty result proves the file orphaned nothing and needs no reading.
+  the identifiers of its post-image; an empty result proves the file orphaned nothing and needs no reading. A
+  residual of ordinary English words is the same proof — a JavaDoc or a `.properties` description rewrite drops
+  prose, not names; check only the residuals that could be a type or a member, and a `.properties` diff that
+  changes values while every key survives orphans nothing.
 - For a bundle key, search the full dotted path **and** the bare leaf name; either hit means keep.
 - Validate any bulk detector on two fabricated names *and* one known-live name — a fabricated hit or a live
   miss means the search is wrong. Mixing `grep -E` with `-P` errors out, so hidden stderr reads every name dead.
@@ -382,6 +383,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-12 — run 135: `main` advanced to `8dbc23120` (EPBDS-16328 copy-by-id); screened, orphaned nothing. Idle.
 - 08-12 — run 136: `main` advanced to `ce30f0196` (EPBDS-16275 transient shell view); screened, orphaned nothing.
 - 08-12 — run 137: `main` at `5b1b4fc153`, +2 commits (EPBDS-16433 and a release-notes edit); orphaned nothing. Idle.
+- 08-12 — run 138: `main` at `b95d12f8ff`, +2 EPBDS-16406 breakpoint commits; additive plus prose only. Idle.
