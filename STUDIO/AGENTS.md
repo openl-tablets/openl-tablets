@@ -5,6 +5,12 @@ Spring Boot backend + React/TypeScript frontend (modern) + JSF/RichFaces (legacy
 ## Key Conventions
 
 - **JSF pages** (`org.openl.rules.webstudio/src/main/webapp/`): Explicit bug fixes only. Do NOT improve legacy code or possible bugs. New features must go in React frontend.
+- **The rules editor shell** (`pages/modules/index.xhtml`) is a **transient** (`<f:view transient="true">`) view and
+  must stay one. It is the page the user keeps open for the whole session, while its panels and its content are
+  loaded as views of their own; those views share one bounded per-session cache, so a shell kept among them is
+  dropped after a dozen or so panel loads and every later request of its own is answered as expired
+  ([EPBDS-16275](https://jira.eisgroup.com/browse/EPBDS-16275)). Keep the shell free of state to carry between
+  requests, and guard it with `ITEST/itest.studio/simple` → `ShellViewTest`.
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `org.openl.security.standalone/resources/db/flyway/`
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens

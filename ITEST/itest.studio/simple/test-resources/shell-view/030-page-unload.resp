@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml;charset=utf-8
+
+<?xml version="1.0" encoding="UTF-8"?>
+<partial-response><changes><update id="j_id1:jakarta.faces.ViewState:0"><![CDATA[stateless]]></update></changes></partial-response>
