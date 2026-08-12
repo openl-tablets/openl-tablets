@@ -380,6 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-12 — run 130: `main` unchanged at `fdeabeba3`; the repository has zero open PRs at all. Idle pass.
 - 08-12 — run 131: `main` unchanged at `fdeabeba3`, zero open PRs. Idle pass; ledger at 385 of 400 lines.
 - 08-12 — run 132: `main` unchanged at `fdeabeba3`, zero open PRs, no `dead-code/*` branch but the ledger. Idle.
+- 08-12 — run 133: `main` unchanged at `fdeabeba3`, zero open PRs. Idle pass; ledger at 385 of 400 lines.
