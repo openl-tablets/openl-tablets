@@ -112,6 +112,18 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <!-- Names the client of every change, so a session can tell its own echo from a change made
+         through another client of the same user - an integration, an MCP server, the legacy pages. -->
+    <filter>
+        <filter-name>changeOriginFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>changeOriginFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
     <listener>
         <listener-class>org.openl.rules.webstudio.web.servlet.SpringInitializer</listener-class>
     </listener>

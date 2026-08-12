@@ -580,11 +580,18 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             synchronized (projects) {
                 projectsRefreshNeeded = true;
             }
-            notifyListeners();
+            notifyListeners(true);
         }
     }
 
-    private void indexPublished() {
+    /**
+     * A pass of the index finished. The caches built on the previous one are dropped whatever it
+     * found, while the sessions are told only when it found something else: a rebuild also runs for
+     * work that leaves the repository alone — opening a project re-indexes and finds the same trees.
+     *
+     * @param contentChanged whether the published snapshot differs from the one before it
+     */
+    private void indexPublished(boolean contentChanged) {
         if (destroyed) {
             return;
         }
@@ -592,16 +599,28 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             projectsRefreshNeeded = true;
             refreshProjects();
         }
-        notifyListeners();
+        notifyListeners(contentChanged);
     }
 
-    private void notifyListeners() {
+    private void notifyListeners(boolean contentChanged) {
         List<DesignTimeRepositoryListener> localListeners;
         synchronized (listeners) {
             localListeners = new ArrayList<>(listeners);
         }
         for (DesignTimeRepositoryListener listener : localListeners) {
+            notifyListener(listener, contentChanged);
+        }
+    }
+
+    /** One listener that fails takes neither the others nor the notification behind them with it. */
+    private static void notifyListener(DesignTimeRepositoryListener listener, boolean contentChanged) {
+        try {
             listener.onRepositoryModified();
+            if (contentChanged) {
+                listener.onRepositoryContentChanged();
+            }
+        } catch (RuntimeException e) {
+            log.warn("A design repository listener failed to handle the change.", e);
         }
     }
 

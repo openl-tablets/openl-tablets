@@ -5,11 +5,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.ParametersAreNonnullByDefault;
 import jakarta.annotation.Nullable;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.CommonUser;
@@ -38,6 +40,7 @@ public class ProjectSocketNotificationService {
     private static final String TOPIC_WORKSPACE_PROJECTS_STATUS = "/topic/workspace/projects/status";
 
     private final SimpMessagingTemplate messagingTemplate;
+    private final SimpUserRegistry userRegistry;
 
     /**
      * Notifies user about test execution status change.
@@ -197,13 +200,22 @@ public class ProjectSocketNotificationService {
 
     /**
      * Tells every session that the content of a design repository changed — a commit, a merge, an
-     * external push — so any projects list may be stale. Broadcast to all authenticated subscribers;
-     * it carries no project data, only the origins of the requests behind it.
+     * external push — so any projects list may be stale. It carries no project data: the clients
+     * re-read what they show through the REST API under their own ACL.
      *
-     * @param notes what the ping stands for; only its origins ride the broadcast
+     * <p>Sent to each connected user separately rather than broadcast, so that it can be named
+     * without the name reaching anyone else. Every user is told about clients of their own and no
+     * others: the session that committed then recognises its own echo, and nobody can be handed a
+     * name they did not set and be made to skip a change of somebody else.
+     *
+     * @param writersByUser the clients that were writing, by the user they acted for
      */
-    public void notifyProjectsChanged(ChangeNotes notes) {
-        messagingTemplate.convertAndSend(TOPIC_PROJECTS_CHANGED, origins(notes));
+    public void notifyProjectsChanged(Map<String, Set<String>> writersByUser) {
+        for (var user : userRegistry.getUsers()) {
+            var named = writersByUser.getOrDefault(user.getName(), Set.of());
+            messagingTemplate.convertAndSendToUser(user.getName(), TOPIC_PROJECTS_CHANGED,
+                    Map.of("origins", sorted(named)));
+        }
     }
 
     /**

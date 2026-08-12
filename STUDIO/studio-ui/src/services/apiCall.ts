@@ -122,9 +122,12 @@ const apiCall = async (
         ...params,
     }
     const mutating = (responseParams.method ?? 'GET').toUpperCase() !== 'GET'
-    if (mutating) {
+    const changing = mutating && !opts.skipWorkspaceEvent
+    if (changing) {
         // The change this request makes pings every session of the user back. Naming the tab that
         // asked for it lets this one recognise its own echo instead of re-reading what it just read.
+        // A call that only reads is left unnamed: it must not make this tab the presumed author of
+        // whatever else happens next.
         const headers = new Headers(responseParams.headers)
         headers.set(CLIENT_ID_HEADER, CLIENT_ID)
         responseParams.headers = headers
@@ -134,7 +137,7 @@ const apiCall = async (
         .then(async response => {
             const { status } = response
             if (status >= 200 && status < 300) {
-                if (mutating && !opts.skipWorkspaceEvent) {
+                if (changing) {
                     window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
                 }
                 if (opts.responseType === 'response') {

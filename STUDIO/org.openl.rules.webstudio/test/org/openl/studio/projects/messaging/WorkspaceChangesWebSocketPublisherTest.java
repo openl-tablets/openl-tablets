@@ -84,7 +84,7 @@ class WorkspaceChangesWebSocketPublisherTest {
 
     @Test
     void both_pings_name_the_client_whose_request_made_the_change() {
-        when(changeOrigin.current()).thenReturn("tab-1");
+        when(changeOrigin.origins("jane")).thenReturn(Set.of("tab-1"));
 
         publisher.onProjectStateChanged(new ProjectStateChangedEvent(project, "jane"));
 

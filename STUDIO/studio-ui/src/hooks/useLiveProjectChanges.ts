@@ -1,5 +1,10 @@
+import type { ChangePing } from '../services/changePing'
 import { subscribeProjectChanges } from '../services/projectChanges'
 import { useCoalescedChanges } from './useCoalescedChanges'
+
+/** Whether the batch holds a change of the project the backend could not narrow to files. */
+const projectWide = (pings: ChangePing[]): boolean =>
+    pings.some(ping => ping.scope === 'project' && ping.files.length === 0)
 
 /**
  * Runs the callback whenever the backend pings that the open project may be stale — the user changed
@@ -20,8 +25,9 @@ export function useLiveProjectChanges(
 ): void {
     useCoalescedChanges(
         projectId === undefined ? null : onPing => subscribeProjectChanges(projectId, onPing),
-        // A ping that names no file stands for anything, so it swallows the files of the others.
-        pings => onChange(pings.some(ping => ping.files.length === 0) ? [] : pings.flatMap(ping => ping.files)),
+        // Only a project's own ping knows about files, and one naming none stands for anything, so
+        // it swallows the files of the others. The workspace ping never names files at all.
+        pings => onChange(projectWide(pings) ? [] : pings.flatMap(ping => ping.files)),
         [projectId],
         holdWhile
     )

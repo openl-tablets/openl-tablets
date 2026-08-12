@@ -18,7 +18,7 @@ import { subscribeWorkspaceChanges } from './workspaceChanges'
  */
 export function subscribeProjectChanges(projectId: string, onChange: (ping: ChangePing) => void): TopicSubscription {
     const own = subscribeTopic(`/user/topic/projects/${encodeURIComponent(projectId)}/changed`,
-        body => onChange(parseChangePing(body)))
+        body => onChange(parseChangePing(body, 'project')))
     const workspaceWide = subscribeWorkspaceChanges(onChange)
     return {
         unsubscribe: () => {

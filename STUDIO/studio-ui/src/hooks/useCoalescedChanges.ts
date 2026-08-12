@@ -13,9 +13,9 @@ const COALESCE_MS = 500
 const ECHO_WINDOW_MS = 2500
 
 /**
- * The longest a gathered batch may wait out echo windows. A user acting more often than the echo
- * window would otherwise postpone the delivery forever — starving exactly the other-user changes
- * the hold exists to preserve.
+ * The longest a gathered batch may wait, whatever it is waiting for. A user acting more often than
+ * the echo window, or an action whose request never comes back, would otherwise postpone the
+ * delivery forever — starving exactly the other-session changes the wait exists to preserve.
  */
 const MAX_HOLD_MS = 10_000
 
@@ -32,23 +32,30 @@ window.addEventListener(WORKSPACE_CHANGED_EVENT, () => {
  * life, collapse bursts into one call carrying everything the window gathered, and always call the
  * latest callback so callers may pass an inline closure.
  *
- * A ping this tab caused itself is dropped at the door: the screen already reloaded when the action
- * finished, and re-reading would only repeat that. The ping names its origins, so a change of
- * another session hiding behind the echo is never dropped with it.
+ * A ping this tab caused itself is dropped at the door — but only while the screen is known to have
+ * just reloaded on that action of its own. A mutation whose answer never reached the browser (a
+ * failure after the write, a dropped connection) leaves no such mark, so its ping is delivered and
+ * the screen still catches up. The ping names its origins, so a change of another session is never
+ * dropped with the echo.
  *
- * A ping naming no origin at all was made outside a request — the files watcher, a repository poll —
- * and may still be this tab's own action reaching the disk. Such a batch is held until the echo
- * window of the last own mutation passes and delivered then, so the screens run one quiet refresh
- * instead of an immediate duplicate.
+ * A ping naming no origin at all was made outside a request — the files watcher, a repository poll,
+ * a commit anyone can see — and may still be this tab's own action reaching the disk. Such a batch
+ * is held until the echo window of the last own mutation passes and delivered then, so the screens
+ * run one quiet refresh instead of an immediate duplicate.
  *
  * While {@code hold} is true the caller is running an action of its own, and the batch waits for it.
  * The screen must show the answer to the action the user is waiting for, and a refresh started
- * beside it would supersede that answer and leave the page on its pre-action state. The batch is not
- * dropped — a change of another session can hide behind the ping — it is delivered once the action
- * has finished.
+ * beside it would supersede that answer and leave the page on its pre-action state. Nothing is ever
+ * dropped for waiting: a batch is delivered once the wait ends, and in any case within
+ * {@link MAX_HOLD_MS}.
  *
  * The subscription is renewed when {@code deps} change, and skipped entirely while {@code subscribe}
- * is {@code null} — e.g. before the screen knows what to watch.
+ * is {@code null} — e.g. before the screen knows what to watch. A batch gathered by the previous
+ * subscription travels to the new one only when an action of the screen is running: an action is
+ * what renews a subscription without changing what the screen watches (opening a project changes its
+ * id), and the changes of others gathered meanwhile are still owed to the user. Renewed for any
+ * other reason the screen is watching something else — another project — and the batch goes with the
+ * subscription that gathered it.
  */
 export function useCoalescedChanges(
     subscribe: ((onPing: (ping: ChangePing) => void) => TopicSubscription) | null,
@@ -62,6 +69,11 @@ export function useCoalescedChanges(
     subscribeRef.current = subscribe
     const holdRef = useRef(hold)
     holdRef.current = hold
+    // Outside the subscription effect: a renewed subscription continues the batch instead of
+    // throwing away what the previous one gathered.
+    const gathered = useRef<ChangePing[]>([])
+    // When the pending batch started waiting; caps the wait so it cannot be extended forever.
+    const heldSince = useRef(0)
 
     useEffect(() => {
         const start = subscribeRef.current
@@ -69,43 +81,53 @@ export function useCoalescedChanges(
             return
         }
         let timer: ReturnType<typeof setTimeout> | undefined
-        let gathered: ChangePing[] = []
-        // When the pending batch started waiting; caps the hold so it cannot be extended forever.
-        let heldSince = 0
         const deliver = () => {
             timer = undefined
+            const capped = Date.now() - heldSince.current >= MAX_HOLD_MS
             // An action of the caller's own is in flight; ask again when it may have finished.
-            if (holdRef.current) {
+            if (holdRef.current && !capped) {
                 timer = setTimeout(deliver, COALESCE_MS)
                 return
             }
-            // A batch every ping of which names an origin needs no hold: this tab's own echo was
+            // A batch every ping of which names an origin needs no wait: this tab's own echo was
             // dropped at the door, so what is left is somebody else's change and goes through at
-            // once. An unattributed ping keeps the old rule — hold it out of the echo window, but
-            // never longer than the cap, or a user acting continuously would starve the delivery.
-            const unattributed = gathered.some(ping => ping.origins.length === 0)
+            // once. An unattributed ping keeps the old rule — hold it out of the echo window.
+            const unattributed = gathered.current.some(ping => ping.origins.length === 0)
             const wait = ECHO_WINDOW_MS - (Date.now() - lastOwnMutationAt)
-            if (unattributed && wait > 0 && Date.now() - heldSince < MAX_HOLD_MS) {
+            if (unattributed && wait > 0 && !capped) {
                 timer = setTimeout(deliver, wait)
                 return
             }
-            const pings = gathered
-            gathered = []
+            const pings = gathered.current
+            gathered.current = []
             onChangeRef.current(pings)
         }
+        const gather = (ping: ChangePing) => {
+            if (gathered.current.length === 0) {
+                heldSince.current = Date.now()
+            }
+            gathered.current.push(ping)
+            timer ??= setTimeout(deliver, COALESCE_MS)
+        }
         const subscription = start(ping => {
-            if (isOwnEcho(ping)) {
+            // The echo of an action this screen has already reloaded on. Without a mutation of this
+            // tab behind it the ping is the only word the screen gets, so it is kept.
+            if (isOwnEcho(ping) && Date.now() - lastOwnMutationAt < ECHO_WINDOW_MS) {
                 return
             }
-            if (gathered.length === 0) {
-                heldSince = Date.now()
-            }
-            gathered.push(ping)
-            timer ??= setTimeout(deliver, COALESCE_MS)
+            gather(ping)
         })
+        if (gathered.current.length > 0) {
+            // Handed over by the previous subscription, with nothing to wake it up on its own.
+            timer = setTimeout(deliver, COALESCE_MS)
+        }
         return () => {
             if (timer) {
                 clearTimeout(timer)
+            }
+            if (!holdRef.current) {
+                // Watching something else now — the batch belongs to what was watched before.
+                gathered.current = []
             }
             subscription.unsubscribe()
         }

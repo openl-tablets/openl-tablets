@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -71,16 +72,20 @@ public final class BranchedProjectIndexService implements AutoCloseable {
      *
      * <p>The build publishes twice: an early snapshot with the default branch's projects mapped across every branch
      * that holds them, then a complete snapshot that also lists projects living only on non-default branches.
-     * {@code onPublished} runs after each publish so a reader can refresh.
+     * {@code onPublished} runs after each publish so a reader can refresh, and is told whether the
+     * snapshot differs from the one before it: a rebuild also runs for work that leaves the
+     * repository alone — opening a project re-indexes and finds the same trees — and a reader that
+     * turns a publish into a notification of its own has nothing to say about those.
      *
      * @param repository     branch-capable design repository
      * @param discoveryPath  repository-relative path listed for projects
-     * @param onPublished    runs after every snapshot the build publishes
+     * @param onPublished    runs after every snapshot the build publishes, taking whether its
+     *                       content differs from the previously published one
      * @return a stage completed after the first complete repository snapshot
      */
     public CompletionStage<RepositorySnapshot> register(BranchRepository repository,
                                                         String discoveryPath,
-                                                        Runnable onPublished) {
+                                                        Consumer<Boolean> onPublished) {
         ensureOpen();
         var coordinator = new Coordinator(repository, normalizeDiscoveryPath(discoveryPath), onPublished);
         var existing = coordinators.putIfAbsent(repository.getId(), coordinator);
@@ -323,7 +328,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         private final BranchRepository repository;
         private final String discoveryPath;
         private final String revisionPath;
-        private final Runnable onPublished;
+        private final Consumer<Boolean> onPublished;
         private final AtomicReference<RepositorySnapshot> snapshot;
         private final Object monitor = new Object();
         private final Set<String> dirtyBranches = new HashSet<>();
@@ -335,7 +340,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         private long generation;
         private long invalidationSequence;
 
-        private Coordinator(BranchRepository repository, String discoveryPath, Runnable onPublished) {
+        private Coordinator(BranchRepository repository, String discoveryPath, Consumer<Boolean> onPublished) {
             this.repository = repository;
             this.discoveryPath = discoveryPath;
             this.onPublished = onPublished;
@@ -443,23 +448,19 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         }
 
         /**
-         * Tells the reader that a snapshot is available, unless the pass republished what the reader already
-         * holds.
+         * Tells the reader that a snapshot is available, and whether it holds anything the previous one
+         * did not.
          *
          * <p>A rebuild runs on everything the repository reports, including work that leaves its content
-         * alone — opening a project in a workspace re-indexes and finds the same trees. The reader turns
-         * every notification into a change ping for every session, and each session answers it by re-reading
-         * the whole workspace, so a snapshot describing no change stays quiet.
+         * alone — opening a project in a workspace re-indexes and finds the same trees — and the reader
+         * decides for itself what an unchanged snapshot is worth.
          *
          * <p>A reader that fails to take a snapshot must not stop the repository from being indexed, so its
          * failure is reported and the pass continues.
          */
         private void notifyPublished(RepositorySnapshot previous, RepositorySnapshot published) {
-            if (published.equals(previous)) {
-                return;
-            }
             try {
-                onPublished.run();
+                onPublished.accept(!published.equals(previous));
             } catch (RuntimeException e) {
                 log.error("Failed to publish the project index of repository '{}'.", repository.getId(), e);
             }

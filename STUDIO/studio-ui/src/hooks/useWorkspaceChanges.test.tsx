@@ -14,7 +14,7 @@ const Probe = ({ onChange, holdWhile = false }: { onChange: () => void, holdWhil
 }
 
 /** A change made outside a request — the files watcher, a repository poll — attributed to nobody. */
-const UNATTRIBUTED: ChangePing = { files: [], origins: []}
+const UNATTRIBUTED: ChangePing = { files: [], origins: [], scope: 'workspace' }
 
 describe('useWorkspaceChanges', () => {
     let ping: (ping: ChangePing) => void
@@ -67,16 +67,18 @@ describe('useWorkspaceChanges', () => {
     })
 
     it('drops a ping this tab caused itself, and keeps one that stands for another session too', () => {
+        vi.setSystemTime(new Date('2000-04-01T00:00:00Z'))
         const onChange = vi.fn()
         render(<Probe onChange={onChange} />)
 
-        // The screen reloaded itself when the action finished — re-reading would only repeat it.
-        ping({ files: [], origins: [CLIENT_ID]})
+        // The screen reloaded itself when its own mutation succeeded — re-reading would repeat it.
+        window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
+        ping({ files: [], origins: [CLIENT_ID], scope: 'workspace' })
         vi.advanceTimersByTime(3000)
         expect(onChange).not.toHaveBeenCalled()
 
         // The debounce window coalesced another session's change into the same ping: not an echo.
-        ping({ files: [], origins: [CLIENT_ID, 'another-tab']})
+        ping({ files: [], origins: [CLIENT_ID, 'another-tab'], scope: 'workspace' })
         vi.advanceTimersByTime(500)
         expect(onChange).toHaveBeenCalledTimes(1)
     })
@@ -89,7 +91,7 @@ describe('useWorkspaceChanges', () => {
         // The user has just acted here, but the ping names its origin and it is not this tab —
         // there is nothing to wait out.
         window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
-        ping({ files: [], origins: ['another-tab']})
+        ping({ files: [], origins: ['another-tab'], scope: 'workspace' })
         vi.advanceTimersByTime(500)
 
         expect(onChange).toHaveBeenCalledTimes(1)
@@ -144,13 +146,41 @@ describe('useWorkspaceChanges', () => {
 
         // The user pressed a button; its own read is on the wire, and a refresh started beside it
         // would supersede the answer that read brings back.
-        ping({ files: [], origins: ['another-tab']})
+        ping({ files: [], origins: ['another-tab'], scope: 'workspace' })
         vi.advanceTimersByTime(3000)
         expect(onChange).not.toHaveBeenCalled()
 
         // The action finished and its answer is on screen, so the change of the other session lands.
         rerender(<Probe holdWhile={false} onChange={onChange} />)
         vi.advanceTimersByTime(500)
+        expect(onChange).toHaveBeenCalledTimes(1)
+    })
+
+    it('keeps its own echo when no mutation of this tab has just succeeded', () => {
+        // The write reached the server but its answer never reached the browser — a failure after
+        // the commit, a dropped connection — so the screen never reloaded and the ping is all it
+        // gets. Dropping it would leave the screen on the state before the change for good.
+        vi.setSystemTime(new Date('2000-05-01T00:00:00Z'))
+        const onChange = vi.fn()
+        render(<Probe onChange={onChange} />)
+
+        ping({ files: [], origins: [CLIENT_ID], scope: 'workspace' })
+        vi.advanceTimersByTime(500)
+
+        expect(onChange).toHaveBeenCalledTimes(1)
+    })
+
+    it('delivers a batch held by an action that never finishes, once the cap passes', () => {
+        // A request left in flight must not freeze the live updates of the screen for good.
+        vi.setSystemTime(new Date('2000-06-01T00:00:00Z'))
+        const onChange = vi.fn()
+        render(<Probe holdWhile onChange={onChange} />)
+
+        ping({ files: [], origins: ['another-tab'], scope: 'workspace' })
+        vi.advanceTimersByTime(9000)
+        expect(onChange).not.toHaveBeenCalled()
+
+        vi.advanceTimersByTime(1500)
         expect(onChange).toHaveBeenCalledTimes(1)
     })
 

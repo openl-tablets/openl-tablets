@@ -17,7 +17,7 @@ describe('subscribeProjectChanges', () => {
 
         const destinations = vi.mocked(subscribeTopic).mock.calls.map(([destination]) => destination)
         expect(destinations.sort()).toEqual([
-            '/topic/projects/changed',
+            '/user/topic/projects/changed',
             // The project id travels URL-encoded, matching the backend's destination.
             '/user/topic/projects/design%3AMy%20Project/changed',
             // The id-free workspace ping backs the id-keyed one up: the id mutates when the project
@@ -41,9 +41,9 @@ describe('subscribeProjectChanges', () => {
         onProjectBody('not json')
 
         expect(onChange.mock.calls).toEqual([
-            [{ files: ['rules/Main.xlsx'], origins: ['tab-1']}],
-            [{ files: [], origins: ['tab-2']}],
-            [{ files: [], origins: []}],
+            [{ files: ['rules/Main.xlsx'], origins: ['tab-1'], scope: 'project' }],
+            [{ files: [], origins: ['tab-2'], scope: 'workspace' }],
+            [{ files: [], origins: [], scope: 'project' }],
         ])
     })
 
