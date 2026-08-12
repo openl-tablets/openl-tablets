@@ -182,6 +182,57 @@ class StepControllerTest {
     }
 
     @Test
+    void nameSubStepBreakpointStopsOnThatCellOfAnySameNamedTable() {
+        var controller = new StepController();
+        controller.armInitial(false);
+        controller.setBreakpoints(Set.of("MyRule#R2C3"));
+        var cell = CurrentLocation.cell(2, 3);
+        // A cell is addressed by its table's name exactly as by its URI, so both versions stop.
+        assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri/v1", cell, "MyRule", 0));
+        assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri/v2", cell, "MyRule", 0));
+        // Another cell of the same table, and the same cell of another table, are not affected.
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri/v1", CurrentLocation.cell(1, 1), "MyRule", 0));
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri/other", cell, "Other", 0));
+        // It is a sub-step stop, not a table-entry stop.
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 5, "uri/v1", null, "MyRule", 0));
+    }
+
+    @Test
+    void nameRuleBreakpointStopsWhenAnyRuleFires() {
+        var controller = new StepController();
+        controller.armInitial(false);
+        controller.setBreakpoints(Set.of("MyDT#" + CurrentLocation.RULE_FIRED_REF));
+        CurrentLocation fired = CurrentLocation.dtRule(List.of("R3"));
+        // The target list offers names only, so this is the key a breakpoint set before the run can use.
+        assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", fired, "MyDT", 0));
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 5, "other", fired, "OtherDT", 0));
+    }
+
+    @Test
+    void instanceIndexedNameSubStepBreakpointFiresOnlyOnThatExecution() {
+        var controller = new StepController();
+        controller.armInitial(false);
+        controller.setBreakpoints(Set.of("MyRule#R2C3@1"));
+        var cell = CurrentLocation.cell(2, 3);
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", cell, "MyRule", 0));
+        assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", cell, "MyRule", 1));
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", cell, "MyRule", 2));
+    }
+
+    @Test
+    void inclusiveNameSubStepBreakpointRunsTheStepAndStopsOnTheNextLine() {
+        var controller = new StepController();
+        controller.armInitial(false);
+        controller.setBreakpoints(Set.of("after:MyRule#R2C3"));
+        // The matched line arms instead of suspending; the tables the step calls run through.
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", CurrentLocation.cell(2, 3), "MyRule", 0));
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 6, "called", null, "Called", 0));
+        assertFalse(controller.shouldSuspend(DebugEvent.EXIT, 6, "called", null, "Called", 0));
+        // The next line of the owning table is the stop: the step's value is computed by then.
+        assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", CurrentLocation.cell(2, 4), "MyRule", 0));
+    }
+
+    @Test
     void stepIntoStopsAtNextEventAnyDepth() {
         var controller = new StepController();
         controller.arm(DebugCommand.STEP_INTO, 2);
