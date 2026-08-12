@@ -2,11 +2,13 @@
 
 ## Resume point
 
-- **Converged at `main` = `ce30f0196`**; every queue row done, every vein closed. Idle for dozens of consecutive
-  passes; expect more. New scope arrives only as new commits on `main` — never invent a detector to make work.
-- The idle pass is two calls: `git log 8dbc23120..origin/main` and the open-PR check; never re-diagnose CI on an
-  unchanged SHA. A feature PR lands as a maintainer-authored rebased commit GitHub still reports `merged: false`,
-  so judge scope from `git log` alone — the PR list says nothing about what landed.
+- **Converged at `main` = `5b1b4fc153` (EPBDS-16433 rules.xml properties-name validation)**; every queue row done,
+  every vein closed. Idle for dozens of consecutive passes; expect more. New scope arrives only as new commits on
+  `main` — never invent a detector to make work.
+- The idle pass is two calls: `git log <resume SHA>..origin/main` and the open-PR check; never re-diagnose CI on an
+  unchanged SHA. **The recorded SHA is usually gone from the next clone** — a merged PR lands rebased (GitHub still
+  reports `merged: false`) and only 50 commits are fetched, so `git log SHA..` dies on "ambiguous argument". Match
+  the recorded *subject* in `git log --oneline -25 origin/main` and take every commit above it.
 - New scope: sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`.
   Read the **deleted** lines first — additive and replaced-in-place commits orphan nothing; a commit deleting a
   screen is the richest vein, so check its locale keys, service functions, helper modules and dropped `throws`.
@@ -380,6 +382,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-12 — run 134: `main` unchanged at `fdeabeba3`, zero open PRs. Idle pass; ledger at 385 of 400 lines.
 - 08-12 — run 135: `main` advanced to `8dbc23120` (EPBDS-16328 copy-by-id); screened, orphaned nothing. Idle.
 - 08-12 — run 136: `main` advanced to `ce30f0196` (EPBDS-16275 transient shell view); screened, orphaned nothing.
+- 08-12 — run 137: `main` at `5b1b4fc153`, +2 commits (EPBDS-16433 and a release-notes edit); orphaned nothing. Idle.
