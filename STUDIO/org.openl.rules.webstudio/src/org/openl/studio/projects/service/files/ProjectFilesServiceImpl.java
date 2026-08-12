@@ -19,6 +19,7 @@ import jakarta.validation.constraints.NotNull;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -27,6 +28,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -36,8 +38,10 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.files.FolderNode;
 import org.openl.studio.projects.model.files.FsNode;
+import org.openl.studio.projects.validator.file.ProjectDescriptorValidator;
 import org.openl.util.FileSignatureHelper;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -55,11 +59,19 @@ import org.openl.util.StringUtils;
 @Validated
 public class ProjectFilesServiceImpl implements ProjectFilesService {
 
+    /**
+     * The size above which content is refused as a project descriptor. A {@code rules.xml} is a few
+     * kilobytes; the cap keeps an oversized upload from being read into memory to be validated, and
+     * from being written to the project unchecked.
+     */
+    private static final int MAX_DESCRIPTOR_SIZE = 16 * 1024 * 1024;
+
     private final AclProjectsHelper aclProjectsHelper;
     private final FileNodeMapper resourceMapper;
     private final FileSearchSupport searchSupport;
     private final FileArchiveSupport archiveSupport;
     private final ProjectDescriptorCleaner descriptorCleaner;
+    private final BeanValidationProvider validationProvider;
 
     @Override
     public List<FsNode> getResources(@NotNull FileRoot root,
@@ -102,8 +114,9 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         try {
             var resource = findFileArtefact(root.readFolder(null), path);
             requirePermission(resource, BasePermission.WRITE);
+            // Validated before the project is reserved, so a rejected write leaves no lock behind.
+            InputStream validatedContent = validateContent(root, path, content);
             lockForEditing(root, path);
-            InputStream validatedContent = validateContent(resource.getName(), content);
             resource.setContent(validatedContent);
         } catch (ProjectException e) {
             throw new ConflictException("file.update.failed.message");
@@ -189,14 +202,16 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                                boolean createFolders) {
         root.requireModifiable();
         validateResourcePath(path);
-        lockForEditing(root, path);
-
+        lockIfClosed(root);
         try {
+            // An opened project is reserved only once the content is known to be writable, so a rejected
+            // write leaves no lock behind. A closed project is reserved beforehand, as it is for the other
+            // modifications, so the content is not validated against a state another user is changing.
+            InputStream validatedContent = validateContent(root, path, content);
+            lockForEditing(root, path);
             var targetFolder = resolveOrCreateFolders(root.writeFolder(), path,
                     createFolders, "file.path.not.folder.message");
-            String fileName = FilePaths.name(path);
-            InputStream validatedContent = validateContent(fileName, content);
-            targetFolder.addResource(fileName, validatedContent);
+            targetFolder.addResource(FilePaths.name(path), validatedContent);
         } catch (ProjectException e) {
             throw new ConflictException("file.create.failed.message");
         } finally {
@@ -312,7 +327,9 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         List<FileItem> items = new ArrayList<>();
         for (FileEntry entry : entries) {
             if (!isEntrySkipped(current, entry, conflictPolicy)) {
-                InputStream validated = validateContent(FilePaths.name(entry.fullPath()),
+                // An upload brings its own files with it - the libraries a descriptor names among them - so
+                // its descriptor is not checked against the working copy the upload is about to replace.
+                InputStream validated = validateFileSignature(FilePaths.name(entry.fullPath()),
                         new ByteArrayInputStream(entry.data()));
                 var fileData = new FileData();
                 fileData.setName(entry.fullPath());
@@ -550,13 +567,76 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     /**
+     * Validates the content written to a path.
+     *
+     * <p>The project descriptor of a project is checked for settings the engine cannot use. Any
+     * other file is checked against the format its extension promises.
+     *
+     * @return a stream positioned at the beginning (after validation)
+     */
+    private InputStream validateContent(FileRoot root, String path, InputStream content) {
+        // The path arrives as the request wrote it, so the surrounding slashes go before it names a file.
+        var filePath = FilePaths.trimSlashes(path);
+        if (root instanceof ProjectFileRoot projectRoot && ProjectDescriptor.FILE_NAME.equals(filePath)) {
+            return validateDescriptor(projectRoot, content);
+        }
+        return validateFileSignature(FilePaths.name(filePath), content);
+    }
+
+    /**
+     * Validates the project descriptor written to a project against the one the project stores.
+     *
+     * <p>A descriptor that is not well-formed XML is written as it is, so a broken file can always be
+     * replaced by a fixed one. One larger than a descriptor can be is refused instead of written
+     * unchecked.
+     *
+     * @return a stream positioned at the beginning (after validation)
+     */
+    private InputStream validateDescriptor(ProjectFileRoot root, InputStream content) {
+        byte[] declared;
+        // The content is read in full, so the stream the caller opened is closed here rather than by the write.
+        try (content) {
+            declared = content.readNBytes(MAX_DESCRIPTOR_SIZE + 1);
+        } catch (IOException e) {
+            throw new BadRequestException("file.content.invalid.message");
+        }
+        if (declared.length > MAX_DESCRIPTOR_SIZE) {
+            throw new BadRequestException("file.descriptor.too-large.message");
+        }
+        var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(declared));
+        if (descriptor != null) {
+            validationProvider.validate(descriptor,
+                    ProjectDescriptorValidator.forProject(root.getProject(), storedDescriptor(root)));
+        }
+        return new ByteArrayInputStream(declared);
+    }
+
+    /**
+     * The descriptor the project stores now, or {@code null} when it has none or cannot be read.
+     */
+    private @Nullable ProjectDescriptor storedDescriptor(FileRoot root) {
+        var artefact = findArtefactByPath(root.readFolder(null), ProjectDescriptor.FILE_NAME);
+        if (!(artefact instanceof AProjectResource resource)) {
+            return null;
+        }
+        try (var content = resource.getContent()) {
+            return ProjectDescriptor.read(content);
+        } catch (ProjectException | IOException e) {
+            // Without the stored settings the write is checked as if it introduced all of them, so the
+            // failure is worth reporting: it is what a rejection of an untouched setting would come from.
+            log.warn("Failed to read the stored '{}'.", ProjectDescriptor.FILE_NAME, e);
+            return null;
+        }
+    }
+
+    /**
      * Validates that the uploaded content is consistent with the file extension.
      * For Excel files (.xlsx, .xlsm), validates the ZIP file signature.
      * For legacy Excel files (.xls), validates the OLE2 compound document signature.
      *
      * @return a buffered stream positioned at the beginning (after validation)
      */
-    private InputStream validateContent(String fileName, InputStream content) {
+    private InputStream validateFileSignature(String fileName, InputStream content) {
         if (!FileTypeHelper.isExcelFile(fileName)) {
             return content;
         }

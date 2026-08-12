@@ -1,0 +1,14 @@
+HTTP/1.1 200
+Content-Type: application/xml
+
+<project>
+    <name>EPBDS-16433</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+    <properties-file-name-pattern>%lob%-%state%</properties-file-name-pattern>
+    <properties-file-name-processor>org.openl.rules.project.resolving.CWPropertyFileNameProcessor</properties-file-name-processor>
+</project>
+
