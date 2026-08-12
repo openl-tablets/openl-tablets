@@ -61,6 +61,19 @@ describe('useLiveProjectChanges', () => {
         expect(onChange).toHaveBeenCalledWith(['rules/A.xlsx'])
     })
 
+    it('lets a project-wide ping swallow the files of the others it is merged with', () => {
+        const onChange = vi.fn()
+        render(<Probe onChange={onChange} projectId="p1" />)
+
+        // An empty list stands for "anything may have changed", so the batch cannot claim to cover
+        // one file only — the open file pane would then keep showing what the change replaced.
+        ping(changed('rules/A.xlsx'))
+        ping(changed())
+        vi.advanceTimersByTime(500)
+
+        expect(onChange).toHaveBeenCalledWith([])
+    })
+
     it('waits until the page knows its project', () => {
         const { rerender } = render(<Probe onChange={vi.fn()} projectId={undefined} />)
         expect(subscribeProjectChanges).not.toHaveBeenCalled()

@@ -108,6 +108,13 @@ flowchart LR
   batch is not dropped (someone else's real change can hide behind it): it is held until the echo
   window of the last own mutation passes (2.5 s, capped at 10 s of holding) and delivered then, as
   one quiet refresh.
+- A ping that lands while the screen is running an action of its own waits for it. The screens
+  number their reads and apply the newest, which is right for two competing reads and wrong for a
+  ping-driven one: it would supersede the read the action is waiting for, so the controls would
+  unlock over a screen still showing the state before the action. Both screens pass `holdWhile` to
+  the shared hook while an action is pending, so the batch keeps gathering and is delivered once the
+  action's own answer is on screen — never dropped, so a change of another session behind it is only
+  delayed.
 - The refreshes the pings trigger are silent — the fresh answer swaps in without a skeleton — and
   the open file re-fetches only when the named files cover it. A refresh that brings back exactly
   what the page shows and names no files is not applied at all: no tab reset, no re-fetch cascade —

@@ -8,8 +8,8 @@ import { useWorkspaceChanges } from './useWorkspaceChanges'
 
 vi.mock('../services/workspaceChanges', () => ({ subscribeWorkspaceChanges: vi.fn() }))
 
-const Probe = ({ onChange }: { onChange: () => void }) => {
-    useWorkspaceChanges(onChange)
+const Probe = ({ onChange, holdWhile = false }: { onChange: () => void, holdWhile?: boolean }) => {
+    useWorkspaceChanges(onChange, { holdWhile })
     return null
 }
 
@@ -135,6 +135,22 @@ describe('useWorkspaceChanges', () => {
         }
         vi.advanceTimersByTime(2600)
 
+        expect(onChange).toHaveBeenCalledTimes(1)
+    })
+
+    it('waits for an action of the screen\'s own before refreshing, and never drops the ping', () => {
+        const onChange = vi.fn()
+        const { rerender } = render(<Probe holdWhile onChange={onChange} />)
+
+        // The user pressed a button; its own read is on the wire, and a refresh started beside it
+        // would supersede the answer that read brings back.
+        ping({ files: [], origins: ['another-tab']})
+        vi.advanceTimersByTime(3000)
+        expect(onChange).not.toHaveBeenCalled()
+
+        // The action finished and its answer is on screen, so the change of the other session lands.
+        rerender(<Probe holdWhile={false} onChange={onChange} />)
+        vi.advanceTimersByTime(500)
         expect(onChange).toHaveBeenCalledTimes(1)
     })
 

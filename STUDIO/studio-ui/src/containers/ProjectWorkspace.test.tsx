@@ -18,14 +18,22 @@ const { copyModalMock, navigateMock, routeParams, searchParamsMock, setSearchPar
     routeParams: { projectId: 'p1' } as { projectId: string },
     searchParamsMock: new URLSearchParams(),
     setSearchParamsMock: vi.fn(),
-    // The change ping captured from the screen, to fire by hand in tests.
-    liveHandlers: { projectChange: undefined as ((files: string[]) => void) | undefined },
+    // The change ping captured from the screen, plus whether the screen asks the hook to hold it.
+    liveHandlers: {
+        projectChange: undefined as ((files: string[]) => void) | undefined,
+        holdWhile: false,
+    },
 }))
 
 vi.mock('../hooks', async () => ({
     ...(await vi.importActual<typeof import('../hooks/useLoadGeneration')>('../hooks/useLoadGeneration')),
-    useLiveProjectChanges: (_projectId: string | undefined, onChange: (files: string[]) => void) => {
+    useLiveProjectChanges: (
+        _projectId: string | undefined,
+        onChange: (files: string[]) => void,
+        options?: { holdWhile?: boolean }
+    ) => {
         liveHandlers.projectChange = onChange
+        liveHandlers.holdWhile = options?.holdWhile ?? false
     },
     useWindowFocus: () => {},
 }))
@@ -435,6 +443,40 @@ describe('ProjectWorkspace', () => {
 
         expect(screen.queryByText('Alpha')).toBeNull()
         expect(screen.getAllByText('Beta').length).toBeGreaterThan(0)
+    })
+
+    it('holds the live pings while its own action runs, and applies the answer that action brings', async () => {
+        const closed = project({ capabilities: { canOpen: true } })
+        const opened = project({ status: 'OPENED', capabilities: { canOpen: true } })
+        const actionRead = deferred<ReturnType<typeof project>>()
+        let reads = 0
+        vi.mocked(getProject).mockImplementation(() => {
+            reads += 1
+            if (reads === 1) {
+                return Promise.resolve(closed) as never
+            }
+            return (reads === 2 ? actionRead.promise : Promise.resolve(opened)) as never
+        })
+        await renderWorkspace()
+        expect(liveHandlers.holdWhile).toBe(false)
+
+        await userEvent.click(screen.getByTestId('open-p1'))
+        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true }))
+        // The action's own read is on the wire, and the environment is slow. A refresh started
+        // beside it would supersede it and unlock the buttons over the state before the action, so
+        // the page asks the hook to hold what arrives (the holding itself is the hook's own test).
+        await waitFor(() => expect(reads).toBe(2))
+        expect(liveHandlers.holdWhile).toBe(true)
+
+        await act(async () => {
+            actionRead.resolve(opened)
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        // The action's own answer reached the page — the tabs and the tree beside them followed it.
+        expect(screen.getByTestId('projects-rail').getAttribute('data-reload-token')).toBe('2')
+        // And with the action finished, the pings flow again.
+        expect(liveHandlers.holdWhile).toBe(false)
     })
 
     it('shows a not-found state for an unknown project id', async () => {
