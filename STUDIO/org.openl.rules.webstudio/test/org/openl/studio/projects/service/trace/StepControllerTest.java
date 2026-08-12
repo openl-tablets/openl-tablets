@@ -156,6 +156,32 @@ class StepControllerTest {
     }
 
     @Test
+    void instanceIndexedNameBreakpointFiresOnlyOnThatExecution() {
+        var controller = new StepController();
+        controller.armInitial(false);
+        controller.setBreakpoints(Set.of("MyRule@2"));
+        // An indexed name key selects an execution exactly as an indexed URI key does.
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 4, "uri/v1", null, "MyRule", 1));
+        assertTrue(controller.shouldSuspend(DebugEvent.ENTER, 4, "uri/v1", null, "MyRule", 2));
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 4, "uri/v1", null, "MyRule", 3));
+        // The index does not leak onto a differently named table.
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 4, "uri/other", null, "Other", 2));
+    }
+
+    @Test
+    void inclusiveInstanceIndexedNameBreakpointRunsThatExecutionAndStopsAtItsExit() {
+        var controller = new StepController();
+        controller.armInitial(false);
+        controller.setBreakpoints(Set.of("after:MyRule@1"));
+        // The earlier execution is not the target, so nothing arms and its exit runs through.
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 3, "uri/v1", null, "MyRule", 0));
+        assertFalse(controller.shouldSuspend(DebugEvent.EXIT, 3, "uri/v1", null, "MyRule", 0));
+        // The indexed execution arms instead of suspending and stops at its own exit, result on the stack.
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 3, "uri/v1", null, "MyRule", 1));
+        assertTrue(controller.shouldSuspend(DebugEvent.EXIT, 3, "uri/v1", null, "MyRule", 1));
+    }
+
+    @Test
     void stepIntoStopsAtNextEventAnyDepth() {
         var controller = new StepController();
         controller.arm(DebugCommand.STEP_INTO, 2);
