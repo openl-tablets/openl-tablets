@@ -380,6 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-11 — run 128: `main` → `fdeabeba3` (EPBDS-16432); a narrowed service signature orphaned only a local. No PR.
 - 08-11 — run 129: `main` unchanged at `fdeabeba3`, no PR open. Idle pass; the two-call check cost nothing else.
 - 08-12 — run 130: `main` unchanged at `fdeabeba3`; the repository has zero open PRs at all. Idle pass.
+- 08-12 — run 131: `main` unchanged at `fdeabeba3`, zero open PRs. Idle pass; ledger at 385 of 400 lines.
