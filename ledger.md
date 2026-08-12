@@ -381,6 +381,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-12 — run 137: `main` at `5b1b4fc153`, +2 commits (EPBDS-16433 and a release-notes edit); orphaned nothing. Idle.
 - 08-12 — run 138: `main` at `b95d12f8ff`, +2 EPBDS-16406 breakpoint commits; additive plus prose only. Idle.
 - 08-12 — run 139: `main` at `71e2caea5c`, +1 EPBDS-16407 commit; the calls it dropped keep many other callers. Idle.
+- 08-12 — run 140: `main` still `71e2caea5c`, zero new commits, no dead-code PR open. Idle, no build run.
