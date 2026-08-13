@@ -288,18 +288,23 @@ export const ProjectDetail = ({
     // an unknown kind — an extension-less folder name (say "__MACOSX") would otherwise be read as a text
     // file and its content fetched, which fails. A virtual folder is known without the tree.
     const selectionClassified = Array.isArray(files) || selectedIsVirtualFolder
-    const setSelectedFile = useCallback((path: string | null) => {
+    // The selection and the tab replace the current URL rather than grow the history: they live in the
+    // query so a view can be shared and reloaded, not so the back button can step through every click.
+    const updateSearch = useCallback((edit: (params: URLSearchParams) => void) => {
         setSearchParams(prev => {
             const next = new URLSearchParams(prev)
-            if (path) {
-                next.set('file', path)
-                next.set('tab', 'files')
-            } else {
-                next.delete('file')
-            }
+            edit(next)
             return next
         }, { replace: true })
     }, [setSearchParams])
+    const setSelectedFile = useCallback((path: string | null) => updateSearch(params => {
+        if (path) {
+            params.set('file', path)
+            params.set('tab', 'files')
+        } else {
+            params.delete('file')
+        }
+    }), [updateSearch])
     // A tree that comes back without the selected path no longer holds it — the project was closed and
     // dropped its local file, the file was deleted, a revision without it was opened. The selection is
     // stale and is dropped, so the pane falls back to its empty state and stops asking the server for a
@@ -530,13 +535,14 @@ export const ProjectDetail = ({
         }] : []),
     ]
 
-    const onTabChange = (key: string) => {
-        setSearchParams(prev => {
-            const next = new URLSearchParams(prev)
-            next.set('tab', key)
-            return next
-        }, { replace: true })
-    }
+    const onTabChange = (key: string) => updateSearch(params => {
+        params.set('tab', key)
+        // The selected file belongs to the Files tab; leaving it drops the selection, so the link the
+        // user copies from another tab carries no file and coming back opens the tree unselected.
+        if (key !== 'files') {
+            params.delete('file')
+        }
+    })
 
     return (
         <div className={styles.root} data-testid="project-detail">

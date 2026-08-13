@@ -787,6 +787,17 @@ describe('ProjectDetail', () => {
         expect(searchParamsMock.get('tab')).toBe('publish')
     })
 
+    it('drops the file selection when another tab is opened', async () => {
+        // The selection belongs to the Files tab: a link copied from the Overview tab carries no file.
+        setParams('tab=files&file=rules/Nested.xlsx')
+        renderProjectDetail()
+
+        await userEvent.click(screen.getByTestId('tab-overview'))
+
+        expect(searchParamsMock.get('tab')).toBe('overview')
+        expect(searchParamsMock.has('file')).toBe(false)
+    })
+
     it('renders the branch switcher without an eager branch list', () => {
         setParams('tab=overview')
         renderProjectDetail({
