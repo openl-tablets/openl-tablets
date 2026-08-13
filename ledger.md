@@ -380,8 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-13 — run 148: two new commits (EPBDS-16437, studio-ui only) screened, zero findings; no dead-code PR open.
-- 08-13 — run 149: two new commits (EPBDS-16380 helper extraction, EPBDS-16436 Jekyll layout) screened, zero
-  findings; no dead-code PR open. Idle, no build run.
-- 08-13 — run 150: one new commit (EPBDS-16438, additive but for a 4-line rewrap) screened, zero findings; `main`
-  green on all 10 Quick Build jobs. Idle, no build run.
+- 08-13 — run 149: two new commits (EPBDS-16380, EPBDS-16436) screened, zero findings. Idle, no build run.
+- 08-13 — run 150: one new commit (EPBDS-16438, additive) screened, zero findings; `main` green on 10 Quick jobs.
+- 08-13 — run 151: `main` still at the resume point, so no new scope at all; no dead-code PR open. Idle, no build.
