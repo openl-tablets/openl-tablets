@@ -1561,11 +1561,11 @@ public class GitRepository implements BranchRepository, Closeable {
 
             // We cannot use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits
             // so some history elements aren't shown. So we iterate all commits and filter them out ourselves.
-            Iterator<RevCommit> iterator = git.log()
+            Iterator<RevCommit> iterator = new DescendantsFirstCommits(git.log()
                     .add(resolveBranchId())
                     .setRevFilter(buildGlobalRevisionFilter(globalFilter))
                     .call()
-                    .iterator();
+                    .iterator());
 
             List<Ref> tags = git.tagList().call();
 
@@ -1582,7 +1582,7 @@ public class GitRepository implements BranchRepository, Closeable {
             try (var or = repository.newObjectReader()) {
                 TreeWalk tw = createTreeWalk(or, name);
 
-                while (iterator.hasNext() && processed < maxCount) {
+                while (processed < maxCount && iterator.hasNext()) {
                     var commit = iterator.next();
                     var hasChanges = hasChangesInPath(tw, commit, git);
                     if (!techRevs && !hasChanges) {
@@ -1822,7 +1822,9 @@ public class GitRepository implements BranchRepository, Closeable {
         var repository = git.getRepository();
         try (var or = repository.newObjectReader()) {
             TreeWalk tw = createTreeWalk(or, path);
-            for (RevCommit commit : git.log().add(startCommit).call()) {
+            var commits = new DescendantsFirstCommits(git.log().add(startCommit).call().iterator());
+            while (commits.hasNext()) {
+                var commit = commits.next();
                 if (hasChangesInPath(tw, commit, git)) {
                     return commit;
                 }
