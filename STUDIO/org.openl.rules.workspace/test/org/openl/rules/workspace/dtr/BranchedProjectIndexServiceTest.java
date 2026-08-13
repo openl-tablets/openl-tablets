@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +67,26 @@ class BranchedProjectIndexServiceTest {
             // "DESIGN" scopes the candidate tree revisions; "DESIGN/Common" maps the base project across branches.
             assertEquals(Set.of("DESIGN", "DESIGN/Common"), repository.revisionPaths());
             assertThrows(UnsupportedOperationException.class, snapshot.projects()::clear);
+        }
+    }
+
+    @Test
+    void representsAProjectMissingFromTheBaseBranchByAProtectedBranch() throws Exception {
+        var repository = new TestBranchRepository();
+        repository.protect("release-2024.1");
+        repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Common");
+        repository.put("release-2024.1", "release-1", "tree-release", NOW, "DESIGN/Common", "DESIGN/Rates");
+        repository.put("EPBDS-12345-fix", "fix-1", "tree-fix", NOW.plusSeconds(60), "DESIGN/Rates");
+
+        try (var service = new BranchedProjectIndexService()) {
+            var snapshot = await(register(service, repository));
+
+            assertEquals("main", snapshot.project("Common").orElseThrow().homeBranch());
+            assertEquals("release-2024.1", snapshot.project("Rates").orElseThrow().homeBranch(),
+                    "A protected branch must outrank a ticket branch that was pushed to later.");
+            assertEquals(Set.of("release-2024.1", "EPBDS-12345-fix"),
+                    snapshot.project("Rates").orElseThrow().branches(),
+                    "Ranking must not change which branches hold the project.");
         }
     }
 
@@ -497,6 +516,7 @@ class BranchedProjectIndexServiceTest {
         private final Map<String, Runnable> beforeScanReturns = new LinkedHashMap<>();
         private final Set<String> failingScans = new java.util.HashSet<>();
         private final Set<String> omittedStatuses = new java.util.HashSet<>();
+        private final Set<String> protectedBranches = new java.util.HashSet<>();
         private final Set<String> omittedRevisions = new java.util.HashSet<>();
         private final Set<String> revisionPaths = new java.util.HashSet<>();
         private final AtomicInteger statusReads = new AtomicInteger();
@@ -534,7 +554,7 @@ class BranchedProjectIndexServiceTest {
                 }
                 return branches.keySet()
                         .stream()
-                        .sorted(String.CASE_INSENSITIVE_ORDER.thenComparing(Comparator.naturalOrder()))
+                        .sorted(Branches.ORDER)
                         .toList();
             });
             when(repository.getBranchStatuses(anyCollection())).thenAnswer(invocation -> {
@@ -544,7 +564,7 @@ class BranchedProjectIndexServiceTest {
                 requested.forEach(branch -> {
                     var data = branches.get(branch);
                     if (data != null && !omittedStatuses.contains(branch)) {
-                        result.put(branch, data.status());
+                        result.put(branch, withProtection(branch, data.status()));
                     }
                 });
                 return result;
@@ -598,7 +618,7 @@ class BranchedProjectIndexServiceTest {
                                       String... projects) {
             branches.put(branch,
                     new BranchData(
-                            new BranchStatus(new UserInfo("author"), committedAt, "Change", revision),
+                            new BranchStatus(new UserInfo("author"), committedAt, "Change", revision, false),
                             treeRevision,
                             tipAffectsPath,
                             List.of(projects)));
@@ -608,6 +628,21 @@ class BranchedProjectIndexServiceTest {
 
         private synchronized void remove(String branch) {
             branches.remove(branch);
+        }
+
+        private synchronized void protect(String branch) {
+            protectedBranches.add(branch);
+        }
+
+        /**
+         * Marks the status as a real repository does: protection comes from the configuration, not from the tip.
+         */
+        private synchronized BranchStatus withProtection(String branch, BranchStatus status) {
+            return new BranchStatus(status.lastCommitAuthor(),
+                    status.lastCommitAt(),
+                    status.lastCommitMessage(),
+                    status.lastCommitRevision(),
+                    protectedBranches.contains(branch));
         }
 
         private synchronized void failScan(String branch) {

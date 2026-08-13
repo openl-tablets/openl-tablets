@@ -611,7 +611,8 @@ class UserWorkspaceRefreshTest {
                                 new UserInfo("author"),
                                 Instant.parse("2026-07-29T10:00:00Z"),
                                 "message",
-                                branch + "-revision"))));
+                                branch + "-revision",
+                                false))));
         return BranchedProject.create(PROJECT, baseBranch, entries);
     }
 

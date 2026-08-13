@@ -84,12 +84,19 @@ invented name shows a project the repository does not contain and hides which fo
 
 ### Home branch
 
-The home branch must be deterministic:
+The home branch must be deterministic, and must depend on how authoritative a branch is rather than on how recently
+someone pushed to it:
 
 1. The repository base branch wins when it contains the project. Matching is case-insensitive, and the actual ref
    spelling must be retained.
-2. Otherwise, the branch with the newest tip commit wins.
-3. Equal tip times are ordered by case-insensitive branch name and then by exact branch name.
+2. Otherwise, a branch the repository declares protected wins over one it does not. Protection comes from the
+   repository configuration, so a project that survives only outside the base branch stays on the same release line
+   across restarts, instead of moving onto whichever ticket branch was pushed to last.
+3. Otherwise, the branch with the newest tip commit wins.
+4. Equal ranks are ordered by case-insensitive branch name and then by exact branch name.
+
+Ranking only decides which branch represents the project: a repository that protects no branch keeps the plain
+recency rule, and membership never changes with the rank.
 
 When authorization removes the global home entry, the same rule must select a home from the caller's readable entries.
 
@@ -135,7 +142,9 @@ the list can be read against the `rules.xml` that declares only the direct ones.
 `BranchRepository` must expose explicit project-agnostic operations:
 
 - `listBranches()` returns local and remote-tracking branch refs.
-- `getBranchStatuses(branches)` resolves branch tips in one batched read.
+- `getBranchStatuses(branches)` resolves branch tips in one batched read, and reports for each branch whether the
+  repository configuration protects it. Protection is what the home branch rule ranks by, so it must come from the
+  same read rather than from a separate query per branch.
 - `getBranchTreeRevisions(branches, path)` resolves branch and tree state in one batched read.
 - `createRepositoryBranch(branch, startPoint)` creates a whole Git ref.
 - `deleteRepositoryBranch(branch)` deletes a whole Git ref.

@@ -90,6 +90,19 @@ class GitRepositoryBranchStatusTest {
     }
 
     @Test
+    void reportsWhichBranchesTheConfigurationProtects() throws IOException {
+        repo.createRepositoryBranch(SAME_TIP_BRANCH, BASE);
+        repo.setProtectedBranches(BASE, "same-*");
+
+        var statuses = repo.getBranchStatuses(List.of(BASE, BRANCH, SAME_TIP_BRANCH));
+
+        assertTrue(Objects.requireNonNull(statuses.get(BASE)).protectedBranch());
+        assertTrue(Objects.requireNonNull(statuses.get(SAME_TIP_BRANCH)).protectedBranch(),
+                "A branch matching a configured pattern is protected.");
+        assertFalse(Objects.requireNonNull(statuses.get(BRANCH)).protectedBranch());
+    }
+
+    @Test
     void resolvesTreeRevisionsAndPreservesMissingAndUnresolvedStates() throws IOException {
         var branch = repo.forBranch(BRANCH);
         branch.save(createFileData("rules/project1/rules.xml", "one"), IOUtils.toInputStream("one"));

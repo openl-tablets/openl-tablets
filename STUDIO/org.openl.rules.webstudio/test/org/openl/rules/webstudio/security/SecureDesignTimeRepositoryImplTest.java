@@ -139,6 +139,6 @@ class SecureDesignTimeRepositoryImplTest {
 
     private static BranchEntry entry(AProject project, Instant time) {
         return new BranchEntry(project,
-                new BranchStatus(new UserInfo("author"), time, "message", project.getFolderPath()));
+                new BranchStatus(new UserInfo("author"), time, "message", project.getFolderPath(), false));
     }
 }
