@@ -380,7 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-12 — run 141: `main` at `742d59d467`, +4 EPBDS-16386/16392 websocket-ping commits, 249 deleted lines but zero
-  deleted files; every removed name is a rename into a new module or a widened callback type. Idle, no build run.
 - 08-13 — run 142: `main` still `742d59d467`, zero new commits, no dead-code PR open. Idle, no build run.
 - 08-13 — run 143: `main` still `742d59d467`, zero new commits, no dead-code PR open. Idle, no build run; compacted.
+- 08-13 — run 144: `main` still `742d59d467`, zero new commits, no dead-code PR open. Idle, no build run.
