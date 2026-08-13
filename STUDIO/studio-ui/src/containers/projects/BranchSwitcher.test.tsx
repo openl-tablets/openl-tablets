@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { notification } from 'antd'
 import { BranchSwitcher } from './BranchSwitcher'
-import { getProjectBranches, switchProjectBranch } from '../../services/repositories'
+import { getProjectBranches, switchProjectBranch, type ProjectBranch } from '../../services/repositories'
 
 vi.mock('../../services/repositories', () => ({
     getProjectBranches: vi.fn(),
@@ -34,6 +34,7 @@ vi.mock('antd-style', () => ({
 vi.mock('@ant-design/icons', () => ({
     BranchesOutlined: () => null,
     DownOutlined: () => null,
+    LoadingOutlined: (props: Record<string, unknown>) => <i data-testid={props['data-testid'] as string} />,
     SafetyOutlined: (props: Record<string, unknown>) => <i data-testid={props['data-testid'] as string} />,
 }))
 
@@ -82,7 +83,8 @@ vi.mock('antd', () => {
         )
     }
     const notification = { error: vi.fn() }
-    return { Alert, Dropdown, Modal, Tag, Tooltip, notification }
+    const Spin = () => <div data-testid="spin" />
+    return { Alert, Dropdown, Modal, Spin, Tag, Tooltip, notification }
 })
 
 const props = {
@@ -239,5 +241,53 @@ describe('BranchSwitcher', () => {
 
         await waitFor(() => expect(switchProjectBranch).toHaveBeenLastCalledWith('p1', 'dev', { discardChanges: true }))
         await waitFor(() => expect(onSwitched).toHaveBeenCalled())
+    })
+
+    it('stays busy from the click until the reload behind the switch has finished', async () => {
+        const reload = Promise.withResolvers<void>()
+        const onBusyChange = vi.fn()
+        render(<BranchSwitcher {...props} onBusyChange={onBusyChange} onSwitched={() => reload.promise} />)
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-dev')
+
+        await userEvent.click(screen.getByTestId('option-dev'))
+
+        // The request is over, but the screen still shows the branch it was switched away from.
+        await waitFor(() => expect(screen.getByTestId('branch-switcher-switching')).toBeInTheDocument())
+        expect(screen.getByTestId('branch-switcher-trigger')).toBeDisabled()
+        expect(onBusyChange).toHaveBeenLastCalledWith(true)
+
+        reload.resolve()
+
+        await waitFor(() => expect(onBusyChange).toHaveBeenLastCalledWith(false))
+        expect(screen.queryByTestId('branch-switcher-switching')).not.toBeInTheDocument()
+    })
+
+    it('releases the project when the switch fails', async () => {
+        const onBusyChange = vi.fn()
+        vi.mocked(switchProjectBranch).mockRejectedValueOnce(new Error('offline'))
+        render(<BranchSwitcher {...props} onBusyChange={onBusyChange} />)
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-dev')
+
+        await userEvent.click(screen.getByTestId('option-dev'))
+
+        await waitFor(() => expect(onBusyChange).toHaveBeenLastCalledWith(false))
+        expect(screen.queryByTestId('branch-switcher-switching')).not.toBeInTheDocument()
+    })
+
+    it('says the branch list is being read instead of showing an empty popup', async () => {
+        const branches = Promise.withResolvers<ProjectBranch[]>()
+        vi.mocked(getProjectBranches).mockReturnValueOnce(branches.promise)
+        render(<BranchSwitcher {...props} />)
+
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+
+        expect(screen.getByTestId('branch-switcher-list-loading')).toBeInTheDocument()
+
+        branches.resolve([{ name: 'main' }, { name: 'dev' }])
+
+        await screen.findByTestId('option-dev')
+        expect(screen.queryByTestId('branch-switcher-list-loading')).not.toBeInTheDocument()
     })
 })

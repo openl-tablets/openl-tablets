@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Dropdown, notification } from 'antd'
-import { DownOutlined } from '@ant-design/icons'
+import { Dropdown, notification, Spin } from 'antd'
+import { DownOutlined, LoadingOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../../utils/errorMessage'
 import {
@@ -34,13 +34,23 @@ const useStyles = createStyles(({ css, token }) => ({
             background: ${token.colorFillTertiary};
         }
 
+        /* Blocked because the project is busy with something else — nothing to wait for here. */
         &:disabled {
+            cursor: not-allowed;
+        }
+
+        /* The switch this trigger started is what the wait is for. */
+        &[aria-busy='true'] {
             cursor: progress;
         }
     `,
     caret: css`
         color: ${token.colorTextQuaternary};
         font-size: 10px;
+    `,
+    /** The caret's place while the switch runs, so the trigger itself says the branch is changing. */
+    busy: css`
+        color: ${token.colorPrimary};
     `,
     /**
      * The popup reads as one card: a fixed width so a long branch name is clipped instead of stretching the
@@ -92,7 +102,18 @@ interface BranchSwitcherProps {
     /** Marks of the current branch, known from the project itself without listing the branches. */
     currentBranchProtected?: boolean | undefined
     currentBranchDefault?: boolean | undefined
-    onSwitched: () => void
+    /**
+     * The project moved to another branch and has to be read again. A promise is awaited, so the switch
+     * counts as running until the screen shows the new branch's data.
+     */
+    onSwitched: () => void | Promise<unknown>
+    /**
+     * Whether the switch — the request and the reload behind it — is running, so the screen around it can
+     * mark the project busy and block its other actions meanwhile.
+     */
+    onBusyChange?: ((busy: boolean) => void) | undefined
+    /** Blocks the switch while the project is busy with another operation of its own. */
+    disabled?: boolean | undefined
     /** Colour tone of the current branch — `secondary` to read like a breadcrumb link. */
     tone?: BranchTone | undefined
     'data-testid'?: string
@@ -107,6 +128,9 @@ interface BranchSwitcherProps {
  *
  * The switch targets and their marks are fetched when the menu first opens. Simply showing the current
  * branch costs no request and does not carry every project membership in the projects response.
+ *
+ * A switch takes seconds on a slow environment, so the trigger says so for as long as it runs — through
+ * the request and through the reload that follows it, since only then does the screen show the new branch.
  */
 export const BranchSwitcher = ({
     projectId,
@@ -114,10 +138,12 @@ export const BranchSwitcher = ({
     currentBranchProtected,
     currentBranchDefault,
     onSwitched,
+    onBusyChange,
+    disabled = false,
     tone,
     'data-testid': testId = 'branch-switcher',
 }: BranchSwitcherProps) => {
-    const { styles } = useStyles()
+    const { styles, cx } = useStyles()
     const { t } = useTranslation('repository')
     const [branchInfo, setBranchInfo] = useState<ProjectBranch[] | null>(null)
     const [loading, setLoading] = useState(false)
@@ -161,9 +187,12 @@ export const BranchSwitcher = ({
             return
         }
         setSwitching(true)
+        onBusyChange?.(true)
         try {
             await switchProjectBranch(projectId, branch, discardChanges ? { discardChanges: true } : {})
-            onSwitched()
+            // The reload is part of the switch: until it lands the screen still shows the branch the user
+            // switched away from, so the busy state has to outlive the request that started it.
+            await onSwitched()
         } catch (e) {
             if (!discardChanges && isProjectModifiedConflict(e)) {
                 setDiscardSwitchBranch(branch)
@@ -172,6 +201,7 @@ export const BranchSwitcher = ({
             notification.error({ title: t('browser.branch.switch_failed'), description: errorMessage(e) })
         } finally {
             setSwitching(false)
+            onBusyChange?.(false)
         }
     }
 
@@ -194,6 +224,22 @@ export const BranchSwitcher = ({
     const filteredBranches = needle
         ? (branchInfo ?? []).filter(branch => branch.name.toLowerCase().includes(needle))
         : branchInfo ?? []
+
+    // What the popup shows below its search box: the branches once they are there, and while they are
+    // still being read the reading itself — a heavy repository takes a moment to list them, and an empty
+    // card would read as a project with no other branch to switch to.
+    const branchListContent = (menu: ReactNode) => {
+        if (branchInfo === null && loading) {
+            return (
+                <div className={styles.empty} data-testid={`${testId}-list-loading`}>
+                    <Spin size="small" />
+                </div>
+            )
+        }
+        return needle && filteredBranches.length === 0
+            ? <div className={styles.empty}>{t('browser.branch.no_match')}</div>
+            : menu
+    }
 
     const discardModal = (
         <DiscardChangesModal
@@ -244,20 +290,21 @@ export const BranchSwitcher = ({
                                 value={query}
                             />
                         </div>
-                        {needle && filteredBranches.length === 0
-                            ? <div className={styles.empty}>{t('browser.branch.no_match')}</div>
-                            : menu}
+                        {branchListContent(menu)}
                     </div>
                 )}
             >
                 <button
+                    aria-busy={switching}
                     className={styles.trigger}
                     data-testid={`${testId}-trigger`}
-                    disabled={switching}
+                    disabled={switching || disabled}
                     type="button"
                 >
                     {current}
-                    <DownOutlined className={styles.caret} />
+                    {switching
+                        ? <LoadingOutlined spin className={cx(styles.caret, styles.busy)} data-testid={`${testId}-switching`} />
+                        : <DownOutlined className={styles.caret} />}
                 </button>
             </Dropdown>
             {discardModal}

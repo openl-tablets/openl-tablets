@@ -7,6 +7,19 @@ export type ActionId = 'save' | 'open' | 'close' | 'deploy' | 'compare' | 'copy'
 /** The actions a project in the list offers; unlocking belongs to the project's own screen. */
 export type RowActionId = Exclude<ActionId, 'unlock'>
 
+/**
+ * What a project can be busy with: one of its actions, or a branch switch. Switching branch has no button
+ * of its own, but it occupies the project exactly the way an action does — the server serialises both
+ * behind the project lock — so while it runs the project's other actions are blocked just the same.
+ *
+ * A busy project stays busy until the screen has read the state the action left behind, not just until the
+ * request returns: until then the screen still shows the state from before it.
+ */
+export type BusyId = ActionId | 'switchBranch'
+
+/** {@link BusyId} for a project in the list, which offers no unlock. */
+export type RowBusyId = Exclude<BusyId, 'unlock'>
+
 interface ProjectActionMeta {
     labelKey: string
     /** The server-computed capabilities that gate this action; any one of them is enough. */

@@ -6,9 +6,9 @@ import type { Project } from '../../types/projects'
 import type { RepositoryInfo } from '../../types/repositories'
 import { RowCompileDot } from './CompileIndicator'
 import { StatusMark } from './StatusIndicator'
-import { ProjectRowActions, type ProjectListHandlers, type RowActionId } from './ProjectRowActions'
-import { deriveProjectRow, activateOnKey, hasBranch, ProjectTags, showsBranch } from './projectRow'
-import { BranchSwitcher } from './BranchSwitcher'
+import { ProjectRowActions, type ProjectListHandlers } from './ProjectRowActions'
+import type { RowBusyId } from './projectActions'
+import { deriveProjectRow, activateOnKey, hasBranch, ProjectBranchSwitch, ProjectTags } from './projectRow'
 import { useSharedStyles } from './sharedStyles'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
 import type { ProjectSort, SortDirection } from './projectListing'
@@ -123,14 +123,19 @@ const useStyles = createStyles(({ css, token }) => ({
 
 interface ProjectsTableProps {
     projects: Project[]
-    /** Reloads the list after a row switched its project to another branch. */
-    onChanged: () => void
+    /**
+     * Reloads the list after a row switched its project to another branch. The promise it returns says
+     * when the reloaded list is on screen, so the row stays busy until then.
+     */
+    onChanged: () => void | Promise<unknown>
+    /** Whether a branch switch is running on a project, so its row can be gated like any other action. */
+    onBranchSwitching?: ((project: Project, busy: boolean) => void) | undefined
     repoInfoOf: (project: Project) => RepositoryInfo
     handlers: ProjectListHandlers
     onOpen: (project: Project) => void
     compileStatusByProject: Map<string, ProjectStatusUpdate>
-    /** The action running on each project, keyed by project id. */
-    pending: Record<string, RowActionId>
+    /** What each project is busy with, keyed by project id. */
+    pending: Record<string, RowBusyId>
     /** The column the list is sorted by, or null before the user sorted — no arrow shows then. */
     sort: ProjectSort | null
     direction: SortDirection
@@ -148,6 +153,7 @@ interface ProjectsTableProps {
 export const ProjectsTable = ({
     projects,
     onChanged,
+    onBranchSwitching,
     repoInfoOf,
     handlers,
     onOpen,
@@ -233,16 +239,14 @@ export const ProjectsTable = ({
                             {/* Switching a branch is a row action of its own: it must not open the project. */}
                             {showBranches && (
                                 <td className={cx(styles.fit, styles.branchCell)} onClick={event => event.stopPropagation()}>
-                                    {showsBranch(project, supportsBranches) && (
-                                        <BranchSwitcher
-                                            currentBranch={project.branch}
-                                            currentBranchDefault={project.branchDefault}
-                                            currentBranchProtected={project.branchProtected}
-                                            data-testid={`row-branch-${project.id}`}
-                                            onSwitched={onChanged}
-                                            projectId={project.id}
-                                        />
-                                    )}
+                                    <ProjectBranchSwitch
+                                        busy={pendingActionId !== null}
+                                        onSwitched={onChanged}
+                                        onSwitching={onBranchSwitching}
+                                        project={project}
+                                        supportsBranches={supportsBranches}
+                                        testIdPrefix="row"
+                                    />
                                 </td>
                             )}
                             <td className={styles.fit}>

@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsHome } from './ProjectsHome'
-import { getDesignRepositories, getProjects, setProjectStatus } from '../services/repositories'
+import { getDesignRepositories, getProjectBranches, getProjects, setProjectStatus, switchProjectBranch } from '../services/repositories'
 import type { Project, ProjectsPage } from '../types/projects'
 import { ProjectStatus } from '../constants/project'
 import { getProjectIndex, invalidateProjectIndex } from '../services/projectIndex'
@@ -18,13 +18,16 @@ const { copyModalMock, navigateMock, liveHandlers } = vi.hoisted(() => ({
         workspaceChange: undefined as (() => void) | undefined,
         focus: undefined as (() => void) | undefined,
         statusUpdate: undefined as ((update: unknown) => void) | undefined,
+        // Whether the screen is currently telling the hook to hold the pings back.
+        holdWhile: false,
     },
 }))
 
 vi.mock('../hooks', async () => ({
     ...(await vi.importActual<typeof import('../hooks/useLoadGeneration')>('../hooks/useLoadGeneration')),
-    useWorkspaceChanges: (onChange: () => void) => {
+    useWorkspaceChanges: (onChange: () => void, options?: { holdWhile?: boolean }) => {
         liveHandlers.workspaceChange = onChange
+        liveHandlers.holdWhile = options?.holdWhile ?? false
     },
     useWindowFocus: (onFocus: () => void) => {
         liveHandlers.focus = onFocus
@@ -63,6 +66,9 @@ vi.mock('./projects/filterStorage', () => ({
 vi.mock('../services/repositories', () => ({
     getDesignRepositories: vi.fn(),
     getProjects: vi.fn(),
+    getProjectBranches: vi.fn(),
+    switchProjectBranch: vi.fn(),
+    isProjectModifiedConflict: vi.fn(() => false),
     downloadProject: vi.fn(),
     deleteProject: vi.fn(),
     setProjectStatus: vi.fn(),
@@ -104,7 +110,11 @@ vi.mock('./projects/OpenRevisionModal', () => ({
 }))
 
 vi.mock('./projects/SaveProjectModal', () => ({
-    SaveProjectModal: ({ open }: { open: boolean }) => (open ? <div data-testid="save-project-modal" /> : null),
+    SaveProjectModal: ({ open, onSaved }: { open: boolean, onSaved?: () => void }) => (open ? (
+        <div data-testid="save-project-modal">
+            <button data-testid="save-modal-saved" onClick={() => onSaved?.()} type="button" />
+        </div>
+    ) : null),
 }))
 
 vi.mock('./projects/branchDialogs', () => ({
@@ -185,9 +195,14 @@ vi.mock('antd', async () => {
         )
     }
 
-    const Dropdown = ({ children, menu }: { children?: unknown, menu?: { items?: MenuItem[], onClick?: (info: { key: string }) => void } }) => (
+    const Dropdown = ({ children, menu, onOpenChange }: {
+        children?: unknown
+        menu?: { items?: MenuItem[], onClick?: (info: { key: string }) => void }
+        onOpenChange?: (open: boolean) => void
+    }) => (
         <div>
-            {children as never}
+            {/* Opening is what makes a dropdown fetch what it offers, so a click on the trigger says so. */}
+            <span onClick={() => onOpenChange?.(true)} role="presentation">{children as never}</span>
             {menu?.items?.filter(item => item.type !== 'divider').map(item => (
                 <button
                     key={item.key}
@@ -895,6 +910,87 @@ describe('ProjectsHome row actions', () => {
         await userEvent.click(screen.getByTestId('project-action-deleteBranch-p1'))
 
         await waitFor(() => expect(openDeleteBranchDialog).toHaveBeenCalled())
+    })
+
+    it('does not refresh the list behind a branch dialog the user is still filling in', async () => {
+        mockProjectSearch(single({ canDeleteBranch: true }))
+        await renderHome()
+        const readsBefore = vi.mocked(getProjects).mock.calls.length
+
+        await userEvent.click(screen.getByTestId('project-action-deleteBranch-p1'))
+        await waitFor(() => expect(openDeleteBranchDialog).toHaveBeenCalled())
+
+        // Opening the dialog changed nothing yet: refreshing now would only flash the overlay behind it.
+        // The dialog reloads the list itself once the branch is actually deleted.
+        expect(vi.mocked(getProjects).mock.calls.length).toBe(readsBefore)
+    })
+
+    it('gates a row while a branch switch and the reload behind it run', async () => {
+        mockProjectSearch(single({ canOpen: true }))
+        vi.mocked(getProjectBranches).mockResolvedValue([{ name: 'main', base: true }, { name: 'dev' }])
+        const switched = Promise.withResolvers<void>()
+        vi.mocked(switchProjectBranch).mockReturnValue(switched.promise as never)
+        await renderHome()
+
+        await userEvent.click(screen.getByTestId('row-branch-p1-trigger'))
+        await screen.findByText('dev')
+        await userEvent.click(screen.getByText('dev'))
+
+        // The switch and its reload are the project's business for as long as they run — a second action
+        // on the same row would land on state the switch is about to replace.
+        await waitFor(() => expect(screen.getByTestId('project-action-open-p1')).toBeDisabled())
+
+        await act(async () => {
+            switched.resolve()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        await waitFor(() => expect(screen.getByTestId('project-action-open-p1')).not.toBeDisabled())
+    })
+
+    it('keeps the row busy while the read a finished dialog left behind is running', async () => {
+        mockProjectSearch(single({ canSave: true }))
+        await renderHome()
+        await userEvent.click(screen.getByText('browser.save'))
+
+        const reloaded = Promise.withResolvers<void>()
+        vi.mocked(getProjects).mockImplementationOnce(async () => {
+            await reloaded.promise
+            return projectsPage(single({ canSave: true }), 1, false)
+        })
+        await userEvent.click(screen.getByTestId('save-modal-saved'))
+
+        // The dialog's own spinner is gone with the dialog; until the list shows the save, the row must
+        // not offer a second operation, and the ping echoing the save must wait for this very read.
+        await waitFor(() => expect(screen.getByTestId('row-branch-p1-trigger')).toBeDisabled())
+        expect(liveHandlers.holdWhile).toBe(true)
+
+        await act(async () => {
+            reloaded.resolve()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        await waitFor(() => expect(screen.getByTestId('row-branch-p1-trigger')).not.toBeDisabled())
+    })
+
+    it('blocks the branch switch of a row that is busy with an action', async () => {
+        mockProjectSearch(single({ canOpen: true }))
+        const opened = Promise.withResolvers<void>()
+        vi.mocked(setProjectStatus).mockReturnValue(opened.promise as never)
+        await renderHome()
+
+        await userEvent.click(screen.getByTestId('project-action-open-p1'))
+
+        // The server serialises the two behind the project lock anyway; a switch started now would land
+        // on state the open is about to replace.
+        await waitFor(() => expect(screen.getByTestId('row-branch-p1-trigger')).toBeDisabled())
+
+        await act(async () => {
+            opened.resolve()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        await waitFor(() => expect(screen.getByTestId('row-branch-p1-trigger')).not.toBeDisabled())
     })
 
     it('hands branch sync to the shared merge dialog', async () => {

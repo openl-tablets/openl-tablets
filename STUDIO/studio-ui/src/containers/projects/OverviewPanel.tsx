@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode, type SyntheticEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode, type SyntheticEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tooltip, Typography, Upload } from 'antd'
 import {
@@ -719,11 +719,26 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     const [saving, setSaving] = useState(false)
     // The projects a dependency can be chosen from — read once when editing starts.
     const [projectNames, setProjectNames] = useState<string[]>([])
+    // The project the descriptor on screen belongs to; another one starts from nothing, the same one is
+    // only refreshed.
+    const readFor = useRef<string | null>(null)
+    // Whether the shown descriptor is being replaced by a fresh read of the same project.
+    const [refreshing, setRefreshing] = useState(false)
 
     useEffect(() => {
         let cancelled = false
         setEditing(false)
-        setState('loading')
+        // Re-reading the same project keeps what is already shown: dropping back to the loading state would
+        // take the Edit and Migrate buttons away and put them back, which reads as a flicker, not as
+        // progress. The reload the re-read belongs to shows itself over the whole project.
+        const sameProject = readFor.current === project.id
+        if (!sameProject) {
+            readFor.current = project.id
+            setState('loading')
+        }
+        // The buttons keep their place through the re-read, but not their offer: an edit started here would
+        // take its draft from the descriptor about to be replaced and save it back over the newer one.
+        setRefreshing(sameProject)
         rootFileExists(project.id, 'rules.xml')
             .then(async exists => {
                 const xml = exists ? await getFileContent(project.id, 'rules.xml') : ''
@@ -732,12 +747,14 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
                     setOriginalXml(xml)
                     setRules(parseRulesDescriptor(xml))
                     setState('ready')
+                    setRefreshing(false)
                 }
             })
             .catch(() => {
                 if (!cancelled) {
                     setRules(EMPTY_RULES_DESCRIPTOR)
                     setState('error')
+                    setRefreshing(false)
                 }
             })
         return () => { cancelled = true }
@@ -779,7 +796,7 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     const moduleFilters = useMemo(() => moduleFiltersOf(rules.moduleDeclarations), [rules.moduleDeclarations])
 
     const editor: DescriptorEditor = { editing, shown: editing ? draft : rules, editDraft }
-    return { state, editing, saving, fileExists, projectNames, moduleFilters, editor, startEditing, cancelEditing, saveEditing }
+    return { state, refreshing, editing, saving, fileExists, projectNames, moduleFilters, editor, startEditing, cancelEditing, saveEditing }
 }
 
 /**
@@ -1289,7 +1306,7 @@ const OpenApiSection = ({ editor, projectId }: { editor: DescriptorEditor, proje
 }
 
 /** The identity of the project on the right: status, where it lives, its last change and its tags. */
-const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTags, tagsContent, tagsAction, onChanged }: {
+const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTags, tagsContent, tagsAction, onChanged, onBranchSwitching, busy }: {
     project: Project
     repoLabel: string
     repoType?: string | undefined
@@ -1297,7 +1314,9 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTag
     canEditTags: boolean
     tagsContent: ReactNode
     tagsAction: ReactNode
-    onChanged: () => void
+    onChanged: () => void | Promise<unknown>
+    onBranchSwitching?: ((busy: boolean) => void) | undefined
+    busy: boolean
 }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
@@ -1332,6 +1351,8 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTag
                         currentBranchDefault={project.branchDefault}
                         currentBranchProtected={project.branchProtected}
                         data-testid="overview-branch"
+                        disabled={busy}
+                        onBusyChange={onBranchSwitching}
                         onSwitched={onChanged}
                         projectId={project.id}
                     />
@@ -1373,8 +1394,18 @@ interface OverviewPanelProps {
     repoType?: string | undefined
     supportsBranches?: boolean
     onUnlock: () => void
-    /** Called after the project switched to another branch, so the workspace reloads it. */
-    onChanged?: () => void
+    /**
+     * Called after the project switched to another branch, so the workspace reloads it. The promise it
+     * returns says when the reloaded project is on screen.
+     */
+    onChanged?: () => void | Promise<unknown>
+    /** Whether a branch switch — request and reload — is running, so the project can be marked busy. */
+    onBranchSwitching?: ((busy: boolean) => void) | undefined
+    /**
+     * Whether the project is already busy with an operation of its own, so this tab offers no second one.
+     * The veil over the project takes the clicks, but not the keyboard, which reaches the branch switcher.
+     */
+    busy?: boolean
     /** Bumped when the project reloads, so the descriptor text is read from rules.xml again. */
     reloadToken?: number
 }
@@ -1392,6 +1423,8 @@ export const OverviewPanel = ({
     supportsBranches = true,
     onUnlock,
     onChanged,
+    onBranchSwitching,
+    busy = false,
     reloadToken,
 }: OverviewPanelProps) => {
     const { styles } = useStyles()
@@ -1416,7 +1449,7 @@ export const OverviewPanel = ({
                     <div className={styles.editBar}>
                         {!migration.mustMigrateBeforeEditing && (
                             <EditToolbar
-                                disabled={migration.migrating}
+                                disabled={migration.migrating || descriptor.refreshing}
                                 editing={descriptor.editing}
                                 labels={{ edit: t('browser.overview.edit'), save: t('browser.overview.save'), cancel: t('browser.overview.cancel') }}
                                 onCancel={descriptor.cancelEditing}
@@ -1428,7 +1461,7 @@ export const OverviewPanel = ({
                         )}
                         {migration.canMigrate && !descriptor.editing && (
                             <MigrateButton
-                                disabled={migration.migrationBlocked}
+                                disabled={migration.migrationBlocked || descriptor.refreshing}
                                 label={t('browser.overview.migrate')}
                                 loading={migration.migrating}
                                 onClick={migration.migrate}
@@ -1475,7 +1508,9 @@ export const OverviewPanel = ({
                 <OpenApiSection editor={descriptor.editor} projectId={project.id} />
             </div>
             <MetaColumn
+                busy={busy}
                 canEditTags={canEditTags}
+                onBranchSwitching={onBranchSwitching}
                 onChanged={() => onChanged?.()}
                 project={project}
                 repoLabel={repoLabel}

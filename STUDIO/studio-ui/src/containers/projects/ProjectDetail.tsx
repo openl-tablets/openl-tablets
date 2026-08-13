@@ -25,7 +25,8 @@ import type { FsNode } from '../../types/files'
 import type { RepositoryFeatures } from '../../types/repositories'
 import { StatusMark } from './StatusIndicator'
 import { LiveCompileDot } from './CompileIndicator'
-import { ProjectActionBar, type ActionId, type ProjectActionHandlers } from './ProjectActionBar'
+import { ProjectActionBar, type ProjectActionHandlers } from './ProjectActionBar'
+import type { BusyId } from './projectActions'
 import { FileTree } from './FileTree'
 import { FilesToolbar } from './FilesToolbar'
 import { projectFolders } from './ProjectFolderInput'
@@ -205,7 +206,8 @@ interface ProjectDetailProps {
     repoLabel: string
     repoFeatures?: RepositoryFeatures | undefined
     repoType?: string | undefined
-    pendingId: ActionId | null
+    /** What the project is busy with, or null: the action bar spins on it and blocks everything else. */
+    pendingId: BusyId | null
     handlers: ProjectActionHandlers
     files: FsNode[] | 'loading' | 'error' | undefined
     reducedMotion?: boolean
@@ -215,8 +217,13 @@ interface ProjectDetailProps {
     changedFiles?: string[] | null
     /** Rendered before the repository name, e.g. a breadcrumb link back to the projects list. */
     headerPrefix?: ReactNode
-    /** Called after an edit (tags, file save) that may change the project, to refresh the list. */
-    onChanged?: () => void
+    /**
+     * Called after an edit (tags, file save) that may change the project, to refresh the list. The promise
+     * it returns tells the caller when the refreshed project is on screen.
+     */
+    onChanged?: () => void | Promise<unknown>
+    /** Whether a branch switch — request and reload — is running, so the project can be marked busy. */
+    onBranchSwitching?: ((busy: boolean) => void) | undefined
     /** Called when the Files tab becomes visible, so the file tree can be loaded lazily. */
     onFilesVisible?: () => void
 }
@@ -239,6 +246,7 @@ export const ProjectDetail = ({
     changedFiles = null,
     headerPrefix,
     onChanged,
+    onBranchSwitching,
     onFilesVisible,
 }: ProjectDetailProps) => {
     const { styles, cx } = useStyles()
@@ -420,6 +428,8 @@ export const ProjectDetail = ({
             label: <><ProfileOutlined /> {t('browser.tab_overview')}</>,
             children: (
                 <OverviewPanel
+                    busy={pendingId !== null}
+                    onBranchSwitching={onBranchSwitching}
                     onChanged={() => onChanged?.()}
                     onUnlock={handlers.unlock}
                     project={project}
@@ -526,6 +536,8 @@ export const ProjectDetail = ({
                                 currentBranchDefault={project.branchDefault}
                                 currentBranchProtected={project.branchProtected}
                                 data-testid="crumb-branch"
+                                disabled={pendingId !== null}
+                                onBusyChange={onBranchSwitching}
                                 onSwitched={() => onChanged?.()}
                                 projectId={project.id}
                                 tone="secondary"

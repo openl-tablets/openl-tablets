@@ -28,13 +28,16 @@ vi.mock('@ant-design/icons', () => ({
 vi.mock('./CompileIndicator', () => ({ RowCompileDot: () => null }))
 vi.mock('./StatusIndicator', () => ({ StatusMark: () => null }))
 vi.mock('./ProjectRowActions', () => ({ ProjectRowActions: () => null }))
-vi.mock('./BranchSwitcher', () => ({
-    BranchSwitcher: (props: Record<string, unknown>) => (
-        <span data-testid={props['data-testid'] as string}>{props['currentBranch'] as string}</span>
-    ),
-}))
 vi.mock('./projectRow', () => ({
     activateOnKey: () => () => {},
+    // The shared branch cell decides for itself whether a project shows a branch; that rule is tested in
+    // projectRow.test.tsx, against the real switcher. Here it only has to say which props it was handed.
+    ProjectBranchSwitch: (props: Record<string, unknown>) => {
+        const project = props['project'] as Project
+        return props['supportsBranches'] && !!project.branch && project.status !== ProjectStatus.Local
+            ? <span data-busy={String(props['busy'])} data-testid={`row-branch-${project.id}`}>{project.branch}</span>
+            : null
+    },
     deriveProjectRow: (project: Project) => ({
         muted: false,
         supportsBranches: project.repository !== 'flat',
@@ -43,9 +46,6 @@ vi.mock('./projectRow', () => ({
         date: 'Jan 2, 2024',
     }),
     ProjectTags: () => null,
-    showsBranch: (project: Project, supportsBranches: boolean) => supportsBranches
-        && !!project.branch
-        && project.status !== ProjectStatus.Local,
     hasBranch: (project: Project) => project.repository !== 'flat'
         && !!project.branch
         && project.status !== ProjectStatus.Local,
@@ -89,6 +89,12 @@ describe('ProjectsTable', () => {
         renderTable([project()])
 
         expect(screen.getByTestId('row-branch-p1')).toHaveTextContent('main')
+    })
+
+    it('gates the branch of a row that is busy with an action', () => {
+        renderTable([project()], { pending: { p1: 'open' } })
+
+        expect(screen.getByTestId('row-branch-p1')).toHaveAttribute('data-busy', 'true')
     })
 
     it('shows no switcher where a project has no branch', () => {

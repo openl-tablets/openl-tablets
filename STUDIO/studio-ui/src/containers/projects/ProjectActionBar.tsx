@@ -19,9 +19,7 @@ import {
 import { createStyles } from 'antd-style'
 import { SplitButton } from '../../components/SplitButton'
 import type { Project } from '../../types/projects'
-import { isActionAvailable, PROJECT_ACTIONS, type ActionId } from './projectActions'
-
-export type { ActionId }
+import { isActionAvailable, PROJECT_ACTIONS, type ActionId, type BusyId } from './projectActions'
 
 /** Gap between buttons, in px — kept in sync with the `bar` style so the fit maths matches the layout. */
 const GAP = 8
@@ -106,8 +104,11 @@ interface ActionDesc {
 
 interface ProjectActionBarProps {
     project: Project
-    /** Id of the action currently running, or null. Drives per-button loading and bar-wide disabling. */
-    pendingId: ActionId | null
+    /**
+     * What the project is busy with, or null. Drives per-button loading and bar-wide disabling. Work that
+     * no button of its own offers — a branch switch — spins nowhere here, but blocks the bar just the same.
+     */
+    pendingId: BusyId | null
     handlers: ProjectActionHandlers
 }
 

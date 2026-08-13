@@ -209,11 +209,13 @@ const renderProjectDetail = ({
     project = PROJECT,
     repoFeatures = BRANCH_REPOSITORY_FEATURES,
     userManagementEnabled = false,
+    onBranchSwitching,
 }: {
     files?: FsNode[] | 'loading' | 'error' | undefined
     project?: Project | null
     repoFeatures?: RepositoryFeatures | undefined
     userManagementEnabled?: boolean
+    onBranchSwitching?: (busy: boolean) => void
 } = {}) => render(
     <SystemContext.Provider
         value={{
@@ -226,6 +228,7 @@ const renderProjectDetail = ({
         <ProjectDetail
             files={files}
             handlers={{} as never}
+            onBranchSwitching={onBranchSwitching}
             pendingId={null}
             project={project}
             repoFeatures={repoFeatures}
@@ -703,6 +706,17 @@ describe('ProjectDetail', () => {
             currentBranchDefault: true,
             projectId: 'p1',
         }))
+    })
+
+    it('reports the breadcrumb branch switch, so the page can mark the project busy', () => {
+        setParams('tab=overview')
+        const onBranchSwitching = vi.fn()
+        renderProjectDetail({ onBranchSwitching })
+
+        const props = branchSwitcherMock.mock.calls.at(-1)?.[0] as { onBusyChange?: (busy: boolean) => void }
+        props.onBusyChange?.(true)
+
+        expect(onBranchSwitching).toHaveBeenCalledWith(true)
     })
 
     it('shows no breadcrumb branch for a repository without branches', () => {

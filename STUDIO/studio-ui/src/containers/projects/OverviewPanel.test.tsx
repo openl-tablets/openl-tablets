@@ -582,4 +582,40 @@ describe('OverviewPanel', () => {
 
         expect(screen.getByTestId('repo-badge-database')).toBeInTheDocument()
     })
+
+    it('keeps the descriptor toolbar in place while the project is read again', async () => {
+        const project = { ...base, capabilities: { canWrite: true } }
+        let result!: ReturnType<typeof render>
+        const panel = (reloadToken: number) => (
+            <App>
+                <MemoryRouter>
+                    <OverviewPanel onUnlock={() => {}} project={project} reloadToken={reloadToken} repoLabel="design" />
+                </MemoryRouter>
+            </App>
+        )
+        await act(async () => {
+            result = render(panel(0))
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+        expect(screen.getByTestId('overview-edit')).toBeInTheDocument()
+
+        // A reload re-reads rules.xml. Taking the toolbar away until the new text lands would read as a
+        // flicker, not as progress — the reload shows itself over the whole project instead.
+        let rulesXml!: (xml: string) => void
+        vi.mocked(getFileContent).mockReturnValueOnce(new Promise<string>(resolve => { rulesXml = resolve }))
+        result.rerender(panel(1))
+
+        expect(screen.getByTestId('overview-edit')).toBeInTheDocument()
+        // In place, but not on offer: an edit started here would take its draft from the descriptor about
+        // to be replaced and save it back over the newer one.
+        expect(screen.getByTestId('overview-edit')).toBeDisabled()
+
+        await act(async () => {
+            rulesXml('')
+            await Promise.resolve()
+        })
+        expect(screen.getByTestId('overview-edit')).toBeInTheDocument()
+        expect(screen.getByTestId('overview-edit')).not.toBeDisabled()
+    })
 })

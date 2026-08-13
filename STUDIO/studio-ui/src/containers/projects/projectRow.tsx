@@ -10,6 +10,7 @@ import type { Project } from '../../types/projects'
 import type { RepositoryInfo } from '../../types/repositories'
 import { supportsBranches } from '../../utils/repositoryFeatures'
 import { BranchLabel } from './BranchLabel'
+import { BranchSwitcher } from './BranchSwitcher'
 
 /** Tags shown inline on a project row before the rest collapse into a "+N" chip. */
 const MAX_TAGS = 4
@@ -90,6 +91,39 @@ export const showsBranch = (project: Project, repositorySupportsBranches: boolea
 /** {@link showsBranch}, resolving the repository's support from the repository itself. */
 export const hasBranch = (project: Project, repository: RepositoryInfo): boolean =>
     showsBranch(project, supportsBranches(repository))
+
+/**
+ * The branch control of a project in the list, in either view: the branch it is on, switchable, and
+ * blocked while the project is busy with something else. A project shown without a branch renders none.
+ *
+ * Both views gate it the same way, so the rule lives here rather than once per view.
+ */
+export const ProjectBranchSwitch = ({ project, supportsBranches, busy, testIdPrefix, onSwitched, onSwitching }: {
+    project: Project
+    supportsBranches: boolean
+    /** Whether the project is occupied by another operation, which this switch waits for. */
+    busy: boolean
+    /** `row` on a table row, `card` on a grid card. */
+    testIdPrefix: 'row' | 'card'
+    onSwitched: () => void | Promise<unknown>
+    onSwitching?: ((project: Project, busy: boolean) => void) | undefined
+}) => {
+    if (!showsBranch(project, supportsBranches)) {
+        return null
+    }
+    return (
+        <BranchSwitcher
+            currentBranch={project.branch}
+            currentBranchDefault={project.branchDefault}
+            currentBranchProtected={project.branchProtected}
+            data-testid={`${testIdPrefix}-branch-${project.id}`}
+            disabled={busy}
+            onBusyChange={switching => onSwitching?.(project, switching)}
+            onSwitched={onSwitched}
+            projectId={project.id}
+        />
+    )
+}
 
 /** The project's branch with its marks, or nothing for a project shown without one. */
 export const ProjectBranch = ({ project, supportsBranches }: { project: Project, supportsBranches: boolean }) => {

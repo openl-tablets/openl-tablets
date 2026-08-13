@@ -4,9 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectWorkspace } from './ProjectWorkspace'
 import {
     getDesignRepositories,
+    getProjectBranches,
     getProjectFiles,
     getProject,
     setProjectStatus,
+    switchProjectBranch,
     unlockProject,
 } from '../services/repositories'
 import { ApiHttpError, NotFoundError } from '../services'
@@ -48,6 +50,7 @@ vi.mock('react-router-dom', () => ({
 vi.mock('../services/repositories', () => ({
     getDesignRepositories: vi.fn(),
     getProject: vi.fn(),
+    getProjectBranches: vi.fn(),
     getProjectFiles: vi.fn(),
     isProjectModifiedConflict: vi.fn((error: unknown) => Boolean(
         error
@@ -56,12 +59,17 @@ vi.mock('../services/repositories', () => ({
             && (error as { payload?: { code?: string } }).payload?.code === 'openl.error.409.project.close.modified.message'
     )),
     setProjectStatus: vi.fn(),
+    switchProjectBranch: vi.fn(),
     unlockProject: vi.fn(),
     downloadProject: vi.fn(),
 }))
 
 vi.mock('./projects/SaveProjectModal', () => ({
-    SaveProjectModal: ({ open }: { open: boolean }) => (open ? <div data-testid="save-modal-open" /> : null),
+    SaveProjectModal: ({ open, onSaved }: { open: boolean, onSaved?: () => void }) => (open ? (
+        <div data-testid="save-modal-open">
+            <button data-testid="save-modal-saved" onClick={() => onSaved?.()} type="button" />
+        </div>
+    ) : null),
 }))
 
 vi.mock('./projects/ExportProjectModal', () => ({
@@ -162,7 +170,10 @@ vi.mock('antd', () => {
         )
     }
 
-    const Input = ({ ...rest }: Record<string, unknown>) => <input {...rest} />
+    const Input = ({ allowClear, prefix, suffix, ...rest }: Record<string, unknown>) => {
+        drop({ allowClear, prefix, suffix })
+        return <input {...rest} />
+    }
     Input.Search = ({ value, onChange, placeholder, allowClear, ...rest }: Record<string, unknown>) => {
         drop({ allowClear })
         return <input onChange={onChange as never} placeholder={placeholder as never} value={(value as string) ?? ''} {...rest} />
@@ -172,9 +183,12 @@ vi.mock('antd', () => {
     const menuButtons = (menu: DropdownMenu | undefined) => menu?.items?.map(item => (
         <button key={item.key} onClick={() => menu.onClick?.({ key: item.key })}>{item.label as never}</button>
     ))
-    const Dropdown = ({ children, menu, popupRender }: Record<string, unknown>) => (
+    const Dropdown = ({ children, menu, popupRender, onOpenChange }: Record<string, unknown>) => (
         <div>
-            {children as never}
+            {/* Opening is what makes a dropdown fetch what it offers, so a click on the trigger says so. */}
+            <span onClick={() => (onOpenChange as (open: boolean) => void)?.(true)} role="presentation">
+                {children as never}
+            </span>
             {popupRender ? ((popupRender as (n: unknown) => unknown)(null) as never) : null}
             {menuButtons(menu as DropdownMenu)}
         </div>
@@ -196,6 +210,7 @@ vi.mock('antd', () => {
     Empty.PRESENTED_IMAGE_SIMPLE = 'simple'
 
     const Skeleton = () => <div>skeleton</div>
+    const Spin = () => <div>spin</div>
     const Modal = ({
         cancelButtonProps,
         children,
@@ -248,7 +263,7 @@ vi.mock('antd', () => {
     const Divider = () => <span />
     const notification = { error: vi.fn(), info: vi.fn() }
 
-    return { Button, Input, Dropdown, Popconfirm, Tag, Tooltip, Empty, Skeleton, Modal, Tabs, Tree, Descriptions, Alert, Typography, Space, Divider, notification }
+    return { Button, Input, Dropdown, Popconfirm, Tag, Tooltip, Empty, Skeleton, Spin, Modal, Tabs, Tree, Descriptions, Alert, Typography, Space, Divider, notification }
 })
 
 const repositories = [
@@ -477,6 +492,137 @@ describe('ProjectWorkspace', () => {
         expect(screen.getByTestId('projects-rail').getAttribute('data-reload-token')).toBe('2')
         // And with the action finished, the pings flow again.
         expect(liveHandlers.holdWhile).toBe(false)
+    })
+
+    it('shows the project busy until the read behind its action lands, not just until the request returns', async () => {
+        const closed = project({ capabilities: { canOpen: true, canCopy: true } })
+        const actionRead = deferred<ReturnType<typeof project>>()
+        let reads = 0
+        vi.mocked(getProject).mockImplementation(() => {
+            reads += 1
+            return (reads === 1 ? Promise.resolve(closed) : actionRead.promise) as never
+        })
+        await renderWorkspace()
+        expect(screen.queryByTestId('project-workspace-overlay')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('open-p1'))
+
+        // The status request is over and the reload is on the wire. Without a busy state here the page
+        // shows exactly what it showed before the click, for as long as the environment is slow.
+        await waitFor(() => expect(reads).toBe(2))
+        expect(screen.getByTestId('project-workspace-overlay')).toBeInTheDocument()
+        expect(screen.getByTestId('copy-p1')).toBeDisabled()
+
+        await act(async () => {
+            actionRead.resolve(project({ status: 'OPENED', capabilities: { canOpen: true, canCopy: true } }))
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(screen.queryByTestId('project-workspace-overlay')).toBeNull()
+        expect(screen.getByTestId('copy-p1')).not.toBeDisabled()
+    })
+
+    it('holds the Sync action through the branch-list request and leaves its dialog unrefreshed', async () => {
+        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true } }) as never)
+        const branches = deferred<unknown[]>()
+        vi.mocked(getProjectBranches).mockReturnValue(branches.promise as never)
+        const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
+        await renderWorkspace()
+
+        await userEvent.click(screen.getByTestId('sync-p1'))
+
+        // The dialog cannot be dispatched before the branches are known — a whole round trip during which
+        // the click would otherwise dead-end.
+        expect(screen.getByTestId('project-workspace-overlay')).toBeInTheDocument()
+        expect(dispatchSpy.mock.calls.some(([event]) => event.type === 'openMergeModal')).toBe(false)
+
+        await act(async () => {
+            branches.resolve([{ name: 'main', base: true }])
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(dispatchSpy.mock.calls.some(([event]) => event.type === 'openMergeModal')).toBe(true)
+        // The dialog is the user's now: the project is free again and no reload flashes behind it.
+        expect(screen.queryByTestId('project-workspace-overlay')).toBeNull()
+        expect(getProject).toHaveBeenCalledTimes(1)
+        dispatchSpy.mockRestore()
+    })
+
+    it('keeps the project busy while a dialog it just finished is being read back', async () => {
+        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canSave: true } }) as never)
+        await renderWorkspace()
+        await userEvent.click(screen.getByTestId('save-p1'))
+
+        const reload = deferred<ReturnType<typeof project>>()
+        vi.mocked(getProject).mockReturnValueOnce(reload.promise as never)
+        await userEvent.click(screen.getByTestId('save-modal-saved'))
+
+        // The dialog's own spinner is gone with the dialog; without this the page would sit showing the
+        // state from before the save for as long as reading it back takes.
+        await waitFor(() => expect(screen.getByTestId('project-workspace-overlay')).toBeInTheDocument())
+
+        await act(async () => {
+            reload.resolve(project({ capabilities: { canSave: true } }))
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(screen.queryByTestId('project-workspace-overlay')).toBeNull()
+    })
+
+    it('shows the branch switch over the project, from the click until the new branch lands', async () => {
+        vi.mocked(getDesignRepositories).mockResolvedValue([
+            { ...repositories[0]!, features: { branches: true, searchable: false, mappedFolders: false } },
+        ] as never)
+        vi.mocked(getProject).mockResolvedValue(project({
+            capabilities: { canSave: true },
+            repositoryInfo: { id: 'design', name: 'Design', type: 'repo-git', features: { branches: true } },
+        }) as never)
+        vi.mocked(getProjectBranches).mockResolvedValue([{ name: 'main', base: true }, { name: 'dev' }] as never)
+        const switched = deferred<void>()
+        vi.mocked(switchProjectBranch).mockReturnValue(switched.promise as never)
+        await renderWorkspace()
+
+        await userEvent.click(screen.getByTestId('crumb-branch-trigger'))
+        await screen.findByText('dev')
+        await userEvent.click(screen.getByText('dev'))
+
+        // Two round trips — the switch and the read of the project on its new branch — during which the
+        // page would otherwise be indistinguishable from one where the click never registered.
+        await waitFor(() => expect(screen.getByTestId('project-workspace-overlay')).toBeInTheDocument())
+        expect(screen.getByTestId('save-p1')).toBeDisabled()
+
+        await act(async () => {
+            switched.resolve()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        await waitFor(() => expect(screen.queryByTestId('project-workspace-overlay')).toBeNull())
+    })
+
+    it('blocks the branch switch while the project is busy with an action of its own', async () => {
+        vi.mocked(getDesignRepositories).mockResolvedValue([
+            { ...repositories[0]!, features: { branches: true, searchable: false, mappedFolders: false } },
+        ] as never)
+        vi.mocked(getProject).mockResolvedValue(project({
+            capabilities: { canOpen: true },
+            repositoryInfo: { id: 'design', name: 'Design', type: 'repo-git', features: { branches: true } },
+        }) as never)
+        const opened = deferred<void>()
+        vi.mocked(setProjectStatus).mockReturnValue(opened.promise as never)
+        await renderWorkspace()
+
+        await userEvent.click(screen.getByTestId('open-p1'))
+
+        // The veil over the project takes the clicks, but not the keyboard, which reaches the switcher.
+        // A switch started here would run against the state the action is about to replace.
+        await waitFor(() => expect(screen.getByTestId('crumb-branch-trigger')).toBeDisabled())
+
+        await act(async () => {
+            opened.resolve()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        await waitFor(() => expect(screen.getByTestId('crumb-branch-trigger')).not.toBeDisabled())
     })
 
     it('shows a not-found state for an unknown project id', async () => {

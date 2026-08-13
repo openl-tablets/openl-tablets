@@ -162,6 +162,10 @@ flowchart LR
   the shared hook while an action is pending, so the batch keeps gathering and is delivered once the
   action's own answer is on screen — never dropped, so a change of another session behind it is only
   delayed.
+- What counts as pending is the whole project-scoped busy state, not just the buttons of the action
+  bar: an action, a branch switch, and the read a dialog leaves behind all mark the project busy
+  until the screen shows what they did. The list keys it by project, so one busy project never stops
+  work with the others.
 - A batch is never dropped for waiting: whatever it waits for — an action of the screen, the echo
   window — it is delivered within 10 s. A batch gathered before the subscription was renewed travels
   to the new one only while an action holds it; renewed for any other reason the screen is watching

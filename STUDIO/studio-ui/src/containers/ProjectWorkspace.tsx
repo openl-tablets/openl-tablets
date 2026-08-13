@@ -20,6 +20,7 @@ import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import type { Repository } from '../types/repositories'
 import type { Project } from '../types/projects'
 import type { FsNode } from '../types/files'
+import { BusyVeil } from './projects/BusyVeil'
 import { ProjectDetail } from './projects/ProjectDetail'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
 import { creatableRepositories, supportsBranches } from '../utils/repositoryFeatures'
@@ -30,7 +31,8 @@ import { OpenRevisionModal } from './projects/OpenRevisionModal'
 import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
 import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { openCompareWindow } from './projects/compare'
-import type { ActionId, ProjectActionHandlers } from './projects/ProjectActionBar'
+import type { ProjectActionHandlers } from './projects/ProjectActionBar'
+import type { BusyId } from './projects/projectActions'
 import { DiscardChangesModal } from './DiscardChangesModal'
 import { ProjectsRail } from './projects/ProjectsRail'
 import type { NodeFilters } from './projects/projectGrouping'
@@ -70,6 +72,7 @@ const useStyles = createStyles(({ css, token }) => ({
         }
     `,
     body: css`
+        position: relative;
         flex: 1;
         min-width: 0;
         min-height: 0;
@@ -108,7 +111,9 @@ export const ProjectWorkspace = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [files, setFiles] = useState<FsNode[] | 'loading' | 'error'>()
-    const [pendingId, setPendingId] = useState<ActionId | null>(null)
+    // What the project is busy with, or null. Every operation on it runs through this, so the project shows
+    // one busy state and offers no second operation until the first one is over.
+    const [pendingId, setPendingId] = useState<BusyId | null>(null)
     const [saveOpen, setSaveOpen] = useState(false)
     const [copySource, setCopySource] = useState<Project | null>(null)
     const [openRevisionFor, setOpenRevisionFor] = useState<Project | null>(null)
@@ -289,33 +294,41 @@ export const ProjectWorkspace = () => {
             })
     }, [fileLoads, project, files])
 
-    const runAction = useCallback(async (
-        id: ActionId,
-        fn: () => Promise<unknown>,
-        failKey: string,
+    /**
+     * Marks the project busy for as long as the operation runs, reporting a failure under `failKey`.
+     * Everything the project waits for goes through here — the action bar, the dialogs, the branch
+     * switcher — so a slow environment shows one busy project rather than a screen that looks as if the
+     * click had never registered.
+     *
+     * @param onError handles the failure itself; true when it did, so nothing is reported
+     */
+    const busyWhile = useCallback((
+        id: BusyId,
+        run: () => Promise<unknown>,
+        failKey?: string,
         onError?: (error: unknown) => boolean
     ) => {
         setPendingId(id)
-        try {
-            await fn()
-            if (id === 'delete') {
-                // The project no longer exists; its page has nothing left to show.
-                navigate('/projects')
-                return
-            }
-            await load()
-        } catch (e) {
-            if (onError?.(e)) {
-                return
-            }
-            notification.error({
-                title: t(failKey),
-                description: errorMessage(e),
+        return run()
+            .catch((e: unknown) => {
+                if (onError?.(e) || failKey === undefined) {
+                    return
+                }
+                notification.error({ title: t(failKey), description: errorMessage(e) })
             })
-        } finally {
-            setPendingId(null)
-        }
-    }, [load, navigate, t])
+            .finally(() => setPendingId(null))
+    }, [t])
+
+    /**
+     * Runs an action and shows its result: the project is read again afterwards, so the busy state only
+     * ends once the page shows what the action did.
+     */
+    const runAction = useCallback((
+        id: BusyId,
+        fn: () => Promise<unknown>,
+        failKey: string,
+        onError?: (error: unknown) => boolean
+    ) => busyWhile(id, () => fn().then(() => load()), failKey, onError), [busyWhile, load])
 
     const closeProject = useCallback((discardChanges = false) => {
         if (!project) {
@@ -347,6 +360,14 @@ export const ProjectWorkspace = () => {
             // The action bar is only rendered with a project; the handlers are never reached without one.
             return {} as ProjectActionHandlers
         }
+        // Both branch dialogs read the project's branches before they can be dispatched — a whole round
+        // trip the button holds its spinner for, instead of dead-ending until a dialog appears
+        // unannounced. Nothing is reloaded behind the open dialog: it reads the project itself when it
+        // finishes, and a reload as it opens would flash the veil over a dialog still being filled in.
+        const openBranchDialog = (
+            id: 'sync' | 'deleteBranch',
+            open: (project: Project, onSuccess: () => void) => Promise<void>
+        ) => void busyWhile(id, () => open(project, () => void busyWhile(id, load)), 'browser.branch.load_failed')
         return {
             // The detail response is already loaded, so the dialog never reads the dependencies again.
             open: () => openProjectDialog(
@@ -367,8 +388,8 @@ export const ProjectWorkspace = () => {
             save: () => setSaveOpen(true),
             copy: () => setCopySource(project),
             openRevision: () => setOpenRevisionFor(project),
-            sync: () => void openMergeDialog(project, () => void load()),
-            deleteBranch: () => void openDeleteBranchDialog(project, () => void load()),
+            sync: () => openBranchDialog('sync', openMergeDialog),
+            deleteBranch: () => openBranchDialog('deleteBranch', openDeleteBranchDialog),
             export: () => setExportSource(project),
             delete: () => window.dispatchEvent(new CustomEvent('openDeleteProjectModal', {
                 detail: {
@@ -385,7 +406,7 @@ export const ProjectWorkspace = () => {
             },
             compare: () => openCompareWindow(project),
         }
-    }, [closeProject, navigate, project, runAction])
+    }, [busyWhile, closeProject, load, navigate, project, runAction])
 
     if (loading && !project && !error) {
         return (
@@ -427,7 +448,8 @@ export const ProjectWorkspace = () => {
                             changedFiles={changedFiles}
                             files={files}
                             handlers={handlers}
-                            onChanged={() => void load()}
+                            onBranchSwitching={busy => setPendingId(busy ? 'switchBranch' : null)}
+                            onChanged={() => load()}
                             onFilesVisible={loadFiles}
                             pendingId={pendingId}
                             project={project}
@@ -460,11 +482,17 @@ export const ProjectWorkspace = () => {
                             supportsBranches={supportsBranches({ features: repoInfo?.features })}
                         />
                     )}
+                    {/* Once the project is on screen, every wait for it is shown over what it replaces —
+                        the action's own request, and the read that brings back what the action did. The
+                        very first read shows the skeleton above instead, having nothing to cover. */}
+                    {project && (loading || pendingId !== null) && <BusyVeil data-testid="project-workspace-overlay" />}
                 </div>
             </div>
+            {/* Each dialog hands the project back busy: its own spinner covers the request, and the busy
+                state covers the read that follows, which is the slower half of the two. */}
             <SaveProjectModal
                 onClose={() => setSaveOpen(false)}
-                onSaved={() => void load()}
+                onSaved={() => void busyWhile('save', load)}
                 open={saveOpen}
                 project={project}
             />
@@ -475,13 +503,13 @@ export const ProjectWorkspace = () => {
             />
             <OpenRevisionModal
                 onClose={() => setOpenRevisionFor(null)}
-                onOpened={() => void load()}
+                onOpened={() => void busyWhile('openRevision', load)}
                 open={openRevisionFor !== null}
                 project={openRevisionFor}
             />
             <CopyProjectModal
                 onClose={() => setCopySource(null)}
-                onCopied={() => void load()}
+                onCopied={() => void busyWhile('copy', load)}
                 open={copySource !== null}
                 project={copySource}
                 repositories={creatableRepos}
