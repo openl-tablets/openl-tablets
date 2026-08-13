@@ -1,19 +1,15 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { notification } from 'antd'
-import { useTranslation } from 'react-i18next'
-import { useGlobalEvents } from 'hooks'
-import { EmptyError, LOCAL_LOAD_API_OPTIONS } from 'services/apiCall'
-import { getDesignRepositories, getProject } from 'services/repositories'
+import React, { useEffect, useState } from 'react'
+import { useEventProject, type EventProjectDetail } from 'hooks'
+import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from 'services/apiCall'
+import { getDesignRepositories } from 'services/repositories'
 import { useAppStore } from 'store'
-import { errorMessage } from 'utils/errorMessage'
 import { creatableRepositories } from 'utils/repositoryFeatures'
 import { CopyProjectModal } from 'containers/projects/CopyProjectModal'
-import type { Project } from 'types/projects'
+import i18next from 'i18next'
 import type { Repository } from 'types/repositories'
 
 /** Detail passed from the legacy JSF editor shell via the {@code openCopyProjectModal} event. */
-export interface CopyProjectModalDetail {
-    projectId: string
+export interface CopyProjectModalDetail extends EventProjectDetail {
     /** Runs after a successful copy, e.g. to reload the editor page. */
     onSuccess?: () => void
 }
@@ -25,83 +21,61 @@ export interface CopyProjectModalDetail {
  * may be created in, so only the project id travels on the event and both are read here — the editor page
  * stays free of REST calls of its own.
  *
- * A project that cannot be read leaves the dialog closed and reports why, rather than opening it empty.
+ * Both reads start together, hold the loading overlay together, and the dialog waits for both: opening on
+ * the project alone would show the copy half as unavailable, then rebuild the form under the user once the
+ * repositories arrive.
  *
  * @example globalThis.dispatchEvent(new CustomEvent('openCopyProjectModal', {detail: {projectId}}))
  */
 export const CopyProjectModalHost: React.FC = () => {
-    const { t } = useTranslation()
-    const { detail } = useGlobalEvents<CopyProjectModalDetail>('openCopyProjectModal')
+    const { detail, project, close } = useEventProject<CopyProjectModalDetail>(
+        'openCopyProjectModal',
+        'repository:browser.copy_dialog.load_failed'
+    )
+    const [repositories, setRepositories] = useState<Repository[] | null>(null)
     const showLoader = useAppStore(state => state.showLoader)
     const hideLoader = useAppStore(state => state.hideLoader)
-    const [project, setProject] = useState<Project | null>(null)
-    const [repositories, setRepositories] = useState<Repository[]>([])
-
-    const close = useCallback(() => {
-        globalThis.dispatchEvent(new CustomEvent('openCopyProjectModal', { detail: null }))
-    }, [])
-
-    // Read inside the load and never depended on: a language change rebinds `t`, and re-running the load
-    // would hand the dialog fresh objects, which blanks the form the user is filling in.
-    const translate = useRef(t)
-    translate.current = t
-
-    /**
-     * Reports a failed read. An expired session is not reported: the request layer answers it by asking for
-     * a new login, and its error carries no message, so a toast would only cover that prompt with a blank one.
-     */
-    const report = useCallback((messageKey: string, error: unknown) => {
-        if (error instanceof EmptyError) {
-            return
-        }
-        notification.error({ title: translate.current(messageKey), description: errorMessage(error) })
-    }, [])
+    const projectId = detail?.projectId
 
     useEffect(() => {
-        const projectId = detail?.projectId
+        // Dropped before the read for the same reason the project is: what a copy may target depends on
+        // the project, so last time's answer must not outlive it.
+        setRepositories(null)
         if (!projectId) {
-            setProject(null)
             return
         }
         let active = true
-        // The reads take as long as the design repository does, and the legacy page has no spinner of its
-        // own, so the shared overlay both shows the work and blocks a second click from starting it again.
+        // The overlay counts its holders, so this read keeps it up for as long as it runs even once the
+        // project has arrived: it is what the dialog is still waiting for, and the click that would start
+        // the whole thing again lands on the overlay rather than on a page that looks idle.
         showLoader()
-        Promise.all([
-            getProject(projectId, {}, LOCAL_LOAD_API_OPTIONS),
+        getDesignRepositories(LOCAL_LOAD_API_OPTIONS)
+            .then(loaded => {
+                if (active) {
+                    setRepositories(creatableRepositories(loaded))
+                }
+            })
             // The dialog can still cut a branch without the list, so a failed read costs the copy half
             // rather than the whole dialog — but it is said out loud, or the copy half looks simply absent.
-            getDesignRepositories(LOCAL_LOAD_API_OPTIONS).catch(error => {
-                report('repository:browser.copy_dialog.repositories_failed', error)
-                return [] as Repository[]
-            }),
-        ])
-            .then(([loadedProject, loadedRepositories]) => {
-                if (!active) {
-                    return
-                }
-                setRepositories(creatableRepositories(loadedRepositories))
-                setProject(loadedProject)
-            })
             .catch(error => {
                 if (active) {
-                    report('repository:browser.copy_dialog.load_failed', error)
-                    close()
+                    setRepositories([])
+                    notifyLoadFailure(i18next.t('repository:browser.copy_dialog.repositories_failed'), error)
                 }
             })
             .finally(hideLoader)
         return () => {
             active = false
         }
-    }, [detail, close, report, showLoader, hideLoader])
+    }, [projectId, showLoader, hideLoader])
 
     return (
         <CopyProjectModal
             onClose={close}
             onCopied={() => detail?.onSuccess?.()}
-            open={project !== null}
+            open={project !== null && repositories !== null}
             project={project}
-            repositories={repositories}
+            repositories={repositories ?? []}
         />
     )
 }

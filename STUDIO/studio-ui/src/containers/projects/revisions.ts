@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
-import { getProjectRevisions, REVISIONS_PAGE_SIZE, type ProjectRevision } from '../../services/repositories'
+import { getProjectRevisions, REVISIONS_PAGE_SIZE, type ProjectRevision, type RevisionPage } from '../../services/repositories'
 import type { Project } from '../../types/projects'
 import { formatDateTime } from '../../utils/dateFormat'
 
@@ -26,44 +26,96 @@ export const revisionLabel = (revision: ProjectRevision): string => {
 }
 
 export interface ProjectRevisions {
-    /** The revisions, newest first; null while they are loading. */
+    /** The revisions loaded so far, newest first; null while the first page is loading. */
     revisions: ProjectRevision[] | null
     /** Ready-made dropdown options, labelled the way a business user reads a revision. */
     options: Array<{ value: string, label: string }>
     /** Why the history could not be read, if it could not. */
     error: string | null
+    /** Whether the repository holds revisions older than the ones loaded. */
+    hasMore: boolean
+    /** Appends the next page of older revisions. */
+    loadMore: () => void
+    /** Whether that next page is on its way. */
+    loadingMore: boolean
 }
 
 /**
- * The latest page of a project's history, loaded while the given dialog is open.
+ * A project's history, loaded a page at a time while the given dialog is open.
  *
- * Every dialog that lets the user reach back into the history — export, open, copy — shows the same page,
- * so they all ask for it the same way.
+ * Every dialog that lets the user reach back into the history — export, open, copy — reads it the same way.
+ * The newest page arrives first and the rest is fetched on demand, so a project with a long history stays
+ * reachable without the dialog waiting for all of it.
  */
 export const useProjectRevisions = (project: Project | null, enabled: boolean): ProjectRevisions => {
     const [revisions, setRevisions] = useState<ProjectRevision[] | null>(null)
     const [error, setError] = useState<string | null>(null)
+    const [lastPage, setLastPage] = useState<RevisionPage | null>(null)
+    const [loadingMore, setLoadingMore] = useState(false)
+    // Guards the appends: a dialog reopened on another project must not collect the pages of the old one.
+    const generation = useRef(0)
 
     useEffect(() => {
+        // Bumped before the guard: a page still in flight when the dialog closes must not land in the
+        // state the next project's dialog opens on.
+        const current = ++generation.current
         if (!enabled || !project) {
+            setRevisions(null)
+            setError(null)
+            setLastPage(null)
+            setLoadingMore(false)
             return
         }
-        let current = true
         setRevisions(null)
         setError(null)
+        setLastPage(null)
+        setLoadingMore(false)
         getProjectRevisions(project.id, { size: REVISIONS_PAGE_SIZE })
-            .then(page => current && setRevisions(page.content))
+            .then(page => {
+                if (current === generation.current) {
+                    setRevisions(page.content)
+                    setLastPage(page)
+                }
+            })
             .catch(e => {
-                if (current) {
+                if (current === generation.current) {
                     // An empty history renders the dialog's empty state instead of spinning forever.
                     setRevisions([])
                     setError(errorMessage(e))
                 }
             })
-        return () => {
-            current = false
-        }
     }, [enabled, project?.id])
+
+    // A total says outright whether anything is left; without one, a full page means there may be.
+    const loaded = revisions?.length ?? 0
+    const hasMore = lastPage !== null && (lastPage.total !== null
+        ? loaded < lastPage.total
+        : lastPage.numberOfElements === lastPage.pageSize && lastPage.numberOfElements > 0)
+
+    const loadMore = () => {
+        if (!project || !lastPage || loadingMore) {
+            return
+        }
+        const current = generation.current
+        setLoadingMore(true)
+        getProjectRevisions(project.id, { size: REVISIONS_PAGE_SIZE, page: lastPage.pageNumber + 1 })
+            .then(page => {
+                if (current === generation.current) {
+                    setRevisions(previous => [...(previous ?? []), ...page.content])
+                    setLastPage(page)
+                }
+            })
+            .catch(e => {
+                if (current === generation.current) {
+                    setError(errorMessage(e))
+                }
+            })
+            .finally(() => {
+                if (current === generation.current) {
+                    setLoadingMore(false)
+                }
+            })
+    }
 
     return {
         revisions,
@@ -72,5 +124,8 @@ export const useProjectRevisions = (project: Project | null, enabled: boolean): 
             label: revisionLabel(revision),
         })),
         error,
+        hasMore,
+        loadMore,
+        loadingMore,
     }
 }

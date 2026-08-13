@@ -1,5 +1,6 @@
 import { notification } from 'antd'
 import CONFIG from './config'
+import { errorMessage } from '../utils/errorMessage'
 import { CLIENT_ID, CLIENT_ID_HEADER } from './clientId'
 import { useAppStore } from 'store'
 
@@ -228,6 +229,20 @@ export const asArray = <T>(value: unknown): T[] => (Array.isArray(value) ? value
  * over whatever the user was doing, so a locally handled failure would be reported twice.
  */
 export const LOCAL_LOAD_API_OPTIONS = { throwError: true, suppressErrorPages: true } satisfies ApiCallOptions
+
+/**
+ * Reports a read that failed under {@link LOCAL_LOAD_API_OPTIONS}, which leave the reporting to the caller.
+ *
+ * <p>An expired session is not reported: the request layer answers it by asking for a new login, and its
+ * error carries no message, so a toast would only cover that prompt with a blank one.
+ *
+ * @param title what could not be read, already translated
+ */
+export const notifyLoadFailure = (title: string, error: unknown): void => {
+    if (!(error instanceof EmptyError)) {
+        notification.error({ title, description: errorMessage(error) })
+    }
+}
 
 export { ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError }
 export default apiCall

@@ -35,7 +35,6 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
-import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.security.CurrentUserInfo;
@@ -79,7 +78,6 @@ class ServiceApiConfigTest {
                 mock(PropertyResolver.class),
                 mock(DeploymentManager.class),
                 mock(ApplicationEventPublisher.class),
-                mock(ProjectsMergeConflictsSessionHolder.class),
                 mock(ProtectedBranchBypassService.class),
                 mock(ProjectIdentifierMapper.class),
                 mock(ProjectStateValidator.class),

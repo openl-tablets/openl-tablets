@@ -2,7 +2,6 @@ package org.openl.rules.ui;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -49,7 +48,6 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.Profile;
@@ -72,12 +70,9 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
-import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
-import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
@@ -161,7 +156,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     @Getter
     private final ApplicationEventPublisher eventPublisher;
-    private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProtectedBranchBypassService bypassService;
     private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ProjectStateValidator projectStateValidator;
@@ -176,7 +170,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      PropertyResolver propertyResolver,
                      DeploymentManager deploymentManager,
                      ApplicationEventPublisher eventPublisher,
-                     ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
                      ProtectedBranchBypassService bypassService,
                      ProjectIdentifierMapper projectIdentifierMapper,
                      ProjectStateValidator projectStateValidator,
@@ -192,7 +185,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.propertyResolver = propertyResolver;
         this.deploymentManager = deploymentManager;
         this.eventPublisher = eventPublisher;
-        this.conflictsSessionHolder = conflictsSessionHolder;
         this.bypassService = bypassService;
         this.projectIdentifierMapper = projectIdentifierMapper;
         this.projectStateValidator = projectStateValidator;
@@ -242,46 +234,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public RulesTreeView[] getTreeViews() {
         return Profile.TREE_VIEWS;
-    }
-
-    public void saveProject() {
-        RulesProject project = null;
-        try {
-            project = getCurrentProject();
-            if (project == null) {
-                return;
-            }
-            saveProject(project);
-        } catch (Exception e) {
-            String msg;
-            Throwable cause = e.getCause();
-            if (cause instanceof FileNotFoundException) {
-                if (e.getMessage().contains(".xls")) {
-                    msg = "Failed to save the project. Close the module Excel file and try again.";
-                } else {
-                    msg = "Failed to save the project because some resources are used";
-                }
-                log.debug(msg, e);
-            } else if (cause instanceof MergeConflictException mergeConflictEx) {
-                var conflictInfo = MergeConflictInfo.builder()
-                        .details(mergeConflictEx.getDetails())
-                        .project(project)
-                        .build();
-                eventPublisher.publishEvent(new SaveMergeConflictEvent(project, conflictInfo));
-                msg = "Failed to save the project because of merge conflict.";
-                log.debug(msg, e);
-                return;
-            } else {
-                msg = "Failed to save the project. See logs for details.";
-                log.error(msg, e);
-            }
-
-            throw new Message(msg);
-        }
-    }
-
-    public boolean isMergeConflict() {
-        return conflictsSessionHolder.hasAnyConflictInfo();
     }
 
     public boolean isRenamed(RulesProject project) {

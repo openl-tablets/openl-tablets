@@ -3,6 +3,7 @@ import apiCall, {
     EmptyError,
     NotFoundError,
     isApiHttpError,
+    notifyLoadFailure,
     WORKSPACE_CHANGED_EVENT,
 } from 'services/apiCall'
 import { CLIENT_ID } from 'services/clientId'
@@ -228,6 +229,24 @@ describe('apiCall', () => {
 
         await apiCall('/bad')
         expect(notification.error).toHaveBeenCalled()
+    })
+
+    describe('notifyLoadFailure', () => {
+        it('reports a failed read under the title it was given', () => {
+            notifyLoadFailure('Failed to load the project', new Error('offline'))
+
+            expect(notification.error).toHaveBeenCalledWith({
+                title: 'Failed to load the project',
+                description: 'offline',
+            })
+        })
+
+        // An expired session already draws the login prompt; a blank-bodied toast over it says nothing.
+        it('stays quiet when the session has expired', () => {
+            notifyLoadFailure('Failed to load the project', new EmptyError())
+
+            expect(notification.error).not.toHaveBeenCalled()
+        })
     })
 
     it('announces a change of the server state, so what other screens cached is read again', async () => {

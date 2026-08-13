@@ -80,11 +80,4 @@ public class Utils {
         }
         return repository.supports().mappedFolders();
     }
-
-    public String descriptiveProjectVersion(AProjectArtefact artefact) {
-        if (artefact == null || artefact.getVersion() == null) {
-            return "";
-        }
-        return getDescriptiveVersion(artefact.getVersion(), dateTimeFormat);
-    }
 }

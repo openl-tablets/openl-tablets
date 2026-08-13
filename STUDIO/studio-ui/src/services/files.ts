@@ -1,4 +1,4 @@
-import apiCall from './apiCall'
+import apiCall, { isApiHttpError, LOCAL_LOAD_API_OPTIONS } from './apiCall'
 import { encodeProjectPath, toUrlSafeId } from './projectId'
 import CONFIG from './config'
 import { getProjectFiles } from './repositories'
@@ -118,9 +118,46 @@ export async function copyFile(projectId: string, sourcePath: string, destinatio
     )
 }
 
-/** Trigger a browser download of a single project file. */
-export function downloadFile(projectId: string, path: string): void {
-    triggerDownload(`${CONFIG.CONTEXT}/web${fileUrl(projectId, path)}?download=true`, path.slice(path.lastIndexOf('/') + 1))
+/**
+ * Whether the project holds the file at the given revision.
+ *
+ * A file added later does not exist in the revisions before it, and the browser answers a refused download
+ * by quietly downloading nothing — so the callers that let a user reach back into the history ask first.
+ *
+ * Only a "not found" answers false; any other failure is raised, so a broken connection is never reported
+ * as a missing file.
+ */
+export async function fileExistsAt(projectId: string, path: string, version?: string): Promise<boolean> {
+    const params = new URLSearchParams({ view: 'meta' })
+    if (version) {
+        params.set('version', version)
+    }
+    try {
+        await apiCall(`${fileUrl(projectId, path)}?${params}`, undefined, LOCAL_LOAD_API_OPTIONS)
+        return true
+    } catch (error) {
+        if (isApiHttpError(error) && error.status === 404) {
+            return false
+        }
+        throw error
+    }
+}
+
+/**
+ * Trigger a browser download of a single project file.
+ *
+ * @param version revision to download; omit for the workspace copy, which carries the local changes of a
+ *                project being edited
+ */
+export function downloadFile(projectId: string, path: string, version?: string): void {
+    const params = new URLSearchParams({ download: 'true' })
+    if (version) {
+        params.set('version', version)
+    }
+    triggerDownload(
+        `${CONFIG.CONTEXT}/web${fileUrl(projectId, path)}?${params}`,
+        path.slice(path.lastIndexOf('/') + 1)
+    )
 }
 
 /** Trigger a browser download of a project folder as a zip archive (the trailing slash selects the folder). */

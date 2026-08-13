@@ -28,7 +28,6 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
-import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.repositories.service.HistoryRepositoryMapper;
@@ -68,7 +67,6 @@ public class ServiceApiConfig {
                                              PropertyResolver propertyResolver,
                                              DeploymentManager deploymentManager,
                                              ApplicationEventPublisher eventPublisher,
-                                             ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
                                              ProtectedBranchBypassService bypassService,
                                              ProjectIdentifierMapper projectIdentifierMapper,
                                              ProjectStateValidator projectStateValidator,
@@ -88,7 +86,6 @@ public class ServiceApiConfig {
                 propertyResolver,
                 deploymentManager,
                 eventPublisher,
-                conflictsSessionHolder,
                 bypassService,
                 projectIdentifierMapper,
                 projectStateValidator,

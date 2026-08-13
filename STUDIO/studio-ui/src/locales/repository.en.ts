@@ -161,9 +161,13 @@ i18next.addResourceBundle('en', 'repository', {
         export_dialog: {
             title: 'Export "{{name}}"',
             revision: 'Project Revision',
+            file_revision: 'File Revision',
             viewing: 'Viewing',
             in_editing: 'In Editing',
             submit: 'Export',
+            load_more: 'Load older revisions',
+            file_missing: '"{{name}}" does not exist in the selected revision.',
+            load_failed: 'Failed to load the project to export',
         },
         open_revision_dialog: {
             title: 'Open a revision of "{{name}}"',
@@ -209,6 +213,9 @@ i18next.addResourceBundle('en', 'repository', {
             too_long: 'The comment is longer than 255 characters',
         },
         export: 'Export',
+        save_dialog: {
+            load_failed: 'Failed to load the project to save',
+        },
         save_title: 'Save project',
         save_desc: 'Changes are committed as a new revision in {{repository}}.',
         saved: 'Project saved',
