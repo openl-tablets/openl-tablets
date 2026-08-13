@@ -1,6 +1,7 @@
 package org.openl.studio.repositories.service;
 
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
@@ -89,6 +91,35 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
         // is read from. No name is resolved, so a rename that is not saved yet changes nothing here.
         return getHistoryRepositoryMapper(project.getDesignRepository())
                 .getProjectHistory(project.getDesignFolderName(), searchTerm, techRevs, page);
+    }
+
+    @Override
+    public PageResponse<ProjectRevision> getFileRevision(RulesProject project,
+                                                         String path,
+                                                         String searchTerm,
+                                                         boolean techRevs,
+                                                         Pageable page) throws IOException {
+        if (project.isLocalOnly()) {
+            // Never published, so no repository holds a history of it.
+            return PageResponse.of(List.of(), page, 0L);
+        }
+        var filePath = path.startsWith("/") ? path.substring(1) : path;
+        if (filePath.isEmpty() || "/".equals(filePath)) {
+            // No file named: the history asked for is the project's own.
+            return getProjectRevision(project, searchTerm, techRevs, page);
+        }
+        // Reject absolute paths and parent traversal before they are anchored to the project folder. The
+        // container already refuses most of them, but the repository contract is enforced here rather than
+        // relied upon from the outside.
+        try {
+            Repository.validatePath(filePath);
+        } catch (InvalidPathException e) {
+            throw new BadRequestException("file.path.invalid.message");
+        }
+        // The repository keeps the file under the project folder, and the history of any path is read the
+        // same way, so the file's own history is the project folder's history narrowed to that path.
+        return getHistoryRepositoryMapper(project.getDesignRepository())
+                .getProjectHistory(project.getDesignFolderName() + "/" + filePath, searchTerm, techRevs, page);
     }
 
     /**

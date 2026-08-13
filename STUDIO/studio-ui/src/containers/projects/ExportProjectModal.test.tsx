@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { notification } from 'antd'
 import { ExportProjectModal } from './ExportProjectModal'
 import { downloadProject, getProjectRevisions } from '../../services/repositories'
-import { downloadFile, fileExistsAt } from '../../services/files'
+import { downloadFile, fileExistsAt, getFileRevisions } from '../../services/files'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 
@@ -18,6 +18,7 @@ vi.mock('../../services/repositories', () => ({
 vi.mock('../../services/files', () => ({
     downloadFile: vi.fn(),
     fileExistsAt: vi.fn(),
+    getFileRevisions: vi.fn(),
 }))
 
 vi.mock('react-i18next', () => {
@@ -75,7 +76,7 @@ const renderModal = async ({ filePath, ...overrides }: Partial<Project> & { file
             project={{ ...project, ...overrides }}
         />
     )
-    await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
+    await waitFor(() => expect(filePath ? getFileRevisions : getProjectRevisions).toHaveBeenCalled())
     return { onClose }
 }
 
@@ -83,7 +84,7 @@ describe('ExportProjectModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.mocked(fileExistsAt).mockResolvedValue(true)
-        vi.mocked(getProjectRevisions).mockResolvedValue({
+        const projectPage = {
             content: [
                 { revisionNo: 'rev-2', shortRevisionNo: 'rev2', createdAt: '2026-07-22T10:00:00Z', fullComment: '', deleted: false, technicalRevision: false, author: { displayName: 'Joe Doe' } },
                 { revisionNo: 'rev-1', shortRevisionNo: 'rev1', createdAt: '2026-07-21T10:00:00Z', fullComment: '', deleted: false, technicalRevision: false, author: { displayName: 'Jane Roe' } },
@@ -92,7 +93,20 @@ describe('ExportProjectModal', () => {
             pageSize: 50,
             numberOfElements: 2,
             total: 2,
-        })
+        }
+        // Naming a path asks for that file's own history; the two answer differently on purpose.
+        const filePage = {
+            content: [
+                { revisionNo: 'file-rev-2', shortRevisionNo: 'file-2', createdAt: '2026-07-22T10:00:00Z', fullComment: '', deleted: false, technicalRevision: false, author: { displayName: 'Joe Doe' } },
+                { revisionNo: 'file-gone', shortRevisionNo: 'gone', createdAt: '2026-07-23T10:00:00Z', fullComment: '', deleted: true, technicalRevision: false, author: { displayName: 'Joe Doe' } },
+            ],
+            pageNumber: 0,
+            pageSize: 50,
+            numberOfElements: 2,
+            total: 2,
+        }
+        vi.mocked(getProjectRevisions).mockResolvedValue(projectPage)
+        vi.mocked(getFileRevisions).mockResolvedValue(filePage)
     })
 
     it('downloads what the opened project shows', async () => {
@@ -137,10 +151,11 @@ describe('ExportProjectModal', () => {
     it('downloads the chosen earlier revision of a single file', async () => {
         await renderModal({ filePath: 'rules/Main.xlsx' })
 
-        fireEvent.change(screen.getByTestId('export-project-revision'), { target: { value: 'rev-1' } })
+        // A revision of the file itself, not of the project around it.
+        fireEvent.change(screen.getByTestId('export-project-revision'), { target: { value: 'file-rev-2' } })
         await userEvent.click(screen.getByTestId('export-ok'))
 
-        expect(downloadFile).toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'rev-1')
+        await waitFor(() => expect(downloadFile).toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'file-rev-2'))
     })
 
     // The dialog it replaced listed the whole history, so an older revision has to stay reachable.
@@ -179,12 +194,47 @@ describe('ExportProjectModal', () => {
         expect(screen.queryByTestId('export-project-load-more')).toBeNull()
     })
 
+    // The project's history offers revisions that never held the file; the file's own history does not.
+    it('offers the file own revisions when a file is exported', async () => {
+        await renderModal({ filePath: 'rules/Main.xlsx' })
+
+        await waitFor(() => expect(getFileRevisions).toHaveBeenCalledWith(
+            'p1', 'rules/Main.xlsx', { size: 50, page: 0 }
+        ))
+        expect(getProjectRevisions).not.toHaveBeenCalled()
+        const values = [...screen.getByTestId('export-project-revision').querySelectorAll('option')]
+            .map(option => option.getAttribute('value'))
+        expect(values).toContain('file-rev-2')
+        // The revision that removed the file cannot be exported from, so it is not offered.
+        expect(values).not.toContain('file-gone')
+    })
+
+    // A revision that removed the file is not offered, so it must not be preselected either — the dialog
+    // would submit a revision missing from its own list.
+    it('defaults a closed project to the newest revision still offered', async () => {
+        vi.mocked(getFileRevisions).mockResolvedValue({
+            content: [
+                { revisionNo: 'file-gone', shortRevisionNo: 'gone', createdAt: '2026-07-23T10:00:00Z', fullComment: '', deleted: true, technicalRevision: false, author: { displayName: 'Joe Doe' } },
+                { revisionNo: 'file-rev-2', shortRevisionNo: 'file-2', createdAt: '2026-07-22T10:00:00Z', fullComment: '', deleted: false, technicalRevision: false, author: { displayName: 'Joe Doe' } },
+            ],
+            pageNumber: 0,
+            pageSize: 50,
+            numberOfElements: 2,
+            total: 2,
+        })
+        await renderModal({ status: ProjectStatus.Closed, filePath: 'rules/Main.xlsx' })
+
+        await userEvent.click(screen.getByTestId('export-ok'))
+
+        await waitFor(() => expect(downloadFile).toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'file-rev-2'))
+    })
+
     // A refused download is silent in the browser, so the dialog says what happened instead.
     it('refuses to export a file the chosen revision does not hold', async () => {
         vi.mocked(fileExistsAt).mockResolvedValue(false)
         const { onClose } = await renderModal({ filePath: 'rules/Main.xlsx' })
 
-        fireEvent.change(screen.getByTestId('export-project-revision'), { target: { value: 'rev-1' } })
+        fireEvent.change(screen.getByTestId('export-project-revision'), { target: { value: 'file-rev-2' } })
         await userEvent.click(screen.getByTestId('export-ok'))
 
         await waitFor(() => expect(notification.error).toHaveBeenCalled())

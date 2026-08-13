@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactElement, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Button, Modal, notification, Select } from 'antd'
 import { downloadProject } from '../../services/repositories'
@@ -10,6 +10,14 @@ import { basename } from './projectPaths'
 import { useProjectRevisions } from './revisions'
 
 const LABEL_WIDTH = 150
+
+/** Appends the dialog's own entry under a dropdown's list, without defining a component to do it. */
+const withFooter = (menu: ReactElement, footer: ReactNode): ReactElement => (
+    <>
+        {menu}
+        {footer}
+    </>
+)
 
 /** Marks the workspace copy rather than a committed revision. */
 const WORKSPACE = 'workspace'
@@ -30,6 +38,9 @@ interface ExportProjectModalProps {
  *
  * The workspace copy leads the list while the project is open: for a project being edited it carries the
  * local changes, and for one merely opened it is the revision it was opened on.
+ *
+ * Exporting a file offers that file's own revisions rather than the project's, so every entry is one the
+ * file can actually be read from.
  */
 export const ExportProjectModal = ({ open, project, onClose, filePath }: ExportProjectModalProps) => {
     const { t } = useTranslation('repository')
@@ -39,9 +50,10 @@ export const ExportProjectModal = ({ open, project, onClose, filePath }: ExportP
     const editing = project?.status === ProjectStatus.Editing
     const opened = editing || project?.status === ProjectStatus.Opened
         || project?.status === ProjectStatus.ViewingVersion
-    const { revisions, options: revisionOptions, error, hasMore, loadMore, loadingMore } = useProjectRevisions(project, open)
-    // The workspace copy is what an open project exports; a closed one exports its latest revision.
-    const selected = chosen ?? (opened ? WORKSPACE : revisions?.[0]?.revisionNo ?? WORKSPACE)
+    const { revisions, options: revisionOptions, error, hasMore, loadMore, loadingMore } = useProjectRevisions(project, open, filePath)
+    // The workspace copy is what an open project exports; a closed one exports its latest revision — the
+    // latest one still offered, since a revision that removed the file is not among them.
+    const selected = chosen ?? (opened ? WORKSPACE : revisionOptions[0]?.value ?? WORKSPACE)
 
     // The dialog stays mounted between openings; a revision picked for one project must not carry over.
     useEffect(() => {
@@ -89,6 +101,19 @@ export const ExportProjectModal = ({ open, project, onClose, filePath }: ExportP
     }
 
     const name = filePath ? basename(filePath) : project?.name
+    const loadOlder = hasMore
+        ? (
+            <Button
+                block
+                data-testid="export-project-load-more"
+                loading={loadingMore}
+                onClick={loadMore}
+                type="link"
+            >
+                {t('browser.export_dialog.load_more')}
+            </Button>
+        )
+        : null
 
     return (
         <Modal
@@ -114,26 +139,11 @@ export const ExportProjectModal = ({ open, project, onClose, filePath }: ExportP
                     loading={revisions === null}
                     onChange={value => setChosen(value as string)}
                     options={options}
-                    style={{ width: '100%' }}
-                    value={selected}
                     // The newest revisions arrive first; older ones are fetched on demand, so a long
                     // history stays reachable without the dialog waiting for all of it.
-                    popupRender={menu => (
-                        <>
-                            {menu}
-                            {hasMore && (
-                                <Button
-                                    block
-                                    data-testid="export-project-load-more"
-                                    loading={loadingMore}
-                                    onClick={loadMore}
-                                    type="link"
-                                >
-                                    {t('browser.export_dialog.load_more')}
-                                </Button>
-                            )}
-                        </>
-                    )}
+                    popupRender={menu => withFooter(menu, loadOlder)}
+                    style={{ width: '100%' }}
+                    value={selected}
                 />
             </FieldRow>
         </Modal>

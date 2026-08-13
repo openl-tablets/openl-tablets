@@ -71,7 +71,7 @@ class HistoryRepositoryMapperTest {
                 "filter",
                 false,
                 Pageable.unpaged());
-        var createdAt = revisionHistory.getContent().iterator().next().getCreatedAt();
+        var createdAt = revisionHistory.getContent().iterator().next().createdAt();
 
         assertEquals(modifiedAt.toInstant(), createdAt.toInstant());
         assertEquals(ZoneId.systemDefault(), createdAt.getZone());

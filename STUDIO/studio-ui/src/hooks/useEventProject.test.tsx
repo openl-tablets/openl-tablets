@@ -36,9 +36,7 @@ const mockGetProject = getProject as MockedFunction<typeof getProject>
 
 const project = { id: 'p1', name: 'Bank Rating' } as Project
 
-const renderHarness = () => act(async () => {
-    render(<Harness />)
-})
+const renderHarness = () => render(<Harness />)
 
 const open = async (projectId = 'p1') => act(async () => {
     globalThis.dispatchEvent(new CustomEvent(EVENT, { detail: { projectId } }))
@@ -52,7 +50,7 @@ describe('useEventProject', () => {
     })
 
     it('holds no project until the editor asks for one', async () => {
-        await renderHarness()
+        renderHarness()
 
         expect(screen.queryByTestId('project')).not.toBeInTheDocument()
         expect(mockGetProject).not.toHaveBeenCalled()
@@ -60,11 +58,11 @@ describe('useEventProject', () => {
 
     // The editor page sends the id alone, so the dialog's project is read here.
     it('reads the project named by the event', async () => {
-        await renderHarness()
+        renderHarness()
 
         await open()
 
-        await waitFor(() => expect(screen.getByTestId('project')).toHaveTextContent('Bank Rating'))
+        expect(await screen.findByTestId('project')).toHaveTextContent('Bank Rating')
         // Read with the errors suppressed: this failure is reported here, not by the global error page.
         expect(mockGetProject).toHaveBeenCalledWith('p1', {}, { throwError: true, suppressErrorPages: true })
     })
@@ -74,7 +72,7 @@ describe('useEventProject', () => {
     it('reports a project that cannot be read and holds no project', async () => {
         const failure = new Error('offline')
         mockGetProject.mockRejectedValue(failure)
-        await renderHarness()
+        renderHarness()
 
         await open()
 
@@ -85,21 +83,21 @@ describe('useEventProject', () => {
 
     // A second click while the dialog is up must not read the project again.
     it('reads the project once for repeated requests', async () => {
-        await renderHarness()
+        renderHarness()
 
         await open()
         await open()
 
-        await waitFor(() => expect(screen.getByTestId('project')).toBeInTheDocument())
+        expect(await screen.findByTestId('project')).toBeInTheDocument()
         expect(mockGetProject).toHaveBeenCalledTimes(1)
     })
 
     // Asked for another project, the dialog must not stay open on the one it still holds — it would act on
     // the project the user has just navigated away from.
     it('drops the loaded project while a different one is being read', async () => {
-        await renderHarness()
+        renderHarness()
         await open('p1')
-        await waitFor(() => expect(screen.getByTestId('project')).toHaveTextContent('Bank Rating'))
+        expect(await screen.findByTestId('project')).toHaveTextContent('Bank Rating')
 
         let settle: (value: Project) => void = () => {}
         mockGetProject.mockReturnValue(new Promise<Project>(resolve => {
@@ -110,13 +108,13 @@ describe('useEventProject', () => {
         expect(screen.queryByTestId('project')).not.toBeInTheDocument()
 
         await act(async () => settle({ id: 'p2', name: 'Auto Policy' } as Project))
-        await waitFor(() => expect(screen.getByTestId('project')).toHaveTextContent('Auto Policy'))
+        expect(await screen.findByTestId('project')).toHaveTextContent('Auto Policy')
     })
 
     it('drops the project when the dialog is closed', async () => {
-        await renderHarness()
+        renderHarness()
         await open()
-        await waitFor(() => expect(screen.getByTestId('project')).toBeInTheDocument())
+        expect(await screen.findByTestId('project')).toBeInTheDocument()
 
         await act(async () => {
             screen.getByTestId('close').click()
@@ -133,7 +131,7 @@ describe('useEventProject', () => {
         mockGetProject.mockReturnValue(new Promise<Project>(resolve => {
             settle = resolve
         }))
-        await renderHarness()
+        renderHarness()
 
         await open()
         expect(showLoader).toHaveBeenCalledTimes(1)

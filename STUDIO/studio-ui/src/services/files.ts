@@ -1,7 +1,7 @@
 import apiCall, { isApiHttpError, LOCAL_LOAD_API_OPTIONS } from './apiCall'
 import { encodeProjectPath, toUrlSafeId } from './projectId'
 import CONFIG from './config'
-import { getProjectFiles } from './repositories'
+import { getProjectFiles, revisionQueryParams, toRevisionPage, type RevisionPage, type RevisionQuery } from './repositories'
 import { triggerDownload } from '../utils/download'
 
 /** Text file extensions the generic editor can open. Files with no extension are also treated as text. */
@@ -116,6 +116,24 @@ export async function copyFile(projectId: string, sourcePath: string, destinatio
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourcePath, destinationPath }) },
         { throwError: true }
     )
+}
+
+/**
+ * A page of a single file's revision history, newest first.
+ *
+ * Only the revisions that changed the file are reported, so the caller offers a history of the file itself
+ * rather than of the project around it. A revision that removed the file comes back marked as deleted.
+ *
+ * The endpoint is a sibling of the files API rather than a path inside it, so a project folder named
+ * {@code history} keeps its own address.
+ */
+export async function getFileRevisions(
+    projectId: string,
+    path: string,
+    query: RevisionQuery = {}
+): Promise<RevisionPage> {
+    const url = `/projects/${toUrlSafeId(projectId)}/file-history/${encodeProjectPath(path)}?${revisionQueryParams(query)}`
+    return toRevisionPage(await apiCall(url, undefined, { throwError: true }), query)
 }
 
 /**

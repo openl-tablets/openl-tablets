@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import type { MockedFunction } from 'vitest'
 import { ExportProjectModalHost } from './ExportProjectModalHost'
 import { getProject } from 'services/repositories'
@@ -38,9 +38,7 @@ const mockGetProject = getProject as MockedFunction<typeof getProject>
 
 const project = { id: 'p1', name: 'Bank Rating' } as Project
 
-const renderHost = () => act(async () => {
-    render(<ExportProjectModalHost />)
-})
+const renderHost = () => render(<ExportProjectModalHost />)
 
 const open = async (detail: Record<string, unknown> = { projectId: 'p1' }) => act(async () => {
     globalThis.dispatchEvent(new CustomEvent('openExportProjectModal', { detail }))
@@ -54,29 +52,29 @@ describe('ExportProjectModalHost', () => {
     })
 
     it('stays closed until the editor asks for it', async () => {
-        await renderHost()
+        renderHost()
 
         expect(screen.queryByTestId('export-project-modal')).not.toBeInTheDocument()
         expect(mockGetProject).not.toHaveBeenCalled()
     })
 
     it('exports the whole project when no file is named', async () => {
-        await renderHost()
+        renderHost()
 
         await open()
 
-        await waitFor(() => expect(screen.getByTestId('export-project-modal')).toBeInTheDocument())
+        expect(await screen.findByTestId('export-project-modal')).toBeInTheDocument()
         expect(latest().project).toEqual(project)
         expect(latest().filePath).toBeUndefined()
     })
 
     // The editor exports the open module, which is one file of the project rather than the whole of it.
     it('passes the module file on to the dialog', async () => {
-        await renderHost()
+        renderHost()
 
         await open({ projectId: 'p1', filePath: 'rules/Main.xlsx' })
 
-        await waitFor(() => expect(screen.getByTestId('export-project-modal')).toBeInTheDocument())
+        expect(await screen.findByTestId('export-project-modal')).toBeInTheDocument()
         expect(latest().filePath).toBe('rules/Main.xlsx')
     })
 })
