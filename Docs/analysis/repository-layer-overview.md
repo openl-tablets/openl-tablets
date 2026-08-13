@@ -350,6 +350,25 @@ boolean deleted = gitRepo.delete(fileData);
 // Commits the path removal (commit type DELETE); the history keeps the deleted content
 ```
 
+**Revision history**:
+```java
+List<FileData> history = gitRepo.listHistory("rules/MyTable.xlsx");
+// Oldest revision first; commits that leave the path untouched are skipped as technical
+```
+
+Revisions are walked by commit time, and Git keeps commit time in whole seconds:
+
+- commits made within one second carry the same time, so commit time alone cannot order them;
+- on a merge target branch the parents of a merge commit follow each other, and the older one is the ancestor of
+  the newer, so plain commit-time order can report a parent ahead of its own child;
+- `DescendantsFirstCommits` reorders every run of commits sharing one second, descendants first, reading the walk
+  a second at a time; a history written entirely in one second forms a single run and is read whole;
+- a run is ordered by the parent links inside it, so commits related only through a commit a filtering walk left
+  out keep the order of the walk.
+
+The same walk answers `check()`, so without that reordering a project on a merge target branch reports its
+pre-merge revision, and its pre-merge content, as the current one.
+
 ### Branch Management
 
 **List branches**:
