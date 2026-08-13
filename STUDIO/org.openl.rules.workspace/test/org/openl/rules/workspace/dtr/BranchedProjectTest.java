@@ -31,6 +31,30 @@ class BranchedProjectTest {
     }
 
     @Test
+    void representsAProjectOutsideTheBaseBranchByAProtectedBranch() {
+        var entries = new LinkedHashMap<String, BranchEntry>();
+        entries.put("release-2024.1", entry(Instant.parse("2026-07-29T10:00:00Z"), true));
+        entries.put("EPBDS-12345-fix", entry(Instant.parse("2026-07-29T11:00:00Z"), false));
+
+        var project = BranchedProject.create("Rates", "main", entries);
+
+        assertEquals("release-2024.1", project.homeBranch(),
+                "A protected branch must outrank a ticket branch that was pushed to later.");
+        assertEquals("EPBDS-12345-fix",
+                project.filter(entry -> !entry.status().protectedBranch()).orElseThrow().homeBranch(),
+                "A caller who cannot read the protected branch must be given the next branch by the same rule.");
+    }
+
+    @Test
+    void representsAProjectByTheNewestBranchWhenNoBranchIsProtected() {
+        var entries = new LinkedHashMap<String, BranchEntry>();
+        entries.put("EPBDS-1-fix", entry(Instant.parse("2026-07-29T10:00:00Z"), false));
+        entries.put("EPBDS-2-fix", entry(Instant.parse("2026-07-29T11:00:00Z"), false));
+
+        assertEquals("EPBDS-2-fix", BranchedProject.create("Rates", "main", entries).homeBranch());
+    }
+
+    @Test
     void tellsWhetherOneBranchKeepsTheLastCopyOfTheProject() {
         var entries = new LinkedHashMap<String, BranchEntry>();
         entries.put("feature/rates", entry(Instant.parse("2026-07-29T11:00:00Z")));
@@ -48,7 +72,11 @@ class BranchedProjectTest {
     }
 
     private static BranchEntry entry(Instant lastCommitAt) {
-        var status = new BranchStatus(new UserInfo("author"), lastCommitAt, "Change", "revision");
+        return entry(lastCommitAt, false);
+    }
+
+    private static BranchEntry entry(Instant lastCommitAt, boolean protectedBranch) {
+        var status = new BranchStatus(new UserInfo("author"), lastCommitAt, "Change", "revision", protectedBranch);
         return new BranchEntry(mock(AProject.class), status);
     }
 }

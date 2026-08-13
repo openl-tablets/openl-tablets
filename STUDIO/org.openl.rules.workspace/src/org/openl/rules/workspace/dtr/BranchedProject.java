@@ -1,8 +1,6 @@
 package org.openl.rules.workspace.dtr;
 
-import java.time.Instant;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -19,7 +17,8 @@ import org.openl.rules.repository.api.BranchStatus;
  * One logical design project and the branch entries that contain it.
  *
  * <p>Each entry keeps the project path and repository view verified in that branch. The home branch is the repository
- * base branch when it contains the project. Otherwise the newest branch tip wins with a stable name tie-breaker.
+ * base branch when it contains the project. Otherwise a protected branch wins over an unprotected one, the newest
+ * branch tip wins among equally protected ones, and the branch name settles every remaining tie.
  *
  * <p>Filtering recomputes the home branch. This lets secured repositories expose only readable entries without
  * leaking a raw branch repository or retaining an inaccessible home branch.
@@ -29,9 +28,6 @@ public record BranchedProject(String name,
                               String homeBranch,
                               String baseBranch,
                               Map<String, BranchEntry> entries) {
-
-    private static final Comparator<String> BRANCH_ORDER = String.CASE_INSENSITIVE_ORDER
-            .thenComparing(Comparator.naturalOrder());
 
     public BranchedProject {
         Objects.requireNonNull(name);
@@ -96,23 +92,7 @@ public record BranchedProject(String name,
     }
 
     private static String chooseHomeBranch(String baseBranch, Map<String, BranchEntry> entries) {
-        var actualBaseBranch = entries.keySet()
-                .stream()
-                .filter(branch -> branch.equalsIgnoreCase(baseBranch))
-                .findFirst();
-        if (actualBaseBranch.isPresent()) {
-            return actualBaseBranch.orElseThrow();
-        }
-        return entries.keySet()
-                .stream()
-                .min(Comparator
-                        .comparing((String branch) -> commitTime(entries.get(branch))).reversed()
-                        .thenComparing(BRANCH_ORDER))
-                .orElseThrow();
-    }
-
-    private static Instant commitTime(BranchEntry entry) {
-        return entry.status().lastCommitAt();
+        return Branches.home(entries.keySet(), baseBranch, branch -> entries.get(branch).status());
     }
 
     /**

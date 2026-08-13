@@ -385,7 +385,8 @@ class DesignTimeRepositoryImplTest {
                         new UserInfo("author"),
                         Instant.parse("2026-07-29T10:00:00Z"),
                         "message",
-                        branch + "-revision")));
+                        branch + "-revision",
+                        false)));
     }
 
     private static Map<String, BranchTreeRevision> revisions(Collection<String> branches, int generation) {

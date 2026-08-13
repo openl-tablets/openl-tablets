@@ -84,8 +84,8 @@ public interface BranchRepository extends Repository, SearchableRepository {
     }
 
     /**
-     * Returns the tip-commit status for the requested branches. Implementations may omit a branch when its
-     * status cannot be resolved.
+     * Returns what the repository knows about each requested branch: its tip commit, and whether the branch is
+     * protected. Implementations may omit a branch when its status cannot be resolved.
      */
     Map<String, BranchStatus> getBranchStatuses(Collection<String> branches) throws IOException;
 

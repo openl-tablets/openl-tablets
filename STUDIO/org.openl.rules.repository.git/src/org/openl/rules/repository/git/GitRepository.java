@@ -2517,7 +2517,7 @@ public class GitRepository implements BranchRepository, Closeable {
             try (var walk = new RevWalk(repository)) {
                 for (String branchName : branchNames) {
                     try {
-                        getBranchStatus(repository, walk, branchName)
+                        getBranchStatus(repository, walk, branchName, isBranchProtected(branchName))
                                 .ifPresent(status -> result.put(branchName, status));
                     } catch (IOException | RuntimeException e) {
                         log.warn("Failed to read status for branch '{}'", branchName, e);
@@ -2596,7 +2596,8 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private static Optional<BranchStatus> getBranchStatus(Repository repository,
                                                           RevWalk walk,
-                                                          String branchName) throws IOException {
+                                                          String branchName,
+                                                          boolean protectedBranch) throws IOException {
         var branchRef = findBranchRef(repository, branchName);
         if (branchRef == null) {
             return Optional.empty();
@@ -2610,7 +2611,7 @@ public class GitRepository implements BranchRepository, Closeable {
         var lastAt = ident.getWhenAsInstant();
         var message = tip.getShortMessage();
         var revision = tip.getName();
-        return Optional.of(new BranchStatus(author, lastAt, message, revision));
+        return Optional.of(new BranchStatus(author, lastAt, message, revision, protectedBranch));
     }
 
     @Override

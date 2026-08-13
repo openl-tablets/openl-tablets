@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.dtr;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,8 +50,6 @@ import org.openl.rules.repository.api.FileData;
 @Slf4j
 public final class BranchedProjectIndexService implements AutoCloseable {
 
-    private static final Comparator<String> BRANCH_ORDER = String.CASE_INSENSITIVE_ORDER
-            .thenComparing(Comparator.naturalOrder());
     private static final Pattern FOLDER_HASH = Pattern.compile("[0-9a-f]{64}");
     private static final String LIST_ERROR = "Repository branches cannot be indexed.";
     private static final String STATUS_ERROR = "Branch status cannot be resolved.";
@@ -471,7 +468,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
             List<String> branchNames;
             try {
                 branchNames = new ArrayList<>(repository.listBranches());
-                branchNames.sort(BRANCH_ORDER);
+                branchNames.sort(Branches.ORDER);
             } catch (Exception e) {
                 log.error("Failed to list branches for repository '{}'.", repository.getId(), e);
                 var degraded = withHealth(previous, Map.of("", LIST_ERROR));
@@ -698,7 +695,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
 
         private String resolveBaseBranch(List<String> branchNames) {
             var configured = repository.getBaseBranch();
-            return actualBranch(branchNames, configured).orElse(configured);
+            return Branches.actual(branchNames, configured).orElse(configured);
         }
 
         private static boolean canReuse(BranchSnapshot old, BranchStatus status, BranchTreeRevision revision) {
@@ -841,10 +838,12 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         var built = new HashMap<String, ProjectSnapshot>();
         for (var entry : entriesByProject.entrySet()) {
             var entries = entry.getValue();
-            var homeBranch = chooseHomeBranch(entries.keySet(), branchSnapshots, baseBranch);
+            var homeBranch = Branches.home(entries.keySet(),
+                    baseBranch,
+                    branch -> branchSnapshots.get(branch).status());
             var homeEntry = entries.get(homeBranch);
             var orderedEntries = new LinkedHashMap<String, BranchProject>();
-            entries.keySet().stream().sorted(BRANCH_ORDER)
+            entries.keySet().stream().sorted(Branches.ORDER)
                     .forEach(branch -> orderedEntries.put(branch, entries.get(branch)));
             built.put(entry.getKey(), new ProjectSnapshot(homeEntry.externalName(), homeBranch, orderedEntries));
         }
@@ -859,23 +858,6 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         return result;
     }
 
-    private static String chooseHomeBranch(Set<String> branches,
-                                           Map<String, BranchSnapshot> snapshots,
-                                           String baseBranch) {
-        return actualBranch(branches, baseBranch).orElseGet(() -> branches.stream()
-                .min(Comparator
-                        .comparing((String branch) -> commitTime(snapshots.get(branch))).reversed()
-                        .thenComparing(BRANCH_ORDER))
-                .orElseThrow());
-    }
-
-    /**
-     * The actual ref matching a configured branch name, whatever casing the configuration used.
-     */
-    private static Optional<String> actualBranch(Collection<String> branches, String configured) {
-        return branches.stream().filter(branch -> branch.equalsIgnoreCase(configured)).findFirst();
-    }
-
     /**
      * The given branch snapshots in repository listing order.
      */
@@ -885,10 +867,6 @@ public final class BranchedProjectIndexService implements AutoCloseable {
         branchNames.forEach(branch -> Optional.ofNullable(byBranch.get(branch))
                 .ifPresent(value -> ordered.put(branch, value)));
         return ordered;
-    }
-
-    private static Instant commitTime(BranchSnapshot snapshot) {
-        return snapshot.status().lastCommitAt();
     }
 
     private static RepositorySnapshot withHealth(RepositorySnapshot snapshot, Map<String, String> failures) {

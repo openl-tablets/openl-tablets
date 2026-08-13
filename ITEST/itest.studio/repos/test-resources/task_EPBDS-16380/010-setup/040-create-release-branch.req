@@ -1,0 +1,7 @@
+POST /rest/projects/EPBDS_16380_HISTORICAL/branches HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "branch": "release-EPBDS-16380"
+}

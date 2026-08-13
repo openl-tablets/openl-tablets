@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "name": "EPBDS_16380_HISTORICAL",
+      "branch": "release-EPBDS-16380"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 10,
+  "numberOfElements": 1,
+  "total": 1
+}

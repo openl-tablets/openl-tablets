@@ -1,0 +1,14 @@
+PUT /rest/users HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "displayName": "EPBDS 16380 Viewer",
+  "username": "EPBDS_16380_viewer",
+  "internalPassword": {
+    "password": "EPBDS_16380_viewer"
+  },
+  "firstName": "EPBDS",
+  "lastName": "16380 Viewer",
+  "email": "EPBDS_16380_viewer@email"
+}
