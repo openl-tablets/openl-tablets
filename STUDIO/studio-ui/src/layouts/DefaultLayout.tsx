@@ -15,6 +15,8 @@ import { UpdateProjectModal } from 'containers/UpdateProjectModal'
 import { CreateTableModal } from 'containers/CreateTableModal'
 import { CopyTableModal } from 'containers/CopyTableModal'
 import { CopyProjectModalHost } from 'containers/CopyProjectModalHost'
+import { SaveProjectModalHost } from 'containers/SaveProjectModalHost'
+import { ExportProjectModalHost } from 'containers/ExportProjectModalHost'
 import { JsfIslandHost } from 'components/JsfIslandHost'
 import { LoadingOverlay } from 'components/LoadingOverlay'
 import { Outlet, useLocation } from 'react-router-dom'
@@ -74,6 +76,8 @@ export const DefaultLayout = () => {
             <UpdateProjectModal />
             <UpdateModuleModal />
             <CopyProjectModalHost />
+            <SaveProjectModalHost />
+            <ExportProjectModalHost />
             <ConfirmModal />
             <LoadingOverlay />
             <JsfIslandHost />

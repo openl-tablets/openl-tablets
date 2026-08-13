@@ -113,6 +113,28 @@ globalThis.dispatchEvent(new CustomEvent('openDeleteFileModal', { detail: { proj
 Worked examples: `DeleteFileModal` (`openDeleteFileModal`), `MergeModal` (`openMergeModal`), `DeployModal`
 (`openDeployModal`), `TraceExecutionModal`, `TableGraphModal`.
 
+### Reusing a Projects tab dialog
+
+A dialog the Projects tab already has takes a loaded project rather than an event. Wrap it in a small **host**
+that turns the event into that project, and send only the project id — the JSF page then makes no REST call of
+its own, and both tabs open the same dialog with the same data.
+
+```tsx
+export const SaveProjectModalHost: React.FC = () => {
+    const { detail, project, close } = useEventProject<SaveProjectModalDetail>(
+        'openSaveProjectModal', 'repository:browser.save_dialog.load_failed')
+    return <SaveProjectModal onClose={close} onSaved={() => detail?.onSuccess?.()}
+        open={project !== null} project={project} />
+}
+```
+
+`useEventProject` listens for the event, reads the project, holds the loading overlay for the read, and keeps
+the dialog shut when the project cannot be read — reporting why instead of opening it empty.
+
+Worked examples: `SaveProjectModalHost` (`openSaveProjectModal`), `ExportProjectModalHost`
+(`openExportProjectModal`, with an optional `filePath` to export a single file), `CopyProjectModalHost`
+(`openCopyProjectModal`).
+
 ## Pattern C — Service bridge (React ↔ JSF interop)
 
 When a legacy page needs a React-owned capability (or vice versa), publish it on `globalThis.openl` once and

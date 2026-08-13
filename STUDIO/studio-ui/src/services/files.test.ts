@@ -151,6 +151,16 @@ describe('files service', () => {
         )
     })
 
+    // Exporting a module reaches back into the history the same way exporting a project does.
+    it('downloads a file at an earlier revision', () => {
+        downloadFile('project', 'rules/Main.xlsx', 'rev-1')
+
+        expect(triggerDownload).toHaveBeenCalledWith(
+            '/studio/web/projects/project/files/rules/Main.xlsx?download=true&version=rev-1',
+            'Main.xlsx'
+        )
+    })
+
     it('uploads files as multipart form data', async () => {
         vi.mocked(apiCall).mockResolvedValue(undefined)
         const file = new File(['data'], 'new.txt', { type: 'text/plain' })

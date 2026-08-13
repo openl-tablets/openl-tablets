@@ -2,8 +2,10 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { fireEvent } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { notification } from 'antd'
 import { ExportProjectModal } from './ExportProjectModal'
 import { downloadProject, getProjectRevisions } from '../../services/repositories'
+import { downloadFile, fileExistsAt } from '../../services/files'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 
@@ -11,6 +13,11 @@ vi.mock('../../services/repositories', () => ({
     downloadProject: vi.fn(),
     getProjectRevisions: vi.fn(),
     REVISIONS_PAGE_SIZE: 50,
+}))
+
+vi.mock('../../services/files', () => ({
+    downloadFile: vi.fn(),
+    fileExistsAt: vi.fn(),
 }))
 
 vi.mock('react-i18next', () => {
@@ -25,21 +32,29 @@ vi.mock('antd', () => {
             <button data-testid="export-ok" onClick={onOk as never}>{okText as never}</button>
         </div>
     ) : null
+    const notification = { error: vi.fn() }
     const Alert = ({ message, showIcon, ...rest }: Record<string, unknown>) => {
         void showIcon
         return <div data-testid={rest['data-testid'] as string}>{message as never}</div>
     }
     interface Opt { value: string, label: string }
-    const Select = ({ options, onChange, value, ...rest }: Record<string, unknown>) => (
-        <select
-            data-testid={rest['data-testid'] as string}
-            onChange={event => (onChange as (v: string) => void)(event.target.value)}
-            value={value as string}
-        >
-            {(options as Opt[]).map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-        </select>
+    const Select = ({ options, onChange, value, popupRender, ...rest }: Record<string, unknown>) => (
+        <>
+            <select
+                data-testid={rest['data-testid'] as string}
+                onChange={event => (onChange as (v: string) => void)(event.target.value)}
+                value={value as string}
+            >
+                {(options as Opt[]).map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+            {popupRender ? ((popupRender as (menu: unknown) => unknown)(null) as never) : null}
+        </>
     )
-    return { Alert, Modal, Select }
+    const Button = ({ children, onClick, block, loading, type, ...rest }: Record<string, unknown>) => {
+        void block; void loading; void type
+        return <button data-testid={rest['data-testid'] as string} onClick={onClick as never}>{children as never}</button>
+    }
+    return { Alert, Button, Modal, notification, Select }
 })
 
 const project = {
@@ -50,9 +65,16 @@ const project = {
     status: ProjectStatus.Opened,
 } as unknown as Project
 
-const renderModal = async (overrides: Partial<Project> = {}) => {
+const renderModal = async ({ filePath, ...overrides }: Partial<Project> & { filePath?: string } = {}) => {
     const onClose = vi.fn()
-    render(<ExportProjectModal open onClose={onClose} project={{ ...project, ...overrides }} />)
+    render(
+        <ExportProjectModal
+            open
+            filePath={filePath}
+            onClose={onClose}
+            project={{ ...project, ...overrides }}
+        />
+    )
     await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
     return { onClose }
 }
@@ -60,6 +82,7 @@ const renderModal = async (overrides: Partial<Project> = {}) => {
 describe('ExportProjectModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        vi.mocked(fileExistsAt).mockResolvedValue(true)
         vi.mocked(getProjectRevisions).mockResolvedValue({
             content: [
                 { revisionNo: 'rev-2', shortRevisionNo: 'rev2', createdAt: '2026-07-22T10:00:00Z', fullComment: '', deleted: false, technicalRevision: false, author: { displayName: 'Joe Doe' } },
@@ -98,6 +121,85 @@ describe('ExportProjectModal', () => {
         await userEvent.click(screen.getByTestId('export-ok'))
 
         expect(downloadProject).toHaveBeenCalledWith('p1', 'rev-1')
+    })
+
+    // The editor exports the open module, which is one file of the project rather than the whole of it.
+    it('downloads a single file when one is named', async () => {
+        const { onClose } = await renderModal({ filePath: 'rules/Main.xlsx' })
+
+        await userEvent.click(screen.getByTestId('export-ok'))
+
+        expect(downloadFile).toHaveBeenCalledWith('p1', 'rules/Main.xlsx', undefined)
+        expect(downloadProject).not.toHaveBeenCalled()
+        expect(onClose).toHaveBeenCalled()
+    })
+
+    it('downloads the chosen earlier revision of a single file', async () => {
+        await renderModal({ filePath: 'rules/Main.xlsx' })
+
+        fireEvent.change(screen.getByTestId('export-project-revision'), { target: { value: 'rev-1' } })
+        await userEvent.click(screen.getByTestId('export-ok'))
+
+        expect(downloadFile).toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'rev-1')
+    })
+
+    // The dialog it replaced listed the whole history, so an older revision has to stay reachable.
+    it('appends older revisions on demand', async () => {
+        vi.mocked(getProjectRevisions).mockResolvedValueOnce({
+            content: [
+                { revisionNo: 'rev-2', shortRevisionNo: 'rev2', createdAt: '2026-07-22T10:00:00Z', fullComment: '', deleted: false, technicalRevision: false, author: { displayName: 'Joe Doe' } },
+            ],
+            pageNumber: 0,
+            pageSize: 1,
+            numberOfElements: 1,
+            total: 2,
+        }).mockResolvedValueOnce({
+            content: [
+                { revisionNo: 'rev-1', shortRevisionNo: 'rev1', createdAt: '2026-07-21T10:00:00Z', fullComment: '', deleted: false, technicalRevision: false, author: { displayName: 'Jane Roe' } },
+            ],
+            pageNumber: 1,
+            pageSize: 1,
+            numberOfElements: 1,
+            total: 2,
+        })
+        await renderModal()
+
+        await userEvent.click(screen.getByTestId('export-project-load-more'))
+
+        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalledWith('p1', { size: 50, page: 1 }))
+        fireEvent.change(screen.getByTestId('export-project-revision'), { target: { value: 'rev-1' } })
+        await userEvent.click(screen.getByTestId('export-ok'))
+        expect(downloadProject).toHaveBeenCalledWith('p1', 'rev-1')
+    })
+
+    // Nothing older to fetch: the whole history is already on screen.
+    it('offers no load-more once the history is exhausted', async () => {
+        await renderModal()
+
+        expect(screen.queryByTestId('export-project-load-more')).toBeNull()
+    })
+
+    // A refused download is silent in the browser, so the dialog says what happened instead.
+    it('refuses to export a file the chosen revision does not hold', async () => {
+        vi.mocked(fileExistsAt).mockResolvedValue(false)
+        const { onClose } = await renderModal({ filePath: 'rules/Main.xlsx' })
+
+        fireEvent.change(screen.getByTestId('export-project-revision'), { target: { value: 'rev-1' } })
+        await userEvent.click(screen.getByTestId('export-ok'))
+
+        await waitFor(() => expect(notification.error).toHaveBeenCalled())
+        expect(downloadFile).not.toHaveBeenCalled()
+        expect(onClose).not.toHaveBeenCalled()
+    })
+
+    // The check failing is not proof the file is missing, so the export still goes ahead.
+    it('exports anyway when the existence check itself fails', async () => {
+        vi.mocked(fileExistsAt).mockRejectedValue(new Error('offline'))
+        await renderModal({ filePath: 'rules/Main.xlsx' })
+
+        await userEvent.click(screen.getByTestId('export-ok'))
+
+        await waitFor(() => expect(downloadFile).toHaveBeenCalled())
     })
 
     it('offers revisions only for a closed project, starting with the latest', async () => {

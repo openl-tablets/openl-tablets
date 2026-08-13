@@ -1,6 +1,8 @@
 export { useAppNavigate } from './useAppNavigate'
 export { useCopyToClipboard } from './useCopyToClipboard'
 export { useCommitInfoGuard } from './useCommitInfoGuard'
+export { useEventProject } from './useEventProject'
+export type { EventProjectDetail } from './useEventProject'
 export { useGlobalEvents } from './useGlobalEvents'
 export { useGuardedReload } from './useGuardedReload'
 export { useRepositoryConfig } from './useRepositoryConfig'

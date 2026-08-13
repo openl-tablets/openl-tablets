@@ -1,9 +1,8 @@
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
-import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
 import { CopyProjectModalHost } from './CopyProjectModalHost'
-import { EmptyError } from 'services/apiCall'
+import { notifyLoadFailure } from 'services/apiCall'
 import { getDesignRepositories, getProject } from 'services/repositories'
 import { useAppStore } from 'store'
 import type { Project } from 'types/projects'
@@ -14,15 +13,10 @@ vi.mock('services/repositories', () => ({
     getDesignRepositories: vi.fn(),
 }))
 
-vi.mock('antd', async () => {
-    const actual = await vi.importActual<typeof import('antd')>('antd')
-    return { ...actual, notification: { ...actual.notification, error: vi.fn() } }
-})
-
-vi.mock('react-i18next', () => {
-    const t = (key: string) => key
-    return { useTranslation: () => ({ t, i18n: { language: 'en' } }) }
-})
+vi.mock('services/apiCall', async importOriginal => ({
+    ...await importOriginal<typeof import('services/apiCall')>(),
+    notifyLoadFailure: vi.fn(),
+}))
 
 // The dialog itself is covered by its own test; here only the props it is handed matter.
 interface CapturedProps {
@@ -134,36 +128,28 @@ describe('CopyProjectModalHost', () => {
 
         await waitFor(() => expect(screen.getByTestId('copy-project-modal')).toBeInTheDocument())
         expect(latest().repositories).toEqual([])
-        expect(notification.error).toHaveBeenCalledWith(
-            expect.objectContaining({ title: 'repository:browser.copy_dialog.repositories_failed' })
-        )
-    })
-
-    // An expired session already draws the login prompt; a blank-bodied toast over it says nothing.
-    it('stays quiet when the session has expired', async () => {
-        mockGetProject.mockRejectedValue(new EmptyError())
-        await renderHost()
-
-        await open()
-
-        await waitFor(() => expect(mockGetProject).toHaveBeenCalled())
-        expect(notification.error).not.toHaveBeenCalled()
+        expect(notifyLoadFailure).toHaveBeenCalled()
     })
 
     // The reads take as long as the repository does, so the click has to show something and the next click
-    // must not start them over.
-    it('holds the loading overlay open for the whole read', async () => {
-        let settle: (value: Project) => void = () => {}
-        mockGetProject.mockReturnValue(new Promise<Project>(resolve => {
-            settle = resolve
+    // must not start them over — including the stretch after the project has landed but the repositories
+    // have not, when the dialog is still closed.
+    it('holds the loading overlay open until both reads have landed', async () => {
+        let settleRepositories: (value: Repository[]) => void = () => {}
+        mockGetRepositories.mockReturnValue(new Promise<Repository[]>(resolve => {
+            settleRepositories = resolve
         }))
         await renderHost()
 
         await open()
-        expect(showLoader).toHaveBeenCalledTimes(1)
-        expect(hideLoader).not.toHaveBeenCalled()
+        await waitFor(() => expect(mockGetProject).toHaveBeenCalled())
+        // The project has landed; the repositories have not, so the overlay is still held.
+        expect(hideLoader).toHaveBeenCalledTimes(1)
+        expect(showLoader).toHaveBeenCalledTimes(2)
+        expect(screen.queryByTestId('copy-project-modal')).not.toBeInTheDocument()
 
-        await act(async () => settle(project))
-        await waitFor(() => expect(hideLoader).toHaveBeenCalledTimes(1))
+        await act(async () => settleRepositories(repositories))
+        await waitFor(() => expect(hideLoader).toHaveBeenCalledTimes(2))
+        expect(screen.getByTestId('copy-project-modal')).toBeInTheDocument()
     })
 })
