@@ -46,12 +46,19 @@ vi.mock('./StatusIndicator', () => ({
 vi.mock('./RepoBadge', () => ({ RepoBadge: () => <span data-testid="repo-badge" /> }))
 vi.mock('./CompileIndicator', () => ({ RowCompileDot: () => null }))
 vi.mock('./ProjectRowActions', () => ({ ProjectRowActions: () => null }))
+
+const { branchSwitcherMock } = vi.hoisted(() => ({ branchSwitcherMock: vi.fn() }))
 vi.mock('./projectRow', () => ({
     activateOnKey: (action: () => void) => (event: { key: string, preventDefault: () => void }) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault()
             action()
         }
+    },
+    // The branch cell is shared with the table view and tested there, against the real switcher.
+    ProjectBranchSwitch: (props: Record<string, unknown>) => {
+        branchSwitcherMock(props)
+        return <div data-testid={`${props['testIdPrefix'] as string}-branch-p1`} />
     },
     deriveProjectRow: () => ({
         muted: false,
@@ -63,11 +70,6 @@ vi.mock('./projectRow', () => ({
         date: 'Jan 2',
     }),
     ProjectTags: () => <span data-testid="project-tags" />,
-    showsBranch: () => true,
-}))
-
-vi.mock('./BranchSwitcher', () => ({
-    BranchSwitcher: (props: Record<string, unknown>) => <div data-testid={props['data-testid'] as string} />,
 }))
 
 describe('ProjectsGrid', () => {
@@ -123,5 +125,21 @@ describe('ProjectsGrid', () => {
         // Interacting with the branch is a card action of its own: it must not open the project.
         await userEvent.click(branch)
         expect(onOpen).not.toHaveBeenCalled()
+    })
+
+    it('gates the card branch switch while the card is busy', () => {
+        render(
+            <ProjectsGrid
+                compileStatusByProject={new Map()}
+                handlers={{} as never}
+                onChanged={vi.fn()}
+                onOpen={vi.fn()}
+                pending={{ p1: 'open' }}
+                projects={[project]}
+                repoInfoOf={() => ({ id: 'design', name: 'Design', type: 'git' })}
+            />
+        )
+
+        expect(branchSwitcherMock).toHaveBeenLastCalledWith(expect.objectContaining({ busy: true, testIdPrefix: 'card' }))
     })
 })

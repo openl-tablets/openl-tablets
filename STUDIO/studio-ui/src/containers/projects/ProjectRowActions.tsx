@@ -9,6 +9,7 @@ import {
     FolderOpenOutlined,
     FolderOutlined,
     HistoryOutlined,
+    LoadingOutlined,
     MergeOutlined,
     MoreOutlined,
     RocketOutlined,
@@ -16,9 +17,7 @@ import {
 } from '@ant-design/icons'
 import { createStyles, useTheme } from 'antd-style'
 import type { Project } from '../../types/projects'
-import { availableActions, PROJECT_ACTIONS, type RowActionId } from './projectActions'
-
-export type { RowActionId }
+import { availableActions, PROJECT_ACTIONS, type RowActionId, type RowBusyId } from './projectActions'
 
 /**
  * Per-row project actions, resolved from the project's server-computed capabilities. `open`, `close`
@@ -73,8 +72,11 @@ const iconOf = (id: RowActionId, successColor: string): ReactNode => {
 interface ProjectActionsProps {
     project: Project
     handlers: ProjectListHandlers
-    /** The action currently running on this project, if any — drives loading. */
-    pendingActionId: RowActionId | null
+    /**
+     * What this project is busy with, if anything — drives loading. A branch switch is not an action of
+     * the row, so nothing spins for it, but it gates the row's actions the same way.
+     */
+    pendingActionId: RowBusyId | null
     /**
      * `buttons` keeps the everyday actions in front, as a table row has the width for; `menu` folds every
      * action away, which is what a card has room for.
@@ -114,8 +116,11 @@ export const ProjectRowActions = ({
         }
         items.push({
             key: id,
-            icon: iconOf(id, token.colorSuccess),
+            // A card folds every action into this one menu, so its single trigger spinner cannot say which
+            // one is running: the menu marks it, and offers nothing else until it is over.
+            icon: pendingActionId === id ? <LoadingOutlined spin /> : iconOf(id, token.colorSuccess),
             label: t(PROJECT_ACTIONS[id].labelKey),
+            disabled: busy,
             danger,
         })
     })

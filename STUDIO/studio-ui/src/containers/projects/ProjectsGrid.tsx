@@ -7,9 +7,9 @@ import type { RepositoryInfo } from '../../types/repositories'
 import { StatusMark } from './StatusIndicator'
 import { RepoBadge } from './RepoBadge'
 import { RowCompileDot } from './CompileIndicator'
-import { ProjectRowActions, type ProjectListHandlers, type RowActionId } from './ProjectRowActions'
-import { deriveProjectRow, activateOnKey, ProjectTags, showsBranch } from './projectRow'
-import { BranchSwitcher } from './BranchSwitcher'
+import { ProjectRowActions, type ProjectListHandlers } from './ProjectRowActions'
+import type { RowBusyId } from './projectActions'
+import { deriveProjectRow, activateOnKey, ProjectBranchSwitch, ProjectTags } from './projectRow'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -130,14 +130,19 @@ interface ProjectsGridProps {
     handlers: ProjectListHandlers
     onOpen: (project: Project) => void
     compileStatusByProject: Map<string, ProjectStatusUpdate>
-    /** The action running on each project, keyed by project id. */
-    pending: Record<string, RowActionId>
-    /** Re-read after a branch switch made from a card. */
-    onChanged: () => void
+    /** What each project is busy with, keyed by project id. */
+    pending: Record<string, RowBusyId>
+    /**
+     * Re-read after a branch switch made from a card. The promise it returns says when the reloaded list
+     * is on screen, so the card stays busy until then.
+     */
+    onChanged: () => void | Promise<unknown>
+    /** Whether a branch switch is running on a project, so its card can be gated like any other action. */
+    onBranchSwitching?: ((project: Project, busy: boolean) => void) | undefined
 }
 
 /** Card-grid view of the projects list, mirroring the table's data with the same row actions. */
-export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileStatusByProject, pending, onChanged }: ProjectsGridProps) => {
+export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileStatusByProject, pending, onChanged, onBranchSwitching }: ProjectsGridProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
 
@@ -185,19 +190,17 @@ export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileSt
                         </div>
                         <div className={styles.footer}>
                             <RepoBadge className={styles.repoMeta} name={repoLabel} type={repoType} />
-                            {showsBranch(project, supportsBranches) && (
-                                // Switching a branch is a card action of its own: it must not open the project.
-                                <span onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()} role="presentation">
-                                    <BranchSwitcher
-                                        currentBranch={project.branch}
-                                        currentBranchDefault={project.branchDefault}
-                                        currentBranchProtected={project.branchProtected}
-                                        data-testid={`card-branch-${project.id}`}
-                                        onSwitched={onChanged}
-                                        projectId={project.id}
-                                    />
-                                </span>
-                            )}
+                            {/* Switching a branch is a card action of its own: it must not open the project. */}
+                            <span onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()} role="presentation">
+                                <ProjectBranchSwitch
+                                    busy={pendingActionId !== null}
+                                    onSwitched={onChanged}
+                                    onSwitching={onBranchSwitching}
+                                    project={project}
+                                    supportsBranches={supportsBranches}
+                                    testIdPrefix="card"
+                                />
+                            </span>
                         </div>
                         <div className={styles.meta}>
                             <div>

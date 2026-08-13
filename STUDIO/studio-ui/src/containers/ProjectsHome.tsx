@@ -28,12 +28,14 @@ import type { NodeFilters } from './projects/projectGrouping'
 import { ProjectsToolbar, type ProjectView } from './projects/ProjectsToolbar'
 import { ProjectsTable } from './projects/ProjectsTable'
 import { ProjectsGrid } from './projects/ProjectsGrid'
-import type { ProjectListHandlers, RowActionId } from './projects/ProjectRowActions'
+import type { ProjectListHandlers } from './projects/ProjectRowActions'
+import type { RowBusyId } from './projects/projectActions'
 import { countFacets, refineProjects, searchProjects, sortProjects, type BranchFacetCount, type ProjectSort, type SortDirection } from './projects/projectListing'
 import { getProjectIndex, hasProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
 import { useLoadGeneration, useWindowFocus, useWorkspaceChanges } from '../hooks'
 import { COMPILE_COLORS } from './projects/projectsTheme'
 import { useSharedStyles } from './projects/sharedStyles'
+import { BusyVeil } from './projects/BusyVeil'
 import { NewProjectModal } from './projects/NewProjectModal'
 import { CopyProjectModal } from './projects/CopyProjectModal'
 import { ExportProjectModal } from './projects/ExportProjectModal'
@@ -100,15 +102,6 @@ const useStyles = createStyles(({ css, token }) => ({
     scroll: css`
         height: 100%;
         overflow: auto;
-    `,
-    overlay: css`
-        position: absolute;
-        inset: 0;
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: color-mix(in srgb, ${token.colorBgContainer} 60%, transparent);
     `,
     paginationBar: css`
         display: flex;
@@ -224,8 +217,9 @@ export const ProjectsHome = () => {
     const [copySource, setCopySource] = useState<Project | null>(null)
     const [openRevisionFor, setOpenRevisionFor] = useState<Project | null>(null)
     const [exportSource, setExportSource] = useState<Project | null>(null)
-    // Keyed by project: an action running on one row must not un-gate the buttons of another.
-    const [pending, setPending] = useState<Record<string, RowActionId>>({})
+    // What each project is busy with, keyed by project: an action running on one row must not gate — or
+    // un-gate — another. Work on one project never stops work on the rest.
+    const [pending, setPending] = useState<Record<string, RowBusyId>>({})
     const [saveTarget, setSaveTarget] = useState<Project | null>(null)
     const [discardCloseTarget, setDiscardCloseTarget] = useState<Project | null>(null)
     const searchRef = useRef<InputRef>(null)
@@ -534,29 +528,56 @@ export const ProjectsHome = () => {
         }, { replace: true })
     }, [setParams])
 
-    // Run an open/close status change on a row, reload the page, and surface a notification on failure.
-    const runAction = useCallback((
-        project: Project,
-        actionId: RowActionId,
-        fn: () => Promise<unknown>,
-        failKey: string,
+    /** What one project is busy with; `null` frees it. A project untouched keeps the snapshot as it was. */
+    const setBusy = useCallback((projectId: string, actionId: RowBusyId | null) => {
+        setPending(current => {
+            if (actionId !== null) {
+                return { ...current, [projectId]: actionId }
+            }
+            if (!(projectId in current)) {
+                return current
+            }
+            const rest = { ...current }
+            delete rest[projectId]
+            return rest
+        })
+    }, [])
+
+    /**
+     * Marks one project busy for as long as the operation on it runs, so its own row offers nothing else
+     * meanwhile and the live-change ping waits for the answer the operation is already asking for.
+     *
+     * @param onError handles the failure itself; true when it did, so nothing is reported
+     */
+    const busyWhile = useCallback((
+        projectId: string,
+        actionId: RowBusyId,
+        run: () => Promise<unknown>,
+        failKey?: string,
         onError?: (error: unknown) => boolean
     ) => {
-        setPending(current => ({ ...current, [project.id]: actionId }))
-        return fn()
-            .then(() => load(true))
+        setBusy(projectId, actionId)
+        return run()
             .catch((e: unknown) => {
-                if (onError?.(e)) {
+                if (onError?.(e) || failKey === undefined) {
                     return
                 }
                 notification.error({ title: t(failKey), description: errorMessage(e) })
             })
-            .finally(() => setPending(current => {
-                const rest = { ...current }
-                delete rest[project.id]
-                return rest
-            }))
-    }, [load, t])
+            .finally(() => setBusy(projectId, null))
+    }, [setBusy, t])
+
+    /**
+     * Runs an action on a row and shows its result: the list is read again afterwards, so the row stays
+     * busy until it shows what the action did.
+     */
+    const runAction = useCallback((
+        project: Project,
+        actionId: RowBusyId,
+        fn: () => Promise<unknown>,
+        failKey: string,
+        onError?: (error: unknown) => boolean
+    ) => busyWhile(project.id, actionId, () => fn().then(() => load(true)), failKey, onError), [busyWhile, load])
 
     const closeProject = useCallback((project: Project, discardChanges = false) =>
         runAction(
@@ -575,8 +596,44 @@ export const ProjectsHome = () => {
                 }
         ), [runAction])
 
-    // Hoisted so the dialog-opening handlers below hand it over instead of nesting one more callback.
-    const reloadAll = useCallback(() => void load(true), [load])
+    // Hoisted so the branch switcher of every row hands it over instead of nesting one more callback.
+    const reloadAll = useCallback(() => load(true), [load])
+
+    /**
+     * Opens one of the branch dialogs, which first reads the project's branches — a round trip the row
+     * spins for, instead of dead-ending until a dialog appears unannounced.
+     *
+     * Nothing is refreshed behind the open dialog: it reloads the list itself when it finishes, and a
+     * refresh as it opens would repaint the list behind a dialog the user is still filling in.
+     */
+    const openBranchDialog = useCallback((
+        project: Project,
+        actionId: RowBusyId,
+        open: (project: Project, onSuccess: () => void) => Promise<void>
+    ) => void busyWhile(
+        project.id,
+        actionId,
+        () => open(project, () => void busyWhile(project.id, actionId, reloadAll)),
+        'browser.branch.load_failed'
+    ), [busyWhile, reloadAll])
+
+    // A branch switch is no row button, but it occupies its project like one: the row's other actions are
+    // gated for as long as the switch and the reload behind it run.
+    const switchingBranch = useCallback(
+        (project: Project, busy: boolean) => setBusy(project.id, busy ? 'switchBranch' : null),
+        [setBusy]
+    )
+
+    /**
+     * The read a finished dialog leaves behind: its own spinner is gone with it, so the project it acted on
+     * stays busy until the list shows what it did — its row offers nothing else meanwhile, and the ping
+     * echoing the dialog's own change waits instead of racing the read that already answers it.
+     */
+    const reloadAfterDialog = useCallback((project: Project | null, actionId: RowBusyId) => {
+        if (project) {
+            void busyWhile(project.id, actionId, reloadAll)
+        }
+    }, [busyWhile, reloadAll])
 
     // The dialog is mounted above the routes and answers back into this screen, so leaving the page takes
     // its question along instead of letting it confirm into a tree that is gone.
@@ -602,19 +659,9 @@ export const ProjectsHome = () => {
         },
         onSave: project => setSaveTarget(project),
         onCopy: project => setCopySource(project),
-        onDeleteBranch: project => void runAction(
-            project,
-            'deleteBranch',
-            () => openDeleteBranchDialog(project, reloadAll),
-            'browser.branch.load_failed'
-        ),
+        onDeleteBranch: project => openBranchDialog(project, 'deleteBranch', openDeleteBranchDialog),
         onOpenRevision: project => setOpenRevisionFor(project),
-        onSync: project => void runAction(
-            project,
-            'sync',
-            () => openMergeDialog(project, reloadAll),
-            'browser.branch.load_failed'
-        ),
+        onSync: project => openBranchDialog(project, 'sync', openMergeDialog),
         onCompare: project => openCompareWindow(project),
         onExport: project => setExportSource(project),
         onDeploy: project => window.dispatchEvent(new CustomEvent('openDeployModal', {
@@ -627,7 +674,7 @@ export const ProjectsHome = () => {
                 onSuccess: () => load(true),
             },
         })),
-    }), [closeProject, load, reloadAll, runAction])
+    }), [closeProject, load, openBranchDialog, runAction])
 
     const deleteParams = useCallback((...keys: string[]) => {
         setParams(prev => {
@@ -684,7 +731,8 @@ export const ProjectsHome = () => {
                 <ProjectsGrid
                     compileStatusByProject={compileStatusByProject}
                     handlers={handlers}
-                    onChanged={() => void load(true)}
+                    onBranchSwitching={switchingBranch}
+                    onChanged={reloadAll}
                     onOpen={openProject}
                     pending={pending}
                     projects={projects}
@@ -696,7 +744,8 @@ export const ProjectsHome = () => {
                 compileStatusByProject={compileStatusByProject}
                 direction={direction}
                 handlers={handlers}
-                onChanged={() => void load(true)}
+                onBranchSwitching={switchingBranch}
+                onChanged={reloadAll}
                 onOpen={openProject}
                 onSort={sortBy}
                 pending={pending}
@@ -820,11 +869,7 @@ export const ProjectsHome = () => {
                 </div>
                 <div className={cx(shared.content, styles.content)}>
                     <div className={styles.scroll}>{content()}</div>
-                    {loading && projects.length > 0 && (
-                        <div className={styles.overlay} data-testid="projects-loading-overlay">
-                            <Spin />
-                        </div>
-                    )}
+                    {loading && projects.length > 0 && <BusyVeil data-testid="projects-loading-overlay" />}
                 </div>
                 {totalProjects > pageSize && (
                     <div className={styles.paginationBar}>
@@ -866,20 +911,20 @@ export const ProjectsHome = () => {
             />
             <OpenRevisionModal
                 onClose={() => setOpenRevisionFor(null)}
-                onOpened={() => void load(true)}
+                onOpened={() => reloadAfterDialog(openRevisionFor, 'openRevision')}
                 open={openRevisionFor !== null}
                 project={openRevisionFor}
             />
             <CopyProjectModal
                 onClose={() => setCopySource(null)}
-                onCopied={() => void load(true)}
+                onCopied={() => reloadAfterDialog(copySource, 'copy')}
                 open={copySource !== null}
                 project={copySource}
                 repositories={creatableRepos}
             />
             <SaveProjectModal
                 onClose={() => setSaveTarget(null)}
-                onSaved={() => { setSaveTarget(null); void load(true) }}
+                onSaved={() => { reloadAfterDialog(saveTarget, 'save'); setSaveTarget(null) }}
                 open={saveTarget !== null}
                 project={saveTarget}
             />

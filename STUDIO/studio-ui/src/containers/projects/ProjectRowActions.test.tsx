@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { ProjectStatus } from '../../constants/project'
@@ -52,6 +52,7 @@ vi.mock('@ant-design/icons', () => ({
     FolderOutlined: () => null,
     HistoryOutlined: () => null,
     MergeOutlined: () => null,
+    LoadingOutlined: () => <i data-testid="menu-running" />,
     MoreOutlined: () => null,
     RocketOutlined: () => null,
     SaveOutlined: () => null,
@@ -59,7 +60,7 @@ vi.mock('@ant-design/icons', () => ({
 
 vi.mock('antd', () => {
     interface Menu {
-        items?: Array<{ key?: string, label?: unknown }>
+        items?: Array<{ key?: string, label?: unknown, icon?: unknown, disabled?: boolean }>
         onClick?: (info: { key: string, domEvent: { stopPropagation: () => void } }) => void
     }
     return {
@@ -71,9 +72,10 @@ vi.mock('antd', () => {
                     <button
                         key={item.key}
                         data-testid={`project-menu-${item.key}-p1`}
+                        disabled={item.disabled ?? false}
                         onClick={() => (menu as Menu).onClick?.({ key: item.key!, domEvent: { stopPropagation: () => {} } })}
                     >
-                        {item.label as never}
+                        {item.icon as never}{item.label as never}
                     </button>
                 ))}
             </div>
@@ -168,5 +170,21 @@ describe('ProjectRowActions', () => {
         render(<ProjectRowActions handlers={makeHandlers()} pendingActionId="close" project={everything} />)
 
         expect(screen.getByTestId('project-action-copy-p1')).toBeDisabled()
+    })
+
+    it('names the running action in the card menu, where one trigger stands for them all', () => {
+        render(<ProjectRowActions handlers={makeHandlers()} layout="menu" pendingActionId="close" project={everything} />)
+
+        // The card's single three-dots spinner cannot say which action is running; the menu can.
+        expect(within(screen.getByTestId('project-menu-close-p1')).getByTestId('menu-running')).toBeTruthy()
+        expect(screen.getByTestId('project-menu-copy-p1')).toBeDisabled()
+    })
+
+    it('offers nothing on a row whose project is busy switching branch', () => {
+        render(<ProjectRowActions handlers={makeHandlers()} pendingActionId="switchBranch" project={everything} />)
+
+        // No button of its own spins for a branch switch, but the row is just as occupied.
+        expect(screen.getByTestId('project-action-copy-p1')).toBeDisabled()
+        expect(screen.getByTestId('project-action-close-p1')).toBeDisabled()
     })
 })
