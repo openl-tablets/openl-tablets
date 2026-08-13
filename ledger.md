@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- **Converged at `main` = `dee9ab4e34` (EPBDS-16380 Represent a project outside the base branch by a protected
-  branch)**; every queue row and every vein done. Idle for dozens of passes; new scope arrives only as new commits on
-  `main` — never invent a detector.
+- **Converged at `main` = `b9504a0541` (EPBDS-16438 Order commits sharing a commit-time second by ancestry)**; every
+  queue row and every vein done. Idle for dozens of passes; new scope arrives only as new commits on `main` — never
+  invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
   unchanged SHA. **The recorded SHA is usually gone from the next clone** (a merged PR lands rebased, only 50 commits
   fetched), so match its *subject* in `git log --oneline -25 origin/main` and take every commit above it.
@@ -252,12 +252,12 @@ None. Open the next one from a fresh branch off the current `main`.
   (`vitest-fail-on-console` rejecting a React `act(...)` warning from the floating `.then` at `OverviewPanel.tsx:797`
   and `:1227`). Load, not code — never your own breakage; reproduce it with eight busy loops beside that one file.
 - `LockTest.testSimultaneousMultiThreadsWithWaiting` was fixed on `main` by one shared 90 s deadline; never re-escalate.
-- **`IT (studio)` has two failure shapes; separate them by duration.** Normal is 6-8 min. (a) Fails in 3-7 min at
-  `-rf :itest.studio.repos`, tell `WebStudioTest.repos:11 Failed requests: expected 0 but was 3` in a 130-line tail —
-  the same-second commit-ordering race, also on `main`, 2 runs in 8. (b) Runs far past 8 min with every step logging
-  `HttpTimeoutException` at 10001ms — WebStudio under Jetty stopped answering, no test at fault. Shape (b) never
+- **`IT (studio)` normally takes 6-9 min; it fails by running far past that**, every step logging
+  `HttpTimeoutException` at 10001ms — WebStudio under Jetty stopped answering, no test at fault. It never
   self-terminates before the 6 h job limit: cancel the run, then `rerun_failed_jobs` cleared it on the same commit in
-  7m30s, proving it environmental and not the diff.
+  7m30s, proving it environmental and not the diff. Its other shape, a 3-7 min fail at `-rf :itest.studio.repos` with
+  `WebStudioTest.repos:11 Failed requests: expected 0 but was 3`, is **fixed on `main` by EPBDS-16438** — a fresh
+  occurrence is a regression to investigate, not a flake to rerun.
 - `rerun_failed_jobs` returns 403 until every other job in the run has finished; wait for the run to complete.
 - The weekly cross-platform `build.yml` ("Build", Java 21/25/26 × ubuntu/windows/macos) has failed on `main` every
   run since 2026-07-01, 6 of 9 jobs, in three different modules (`studio-ui`, `openl-maven-plugin`,
@@ -297,7 +297,9 @@ None. Open the next one from a fresh branch off the current `main`.
   report the failed conditions from the check-run summary and hand the judgement to a maintainer.
 - **Reading a CI log takes one shape only.** Listing runs ignores `per_page` and always returns 30 runs, overflowing
   the tool limit even when scoped to one workflow file — let it save to a file and parse that with python for the run
-  `id` (the `run_number` is not an id). The branch filter does apply, so filter to `main` and read the newest row.
+  `id` (the `run_number` is not an id). **Never trust the filters**: scoping to one workflow file plus branch `main`
+  returned a page whose newest row was 9 days and ~20 commits stale. List runs with no filter at all and sort the 30
+  rows by `created_at`; the newest push to `main` is at the top, and one call covers every workflow.
   `get_job_logs` truncates from the **end**, so a failing ITEST needs `tail_lines` about 130 to reach the reactor
   summary; 60 lands mid-cleanup, and `failed_only` over a 6-job matrix returns only cleanup noise at 40. Its
   `logs_url` points at Azure blob storage, which the proxy refuses with 403 CONNECT, so always use `return_content`
@@ -368,9 +370,6 @@ None. Open the next one from a fresh branch off the current `main`.
   awaited or the test made to wait on it; raising the CI timeout to 20 s treated the symptom only.
 - Weigh every public-API removal parked in *Deferred findings*: each needs a downstream-break judgement this routine
   may not make, and the tableeditor taglib and the `MergeModal` interfaces carry the largest consequences.
-- `itest.studio.repos` has a same-second commit-ordering race: when a scenario's two commits land in the same second
-  the history endpoint returns them oldest-first, so `task_EPBDS-15439/100_MergeWithoutConflicts/500-verify` reads
-  the pre-merge revision and an empty table list. Needs a tiebreaker or a fixture that does not depend on ordering.
 - Name the authoritative side of the committed tableeditor CSS bundles, which `compile.css.sh` does not reproduce;
   `.te_hidden` is blocked until then. That step is wired into no Maven phase, so editing a `js/` or `css/` source
   silently fails to reach the runtime.
@@ -381,7 +380,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-13 — run 147: `main` still `752a58ef08`, zero new commits, no dead-code PR open. Idle, no build run.
 - 08-13 — run 148: two new commits (EPBDS-16437, studio-ui only) screened, zero findings; no dead-code PR open.
 - 08-13 — run 149: two new commits (EPBDS-16380 helper extraction, EPBDS-16436 Jekyll layout) screened, zero
   findings; no dead-code PR open. Idle, no build run.
+- 08-13 — run 150: one new commit (EPBDS-16438, additive but for a 4-line rewrap) screened, zero findings; `main`
+  green on all 10 Quick Build jobs. Idle, no build run.
