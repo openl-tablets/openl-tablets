@@ -49,4 +49,28 @@ public interface ProjectRevisionService {
                                                      String searchTerm,
                                                      boolean techRevs,
                                                      Pageable page) throws IOException;
+
+    /**
+     * Retrieves the revision history of a single file of the given project, in the branch the project is on.
+     *
+     * <p>Only the revisions that changed the file are reported, so a project revision that left the file alone
+     * is absent unless technical revisions are asked for.
+     *
+     * <p>A project that lives only in the workspace has never been published, so it answers with an empty page.
+     *
+     * <p>Read access is not checked here: the project arrives already resolved for a caller allowed to read it.
+     *
+     * @param project the project holding the file
+     * @param path the path of the file relative to the project root
+     * @param searchTerm optional search term to filter revisions
+     * @param techRevs whether to include revisions that did not change the file
+     * @param page pagination parameters
+     * @return paginated revision history of the file
+     * @throws IOException if an I/O error occurs
+     */
+    PageResponse<ProjectRevision> getFileRevision(RulesProject project,
+                                                  String path,
+                                                  String searchTerm,
+                                                  boolean techRevs,
+                                                  Pageable page) throws IOException;
 }

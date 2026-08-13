@@ -472,6 +472,31 @@ export interface RevisionQuery {
 /** Default page size for the project history, matching the legacy UI's incremental loading. */
 export const REVISIONS_PAGE_SIZE = 20
 
+/** The query a history endpoint is asked with; shared by the project history and a single file's. */
+export function revisionQueryParams(query: RevisionQuery): URLSearchParams {
+    const params = new URLSearchParams()
+    if (query.search?.trim()) {
+        params.set('search', query.search.trim())
+    }
+    if (query.techRevs) {
+        params.set('techRevs', 'true')
+    }
+    params.set('page', String(query.page ?? 0))
+    params.set('size', String(query.size ?? REVISIONS_PAGE_SIZE))
+    return params
+}
+
+/** Shapes a history response, whose paging is the same whether a project or one of its files was asked about. */
+export function toRevisionPage(response: any, query: RevisionQuery): RevisionPage {
+    return {
+        content: asArray(response?.content),
+        pageNumber: response?.pageNumber ?? (query.page ?? 0),
+        pageSize: response?.pageSize ?? (query.size ?? REVISIONS_PAGE_SIZE),
+        numberOfElements: response?.numberOfElements ?? 0,
+        total: response?.total ?? null,
+    }
+}
+
 /**
  * A page of a project's revision history (newest first). Supports a text search, the technical-revisions
  * toggle and paging.
@@ -484,24 +509,8 @@ export async function getProjectRevisions(
     projectId: string,
     query: RevisionQuery = {}
 ): Promise<RevisionPage> {
-    const params = new URLSearchParams()
-    if (query.search?.trim()) {
-        params.set('search', query.search.trim())
-    }
-    if (query.techRevs) {
-        params.set('techRevs', 'true')
-    }
-    params.set('page', String(query.page ?? 0))
-    params.set('size', String(query.size ?? REVISIONS_PAGE_SIZE))
-    const url = `/projects/${encodeURIComponent(projectId)}/history?${params.toString()}`
-    const response = await apiCall(url, undefined, { throwError: true })
-    return {
-        content: asArray(response?.content),
-        pageNumber: response?.pageNumber ?? (query.page ?? 0),
-        pageSize: response?.pageSize ?? (query.size ?? REVISIONS_PAGE_SIZE),
-        numberOfElements: response?.numberOfElements ?? 0,
-        total: response?.total ?? null,
-    }
+    const url = `/projects/${encodeURIComponent(projectId)}/history?${revisionQueryParams(query)}`
+    return toRevisionPage(await apiCall(url, undefined, { throwError: true }), query)
 }
 
 /** Open a project at a specific historical revision. */

@@ -26,6 +26,12 @@ import org.openl.studio.repositories.model.ProjectRevision;
 @RequiredArgsConstructor
 public class HistoryRepositoryMapper {
 
+    /** How many characters of a revision identify it on screen. */
+    private static final int SHORT_REVISION_LENGTH = 6;
+
+    /** A parsed commit message either splits into exactly this many parts or is not a templated one. */
+    private static final int COMMENT_PARTS = 3;
+
     private final Repository repository;
     private final Comments commentService;
 
@@ -60,34 +66,30 @@ public class HistoryRepositoryMapper {
     }
 
     private ProjectRevision mapProjectRevision(FileData src) {
-        var dest = new ProjectRevision();
         var userInfo = new UserInfoModel();
         var author = src.getAuthor();
         userInfo.setEmail(author != null ? author.getEmail() : null);
         userInfo.setDisplayName(author != null ? author.getName() : null);
-        dest.setAuthor(userInfo);
-        var modifiedAt = src.getModifiedAt();
-        if (modifiedAt != null) {
-            dest.setCreatedAt(DateTimes.atSystemZone(modifiedAt));
-        }
+
         var revision = src.getVersion();
         if (revision == null || revision.isBlank()) {
             revision = "0";
         }
-        dest.setRevisionNo(revision);
-        if (revision.length() > 6) {
-            dest.setShortRevisionNo(revision.substring(0, 6));
-        }
-        dest.setDeleted(src.isDeleted());
-        dest.setTechnicalRevision(src.isTechnicalRevision());
-
+        var modifiedAt = src.getModifiedAt();
         var originalComment = src.getComment();
-        dest.setFullComment(originalComment);
         var parts = commentService.getCommentParts(originalComment);
-        if (parts.size() == 3) {
-            dest.setCommentParts(parts);
-        }
 
-        return dest;
+        return ProjectRevision.builder()
+                .revisionNo(revision)
+                .shortRevisionNo(revision.length() > SHORT_REVISION_LENGTH
+                        ? revision.substring(0, SHORT_REVISION_LENGTH)
+                        : null)
+                .createdAt(modifiedAt == null ? null : DateTimes.atSystemZone(modifiedAt))
+                .fullComment(originalComment)
+                .author(userInfo)
+                .deleted(src.isDeleted())
+                .technicalRevision(src.isTechnicalRevision())
+                .commentParts(parts.size() == COMMENT_PARTS ? parts : null)
+                .build();
     }
 }

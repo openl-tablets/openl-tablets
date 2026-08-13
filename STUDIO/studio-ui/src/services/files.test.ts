@@ -7,6 +7,7 @@ import {
     deleteFile,
     downloadFile,
     downloadFolder,
+    getFileRevisions,
     getFileContent,
     isEditableTextFile,
     moveFile,
@@ -18,11 +19,13 @@ import {
     writeRootFile,
 } from './files'
 
-vi.mock('./apiCall', () => ({
+vi.mock('./apiCall', async importOriginal => ({
+    ...await importOriginal<typeof import('./apiCall')>(),
     default: vi.fn(),
 }))
 
-vi.mock('./repositories', () => ({
+vi.mock('./repositories', async importOriginal => ({
+    ...await importOriginal<typeof import('./repositories')>(),
     getProjectFiles: vi.fn(),
 }))
 
@@ -135,6 +138,22 @@ describe('files service', () => {
             { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourcePath: 'rules/a.txt', destinationPath: 'rules/a-copy.txt' }) },
             { throwError: true }
         )
+    })
+
+    // A sibling of the files API, so a project folder named "history" keeps its own address.
+    it('reads the revision history of a single file', async () => {
+        vi.mocked(apiCall).mockResolvedValue({
+            content: [{ revisionNo: 'r1' }], pageNumber: 0, pageSize: 20, numberOfElements: 1, total: 1,
+        })
+
+        const page = await getFileRevisions('project', 'history/Main.xlsx', { size: 20 })
+
+        expect(apiCall).toHaveBeenCalledWith(
+            '/projects/project/file-history/history/Main.xlsx?page=0&size=20',
+            undefined,
+            { throwError: true }
+        )
+        expect(page.content).toHaveLength(1)
     })
 
     it('triggers browser downloads for files and folders', () => {

@@ -115,6 +115,8 @@ To update or export a project, proceed as follows:
 
 The default project version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing.**
 
+The most recent revisions are offered first; older ones are loaded on demand through **Load older revisions**.
+
 Exported project is downloaded as a `.zip` archive.
 
 #### Copying a Project
@@ -139,6 +141,9 @@ A user can export, update, or edit a module directly in Rules Editor. Proceed as
 2.  To export the module to the user’s local machine, for a module, in the top line menu, click **Export** and select a module revision.
 
     The default module version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing**.
+
+    The list offers the revisions of the module file itself, so a project revision that did not change the
+    module is not proposed. Older revisions are loaded on demand through **Load older revisions**.
 
 1.  To modify module configuration, such as module name, path, and included or excluded methods, in the **Module** page place the mouse cursor over the module name and click **Edit** ![](images/edit-icon.png).
 

@@ -38,9 +38,7 @@ const mockGetProject = getProject as MockedFunction<typeof getProject>
 
 const project = { id: 'p1', name: 'Bank Rating' } as Project
 
-const renderHost = () => act(async () => {
-    render(<SaveProjectModalHost />)
-})
+const renderHost = () => render(<SaveProjectModalHost />)
 
 const open = async (onSuccess = vi.fn()) => {
     await act(async () => {
@@ -57,24 +55,24 @@ describe('SaveProjectModalHost', () => {
     })
 
     it('stays closed until the editor asks for it', async () => {
-        await renderHost()
+        renderHost()
 
         expect(screen.queryByTestId('save-project-modal')).not.toBeInTheDocument()
         expect(mockGetProject).not.toHaveBeenCalled()
     })
 
     it('reads the project and opens the dialog on the event', async () => {
-        await renderHost()
+        renderHost()
 
         await open()
 
-        await waitFor(() => expect(screen.getByTestId('save-project-modal')).toBeInTheDocument())
+        expect(await screen.findByTestId('save-project-modal')).toBeInTheDocument()
         expect(latest().project).toEqual(project)
     })
 
     // Saving may commit the project under a different name, so the editor page is told to move to it.
     it('reports the save back to the page that opened the dialog', async () => {
-        await renderHost()
+        renderHost()
         const onSuccess = await open()
         await waitFor(() => expect(latest().project).toEqual(project))
 

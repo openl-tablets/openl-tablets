@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { getProjectRevisions, REVISIONS_PAGE_SIZE, type ProjectRevision, type RevisionPage } from '../../services/repositories'
+import { getFileRevisions } from '../../services/files'
 import type { Project } from '../../types/projects'
 import { formatDateTime } from '../../utils/dateFormat'
 
@@ -41,19 +42,33 @@ export interface ProjectRevisions {
 }
 
 /**
- * A project's history, loaded a page at a time while the given dialog is open.
+ * A history, loaded a page at a time while the given dialog is open.
  *
  * Every dialog that lets the user reach back into the history — export, open, copy — reads it the same way.
- * The newest page arrives first and the rest is fetched on demand, so a project with a long history stays
- * reachable without the dialog waiting for all of it.
+ * The newest page arrives first and the rest is fetched on demand, so a long history stays reachable without
+ * the dialog waiting for all of it.
+ *
+ * Naming a file reads that file's own history instead of the project's: only the revisions that changed it,
+ * with the revision that removed it left out, so every revision offered is one the file can be read from.
  */
-export const useProjectRevisions = (project: Project | null, enabled: boolean): ProjectRevisions => {
+export const useProjectRevisions = (
+    project: Project | null,
+    enabled: boolean,
+    filePath?: string
+): ProjectRevisions => {
     const [revisions, setRevisions] = useState<ProjectRevision[] | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [lastPage, setLastPage] = useState<RevisionPage | null>(null)
     const [loadingMore, setLoadingMore] = useState(false)
     // Guards the appends: a dialog reopened on another project must not collect the pages of the old one.
     const generation = useRef(0)
+
+    const readPage = useCallback((page: number): Promise<RevisionPage> => {
+        const query = { size: REVISIONS_PAGE_SIZE, page }
+        return filePath
+            ? getFileRevisions(project!.id, filePath, query)
+            : getProjectRevisions(project!.id, query)
+    }, [project?.id, filePath])
 
     useEffect(() => {
         // Bumped before the guard: a page still in flight when the dialog closes must not land in the
@@ -70,7 +85,7 @@ export const useProjectRevisions = (project: Project | null, enabled: boolean): 
         setError(null)
         setLastPage(null)
         setLoadingMore(false)
-        getProjectRevisions(project.id, { size: REVISIONS_PAGE_SIZE })
+        readPage(0)
             .then(page => {
                 if (current === generation.current) {
                     setRevisions(page.content)
@@ -84,7 +99,7 @@ export const useProjectRevisions = (project: Project | null, enabled: boolean): 
                     setError(errorMessage(e))
                 }
             })
-    }, [enabled, project?.id])
+    }, [enabled, project?.id, filePath])
 
     // A total says outright whether anything is left; without one, a full page means there may be.
     const loaded = revisions?.length ?? 0
@@ -98,7 +113,7 @@ export const useProjectRevisions = (project: Project | null, enabled: boolean): 
         }
         const current = generation.current
         setLoadingMore(true)
-        getProjectRevisions(project.id, { size: REVISIONS_PAGE_SIZE, page: lastPage.pageNumber + 1 })
+        readPage(lastPage.pageNumber + 1)
             .then(page => {
                 if (current === generation.current) {
                     setRevisions(previous => [...(previous ?? []), ...page.content])
@@ -119,7 +134,7 @@ export const useProjectRevisions = (project: Project | null, enabled: boolean): 
 
     return {
         revisions,
-        options: (revisions ?? []).map(revision => ({
+        options: (revisions ?? []).filter(revision => !revision.deleted).map(revision => ({
             value: revision.revisionNo,
             label: revisionLabel(revision),
         })),
