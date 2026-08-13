@@ -10,6 +10,7 @@ import { ProjectDetail } from './ProjectDetail'
 
 const {
     branchSwitcherMock,
+    filePreviewMock,
     filesToolbarMock,
     localChangesSummaryMock,
     revisionsPanelMock,
@@ -17,6 +18,7 @@ const {
     setSearchParamsMock,
 } = vi.hoisted(() => ({
     branchSwitcherMock: vi.fn(),
+    filePreviewMock: vi.fn(),
     filesToolbarMock: vi.fn(),
     localChangesSummaryMock: vi.fn(),
     revisionsPanelMock: vi.fn(),
@@ -95,6 +97,9 @@ vi.mock('./FileTree', () => ({
         <div data-testid="file-tree">
             <button data-testid="file-tree-clear" onClick={() => onSelectFile(null)} type="button">clear</button>
             <button data-testid="file-tree-select" onClick={() => onSelectFile('rules/new.txt')} type="button">select</button>
+            <button data-testid="file-tree-select-virtual" onClick={() => onSelectFile('drafts/wip')} type="button">
+                select virtual
+            </button>
         </div>
     ),
 }))
@@ -111,12 +116,24 @@ vi.mock('./FilesToolbar', () => ({
     },
 }))
 vi.mock('./FilePreviewPane', () => ({
-    FilePreviewPane: ({ onChanged, onDeleted }: { onChanged?: () => void, onDeleted?: () => void }) => (
-        <div data-testid="file-preview">
-            <button data-testid="preview-changed" onClick={() => onChanged?.()} type="button">changed</button>
-            <button data-testid="preview-deleted" onClick={() => onDeleted?.()} type="button">deleted</button>
-        </div>
-    ),
+    // The pane is handed the selected path, so the props of its last render tell what the selection
+    // settled on — read them through `latestFilePreviewProps`, never an earlier call.
+    FilePreviewPane: (props: {
+        onChanged?: () => void
+        onDeleted?: () => void
+        onMoved?: (path: string) => void
+        path: string | null
+    }) => {
+        const { onChanged, onDeleted, onMoved } = props
+        filePreviewMock(props)
+        return (
+            <div data-testid="file-preview">
+                <button data-testid="preview-changed" onClick={() => onChanged?.()} type="button">changed</button>
+                <button data-testid="preview-deleted" onClick={() => onDeleted?.()} type="button">deleted</button>
+                <button data-testid="preview-moved" onClick={() => onMoved?.('rules/Moved.xlsx')} type="button">moved</button>
+            </div>
+        )
+    },
 }))
 vi.mock('./FolderActionsPane', () => ({
     FolderActionsPane: ({ onChanged, onDeleted }: { onChanged?: () => void, onDeleted?: () => void }) => (
@@ -204,19 +221,21 @@ const setParams = (query: string) => {
     new URLSearchParams(query).forEach((value, key) => searchParamsMock.set(key, value))
 }
 
-const renderProjectDetail = ({
-    files = FILES,
-    project = PROJECT,
-    repoFeatures = BRANCH_REPOSITORY_FEATURES,
-    userManagementEnabled = false,
-    onBranchSwitching,
-}: {
+interface DetailOptions {
     files?: FsNode[] | 'loading' | 'error' | undefined
     project?: Project | null
     repoFeatures?: RepositoryFeatures | undefined
     userManagementEnabled?: boolean
     onBranchSwitching?: (busy: boolean) => void
-} = {}) => render(
+}
+
+const projectDetailElement = ({
+    files = FILES,
+    project = PROJECT,
+    repoFeatures = BRANCH_REPOSITORY_FEATURES,
+    userManagementEnabled = false,
+    onBranchSwitching,
+}: DetailOptions = {}) => (
     <SystemContext.Provider
         value={{
             isExternalAuthSystem: false,
@@ -237,9 +256,15 @@ const renderProjectDetail = ({
     </SystemContext.Provider>
 )
 
+const renderProjectDetail = (options: DetailOptions = {}) => render(projectDetailElement(options))
+
+/** The props the file pane was last rendered with — earlier calls hold the state before a re-render. */
+const latestFilePreviewProps = () => filePreviewMock.mock.lastCall?.[0] as { path: string | null }
+
 describe('ProjectDetail', () => {
     beforeEach(() => {
         setParams('tab=files')
+        filePreviewMock.mockClear()
         filesToolbarMock.mockClear()
         localChangesSummaryMock.mockClear()
         revisionsPanelMock.mockClear()
@@ -516,16 +541,84 @@ describe('ProjectDetail', () => {
     })
 
     it('shows folder actions (not the content pane) for a selected virtual folder', async () => {
-        // The path is selected, but 'drafts/wip' has no backend node yet — until it is a virtual folder
-        // it looks like a file (content pane). Creating it must switch to folder actions so nothing is
-        // fetched for a folder that does not exist server-side (which would 404).
-        setParams('tab=files&file=drafts/wip')
+        // 'drafts/wip' has no backend node yet, so a selection of it would look like a file (content
+        // pane). A folder created in the UI shows folder actions instead, so nothing is fetched for a
+        // folder that does not exist server-side (which would 404).
+        setParams('tab=files')
         renderProjectDetail()
-        expect(screen.getByTestId('file-preview')).toBeTruthy()
+        await userEvent.click(screen.getByTestId('file-tree-select-virtual'))
 
         await userEvent.click(screen.getByTestId('files-create-folder'))
         expect(screen.getByTestId('folder-actions')).toBeTruthy()
         expect(screen.queryByTestId('file-preview')).toBeNull()
+    })
+
+    it('drops a selection the loaded tree does not hold', () => {
+        // The URL outlived the file: the project was closed and dropped its local copy. Previewing the
+        // path would only fetch a 404 and paint an error over an empty editor.
+        setParams('tab=files&file=rules/local.txt')
+
+        renderProjectDetail({ files: FILES })
+
+        expect(searchParamsMock.has('file')).toBe(false)
+        expect(searchParamsMock.get('tab')).toBe('files')
+        // The pane ends up unselected, so it stops asking the server for the file that is gone.
+        expect(latestFilePreviewProps().path).toBeNull()
+    })
+
+    it('drops the selection when a reloaded tree no longer holds the file', () => {
+        setParams('tab=files&file=rules/Nested.xlsx')
+        const { rerender } = renderProjectDetail({ files: FILES })
+
+        rerender(projectDetailElement({ files: FILES.filter(node => node.path !== 'rules/Nested.xlsx') }))
+
+        expect(searchParamsMock.has('file')).toBe(false)
+    })
+
+    it('keeps a selection the loaded tree holds', () => {
+        setParams('tab=files&file=rules/Nested.xlsx')
+
+        renderProjectDetail({ files: FILES })
+
+        expect(setSearchParamsMock).not.toHaveBeenCalled()
+    })
+
+    it('keeps the selection while the tree is not loaded', () => {
+        setParams('tab=files&file=rules/local.txt')
+
+        renderProjectDetail({ files: 'loading' })
+
+        expect(searchParamsMock.get('file')).toBe('rules/local.txt')
+    })
+
+    it('keeps the path a file was just moved to, which the tree on screen cannot hold yet', async () => {
+        // The move reloads the project; until its tree arrives the file is still listed under the old
+        // path, and the selection must survive that window.
+        setParams('tab=files&file=rules/Nested.xlsx')
+        const { rerender } = renderProjectDetail({ files: FILES })
+
+        await userEvent.click(screen.getByTestId('preview-moved'))
+        rerender(projectDetailElement({ files: FILES }))
+
+        expect(searchParamsMock.get('file')).toBe('rules/Moved.xlsx')
+
+        // The reload behind the move brings a tree that holds the new path, and it stays selected.
+        const moved: FsNode = { basePath: 'rules', name: 'Moved.xlsx', path: 'rules/Moved.xlsx', type: 'file' }
+        rerender(projectDetailElement({ files: [...FILES, moved]}))
+
+        expect(searchParamsMock.get('file')).toBe('rules/Moved.xlsx')
+    })
+
+    it('keeps a virtual folder selection when the tree reloads without it', async () => {
+        setParams('tab=files')
+        const { rerender } = renderProjectDetail()
+        await userEvent.click(screen.getByTestId('file-tree-select-virtual'))
+        await userEvent.click(screen.getByTestId('files-create-folder'))
+
+        rerender(projectDetailElement({ files: FILES.slice() }))
+
+        expect(searchParamsMock.get('file')).toBe('drafts/wip')
+        expect(screen.getByTestId('folder-actions')).toBeTruthy()
     })
 
     it('refreshes the project after folder actions change', async () => {
