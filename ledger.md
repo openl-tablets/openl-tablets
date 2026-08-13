@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- **Converged at `main` = `086db343f5` (EPBDS-16437 Drop the file selection from the URL when another tab is
-  opened)**; every queue row and every vein done. Idle for dozens of passes; new scope arrives only as new commits on
+- **Converged at `main` = `dee9ab4e34` (EPBDS-16380 Represent a project outside the base branch by a protected
+  branch)**; every queue row and every vein done. Idle for dozens of passes; new scope arrives only as new commits on
   `main` — never invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
   unchanged SHA. **The recorded SHA is usually gone from the next clone** (a merged PR lands rebased, only 50 commits
@@ -109,12 +109,13 @@ None. Open the next one from a fresh branch off the current `main`.
   Only a `<module>` naming a missing directory would be deletable, and there are none.
 - **A signature an incremental diff deletes is usually renamed or moved, not removed.** Renamed on the same stem
   (`convertRegexToGlob` to `convertRegexToGlobs`); an inline `Pattern.compile` local promoted to a constant; moved
-  into a shared module the diff newly imports (`encodeProjectId` as `toUrlSafeId` in `services/projectId`); moved into
-  a new method of a collaborator the caller already constructs, which is where a deleted **inline condition** goes;
-  the *same* lines dropped from several files promoted to one new named export; and two siblings swapping, where all
-  of `ProjectIdModel.encode` went while `encodeUrlSafe` took over its name and its `@JsonValue`. So search the added
-  lines for the stem, read the added imports and the collaborator too, and always grep the **post-image** file — a
-  deleted `import` or JSX line returns with one more name on it, which the diff alone never shows.
+  into a shared module the diff newly imports (`encodeProjectId` as `toUrlSafeId` in `services/projectId`), or into a
+  new same-package class the commit itself adds (`Branches`, taking the home-branch choice and the branch comparator
+  from two callers at once); moved into a new method of a collaborator the caller already constructs, which is where a
+  deleted **inline condition** goes; the *same* lines dropped from several files promoted to one new named export; and
+  two siblings swapping, where all of `ProjectIdModel.encode` went while `encodeUrlSafe` took over its name and its
+  `@JsonValue`. So read the commit's **added files** and added imports, search the added lines for the stem, and
+  always grep the **post-image** file — a deleted `import` or JSX line returns with one more name on it.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
@@ -380,6 +381,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-13 — run 146: one new commit (EPBDS-16389, studio-ui only) screened, zero findings; no dead-code PR open.
 - 08-13 — run 147: `main` still `752a58ef08`, zero new commits, no dead-code PR open. Idle, no build run.
 - 08-13 — run 148: two new commits (EPBDS-16437, studio-ui only) screened, zero findings; no dead-code PR open.
+- 08-13 — run 149: two new commits (EPBDS-16380 helper extraction, EPBDS-16436 Jekyll layout) screened, zero
+  findings; no dead-code PR open. Idle, no build run.
