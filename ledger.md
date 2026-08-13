@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- **Converged at `main` = `b9504a0541` (EPBDS-16438 Order commits sharing a commit-time second by ancestry)**; every
+- **Converged at `main` = `90497ade80` (Bump log4j-api from 2.25.1 to 2.25.5 in openl-dependency-b)**; every
   queue row and every vein done. Idle for dozens of passes; new scope arrives only as new commits on `main` — never
   invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
@@ -380,6 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-13 — run 149: two new commits (EPBDS-16380, EPBDS-16436) screened, zero findings. Idle, no build run.
 - 08-13 — run 150: one new commit (EPBDS-16438, additive) screened, zero findings; `main` green on 10 Quick jobs.
 - 08-13 — run 151: `main` still at the resume point, so no new scope at all; no dead-code PR open. Idle, no build.
+- 08-13 — run 152: one new commit, a Dependabot bump of an invoker fixture pom — no surface. Idle, no build.
