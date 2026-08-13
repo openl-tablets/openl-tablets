@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- **Converged at `main` = `742d59d467` (EPBDS-16386 Name a change published off the request by the client that was just
-  writing)**; every queue row and every vein done. Idle for dozens of passes; new scope arrives only as new commits on
+- **Converged at `main` = `752a58ef08` (EPBDS-16389 Keep a project busy until the read behind its action is on
+  screen)**; every queue row and every vein done. Idle for dozens of passes; new scope arrives only as new commits on
   `main` — never invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
   unchanged SHA. **The recorded SHA is usually gone from the next clone** (a merged PR lands rebased, only 50 commits
@@ -380,6 +380,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-13 — run 143: `main` still `742d59d467`, zero new commits, no dead-code PR open. Idle, no build run; compacted.
 - 08-13 — run 144: `main` still `742d59d467`, zero new commits, no dead-code PR open. Idle, no build run.
 - 08-13 — run 145: `main` still `742d59d467`, zero new commits, no dead-code PR open. Idle, no build run.
+- 08-13 — run 146: one new commit (EPBDS-16389, studio-ui only) screened, zero findings; no dead-code PR open.
