@@ -107,16 +107,14 @@ None. Open the next one from a fresh branch off the current `main`.
 - **A pom outside the root aggregator's `<module>` graph is normally a fixture, not an orphan.** All 120 unreachable
   poms are maven-invoker projects under `Util/openl-maven-plugin/it/**` or documentation examples under `Docs/`.
   Only a `<module>` naming a missing directory would be deletable, and there are none.
-- **A signature an incremental-scope diff deletes is usually renamed, not removed** — `convertRegexToGlob` returned as
-  `convertRegexToGlobs`, and two inline `Pattern.compile` locals returned as constants. Search the added lines for the
-  same stem, and a deleted local's body for a new constant, before calling either an orphan. It may also move into a
-  shared module the same diff newly imports — a file-local `encodeProjectId` returned as `toUrlSafeId` in
-  `services/projectId` — or into a new method of a collaborator the caller already constructs, which is where a
-  deleted **inline condition** goes, so read the added imports and the collaborator too. When one diff deletes the
-  *same* lines from several files, a const or a duplicated hook body has been promoted to one new named export.
-  A deleted `import` or JSX line
-  returns with one more name on it, so grep the post-image file, never the diff alone. Two siblings also swap: the
-  whole of `ProjectIdModel.encode` was deleted while `encodeUrlSafe` took over its name and its `@JsonValue`.
+- **A signature an incremental diff deletes is usually renamed or moved, not removed.** Renamed on the same stem
+  (`convertRegexToGlob` to `convertRegexToGlobs`); an inline `Pattern.compile` local promoted to a constant; moved
+  into a shared module the diff newly imports (`encodeProjectId` as `toUrlSafeId` in `services/projectId`); moved into
+  a new method of a collaborator the caller already constructs, which is where a deleted **inline condition** goes;
+  the *same* lines dropped from several files promoted to one new named export; and two siblings swapping, where all
+  of `ProjectIdModel.encode` went while `encodeUrlSafe` took over its name and its `@JsonValue`. So search the added
+  lines for the stem, read the added imports and the collaborator too, and always grep the **post-image** file — a
+  deleted `import` or JSX line returns with one more name on it, which the diff alone never shows.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
@@ -382,7 +380,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-12 — run 140: `main` still `71e2caea5c`, zero new commits, no dead-code PR open. Idle, no build run.
 - 08-12 — run 141: `main` at `742d59d467`, +4 EPBDS-16386/16392 websocket-ping commits, 249 deleted lines but zero
   deleted files; every removed name is a rename into a new module or a widened callback type. Idle, no build run.
 - 08-13 — run 142: `main` still `742d59d467`, zero new commits, no dead-code PR open. Idle, no build run.
+- 08-13 — run 143: `main` still `742d59d467`, zero new commits, no dead-code PR open. Idle, no build run; compacted.
