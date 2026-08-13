@@ -300,6 +300,22 @@ export const ProjectDetail = ({
             return next
         }, { replace: true })
     }, [setSearchParams])
+    // A tree that comes back without the selected path no longer holds it — the project was closed and
+    // dropped its local file, the file was deleted, a revision without it was opened. The selection is
+    // stale and is dropped, so the pane falls back to its empty state and stops asking the server for a
+    // file that is not there any more.
+    //
+    // Only a newly loaded tree judges the selection — hence the single dependency, and the condition
+    // stays inside the effect rather than becoming a render-time value: a file just moved is missing
+    // from the tree still on screen, and clearing it there would blank the pane for the length of the
+    // reload that follows the move, which brings a tree holding it again. Judging a tree alone is
+    // enough because the selection itself only ever changes to a path of the rendered tree (the tree
+    // is what the user clicks) — the just-moved path above being the one exception.
+    useEffect(() => {
+        if (Array.isArray(files) && selectedFile && !selectedNode && !selectedIsVirtualFolder) {
+            setSelectedFile(null)
+        }
+    }, [files])
     const [fileFilter, setFileFilter] = useState('')
     const [treeWidth, setTreeWidth] = useState(288)
     const resizeCleanup = useRef<(() => void) | null>(null)
