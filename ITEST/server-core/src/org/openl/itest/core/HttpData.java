@@ -188,10 +188,15 @@ class HttpData {
             if (expected.body == null) {
                 return; // No body expected
             }
-            var expectedBody = new String(expected.body, StandardCharsets.ISO_8859_1).trim();
-            if (expectedBody.equals("***")) {
+            var expectedText = new String(expected.body, StandardCharsets.ISO_8859_1).trim();
+            if (expectedText.equals("***")) {
                 return; // Whole-body wildcard skips content comparison for any content type (json, zip, xml, ...)
             }
+            // A body that declares its own framing is read literally, so a reference in it is resolved
+            // here - before the content type chooses how to compare, so every type resolves it alike.
+            byte[] expectedBody = isFileRef(expectedText)
+                    ? readFileRef(expected.pathToResource, expectedText)
+                    : expected.body;
             String contentEncoding = headers.get("Content-Encoding");
             Function<byte[], byte[]> decoder = Function.identity(); // empty
             if (contentEncoding != null) {
@@ -215,30 +220,17 @@ class HttpData {
                      "text/html",
                      "text/plain",
                      "image/svg+xml" ->
-                        Comparators.txt("Difference", decoder.apply(expected.body), decoder.apply(this.body));
+                        Comparators.txt("Difference", decoder.apply(expectedBody), decoder.apply(this.body));
                 case "application/xml",
                      "text/xml" ->
-                        Comparators.xml("Difference", decoder.apply(expected.body), decoder.apply(this.body));
+                        Comparators.xml("Difference", decoder.apply(expectedBody), decoder.apply(this.body));
                 case "application/json" -> {
                     JsonNode actualNode = OBJECT_MAPPER.readTree(decoder.apply(this.body));
-                    JsonNode expectedNode = OBJECT_MAPPER.readTree(decoder.apply(expected.body));
+                    JsonNode expectedNode = OBJECT_MAPPER.readTree(decoder.apply(expectedBody));
                     Comparators.compareJsonObjects(expectedNode, actualNode, "");
                 }
-                case "application/zip" -> Comparators.zip(decoder.apply(expected.body), decoder.apply(this.body));
-                default -> {
-                    if (isFileRef(expectedBody)) {
-                        String fileRes = resolveFileRef(Path.of(expected.pathToResource).getParent(), expectedBody);
-                        try (InputStream fileStream = getStream(fileRes)) {
-                            if (fileStream == null) {
-                                throw new FileNotFoundException(fileRes);
-                            }
-                            byte[] expectedBytes = fileStream.readAllBytes();
-                            assertArrayEquals(decoder.apply(expectedBytes), decoder.apply(this.body), "Body: ");
-                        }
-                    } else {
-                        assertArrayEquals(decoder.apply(expected.body), decoder.apply(this.body), "Body: ");
-                    }
-                }
+                case "application/zip" -> Comparators.zip(decoder.apply(expectedBody), decoder.apply(this.body));
+                default -> assertArrayEquals(decoder.apply(expectedBody), decoder.apply(this.body), "Body: ");
             }
         } catch (Exception | AssertionError ex) {
             throw ex;
@@ -322,13 +314,7 @@ class HttpData {
                     String line = readLine(input);
                     if (isFileRef(line)) {
                         writer.flush();
-                        String fileRes = resolveFileRef(Path.of(resource).getParent(), line);
-                        try (InputStream fileStream = getStream(fileRes)) {
-                            if (fileStream == null) {
-                                throw new FileNotFoundException(fileRes);
-                            }
-                            fileStream.transferTo(os);
-                        }
+                        os.write(readFileRef(resource, line));
                         os.flush();
                     } else {
                         writer.append(line);
@@ -345,13 +331,7 @@ class HttpData {
         } else if (BLOB_TYPES.contains(ct) || ce != null) {
             String line = readLine(input);
             if (isFileRef(line)) {
-                String fileRes = resolveFileRef(Path.of(resource).getParent(), line);
-                try (InputStream fileStream = getStream(fileRes)) {
-                    if (fileStream == null) {
-                        throw new FileNotFoundException(fileRes);
-                    }
-                    body = fileStream.readAllBytes();
-                }
+                body = readFileRef(resource, line);
                 if (input.available() != 0) {
                     throw new IllegalStateException("Unexpected content");
                 }
@@ -372,10 +352,38 @@ class HttpData {
             // So for 204 status we just don't read body because it doesn't needed for this status.
             body = new byte[0];
         } else {
-            body = input.readAllBytes();
+            body = readInlineOrFileRef(input, resource);
         }
 
         return new HttpData(firstLine, headers, body, resource);
+    }
+
+    /**
+     * Reads a body of any content type, resolving a body that is nothing but a file reference. It
+     * lets a binary payload of a type of its own - a workbook uploaded as {@code application/octet-stream},
+     * for one - be kept in a file of its own instead of being inlined into the request.
+     */
+    private static byte[] readInlineOrFileRef(InputStream input, String resource) throws IOException {
+        byte[] content = input.readAllBytes();
+        String line = new String(content, StandardCharsets.UTF_8).trim();
+        if (!isFileRef(line) || line.indexOf('\n') >= 0) {
+            return content;
+        }
+        return readFileRef(resource, line);
+    }
+
+    /**
+     * Reads the file a {@code &name} reference names, relative to the folder of the resource the
+     * reference was written in.
+     */
+    private static byte[] readFileRef(String resource, String fileRef) throws IOException {
+        String fileRes = resolveFileRef(Path.of(resource).getParent(), fileRef);
+        try (InputStream fileStream = getStream(fileRes)) {
+            if (fileStream == null) {
+                throw new FileNotFoundException(fileRes);
+            }
+            return fileStream.readAllBytes();
+        }
     }
 
     private static InputStream getStream(String fileRes) {
