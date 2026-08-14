@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- **Converged at `main` = `6eb1d67fe6` (EPBDS-16422 Offer the revisions of the exported file, not of the project)**;
+- **Converged at `main` = `cd6fcefb0a` (EPBDS-16448 Read the design repository branches through one hook)**;
   every queue row and every vein done. New scope arrives only as new commits on `main` — never invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
   unchanged SHA. **The recorded SHA is usually gone from the next clone** (a merged PR lands rebased, only 50 commits
@@ -20,8 +20,8 @@ detector this ledger has never run — not by re-running one of these.
 ## Open PR
 
 - #2004 on `dead-code/webstudio-css`, head `0db9f19e7e`, one commit: *Drop the common.css titleColumn rules orphaned by
-  the retired commit info dialog* (11 CSS lines). No review thread. CI is the only gate — nothing compiles against a
-  stylesheet.
+  the retired commit info dialog* (11 CSS lines). All 14 checks green, SonarCloud Quality Gate passed, CodeRabbit
+  raised nothing, body verified against the diff. Only a maintainer approval is missing — do not re-verify it.
 
 ## Merged PRs
 
@@ -332,7 +332,8 @@ detector this ledger has never run — not by re-running one of these.
 - Function, object-literal-method and prototype definitions across all 23 hand-written legacy `.js` files.
 - Whole-file reference check over every extension outside ITEST and test-resources: Velocity templates, taglibs,
   source maps, fonts, schemas, `.html`, `.csv`, `.sql`, `.groovy`, `.sh`, `.cmd`, `.txt`, `.json`, `.yaml`, `.xml`,
-  `.svg`, and all 117 `.properties` files. Every orphan found is convention-loaded — see *Keep-list*.
+  `.svg`, and all 117 `.properties` files. Every orphan found is convention-loaded — see *Keep-list*. Every
+  zero-byte tracked file is deliberate too: empty jar and zip classpath fixtures, and Flyway `flyway.location` markers.
 - **Across all 207 poms**: every defined property, duplicate `<dependency>` and duplicate `.properties` keys, every
   profile, every `pluginManagement` entry and every `<exclusion>`, each resolved against `-P` references, activation
   blocks, packaging types and goal invocations. Zero removable; every exclusion is defensive.
@@ -385,6 +386,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-14 — run 156: `main` unchanged at the resume point; only open PR is #2001, another author's. Idle, no build.
 - 08-14 — run 157: `main` unchanged at the resume point; only open PR is #2001, another author's. Idle, no build.
 - 08-14 — run 158: two EPBDS-16422 commits screened; one CSS orphan removed, PR #2004 opened. No Maven build.
+- 08-14 — run 159: two EPBDS-16448 studio-ui commits screened, nothing orphaned; #2004 green. No build.
