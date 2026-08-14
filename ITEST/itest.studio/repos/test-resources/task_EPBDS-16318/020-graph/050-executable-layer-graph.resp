@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "d88622078f17aced6103a8b173c3622b",
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "calcPremium",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "B22:C24",
+    "project": "EPBDS-16318",
+    "returnType": "SpreadsheetResult",
+    "signature": "calcPremium(Policy policy)"
+  }
+]

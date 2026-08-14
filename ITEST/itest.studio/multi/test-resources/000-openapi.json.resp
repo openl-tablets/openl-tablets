@@ -10838,6 +10838,20 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "layer",
+            "schema": {
+              "type": "string",
+              "default": "all",
+              "enum": [
+                "executable",
+                "datatype",
+                "all"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -21081,6 +21095,53 @@ Content-Type: application/json
           }
         }
       },
+      "DatatypeNodeFieldView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "collection": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "ref": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "DatatypeNodeView": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TableNodeView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "extends": {
+                "type": "string",
+                "description": "***"
+              },
+              "fields": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/DatatypeNodeFieldView"
+                }
+              }
+            }
+          }
+        ],
+        "description": "***"
+      },
       "DatatypeView": {
         "type": "object",
         "allOf": [
@@ -21901,6 +21962,36 @@ Content-Type: application/json
             "description": "***"
           }
         }
+      },
+      "ExecutableNodeView": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TableNodeView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "dimensionProperties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "description": "***"
+                },
+                "description": "***"
+              },
+              "returnType": {
+                "type": "string",
+                "description": "***"
+              },
+              "signature": {
+                "type": "string",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***"
       },
       "FacetCount_Full": {
         "type": "object",
@@ -26289,6 +26380,37 @@ Content-Type: application/json
       },
       "TableNodeView": {
         "type": "object",
+        "description": "***",
+        "discriminator": {
+          "mapping": {
+            "Actions": "#/components/schemas/ExecutableNodeView",
+            "Column Match": "#/components/schemas/ExecutableNodeView",
+            "Conditions": "#/components/schemas/ExecutableNodeView",
+            "Constants": "#/components/schemas/ExecutableNodeView",
+            "Data": "#/components/schemas/ExecutableNodeView",
+            "Datatype": "#/components/schemas/DatatypeNodeView",
+            "Dispatcher": "#/components/schemas/ExecutableNodeView",
+            "Environment": "#/components/schemas/ExecutableNodeView",
+            "Method": "#/components/schemas/ExecutableNodeView",
+            "Other": "#/components/schemas/ExecutableNodeView",
+            "Properties": "#/components/schemas/ExecutableNodeView",
+            "Returns": "#/components/schemas/ExecutableNodeView",
+            "Rules": "#/components/schemas/ExecutableNodeView",
+            "Run": "#/components/schemas/ExecutableNodeView",
+            "Spreadsheet": "#/components/schemas/ExecutableNodeView",
+            "TBasic": "#/components/schemas/ExecutableNodeView",
+            "Test": "#/components/schemas/ExecutableNodeView"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/DatatypeNodeView"
+          },
+          {
+            "$ref": "#/components/schemas/ExecutableNodeView"
+          }
+        ],
         "properties": {
           "dependencies": {
             "type": "array",
@@ -26307,14 +26429,6 @@ Content-Type: application/json
               "description": "***"
             },
             "uniqueItems": true
-          },
-          "dimensionProperties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string",
-              "description": "***"
-            },
-            "description": "***"
           },
           "file": {
             "type": "string",
@@ -26365,14 +26479,6 @@ Content-Type: application/json
               "type": "object",
               "description": "***"
             },
-            "description": "***"
-          },
-          "returnType": {
-            "type": "string",
-            "description": "***"
-          },
-          "signature": {
-            "type": "string",
             "description": "***"
           },
           "tableType": {

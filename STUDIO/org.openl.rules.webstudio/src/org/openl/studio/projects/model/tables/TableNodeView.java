@@ -4,21 +4,37 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * A node of the project tables dependency graph.
  *
- * <p>Carries the summary fields of the table it stands for plus the owning project name and the table's relations to
- * other tables. Its {@link #kind} is a {@link TableGraphNodeKind} rather than a {@link TableKind}, because a node can
- * also be the synthetic dispatcher of same-named versions, which is not a table. It does not extend
- * {@link SummaryTableView}: the fields are declared here so the schema can carry the graph node kind, which the shared
- * summary kind cannot. Summary fields that are not relevant to the graph are left unset and omitted from the response.
+ * <p>Carries what every node has: the identity of the table it stands for, where it lives, the project that owns it,
+ * and its relations to the other nodes. What a node adds on top depends on what it stands for — an
+ * {@link ExecutableNodeView} describes a callable table, a {@link DatatypeNodeView} describes a datatype and the data
+ * model around it.
+ *
+ * <p>Its {@link #kind} is a {@link TableGraphNodeKind} rather than a {@link TableKind}, because a node can also be the
+ * synthetic dispatcher of same-named versions, which is not a table. The kind is also what tells the two node shapes
+ * apart, so every kind is mapped to one of them below — a new kind has to be registered here too. A node does not
+ * extend {@link SummaryTableView}:
+ * the fields are declared here so the schema can carry the graph node kind, which the shared summary kind cannot.
+ * Summary fields that are not relevant to the graph are left unset and omitted from the response.
  *
  * @author Vladyslav Pikus
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class TableNodeView {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "kind", visible = true)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = DatatypeNodeView.class, name = "Datatype"),
+        @JsonSubTypes.Type(value = ExecutableNodeView.class, names = {"Rules", "Spreadsheet", "Data", "Test",
+                "TBasic", "Column Match", "Method", "Run", "Constants", "Conditions", "Actions", "Returns",
+                "Environment", "Properties", "Other", "Dispatcher"})
+})
+@Schema(description = "A node of the tables dependency graph")
+public abstract class TableNodeView {
 
     @Schema(description = "Unique identifier of the table")
     public final String id;
@@ -35,12 +51,6 @@ public class TableNodeView {
     @Schema(description = "Custom properties associated with the table")
     public final Map<String, Object> properties;
 
-    @Schema(description = "Return type of the table (e.g., Integer, String, etc.)")
-    public final String returnType;
-
-    @Schema(description = "Signature of the table")
-    public final String signature;
-
     @Schema(description = "File where the table is located")
     public final String file;
 
@@ -56,101 +66,83 @@ public class TableNodeView {
     @Schema(description = "Identifiers of the tables that depend on this table")
     public final Set<String> dependents;
 
-    @Schema(description = """
-            Dimension properties this version of the table is selected by — the versioning rules the \
-            dispatcher uses (e.g. state, lob, dates), resolved from the module name pattern or the table itself""")
-    public final Map<String, String> dimensionProperties;
-
-    private TableNodeView(Builder builder) {
+    protected TableNodeView(Builder<?> builder) {
         this.id = builder.id;
         this.tableType = builder.tableType;
         this.kind = builder.kind;
         this.name = builder.name;
         this.properties = builder.properties;
-        this.returnType = builder.returnType;
-        this.signature = builder.signature;
         this.file = builder.file;
         this.pos = builder.pos;
         this.project = builder.project;
         this.dependencies = builder.dependencies;
         this.dependents = builder.dependents;
-        this.dimensionProperties = builder.dimensionProperties;
     }
 
-    public static final class Builder {
+    public abstract static class Builder<T extends Builder<T>> {
         private String id;
         private String tableType;
         private TableGraphNodeKind kind;
         private String name;
         private Map<String, Object> properties;
-        private String returnType;
-        private String signature;
         private String file;
         private String pos;
         private String project;
         private Set<String> dependencies;
         private Set<String> dependents;
-        private Map<String, String> dimensionProperties;
+
+        protected abstract T self();
 
         /**
-         * Copies every {@link SummaryTableView} field except the kind — the graph node's kind is set separately,
+         * Copies the summary fields every node shares, except the kind — the graph node's kind is set separately,
          * because it can be the dispatcher rather than a table kind. Graph-specific fields (project, dependencies,
          * dependents) and any id/name override are applied afterwards.
          */
-        public Builder summary(SummaryTableView source) {
+        public T summary(SummaryTableView source) {
             this.id = source.id;
             this.name = source.name;
             this.tableType = source.tableType;
             this.properties = source.properties;
-            this.returnType = source.returnType;
-            this.signature = source.signature;
             this.file = source.file;
             this.pos = source.pos;
-            return this;
+            return self();
         }
 
-        public Builder id(String id) {
+        public T id(String id) {
             this.id = id;
-            return this;
+            return self();
         }
 
-        public Builder name(String name) {
+        public T name(String name) {
             this.name = name;
-            return this;
+            return self();
         }
 
-        public Builder kind(TableGraphNodeKind kind) {
+        public T kind(TableGraphNodeKind kind) {
             this.kind = kind;
-            return this;
+            return self();
         }
 
-        public Builder tableType(String tableType) {
+        public T tableType(String tableType) {
             this.tableType = tableType;
-            return this;
+            return self();
         }
 
-        public Builder project(String project) {
+        public T project(String project) {
             this.project = project;
-            return this;
+            return self();
         }
 
-        public Builder dependencies(Set<String> dependencies) {
+        public T dependencies(Set<String> dependencies) {
             this.dependencies = dependencies;
-            return this;
+            return self();
         }
 
-        public Builder dependents(Set<String> dependents) {
+        public T dependents(Set<String> dependents) {
             this.dependents = dependents;
-            return this;
+            return self();
         }
 
-        public Builder dimensionProperties(Map<String, String> dimensionProperties) {
-            this.dimensionProperties = dimensionProperties;
-            return this;
-        }
-
-        public TableNodeView build() {
-            return new TableNodeView(this);
-        }
+        public abstract TableNodeView build();
     }
 }

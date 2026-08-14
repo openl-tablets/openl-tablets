@@ -104,6 +104,7 @@ import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHold
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
+import org.openl.studio.projects.service.tables.graph.GraphLayer;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
@@ -495,11 +496,12 @@ public class ProjectsController {
     @GetMapping("/{projectId}/tables/graph")
     @Operation(summary = "project.tables.graph.summary", description = "project.tables.graph.desc")
     public List<TableNodeView> getTablesGraph(@ProjectId @PathVariable("projectId") RulesProject project,
-                                              @RequestParam(value = "module", required = false) @Parameter(description = "project.tables.graph.module.desc") String module) {
+                                              @RequestParam(value = "module", required = false) @Parameter(description = "project.tables.graph.module.desc") String module,
+                                              @RequestParam(value = "layer", defaultValue = "all") @Parameter(description = "project.tables.graph.layer.desc") GraphLayer layer) {
         // a blank `?module=` means the whole project, not a module named "" (which would fail to resolve)
         var moduleName = StringUtils.trimToNull(module);
         var model = projectService.openProject(project, moduleName).awaitCompiled();
-        return graphService.buildProjectGraph(model, moduleName != null);
+        return graphService.buildProjectGraph(model, moduleName != null, layer);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/graph")
