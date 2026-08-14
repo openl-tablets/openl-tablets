@@ -2,15 +2,17 @@
 
 ## Resume point
 
-- **Converged at `main` = `cd6fcefb0a` (EPBDS-16448 Read the design repository branches through one hook)**;
-  every queue row and every vein done. New scope arrives only as new commits on `main` — never invent a detector.
+- **Converged at `main` = `859b0132fa` (EPBDS-16379 Refuse an uploaded workbook or archive that did not arrive in
+  full)**; every queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
   unchanged SHA. **The recorded SHA is usually gone from the next clone** (a merged PR lands rebased, only 50 commits
   fetched), so match its *subject* in `git log --oneline -25 origin/main` and take every commit above it.
 - Sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Read the
   **deleted** lines first — additive commits orphan nothing; a commit deleting a screen is the richest vein, so check
   its locale keys, service functions, helper modules, dropped `throws`, and re-run the class/id selector extraction
-  over `webstudio/webapp/css` — a retired JSF page leaves its CSS class behind and nothing else.
+  over `webstudio/webapp/css` — a retired JSF page leaves its CSS class behind and nothing else. When a commit
+  swaps a helper call for a new class, search each **method** of that helper separately: the class name stays alive
+  through its other callers while the one method the rewrite dropped is left with only its own test.
 
 ## Change-type queue
 
@@ -48,6 +50,10 @@ detector this ledger has never run — not by re-running one of these.
 - `STUDIO/org.openl.rules.repository` `BranchRepository` — the four `@Deprecated(forRemoval = true)` default
   methods (`createBranch` twice, `deleteBranch(String, String)`, `getBranches(String)`) have no caller of their
   signature left; everything moved to `listBranches`/`createRepositoryBranch`. Public API, so a human removes them.
+- `DEV/org.openl.commons` `FileSignatureHelper.isOle2Sign` — its only production caller was
+  `ProjectFilesServiceImpl.validateFileSignature`, which EPBDS-16379 replaced with `FileIntegrityValidator`; only
+  its own test names it now. Public API of a published artifact, and its siblings `isArchiveSign`/`isEmptyArchive`
+  stay live, so the class remains and a human decides on the method.
 - `STUDIO/org.openl.security` `SimpleGroup.description` — written by a public setter and a public constructor
   parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
@@ -221,8 +227,7 @@ detector this ledger has never run — not by re-running one of these.
   JUL `logging.properties`, `META-INF/io/opentelemetry/instrumentation/*.properties`, `archetype-metadata.xml`,
   maven-site `site.xml`, Facelets `*.taglib.xml` and `.tld`, Bean Validation message overrides, favicons and
   web-manifest icons, `DEV/org.openl.rules.gen/enums/*.csv` codegen inputs, and a vendored library's own source map.
-- Every `META-INF/services` file is reached by `ServiceLoader` alone, so no file names it. All 8 here are valid —
-  each declared implementation and each `org.openl` service interface resolves to a source file.
+- Every `META-INF/services` file is reached by `ServiceLoader` alone, so no file names it.
 - `WSFrontend/org.openl.rules.ruleservice` and `.ruleservice.deployer` publish a **test-jar**, so their test classes
   are consumer API. Test types anywhere else are not published and may be deleted once proven unreferenced.
 - The tableeditor `compile.js.sh`/`compile.css.sh` and their `.cmd` twins are manual developer tooling wired into
@@ -333,9 +338,8 @@ detector this ledger has never run — not by re-running one of these.
 - **Across all 207 poms**: every defined property, duplicate `<dependency>` and duplicate `.properties` keys, every
   profile, every `pluginManagement` entry and every `<exclusion>`, each resolved against `-P` references, activation
   blocks, packaging types and goal invocations. Zero removable; every exclusion is defensive.
-- **The root aggregator's `<module>` graph** over all real poms — every unreachable pom is an invoker fixture or a
-  doc example, and no `<module>` names a missing directory. Also all 8 `META-INF/services` files, every
-  implementation and `org.openl` interface resolved. Both closed with no finding; do not re-run either.
+- **The root aggregator's `<module>` graph** over all real poms, and all 8 `META-INF/services` files with every
+  declared implementation and `org.openl` interface resolved. Both closed with no finding; do not re-run either.
 - **PMD 7.17 `UnusedAssignment`, `UnusedLocalVariable`, `UnusedPrivateField`, `UnusedPrivateMethod` and
   `UnusedFormalParameter` over main *and* test sources of all 42 analysable modules** (`includeTests=true`), the
   detector validated against the known main-source baseline. No PMD scope is left open.
@@ -382,6 +386,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-14 — run 158: two EPBDS-16422 commits screened; one CSS orphan removed, PR #2004 opened. No Maven build.
 - 08-14 — run 159: two EPBDS-16448 studio-ui commits screened, nothing orphaned; #2004 green. No build.
 - 08-14 — run 160: `main` unchanged, #2004 green and awaiting approval. Idle; compacted the ledger only.
+- 08-14 — run 161: two EPBDS-16379 commits screened; nothing removable, one public-API method deferred. No build.
