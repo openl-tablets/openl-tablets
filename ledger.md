@@ -2,15 +2,15 @@
 
 ## Resume point
 
-- **Converged at `main` = `90497ade80` (Bump log4j-api from 2.25.1 to 2.25.5 in openl-dependency-b)**; every
-  queue row and every vein done. Idle for dozens of passes; new scope arrives only as new commits on `main` — never
-  invent a detector.
+- **Converged at `main` = `6eb1d67fe6` (EPBDS-16422 Offer the revisions of the exported file, not of the project)**;
+  every queue row and every vein done. New scope arrives only as new commits on `main` — never invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
   unchanged SHA. **The recorded SHA is usually gone from the next clone** (a merged PR lands rebased, only 50 commits
   fetched), so match its *subject* in `git log --oneline -25 origin/main` and take every commit above it.
 - Sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Read the
   **deleted** lines first — additive commits orphan nothing; a commit deleting a screen is the richest vein, so check
-  its locale keys, service functions, helper modules and dropped `throws`.
+  its locale keys, service functions, helper modules, dropped `throws`, and re-run the class/id selector extraction
+  over `webstudio/webapp/css` — a retired JSF page leaves its CSS class behind and nothing else.
 
 ## Change-type queue
 
@@ -19,7 +19,9 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Open PR
 
-None. Open the next one from a fresh branch off the current `main`.
+- #2004 on `dead-code/webstudio-css`, head `0db9f19e7e`, one commit: *Drop the common.css titleColumn rules orphaned by
+  the retired commit info dialog* (11 CSS lines). No review thread. CI is the only gate — nothing compiles against a
+  stylesheet.
 
 ## Merged PRs
 
@@ -57,6 +59,9 @@ None. Open the next one from a fresh branch off the current `main`.
   `Docs/api/projects-merge-api.md` backed by a Java record and an OpenAPI schema; if they go, that page goes too.
 - `.te_hidden` in `STUDIO/org.openl.rules.tableeditor/css/common.css` — the only real CSS orphan. Blocked because the
   CSS bundles are not reproducible (see *Method rules*), so the removal cannot be propagated to what ships.
+- webstudio `webapp/javascript/common.js:127` guards a submit handler with `!$submit.hasClass('own-loader-handler')`;
+  the class is carried by no element since the Export dialogs went to React, but dropping the test rewrites a live
+  condition rather than deleting a declaration, and its explanatory comment would go with it.
 - `STUDIO/org.openl.rules.workspace/resources/deployer.properties` — a `production-repository.$ref` sample no file
   names, in a library jar with no matching application. `{appName}.properties` would load it for an app named
   `deployer`, so only a human knows whether one still exists downstream.
@@ -380,6 +385,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-14 — run 155: `main` unchanged at the resume point; only open PR is #2001, another author's. Idle, no build.
 - 08-14 — run 156: `main` unchanged at the resume point; only open PR is #2001, another author's. Idle, no build.
 - 08-14 — run 157: `main` unchanged at the resume point; only open PR is #2001, another author's. Idle, no build.
+- 08-14 — run 158: two EPBDS-16422 commits screened; one CSS orphan removed, PR #2004 opened. No Maven build.
