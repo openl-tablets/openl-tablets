@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- **Converged at `main` = `1ad6579507` (Wait for the cross-branch project index in the two repos steps that raced
-  it)**; every queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector.
+- **Converged at `main` = `f9a81b9387` (EPBDS-16318 Show the data model in the tables dependency graph)**; every
+  queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
   unchanged SHA. **The recorded SHA is usually gone from the next clone** (a merged PR lands rebased, only 50 commits
   fetched), so match its *subject* in `git log --oneline -25 origin/main` and take every commit above it.
@@ -387,7 +387,8 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-14 — run 161: two EPBDS-16379 commits screened; nothing removable, one public-API method deferred. No build.
 - 08-14 — run 162: `main` and #2004 both unchanged, no human comment on the PR. Idle; two calls, no build.
 - 08-14 — run 163: four `main` commits screened — two purely additive, two whose deletions orphan nothing (an
   `@AfterEach` folded into setup, a test padding local). #2004 unchanged. No build.
+- 08-14 — run 164: one `main` commit screened (EPBDS-16318) — a `TableNodeView` split whose three dropped fields
+  moved verbatim into the new sibling the commit adds. #2004 unchanged, green, bot comments only. No build.
