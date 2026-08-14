@@ -130,6 +130,18 @@ Header-Name: value
 &filename.ext
 ```
 
+The path is relative to the folder of the `.req`/`.resp` file, so `&../shared.zip` reaches a fixture kept at the
+suite root. A reference works as one part of a `multipart/form-data` body, and as a whole body whose length the
+framework itself determines — whatever the content type, a workbook sent as `application/octet-stream` included.
+A body that declares its own framing (`Content-Length` or `Transfer-Encoding: chunked`) is taken literally,
+because a declared length cannot be honored by a file whose size is unknown until it is read. A `.resp` is the
+exception: whatever its framing, an expected body that is nothing but a reference is resolved before the content
+type decides how to compare it.
+
+> [!Note]
+> A body of a **blob** content type (`application/zip`) must end with the reference line itself: anything after it,
+> including the customary trailing blank line, is reported as `Unexpected content`.
+
 ### Special Headers
 
 - `X-OpenL-Test-Retry: yes` — retry for up to 2 minutes on mismatch (100ms delays)

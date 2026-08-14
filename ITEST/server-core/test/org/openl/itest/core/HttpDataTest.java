@@ -78,6 +78,19 @@ class HttpDataTest {
         }
     }
 
+    /**
+     * A body that is nothing but a file reference is read from that file, whatever the content type
+     * is. It lets a binary payload - a workbook uploaded as {@code application/octet-stream} - be
+     * kept in a file of its own instead of being inlined into the request.
+     */
+    @Test
+    void testFileRefBody() throws Exception {
+        HttpData fileRef = HttpData.readFile("/file-ref-body.resp");
+        HttpData inline = HttpData.readFile("/undefined-length.resp");
+        fileRef.assertTo(inline);
+        inline.assertTo(fileRef);
+    }
+
     @Test
     void testResponse204() throws Exception {
         final HttpData fullNoContent = HttpData.readFile("/no-content-full.resp");
