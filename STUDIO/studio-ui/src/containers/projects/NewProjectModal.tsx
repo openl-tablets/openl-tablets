@@ -268,6 +268,7 @@ export const NewProjectModal = ({
     const [repoId, setRepoId] = useState('')
     const [branch, setBranch] = useState('')
     const [branchOptions, setBranchOptions] = useState<string[]>([])
+    const [branchesLoading, setBranchesLoading] = useState(false)
     const [branchTouched, setBranchTouched] = useState(false)
     const [copySource, setCopySource] = useState<string | null>(null)
     const [name, setName] = useState('')
@@ -389,10 +390,12 @@ export const NewProjectModal = ({
         let active = true
         setBranch('')
         setBranchOptions([])
+        setBranchesLoading(false)
         setBranchTouched(false)
         if (!open || !repositorySupportsBranches || !repoId) {
             return
         }
+        setBranchesLoading(true)
         getDesignRepositoryBranches(repoId)
             .then(options => {
                 if (active) {
@@ -402,6 +405,11 @@ export const NewProjectModal = ({
             .catch(() => {
                 if (active) {
                     setBranchOptions([])
+                }
+            })
+            .finally(() => {
+                if (active) {
+                    setBranchesLoading(false)
                 }
             })
         return () => {
@@ -950,6 +958,7 @@ export const NewProjectModal = ({
                         allowNew
                         branchNames={availableBranches}
                         data-testid="new-project-branch"
+                        loading={branchesLoading}
                         marksOf={branchMarksFromConfig(config)}
                         placeholder={t('browser.create.branch')}
                         value={branch}

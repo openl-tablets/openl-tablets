@@ -28,15 +28,17 @@ vi.mock('../../utils/openlArchive', () => ({ inspectOpenLArchive: vi.fn(), zipPr
 
 vi.mock('./RepoFolderPicker', () => ({ RepoFolderPicker: () => null }))
 
-// The real BranchSelect shows marked-up branch labels; the test only needs the field value and the names.
+// The real BranchSelect shows marked-up branch labels; the test only needs the field value, the names and
+// whether the field was told its branches are still being read.
 vi.mock('./BranchSelect', () => ({
-    BranchSelect: ({ onChange, branchNames, value, placeholder, marksOf, allowNew, ...rest }: {
+    BranchSelect: ({ onChange, branchNames, value, placeholder, marksOf, allowNew, loading, ...rest }: {
         onChange: (value: string) => void
         branchNames: string[]
         value?: string
         placeholder?: string
         marksOf?: unknown
         allowNew?: boolean
+        loading?: boolean
     }) => {
         void marksOf; void allowNew
         return (
@@ -47,6 +49,7 @@ vi.mock('./BranchSelect', () => ({
                     placeholder={placeholder}
                     value={value ?? ''}
                 />
+                {loading && <span data-testid="new-project-branch-loading" />}
                 {branchNames.map(name => <span key={name}>{name}</span>)}
             </div>
         )
@@ -575,6 +578,23 @@ describe('NewProjectModal', () => {
 
         expect(screen.getByText('prod-only')).toBeInTheDocument()
         expect(screen.queryByText('design-only')).not.toBeInTheDocument()
+    })
+
+    it('marks the branch field as reading until the branches arrive', async () => {
+        let resolveBranches!: (branches: string[]) => void
+        const pending = new Promise<string[]>(resolve => {
+            resolveBranches = resolve
+        })
+        vi.mocked(getDesignRepositoryBranches).mockReturnValue(pending)
+        renderWizard({ repositories: branchingRepositories })
+
+        await toConfig('template')
+        await waitFor(() => expect(getDesignRepositoryBranches).toHaveBeenCalledWith('design'))
+        expect(screen.getByTestId('new-project-branch-loading')).toBeInTheDocument()
+
+        resolveBranches(['main'])
+
+        await waitFor(() => expect(screen.queryByTestId('new-project-branch-loading')).not.toBeInTheDocument())
     })
 
     it('accepts the configured branch when branch enumeration fails', async () => {

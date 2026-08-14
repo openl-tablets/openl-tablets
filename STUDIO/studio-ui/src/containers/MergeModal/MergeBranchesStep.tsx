@@ -310,6 +310,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                         <BranchSelect
                             branchNames={branchNames}
                             data-testid="merge-target-branch"
+                            loading={isLoadingBranches}
                             marksOf={branchMarks}
                             placeholder={t('merge:branches.select_placeholder')}
                             value={selectedBranch}
