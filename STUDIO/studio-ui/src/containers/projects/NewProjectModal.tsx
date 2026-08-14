@@ -19,7 +19,6 @@ import {
     copyProject,
     createProject,
     createProjectsFromWorkspace,
-    getDesignRepositoryBranches,
     getProjects,
     getProjectTemplates,
     type ProjectInclude,
@@ -36,7 +35,7 @@ import { ProjectStatus } from '../../constants/project'
 import { useSharedStyles } from './sharedStyles'
 import { creatableRepositories, supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
 import { inspectOpenLArchive, zipProjectFolder, type OpenLArchiveInfo } from '../../utils/openlArchive'
-import { useCommitInfoGuard, useRepositoryConfig } from '../../hooks'
+import { useCommitInfoGuard, useDesignRepositoryBranches, useRepositoryConfig } from '../../hooks'
 import { suggestComment, validateBranchName } from '../../utils/repositoryConfig'
 import { CommentField, useCommentError } from './CommentField'
 import { trimTrailingSlashes } from './projectPaths'
@@ -267,8 +266,6 @@ export const NewProjectModal = ({
     const [mode, setMode] = useState<CreateMode>('template')
     const [repoId, setRepoId] = useState('')
     const [branch, setBranch] = useState('')
-    const [branchOptions, setBranchOptions] = useState<string[]>([])
-    const [branchesLoading, setBranchesLoading] = useState(false)
     const [branchTouched, setBranchTouched] = useState(false)
     const [copySource, setCopySource] = useState<string | null>(null)
     const [name, setName] = useState('')
@@ -367,6 +364,9 @@ export const NewProjectModal = ({
     // The target repository suggests the comment of the commit the wizard is about to make, following the
     // project the comment is about: the copied one, or the one being created.
     const config = useRepositoryConfig(open && repoId ? { repositoryId: repoId } : null)
+    // The repository the branches are read from; the form asks for none until it has one to write to.
+    const branchRepositoryId = open && repositorySupportsBranches && repoId ? repoId : null
+    const { branches: branchOptions, loading: branchesLoading } = useDesignRepositoryBranches(branchRepositoryId)
     const availableBranches = config?.branch && !branchOptions.includes(config.branch)
         ? [config.branch, ...branchOptions]
         : branchOptions
@@ -387,35 +387,9 @@ export const NewProjectModal = ({
     }, [commentSubject, commentTouched, config, mode, open])
 
     useEffect(() => {
-        let active = true
         setBranch('')
-        setBranchOptions([])
-        setBranchesLoading(false)
         setBranchTouched(false)
-        if (!open || !repositorySupportsBranches || !repoId) {
-            return
-        }
-        setBranchesLoading(true)
-        getDesignRepositoryBranches(repoId)
-            .then(options => {
-                if (active) {
-                    setBranchOptions(options)
-                }
-            })
-            .catch(() => {
-                if (active) {
-                    setBranchOptions([])
-                }
-            })
-            .finally(() => {
-                if (active) {
-                    setBranchesLoading(false)
-                }
-            })
-        return () => {
-            active = false
-        }
-    }, [open, repoId, repositorySupportsBranches])
+    }, [branchRepositoryId])
 
     useEffect(() => {
         if (open && repositorySupportsBranches && !branchTouched && config?.branch) {
