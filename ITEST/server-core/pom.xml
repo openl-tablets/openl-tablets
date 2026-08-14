@@ -51,5 +51,12 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- The listener that leaves openl.home deletable hooks into the test run. Surefire brings the
+             launcher itself, so the suites need nothing of it on their own classpath. -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
