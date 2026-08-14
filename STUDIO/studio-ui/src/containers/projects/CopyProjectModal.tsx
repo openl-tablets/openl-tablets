@@ -5,7 +5,6 @@ import { Alert, Checkbox, Input, Modal, notification, Select } from 'antd'
 import {
     copyProject,
     createProjectBranch,
-    getDesignRepositoryBranches,
     isProjectModifiedConflict,
     switchProjectBranch,
 } from '../../services/repositories'
@@ -21,7 +20,7 @@ import { suggestBranchName, suggestComment, validateBranchName } from '../../uti
 import { CommentField, useCommentError } from './CommentField'
 import { useUserStore } from '../../store'
 import { supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
-import { useCommitInfoGuard, useRepositoryConfig } from '../../hooks'
+import { useCommitInfoGuard, useDesignRepositoryBranches, useRepositoryConfig } from '../../hooks'
 import { DiscardChangesModal } from '../DiscardChangesModal'
 import { ProjectStatus } from '../../constants/project'
 
@@ -53,8 +52,6 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     const [branch, setBranch] = useState('')
     const [targetRepositoryId, setTargetRepositoryId] = useState('')
     const [targetBranch, setTargetBranch] = useState('')
-    const [targetBranchOptions, setTargetBranchOptions] = useState<string[]>([])
-    const [targetBranchesLoading, setTargetBranchesLoading] = useState(false)
     const [targetBranchTouched, setTargetBranchTouched] = useState(false)
     const [name, setName] = useState('')
     const [comment, setComment] = useState('')
@@ -84,6 +81,14 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     )
     const writeConfig = newProjectMode ? targetConfig : sourceConfig
     const commentError = useCommentError(comment, writeConfig)
+    // Only a copy into a new project picks a branch, so nothing is read while the dialog only branches.
+    const targetBranchRepositoryId = open && newProjectMode && targetSupportsBranches && targetRepositoryId
+        ? targetRepositoryId
+        : null
+    const {
+        branches: targetBranchOptions,
+        loading: targetBranchesLoading,
+    } = useDesignRepositoryBranches(targetBranchRepositoryId)
     const availableTargetBranches = targetConfig?.branch && !targetBranchOptions.includes(targetConfig.branch)
         ? [targetConfig.branch, ...targetBranchOptions]
         : targetBranchOptions
@@ -103,7 +108,6 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
             ? project.repository
             : repositories[0]?.id ?? '')
         setTargetBranch('')
-        setTargetBranchOptions([])
         setTargetBranchTouched(false)
         setName('')
         setPath('')
@@ -114,35 +118,9 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     }, [open, project, repositories])
 
     useEffect(() => {
-        let active = true
         setTargetBranch('')
-        setTargetBranchOptions([])
-        setTargetBranchesLoading(false)
         setTargetBranchTouched(false)
-        if (!open || !newProjectMode || !targetSupportsBranches || !targetRepositoryId) {
-            return
-        }
-        setTargetBranchesLoading(true)
-        getDesignRepositoryBranches(targetRepositoryId)
-            .then(options => {
-                if (active) {
-                    setTargetBranchOptions(options)
-                }
-            })
-            .catch(() => {
-                if (active) {
-                    setTargetBranchOptions([])
-                }
-            })
-            .finally(() => {
-                if (active) {
-                    setTargetBranchesLoading(false)
-                }
-            })
-        return () => {
-            active = false
-        }
-    }, [newProjectMode, open, targetRepositoryId, targetSupportsBranches])
+    }, [targetBranchRepositoryId])
 
     useEffect(() => {
         if (open && newProjectMode && targetSupportsBranches && !targetBranchTouched && targetConfig?.branch) {
