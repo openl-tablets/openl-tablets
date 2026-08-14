@@ -15,9 +15,12 @@ import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -162,10 +165,9 @@ class ProjectDescriptorWriteValidationTest {
     @Test
     void oversizedDescriptorIsRefused() throws Exception {
         projectWithDescriptor();
-        var padding = " ".repeat(16 * 1024 * 1024);
 
-        var ex = assertThrows(BadRequestException.class, () -> service.updateResource(root,
-                ProjectDescriptor.FILE_NAME, content(INVALID_PROCESSOR + "<!--" + padding + "-->")));
+        var ex = assertThrows(BadRequestException.class,
+                () -> service.updateResource(root, ProjectDescriptor.FILE_NAME, paddedPastTheCap()));
 
         assertEquals("openl.error.400.file.descriptor.too-large.message", ex.getErrorCode());
         verify(repository, never()).save(any(FileData.class), any(InputStream.class));
@@ -251,6 +253,41 @@ class ProjectDescriptorWriteValidationTest {
 
     private static InputStream content(String text) {
         return new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * The invalid descriptor padded with a comment longer than a descriptor may be. The padding is
+     * produced as it is read, so the test never holds it whole.
+     */
+    private static InputStream paddedPastTheCap() {
+        return new SequenceInputStream(Collections.enumeration(
+                List.of(content(INVALID_PROCESSOR + "<!--"), spaces(1024 * 1024), content("-->"))));
+    }
+
+    private static InputStream spaces(int count) {
+        return new InputStream() {
+            private int left = count;
+
+            @Override
+            public int read() {
+                if (left == 0) {
+                    return -1;
+                }
+                left--;
+                return ' ';
+            }
+
+            @Override
+            public int read(byte[] buffer, int offset, int length) {
+                if (left == 0) {
+                    return -1;
+                }
+                var read = Math.min(length, left);
+                Arrays.fill(buffer, offset, offset + read, (byte) ' ');
+                left -= read;
+                return read;
+            }
+        };
     }
 
     private void projectWithDescriptor() throws IOException {
