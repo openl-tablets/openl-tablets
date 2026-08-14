@@ -92,7 +92,7 @@ public class ZipProjectSaveStrategy {
                     }
                 }
             } else {
-                Path tmp = Files.createTempFile(FileUtils.getBaseName(projectData.getName()), ".zip");
+                Path tmp = FileUtils.createPrivateTempFile(FileUtils.getBaseName(projectData.getName()), ".zip");
                 try {
                     try (var zos = new ZipOutputStream(Files.newOutputStream(tmp))) {
                         try (var changes = new FileChangesFromFolder(root, filter, adaptor)) {

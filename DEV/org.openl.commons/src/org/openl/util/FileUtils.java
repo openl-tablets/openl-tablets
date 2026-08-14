@@ -5,12 +5,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -32,6 +37,83 @@ public class FileUtils {
      */
     public static String getTempDirectoryPath() {
         return System.getProperty("java.io.tmpdir");
+    }
+
+    /**
+     * Creates a temporary file readable and writable only by its owner, so other local users cannot
+     * read what is written to it (Sonar java:S5443). On file systems without POSIX permissions the
+     * per-user temporary directory is private already.
+     *
+     * @param prefix the prefix of the file name
+     * @param suffix the suffix of the file name, or {@code null} for {@code .tmp}
+     * @return the path of the created file
+     */
+    public static Path createPrivateTempFile(String prefix, String suffix) throws IOException {
+        FileAttribute<?>[] permissions = FileSystems.getDefault().supportedFileAttributeViews().contains("posix")
+                ? new FileAttribute<?>[]{
+                        PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"))}
+                : new FileAttribute<?>[0];
+        return Files.createTempFile(prefix, suffix, permissions);
+    }
+
+    /**
+     * Copies the content into a temporary file only its owner can read, and returns that file. The
+     * stream is left open for the caller to close. A failed copy deletes the partially written file
+     * before the error is rethrown.
+     *
+     * <p>The copy stops as soon as the content is longer than {@code maxBytes} and reports it as
+     * {@link ContentTooLargeException}, so content of an unknown length cannot fill the disk it is
+     * copied to.
+     *
+     * @param content  the content to copy
+     * @param prefix   the prefix of the file name
+     * @param suffix   the suffix of the file name, or {@code null} for {@code .tmp}
+     * @param maxBytes the largest content that may be copied
+     * @return the path of the written file
+     * @throws ContentTooLargeException when the content is longer than {@code maxBytes}
+     */
+    public static Path copyToPrivateTempFile(InputStream content, String prefix, String suffix,
+                                             long maxBytes) throws IOException {
+        Path file = createPrivateTempFile(prefix, suffix);
+        // The content is written into the file that was just created, so it keeps the permissions it was
+        // created with. Files.copy(..., REPLACE_EXISTING) would delete that file and create a new one,
+        // which the default umask makes readable by every local user.
+        try (OutputStream out = Files.newOutputStream(file)) {
+            byte[] buffer = new byte[64 * 1024];
+            long copied = 0;
+            int read;
+            while ((read = content.read(buffer)) != -1) {
+                copied += read;
+                if (copied > maxBytes) {
+                    throw new ContentTooLargeException(maxBytes);
+                }
+                out.write(buffer, 0, read);
+            }
+        } catch (IOException e) {
+            deleteQuietly(file);
+            throw e;
+        }
+        return file;
+    }
+
+    /**
+     * Reports content that is longer than the copy of it may be.
+     */
+    public static class ContentTooLargeException extends IOException {
+
+        private final long maxBytes;
+
+        ContentTooLargeException(long maxBytes) {
+            super("The content is longer than " + maxBytes + " bytes.");
+            this.maxBytes = maxBytes;
+        }
+
+        /**
+         * The largest content the copy would have accepted.
+         */
+        public long getMaxBytes() {
+            return maxBytes;
+        }
     }
 
     /**

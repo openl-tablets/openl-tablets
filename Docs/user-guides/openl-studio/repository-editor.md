@@ -226,6 +226,8 @@ OpenL Studio provides a control for loading rule projects archived in a ZIP file
 
 ZIP is the only supported archive format — `.rar` or `.7z` archives cannot be used. A project **folder** is accepted as well, because OpenL Studio packs it into a `zip` archive in the browser first and validates it exactly like an uploaded one — the folder must be a project, holding a `rules.xml` or an Excel file at its root.
 
+The archive must also arrive in full. OpenL Studio reads the directory the archive keeps at its end, so an upload that was cut short is rejected instead of becoming a project with part of its content, and checks the files the archive carries against the checksums recorded for them. An archive that unpacks to more than 2 GB keeps the first check and skips the checksums, so that verifying it cannot itself be turned into an attack.
+
 1.  Click **Create Project** in the top line menu.
 1.  In the **Create Project from** dialog, click the **Zip Archive** tab.
 1.  Choose **Archive** or **Folder**, click the **Add** button, locate the necessary zip archive or project folder, and click **Open**.
@@ -425,6 +427,11 @@ This section describes modifying the physical structure of the project and inclu
 -   [Updating a File](#updating-a-file)
 -   [Deleting a Folder or a File](#deleting-a-folder-or-a-file)
 -   [Copying a File](#copying-a-file)
+
+An uploaded Excel workbook or ZIP archive is checked for completeness before it is stored. A file that did not
+arrive in full — an upload interrupted halfway, or content damaged on its way — is rejected with an error, so a
+module nobody can open never reaches the project. Files of any other type are stored as they arrive, and an
+upload larger than 1000 MB is refused rather than checked.
 
 #### Creating a Folder
 

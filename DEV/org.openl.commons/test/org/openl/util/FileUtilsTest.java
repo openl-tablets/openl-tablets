@@ -6,12 +6,56 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
+
 import org.junit.jupiter.api.Test;
 
 /**
  * Created by ymolchan on 12.10.2015.
  */
 class FileUtilsTest {
+
+    /**
+     * The content of a temporary file must stay unreadable by other local users, so the file the
+     * content is written into must be the one that was created with those permissions.
+     */
+    @Test
+    void testCopyToPrivateTempFileKeepsItPrivate() throws IOException {
+        byte[] content = "the uploaded content".getBytes(StandardCharsets.UTF_8);
+        var file = FileUtils.copyToPrivateTempFile(new ByteArrayInputStream(content), "openl-test", null, 1024);
+        try {
+            assertEquals(new String(content, StandardCharsets.UTF_8),
+                    Files.readString(file, StandardCharsets.UTF_8));
+            if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+                assertEquals("rw-------",
+                        PosixFilePermissions.toString(Files.getPosixFilePermissions(file)));
+            }
+        } finally {
+            FileUtils.deleteQuietly(file);
+        }
+        assertFalse(Files.exists(file));
+    }
+
+    /**
+     * Content of an unknown length must not be able to fill the file system it is copied to, so the
+     * copy stops at the bound and leaves nothing behind.
+     */
+    @Test
+    void testCopyToPrivateTempFileStopsAtTheBound() throws IOException {
+        var content = new ByteArrayInputStream(new byte[64 * 1024]);
+        var thrown = assertThrows(FileUtils.ContentTooLargeException.class,
+                () -> FileUtils.copyToPrivateTempFile(content, "openl-test", null, 1024));
+        assertEquals(1024, thrown.getMaxBytes());
+        try (var files = Files.list(Path.of(FileUtils.getTempDirectoryPath()))) {
+            assertTrue(files.noneMatch(file -> file.getFileName().toString().startsWith("openl-test")));
+        }
+    }
 
     @Test
     void testGetBaseName() throws Exception {

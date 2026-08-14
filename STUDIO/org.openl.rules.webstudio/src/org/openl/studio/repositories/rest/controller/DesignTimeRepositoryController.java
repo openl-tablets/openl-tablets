@@ -57,6 +57,7 @@ import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.studio.projects.converter.ProjectIdentityConverter;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
@@ -256,7 +257,7 @@ public class DesignTimeRepositoryController {
 
     private FileData createFromArchive(Repository repository, String projectName, MultipartFile file,
                                        CreateUpdateProjectModel model) throws IOException {
-        final Path archiveTmp = Files.createTempFile(projectName, ".zip");
+        final Path archiveTmp = FileUtils.createPrivateTempFile(projectName, ".zip");
         Lock lock = null;
         try {
             lock = getLock(repository, model);
@@ -292,12 +293,30 @@ public class DesignTimeRepositoryController {
         var projectFiles = new ArrayList<ProjectFile>();
         try {
             for (MultipartFile file : files) {
-                projectFiles.add(new ProjectFile(file.getOriginalFilename(), file.getInputStream()));
+                var projectFile = new ProjectFile(file.getOriginalFilename(), file.getInputStream());
+                projectFiles.add(projectFile);
+                verifyIntegrity(projectFile);
             }
             return projectCreationService.createFromFiles(repository, StringUtils.trimToNull(projectName), path,
                     projectFiles, comment, modelsPath, algorithmsPath, modelsModuleName, algorithmsModuleName, null);
         } finally {
             projectFiles.forEach(ProjectFile::destroy);
+        }
+    }
+
+    /**
+     * Verifies that an uploaded workbook or archive arrived complete, so a project is never created
+     * from a module that was cut short on its way here. A file of any other type is left alone.
+     */
+    private static void verifyIntegrity(ProjectFile file) throws IOException {
+        if (!FileIntegrityValidator.isVerified(file.getName())) {
+            return;
+        }
+        var buffered = file.getTempFile().toPath();
+        try {
+            FileIntegrityValidator.verify(file.getName(), buffered);
+        } catch (IOException e) {
+            throw FileIntegrityValidator.damagedContent(file.getName(), e);
         }
     }
 

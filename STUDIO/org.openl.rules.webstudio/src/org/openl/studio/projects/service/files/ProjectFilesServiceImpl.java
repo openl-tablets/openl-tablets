@@ -1,8 +1,6 @@
 package org.openl.studio.projects.service.files;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,11 +37,10 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.studio.projects.model.files.FolderNode;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.validator.file.ProjectDescriptorValidator;
-import org.openl.util.FileSignatureHelper;
-import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
@@ -114,11 +111,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         try {
             var resource = findFileArtefact(root.readFolder(null), path);
             requirePermission(resource, BasePermission.WRITE);
-            // Validated before the project is reserved, so a rejected write leaves no lock behind.
-            InputStream validatedContent = validateContent(root, path, content);
-            lockForEditing(root, path);
-            resource.setContent(validatedContent);
-        } catch (ProjectException e) {
+            // Validated before the project is reserved, so a rejected write leaves no lock behind. The
+            // validated content is closed here as well, so a write that never happens leaves nothing behind.
+            try (InputStream validatedContent = validateContent(root, path, content)) {
+                lockForEditing(root, path);
+                resource.setContent(validatedContent);
+            }
+        } catch (ProjectException | IOException e) {
             throw new ConflictException("file.update.failed.message");
         } finally {
             unlockIfClosed(root);
@@ -207,12 +206,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             // An opened project is reserved only once the content is known to be writable, so a rejected
             // write leaves no lock behind. A closed project is reserved beforehand, as it is for the other
             // modifications, so the content is not validated against a state another user is changing.
-            InputStream validatedContent = validateContent(root, path, content);
-            lockForEditing(root, path);
-            var targetFolder = resolveOrCreateFolders(root.writeFolder(), path,
-                    createFolders, "file.path.not.folder.message");
-            targetFolder.addResource(FilePaths.name(path), validatedContent);
-        } catch (ProjectException e) {
+            try (InputStream validatedContent = validateContent(root, path, content)) {
+                lockForEditing(root, path);
+                var targetFolder = resolveOrCreateFolders(root.writeFolder(), path,
+                        createFolders, "file.path.not.folder.message");
+                targetFolder.addResource(FilePaths.name(path), validatedContent);
+            }
+        } catch (ProjectException | IOException e) {
             throw new ConflictException("file.create.failed.message");
         } finally {
             unlockIfClosed(root);
@@ -329,11 +329,10 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             if (!isEntrySkipped(current, entry, conflictPolicy)) {
                 // An upload brings its own files with it - the libraries a descriptor names among them - so
                 // its descriptor is not checked against the working copy the upload is about to replace.
-                InputStream validated = validateFileSignature(FilePaths.name(entry.fullPath()),
-                        new ByteArrayInputStream(entry.data()));
+                verifyFileContent(FilePaths.name(entry.fullPath()), entry.data());
                 var fileData = new FileData();
                 fileData.setName(entry.fullPath());
-                items.add(new FileItem(fileData, validated));
+                items.add(new FileItem(fileData, new ByteArrayInputStream(entry.data())));
             }
         }
         if (conflictPolicy == ConflictPolicy.REPLACE) {
@@ -572,7 +571,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * <p>The project descriptor of a project is checked for settings the engine cannot use. Any
      * other file is checked against the format its extension promises.
      *
-     * @return a stream positioned at the beginning (after validation)
+     * @return a stream positioned at the beginning (after validation), to be closed by the caller
      */
     private InputStream validateContent(FileRoot root, String path, InputStream content) {
         // The path arrives as the request wrote it, so the surrounding slashes go before it names a file.
@@ -580,7 +579,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         if (root instanceof ProjectFileRoot projectRoot && ProjectDescriptor.FILE_NAME.equals(filePath)) {
             return validateDescriptor(projectRoot, content);
         }
-        return validateFileSignature(FilePaths.name(filePath), content);
+        return verifyFileContent(FilePaths.name(filePath), content);
     }
 
     /**
@@ -630,37 +629,33 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     /**
-     * Validates that the uploaded content is consistent with the file extension.
-     * For Excel files (.xlsx, .xlsm), validates the ZIP file signature.
-     * For legacy Excel files (.xls), validates the OLE2 compound document signature.
+     * Verifies that the uploaded content arrived complete and in the format its extension promises.
      *
-     * @return a buffered stream positioned at the beginning (after validation)
+     * <p>A workbook or an archive is checked against the structure the format records about itself,
+     * so content that was cut short is refused instead of being stored as a rule module nobody can
+     * open. A file of any other type is written as it arrives.
+     *
+     * @return a stream of the verified content, positioned at the beginning; it must be closed by
+     * the caller, because a verified stream holds a temporary copy of the content
      */
-    private InputStream validateFileSignature(String fileName, InputStream content) {
-        if (!FileTypeHelper.isExcelFile(fileName)) {
-            return content;
-        }
-        var buffered = new BufferedInputStream(content);
+    private InputStream verifyFileContent(String fileName, InputStream content) {
         try {
-            buffered.mark(4);
-            int sign = new DataInputStream(buffered).readInt();
-            buffered.reset();
-
-            String lcName = fileName.toLowerCase();
-            // A ".xls" suffix is legacy OLE2; ".xlsx"/".xlsm" are ZIP-based and cannot end with ".xls".
-            if (lcName.endsWith(".xls")) {
-                if (!FileSignatureHelper.isOle2Sign(sign)) {
-                    throw new BadRequestException("file.content.invalid.message");
-                }
-            } else {
-                if (!FileSignatureHelper.isArchiveSign(sign)) {
-                    throw new BadRequestException("file.content.invalid.message");
-                }
-            }
+            return FileIntegrityValidator.verify(fileName, content);
         } catch (IOException e) {
-            throw new BadRequestException("file.content.invalid.message");
+            throw FileIntegrityValidator.damagedContent(fileName, e);
         }
-        return buffered;
+    }
+
+    /**
+     * Verifies content already held in memory. Unlike {@link #verifyFileContent(String, InputStream)}
+     * it needs no temporary copy, so nothing is left for the caller to close.
+     */
+    private void verifyFileContent(String fileName, byte[] content) {
+        try {
+            FileIntegrityValidator.verify(fileName, content);
+        } catch (IOException e) {
+            throw FileIntegrityValidator.damagedContent(fileName, e);
+        }
     }
 
     /**
