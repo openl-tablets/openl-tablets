@@ -52,7 +52,7 @@ vi.mock('react-i18next', () => {
 // Mock the shared BranchSelect as a native <select> that reports selection, and render each branch's marks
 // beside it — AntD's Select dropdown does not settle in jsdom.
 vi.mock('containers/projects/BranchSelect', () => ({
-    BranchSelect: ({ value, onChange, branchNames, marksOf, placeholder, ...rest }: any) => (
+    BranchSelect: ({ value, onChange, branchNames, marksOf, placeholder, loading, ...rest }: any) => (
         <div>
             <select {...rest} onChange={(e) => onChange?.(e.target.value)} value={value ?? ''}>
                 <option value="">{placeholder}</option>
@@ -60,6 +60,7 @@ vi.mock('containers/projects/BranchSelect', () => ({
                     <option key={name} value={name}>{name}</option>
                 ))}
             </select>
+            {loading && <span data-testid="merge-target-branch-loading" />}
             {branchNames.map((name: string) => {
                 const marks = marksOf?.(name) ?? {}
                 return (
@@ -144,6 +145,23 @@ describe('MergeBranchesStep', () => {
     it('marks a protected branch in the options', () => {
         render(<MergeBranchesStep {...defaultProps()} />)
         expect(screen.getByTestId('branch-option-release-1.0-protected')).toBeInTheDocument()
+    })
+
+    it('marks the target field as reading while the repository branches are widened', async () => {
+        let resolveBranches!: (branches: BranchInfo[]) => void
+        const pending = new Promise<BranchInfo[]>(resolve => {
+            resolveBranches = resolve
+        })
+        vi.mocked(getProjectBranches).mockReturnValue(pending as never)
+        // A project living only on its own branch widens the list on open, so the read starts by itself.
+        render(<MergeBranchesStep {...defaultProps()} branches={[{ name: 'main', protected: false }]} />)
+
+        await waitFor(() => expect(screen.getByTestId('merge-target-branch-loading')).toBeInTheDocument())
+
+        resolveBranches([{ name: 'main', protected: false }, { name: 'feature', protected: false }])
+
+        await waitFor(() => expect(screen.queryByTestId('merge-target-branch-loading')).not.toBeInTheDocument())
+        expect(screen.getByRole('option', { name: 'feature' })).toBeInTheDocument()
     })
 
     describe('merge check', () => {

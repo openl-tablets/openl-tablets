@@ -5,7 +5,8 @@ import { BranchSelect } from './BranchSelect'
 
 // A testable stand-in for AntD Select: the selected value, a search box that reports typing and blur, and
 // one button per option so a click reports a selection. Search config (onSearch) rides in the `showSearch`
-// object, the way the current AntD Select API takes it.
+// object, the way the current AntD Select API takes it. What the dropdown shows for an empty list is AntD's
+// own business, so it is asserted against the real Select in BranchSelect.antd.test.tsx instead.
 vi.mock('antd', () => ({
     Select: ({ value, onChange, showSearch, onBlur, options, suffixIcon }: {
         value?: string

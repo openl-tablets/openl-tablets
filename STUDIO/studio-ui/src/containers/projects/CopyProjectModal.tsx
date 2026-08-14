@@ -54,6 +54,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     const [targetRepositoryId, setTargetRepositoryId] = useState('')
     const [targetBranch, setTargetBranch] = useState('')
     const [targetBranchOptions, setTargetBranchOptions] = useState<string[]>([])
+    const [targetBranchesLoading, setTargetBranchesLoading] = useState(false)
     const [targetBranchTouched, setTargetBranchTouched] = useState(false)
     const [name, setName] = useState('')
     const [comment, setComment] = useState('')
@@ -116,10 +117,12 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         let active = true
         setTargetBranch('')
         setTargetBranchOptions([])
+        setTargetBranchesLoading(false)
         setTargetBranchTouched(false)
         if (!open || !newProjectMode || !targetSupportsBranches || !targetRepositoryId) {
             return
         }
+        setTargetBranchesLoading(true)
         getDesignRepositoryBranches(targetRepositoryId)
             .then(options => {
                 if (active) {
@@ -129,6 +132,11 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
             .catch(() => {
                 if (active) {
                     setTargetBranchOptions([])
+                }
+            })
+            .finally(() => {
+                if (active) {
+                    setTargetBranchesLoading(false)
                 }
             })
         return () => {
@@ -344,6 +352,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
                                     allowNew
                                     branchNames={availableTargetBranches}
                                     data-testid="copy-project-target-branch"
+                                    loading={targetBranchesLoading}
                                     marksOf={branchMarksFromConfig(targetConfig)}
                                     placeholder={t('browser.create.branch')}
                                     value={targetBranch}

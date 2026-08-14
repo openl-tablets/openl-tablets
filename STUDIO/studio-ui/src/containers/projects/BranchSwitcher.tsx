@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Dropdown, notification, Spin } from 'antd'
+import { Dropdown, notification } from 'antd'
 import { DownOutlined, LoadingOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../../utils/errorMessage'
@@ -13,6 +13,7 @@ import {
 import { SearchInput } from '../../components/SearchInput'
 import { DiscardChangesModal } from '../DiscardChangesModal'
 import { BranchLabel, type BranchTone } from './BranchLabel'
+import { BranchListLoading } from './BranchListLoading'
 
 const useStyles = createStyles(({ css, token }) => ({
     trigger: css`
@@ -230,11 +231,7 @@ export const BranchSwitcher = ({
     // card would read as a project with no other branch to switch to.
     const branchListContent = (menu: ReactNode) => {
         if (branchInfo === null && loading) {
-            return (
-                <div className={styles.empty} data-testid={`${testId}-list-loading`}>
-                    <Spin size="small" />
-                </div>
-            )
+            return <BranchListLoading testId={`${testId}-list-loading`} />
         }
         return needle && filteredBranches.length === 0
             ? <div className={styles.empty}>{t('browser.branch.no_match')}</div>

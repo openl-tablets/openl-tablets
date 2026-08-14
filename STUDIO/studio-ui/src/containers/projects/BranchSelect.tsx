@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { Select } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
+import { BranchListLoading } from './BranchListLoading'
 import { BranchMarks } from './BranchMarks'
 
 const useStyles = createStyles(({ css }) => ({
@@ -30,6 +31,8 @@ interface BranchSelectProps {
     marksOf?: ((name: string) => BranchMarksInfo) | undefined
     /** Let a branch name that is not offered be entered and kept — the create and copy forms. */
     allowNew?: boolean | undefined
+    /** The branches are still being read, so the field says so instead of reading as a repository without any. */
+    loading?: boolean | undefined
     placeholder?: string | undefined
     disabled?: boolean | undefined
     style?: CSSProperties | undefined
@@ -44,6 +47,12 @@ interface BranchSelectProps {
  *
  * With {@link BranchSelectProps.allowNew} the forms may also name a branch that does not exist yet: the
  * typed name is offered as a choice and kept when the field loses focus, so a new branch can be created.
+ *
+ * A heavy repository takes seconds to list its branches. While that read runs the field spins in place of
+ * the branch icon, and the open list spins in the branches' own place as long as it has none to show —
+ * rather than the settled empty list that would claim there is none to pick. The forms preselect the
+ * configured branch, so the list often offers that one alone while the rest are still on their way; the
+ * spinning field is what says so there.
  */
 export const BranchSelect = ({
     value,
@@ -51,6 +60,7 @@ export const BranchSelect = ({
     branchNames,
     marksOf,
     allowNew,
+    loading,
     style,
     placeholder,
     disabled,
@@ -97,9 +107,11 @@ export const BranchSelect = ({
     return (
         <Select
             {...rest}
+            loading={!!loading}
+            notFoundContent={loading ? <BranchListLoading /> : undefined}
             options={options}
             style={{ width: '100%', ...style }}
-            suffixIcon={<BranchesOutlined />}
+            suffixIcon={loading ? undefined : <BranchesOutlined />}
             value={value || undefined}
             onChange={next => {
                 setSearch('')

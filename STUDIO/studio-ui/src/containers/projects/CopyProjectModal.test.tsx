@@ -36,19 +36,21 @@ vi.mock('../../store', async importOriginal => ({
 
 // The real BranchSelect shows marked-up branch labels; the test needs the field value and the offered names.
 vi.mock('./BranchSelect', () => ({
-    BranchSelect: ({ onChange, branchNames, value, placeholder, marksOf, allowNew, ...rest }: {
+    BranchSelect: ({ onChange, branchNames, value, placeholder, marksOf, allowNew, loading, ...rest }: {
         onChange: (value: string) => void
         branchNames: string[]
         value?: string
         placeholder?: string
         marksOf?: unknown
         allowNew?: boolean
+        loading?: boolean
         'data-testid'?: string
     }) => {
         void marksOf; void allowNew
         return (
             <>
                 <input {...rest} onChange={event => onChange(event.target.value)} placeholder={placeholder} value={value ?? ''} />
+                {loading && <span data-testid="copy-project-target-branch-loading" />}
                 {branchNames.map(name => (
                     <span key={name} data-testid={`target-branch-option-${name}`}>{name}</span>
                 ))}
@@ -299,6 +301,23 @@ describe('CopyProjectModal', () => {
 
         expect(screen.getByTestId('target-branch-option-prod-only')).toBeInTheDocument()
         expect(screen.queryByTestId('target-branch-option-design-only')).not.toBeInTheDocument()
+    })
+
+    it('marks the target branch field as reading until the branches arrive', async () => {
+        let resolveBranches!: (branches: string[]) => void
+        const pending = new Promise<string[]>(resolve => {
+            resolveBranches = resolve
+        })
+        vi.mocked(getDesignRepositoryBranches).mockReturnValue(pending)
+        await renderModal()
+        await asNewProject()
+
+        await waitFor(() => expect(getDesignRepositoryBranches).toHaveBeenCalledWith('design'))
+        expect(screen.getByTestId('copy-project-target-branch-loading')).toBeInTheDocument()
+
+        resolveBranches(['master'])
+
+        await waitFor(() => expect(screen.queryByTestId('copy-project-target-branch-loading')).not.toBeInTheDocument())
     })
 
     it('copies to the configured target branch when branch enumeration fails', async () => {
