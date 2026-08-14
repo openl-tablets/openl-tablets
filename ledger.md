@@ -22,6 +22,8 @@ detector this ledger has never run — not by re-running one of these.
 - #2004 on `dead-code/webstudio-css`, head `0db9f19e7e`, one commit: *Drop the common.css titleColumn rules orphaned by
   the retired commit info dialog* (11 CSS lines). All 14 checks green, SonarCloud Quality Gate passed, CodeRabbit
   raised nothing, body verified against the diff. Only a maintainer approval is missing — do not re-verify it.
+  `mergeable_state` reads `blocked`, which here means review-required, not a conflict: the branch is behind `main`
+  only by unrelated commits and merges clean. Never push a catch-up merge to re-run green CI.
 
 ## Merged PRs
 
@@ -242,27 +244,23 @@ detector this ledger has never run — not by re-running one of these.
 
 ## CI flakes
 
-- **`apache/kafka-native:latest` is a floating tag that breaks a job for hours and then fixes itself** with no code
-  change. Tell: the container never logs its wait phrase and its own bootstrap dies in a GraalVM native-image
-  segfault at `com.oracle.svm.core.posix.headers.Pwd.getpwuid` while reading `user.name`. **The GitHub job carrying
-  it is named `IT (services-data)`** — no job is named for tracing or kafka — and it runs ITEST Core, Kafka Smoke,
-  WS Tracing, WS Store Log Data and S3, so the failing module is `itest.tracing` (`RunTracingITest.setUp:57`,
-  waiting for `Transitioning from RECOVERY to RUNNING`) while `ITEST - Kafka Smoke` passes beside it. It has reddened
-  `main` for four commits at a stretch. Never pin the tag away; check for a later green run before escalating.
-  The job list alone identifies it — that job failed and every sibling passed — so no log fetch is needed.
+- **`apache/kafka-native:latest` is a floating tag that breaks a job for hours, then fixes itself** with no code
+  change; it has reddened `main` for four commits at a stretch. The job is `IT (services-data)` (none is named for
+  kafka or tracing); the failing module is `itest.tracing` (`RunTracingITest.setUp:57`, waiting for `Transitioning
+  from RECOVERY to RUNNING`) while `ITEST - Kafka Smoke` passes beside it. That job failing while every sibling
+  passes identifies it with no log fetch; in a log the tell is a GraalVM segfault at `Pwd.getpwuid` reading
+  `user.name`. Never pin the tag away; check for a later green run before escalating.
 - `studio-ui` `npm run test` is the standing failure of `Tests (without ITEST)` — tell `Failed to run task:
   'npm run test' failed` plus `-rf :studio-ui`. Always the same 2 of the 28 tests in
-  `src/containers/projects/OverviewPanel.test.tsx`: "edits the descriptor text in place…" (`Test timed out` against
-  the 20 s ceiling `vite.config.ts` sets) and "edits the sources and the declared dependencies…"
-  (`vitest-fail-on-console` rejecting a React `act(...)` warning from the floating `.then` at `OverviewPanel.tsx:797`
-  and `:1227`). Load, not code — never your own breakage; reproduce it with eight busy loops beside that one file.
+  `src/containers/projects/OverviewPanel.test.tsx`: one `Test timed out` against the 20 s ceiling in
+  `vite.config.ts`, one `vitest-fail-on-console` rejecting a React `act(...)` warning from the floating `.then`s
+  (see *Human follow-ups*). Load, not code — never your own breakage; reproduce with eight busy loops beside it.
 - `LockTest.testSimultaneousMultiThreadsWithWaiting` was fixed on `main` by one shared 90 s deadline; never re-escalate.
 - **`IT (studio)` normally takes 6-9 min; it fails by running far past that**, every step logging
   `HttpTimeoutException` at 10001ms — WebStudio under Jetty stopped answering, no test at fault. It never
-  self-terminates before the 6 h job limit: cancel the run, then `rerun_failed_jobs` cleared it on the same commit in
-  7m30s, proving it environmental and not the diff. Its other shape, a 3-7 min fail at `-rf :itest.studio.repos` with
-  `WebStudioTest.repos:11 Failed requests: expected 0 but was 3`, is **fixed on `main` by EPBDS-16438** — a fresh
-  occurrence is a regression to investigate, not a flake to rerun.
+  self-terminates before the 6 h job limit: cancel the run, then `rerun_failed_jobs` cleared it on the same commit.
+  Its other shape, a 3-7 min fail at `-rf :itest.studio.repos` with `WebStudioTest.repos:11 Failed requests:
+  expected 0 but was 3`, is **fixed on `main` by EPBDS-16438** — a fresh occurrence is a regression, not a flake.
 - `rerun_failed_jobs` returns 403 until every other job in the run has finished; wait for the run to complete.
 - The weekly cross-platform `build.yml` ("Build", Java 21/25/26 × ubuntu/windows/macos) has failed on `main` every
   run since 2026-07-01, 6 of 9 jobs, in three different modules (`studio-ui`, `openl-maven-plugin`,
@@ -300,15 +298,13 @@ detector this ledger has never run — not by re-running one of these.
 - **`sonarcloud.io` is blocked too** — 403 to CONNECT, same shape as shibboleth, confirmed against
   `$HTTPS_PROXY/__agentproxy/status`. So a red `SonarCloud Code Analysis` check can never be diagnosed from here:
   report the failed conditions from the check-run summary and hand the judgement to a maintainer.
-- **Reading a CI log takes one shape only.** Listing runs ignores `per_page` and always returns 30 runs, overflowing
-  the tool limit even when scoped to one workflow file — let it save to a file and parse that with python for the run
-  `id` (the `run_number` is not an id). **Never trust the filters**: scoping to one workflow file plus branch `main`
-  returned a page whose newest row was 9 days and ~20 commits stale. List runs with no filter at all and sort the 30
-  rows by `created_at`; the newest push to `main` is at the top, and one call covers every workflow.
-  `get_job_logs` truncates from the **end**, so a failing ITEST needs `tail_lines` about 130 to reach the reactor
-  summary; 60 lands mid-cleanup, and `failed_only` over a 6-job matrix returns only cleanup noise at 40. Its
-  `logs_url` points at Azure blob storage, which the proxy refuses with 403 CONNECT, so always use `return_content`
-  with a bounded tail. The unit-test workflow is `build-quick.yml`.
+- **Reading a CI log takes one shape only.** Listing runs ignores `per_page`, always returns 30 rows and overflows
+  the tool limit — save it to a file and parse that with python for the run `id` (`run_number` is not an id).
+  **Never trust the filters**: one workflow file plus branch `main` returned a page 9 days and ~20 commits stale.
+  List with no filter and sort the 30 rows by `created_at` — the newest push to `main` is at the top and one call
+  covers every workflow. `get_job_logs` truncates from the **end**: a failing ITEST needs `tail_lines` about 130 to
+  reach the reactor summary (60 lands mid-cleanup, `failed_only` at 40 over a 6-job matrix is cleanup noise), and its
+  `logs_url` is Azure blob storage the proxy 403s, so always use `return_content`. Unit tests: `build-quick.yml`.
 - **Angle-bracketed text does not survive the PR-body MCP round trip** — a bare XML element name is swallowed, and
   `Map<String, X>` reads back as `Map` even inside a fenced code block, so a quoted signature silently becomes
   wrong. Keep generics and element names out of bodies, name the identifiers in prose, and re-read after writing.
@@ -386,6 +382,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-14 — run 157: `main` unchanged at the resume point; only open PR is #2001, another author's. Idle, no build.
 - 08-14 — run 158: two EPBDS-16422 commits screened; one CSS orphan removed, PR #2004 opened. No Maven build.
 - 08-14 — run 159: two EPBDS-16448 studio-ui commits screened, nothing orphaned; #2004 green. No build.
+- 08-14 — run 160: `main` unchanged, #2004 green and awaiting approval. Idle; compacted the ledger only.
