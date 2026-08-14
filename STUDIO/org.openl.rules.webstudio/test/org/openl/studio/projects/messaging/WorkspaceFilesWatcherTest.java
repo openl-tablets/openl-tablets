@@ -13,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,11 +64,10 @@ class WorkspaceFilesWatcherTest {
         when(localWorkspaceManager.getWorkspaceHome()).thenReturn(workspacesRoot);
         when(workspaceManager.getUserWorkspaceIfCreated(any())).thenReturn(userWorkspace);
         when(userWorkspace.getProjectsByName("Alpha", false)).thenReturn(List.of(project));
+        // The watcher is started for the workspaces root it takes there, and stopped before any file
+        // exists: the tests feed paths into onChanged themselves, and a watch thread left running would
+        // report the files they create in the same root a second time.
         watcher.start();
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
         watcher.stop();
     }
 
