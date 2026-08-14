@@ -1,3 +1,4 @@
 DELETE /rest/projects/EPBDS_16380_HISTORICAL/branches/release-EPBDS-16380?force=true HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
+X-OpenL-Test-Retry: yes
 
