@@ -19,6 +19,7 @@ import { apiCall, type ApiCallOptions } from '../services'
 import {
     bridgeHiddenNodes,
     buildGraphModel,
+    DATATYPE_KIND,
     DISPATCHER_KIND,
     findCycles,
     GRAPH_LAYOUT,
@@ -67,6 +68,8 @@ const canOpenTable = (node: GraphNode | undefined, projectName?: string): boolea
 const SELECT_ACCENT = '#fa8c16'
 const PROBLEM_ACCENT = '#f5222d'
 const DISPATCHER_ACCENT = '#ffc53d'
+// Data model edges (inheritance, fields) are teal, the colour the Datatype kind already carries.
+const DATA_MODEL_ACCENT = '#13c2c2'
 const HAIRLINE = '#e8e8e8'
 // IDs, cells and signatures are code, so they are set in a monospace utility face.
 const MONO = 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace'
@@ -135,6 +138,35 @@ const buildStyle = (maxWeight: number) => [
         },
     },
     {
+        // UML generalization: a hollow closed triangle pointing at the datatype being extended
+        selector: 'edge.extends',
+        style: {
+            'line-color': DATA_MODEL_ACCENT,
+            'target-arrow-color': DATA_MODEL_ACCENT,
+            'target-arrow-fill': 'hollow',
+            'arrow-scale': 1.1,
+            'width': 1.6,
+        },
+    },
+    {
+        // UML directed association: an open arrowhead, with the multiplicity written at the end it points at —
+        // 0..1 for a field holding one value of that datatype, 0..* for one holding many
+        selector: 'edge.field',
+        style: {
+            'line-color': DATA_MODEL_ACCENT,
+            'target-arrow-color': DATA_MODEL_ACCENT,
+            'target-arrow-shape': 'vee',
+            'arrow-scale': 1,
+            'target-label': 'data(multiplicity)',
+            'target-text-offset': 18,
+            'font-size': 9,
+            'color': '#08979c',
+            'text-background-color': CANVAS_BG,
+            'text-background-opacity': 0.9,
+            'text-background-padding': '1px',
+        },
+    },
+    {
         selector: 'edge.cycle',
         style: { 'line-color': PROBLEM_ACCENT, 'target-arrow-color': PROBLEM_ACCENT, 'line-style': 'dashed', 'width': 2 },
     },
@@ -152,6 +184,17 @@ const buildStyle = (maxWeight: number) => [
             'target-arrow-color': PROBLEM_ACCENT,
             'line-style': 'dashed',
             'width': 2,
+        },
+    },
+    {
+        // a datatype with a field of its own type is a plain self-association, not recursion: keep the loop geometry
+        // above but restore the data model's own notation on top of it
+        selector: 'edge:loop.field',
+        style: {
+            'line-color': DATA_MODEL_ACCENT,
+            'target-arrow-color': DATA_MODEL_ACCENT,
+            'line-style': 'solid',
+            'width': 1.3,
         },
     },
     // @types/cytoscape's StylesheetCSS types each property narrowly and omits several used here (mapData() expressions,
@@ -481,7 +524,7 @@ export const TableGraphModal: React.FC = () => {
                 <>
                     {' · '}
                     <Typography.Text
-                        onClick={() => { setCycles(findCycles(model.dependencies, 2, CYCLE_SEARCH_LIMIT)); setActiveCycle(undefined) }}
+                        onClick={() => { setCycles(findCycles(model.callDependencies, 2, CYCLE_SEARCH_LIMIT)); setActiveCycle(undefined) }}
                         style={{ fontSize: 13, cursor: 'pointer' }}
                         type="danger"
                     >
@@ -618,6 +661,54 @@ export const TableGraphModal: React.FC = () => {
         )
     }
 
+    // Walks to a table named by the data model. Unlike the "uses"/"used by" lists, which offer visible tables only,
+    // a field can point outside the current exploration — leaving it on would select a table that is not drawn, so the
+    // exploration is dropped and the target is shown on the full graph.
+    const selectFromDataModel = (id: string) => {
+        setSelectedId(id)
+        if (!visibleIds.has(id)) {
+            setExplore(undefined)
+        }
+    }
+
+    // A datatype's own structure: the datatype it extends and the fields it declares. A field whose type is another
+    // datatype links to it, so the data model can be walked field by field.
+    const renderDataModel = (node: GraphNode) => {
+        const fields = node.fields ?? []
+        return (
+            <>
+                {renderIdLinks(t('graph:panel.extends'), node.extends ? [node.extends] : [], selectFromDataModel)}
+                {fields.length > 0 && (
+                    <>
+                        <Divider style={{ margin: '8px 0' }} />
+                        <Typography.Text strong>{t('graph:panel.fields')}</Typography.Text>
+                        <Space orientation="vertical" size={2} style={{ width: '100%' }}>
+                            {fields.map(field => {
+                                const ref = field.ref
+                                return (
+                                    <div key={field.name} style={{ display: 'flex', gap: 6, fontSize: 12, width: '100%' }}>
+                                        <Typography.Text ellipsis={{ tooltip: field.name }} style={{ maxWidth: 130 }}>
+                                            {field.name}
+                                        </Typography.Text>
+                                        {ref ? (
+                                            <Typography.Link onClick={() => selectFromDataModel(ref)} style={{ fontFamily: MONO, fontSize: 11 }}>
+                                                {field.type}
+                                            </Typography.Link>
+                                        ) : (
+                                            <Typography.Text style={{ fontFamily: MONO, fontSize: 11 }} type="secondary">
+                                                {field.type}
+                                            </Typography.Text>
+                                        )}
+                                    </div>
+                                )
+                            })}
+                        </Space>
+                    </>
+                )}
+            </>
+        )
+    }
+
     const renderNodeInfo = (node: GraphNode) => {
         const isDispatcher = node.kind === DISPATCHER_KIND
         const foreign = !isDispatcher && !canOpenTable(node, currentProjectName)
@@ -648,6 +739,7 @@ export const TableGraphModal: React.FC = () => {
                     </div>
                 )}
                 {renderMeta(node)}
+                {renderDataModel(node)}
                 <div style={{ marginTop: 10 }}>
                     {isDispatcher && (
                         <Typography.Paragraph style={{ marginBottom: 8 }} type="secondary">
@@ -748,6 +840,23 @@ export const TableGraphModal: React.FC = () => {
                     {model.stats.isolated > 0
                         && marker(<span style={{ width: 11, height: 11, border: `2px dashed ${PROBLEM_ACCENT}` }} />, t('graph:legend.isolated'))}
                     {marker(<span style={{ width: 14, height: 0, borderTop: `2px dashed ${PROBLEM_ACCENT}` }} />, t('graph:legend.cycle'))}
+                    {kindCounts.has(DATATYPE_KIND) && (
+                        <>
+                            {marker(
+                                <span
+                                    style={{
+                                        width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent',
+                                        borderBottom: `8px solid ${DATA_MODEL_ACCENT}`,
+                                    }}
+                                />,
+                                t('graph:legend.extends')
+                            )}
+                            {marker(
+                                <Typography.Text style={{ fontSize: 9, color: DATA_MODEL_ACCENT }}>0..*</Typography.Text>,
+                                t('graph:legend.multiplicity')
+                            )}
+                        </>
+                    )}
                     {marker(
                         <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
                             <span style={{ width: 7, height: 11, border: '1px solid #999' }} />
@@ -827,7 +936,7 @@ export const TableGraphModal: React.FC = () => {
                                 type={cycles === null ? 'default' : 'primary'}
                                 onClick={() => {
                                     if (cycles === null) {
-                                        setCycles(findCycles(model.dependencies, 2, CYCLE_SEARCH_LIMIT))
+                                        setCycles(findCycles(model.callDependencies, 2, CYCLE_SEARCH_LIMIT))
                                     } else {
                                         setCycles(null)
                                         setActiveCycle(undefined)

@@ -1,5 +1,6 @@
 import type { ElementDefinition } from 'cytoscape'
 import type { DagreLayoutOptions } from 'cytoscape-dagre'
+import type { DatatypeField } from 'types/tables'
 
 // Dagre-specific options (rankDir, nodeSep, rankSep) live in cytoscape-dagre's own DagreLayoutOptions, not in the
 // base @types/cytoscape LayoutOptions union; typing the constant with it keeps these fields type-checked.
@@ -9,6 +10,15 @@ export const GRAPH_LAYOUT: DagreLayoutOptions = {
     nodeSep: 18,
     rankSep: 70,
     animate: false,
+}
+
+/**
+ * A field a datatype declares, as the graph reports it. A field whose type is another datatype of the graph names
+ * that datatype's node in {@code ref}; a field of a simple type carries its type only.
+ */
+export interface GraphField extends DatatypeField {
+    ref?: string
+    collection?: boolean
 }
 
 /**
@@ -30,6 +40,9 @@ export interface GraphNode {
     properties?: Record<string, unknown>
     // dimension properties this version is selected by (the dispatching/versioning rules)
     dimensionProperties?: Record<string, string>
+    // data model of a datatype node: the datatype it extends and the fields it declares
+    extends?: string
+    fields?: GraphField[]
 }
 
 /**
@@ -37,6 +50,9 @@ export interface GraphNode {
  * version at runtime. Matches {@code ProjectTablesGraphService.DISPATCHER_KIND} on the backend.
  */
 export const DISPATCHER_KIND = 'Dispatcher'
+
+/** Kind of a datatype table — a datatype or a vocabulary — the only node kind that carries a data model. */
+export const DATATYPE_KIND = 'Datatype'
 
 const KIND_COLORS: Record<string, string> = {
     [DISPATCHER_KIND]: '#874d00',
@@ -67,6 +83,8 @@ export interface GraphModel {
     byId: Map<string, GraphNode>
     /** id -> ids of tables it depends on (forward edges, filtered to the node set) */
     dependencies: Map<string, string[]>
+    /** id -> ids of tables it calls: the dependencies without the data model, for the cycle hunt */
+    callDependencies: Map<string, string[]>
     /** id -> ids of tables that depend on it (reverse edges, computed) */
     dependents: Map<string, string[]>
     /** distinct table kinds present, sorted */
@@ -132,6 +150,30 @@ const findCycleEdges = (ids: string[], dependencies: Map<string, string[]>): Set
 }
 
 /**
+ * How a data model edge is drawn and labelled, following UML class diagram notation: {@code extends} is a
+ * generalization, {@code field} an association whose multiplicity is written at the end it points at. A datatype field
+ * is optional and a collection field may be empty, hence {@code 0..1} and {@code 0..*}. Returns undefined for a plain
+ * call between tables, which is not part of the data model.
+ *
+ * The graph draws one edge per pair of datatypes, so a datatype declaring several fields of the same type gets one
+ * association covering them all — a collection as soon as one of them is. Inheritance outranks a field of the parent's
+ * own type. The side panel lists every field separately, whatever the canvas merges.
+ */
+const dataModelEdge = (source: GraphNode | undefined, target: string): { relation: string, multiplicity?: string } | undefined => {
+    if (!source) {
+        return undefined
+    }
+    if (source.extends === target) {
+        return { relation: 'extends' }
+    }
+    const fields = (source.fields ?? []).filter(entry => entry.ref === target)
+    if (fields.length === 0) {
+        return undefined
+    }
+    return { relation: 'field', multiplicity: fields.some(field => field.collection) ? '0..*' : '0..1' }
+}
+
+/**
  * Builds the Cytoscape elements and the lookup maps for a list of graph nodes. Reverse adjacency (dependents) is
  * computed so the UI can show "used by" even when the project graph only carries forward dependencies.
  */
@@ -166,14 +208,21 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
         ;(node.dependents ?? []).forEach(source => link(source, node.id))
     })
 
-    const cycleEdges = findCycleEdges(ids, dependencies)
+    // Cycles are a call-graph problem. Two datatypes referring to each other by a field is ordinary modelling, and a
+    // datatype cannot inherit in a circle at all, so the data model is left out of the cycle hunt entirely.
+    const callDependencies = new Map<string, string[]>(
+        [...dependencies].map(([source, targets]) => [source, targets.filter(target => !dataModelEdge(byId.get(source), target))])
+    )
+    const cycleEdges = findCycleEdges(ids, callDependencies)
     const elements: ElementDefinition[] = []
     let isolated = 0
 
     nodes.forEach(node => {
         const used = dependents.get(node.id)!.length
         const uses = dependencies.get(node.id)!.length
-        const orphan = used === 0 && uses === 0 && !selfLoops.has(node.id)
+        // A datatype built from no other datatype is a flat datatype, not a table nobody uses: the graph carries no
+        // rule-to-datatype links, so it cannot tell an unused datatype from a used one. Never mark one as isolated.
+        const orphan = used === 0 && uses === 0 && !selfLoops.has(node.id) && node.kind !== DATATYPE_KIND
         if (orphan) {
             isolated += 1
         }
@@ -198,15 +247,29 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
         edges += 1
         const id = `${source}->${target}`
         const element: ElementDefinition = { data: { id, source, target } }
-        if (cycleEdges.has(id)) {
-            element.classes = 'cycle'
+        const dataModel = dataModelEdge(byId.get(source), target)
+        const cyclic = cycleEdges.has(id)
+        if (dataModel || cyclic) {
+            element.classes = [dataModel?.relation, cyclic ? 'cycle' : undefined].filter(Boolean).join(' ')
+        }
+        if (dataModel?.multiplicity) {
+            element.data['multiplicity'] = dataModel.multiplicity
         }
         elements.push(element)
     }))
 
-    // Recursive tables are drawn as red self-loops (same colour as cross-table cycles) but kept out of the counters.
+    // A table calling itself is recursion — a red self-loop, kept out of the counters. A datatype with a field of its
+    // own type is an ordinary self-association instead, and keeps the data model's notation.
     selfLoops.forEach(id => {
-        elements.push({ data: { id: `${id}->${id}`, source: id, target: id }, classes: 'cycle' })
+        const dataModel = dataModelEdge(byId.get(id), id)
+        const element: ElementDefinition = {
+            data: { id: `${id}->${id}`, source: id, target: id },
+            classes: dataModel?.relation ?? 'cycle',
+        }
+        if (dataModel?.multiplicity) {
+            element.data['multiplicity'] = dataModel.multiplicity
+        }
+        elements.push(element)
     })
 
     const cyclicNodes = new Set<string>()
@@ -219,6 +282,7 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
         elements,
         byId,
         dependencies,
+        callDependencies,
         dependents,
         kinds,
         stats: { nodes: nodes.length, edges, cyclic: cyclicNodes.size, isolated },

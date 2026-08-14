@@ -38,6 +38,89 @@ describe('buildGraphModel', () => {
         expect(model.kinds).toContain(DISPATCHER_KIND)
     })
 
+    it('tells the data model edges apart so they can be drawn as a class diagram', () => {
+        const model = buildGraphModel([
+            {
+                id: 'policy',
+                name: 'Policy',
+                kind: 'Datatype',
+                dependencies: ['vehicle', 'car', 'driver'],
+                extends: 'vehicle',
+                fields: [
+                    { name: 'car', type: 'Car', ref: 'car' },
+                    { name: 'drivers', type: 'Driver[]', ref: 'driver', collection: true },
+                    { name: 'number', type: 'String' },
+                ],
+            },
+            { id: 'vehicle', name: 'Vehicle', kind: 'Datatype' },
+            { id: 'car', name: 'Car', kind: 'Datatype' },
+            { id: 'driver', name: 'Driver', kind: 'Datatype' },
+        ])
+
+        // UML notation: generalization carries no multiplicity, an association is labelled at the end it points at
+        expect(edge(model, 'policy->vehicle')?.classes).toBe('extends')
+        expect(edge(model, 'policy->vehicle')?.data['multiplicity']).toBeUndefined()
+        expect(edge(model, 'policy->car')?.classes).toBe('field')
+        expect(edge(model, 'policy->car')?.data['multiplicity']).toBe('0..1')
+        expect(edge(model, 'policy->driver')?.classes).toBe('field')
+        expect(edge(model, 'policy->driver')?.data['multiplicity']).toBe('0..*')
+    })
+
+    it('covers every field of the same type with one association', () => {
+        const model = buildGraphModel([
+            {
+                id: 'policy',
+                name: 'Policy',
+                kind: 'Datatype',
+                dependencies: ['driver'],
+                fields: [
+                    { name: 'primaryDriver', type: 'Driver', ref: 'driver' },
+                    { name: 'additionalDrivers', type: 'Driver[]', ref: 'driver', collection: true },
+                ],
+            },
+            { id: 'driver', name: 'Driver', kind: 'Datatype' },
+        ])
+
+        // the merged association must not claim the single field's 0..1 while a collection field also exists
+        expect(edge(model, 'policy->driver')?.data['multiplicity']).toBe('0..*')
+    })
+
+    it('keeps the data model out of the call-graph problem markers', () => {
+        const model = buildGraphModel([
+            // two datatypes referring to each other by a field, and a datatype nothing else is built from
+            { id: 'policy', name: 'Policy', kind: 'Datatype', dependencies: ['driver'], fields: [{ name: 'driver', type: 'Driver', ref: 'driver' }]},
+            { id: 'driver', name: 'Driver', kind: 'Datatype', dependencies: ['policy'], fields: [{ name: 'policy', type: 'Policy', ref: 'policy' }]},
+            { id: 'flat', name: 'Request', kind: 'Datatype' },
+        ])
+
+        // mutual references are ordinary modelling, not a call cycle
+        expect(edge(model, 'policy->driver')?.classes).toBe('field')
+        expect(model.stats.cyclic).toBe(0)
+        expect(model.callDependencies.get('policy')).toEqual([])
+        // a flat datatype is not a table nobody uses — the graph carries no rule-to-datatype links to judge that
+        expect(edge(model, 'flat')?.classes).toBeUndefined()
+        expect(model.stats.isolated).toBe(0)
+    })
+
+    it('draws a datatype field of its own type as a self-association, not as recursion', () => {
+        const model = buildGraphModel([
+            { id: 'driver', name: 'Driver', kind: 'Datatype', dependencies: ['driver'], fields: [{ name: 'mentor', type: 'Driver', ref: 'driver' }]},
+        ])
+
+        const selfLoop = edge(model, 'driver->driver')
+        expect(selfLoop?.classes).toBe('field')
+        expect(selfLoop?.data['multiplicity']).toBe('0..1')
+    })
+
+    it('leaves a plain call between tables unclassified', () => {
+        const model = buildGraphModel([
+            { id: 'a', name: 'A', kind: 'Rules', dependencies: ['b']},
+            { id: 'b', name: 'B', kind: 'Rules' },
+        ])
+
+        expect(edge(model, 'a->b')?.classes).toBeUndefined()
+    })
+
     it('flags isolated tables and computes reverse adjacency', () => {
         const model = buildGraphModel([
             { id: 'a', name: 'A', dependencies: ['b']},

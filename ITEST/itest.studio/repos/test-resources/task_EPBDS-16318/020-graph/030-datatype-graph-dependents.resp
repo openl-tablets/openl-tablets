@@ -1,0 +1,75 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "b8f6b32c64ba84aadb482d966b78bcc8",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Car",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "B5:C6",
+    "project": "EPBDS-16318",
+    "dependents": [
+      "34539b1f0ec6389a26ac8dffdbf949a1"
+    ],
+    "fields": [
+      {
+        "name": "model",
+        "type": "String"
+      }
+    ],
+    "extends": "2fceeecaa2b6442cb3788a3b7257a93c"
+  },
+  {
+    "id": "34539b1f0ec6389a26ac8dffdbf949a1",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Policy",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "B16:C20",
+    "project": "EPBDS-16318",
+    "fields": [
+      {
+        "name": "car",
+        "type": "Car",
+        "ref": "b8f6b32c64ba84aadb482d966b78bcc8"
+      },
+      {
+        "name": "drivers",
+        "type": "Driver[]",
+        "collection": true
+      },
+      {
+        "name": "region",
+        "type": "Region"
+      },
+      {
+        "name": "policyNumber",
+        "type": "String"
+      }
+    ]
+  },
+  {
+    "id": "2fceeecaa2b6442cb3788a3b7257a93c",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Vehicle",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "B1:C3",
+    "project": "EPBDS-16318",
+    "dependents": [
+      "b8f6b32c64ba84aadb482d966b78bcc8"
+    ],
+    "fields": [
+      {
+        "name": "make",
+        "type": "String"
+      },
+      {
+        "name": "year",
+        "type": "int"
+      }
+    ]
+  }
+]

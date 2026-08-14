@@ -270,6 +270,66 @@ describe('TableGraphModal', () => {
         expect(screen.getByText('State: AR')).toBeInTheDocument()
     })
 
+    it('shows the data model of the selected datatype and follows a field to its datatype', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            {
+                id: 'policy',
+                name: 'Policy',
+                kind: 'Datatype',
+                dependencies: ['vehicle', 'driver'],
+                extends: 'vehicle',
+                fields: [
+                    { name: 'drivers', type: 'Driver[]', ref: 'driver', collection: true },
+                    { name: 'number', type: 'String' },
+                ],
+            },
+            { id: 'vehicle', name: 'Vehicle', kind: 'Datatype' },
+            { id: 'driver', name: 'Driver', kind: 'Datatype' },
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'Policy')
+
+        expect(screen.getByText('graph:panel.extends')).toBeInTheDocument()
+        expect(screen.getByText('drivers')).toBeInTheDocument()
+        // a field of a simple type is listed too, but is not a link to another table
+        expect(screen.getByText('String')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('Driver[]'))
+
+        expect(cyMocks.getElementById).toHaveBeenCalledWith('driver')
+    })
+
+    it('leaves the exploration when a field points to a datatype outside it', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            {
+                id: 'policy',
+                name: 'Policy',
+                kind: 'Datatype',
+                dependencies: ['driver'],
+                fields: [{ name: 'drivers', type: 'Driver[]', ref: 'driver', collection: true }],
+            },
+            { id: 'driver', name: 'Driver', kind: 'Datatype' },
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'Policy')
+        // nothing uses Policy, so this exploration shows Policy alone — Driver is filtered out of the graph
+        await userEvent.click(screen.getByText('graph:panel.focus_used_by'))
+        expect(screen.getByText('graph:panel.back')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('Driver[]'))
+
+        // the exploration is dropped, so the datatype the field points to is drawn instead of silently missing
+        expect(screen.queryByText('graph:panel.back')).not.toBeInTheDocument()
+    })
+
     it('preselects the table open in the editor from the URL fragment', async () => {
         window.location.hash = '#repo/proj/module/table?id=a'
         mockApiCall.mockResolvedValueOnce([
