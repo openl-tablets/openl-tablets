@@ -1,0 +1,6 @@
+POST /rest/projects/EPBDS-16379/files/rules/Legacy.xls?createFolders=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/octet-stream
+
+&../Legacy.xls
+

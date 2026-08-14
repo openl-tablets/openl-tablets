@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import jakarta.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.util.SystemReader;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,11 +22,13 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.util.FileSignatureHelper;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 
+@Slf4j
 @Component
 public class ZipArchiveValidator implements Validator {
 
@@ -46,7 +49,7 @@ public class ZipArchiveValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         var archive = (Path) target;
-        if (!validateSignature(archive, errors)) {
+        if (!validateSignature(archive, errors) || !validateIntegrity(archive, errors)) {
             return;
         }
         var charset = zipCharsetDetector.detectCharset(() -> Files.newInputStream(archive));
@@ -122,6 +125,22 @@ public class ZipArchiveValidator implements Validator {
             }
         }
         return isValid;
+    }
+
+    /**
+     * Verifies that the archive arrived complete: its own directory is read, and every entry is
+     * matched against the size and the checksum recorded for it. An upload that was cut short keeps
+     * a valid signature, so the signature alone does not tell a whole archive from a part of one.
+     */
+    private static boolean validateIntegrity(Path archive, Errors errors) {
+        try {
+            FileIntegrityValidator.verifyArchive(archive);
+            return true;
+        } catch (IOException e) {
+            log.debug("The uploaded archive did not pass the integrity check.", e);
+            errors.reject("zip-archive.damaged.archive.message", new String[]{e.getMessage()}, e.getMessage());
+            return false;
+        }
     }
 
     private static int readSignature(Path path) {

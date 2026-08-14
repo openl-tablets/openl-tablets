@@ -39,6 +39,7 @@ import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse.RevisionDetails;
@@ -49,6 +50,7 @@ import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
 import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -414,7 +416,26 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 if (customFiles == null || !customFiles.containsKey(filePath)) {
                     throw new BadRequestException("project.merge.conflict.custom.file.missing", new Object[]{filePath});
                 }
+                verifyIntegrity(filePath, customFiles.get(filePath));
             }
+        }
+    }
+
+    /**
+     * Verifies that an uploaded resolution arrived complete, so a merge is never resolved with a
+     * workbook that was cut short on its way here. The upload is read once for the check and read
+     * again when the resolution is written.
+     */
+    private static void verifyIntegrity(String filePath, InputStreamSource customFile) {
+        var fileName = FileUtils.getName(filePath);
+        if (!FileIntegrityValidator.isVerified(fileName)) {
+            return;
+        }
+        try {
+            FileIntegrityValidator.verifyContent(fileName, customFile.getInputStream());
+        } catch (IOException e) {
+            throw new BadRequestException("project.merge.conflict.custom.file.damaged",
+                    new Object[]{filePath, e.getMessage()});
         }
     }
 

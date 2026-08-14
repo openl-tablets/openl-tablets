@@ -99,6 +99,28 @@ that id travels as a **path segment**, so it **MUST** stay within one.
   (`org.openl.studio.common.validation`). Message keys live in `ValidationMessages.properties`; see the
   `localized-exceptions-and-validation-skill`.
 
+## Uploaded Content
+
+**An endpoint that stores uploaded content MUST verify it with `FileIntegrityValidator`**
+(`org.openl.studio.common.validation`) before it reaches a project or a repository — see
+[`Docs/architecture/upload-integrity.md`](../../Docs/architecture/upload-integrity.md).
+
+- It reads the structure the format records about itself: the **central directory** of a `.xlsx`/`.xlsm`/`.zip`
+  and the checksum of every entry, the workbook stream of a `.xls`. Content of any other type passes untouched.
+- **A file signature, Apache POI, and any streaming ZIP reader all accept an upload that lost its tail** — the
+  most likely shape of an interrupted upload. None of them is a substitute (EPBDS-16379).
+- **The check is bounded, and every bound narrows what it promises** — an upload above 1000 MB is refused rather
+  than checked, an archive that unpacks to more than 2 GB keeps only the structural check, and a workbook above
+  100 MB carried by an archive keeps only the checksum recorded for it. Keep
+  [`upload-integrity.md`](../../Docs/architecture/upload-integrity.md) and the user guide in step with them.
+- The stream overload returns a stream over a temporary copy that deletes itself on close, so its call site
+  **MUST** consume it inside a try-with-resources. The `Path` and `byte[]` overloads leave nothing to clean up,
+  and `verifyContent` is the one to call when the content is read only to be checked.
+- A caller that expands an archive reads it through `openArchive` and checks each entry it reads with
+  `verifyEntry`, so the archive is walked once instead of being verified and then read again.
+- A rejection is a `BadRequestException` carrying the file name and the reason: `file.content.damaged.message`
+  for a file, `file.archive.invalid.message` for an expanded archive.
+
 ## Regenerating OpenAPI Goldens
 
 Adding a description, changing an enum's wire codes, adding a `required`/`@NotBlank` field, or moving a leaked

@@ -5,10 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermissions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.richfaces.model.UploadedFile;
@@ -40,24 +37,11 @@ public class ProjectFile {
     }
 
     /**
-     * Creates the temporary upload file readable and writable only by the owner, so other local users
-     * cannot access the uploaded content (Sonar java:S5443). On file systems without POSIX permissions
-     * the default per-user temporary directory is private already.
-     */
-    private static File createTempFile() throws IOException {
-        FileAttribute<?>[] permissions = FileSystems.getDefault().supportedFileAttributeViews().contains("posix")
-                ? new FileAttribute<?>[] {
-                        PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"))}
-                : new FileAttribute<?>[0];
-        return Files.createTempFile("openl-upload", null, permissions).toFile();
-    }
-
-    /**
      * Saves the stream to a fresh temporary file. A failed save deletes the partially written file
      * before the error is rethrown.
      */
     private static File saveToTempFile(InputStream input) throws IOException {
-        File file = createTempFile();
+        File file = FileUtils.createPrivateTempFile("openl-upload", null).toFile();
         try {
             copyBounded(input, file, MAX_UPLOAD_SIZE);
         } catch (IOException e) {

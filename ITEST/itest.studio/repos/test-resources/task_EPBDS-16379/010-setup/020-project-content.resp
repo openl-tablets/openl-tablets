@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {"path": "rules", "name": "rules"},
+  {"path": "rules/Rating.xlsx", "name": "Rating.xlsx"},
+  {"path": "rules.xml", "name": "rules.xml"}
+]
+
