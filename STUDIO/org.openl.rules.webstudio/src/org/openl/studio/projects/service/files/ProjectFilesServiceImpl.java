@@ -60,8 +60,11 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * The size above which content is refused as a project descriptor. A {@code rules.xml} is a few
      * kilobytes; the cap keeps an oversized upload from being read into memory to be validated, and
      * from being written to the project unchecked.
+     *
+     * <p>The cap stays close to the size a descriptor really has, so that the memory a single write
+     * can claim stays small however many writes arrive at once.
      */
-    private static final int MAX_DESCRIPTOR_SIZE = 16 * 1024 * 1024;
+    private static final int MAX_DESCRIPTOR_SIZE = 1024 * 1024;
 
     private final AclProjectsHelper aclProjectsHelper;
     private final FileNodeMapper resourceMapper;
