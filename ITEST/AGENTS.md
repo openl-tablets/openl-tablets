@@ -218,6 +218,19 @@ When a test fails, the framework saves the actual response body to `target/respo
 
 Compare `target/responses/<path>/<name>.req.body` (actual body) with the corresponding `test-resources/<path>/<name>.resp` (expected response with headers).
 
+### Application State Left in `target`
+
+The application under test keeps its state — repositories, workspaces, the database — in `openl.home`, configured
+by the root `pom.xml` as `target/openl-test-${openl.start.milli}`. The placeholder is resolved by the application
+at its own start, so a suite that starts the application several times leaves a home per start, and the homes of
+earlier runs stay until `mvn clean`. Look into them when a suite fails on repository or workspace state.
+
+- Git marks the objects it writes read-only, and on Windows that attribute alone forbids deletion, so
+  `mvn clean` used to fail on the first object it met. `DeletableHomeListener` in `server-core` clears the
+  attribute when a run ends — the files stay, only their attribute changes.
+- The listener is registered through `META-INF/services`, so a new suite needs no wiring of its own; it only
+  needs `server-core` on its test classpath, which every suite already has.
+
 ### Updating Expected OpenAPI Responses
 
 When REST controllers or OpenAPI annotations change, the large OpenAPI `.resp` files need updating. Key files:
