@@ -385,6 +385,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-15 — run 171: idle, seventh in a row; compacted the resume point to its 6-line format. 390 of 400 lines.
 - 08-15 — run 172: idle, eighth in a row; `main` and #2004 both unchanged, only the two bot comments. 390 lines.
 - 08-15 — run 173: idle, ninth in a row; same `main` SHA and same #2004 head, zero review threads. 390 lines.
+- 08-15 — run 174: idle, tenth in a row; `main` and #2004 head unchanged, 14/14 green, merges clean. 390 lines.
