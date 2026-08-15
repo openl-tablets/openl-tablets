@@ -5,14 +5,13 @@
 - **Converged at `main` = `f9a81b9387` (EPBDS-16318 Show the data model in the tables dependency graph)**; every
   queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
-  unchanged SHA. **The recorded SHA is usually gone from the next clone** (a merged PR lands rebased, only 50 commits
-  fetched), so match its *subject* in `git log --oneline -25 origin/main` and take every commit above it.
+  unchanged SHA. **The recorded SHA is usually gone from the next clone**, so match its *subject* in
+  `git log --oneline -25 origin/main` and take every commit above it.
 - Sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Read the
   **deleted** lines first — additive commits orphan nothing; a commit deleting a screen is the richest vein, so check
-  its locale keys, service functions, helper modules, dropped `throws`, and re-run the class/id selector extraction
-  over `webstudio/webapp/css` — a retired JSF page leaves its CSS class behind and nothing else. When a commit
-  swaps a helper call for a new class, search each **method** of that helper separately: the class name stays alive
-  through its other callers while the one method the rewrite dropped is left with only its own test.
+  its locale keys, service functions, helper modules, dropped `throws`, and re-extract the class/id selectors over
+  `webstudio/webapp/css`. When a commit swaps a helper call for a new class, search each **method** of that helper
+  separately — the class stays alive through its other callers while the dropped method keeps only its own test.
 
 ## Change-type queue
 
@@ -35,9 +34,8 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Module coverage
 
-- `STUDIO/org.openl.rules.webstudio` Java is the one unswept surface — uncompilable here (see *Container facts*);
-  its resources are covered by the repo-wide resource veins. Every other module is fully swept, leaving only
-  *Deferred findings*.
+- `STUDIO/org.openl.rules.webstudio` Java is the one unswept surface — uncompilable here (see *Container facts*); its
+  resources are covered by the repo-wide veins. Every other module is swept, leaving only *Deferred findings*.
 
 ## Deferred findings
 
@@ -299,8 +297,8 @@ detector this ledger has never run — not by re-running one of these.
   webstudio Java from a run here.
 - ITEST modules cannot run `pmd:pmd` or `dependency:analyze-only`: the install does not publish `server-core`, so
   those 16 modules fail dependency resolution. They are out of the sweep's scope anyway.
-- Maven Central, registry.npmjs.org and github.com all work. So a dependency jar can be fetched with `curl` straight
-  from Central and inspected with `unzip` plus `javap -c` when a convention is in doubt.
+- Maven Central, registry.npmjs.org and github.com all work, so a jar can be `curl`ed from Central and read with
+  `unzip` plus `javap -c`.
 - **`sonarcloud.io` is blocked too** — 403 to CONNECT, same shape as shibboleth, confirmed against
   `$HTTPS_PROXY/__agentproxy/status`. So a red `SonarCloud Code Analysis` check can never be diagnosed from here:
   report the failed conditions from the check-run summary and hand the judgement to a maintainer.
@@ -387,6 +385,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-15 — run 168: idle; `main` at the resume point, #2004 head unchanged, zero review threads. Fourth in a row.
 - 08-15 — run 169: idle; `main` at the resume point, #2004 unchanged and still merging clean. Fifth in a row.
 - 08-15 — run 170: idle; `main` at the resume point, #2004 unchanged, zero review threads. Sixth in a row.
+- 08-15 — run 171: idle, seventh in a row; compacted the resume point to its 6-line format. 390 of 400 lines.
