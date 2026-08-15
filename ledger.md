@@ -152,7 +152,7 @@ detector this ledger has never run — not by re-running one of these.
 - A pom property with no `${...}` reference anywhere is almost always a plugin convention parameter — `maven.*`,
   `sonar.*`, `invoker.*`, `archetype.*`, `spotless.*`, `lombok.delombok.skip`, `project.build.sourceEncoding`.
 - A CodeRabbit walkthrough describes intent, not the diff — it reported an insertion in a file with zero insertions.
-  Verify any bot claim against `git diff --numstat` before answering it.
+  Verify any bot claim against `git diff --numstat`; its "possibly related PRs" is a similarity hint, not a claim.
 - **Bulk Java detectors fail in three ways that all look like real findings.** A field regex with no scope tracking
   matches every local declaration (3313 "fields" against 112 real ones) — track brace depth and accept only a
   declaration whose enclosing brace was opened by a type declaration. A scan-upwards for annotations is defeated by a
@@ -387,6 +387,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-15 — run 166: idle; CodeRabbit's "possibly related #1897" is a similarity hint, not a duplicate.
 - 08-15 — run 167: idle; #2004 head unchanged, only the two recorded bot comments.
 - 08-15 — run 168: idle; `main` at the resume point, #2004 head unchanged, zero review threads. Fourth in a row.
+- 08-15 — run 169: idle; `main` at the resume point, #2004 unchanged and still merging clean. Fifth in a row.
