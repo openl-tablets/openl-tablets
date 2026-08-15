@@ -387,9 +387,9 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-14 — run 163: four `main` commits screened — two purely additive, two whose deletions orphan nothing (an
-  `@AfterEach` folded into setup, a test padding local). #2004 unchanged. No build.
 - 08-14 — run 164: one `main` commit screened (EPBDS-16318) — a `TableNodeView` split whose three dropped fields
   moved verbatim into the new sibling the commit adds. #2004 unchanged, green, bot comments only. No build.
 - 08-15 — run 165: `main` still at the resume point, no new commit to screen. #2004 unchanged, green, no review
   thread. Idle; two calls, no build.
+- 08-15 — run 166: `main` still at the resume point. #2004 unchanged, green, merges clean, awaiting approval;
+  CodeRabbit's "possibly related #1897" is a similarity hint, not a duplicate — the rules are still on `main`.
