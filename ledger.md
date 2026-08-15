@@ -387,6 +387,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-15 — run 167: idle; #2004 head unchanged, only the two recorded bot comments.
 - 08-15 — run 168: idle; `main` at the resume point, #2004 head unchanged, zero review threads. Fourth in a row.
 - 08-15 — run 169: idle; `main` at the resume point, #2004 unchanged and still merging clean. Fifth in a row.
+- 08-15 — run 170: idle; `main` at the resume point, #2004 unchanged, zero review threads. Sixth in a row.
