@@ -1,4 +1,4 @@
-import type { ElementDefinition } from 'cytoscape'
+import type { Core, ElementDefinition, LayoutOptions, NodeCollection } from 'cytoscape'
 import type { DagreLayoutOptions } from 'cytoscape-dagre'
 import type { DatatypeField } from 'types/tables'
 
@@ -19,6 +19,22 @@ export const GRAPH_LAYOUT: DagreLayoutOptions = {
 export interface GraphField extends DatatypeField {
     ref?: string
     collection?: boolean
+}
+
+/** One value of a vocabulary. A vocabulary narrows a simple type, so a value is always a JSON scalar. */
+export type VocabularyValue = string | number | boolean | null
+
+/**
+ * The values a vocabulary declares, as the graph reports them. Only a few of them are previewed: a longer vocabulary
+ * comes back as its first three and last three values, and says so through {@code truncated}. The whole list is in the
+ * table itself.
+ */
+export interface GraphVocabulary {
+    valueType: string
+    valueCount: number
+    /** absent when the vocabulary lists no values at all: the graph leaves an empty list out */
+    valuesPreview?: VocabularyValue[]
+    truncated: boolean
 }
 
 /**
@@ -43,6 +59,8 @@ export interface GraphNode {
     // data model of a datatype node: the datatype it extends and the fields it declares
     extends?: string
     fields?: GraphField[]
+    // values of a vocabulary node, absent for a regular datatype
+    vocabulary?: GraphVocabulary
 }
 
 /**
@@ -77,6 +95,102 @@ const KIND_COLORS: Record<string, string> = {
 const DEFAULT_COLOR = '#8c8c8c'
 
 export const kindColor = (kind?: string): string => (kind ? KIND_COLORS[kind] : undefined) ?? DEFAULT_COLOR
+
+/** How many members — fields or values — an entity box lists before the rest are counted in one line. */
+const ENTITY_ROWS = 12
+
+/** How wide a line of an entity box grows before it is cut, in characters of its monospaced font. */
+const ENTITY_LINE_CHARS = 28
+
+const ELLIPSIS = '…'
+
+/** Cuts a line that would stretch the entity box past what a reader scans comfortably. */
+const clip = (line: string): string =>
+    line.length > ENTITY_LINE_CHARS ? line.slice(0, ENTITY_LINE_CHARS - 1) + ELLIPSIS : line
+
+/** States how many members the box leaves out, in the place they were left out of. */
+const more = (count: number): string => `${ELLIPSIS} +${count} more`
+
+/** A value of a vocabulary as the box prints it; an empty cell of the table prints as nothing. */
+export const vocabularyValue = (value: VocabularyValue): string => String(value ?? '')
+
+const vocabularyRows = (vocabulary: GraphVocabulary): string[] => {
+    const rows = (vocabulary.valuesPreview ?? []).map(vocabularyValue)
+    if (!vocabulary.truncated) {
+        return rows
+    }
+    // the preview is the first and the last values of the vocabulary: the rest were dropped between them
+    const head = Math.ceil(rows.length / 2)
+    return [...rows.slice(0, head), more(vocabulary.valueCount - rows.length), ...rows.slice(head)]
+}
+
+/** How wide the name column of an entity box grows before a longer name is cut, in characters. */
+const NAME_COLUMN_CHARS = 16
+
+/** Fields as the two columns of an ER entity: the name, then the type it holds. */
+const fieldRows = (fields: GraphField[]): string[] => {
+    const shown = fields.slice(0, ENTITY_ROWS)
+    const width = Math.min(NAME_COLUMN_CHARS, Math.max(...shown.map(field => field.name.length)))
+    const rows = shown.map(field => `${column(field.name, width)}  ${field.type}`)
+    return fields.length > ENTITY_ROWS ? [...rows, more(fields.length - ENTITY_ROWS)] : rows
+}
+
+/** One cell of the name column: padded to the column width, or cut when it is wider than the column. */
+const column = (name: string, width: number): string =>
+    name.length > width ? name.slice(0, width - 1) + ELLIPSIS : name.padEnd(width)
+
+/**
+ * The label of a datatype node, drawn as the entity box of an ER diagram: the name of the type, a rule, and the
+ * members below it — the fields of a datatype, the values of a vocabulary. A vocabulary is titled with the type it
+ * narrows ({@code Region: String}), which is what sets it apart from a datatype at a glance.
+ *
+ * A box lists a bounded number of members and cuts an over-long line, so one wide type cannot take over the canvas.
+ * Whatever it leaves out is counted in place, and the side panel lists the members in full.
+ */
+export const entityLabel = (node: GraphNode): string => {
+    const vocabulary = node.vocabulary
+    const lines = [clip(vocabulary ? `${node.name}: ${vocabulary.valueType}` : node.name)]
+    const members = (vocabulary ? vocabularyRows(vocabulary) : fieldRows(node.fields ?? [])).map(clip)
+    if (members.length > 0) {
+        const width = Math.max(...[...lines, ...members].map(line => line.length))
+        lines.push('─'.repeat(width), ...members)
+    }
+    return lines.join('\n')
+}
+
+/** Id of the box that frames the data model of one project. Prefixed so it can never clash with a table id. */
+export const areaId = (project: string): string => `area:${project}`
+
+/** Space left between two bands of the canvas, so a reader never has to tell them apart by their contents. */
+const BAND_GAP = 90
+
+/**
+ * Lays the graph out one band at a time and stacks the bands, so the call graph and the data model never overlap:
+ * the callable tables come first, then the data model of each project, framed as a subject area.
+ *
+ * Each band is laid out on its own — the two layers are unrelated, and a shared layout would interleave them.
+ */
+export const layoutBands = (cy: Core): void => {
+    const entities = cy.nodes('.entity')
+    const bands = [cy.nodes().not(entities).not('.area'), ...areaBands(entities)].filter(band => band.nonempty())
+    bands.forEach(band => band.union(band.edgesWith(band)).layout(bandLayout).run())
+
+    let top = 0
+    bands.forEach(band => {
+        const box = band.boundingBox()
+        band.shift({ x: -box.x1, y: top - box.y1 })
+        top += box.h + BAND_GAP
+    })
+    cy.fit(undefined, 30)
+}
+
+/** The entities of one project make one band, so a subject area is never split across the canvas. */
+const areaBands = (entities: NodeCollection): NodeCollection[] =>
+    [...new Set(entities.map(entity => entity.data('parent') as string | undefined))]
+        .map(area => (area ? entities.filter(entity => entity.data('parent') === area) : entities.filter(entity => !entity.data('parent'))))
+
+// the band layout must not fit the viewport to itself: the bands are placed by hand once they are all laid out
+const bandLayout = { ...GRAPH_LAYOUT, fit: false } as unknown as LayoutOptions
 
 export interface GraphModel {
     elements: ElementDefinition[]
@@ -150,27 +264,26 @@ const findCycleEdges = (ids: string[], dependencies: Map<string, string[]>): Set
 }
 
 /**
- * How a data model edge is drawn and labelled, following UML class diagram notation: {@code extends} is a
- * generalization, {@code field} an association whose multiplicity is written at the end it points at. A datatype field
- * is optional and a collection field may be empty, hence {@code 0..1} and {@code 0..*}. Returns undefined for a plain
- * call between tables, which is not part of the data model.
+ * How a data model edge is drawn: {@code extends} is a generalization, {@code field} a relationship whose cardinality
+ * is read at the end it points at — {@code many} for a field holding a collection, {@code one} otherwise. Returns
+ * undefined for a plain call between tables, which is not part of the data model.
  *
  * The graph draws one edge per pair of datatypes, so a datatype declaring several fields of the same type gets one
- * association covering them all — a collection as soon as one of them is. Inheritance outranks a field of the parent's
- * own type. The side panel lists every field separately, whatever the canvas merges.
+ * relationship covering them all — many as soon as one of them is a collection. Inheritance outranks a field of the
+ * parent's own type. The side panel lists every field separately, whatever the canvas merges.
  */
-const dataModelEdge = (source: GraphNode | undefined, target: string): { relation: string, multiplicity?: string } | undefined => {
+const dataModelEdge = (source: GraphNode | undefined, target: string): string[] | undefined => {
     if (!source) {
         return undefined
     }
     if (source.extends === target) {
-        return { relation: 'extends' }
+        return ['extends']
     }
     const fields = (source.fields ?? []).filter(entry => entry.ref === target)
     if (fields.length === 0) {
         return undefined
     }
-    return { relation: 'field', multiplicity: fields.some(field => field.collection) ? '0..*' : '0..1' }
+    return ['field', fields.some(field => field.collection) ? 'many' : 'one']
 }
 
 /**
@@ -215,6 +328,7 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
     )
     const cycleEdges = findCycleEdges(ids, callDependencies)
     const elements: ElementDefinition[] = []
+    const areas = new Map<string, string>()
     let isolated = 0
 
     nodes.forEach(node => {
@@ -226,10 +340,27 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
         if (orphan) {
             isolated += 1
         }
+        // a datatype is drawn as the entity box of an ER diagram, so its label carries the members it declares
+        const entity = node.kind === DATATYPE_KIND
+        // the data model of one project is framed as a subject area, the way an ER diagram groups its entities
+        const area = entity && node.project ? areaId(node.project) : undefined
+        if (area && !areas.has(area)) {
+            areas.set(area, node.project!)
+        }
         const element: ElementDefinition = {
-            data: { id: node.id, label: node.name, kind: node.kind ?? '', color: kindColor(node.kind), weight: used },
+            data: {
+                id: node.id,
+                label: entity ? entityLabel(node) : node.name,
+                kind: node.kind ?? '',
+                color: kindColor(node.kind),
+                weight: used,
+                ...(area ? { parent: area } : {}),
+            },
         }
         const classes: string[] = []
+        if (entity) {
+            classes.push('entity')
+        }
         if (orphan) {
             classes.push('isolated')
         }
@@ -250,27 +381,23 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
         const dataModel = dataModelEdge(byId.get(source), target)
         const cyclic = cycleEdges.has(id)
         if (dataModel || cyclic) {
-            element.classes = [dataModel?.relation, cyclic ? 'cycle' : undefined].filter(Boolean).join(' ')
-        }
-        if (dataModel?.multiplicity) {
-            element.data['multiplicity'] = dataModel.multiplicity
+            element.classes = [...(dataModel ?? []), ...(cyclic ? ['cycle'] : [])].join(' ')
         }
         elements.push(element)
     }))
 
     // A table calling itself is recursion — a red self-loop, kept out of the counters. A datatype with a field of its
-    // own type is an ordinary self-association instead, and keeps the data model's notation.
+    // own type is an ordinary self-relationship instead, and keeps the data model's notation.
     selfLoops.forEach(id => {
         const dataModel = dataModelEdge(byId.get(id), id)
-        const element: ElementDefinition = {
+        elements.push({
             data: { id: `${id}->${id}`, source: id, target: id },
-            classes: dataModel?.relation ?? 'cycle',
-        }
-        if (dataModel?.multiplicity) {
-            element.data['multiplicity'] = dataModel.multiplicity
-        }
-        elements.push(element)
+            classes: (dataModel ?? ['cycle']).join(' '),
+        })
     })
+
+    // the subject areas come last: cytoscape sizes a parent around the children that name it
+    areas.forEach((project, id) => elements.push({ data: { id, label: project }, classes: 'area' }))
 
     const cyclicNodes = new Set<string>()
     cycleEdges.forEach(edge => edge.split('->').forEach(id => cyclicNodes.add(id)))

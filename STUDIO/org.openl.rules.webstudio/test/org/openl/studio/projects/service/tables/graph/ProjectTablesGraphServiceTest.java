@@ -27,12 +27,14 @@ import org.openl.studio.projects.model.tables.ExecutableNodeView;
 import org.openl.studio.projects.model.tables.TableGraphNodeKind;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
+import org.openl.studio.projects.service.tables.read.VocabularyTableReader;
 
 class ProjectTablesGraphServiceTest {
 
     private static ProjectModel projectModel;
     private static ProjectModel dataModel;
-    private final ProjectTablesGraphService service = new ProjectTablesGraphService(new SummaryTableReader());
+    private final ProjectTablesGraphService service =
+            new ProjectTablesGraphService(new SummaryTableReader(), new VocabularyTableReader());
 
     @BeforeAll
     static void compileProject() throws Exception {
@@ -215,7 +217,8 @@ class ProjectTablesGraphServiceTest {
     @Test
     void dataModelJoinsTheGraph() {
         var byName = byName(projectGraph(dataModel));
-        assertEquals(Set.of("calcPremium", "Car", "Driver", "Policy", "Region", "Vehicle"), byName.keySet());
+        assertEquals(Set.of("Blank", "calcPremium", "Car", "Driver", "Policy", "Region", "Score", "Vehicle"),
+                byName.keySet());
         assertEquals(TableGraphNodeKind.DATATYPE, byName.get("Policy").kind);
         assertNotNull(byName.get("Policy").file);
         assertNotNull(byName.get("Policy").pos);
@@ -264,6 +267,43 @@ class ProjectTablesGraphServiceTest {
     }
 
     @Test
+    void vocabularyReportsItsValuesInsteadOfFields() {
+        var byName = byName(projectGraph(dataModel));
+        var region = datatype(byName, "Region");
+        // a vocabulary declares values, not fields
+        assertTrue(region.fields.isEmpty());
+
+        var vocabulary = region.vocabulary;
+        assertNotNull(vocabulary);
+        assertEquals("String", vocabulary.valueType());
+        assertEquals(2, vocabulary.valueCount());
+        // the values fit the preview, so they are all reported, in the order the table lists them
+        assertEquals(List.of("North", "South"), vocabulary.valuesPreview());
+        assertFalse(vocabulary.truncated());
+
+        // a regular datatype has no values to report
+        assertNull(datatype(byName, "Policy").vocabulary);
+
+        // a vocabulary listing no values is still described as one, and does not break the graph it is part of
+        var blank = datatype(byName, "Blank").vocabulary;
+        assertNotNull(blank);
+        assertEquals(0, blank.valueCount());
+        assertTrue(blank.valuesPreview().isEmpty());
+        assertFalse(blank.truncated());
+    }
+
+    @Test
+    void longVocabularyIsPreviewedByItsFirstAndLastValues() {
+        var score = datatype(byName(projectGraph(dataModel)), "Score").vocabulary;
+        assertNotNull(score);
+        assertEquals("Integer", score.valueType());
+        assertEquals(8, score.valueCount());
+        // the values keep the type the table gives them instead of being spelled out as text
+        assertEquals(List.of(100, 200, 300, 600, 700, 800), score.valuesPreview());
+        assertTrue(score.truncated());
+    }
+
+    @Test
     void datatypeFieldOfItsOwnTypeIsASelfLoop() {
         var byName = byName(projectGraph(dataModel));
         var driver = datatype(byName, "Driver");
@@ -289,7 +329,7 @@ class ProjectTablesGraphServiceTest {
     void oneLayerOfTheGraphCanBeAskedForOnItsOwn() {
         // the data model alone — every datatype of the project, with the relations it has in the whole graph
         var datatypes = byName(service.buildProjectGraph(dataModel, false, GraphLayer.DATATYPE));
-        assertEquals(Set.of("Car", "Driver", "Policy", "Region", "Vehicle"), datatypes.keySet());
+        assertEquals(Set.of("Blank", "Car", "Driver", "Policy", "Region", "Score", "Vehicle"), datatypes.keySet());
         assertEquals(byName(projectGraph(dataModel)).get("Policy").dependencies, datatypes.get("Policy").dependencies);
 
         // the callable tables alone — the graph as it was before the data model joined it

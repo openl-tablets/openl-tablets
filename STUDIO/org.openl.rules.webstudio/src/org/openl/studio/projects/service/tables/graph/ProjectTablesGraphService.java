@@ -25,6 +25,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -32,12 +33,14 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.studio.projects.model.tables.DatatypeNodeFieldView;
 import org.openl.studio.projects.model.tables.DatatypeNodeView;
+import org.openl.studio.projects.model.tables.DatatypeNodeVocabularyView;
 import org.openl.studio.projects.model.tables.ExecutableNodeView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableGraphNodeKind;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
+import org.openl.studio.projects.service.tables.read.VocabularyTableReader;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -66,7 +69,14 @@ public class ProjectTablesGraphService {
      */
     static final String DISPATCHER_KIND = "Dispatcher";
 
+    /**
+     * How many values of a vocabulary a node previews. A longer vocabulary is reported by its first and last values,
+     * so the shape of it is visible without carrying the whole list through the graph.
+     */
+    static final int VOCABULARY_PREVIEW_LIMIT = 6;
+
     private final SummaryTableReader summaryTableReader;
+    private final VocabularyTableReader vocabularyTableReader;
 
     /**
      * Builds the dependency graph of the whole project, or of the opened module only. Every table is returned together
@@ -315,9 +325,10 @@ public class ProjectTablesGraphService {
                                  TableSyntaxNode tableSyntaxNode,
                                  IOpenClass datatype,
                                  Map<TableSyntaxNode, String> projectByTable) {
-        var summary = summaryTableReader.read(new TableSyntaxNodeAdapter(tableSyntaxNode));
+        var table = new TableSyntaxNodeAdapter(tableSyntaxNode);
+        var summary = summaryTableReader.read(table);
         var kind = OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType());
-        var dataModel = dataModelOf(datatype);
+        var dataModel = dataModelOf(datatype, table);
         var node = new RawNode(id, summary.name, kind, summary, Map.of(), projectByTable.get(tableSyntaxNode),
                 dataModel);
         if (dataModel.extendsId() != null) {
@@ -331,18 +342,47 @@ public class ProjectTablesGraphService {
     }
 
     /**
-     * Reads the data model of one datatype: the datatype it extends and the fields it declares. Every field is
-     * reported, and the ones whose type is a datatype table also name that table, a collection field through its
-     * element type.
+     * Reads the data model of one datatype: the datatype it extends, the fields it declares and, for a vocabulary,
+     * the values it lists. Every field is reported, and the ones whose type is a datatype table also name that table,
+     * a collection field through its element type.
      *
      * <p>Only the fields the datatype declares itself are listed; the inherited ones belong to the parent's node.
      */
-    private static DataModel dataModelOf(IOpenClass datatype) {
+    private DataModel dataModelOf(IOpenClass datatype, IOpenLTable table) {
         // a datatype keeps its fields in declaration order, so the response lists them as the table itself reads
         var fields = datatype instanceof DatatypeOpenClass declaringType
                 ? declaringType.getDeclaredFields().stream().map(ProjectTablesGraphService::fieldOf).toList()
                 : List.<DatatypeNodeFieldView>of();
-        return new DataModel(datatypeTableId(superTypeOf(datatype)), fields);
+        return new DataModel(datatypeTableId(superTypeOf(datatype)), fields, vocabularyOf(table));
+    }
+
+    /**
+     * Reads the values a vocabulary lists, or {@code null} when the table declares a regular datatype. A vocabulary
+     * declares values rather than fields, so they are reported apart from the fields.
+     *
+     * <p>The values keep the order and the type the table gives them. Only a few of them are previewed: a vocabulary
+     * longer than the preview is reported by its first and last values and is marked as truncated. The complete list
+     * is read through the table API.
+     */
+    @Nullable
+    private DatatypeNodeVocabularyView vocabularyOf(IOpenLTable table) {
+        if (!vocabularyTableReader.supports(table)) {
+            return null;
+        }
+        var vocabulary = vocabularyTableReader.read(table);
+        var values = vocabulary.values.stream().map(value -> value.value).toList();
+        return new DatatypeNodeVocabularyView(vocabulary.type, values.size(), preview(values),
+                values.size() > VOCABULARY_PREVIEW_LIMIT);
+    }
+
+    /** The first and the last values of a vocabulary, or all of them when they fit the preview. */
+    private static List<Object> preview(List<Object> values) {
+        if (values.size() <= VOCABULARY_PREVIEW_LIMIT) {
+            return values;
+        }
+        var edge = VOCABULARY_PREVIEW_LIMIT / 2;
+        return Stream.concat(values.subList(0, edge).stream(), values.subList(values.size() - edge, values.size()).stream())
+                .toList();
     }
 
     /** The datatype a type inherits from: the parent of a datatype, or the base type a vocabulary narrows. */
@@ -504,7 +544,8 @@ public class ProjectTablesGraphService {
                 .toList();
         return DatatypeNodeView.builder()
                 .extendz(included.contains(dataModel.extendsId()) ? dataModel.extendsId() : null)
-                .fields(fields);
+                .fields(fields)
+                .vocabulary(dataModel.vocabulary());
     }
 
     private static Set<String> retain(Set<String> ids, Set<String> included) {
@@ -528,7 +569,8 @@ public class ProjectTablesGraphService {
         }
     }
 
-    /** The data model a datatype node carries: the datatype it extends and the fields it declares. */
-    private record DataModel(@Nullable String extendsId, List<DatatypeNodeFieldView> fields) {
+    /** The data model a datatype node carries: what it extends, the fields it declares, the values it lists. */
+    private record DataModel(@Nullable String extendsId, List<DatatypeNodeFieldView> fields,
+                            @Nullable DatatypeNodeVocabularyView vocabulary) {
     }
 }

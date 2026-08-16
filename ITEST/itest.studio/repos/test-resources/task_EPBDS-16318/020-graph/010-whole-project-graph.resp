@@ -3,6 +3,20 @@ Content-Type: application/json
 
 [
   {
+    "id": "f7a99cb235d59130fac6d870e804b58b",
+    "tableType": "Vocabulary",
+    "kind": "Datatype",
+    "name": "Blank",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "E11",
+    "project": "EPBDS-16318",
+    "vocabulary": {
+      "valueType": "String",
+      "valueCount": 0,
+      "truncated": false
+    }
+  },
+  {
     "id": "d88622078f17aced6103a8b173c3622b",
     "tableType": "SimpleSpreadsheet",
     "kind": "Spreadsheet",
@@ -98,7 +112,38 @@ Content-Type: application/json
     "name": "Region",
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B12:B14",
-    "project": "EPBDS-16318"
+    "project": "EPBDS-16318",
+    "vocabulary": {
+      "valueType": "String",
+      "valueCount": 2,
+      "valuesPreview": [
+        "North",
+        "South"
+      ],
+      "truncated": false
+    }
+  },
+  {
+    "id": "df04591b80210ed942dc093298689149",
+    "tableType": "Vocabulary",
+    "kind": "Datatype",
+    "name": "Score",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "E1:E9",
+    "project": "EPBDS-16318",
+    "vocabulary": {
+      "valueType": "Integer",
+      "valueCount": 8,
+      "valuesPreview": [
+        100,
+        200,
+        300,
+        600,
+        700,
+        800
+      ],
+      "truncated": true
+    }
   },
   {
     "id": "2fceeecaa2b6442cb3788a3b7257a93c",

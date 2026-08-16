@@ -1,4 +1,4 @@
-import { bridgeHiddenNodes, buildGraphModel, DISPATCHER_KIND, findCycles, visibleNeighbours } from 'containers/tableGraph'
+import { areaId, bridgeHiddenNodes, buildGraphModel, DISPATCHER_KIND, entityLabel, findCycles, visibleNeighbours } from 'containers/tableGraph'
 
 const edge = (model: ReturnType<typeof buildGraphModel>, id: string) => model.elements.find(element => element.data.id === id)
 
@@ -57,13 +57,10 @@ describe('buildGraphModel', () => {
             { id: 'driver', name: 'Driver', kind: 'Datatype' },
         ])
 
-        // UML notation: generalization carries no multiplicity, an association is labelled at the end it points at
+        // inheritance carries no cardinality; a relationship is marked with the cardinality read at the end it points at
         expect(edge(model, 'policy->vehicle')?.classes).toBe('extends')
-        expect(edge(model, 'policy->vehicle')?.data['multiplicity']).toBeUndefined()
-        expect(edge(model, 'policy->car')?.classes).toBe('field')
-        expect(edge(model, 'policy->car')?.data['multiplicity']).toBe('0..1')
-        expect(edge(model, 'policy->driver')?.classes).toBe('field')
-        expect(edge(model, 'policy->driver')?.data['multiplicity']).toBe('0..*')
+        expect(edge(model, 'policy->car')?.classes).toBe('field one')
+        expect(edge(model, 'policy->driver')?.classes).toBe('field many')
     })
 
     it('covers every field of the same type with one association', () => {
@@ -81,8 +78,8 @@ describe('buildGraphModel', () => {
             { id: 'driver', name: 'Driver', kind: 'Datatype' },
         ])
 
-        // the merged association must not claim the single field's 0..1 while a collection field also exists
-        expect(edge(model, 'policy->driver')?.data['multiplicity']).toBe('0..*')
+        // the merged relationship must not claim "one" while a collection field also exists
+        expect(edge(model, 'policy->driver')?.classes).toBe('field many')
     })
 
     it('keeps the data model out of the call-graph problem markers', () => {
@@ -94,11 +91,11 @@ describe('buildGraphModel', () => {
         ])
 
         // mutual references are ordinary modelling, not a call cycle
-        expect(edge(model, 'policy->driver')?.classes).toBe('field')
+        expect(edge(model, 'policy->driver')?.classes).toBe('field one')
         expect(model.stats.cyclic).toBe(0)
         expect(model.callDependencies.get('policy')).toEqual([])
         // a flat datatype is not a table nobody uses — the graph carries no rule-to-datatype links to judge that
-        expect(edge(model, 'flat')?.classes).toBeUndefined()
+        expect(edge(model, 'flat')?.classes).toBe('entity')
         expect(model.stats.isolated).toBe(0)
     })
 
@@ -107,9 +104,7 @@ describe('buildGraphModel', () => {
             { id: 'driver', name: 'Driver', kind: 'Datatype', dependencies: ['driver'], fields: [{ name: 'mentor', type: 'Driver', ref: 'driver' }]},
         ])
 
-        const selfLoop = edge(model, 'driver->driver')
-        expect(selfLoop?.classes).toBe('field')
-        expect(selfLoop?.data['multiplicity']).toBe('0..1')
+        expect(edge(model, 'driver->driver')?.classes).toBe('field one')
     })
 
     it('leaves a plain call between tables unclassified', () => {
@@ -131,6 +126,110 @@ describe('buildGraphModel', () => {
         expect(model.dependents.get('b')).toEqual(['a'])
         expect(edge(model, 'c')?.classes).toBe('isolated')
         expect(model.stats.isolated).toBe(1)
+    })
+})
+
+describe('subject areas', () => {
+    it('frames the data model of each project, and leaves the callable tables out of it', () => {
+        const model = buildGraphModel([
+            { id: 'policy', name: 'Policy', kind: 'Datatype', project: 'Motor' },
+            { id: 'driver', name: 'Driver', kind: 'Datatype', project: 'Motor' },
+            { id: 'address', name: 'Address', kind: 'Datatype', project: 'Shared' },
+            { id: 'calc', name: 'calcPremium', kind: 'Spreadsheet', project: 'Motor' },
+        ])
+
+        const areas = model.elements.filter(element => element.classes === 'area')
+        expect(areas.map(area => area.data.id)).toEqual([areaId('Motor'), areaId('Shared')])
+        expect(areas.map(area => area.data['label'])).toEqual(['Motor', 'Shared'])
+        // every datatype names the area of its own project; a rules table belongs to no area
+        expect(edge(model, 'policy')?.data['parent']).toBe(areaId('Motor'))
+        expect(edge(model, 'address')?.data['parent']).toBe(areaId('Shared'))
+        expect(edge(model, 'calc')?.data['parent']).toBeUndefined()
+    })
+
+    it('leaves a datatype of an unnamed project unframed', () => {
+        const model = buildGraphModel([{ id: 'policy', name: 'Policy', kind: 'Datatype' }])
+
+        expect(model.elements.filter(element => element.classes === 'area')).toHaveLength(0)
+        expect(edge(model, 'policy')?.data['parent']).toBeUndefined()
+    })
+})
+
+describe('entityLabel', () => {
+    it('draws a datatype as an ER entity box: the name, a rule, then the fields it declares', () => {
+        const label = entityLabel({
+            id: 'policy',
+            name: 'Policy',
+            kind: 'Datatype',
+            fields: [
+                { name: 'car', type: 'Car', ref: 'car' },
+                { name: 'drivers', type: 'Driver[]', ref: 'driver', collection: true },
+            ],
+        })
+
+        // the members read as two columns: the name, then the type it holds
+        expect(label.split('\n')).toEqual(['Policy', '─'.repeat('drivers  Driver[]'.length), 'car      Car', 'drivers  Driver[]'])
+    })
+
+    it('leaves a datatype without fields as a bare name, with no empty compartment', () => {
+        expect(entityLabel({ id: 'flat', name: 'Request', kind: 'Datatype' })).toBe('Request')
+    })
+
+    it('titles a vocabulary with the type it narrows, and lists its values', () => {
+        const label = entityLabel({
+            id: 'region',
+            name: 'Region',
+            kind: 'Datatype',
+            tableType: 'Vocabulary',
+            vocabulary: { valueType: 'String', valueCount: 3, valuesPreview: ['North', 'South', 'East'], truncated: false },
+        })
+
+        expect(label.split('\n')).toEqual(['Region: String', '──────────────', 'North', 'South', 'East'])
+    })
+
+    it('marks the values a truncated preview leaves out, in the place they were left out of', () => {
+        const label = entityLabel({
+            id: 'score',
+            name: 'Score',
+            kind: 'Datatype',
+            tableType: 'Vocabulary',
+            vocabulary: { valueType: 'Integer', valueCount: 8, valuesPreview: [100, 200, 300, 600, 700, 800], truncated: true },
+        })
+
+        // the gap sits between the first values and the last ones, and says how many are behind it
+        expect(label.split('\n').slice(2)).toEqual(['100', '200', '300', '… +2 more', '600', '700', '800'])
+    })
+
+    it('draws a vocabulary that lists no values, whose preview the graph leaves out entirely', () => {
+        const label = entityLabel({
+            id: 'blank',
+            name: 'Blank',
+            kind: 'Datatype',
+            tableType: 'Vocabulary',
+            vocabulary: { valueType: 'String', valueCount: 0, truncated: false },
+        })
+
+        expect(label).toBe('Blank: String')
+    })
+
+    it('bounds a wide datatype so one type cannot take over the canvas', () => {
+        const fields = Array.from({ length: 15 }, (_, index) => ({ name: `field${index}`, type: 'String' }))
+        const label = entityLabel({ id: 'wide', name: 'Wide', kind: 'Datatype', fields })
+
+        const lines = label.split('\n')
+        expect(lines.slice(-2)).toEqual(['field11  String', '… +3 more'])
+        expect(lines.filter(line => line.startsWith('field'))).toHaveLength(12)
+    })
+
+    it('cuts a name too long for its column and a line too long to scan', () => {
+        const label = entityLabel({
+            id: 'long',
+            name: 'Long',
+            kind: 'Datatype',
+            fields: [{ name: 'aVeryLongFieldNameIndeed', type: 'SomeEquallyLongDatatype' }],
+        })
+
+        expect(label.split('\n')[2]).toBe('aVeryLongFieldN…  SomeEqual…')
     })
 })
 
