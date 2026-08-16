@@ -72,6 +72,32 @@ export const useSharedStyles = createStyles(({ css, token }) => ({
             calc(${token.controlHeight}px * 2);
         gap: ${token.marginXS}px;
     `,
+    /**
+     * The three number fields of a version and the current one beside them, on the one line an ordinary value
+     * field occupies: the fields share whatever the label leaves, so the row never grows a second line.
+     */
+    versionEditor: css`
+        display: flex;
+        width: 100%;
+        align-items: center;
+        gap: ${token.marginXXS}px;
+
+        .ant-input-number {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+
+        /* The fields are narrow, so the digits get the room the default side padding would take. */
+        .ant-input-number-input {
+            padding-inline: ${token.paddingXXS}px;
+            text-align: center;
+        }
+
+        .ant-typography {
+            flex: none;
+            white-space: nowrap;
+        }
+    `,
     editableRow: css`
 ${idleControls(token.motionDurationMid)}
         &:hover .ant-space-compact,

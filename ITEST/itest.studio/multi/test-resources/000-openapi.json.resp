@@ -24689,11 +24689,31 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
+          "defaultValue": {
+            "type": "string",
+            "description": "***"
+          },
+          "dimensional": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "***"
+          },
+          "group": {
+            "type": "string",
+            "description": "***"
+          },
           "multiple": {
             "type": "boolean",
             "description": "***"
           },
           "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "pattern": {
             "type": "string",
             "description": "***"
           },
@@ -26522,6 +26542,9 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/TableProperty"
             }
+          },
+          "versions": {
+            "$ref": "#/components/schemas/TableVersionsView"
           }
         }
       },
@@ -26553,6 +26576,26 @@ Content-Type: application/json
           },
           "compiled": {
             "type": "boolean"
+          }
+        }
+      },
+      "TableVersionsView": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "type": "string",
+            "description": "***"
+          },
+          "next": {
+            "type": "string",
+            "description": "***"
+          },
+          "taken": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

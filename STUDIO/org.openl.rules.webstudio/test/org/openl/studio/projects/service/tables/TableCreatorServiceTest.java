@@ -22,6 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,7 @@ class TableCreatorServiceTest {
     private final TableWriterExecutor tableWriterExecutor = mock(TableWriterExecutor.class);
     private final ProjectFilesService projectFilesService = mock(ProjectFilesService.class);
     private final ProjectFileRootFactory projectFileRootFactory = mock(ProjectFileRootFactory.class);
+    private final SystemPropertiesService systemPropertiesService = mock(SystemPropertiesService.class);
     private final RulesProject project = mock(RulesProject.class);
     private final FileRoot root = mock(FileRoot.class);
     private final Map<String, byte[]> createdResources = new LinkedHashMap<>();
@@ -61,7 +64,9 @@ class TableCreatorServiceTest {
                 tableWritersFactory,
                 tableWriterExecutor,
                 projectFilesService,
-                projectFileRootFactory);
+                projectFileRootFactory,
+                systemPropertiesService);
+        when(systemPropertiesService.onCreate()).thenReturn(Map.of());
         when(projectFileRootFactory.of(project)).thenReturn(root);
         when(project.getBusinessName()).thenReturn("Example");
         doAnswer(invocation -> {
@@ -138,7 +143,9 @@ class TableCreatorServiceTest {
             var sheet = workbook.getSheet("Greeting");
             assertTrue(sheet.getRow(2).getCell(1).getBooleanCellValue());
             assertEquals(42, sheet.getRow(2).getCell(2).getNumericCellValue());
+            // Excel stores a date as a number, and OpenL reads it back as a date only while it is formatted as one.
             assertEquals(0, sheet.getRow(3).getCell(1).getDateCellValue().getTime());
+            assertTrue(DateUtil.isCellDateFormatted(sheet.getRow(3).getCell(1)));
         }
     }
 
@@ -348,6 +355,120 @@ class TableCreatorServiceTest {
 
         verify(projectFilesService).deleteResource(root, "custom/Greeting.xlsx");
         verify(projectFilesService, never()).updateResource(any(), anyString(), any());
+    }
+
+    @Test
+    void stampsTheTableItWritesIntoANewModuleAsCreated() throws Exception {
+        when(systemPropertiesService.onCreate()).thenReturn(stamp());
+
+        createModuleWithTable(simpleDescriptor(), request("rules/Greeting.xlsx", rawTable(mergedHeader())));
+
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(createdResources.get("rules/Greeting.xlsx")))) {
+            var sheet = workbook.getSheet("Greeting");
+            assertEquals("Rules Boolean Greeting()", sheet.getRow(1).getCell(1).getStringCellValue());
+            // The properties section stands between the header and the body, the way OpenL reads it.
+            assertEquals("properties", sheet.getRow(2).getCell(1).getStringCellValue());
+            assertEquals("createdBy", sheet.getRow(2).getCell(2).getStringCellValue());
+            assertEquals("jane", sheet.getRow(2).getCell(3).getStringCellValue());
+            assertEquals("createdOn", sheet.getRow(3).getCell(2).getStringCellValue());
+            assertEquals("Condition", sheet.getRow(4).getCell(1).getStringCellValue());
+            // The header spans the widened table, and the marker spans both property rows.
+            assertEquals(List.of("B2:D2", "B3:B4"),
+                    sheet.getMergedRegions().stream().map(CellRangeAddress::formatAsString).sorted().toList());
+        }
+    }
+
+    @Test
+    void stampsTheCreationDateAsADateTheEngineReadsBack() throws Exception {
+        when(systemPropertiesService.onCreate()).thenReturn(stamp());
+
+        createModuleWithTable(simpleDescriptor(), request("rules/Greeting.xlsx", rawTable(mergedHeader())));
+
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(createdResources.get("rules/Greeting.xlsx")))) {
+            var createdOn = workbook.getSheet("Greeting").getRow(3).getCell(3);
+            assertEquals(0, createdOn.getDateCellValue().getTime());
+            assertTrue(DateUtil.isCellDateFormatted(createdOn));
+        }
+    }
+
+    @Test
+    void stampsAWideTableWithItsValuesReachingTheRightEdge() throws Exception {
+        when(systemPropertiesService.onCreate()).thenReturn(stamp());
+        var wide = List.of(
+                List.of(cell("Rules Boolean Greeting()", 4), RawTableCell.COVERED_CELL, RawTableCell.COVERED_CELL,
+                        RawTableCell.COVERED_CELL),
+                List.of(cell("C1"), cell("C2"), cell("C3"), cell("RET1")),
+                List.of(cell("true"), cell("true"), cell("true"), cell("true")));
+
+        createModuleWithTable(simpleDescriptor(), request("rules/Greeting.xlsx", rawTable(wide)));
+
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(createdResources.get("rules/Greeting.xlsx")))) {
+            var sheet = workbook.getSheet("Greeting");
+            // The value spans the columns beside it, which would otherwise read as cells of the section.
+            assertEquals(List.of("B2:E2", "B3:B4", "D3:E3", "D4:E4"),
+                    sheet.getMergedRegions().stream().map(CellRangeAddress::formatAsString).sorted().toList());
+        }
+    }
+
+    @Test
+    void leavesATableThatCarriesItsOwnPropertiesUnstamped() throws Exception {
+        when(systemPropertiesService.onCreate()).thenReturn(stamp());
+        var declaring = List.of(
+                List.of(cell("Rules Boolean Greeting()", 3), RawTableCell.COVERED_CELL, RawTableCell.COVERED_CELL),
+                List.of(cell("properties"), cell("category"), cell("Auto")),
+                List.of(cell("Condition"), cell("Result"), cell("Extra")));
+
+        createModuleWithTable(simpleDescriptor(), request("rules/Greeting.xlsx", rawTable(declaring)));
+
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(createdResources.get("rules/Greeting.xlsx")))) {
+            var sheet = workbook.getSheet("Greeting");
+            // OpenL reads the first properties section alone, so a second one would leave these rows in the body.
+            assertEquals("category", sheet.getRow(2).getCell(2).getStringCellValue());
+            assertEquals("Condition", sheet.getRow(3).getCell(1).getStringCellValue());
+        }
+    }
+
+    @Test
+    void leavesATableOpenLReadsNoPropertiesOnUnstamped() throws Exception {
+        when(systemPropertiesService.onCreate()).thenReturn(stamp());
+        var environment = RawTableView.builder()
+                .kind(TableKind.ENVIRONMENT)
+                .name("Env")
+                .source(List.of(List.of(cell("Environment"), RawTableCell.COVERED_CELL),
+                        List.of(cell("import"), cell("org.openl"))))
+                .build();
+
+        createModuleWithTable(simpleDescriptor(), request("rules/Greeting.xlsx", environment));
+
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(createdResources.get("rules/Greeting.xlsx")))) {
+            // An Environment table reads no row as a property, so a stamped one would not compile.
+            assertEquals("import", workbook.getSheet("Greeting").getRow(2).getCell(1).getStringCellValue());
+        }
+    }
+
+    @Test
+    void leavesAFreeFormTableUnstamped() throws Exception {
+        when(systemPropertiesService.onCreate()).thenReturn(stamp());
+        var freeForm = RawTableView.builder()
+                .kind(TableKind.OTHER)
+                .name("Notes")
+                .source(List.of(List.of(cell("Notes")), List.of(cell("anything"))))
+                .build();
+
+        createModuleWithTable(simpleDescriptor(), request("rules/Greeting.xlsx", freeForm));
+
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(createdResources.get("rules/Greeting.xlsx")))) {
+            var sheet = workbook.getSheet("Greeting");
+            // OpenL reads none of a free-form table's rows as properties, so nothing is written between them.
+            assertEquals("anything", sheet.getRow(2).getCell(1).getStringCellValue());
+        }
+    }
+
+    private static Map<String, Object> stamp() {
+        var stamped = new LinkedHashMap<String, Object>();
+        stamped.put("createdBy", "jane");
+        stamped.put("createdOn", new Date(0));
+        return stamped;
     }
 
     private void createModuleWithTable(ProjectDescriptor descriptor,

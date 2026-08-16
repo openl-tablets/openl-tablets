@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
@@ -220,32 +219,23 @@ public class TableBuilder {
         var cellStyle = analyseCellStyle(style);
         x += region.getLeft();
         y += region.getTop();
-        if (width == 1 && height == 1) {
-            Cell cell = PoiExcelHelper.getOrCreateCell(x, y, gridModel.getSheetSource().getSheet());
-            gridModel.setCellValue(x, y, value);
-            // we need to create new style if value is of type date.
-            if (value instanceof Date) {
-                if (cellStyle != getDefaultCellStyle()) {
-                    setCellStyle(cell, cellStyle);
-                    cellStyle = getDateCellStyle(cell);
-                } else {
-                    cellStyle = getDefaultDateCellStyle();
-                }
-                setCellStyle(cell, cellStyle);
-            } else {
-                setCellStyle(cell, cellStyle);
-            }
-        } else {
-            var x2 = x + width - 1;
-            var y2 = y + height - 1;
+        var x2 = x + width - 1;
+        var y2 = y + height - 1;
+        var sheet = gridModel.getSheetSource().getSheet();
+        if (width > 1 || height > 1) {
             gridModel.addMergedRegion(new GridRegion(y, x, y2, x2));
-            for (var col = x; col <= x2; col++) {
-                for (var row = y; row <= y2; row++) {
-                    Cell newCell = PoiExcelHelper.getOrCreateCell(col, row, gridModel.getSheetSource().getSheet());
-                    gridModel.setCellValue(x, y, value);
-                    setCellStyle(newCell, cellStyle);
-                }
+        }
+        gridModel.setCellValue(x, y, value);
+        for (var col = x; col <= x2; col++) {
+            for (var row = y; row <= y2; row++) {
+                setCellStyle(PoiExcelHelper.getOrCreateCell(col, row, sheet), cellStyle);
             }
+        }
+        if (value instanceof Date) {
+            // Excel stores a date as a number, and it is read back as a date only while the cell holding it carries
+            // a date format. A merged cell holds its value in the one it opens with.
+            var cell = PoiExcelHelper.getOrCreateCell(x, y, sheet);
+            setCellStyle(cell, cellStyle == getDefaultCellStyle() ? getDefaultDateCellStyle() : getDateCellStyle(cell));
         }
     }
 
@@ -421,21 +411,11 @@ public class TableBuilder {
 
         if (!properties.isEmpty()) {
             writeCell(0, currentRow, 1, properties.size(), TABLE_PROPERTIES, style);
-            Set<String> keys = properties.keySet();
-            for (String key : keys) {
-                writeCell(1, currentRow, 1, 1, key, style);
-                var value = properties.get(key);
-                writeCell(2, currentRow, 1, 1, value, style);
-                // write empty column for correct border showing
-                if (width > TableBuilder.PROPERTIES_MIN_WIDTH) {
-                    var column = TableBuilder.PROPERTIES_MIN_WIDTH;
-
-                    while (column < width) {
-                        writeCell(column, currentRow, 1, 1, null, style);
-                        column++;
-                    }
-                }
-
+            for (var property : properties.entrySet()) {
+                writeCell(1, currentRow, 1, 1, property.getKey(), style);
+                // The value reaches the table's right edge, the way a properties section is written by hand: left in
+                // the third column, the columns beside it would read as cells of the section's own.
+                writeCell(2, currentRow, width - 2, 1, property.getValue(), style);
                 currentRow++;
             }
         }

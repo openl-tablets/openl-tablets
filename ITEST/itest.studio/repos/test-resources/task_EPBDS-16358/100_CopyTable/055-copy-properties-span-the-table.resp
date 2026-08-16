@@ -1,0 +1,42 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "bf3dad3ea35ed2a3cc18a6776a769bb5",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "BankLimitIndex",
+  "pos": "B52:H61",
+  "source": [
+    [
+      {
+        "cell": "B53",
+        "value": "properties"
+      },
+      {
+        "cell": "C53",
+        "value": "state"
+      },
+      {
+        "cell": "D53",
+        "value": [
+          "AL"
+        ],
+        "colspan": 5
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ]
+  ],
+  "totalRows": 10
+}

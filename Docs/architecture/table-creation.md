@@ -104,19 +104,33 @@ is placed with the rules, or with the tests when a Test or Run table is copied.
 Properties follow the destination. The source table's kind selects the properties applicable to that kind at the
 Table inheritance level, so a Rules table and a Spreadsheet can offer different sets. Properties belonging to a
 Properties table's contents, such as `scope`, are not offered here; Table-level properties, such as `version`, are.
-Each applicable property keeps its value from the raw source.
+Each applicable property keeps its value from the source, except the version: a copy is offered the first version
+the table's versions leave free, because the one the source stands for is by definition taken.
+
+A property is offered the way the rest of OpenL Studio names it — by its display name, under its group. An author
+reads `state` as *US States* under *Business Dimension*, so the dimensional properties are presented as a group
+rather than looked up one by one, and the value written stays the technical name a table declares.
 
 The value editor follows the property definition: text input for text, a date picker for a date, a check box for a
 boolean, and a dropdown for an enum. An enum dropdown shows its display value and writes its code into the workbook.
 A single-value enum exposes no text input; an enum accepting several values uses a multi-select. Completing the last
-row adds another; rows can be inserted and deleted with the same controls as Spreadsheet arguments. Multiple selected
-values wrap across lines in a bounded value column instead of widening the table. The date picker displays a date in
-the user's locale and writes it to the workbook in the ISO 8601 `yyyy-MM-dd` form. A partially filled row or repeated
-property name makes the form invalid.
+row adds another; a row can be deleted with the same control as a Spreadsheet argument. Multiple selected values wrap
+across lines in a bounded value column instead of widening the table. The date picker displays a date in the user's
+locale and writes it to the workbook in the ISO 8601 `yyyy-MM-dd` form. A partially filled row or repeated property
+name makes the form invalid, and so does a value the property's own pattern refuses.
 
-The source table is the authority for the cell content. The browser reads `RawSource`, replaces the technical name
-in its header, rebuilds the raw property section, and keeps the body cell values and merges. It then submits a
-normal `CreateNewTableRequest`; there is no separate copy operation on the server.
+The version is the one property with an editor of its own: three spinners for the numbers the engine orders versions
+by, and the version the copied table stands for named beside them. It opens on the first version the table's versions
+leave free, and a version any of them carries is refused — by the dialog and by the server, which is the authority.
+
+The copy is written on the server. The dialog sends the destination, the copy's name and its properties; the table
+itself never crosses the network. The server rebuilds it on the destination sheet the way the table editor writes a
+new table, so the copy keeps the source's cell styles, merged cells and comments, and — being a new table — is
+stamped with the author and date OpenL Studio records for a table it creates, while it is set to record them.
+
+Its properties section is laid out the way one written by hand is: the marker down the left, the property name beside
+it, and the value reaching the table's right edge. A value left in its own column would leave the columns beside it
+as cells of the section rather than as part of the value.
 
 ## The grid
 
@@ -180,8 +194,14 @@ One question per resource, each asked of the thing that owns the answer:
 - **The properties applicable to the requested place** — without a table kind,
   `/projects/{projectId}/properties` describes what may appear in the contents of a Properties table. With a table
   kind, it describes the properties the table itself may carry, filtered by kind and Table inheritance level. Each
-  definition carries the shape of its value: text, a date, a boolean, or enum codes paired with their display values.
-  Date formatting is a client concern and is not part of property metadata.
+  definition carries how the property is presented — its display name, its group and whether the engine dispatches on
+  it — and the shape of its value: text, a date, a boolean, or enum codes paired with their display values, plus the
+  value it defaults to and the pattern the compiler validates it with. A dialog names, groups, prefills and validates
+  a property from that answer rather than from a copy of the rules kept beside it. Date formatting is a client
+  concern and is not part of property metadata.
+- **The versions of the table being copied** — `/projects/{projectId}/tables/{tableId}/properties` answers with the
+  table's own properties and, for a kind of table that carries versions, the one it stands for, the ones its versions
+  already carry and the first one left free.
 - **The tables a test can call** — the same tables list, narrowed to the kinds OpenL compiles into a method.
 - **A module's worksheets** — the only one of these that belongs to a module rather than to the project.
 - **The fields of one datatype or the values of one vocabulary** — read when an author picks it, when a tested

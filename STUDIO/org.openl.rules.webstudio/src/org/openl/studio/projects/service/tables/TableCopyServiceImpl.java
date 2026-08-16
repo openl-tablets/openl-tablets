@@ -6,18 +6,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
@@ -41,29 +40,21 @@ import org.openl.util.BooleanUtils;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TableCopyServiceImpl implements TableCopyService {
 
-    private static final String VERSION_PROPERTY = "version";
-    private static final String ACTIVE_PROPERTY = "active";
-    /**
-     * The version a table stood for while it declared none.
-     *
-     * <p>The wizard this dialog replaced stamped that version on a table it versioned for the first time, and
-     * offered the next one to the copy, so a first copy of an unversioned table is still offered {@code 0.0.2}.
-     */
-    private static final String INITIAL_VERSION = "0.0.1";
-    /** Major, minor and variant: the form the engine orders versions by. */
-    private static final Pattern VERSION_FORMAT = Pattern.compile("\\d+\\.\\d+\\.\\d+");
+    private final SystemPropertiesService systemPropertiesService;
+    private final TableVersionService versionService;
 
     @Override
     public String copyInto(IOpenLTable source, String newName, @Nullable List<TableProperty> properties,
-            XlsSheetGridModel destGrid) {
-        var declared = properties == null ? null : toPropertyMap(properties);
+            XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables) {
+        var declared = properties == null ? null : stamped(toPropertyMap(properties));
         if (declared != null) {
-            requireReadableVersion(source, declared.get(VERSION_PROPERTY));
+            requireReadableVersion(source, declared.get(TableVersionService.VERSION_PROPERTY));
         }
         // Decided before anything is written, so a request that is refused leaves the workbook as it was.
-        var replacesTheSource = supersedes(source, newName, declared, destGrid);
+        var replacesTheSource = supersedes(source, newName, declared, destGrid, moduleTables);
         var original = source.getGridTable();
         // Read the source in edit mode (its writable form, so formulas read back as their source) and always leave
         // it, pairing edit()/stopEditing() the way the table writers do.
@@ -88,9 +79,10 @@ public class TableCopyServiceImpl implements TableCopyService {
      *
      * <p>Both must be compiled together, which is taken here as the same workbook. A module may hold more than one
      * workbook, so a copy into an included workbook of the same module is left alone rather than answered wrongly.
+     * The version, on the other hand, has to be free of every version in the module, whichever workbook holds it.
      */
-    private static boolean supersedes(IOpenLTable source, String newName, @Nullable Map<String, Object> declared,
-            XlsSheetGridModel destGrid) {
+    private boolean supersedes(IOpenLTable source, String newName, @Nullable Map<String, Object> declared,
+            XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables) {
         if (!newName.equals(source.getName())) {
             return false;
         }
@@ -99,13 +91,21 @@ public class TableCopyServiceImpl implements TableCopyService {
             // then indistinguishable: such a copy has to say what makes it another table.
             throw new BadRequestException("table.copy.properties.required.message");
         }
-        var version = declared.get(VERSION_PROPERTY);
-        if (version == null || declaredInactive(declared) || !versionable(source)
-                || !sameVersionGroup(source, declared) || !sameWorkbook(source, destGrid)) {
+        var version = declared.get(TableVersionService.VERSION_PROPERTY);
+        var dimensions = versionService.declaredDimensions(declared);
+        if (version != null) {
+            requireFreeVersion(source, version.toString(), dimensions, moduleTables);
+        }
+        if (!source.isVersionable() || declaredInactive(declared) || !sameWorkbook(source, destGrid)
+                || !versionService.sameGroup(source.getProperties(), dimensions)) {
             return false;
         }
+        if (version == null) {
+            // Written beside the source, answering the same requests and active alike: the two would be one table
+            // written twice, and the module refuses to compile with both of them answering.
+            throw new BadRequestException("table.copy.properties.required.message");
+        }
         requireActiveSource(source);
-        requireVersionOfItsOwn(source, version);
         return true;
     }
 
@@ -124,68 +124,9 @@ public class TableCopyServiceImpl implements TableCopyService {
 
     /** Whether the copy asks to be written inactive: a copy is the active version unless it says otherwise. */
     private static boolean declaredInactive(Map<String, Object> declared) {
-        var active = declared.get(ACTIVE_PROPERTY);
+        var active = declared.get(TableVersionService.ACTIVE_PROPERTY);
         // Read the way the engine reads the cell, which takes 'no', 'off' and 'f' for false as well.
         return active != null && Boolean.FALSE.equals(BooleanUtils.toBooleanObject(active.toString().trim()));
-    }
-
-    /** Whether the table is one that carries versions at all: a data or datatype table is not. */
-    private static boolean versionable(IOpenLTable table) {
-        var type = table.getSyntaxNode().getType();
-        return PropertiesChecker.isPropertySuitableForTableType(VERSION_PROPERTY, type)
-                && PropertiesChecker.isPropertySuitableForTableType(ACTIVE_PROPERTY, type);
-    }
-
-    /**
-     * Whether the copy answers the same requests as the source.
-     *
-     * <p>Dimension properties are what the engine dispatches on, so a copy that declares another set of them stands
-     * beside the source rather than replacing it.
-     *
-     * <p>Only what the tables declare themselves is compared: what a table inherits from its module or category, the
-     * copy inherits alike. The values are compared as the values they stand for, so the same date or the same list
-     * written differently still reads as the same request.
-     */
-    private static boolean sameVersionGroup(IOpenLTable source, Map<String, Object> declared) {
-        var properties = source.getProperties();
-        var own = properties == null ? Map.<String, Object>of() : properties.getTableProperties();
-        for (var name : TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames()) {
-            if (!Objects.deepEquals(own.get(name), valueOf(name, declared.get(name)))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * The value a property text stands for, read as the table editor reads it when it writes the property.
-     *
-     * <p>A text the property cannot be read from is answered with itself, so it compares equal to nothing typed and
-     * the copy is left to stand beside the source rather than replacing it.
-     */
-    private static @Nullable Object valueOf(String name, @Nullable Object text) {
-        if (text == null) {
-            return null;
-        }
-        var definition = TablePropertyDefinitionUtils.getPropertyByName(name);
-        var type = definition == null ? null : definition.getType();
-        if (type == null) {
-            return text;
-        }
-        try {
-            return FormattersManager.getFormatter(type.getInstanceClass(), definition.getFormat())
-                    .parse(text.toString());
-        } catch (RuntimeException e) {
-            log.debug("Cannot read property '{}' from '{}'.", name, text, e);
-            return text;
-        }
-    }
-
-    /** The version the table stands for: the one it declares, or the initial one while it declares none. */
-    private static String currentVersion(IOpenLTable table) {
-        var properties = table.getProperties();
-        var version = properties == null ? null : properties.getVersion();
-        return version == null ? INITIAL_VERSION : version;
     }
 
     private static boolean sameWorkbook(IOpenLTable source, XlsSheetGridModel destGrid) {
@@ -193,11 +134,23 @@ public class TableCopyServiceImpl implements TableCopyService {
         return Objects.equals(sourceWorkbook.getUri(), destGrid.getSheetSource().getWorkbookSource().getUri());
     }
 
-    /** Rejects a version that repeats the one it replaces, which leaves two tables the engine cannot tell apart. */
-    private static void requireVersionOfItsOwn(IOpenLTable source, Object version) {
-        if (version.equals(currentVersion(source))) {
-            throw new BadRequestException("table.copy.version.repeated.message", new Object[]{version});
+    /**
+     * Rejects a version another version of the table already carries.
+     *
+     * <p>Two versions under one number are two tables the engine cannot order, and which of them answers is
+     * undecided. The version the copy replaces is only the first of them: a number taken by any table of the same
+     * name answering the same requests is refused too, whether or not the source stood for it.
+     */
+    private void requireFreeVersion(IOpenLTable source, String version, Map<String, Object> dimensions,
+            TableSyntaxNode[] moduleTables) {
+        if (!versionService.taken(source.getName(), dimensions, moduleTables).contains(version)) {
+            return;
         }
+        // The one the copy would replace is named as such: it is the version the author started from.
+        var refusal = version.equals(versionService.currentVersion(source))
+                ? "table.copy.version.repeated.message"
+                : "table.copy.version.taken.message";
+        throw new BadRequestException(refusal, new Object[]{version});
     }
 
     /**
@@ -206,10 +159,10 @@ public class TableCopyServiceImpl implements TableCopyService {
      * <p>A table that declared no version is written the one it stood for, so the two versions stay
      * distinguishable. The change is left in the workbook the caller saves.
      */
-    private static void standDown(IOpenLTable source) {
+    private void standDown(IOpenLTable source) {
         var editor = new TableEditorModel(source, IXlsTableNames.VIEW_DEVELOPER, false);
-        editor.setProperty(VERSION_PROPERTY, currentVersion(source));
-        editor.setProperty(ACTIVE_PROPERTY, Boolean.FALSE.toString());
+        editor.setProperty(TableVersionService.VERSION_PROPERTY, versionService.currentVersion(source));
+        editor.setProperty(TableVersionService.ACTIVE_PROPERTY, Boolean.FALSE.toString());
     }
 
     private static String build(IOpenLTable source, IGridTable original, String newName,
@@ -267,6 +220,22 @@ public class TableCopyServiceImpl implements TableCopyService {
     }
 
     /**
+     * The copy's properties, opening with what OpenL Studio records about a table it creates.
+     *
+     * <p>The copy is a new table, so it is stamped as created rather than inheriting the source's author and date.
+     * What OpenL Studio records about a table it writes stands: a request naming one of those properties does not
+     * write it, so the author a table reports is the one who made it.
+     *
+     * <p>A request that carries no properties at all keeps the source's, copied with the body, and is left as it
+     * stands — such a copy is a duplicate of the source rather than a table written anew.
+     */
+    private Map<String, Object> stamped(Map<String, Object> declared) {
+        var properties = new LinkedHashMap<String, Object>(systemPropertiesService.onCreate());
+        declared.forEach(properties::putIfAbsent);
+        return properties;
+    }
+
+    /**
      * The requested properties as an ordered name-to-value map, dropping the blank ones that remove a property.
      *
      * <p>Names and values are taken without the space around them, so a value is written as it was checked.
@@ -293,7 +262,7 @@ public class TableCopyServiceImpl implements TableCopyService {
      * documented as valid, and refusing it would leave such a table impossible to copy at all.
      */
     private static void requireReadableVersion(IOpenLTable source, @Nullable Object version) {
-        if (version == null || VERSION_FORMAT.matcher(version.toString()).matches()) {
+        if (version == null || TableVersionService.VERSION_FORMAT.matcher(version.toString()).matches()) {
             return;
         }
         var properties = source.getProperties();

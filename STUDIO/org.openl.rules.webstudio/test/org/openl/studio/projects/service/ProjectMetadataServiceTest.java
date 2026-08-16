@@ -2,6 +2,7 @@ package org.openl.studio.projects.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -53,6 +54,30 @@ class ProjectMetadataServiceTest {
         // Text, whatever the values a description of it suggests: OpenL types `scope` as a string.
         assertEquals("text", property(properties, "scope").type());
         assertTrue(property(properties, "category").values().isEmpty());
+    }
+
+    @Test
+    void namesAndGroupsPropertiesTheWayTableDetailsDoes() {
+        var properties = service.getProperties("Rules");
+
+        var state = property(properties, "state");
+        assertEquals("US States", state.displayName());
+        assertEquals("Business Dimension", state.group());
+        assertTrue(state.dimensional());
+
+        var version = property(properties, "version");
+        assertEquals("Version", version.displayName());
+        assertEquals("Version", version.group());
+        assertFalse(version.dimensional());
+
+        // The pattern the compiler validates the property with, so a dialog refuses what the module would refuse.
+        assertEquals("([a-zA-Z_][a-zA-Z0-9_]*)", property(properties, "id").pattern());
+        assertNull(property(properties, "category").pattern());
+        // The version states no pattern the compiler recognises, so its shape is the copy dialog's editor to keep.
+        assertNull(version.pattern());
+
+        assertEquals("true", property(properties, "active").defaultValue());
+        assertNull(version.defaultValue());
     }
 
     @Test

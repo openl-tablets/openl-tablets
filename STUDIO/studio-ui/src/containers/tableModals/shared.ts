@@ -1,4 +1,5 @@
 import type { ProjectModule } from 'types/projects'
+import type { ProjectProperty } from 'types/tables'
 
 /**
  * A legal OpenL table name, matching the identifier rule the compiler applies to the table header.
@@ -7,15 +8,51 @@ import type { ProjectModule } from 'types/projects'
  * Cyrillic or Greek name, so a dialog must not be the only thing refusing one.
  */
 export const IDENTIFIER = /^[\p{L}_$][\p{L}\p{Nd}_$]*$/u
-/** A table version the engine can read, mirroring the format the server accepts. */
-const VERSION_FORMAT = /^\d+\.\d+\.\d+$/
 
-/** Whether the value is one the property accepts. Only the version property has a shape of its own. */
+/** The property a copy declares to become a new version of the table it was copied from. */
+export const VERSION_PROPERTY = 'version'
+
+/**
+ * Whether the value is one the property accepts.
+ *
+ * <p>The shape comes from the property's own definition, which carries the pattern the compiler validates it with,
+ * so the dialog refuses exactly what the module would refuse. A property stating no pattern accepts any value.
+ */
 export const isValidPropertyValue = (
-    name: string,
+    definition: ProjectProperty | undefined,
     value: string | number | boolean | null | undefined
 ): boolean =>
-    name.trim() !== 'version' || VERSION_FORMAT.test(String(value ?? '').trim())
+    !definition?.pattern || new RegExp(`^(?:${definition.pattern})$`).test(String(value ?? '').trim())
+
+/** The groups Table Details lists properties under, in its order; a group it does not know follows them. */
+const PROPERTY_GROUPS = ['Info', 'Business Dimension', 'Version', 'Dev']
+
+/**
+ * The properties a dialog offers: display names under their groups, the way Table Details lists them.
+ *
+ * <p>An author reads a property as *Effective Date* under *Business Dimension*, not as `effectiveDate` in one flat
+ * list, and the grouping is what tells the dimensional properties apart from the rest. The value stays the technical
+ * name, which is what a table declares.
+ */
+export const toPropertyGroups = (properties: ProjectProperty[]) => {
+    const groups = new Map<string, { label: string, value: string }[]>()
+    for (const property of properties) {
+        const group = property.group || ''
+        const options = groups.get(group) ?? []
+        options.push({ label: property.displayName || property.name, value: property.name })
+        groups.set(group, options)
+    }
+    const rank = (group: string) => {
+        const known = PROPERTY_GROUPS.indexOf(group)
+        return known < 0 ? PROPERTY_GROUPS.length : known
+    }
+    for (const options of groups.values()) {
+        options.sort((left, right) => left.label.localeCompare(right.label))
+    }
+    return [...groups.entries()]
+        .sort(([left], [right]) => rank(left) - rank(right) || left.localeCompare(right))
+        .map(([label, options]) => ({ label, options }))
+}
 
 /** Characters Excel rejects in a worksheet name; sending one makes the workbook write fail. */
 const SHEET_NAME_FORBIDDEN = /[/\\*?[\]:]/

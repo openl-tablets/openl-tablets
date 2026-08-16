@@ -6,10 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -43,8 +45,10 @@ class TableCopyServiceTest {
     private static final Path FIXTURE = Path
             .of("test-resources/org/openl/studio/projects/service/tables/copy/BankLimits.xlsx");
 
-    private final TableCopyService service = new TableCopyServiceImpl();
-    private final TableCreatorService creator = new TableCreatorService(null, null, null, null);
+    private final SystemPropertiesService systemPropertiesService = mock(SystemPropertiesService.class);
+    private final TableCopyService service =
+            new TableCopyServiceImpl(systemPropertiesService, new TableVersionService());
+    private final TableCreatorService creator = new TableCreatorService(null, null, null, null, null);
     private final RawTableReader reader = new RawTableReader();
 
     @Test
@@ -54,7 +58,7 @@ class TableCopyServiceTest {
         var sourceView = reader.read(source.table(), null, null, true);
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
-        service.copyInto(source.table(), "BankLimitIndexCopy", null, destGrid);
+        service.copyInto(source.table(), "BankLimitIndexCopy", null, destGrid, tables(source));
         creator.save(destGrid);
 
         var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), null, null, true);
@@ -82,7 +86,7 @@ class TableCopyServiceTest {
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
         service.copyInto(source.table(), "BankLimitIndexCopy",
-                List.of(new TableProperty("state", "AL"), new TableProperty("lob", " ")), destGrid);
+                List.of(new TableProperty("state", "AL"), new TableProperty("lob", " ")), destGrid, tables(source));
         creator.save(destGrid);
 
         var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), null, null, true);
@@ -96,6 +100,28 @@ class TableCopyServiceTest {
         assertTrue(values.contains("state"), "the requested property name is written");
         // A blank value drops the property, so 'lob' never reaches the copy.
         assertTrue(values.stream().noneMatch("lob"::equals), "a blank-valued property is dropped");
+
+        // The value reaches the table's right edge: left in its own column, the rest of the row would read as
+        // cells of the properties section rather than as one value.
+        var property = copyView.source.get(1);
+        assertEquals("state", property.get(1).value());
+        assertEquals(copyView.getWidth() - 2, property.get(2).colspan());
+    }
+
+    @Test
+    void theCopyIsStampedAsCreated(@TempDir Path projectDir) throws Exception {
+        var source = bankLimitIndex(projectDir);
+        when(systemPropertiesService.onCreate()).thenReturn(Map.of("createdBy", "jane"));
+
+        var destGrid = creator.sheetGridModel(source.model(), "Copies");
+        service.copyInto(source.table(), "BankLimitIndexCopy", List.of(new TableProperty("state", "AL")), destGrid,
+                tables(source));
+        creator.save(destGrid);
+
+        // The copy is a new table, so it records its own author rather than inheriting the source's.
+        var properties = resolve(projectDir, "BankLimitIndexCopy", "Copies").table().getProperties();
+        assertEquals("jane", properties.getCreatedBy());
+        assertEquals("AL", properties.getPropertyValueAsString("state"));
     }
 
     @Test
@@ -104,7 +130,8 @@ class TableCopyServiceTest {
         var sourceSheet = sheetOf(source.table());
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
-        service.copyInto(source.table(), "BankLimitIndex", List.of(new TableProperty("version", "0.0.2")), destGrid);
+        service.copyInto(source.table(), "BankLimitIndex", List.of(new TableProperty("version", "0.0.2")), destGrid,
+                tables(source));
         creator.save(destGrid);
 
         // Two active tables of one name do not compile, so the table the new version replaces steps aside.
@@ -118,13 +145,48 @@ class TableCopyServiceTest {
     }
 
     @Test
+    void theRequestCannotWriteWhatOpenLStudioRecords(@TempDir Path projectDir) throws Exception {
+        var source = bankLimitIndex(projectDir);
+        when(systemPropertiesService.onCreate()).thenReturn(Map.of("createdBy", "jane"));
+
+        var destGrid = creator.sheetGridModel(source.model(), "Copies");
+        service.copyInto(source.table(), "BankLimitIndexCopy", List.of(new TableProperty("createdBy", "someone else")),
+                destGrid, tables(source));
+        creator.save(destGrid);
+
+        // The author a table reports is the one who made it, whatever the request says.
+        assertEquals("jane", resolve(projectDir, "BankLimitIndexCopy", "Copies").table().getProperties().getCreatedBy());
+    }
+
+    @Test
+    void aVersionAnotherVersionAlreadyCarriesIsRefused(@TempDir Path projectDir) throws Exception {
+        var source = bankLimitIndex(projectDir);
+        var destGrid = creator.sheetGridModel(source.model(), "Copies");
+        service.copyInto(source.table(), "BankLimitIndex", List.of(new TableProperty("version", "0.0.2")), destGrid,
+                tables(source));
+        creator.save(destGrid);
+
+        // The version the source stood for is carried by the table that stepped aside, so it is no longer free —
+        // two versions under one number leave the engine unable to order them.
+        var active = resolve(projectDir, "BankLimitIndex", "Copies");
+        var table = active.table();
+        var again = creator.sheetGridModel(active.model(), "Copies");
+        var properties = List.of(new TableProperty("version", "0.0.1"));
+        var moduleTables = tables(active);
+
+        var refused = assertThrows(BadRequestException.class,
+                () -> service.copyInto(table, "BankLimitIndex", properties, again, moduleTables));
+        assertEquals("openl.error.400.table.copy.version.taken.message", refused.getErrorCode());
+    }
+
+    @Test
     void aCopyUnderAnotherNameLeavesTheSourceActive(@TempDir Path projectDir) throws Exception {
         var source = bankLimitIndex(projectDir);
         var sourceSheet = sheetOf(source.table());
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
         service.copyInto(source.table(), "BankLimitIndexCopy", List.of(new TableProperty("version", "0.0.2")),
-                destGrid);
+                destGrid, tables(source));
         creator.save(destGrid);
 
         // A copy under another name is a table of its own, so nothing takes the source's place.
@@ -136,13 +198,14 @@ class TableCopyServiceTest {
     void aCopyAnsweringOtherRequestsLeavesTheSourceActive(@TempDir Path projectDir) throws Exception {
         var source = bankLimitIndex(projectDir);
         var dimensional = creator.sheetGridModel(source.model(), "Dimensional");
-        service.copyInto(source.table(), "BankLimitIndex", List.of(new TableProperty("state", "AL")), dimensional);
+        service.copyInto(source.table(), "BankLimitIndex", List.of(new TableProperty("state", "AL")), dimensional,
+                tables(source));
         creator.save(dimensional);
 
         var stateTable = resolve(projectDir, "BankLimitIndex", "Dimensional");
         var versions = creator.sheetGridModel(stateTable.model(), "Versions");
         service.copyInto(stateTable.table(), "BankLimitIndex", List.of(new TableProperty("version", "0.0.2")),
-                versions);
+                versions, tables(stateTable));
         creator.save(versions);
 
         // The copy declares no state, so the engine dispatches it for other requests: it stands beside the table
@@ -161,7 +224,7 @@ class TableCopyServiceTest {
 
         var destGrid = creator.sheetGridModel(carried.model(), "Legacy");
         service.copyInto(carried.table(), "BankLimitIndexCopy", List.of(new TableProperty("version", "1.0")),
-                destGrid);
+                destGrid, tables(carried));
         creator.save(destGrid);
 
         assertEquals("1.0", resolve(projectDir, "BankLimitIndexCopy", "Legacy").table().getProperties().getVersion());
@@ -174,7 +237,8 @@ class TableCopyServiceTest {
         var sourceSheet = sheetOf(source.table());
 
         service.copyInto(source.table(), "BankLimitIndex",
-                List.of(new TableProperty("version", "0.0.2"), new TableProperty("active", "No")), destGrid);
+                List.of(new TableProperty("version", "0.0.2"), new TableProperty("active", "No")), destGrid,
+                tables(source));
         creator.save(destGrid);
 
         // 'No' is one of the ways the engine reads false, so the copy is staged rather than taking over, and the
@@ -193,7 +257,11 @@ class TableCopyServiceTest {
                         List.of(new TableProperty("version", " 0.0.1 "))),
                 arguments("a version the source does not carry, under another name", "BankLimitIndexCopy",
                         List.of(new TableProperty("version", "1.0"))),
-                arguments("a copy that keeps the name and says nothing else", "BankLimitIndex", null));
+                arguments("a copy that keeps the name and says nothing else", "BankLimitIndex", null),
+                arguments("a copy that keeps the name and answers the same requests, with no version of its own",
+                        "BankLimitIndex", List.of(new TableProperty("category", "Limits"))),
+                arguments("a version number too long for the engine to order by", "BankLimitIndexCopy",
+                        List.of(new TableProperty("version", "2147483648.0.0"))));
     }
 
     /**
@@ -211,7 +279,10 @@ class TableCopyServiceTest {
         var table = source.table();
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
 
-        assertThrows(BadRequestException.class, () -> service.copyInto(table, newName, properties, destGrid));
+        var moduleTables = tables(source);
+
+        assertThrows(BadRequestException.class,
+                () -> service.copyInto(table, newName, properties, destGrid, moduleTables));
     }
 
     @Test
@@ -226,7 +297,10 @@ class TableCopyServiceTest {
         var properties = List.of(new TableProperty("version", "0.0.2"));
 
         // The table that answers today is another one, so which version this copy would replace cannot be told.
-        assertThrows(BadRequestException.class, () -> service.copyInto(table, "BankLimitIndex", properties, destGrid));
+        var moduleTables = tables(retired);
+
+        assertThrows(BadRequestException.class,
+                () -> service.copyInto(table, "BankLimitIndex", properties, destGrid, moduleTables));
     }
 
     /** Cells match on everything but their address: value, spans, covered flag and style. */
@@ -284,6 +358,11 @@ class TableCopyServiceTest {
             }
         }
         throw new IllegalStateException(name + " not found in the fixture");
+    }
+
+    /** The tables the module compiles, which a new version is checked against. */
+    private static TableSyntaxNode[] tables(ResolvedTable resolved) {
+        return resolved.model().getTableSyntaxNodes();
     }
 
     private record ResolvedTable(IOpenLTable table, ProjectModel model) {

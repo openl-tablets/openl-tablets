@@ -91,6 +91,7 @@ import {
     preferredModule,
     sheetNameFrom,
     toModuleOptions,
+    toPropertyGroups,
     toSortedOptions,
     withTrailingBlank,
 } from '../tableModals/shared'
@@ -947,7 +948,9 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         }
     }
 
-    const propertyOptions = useMemo(() => asOptions(properties.map(property => property.name)), [properties])
+    // Display names under their groups, the way Table Details lists them; the cell keeps the technical name, which
+    // is what a Properties table declares.
+    const propertyOptions = useMemo(() => toPropertyGroups(properties), [properties])
 
     const suggestionsFor = (editor: TableCellEditor) => {
         switch (editor) {

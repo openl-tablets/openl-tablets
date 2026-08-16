@@ -493,18 +493,27 @@ To create a table as a copy of the existing table, proceed as follows:
     *Copying an existing table*
 
 1.  Enter a valid OpenL identifier in **Table Name**. It may match an existing table name when the table is
-    distinguished by its signature or properties.
+    distinguished by its signature or properties. A name of any other shape is refused, by the window and by the
+    server alike.
 2.  Select or enter the destination **Module**.
-3.  Select or enter the destination **Sheet**.
-4.  Review the property name and value rows. The names are properties applicable to the copied table's type:
-    - complete the last row to add another property;
-    - use the row controls to insert or delete a property;
-    - select a suggested property name or enter one;
+3.  Select or enter the destination **Sheet**. The sheet is the table's category, so a new sheet name creates a new
+    category.
+4.  Review the property name and value rows. The names are the properties applicable to the copied table's type,
+    offered the way the **Table Details** editor lists them — by display name, under the **Info**, **Business
+    Dimension**, **Version** and **Dev** groups, so the dimensional properties are presented rather than guessed:
+    - complete the last row to add another property, or delete a row with its row control;
+    - select a property by its display name;
     - enter text directly, select a date in the date picker, select or clear a Boolean check box, or select an enum
       display value from the dropdown, according to the property type. A single-value enum is selected from a closed
       dropdown and does not accept typed text.
       The date picker follows the user's locale; OpenL Studio writes the selected date as ISO 8601 `yyyy-MM-dd`.
+    - **Version** is entered as its three numbers — major, minor and variant — with the version the copied table
+      stands for named beside them. It opens on the first version the table's versions leave free, and a version
+      one of them already carries is refused.
 5.  Click **Copy** to save your changes.
+
+The copy is stamped as created: OpenL Studio records **Created By** and **Created On** on it, as it does for a table
+created from scratch, provided **Update table properties** is selected in the system settings.
 
 The table appears in the module list.
 

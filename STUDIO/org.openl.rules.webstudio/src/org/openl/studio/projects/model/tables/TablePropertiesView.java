@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.tables;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Lightweight table description for the copy dialog: the table's name, kind and its own properties, without the body.
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
  * @param name       name of the table
  * @param kind       kind of the table object
  * @param properties properties defined on the table
+ * @param versions   versions of the table, absent for a kind of table that carries none
  * @author Vladyslav Pikus
  */
 public record TablePropertiesView(
@@ -23,6 +25,9 @@ public record TablePropertiesView(
         TableKind kind,
 
         @Parameter(description = "Properties defined on the table")
-        List<TableProperty> properties
+        List<TableProperty> properties,
+
+        @Parameter(description = "Versions of the table, absent for a kind of table that carries none")
+        @Nullable TableVersionsView versions
 ) {
 }

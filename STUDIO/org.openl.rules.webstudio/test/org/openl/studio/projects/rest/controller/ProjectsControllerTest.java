@@ -115,8 +115,8 @@ class ProjectsControllerTest {
         var metadataService = mock(ProjectMetadataService.class);
         var controller = controller(mock(WorkspaceProjectService.class), mock(ProjectStatusMapper.class),
                 metadataService);
-        var expected = List.of(new PropertyDefinitionView(
-                "state", "enum", true, List.of(new PropertyValueView("AL", "Alabama"))));
+        var expected = List.of(new PropertyDefinitionView("state", "US States", "Business Dimension", "enum", true,
+                true, null, null, List.of(new PropertyValueView("AL", "Alabama"))));
         when(metadataService.getProperties("Rules")).thenReturn(expected);
 
         assertEquals(expected, controller.getProperties(mock(RulesProject.class), "Rules"));
@@ -177,7 +177,7 @@ class ProjectsControllerTest {
         var projectService = mock(WorkspaceProjectService.class);
         var controller = controller(projectService, mock(ProjectStatusMapper.class));
         var project = mock(RulesProject.class);
-        var expected = new TablePropertiesView("Greeting", TableKind.RULES, List.of());
+        var expected = new TablePropertiesView("Greeting", TableKind.RULES, List.of(), null);
         when(projectService.getTableProperties(project, "table-id")).thenReturn(expected);
 
         assertEquals(expected, controller.getTableProperties(project, "table-id"));

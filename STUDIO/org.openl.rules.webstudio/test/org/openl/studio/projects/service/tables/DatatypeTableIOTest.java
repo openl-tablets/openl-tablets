@@ -247,7 +247,7 @@ class DatatypeTableIOTest {
      * workbook, so the create endpoint's own grid is used here rather than the one the tables were read from.
      */
     private static XlsSheetGridModel sheetGrid(Path project, String sheetName) {
-        var service = new TableCreatorService(null, null, null, null);
+        var service = new TableCreatorService(null, null, null, null, null);
         return service.sheetGridModel(projectModel(project), sheetName);
     }
 
