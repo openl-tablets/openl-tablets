@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- **Converged at `main` = `f9a81b9387` (EPBDS-16318 Show the data model in the tables dependency graph)**; every
-  queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector.
+- **Converged at `main` = `35027a736a` (EPBDS-16388 Restore in the Copy table dialog what the wizard guaranteed)**;
+  every queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
   unchanged SHA. **The recorded SHA is usually gone from the next clone**, so match its *subject* in
   `git log --oneline -25 origin/main` and take every commit above it.
@@ -385,6 +385,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-16 — run 184: idle, twentieth in a row; `main` and #2004 head unchanged, merges clean, no new comments. 390 lines.
 - 08-16 — run 185: idle, twenty-first in a row; `main` and #2004 head unchanged, merges clean, no new comments. 390 lines.
 - 08-16 — run 186: idle, twenty-second in a row; `main` and #2004 head unchanged, merges clean, no new comments. 390 lines.
+- 08-16 — run 187: one new `main` commit (EPBDS-16388) swept, nothing orphaned; #2004 unchanged. 390 lines.
