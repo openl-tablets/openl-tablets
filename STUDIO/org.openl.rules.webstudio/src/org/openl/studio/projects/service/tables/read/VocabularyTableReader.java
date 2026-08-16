@@ -29,9 +29,10 @@ public class VocabularyTableReader extends EditableTableReader<VocabularyView, V
         var tsn = openLTable.getSyntaxNode();
         var metaInfoReader = tsn.getMetaInfoReader();
         var cellValueReader = new CellValueReader(metaInfoReader);
+        // a vocabulary that lists no values is a header alone, with no body to read
         var table = tsn.getTableBody();
         var values = new ArrayList<VocabularyValueView>();
-        for (var row = 0; row < table.getHeight(); row++) {
+        for (var row = 0; table != null && row < table.getHeight(); row++) {
             var cell = table.getCell(0, row);
             var cellValue = cellValueReader.apply(cell);
             values.add(VocabularyValueView.builder().value(cellValue).build());

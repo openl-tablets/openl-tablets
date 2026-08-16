@@ -21136,11 +21136,40 @@ Content-Type: application/json
                 "items": {
                   "$ref": "#/components/schemas/DatatypeNodeFieldView"
                 }
+              },
+              "vocabulary": {
+                "$ref": "#/components/schemas/DatatypeNodeVocabularyView"
               }
             }
           }
         ],
         "description": "***"
+      },
+      "DatatypeNodeVocabularyView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "truncated": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "valueCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "valueType": {
+            "type": "string",
+            "description": "***"
+          },
+          "valuesPreview": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
       },
       "DatatypeView": {
         "type": "object",

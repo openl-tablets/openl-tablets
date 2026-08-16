@@ -15,6 +15,22 @@ const cyMocks = vi.hoisted(() => {
     chain.not.mockReturnValue(chain)
     const node = { empty: () => false, hasClass: () => false, addClass: nodeAddClass, removeClass: nodeRemoveClass, closedNeighborhood: () => ({}) }
     nodeRemoveClass.mockReturnValue(node)
+    // An empty node collection that answers everything the band layout asks of one.
+    const collection: Record<string, unknown> = {}
+    Object.assign(collection, {
+        not: () => collection,
+        union: () => collection,
+        edgesWith: () => collection,
+        filter: () => collection,
+        children: () => collection,
+        map: () => [],
+        forEach: () => undefined,
+        nonempty: () => false,
+        empty: () => true,
+        layout: () => ({ run: vi.fn() }),
+        boundingBox: () => ({ x1: 0, y1: 0, x2: 0, y2: 0, w: 0, h: 0 }),
+        shift: vi.fn(),
+    })
     return {
         nodeAddClass,
         getElementById: vi.fn(() => node),
@@ -27,7 +43,7 @@ const cyMocks = vi.hoisted(() => {
         height: vi.fn(() => 600),
         fit: vi.fn(),
         layout: vi.fn(() => ({ run: vi.fn() })),
-        nodes: vi.fn(() => ({ forEach: vi.fn() })),
+        nodes: vi.fn(() => collection),
         elements: vi.fn(() => chain),
         add: vi.fn(),
         remove: vi.fn(),
@@ -301,6 +317,35 @@ describe('TableGraphModal', () => {
         await userEvent.click(screen.getByText('Driver[]'))
 
         expect(cyMocks.getElementById).toHaveBeenCalledWith('driver')
+    })
+
+    it('shows the values of the selected vocabulary, and where the ones it leaves out are', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            {
+                id: 'score',
+                name: 'Score',
+                kind: 'Datatype',
+                tableType: 'Vocabulary',
+                vocabulary: { valueType: 'Integer', valueCount: 8, valuesPreview: [100, 200, 300, 600, 700, 800], truncated: true },
+            },
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        // the node is drawn as an entity box listing the values, not as a bare name
+        const label = mockCytoscape.mock.calls[0]?.[0]?.elements?.[0]?.data as unknown as { label: string }
+        expect(label.label.split('\n')).toEqual(['Score: Integer', '──────────────', '100', '200', '300', '… +2 more', '600', '700', '800'])
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'Score')
+
+        expect(screen.getByText('graph:panel.values')).toBeInTheDocument()
+        expect(screen.getByTestId('graph-vocabulary-values')).toHaveTextContent('100200300…600700800')
+        // the whole vocabulary does not travel with the graph, so the panel points at the table for the rest
+        expect(screen.getByText('graph:panel.values_truncated')).toBeInTheDocument()
+        // a vocabulary lists values instead of fields
+        expect(screen.queryByText('graph:panel.fields')).not.toBeInTheDocument()
     })
 
     it('leaves the exploration when a field points to a datatype outside it', async () => {

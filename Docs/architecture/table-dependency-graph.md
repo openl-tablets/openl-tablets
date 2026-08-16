@@ -44,33 +44,90 @@ project — and its `dependencies` and `dependents`. What it adds depends on wha
 A field of a simple type is listed too, without a `ref` — so the node describes the whole data type, not only the
 part of it that links elsewhere. Only declared fields are listed; the inherited ones belong to the parent's node.
 
+A vocabulary declares values rather than fields, so it comes back without `fields` and with a `vocabulary` object
+instead — the values are values, not fields, and are never dressed up as ones:
+
+```json
+{ "kind": "Datatype", "tableType": "Vocabulary", "name": "Alphabet",
+  "vocabulary": { "valueType": "String", "valueCount": 26,
+                  "valuesPreview": ["A", "B", "C", "X", "Y", "Z"], "truncated": true } }
+```
+
+- **The values keep their type.** A vocabulary of numbers reads as JSON numbers, a vocabulary of dates as the dates
+  the table API returns — both are read through the same reader as the table itself, so the two never disagree.
+- **They keep the order the table declares them in**, because that order is what the author chose.
+- **`valueType` and `valueCount` are always there**, so the size and the shape of a vocabulary are known even when
+  its values are not all shown.
+- **`valuesPreview` holds at most six values.** A longer vocabulary comes back as its first three and its last
+  three with `truncated` set; a vocabulary of six or fewer comes back whole, with `truncated` false; a vocabulary
+  that lists no values has no `valuesPreview` at all, as any other empty list of this API. The gap is said through
+  `truncated` and the count — never as an ellipsis value, which would be a value the table does not have. The
+  complete list is read from the table itself through the table API.
+- **`vocabulary` is absent for a regular datatype**, as `fields` is for a vocabulary.
+
 Dispatchers stay as EPBDS-15473 defined them: callers depend on the dispatcher, which fans out to the concrete
 versions.
 
 ## How the data model is drawn
 
-The data model layer follows UML class diagram notation, so a reader of the graph screen can rely on what the shapes
-already mean:
+The data model layer is drawn as an entity-relationship diagram, so a reader of the graph screen can rely on what the
+shapes already mean. A datatype is a box, not a named dot:
 
-- **Generalization** — a solid line with a hollow closed triangle pointing at the datatype being extended.
-- **Directed association** — a solid line with an open arrowhead pointing at the datatype a field refers to, with the
-  multiplicity written at that end: `0..1` for a field holding one value, `0..*` for a collection field. A datatype
-  field is always optional, hence the `0..`.
+```text
+┌────────────────────────┐
+│ Policy                 │        Policy ──────────────○|  Region
+│ ───────────────────────│        Policy ──────────────○<  Driver
+│ car            Car     │
+│ drivers        Driver[]│        ○|  optional, holds one value
+│ region         Region  │        ○<  optional, holds many
+│ policyNumber   String  │
+└────────────────────────┘
+```
 
-Two limits are deliberate:
+- **The name is on top**, a rule under it, and the members below in two columns: the name of a field and the type it
+  holds, or the values of a vocabulary one per line.
+- **A vocabulary is titled with the type it narrows** — `Region: String` — which is what tells it apart from a
+  datatype, whose title is a name alone.
+- **A box is bounded.** It lists twelve members and cuts an over-long line, and says how many it left out
+  (`… +3 more`) in the place they were left out of — the first values of a truncated vocabulary, then the gap, then
+  the last ones. The side panel lists the members in full.
+- **The frame of a box is even**, unlike a callable table's, whose border thickens with how much it is used. How
+  many types are built on a datatype is not what a data model is read for, and a heavy frame would fight the
+  members inside the box.
 
-- **Only the end the field declares is labelled.** A datatype field is one-directional, so nothing states how many
+Relationships are drawn in crow's foot (information engineering) notation, the one an ER diagram is read with:
+
+- **Cardinality is a symbol at the entity the field points at** — a bar for a field holding one value, a crow's foot
+  for one holding many. A ring in front of it says the field is optional, which a datatype field always is.
+- **Inheritance keeps the UML generalization triangle** — a hollow closed triangle pointing at the datatype being
+  extended. Crow's foot notation has no symbol for it, and a data model of OpenL datatypes does inherit.
+
+Cytoscape draws every arrow shape with its tip in the node, and a crow's foot points the other way, so the cardinality
+symbol is an end label that turns with the line rather than an arrowhead. It reads the same whichever way the edge runs.
+
+Three limits are deliberate:
+
+- **Only the end the field declares carries a symbol.** A datatype field is one-directional, so nothing states how many
   owners a value has. A many-to-many relation — both datatypes holding a collection of the other — is drawn as the two
-  associations the model actually declares, not merged into one association with `*` at both ends.
-- **Aggregation and composition are not used.** OpenL has no way to say whether a field owns its value, so a filled or
-  hollow diamond would assert something the model does not know. Multiplicity carries the "holds many" meaning
-  instead.
-- **One edge per pair of datatypes.** Several fields of the same type merge into one association, `0..*` as soon as
-  one of them is a collection, and inheritance outranks a field of the parent's own type. The side panel of a
+  relationships the model actually declares, not merged into one with a crow's foot at both ends.
+- **Ownership is not asserted.** OpenL has no way to say whether a field owns the value it holds, so neither the UML
+  diamonds nor an identifying relationship is drawn. The cardinality symbol carries the "holds many" meaning alone.
+- **One edge per pair of datatypes.** Several fields of the same type merge into one relationship, a crow's foot as
+  soon as one of them is a collection, and inheritance outranks a field of the parent's own type. The side panel of a
   datatype lists every field separately, so nothing the canvas merges is lost.
 
-The rest of the graph — a rules table calling another — is a plain dependency edge and is not UML: it keeps the
-notation the call graph had before the data model joined it.
+The rest of the graph — a rules table calling another — is a plain dependency edge and belongs to no diagram
+notation: it keeps what the call graph had before the data model joined it.
+
+## Where each diagram sits
+
+The canvas carries two diagrams that share no edge, so they are laid out one band at a time and stacked: the callable
+tables first, the data model of each project under them. Laying them out together would interleave two unrelated
+diagrams over the same space.
+
+The data model of a project is framed as a **subject area** titled with the project name — a compound node, so it is
+sized by the entities it holds, and it disappears when a filter leaves it empty. It also makes a graph that spans
+several projects readable: one frame per project instead of one pile of entities.
 
 The screen's problem markers stay on that call graph, because what they flag is not a defect in a data model:
 

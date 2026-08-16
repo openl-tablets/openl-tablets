@@ -83,6 +83,15 @@ Content-Type: application/json
     "name": "Region",
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B12:B14",
-    "project": "EPBDS-16318"
+    "project": "EPBDS-16318",
+    "vocabulary": {
+      "valueType": "String",
+      "valueCount": 2,
+      "valuesPreview": [
+        "North",
+        "South"
+      ],
+      "truncated": false
+    }
   }
 ]
