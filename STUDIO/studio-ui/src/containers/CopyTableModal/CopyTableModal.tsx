@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { CopyOutlined, DeleteRowOutlined, InsertRowAboveOutlined } from '@ant-design/icons'
-import { Input, Modal, notification, Space, Spin } from 'antd'
+import { CopyOutlined, DeleteRowOutlined } from '@ant-design/icons'
+import { Input, Modal, notification, Select, Space, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { FieldRow } from 'components/FieldRow'
 import { IconAction } from 'components/IconAction'
@@ -15,13 +15,14 @@ import {
     defaultModulePath,
     deleteAt,
     IDENTIFIER,
-    insertAt,
     isValidPropertyValue,
     isValidSheetName,
     type ModuleOption,
     sheetNameFrom,
     toModuleOptions,
+    toPropertyGroups,
     toSortedOptions,
+    VERSION_PROPERTY,
     withTrailingBlank,
 } from '../tableModals/shared'
 import { useSharedStyles } from '../tableModals/sharedStyles'
@@ -52,10 +53,6 @@ const isEmptyProperty = (property: TablePropertyInput): boolean =>
 
 const isCompleteProperty = (property: TablePropertyInput): boolean =>
     Boolean(property.name.trim()) && propertyHasValue(property)
-
-/** A row the copy cannot be written with: the property is named, but the value is not one it accepts. */
-const isRejectedProperty = (property: TablePropertyInput): boolean =>
-    isCompleteProperty(property) && !isValidPropertyValue(property.name, property.value)
 
 const normalizeProperties = (properties: TablePropertyInput[]): TablePropertyInput[] =>
     withTrailingBlank(properties, isCompleteProperty, blankProperty)
@@ -107,7 +104,13 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                 setSheetName(sheetNameFrom(info.name))
                 const applicableNames = new Set(loadedProperties.map(property => property.name))
                 setProperties(normalizeProperties(
-                    (info.properties ?? []).filter(property => applicableNames.has(property.name))
+                    (info.properties ?? [])
+                        .filter(property => applicableNames.has(property.name))
+                        // The copy is offered the first version the table's versions leave free: the one the source
+                        // stands for is by definition taken, and a copy under that name could not be written with it.
+                        .map(property => property.name === VERSION_PROPERTY && info.versions
+                            ? { ...property, value: info.versions.next }
+                            : property)
                 ))
                 setSelectedModule(destination)
                 if (currentSheets.length && destination === detail.currentModuleName) {
@@ -139,17 +142,45 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
     const isNewModule = Boolean(moduleName) && !modules.some(module => module.name === moduleName)
     const moduleOptions = useMemo(() => toSortedOptions(modules), [modules])
     const sheetOptions = useMemo(() => asOptions(sheets), [sheets])
-    const propertyOptions = useMemo(
-        () => asOptions(projectProperties.map(property => property.name)),
-        [projectProperties]
-    )
+    const propertyOptions = useMemo(() => toPropertyGroups(projectProperties), [projectProperties])
+    /** What the project says about a property, by the name a row holds. */
+    const definitionOf = (name: string) => projectProperties.find(definition => definition.name === name.trim())
     // The value the source already carries is let through as it stands: it was written when a shorter version was
     // documented as valid, and refusing it would leave such a table impossible to copy at all.
     const carriedOver = (property: TablePropertyInput) =>
         (sourceInfo?.properties ?? []).some(source =>
             source.name === property.name.trim() && source.value === String(property.value ?? ''))
-    const rejectedProperty = (property: TablePropertyInput) =>
-        isRejectedProperty(property) && !carriedOver(property)
+    /** Whether a dimension property of the copy differs from the source's, which makes it another table. */
+    const dimensionsChanged = () => {
+        const isDimensional = (name: string) => Boolean(definitionOf(name)?.dimensional)
+        const source = new Map((sourceInfo?.properties ?? [])
+            .filter(property => isDimensional(property.name))
+            .map(property => [property.name, String(property.value ?? '')]))
+        const declared = new Map(properties
+            .filter(property => isCompleteProperty(property) && isDimensional(property.name.trim()))
+            .map(property => [property.name.trim(), String(property.value ?? '')]))
+        return source.size !== declared.size
+            || [...source].some(([name, value]) => declared.get(name) !== value)
+    }
+
+    /** Whether the copy would be a new version of the source: same name, same requests answered. */
+    const versionsTheSource = tableName.trim() === sourceInfo?.name && !dimensionsChanged()
+    /**
+     * A row the copy cannot be written with: the property is named, but the value is not one it accepts.
+     *
+     * <p>A version another version of the table already carries is refused — the two would be tables the engine
+     * cannot order — unless the copy answers other requests, where it is a table of its own. The version the source
+     * itself stands for is one of those, so a value carried over from the source is no excuse here.
+     */
+    const rejectedProperty = (property: TablePropertyInput) => {
+        if (!isCompleteProperty(property)) {
+            return false
+        }
+        if (property.name.trim() === VERSION_PROPERTY && versionsTheSource) {
+            return (sourceInfo?.versions?.taken ?? []).includes(String(property.value ?? '').trim())
+        }
+        return !carriedOver(property) && !isValidPropertyValue(definitionOf(property.name), property.value)
+    }
     const partialProperty = properties.some(property =>
         !isEmptyProperty(property) && !isCompleteProperty(property))
     const submittedProperties = properties.filter(isCompleteProperty)
@@ -191,15 +222,12 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
             propertyIndex === index ? { ...property, [field]: value } : property))
 
     const updatePropertyName = (index: number, name: string) => {
-        const definition = projectProperties.find(property => property.name === name)
+        const definition = definitionOf(name)
         changeProperties(current => current.map((property, propertyIndex) =>
             propertyIndex === index
-                ? { name, value: initialPropertyValue(definition) }
+                ? { name, value: initialPropertyValue(definition, sourceInfo?.versions) }
                 : property))
     }
-
-    const insertProperty = (index: number) =>
-        changeProperties(current => insertAt(current, index, blankProperty()))
 
     const removeProperty = (index: number) =>
         changeProperties(current => deleteAt(current, index))
@@ -314,29 +342,25 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                                             className={cx(shared.rowColumns, shared.editableRow)}
                                             data-testid={`copy-table-property-row-${index}`}
                                         >
-                                            <SuggestInput
+                                            <Select
+                                                allowClear
                                                 data-testid={`copy-table-property-name-${index}`}
-                                                onChange={value => updatePropertyName(index, value)}
+                                                onChange={value => updatePropertyName(index, value ?? '')}
                                                 options={propertyOptions}
                                                 placeholder={t('project:copy_table_modal.property_name')}
-                                                value={property.name}
+                                                showSearch={{ optionFilterProp: 'label' }}
+                                                value={property.name || undefined}
                                             />
                                             <PropertyValueInput
                                                 data-testid={`copy-table-property-value-${index}`}
+                                                definition={definitionOf(property.name)}
                                                 onChange={value => updateProperty(index, 'value', value)}
                                                 placeholder={t('project:copy_table_modal.property_value')}
                                                 status={rejectedProperty(property) ? 'error' : ''}
                                                 value={property.value}
-                                                definition={projectProperties.find(
-                                                    definition => definition.name === property.name
-                                                )}
+                                                versions={sourceInfo?.versions}
                                             />
                                             <Space.Compact>
-                                                <IconAction
-                                                    icon={<InsertRowAboveOutlined />}
-                                                    onClick={() => insertProperty(index)}
-                                                    title={t('project:copy_table_modal.insert_property')}
-                                                />
                                                 <IconAction
                                                     icon={<DeleteRowOutlined />}
                                                     onClick={() => removeProperty(index)}

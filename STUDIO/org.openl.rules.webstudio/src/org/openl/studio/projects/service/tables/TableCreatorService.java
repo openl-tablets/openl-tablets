@@ -5,12 +5,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -29,11 +33,14 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.rules.table.xls.formatters.FormatConstants;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
@@ -52,14 +59,20 @@ public class TableCreatorService {
 
     private static final int TABLE_START_ROW = 1;
     private static final int TABLE_START_COLUMN = 1;
+    /** What OpenL reads a properties section by. */
+    private static final String PROPERTIES_SECTION = "properties";
 
     private final TableWritersFactory tableWritersFactory;
     private final TableWriterExecutor tableWriterExecutor;
     private final ProjectFilesService projectFilesService;
     private final ProjectFileRootFactory projectFileRootFactory;
+    private final SystemPropertiesService systemPropertiesService;
 
     /**
      * Creates a table in an existing module.
+     *
+     * <p>The table is stamped as created once it is written, so its author and creation date are recorded the same
+     * way for a table written here and for one copied.
      *
      * @return identifier of the table at its written position
      */
@@ -69,6 +82,9 @@ public class TableCreatorService {
 
         var gridModel = sheetGridModel(projectModel, resolveSheetName(createTableRequest));
         var tableWriter = tableWritersFactory.getNewTableWriter(table, gridModel);
+        if (carriesProperties(table.kind)) {
+            tableWriter.stampWith(systemPropertiesService.onCreate());
+        }
         return tableWriterExecutor.executeWrite(tableWriter, createTableRequest.table());
     }
 
@@ -169,10 +185,12 @@ public class TableCreatorService {
     }
 
     private byte[] createWorkbook(CreateNewTableRequest request, RawTableView table) {
+        var stamped = withStampedProperties(table);
         try (var workbook = new XSSFWorkbook(); var output = new ByteArrayOutputStream()) {
             var sheet = createSheet(workbook, resolveSheetName(request));
-            for (var rowIndex = 0; rowIndex < table.source.size(); rowIndex++) {
-                var sourceRow = table.source.get(rowIndex);
+            var dateStyle = dateStyle(workbook);
+            for (var rowIndex = 0; rowIndex < stamped.source.size(); rowIndex++) {
+                var sourceRow = stamped.source.get(rowIndex);
                 // The same matrix reaches an existing module through RawTableWriter, which rejects a missing or
                 // blank row there. A new module holds the table on its own, so the rule has to hold here too.
                 RawTableWriter.requireWritableRow(sourceRow);
@@ -180,8 +198,8 @@ public class TableCreatorService {
                 for (var columnIndex = 0; columnIndex < sourceRow.size(); columnIndex++) {
                     var sourceCell = sourceRow.get(columnIndex);
                     if (sourceCell != null && !Boolean.TRUE.equals(sourceCell.covered())) {
-                        writeCell(row.createCell(TABLE_START_COLUMN + columnIndex), sourceCell.value());
-                        mergeCell(sheet, table, rowIndex, columnIndex, sourceCell);
+                        writeCell(row.createCell(TABLE_START_COLUMN + columnIndex), sourceCell.value(), dateStyle);
+                        mergeCell(sheet, stamped, rowIndex, columnIndex, sourceCell);
                     }
                 }
                 requireRowOnSheet(sheet, row);
@@ -196,6 +214,109 @@ public class TableCreatorService {
             log.warn("Cannot lay out the table in a new workbook.", e);
             throw new BadRequestException("table.new-module.workbook.message");
         }
+    }
+
+    /**
+     * The table's rows with the properties OpenL Studio records about a table it creates written under the header.
+     *
+     * <p>A table written into an existing module is stamped by the writer that puts it there; a table that arrives
+     * with its own module is laid out here, so the same rows are written here.
+     *
+     * <p>The header is widened to the properties section when the table is narrower than it: OpenL reads a table as
+     * the rectangle its header spans, so a header narrower than the rows below would cut them off. A free-form
+     * table is left alone — OpenL reads none of its rows as properties.
+     */
+    private RawTableView withStampedProperties(RawTableView table) {
+        var stamped = systemPropertiesService.onCreate();
+        if (stamped.isEmpty() || !carriesProperties(table.kind) || !takesAPropertiesSection(table)) {
+            return table;
+        }
+        var width = Math.max(table.getWidth(), TableBuilder.PROPERTIES_MIN_WIDTH);
+        var rows = new ArrayList<List<RawTableCell>>(table.source.size() + stamped.size());
+        rows.add(headerSpanning(width, table.source.getFirst()));
+        int written = 0;
+        for (var property : stamped.entrySet()) {
+            rows.add(propertyRow(property, written++ == 0 ? stamped.size() : 0, width));
+        }
+        rows.addAll(table.source.subList(1, table.source.size()));
+        return RawTableView.builder().kind(table.kind).name(table.name).source(rows).build();
+    }
+
+    /**
+     * Whether a properties section can be written under the table's header.
+     *
+     * <p>There has to be a header to write under, and a table that carries a properties section already keeps the one
+     * it has: OpenL reads the first section alone, so a second one would leave the first one's rows in the body.
+     */
+    private static boolean takesAPropertiesSection(RawTableView table) {
+        return table.source.size() > 1
+                && firstCell(table.source.getFirst()) != null
+                && !PROPERTIES_SECTION.equals(String.valueOf(firstCell(table.source.get(1))));
+    }
+
+    /** The value the row opens with, or {@code null} while the row opens with nothing. */
+    private static @Nullable Object firstCell(@Nullable List<RawTableCell> row) {
+        var cell = row == null || row.isEmpty() ? null : row.getFirst();
+        return cell == null ? null : cell.value();
+    }
+
+    /**
+     * The header row rewritten as one cell spanning the table's width, the way OpenL Studio writes a header.
+     *
+     * <p>A header that already declares a wider span keeps it, so a span reaching past the table is still refused
+     * rather than quietly narrowed to fit.
+     */
+    private static List<RawTableCell> headerSpanning(int width, List<RawTableCell> header) {
+        var declared = header.getFirst();
+        var span = Math.max(width, Optional.ofNullable(declared.colspan()).orElse(1));
+        var row = new ArrayList<RawTableCell>(width);
+        row.add(RawTableCell.builder().value(declared.value()).colspan(span).build());
+        while (row.size() < width) {
+            row.add(RawTableCell.COVERED_CELL);
+        }
+        return row;
+    }
+
+    /**
+     * Whether OpenL reads a properties section on this kind of table.
+     *
+     * <p>A free-form block, an Environment table and a Properties table carry none: a row OpenL does not read as a
+     * property is read as one of their own rows instead, and the module stops compiling.
+     */
+    private static boolean carriesProperties(@Nullable TableKind kind) {
+        return kind != TableKind.OTHER && kind != TableKind.ENVIRONMENT && kind != TableKind.PROPERTIES;
+    }
+
+    /**
+     * A cell style a date reads back from.
+     *
+     * <p>Excel stores a date as a number, and OpenL reads that number as a date only while the cell is formatted as
+     * one — a date written without a format comes back as the number it is stored as.
+     */
+    private static CellStyle dateStyle(Workbook workbook) {
+        var style = workbook.createCellStyle();
+        style.setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
+        return style;
+    }
+
+    /**
+     * One row of the properties section: the marker, the property name, and the value up to the table's right edge.
+     *
+     * @param markerHeight number of rows the {@code properties} marker spans, or {@code 0} below the first row
+     * @param width        width of the table the row belongs to
+     */
+    private static List<RawTableCell> propertyRow(Map.Entry<String, Object> property, int markerHeight, int width) {
+        var marker = markerHeight > 0
+                ? RawTableCell.builder().value(PROPERTIES_SECTION).rowspan(markerHeight).build()
+                : RawTableCell.COVERED_CELL;
+        var row = new ArrayList<RawTableCell>(width);
+        row.add(marker);
+        row.add(RawTableCell.builder().value(property.getKey()).build());
+        row.add(RawTableCell.builder().value(property.getValue()).colspan(width - 2).build());
+        while (row.size() < width) {
+            row.add(RawTableCell.COVERED_CELL);
+        }
+        return row;
     }
 
     /**
@@ -238,12 +359,15 @@ public class TableCreatorService {
      * <p>A text opening with {@code =} is a formula, as {@link XlsSheetGridModel} reads it. Without that the same
      * table would hold a formula in an existing module and the literal text in a new one.
      */
-    private static void writeCell(Cell cell, @Nullable Object value) {
+    private static void writeCell(Cell cell, @Nullable Object value, CellStyle dateStyle) {
         switch (value) {
             case null -> cell.setBlank();
             case Boolean booleanValue -> cell.setCellValue(booleanValue);
             case Number numberValue -> cell.setCellValue(numberValue.doubleValue());
-            case Date dateValue -> cell.setCellValue(dateValue);
+            case Date dateValue -> {
+                cell.setCellValue(dateValue);
+                cell.setCellStyle(dateStyle);
+            }
             case String text when text.startsWith("=") -> writeFormula(cell, text);
             default -> cell.setCellValue(value.toString());
         }

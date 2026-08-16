@@ -25,12 +25,24 @@ export interface TableProperty {
     value: string | null
 }
 
+/** The versions of one table: the one it stands for, the one offered next, and the ones already taken. */
+export interface TableVersions {
+    /** Version the table stands for; `0.0.1` while it declares none. */
+    current: string
+    /** First free version after the current one. */
+    next: string
+    /** Versions already carried by the table's versions, the current one included. */
+    taken: string[]
+}
+
 /** A table's name, kind and its own properties — read cheaply for the copy dialog, without the body. */
 export interface TableCopyInfo {
     name: string
     kind: string
     /** Absent when the table declares no properties (the backend omits an empty list). */
     properties?: TableProperty[]
+    /** Absent for a kind of table that carries no versions, such as a Datatype or a Data table. */
+    versions?: TableVersions
 }
 
 /** Copy an existing table (named by its id in the path) into a module of the same project. */
@@ -86,9 +98,19 @@ export interface ProjectPropertyValue {
 
 export interface ProjectProperty {
     name: string
+    /** Name a business user reads the property by, the way Table Details names it. */
+    displayName: string
+    /** Group the property is listed under: Info, Business Dimension, Version or Dev. */
+    group: string
     type: 'text' | 'date' | 'boolean' | 'enum'
     /** Several values, written separated by commas. */
     multiple: boolean
+    /** Whether the engine dispatches on the property. */
+    dimensional: boolean
+    /** Value the property stands for while a table declares none. */
+    defaultValue: string | null
+    /** Regular expression a value must match, when the property states one. */
+    pattern: string | null
     /** Values the property accepts, empty unless the type is an enum. */
     values: ProjectPropertyValue[]
 }

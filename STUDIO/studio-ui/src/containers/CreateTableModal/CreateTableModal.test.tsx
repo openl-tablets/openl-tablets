@@ -6,6 +6,7 @@ import type { MockedFunction } from 'vitest'
 import { getModuleSheets, getProjectModules, getProjectProperties } from 'services/projects'
 import { createTable, getDatatype, getProjectTables } from 'services/tables'
 import type { CreateTableRequest, ProjectDatatype, ProjectProperty, ProjectTable } from 'types/tables'
+import { property } from '../tableModals/propertyFixture'
 import { defaultModulePath } from '../tableModals/shared'
 import { CreateTableModal, type CreateTableModalDetail } from './CreateTableModal'
 import { SIMPLE_TYPES } from './tableSkeletons'
@@ -204,23 +205,29 @@ const executableTables: ProjectTable[] = [{
 }]
 
 const projectProperties: ProjectProperty[] = [
-    { name: 'active', type: 'boolean', multiple: false, values: []},
-    { name: 'category', type: 'text', multiple: false, values: []},
-    { name: 'scope', type: 'text', multiple: false, values: []},
-    {
+    property({ name: 'active', displayName: 'Active', group: 'Version', type: 'boolean' }),
+    property({ name: 'category', displayName: 'Category', group: 'Info' }),
+    property({ name: 'scope', displayName: 'Scope' }),
+    property({
         name: 'state',
+        displayName: 'US States',
+        group: 'Business Dimension',
+        dimensional: true,
         type: 'enum',
-        multiple: false,
         values: [{ code: 'AL', value: 'Alabama' }, { code: 'AK', value: 'Alaska' }],
-    },
-    {
+    }),
+    property({
         name: 'effectiveDate',
+        displayName: 'Effective Date',
+        group: 'Business Dimension',
+        dimensional: true,
         type: 'date',
-        multiple: false,
-        values: [],
-    },
-    {
+    }),
+    property({
         name: 'country',
+        displayName: 'Countries',
+        group: 'Business Dimension',
+        dimensional: true,
         type: 'enum',
         multiple: true,
         values: [
@@ -228,7 +235,7 @@ const projectProperties: ProjectProperty[] = [
             { code: 'AL', value: 'Albania' },
             { code: 'AR', value: 'Argentina' },
         ],
-    },
+    }),
 ]
 
 const mockGetModules = getProjectModules as MockedFunction<typeof getProjectModules>

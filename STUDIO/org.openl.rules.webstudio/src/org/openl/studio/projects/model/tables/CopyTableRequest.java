@@ -37,6 +37,7 @@ public record CopyTableRequest(
 
         @Parameter(description = "Name of the copied table")
         @NotBlank
+        @TableNameConstraint
         @NonNull String name,
 
         @Parameter(description = "The copy's properties. When omitted, the source table's properties are kept.")

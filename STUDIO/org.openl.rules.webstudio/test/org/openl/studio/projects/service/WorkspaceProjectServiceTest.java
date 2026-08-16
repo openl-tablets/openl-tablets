@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -101,6 +102,7 @@ import org.openl.studio.projects.service.protection.ProtectedBranchBypassService
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
+import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
@@ -1159,7 +1161,7 @@ class WorkspaceProjectServiceTest {
         // The sheet defaults to the copy's name, and the copy is written into the freshly created module.
         verify(tableCreatorService).createEmptyModule(project, descriptor, "NewModule", "rules/NewModule.xlsx",
                 "CopyName");
-        verify(tableCopyService).copyInto(source, "CopyName", null, destGrid);
+        verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any());
         verify(tableCreatorService).save(destGrid);
         verify(tableCreatorService, never()).deleteModule(any(), any(), any());
     }
@@ -1215,7 +1217,7 @@ class WorkspaceProjectServiceTest {
         doReturn(destHandle).when(service).openProject(project, "NewModule");
         var destGrid = mock(XlsSheetGridModel.class);
         when(tableCreatorService.sheetGridModel(destModel, "CopyName")).thenReturn(destGrid);
-        when(tableCopyService.copyInto(any(), any(), any(), any())).thenThrow(new RuntimeException("boom"));
+        when(tableCopyService.copyInto(any(), any(), any(), any(), any())).thenThrow(new RuntimeException("boom"));
         when(project.isLockedByMe()).thenReturn(false, true);
         var request = new CopyTableRequest("NewModule", null, "rules/NewModule.xlsx", "CopyName", null);
 
@@ -1241,12 +1243,17 @@ class WorkspaceProjectServiceTest {
         when(summaryTableReader.read(table)).thenReturn(summary);
         var properties = List.of(new TableProperty("state", "AL"));
         when(tablePropertiesService.read(table)).thenReturn(properties);
+        when(table.isVersionable()).thenReturn(true);
+        when(table.getName()).thenReturn("MyTable");
 
         var view = service.getTableProperties(project, "src-id");
 
         assertEquals("MyTable", view.name());
         assertEquals(TableKind.RULES, view.kind());
         assertEquals(properties, view.properties());
+        // A rules table carries versions, so the dialog is told which one it stands for and which one is free.
+        assertEquals("0.0.1", view.versions().current());
+        assertEquals("0.0.2", view.versions().next());
         verify(tablePropertiesService).read(table);
     }
 
@@ -1271,7 +1278,8 @@ class WorkspaceProjectServiceTest {
         when(webStudio.getCurrentProject()).thenReturn(currentProject);
         var destGrid = mock(XlsSheetGridModel.class);
         when(tableCreatorService.sheetGridModel(destModel, "Copies")).thenReturn(destGrid);
-        when(tableCopyService.copyInto(source, "CopyName", null, destGrid)).thenReturn("copy-id");
+        when(tableCopyService.copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any()))
+                .thenReturn("copy-id");
         var request = new CopyTableRequest("Existing", "Copies", null, "CopyName", null);
 
         var copyId = service.copyTable(project, "src-id", request);
@@ -1279,7 +1287,7 @@ class WorkspaceProjectServiceTest {
         // The module is already compiled, so the copy's own identifier is known and returned.
         assertEquals("copy-id", copyId);
         verify(currentProject).tryLockOrThrow();
-        verify(tableCopyService).copyInto(source, "CopyName", null, destGrid);
+        verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any());
         verify(tableCreatorService).save(destGrid);
         verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
     }
@@ -1319,6 +1327,7 @@ class WorkspaceProjectServiceTest {
         var model = mock(ProjectModel.class);
         when(handle.awaitCompiled()).thenReturn(model);
         when(model.getTableById("src-id")).thenReturn(source);
+        when(model.getTableSyntaxNodes()).thenReturn(new TableSyntaxNode[0]);
         when(source.getUri()).thenReturn("src-uri");
         var moduleInfo = mock(Module.class);
         when(model.getModuleInfo()).thenReturn(moduleInfo);
@@ -1561,6 +1570,7 @@ class WorkspaceProjectServiceTest {
                 tableCreatorService,
                 tableCopyService,
                 tablePropertiesService,
+                new TableVersionService(),
                 mock(ProjectMetadataService.class),
                 mock(TableWriterExecutor.class),
                 mock(TableWritersFactory.class),

@@ -4,32 +4,57 @@ Content-Type: application/json
 [
   {
     "name": "autoType",
+    "displayName": "Auto Type Discovery",
+    "group": "Dev",
     "type": "boolean",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": "true",
+    "pattern": null,
     "values": []
   },
   {
     "name": "buildPhase",
+    "displayName": "Build Phase",
+    "group": "Dev",
     "type": "text",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
     "values": []
   },
   {
     "name": "cacheable",
+    "displayName": "Cacheable",
+    "group": "Dev",
     "type": "boolean",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
     "values": []
   },
   {
     "name": "calculateAllCells",
+    "displayName": "Calculate All Cells",
+    "group": "Dev",
     "type": "boolean",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": "true",
+    "pattern": null,
     "values": []
   },
   {
     "name": "caProvinces",
+    "displayName": "Canada Province",
+    "group": "Business Dimension",
     "type": "enum",
     "multiple": true,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "AB",
@@ -87,8 +112,13 @@ Content-Type: application/json
   },
   {
     "name": "caRegions",
+    "displayName": "Canada Region",
+    "group": "Business Dimension",
     "type": "enum",
     "multiple": true,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "QC",
@@ -102,14 +132,24 @@ Content-Type: application/json
   },
   {
     "name": "category",
+    "displayName": "Category",
+    "group": "Info",
     "type": "text",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
     "values": []
   },
   {
     "name": "country",
+    "displayName": "Countries",
+    "group": "Business Dimension",
     "type": "enum",
     "multiple": true,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "AE",
@@ -519,8 +559,13 @@ Content-Type: application/json
   },
   {
     "name": "currency",
+    "displayName": "Currency",
+    "group": "Business Dimension",
     "type": "enum",
     "multiple": true,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "ALL",
@@ -810,20 +855,35 @@ Content-Type: application/json
   },
   {
     "name": "datatypePackage",
+    "displayName": "Datatype Package",
+    "group": "Dev",
     "type": "text",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": "org.openl.generated.beans",
+    "pattern": "([a-zA-Z_]{1}[a-zA-Z0-9_]*(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)",
     "values": []
   },
   {
     "name": "effectiveDate",
+    "displayName": "Effective Date",
+    "group": "Business Dimension",
     "type": "date",
     "multiple": false,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": []
   },
   {
     "name": "emptyResultProcessing",
+    "displayName": "Empty Result Processing",
+    "group": "Dev",
     "type": "enum",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": "SKIP",
+    "pattern": null,
     "values": [
       {
         "code": "SKIP",
@@ -837,26 +897,46 @@ Content-Type: application/json
   },
   {
     "name": "endRequestDate",
+    "displayName": "End Request Date",
+    "group": "Business Dimension",
     "type": "date",
     "multiple": false,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": []
   },
   {
     "name": "expirationDate",
+    "displayName": "Expiration Date",
+    "group": "Business Dimension",
     "type": "date",
     "multiple": false,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": []
   },
   {
     "name": "failOnMiss",
+    "displayName": "Fail On Miss",
+    "group": "Dev",
     "type": "boolean",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": "false",
+    "pattern": null,
     "values": []
   },
   {
     "name": "lang",
+    "displayName": "Language",
+    "group": "Business Dimension",
     "type": "enum",
     "multiple": true,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "ALB",
@@ -1018,20 +1098,35 @@ Content-Type: application/json
   },
   {
     "name": "lob",
+    "displayName": "LOB",
+    "group": "Business Dimension",
     "type": "text",
     "multiple": true,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": []
   },
   {
     "name": "nature",
+    "displayName": "Nature",
+    "group": "Business Dimension",
     "type": "text",
     "multiple": false,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": []
   },
   {
     "name": "origin",
+    "displayName": "Origin",
+    "group": "Business Dimension",
     "type": "enum",
     "multiple": false,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "Base",
@@ -1045,26 +1140,46 @@ Content-Type: application/json
   },
   {
     "name": "parallel",
+    "displayName": "Concurrent Execution",
+    "group": "Dev",
     "type": "boolean",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": "false",
+    "pattern": null,
     "values": []
   },
   {
     "name": "precision",
+    "displayName": "Precision",
+    "group": "Dev",
     "type": "text",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": "(-?[0-9]+)",
     "values": []
   },
   {
     "name": "priority",
+    "displayName": "Priority",
+    "group": "Dev",
     "type": "text",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": "0",
+    "pattern": null,
     "values": []
   },
   {
     "name": "recalculate",
+    "displayName": "Recalculate",
+    "group": "Dev",
     "type": "enum",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "ALWAYS",
@@ -1082,8 +1197,13 @@ Content-Type: application/json
   },
   {
     "name": "region",
+    "displayName": "Region",
+    "group": "Business Dimension",
     "type": "enum",
     "multiple": true,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "NCSA",
@@ -1105,26 +1225,46 @@ Content-Type: application/json
   },
   {
     "name": "scope",
+    "displayName": "Scope",
+    "group": "Dev",
     "type": "text",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
     "values": []
   },
   {
     "name": "spreadsheetResultPackage",
+    "displayName": "Spreadsheet Result Package",
+    "group": "Dev",
     "type": "text",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": "org.openl.generated.spreadsheetresults",
+    "pattern": "([a-zA-Z_]{1}[a-zA-Z0-9_]*(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)",
     "values": []
   },
   {
     "name": "startRequestDate",
+    "displayName": "Start Request Date",
+    "group": "Business Dimension",
     "type": "date",
     "multiple": false,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": []
   },
   {
     "name": "state",
+    "displayName": "US States",
+    "group": "Business Dimension",
     "type": "enum",
     "multiple": true,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "AL",
@@ -1354,14 +1494,24 @@ Content-Type: application/json
   },
   {
     "name": "tableStructureDetails",
+    "displayName": "Table Structure Details",
+    "group": "Dev",
     "type": "boolean",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": "false",
+    "pattern": null,
     "values": []
   },
   {
     "name": "usregion",
+    "displayName": "US Region",
+    "group": "Business Dimension",
     "type": "enum",
     "multiple": true,
+    "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "MW",
@@ -1387,8 +1537,13 @@ Content-Type: application/json
   },
   {
     "name": "validateDT",
+    "displayName": "Validate DT",
+    "group": "Dev",
     "type": "enum",
     "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
     "values": [
       {
         "code": "ON",

@@ -119,6 +119,7 @@ import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
+import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
@@ -165,6 +166,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableCreatorService tableCreatorService;
     private final TableCopyService tableCopyService;
     private final TablePropertiesService tablePropertiesService;
+    private final TableVersionService tableVersionService;
     private final ProjectMetadataService metadataService;
     private final TableWritersFactory tableWritersFactory;
     private final ApplicationEventPublisher eventPublisher;
@@ -191,6 +193,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             TableCreatorService tableCreatorService,
             TableCopyService tableCopyService,
             TablePropertiesService tablePropertiesService,
+            TableVersionService tableVersionService,
             ProjectMetadataService metadataService,
             TableWriterExecutor tableWriterExecutor,
             TableWritersFactory tableWritersFactory,
@@ -218,6 +221,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableCreatorService = tableCreatorService;
         this.tableCopyService = tableCopyService;
         this.tablePropertiesService = tablePropertiesService;
+        this.tableVersionService = tableVersionService;
         this.metadataService = metadataService;
         this.tableWriterExecutor = tableWriterExecutor;
         this.tableWritersFactory = tableWritersFactory;
@@ -1782,9 +1786,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return the table's name, kind and defined properties
      */
     public TablePropertiesView getTableProperties(RulesProject project, String tableId) {
-        var table = getOpenLTable(project, tableId).table();
+        var context = getOpenLTable(project, tableId);
+        var table = context.table();
         var summary = summaryTableReader.read(table);
-        return new TablePropertiesView(summary.name, summary.kind, tablePropertiesService.read(table));
+        return new TablePropertiesView(summary.name, summary.kind, tablePropertiesService.read(table),
+                tableVersionService.describe(table, context.module().getTableSyntaxNodes()));
     }
 
     /**
@@ -1990,7 +1996,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private String writeCopy(ProjectModel projectModel, IOpenLTable source, CopyTableRequest request,
                              String sheetName) {
         var destGrid = tableCreatorService.sheetGridModel(projectModel, sheetName);
-        var copyId = tableCopyService.copyInto(source, request.name(), request.properties(), destGrid);
+        var copyId = tableCopyService.copyInto(source, request.name(), request.properties(), destGrid,
+                projectModel.getTableSyntaxNodes());
         tableCreatorService.save(destGrid);
         return copyId;
     }

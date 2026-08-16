@@ -5,6 +5,7 @@ import type { MockedFunction } from 'vitest'
 import { getModuleSheets, getProjectModules, getProjectProperties } from 'services/projects'
 import { copyTable, getTableCopyInfo } from 'services/tables'
 import type { TableCopyInfo } from 'types/tables'
+import { property } from '../tableModals/propertyFixture'
 import { CopyTableModal, type CopyTableModalDetail } from './CopyTableModal'
 
 vi.mock('services/projects', () => ({
@@ -80,7 +81,7 @@ vi.mock('antd', async () => {
         ...props
     }: {
         value?: string | string[]
-        options?: { label: React.ReactNode, value: string }[]
+        options?: ({ label: React.ReactNode, value: string } | { label: string, options: { label: React.ReactNode, value: string }[] })[]
         mode?: 'multiple'
         onChange?: (value: string | string[]) => void
         showSearch?: boolean
@@ -96,14 +97,39 @@ vi.mock('antd', async () => {
                 : event.target.value)}
         >
             {mode !== 'multiple' && !value ? <option value="" /> : null}
-            {options?.map(option => (
+            {options?.map(option => 'options' in option ? (
+                <optgroup key={option.label} label={option.label}>
+                    {option.options.map(item => (
+                        <option key={item.value} value={item.value}>{item.label}</option>
+                    ))}
+                </optgroup>
+            ) : (
                 <option key={option.value} value={option.value}>{option.label}</option>
             ))}
         </select>
     )
+    const MockInputNumber = ({
+        value,
+        onChange,
+        ...props
+    }: {
+        value?: number
+        onChange?: (value: number | null) => void
+        'data-testid'?: string
+        'aria-label'?: string
+    }) => (
+        <input
+            aria-label={props['aria-label']}
+            data-testid={props['data-testid']}
+            onChange={event => onChange?.(event.target.value === '' ? null : Number(event.target.value))}
+            type="number"
+            value={value ?? ''}
+        />
+    )
     return {
         ...actual,
         AutoComplete: MockAutoComplete,
+        InputNumber: MockInputNumber,
         Modal: MockModal,
         Select: MockSelect,
         Spin: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
@@ -125,6 +151,7 @@ const sourceInfo: TableCopyInfo = {
         { name: 'version', value: '1.2.3' },
         { name: 'lob', value: 'Auto' },
     ],
+    versions: { current: '1.2.3', next: '1.2.4', taken: ['1.2.2', '1.2.3']},
 }
 
 const mockGetInfo = getTableCopyInfo as MockedFunction<typeof getTableCopyInfo>
@@ -158,18 +185,26 @@ describe('CopyTableModal', () => {
             { name: 'Pricing', path: 'rules/Pricing.xlsx' },
         ])
         mockGetProperties.mockResolvedValue([
-            { name: 'version', type: 'text', multiple: false, values: []},
-            { name: 'lob', type: 'text', multiple: false, values: []},
-            { name: 'region', type: 'text', multiple: false, values: []},
-            {
+            property({
+                name: 'version',
+                displayName: 'Version',
+                group: 'Version',
+                pattern: '(\\d+\\.\\d+\\.\\d+)',
+            }),
+            property({ name: 'lob', displayName: 'LOB', group: 'Business Dimension', dimensional: true }),
+            property({ name: 'region', displayName: 'Region', group: 'Business Dimension', dimensional: true }),
+            property({
                 name: 'state',
+                displayName: 'US States',
+                group: 'Business Dimension',
+                dimensional: true,
                 type: 'enum',
                 multiple: true,
                 values: [
                     { code: 'AL', value: 'Alabama' },
                     { code: 'AK', value: 'Alaska' },
                 ],
-            },
+            }),
         ])
         mockGetSheets.mockResolvedValue(['Rules', 'Archive'])
         mockCopy.mockResolvedValue({
@@ -203,7 +238,7 @@ describe('CopyTableModal', () => {
             sheetName: 'Rules',
             name: 'EligibilityCopy',
             properties: [
-                { name: 'version', value: '1.2.3' },
+                { name: 'version', value: '1.2.4' },
                 { name: 'lob', value: 'Auto' },
             ],
         })
@@ -267,9 +302,9 @@ describe('CopyTableModal', () => {
         const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
-        await waitFor(() => expect(screen.getByTestId('copy-table-property-row-2')).toBeInTheDocument())
+        await screen.findByTestId('copy-table-property-row-2')
 
-        await user.type(screen.getByTestId('copy-table-property-name-2'), 'state')
+        await user.selectOptions(screen.getByTestId('copy-table-property-name-2'), 'state')
         const value = screen.getByTestId('copy-table-property-value-2')
         expect(value).toHaveAttribute('data-searchable', 'true')
         expect(within(value).getByRole('option', { name: 'Alabama' })).toHaveValue('AL')
@@ -280,13 +315,26 @@ describe('CopyTableModal', () => {
         expect(mockCopy.mock.calls[0]![2].properties).toContainEqual({ name: 'state', value: 'AL' })
     })
 
+    it('offers the properties by display name under their groups', async () => {
+        render(<CopyTableModal />)
+        await openModal()
+        await screen.findByTestId('copy-table-property-row-2')
+
+        const names = screen.getByTestId('copy-table-property-name-2')
+        // Grouped the way Table Details groups them, so the dimensional properties are presented, not guessed.
+        expect([...names.querySelectorAll('optgroup')].map(group => group.label))
+            .toEqual(['Business Dimension', 'Version'])
+        expect(within(names).getByRole('option', { name: 'US States' })).toHaveValue('state')
+        expect(within(names).getByRole('option', { name: 'LOB' })).toHaveValue('lob')
+    })
+
     it('adds properties with the same trailing-row behavior as Spreadsheet arguments', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
-        await waitFor(() => expect(screen.getByTestId('copy-table-property-row-2')).toBeInTheDocument())
+        await screen.findByTestId('copy-table-property-row-2')
 
-        await user.type(screen.getByTestId('copy-table-property-name-2'), 'region')
+        await user.selectOptions(screen.getByTestId('copy-table-property-name-2'), 'region')
         expect(screen.queryByTestId('copy-table-property-row-3')).not.toBeInTheDocument()
         await user.type(screen.getByTestId('copy-table-property-value-2'), 'EU')
         expect(screen.getByTestId('copy-table-property-row-3')).toBeInTheDocument()
@@ -297,7 +345,7 @@ describe('CopyTableModal', () => {
 
         await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
         expect(mockCopy.mock.calls[0]![2].properties).toEqual([
-            { name: 'version', value: '1.2.3' },
+            { name: 'version', value: '1.2.4' },
             { name: 'lob', value: 'Auto' },
             { name: 'region', value: 'EU' },
         ])
@@ -330,58 +378,79 @@ describe('CopyTableModal', () => {
         const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
-        await waitFor(() => expect(screen.getByTestId('copy-table-property-row-2')).toBeInTheDocument())
+        await screen.findByTestId('copy-table-property-row-2')
         const copyButton = screen.getByRole('button', { name: 'project:copy_table_modal.copy' })
 
         await user.clear(screen.getByTestId('copy-table-name'))
         await user.type(screen.getByTestId('copy-table-name'), 'EligibilityCopy')
-        await user.type(screen.getByTestId('copy-table-property-name-2'), 'version')
+        // A named row with no value yet is half-written, so the copy waits for it.
+        await user.selectOptions(screen.getByTestId('copy-table-property-name-2'), 'region')
         expect(copyButton).toBeDisabled()
-        await user.type(screen.getByTestId('copy-table-property-value-2'), '2.0.0')
+        await user.type(screen.getByTestId('copy-table-property-value-2'), 'EU')
+        expect(copyButton).toBeEnabled()
+
+        // The same property twice says two things about one property.
+        await user.selectOptions(screen.getByTestId('copy-table-property-name-2'), 'lob')
+        await user.clear(screen.getByTestId('copy-table-property-value-2'))
+        await user.type(screen.getByTestId('copy-table-property-value-2'), 'Auto')
         expect(copyButton).toBeDisabled()
     })
 
-    it('does not submit a version the engine cannot read', async () => {
+    it('offers the next free version and shows the one the table stands for', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal()
+        await screen.findByTestId('copy-table-property-row-2')
+
+        // The window opens on the first version the table's versions leave free — 1.2.3 is the source's own and
+        // 1.2.2 belongs to the version that stepped aside — with the current one named beside the editor.
+        expect(screen.getByTestId('copy-table-property-value-0-current'))
+            .toHaveTextContent('project:copy_table_modal.version_current')
+        expect(screen.getByTestId('copy-table-property-value-0-0')).toHaveValue(1)
+        expect(screen.getByTestId('copy-table-property-value-0-1')).toHaveValue(2)
+        expect(screen.getByTestId('copy-table-property-value-0-2')).toHaveValue(4)
+
+        // A property chosen anew opens on that same free version.
+        await user.selectOptions(screen.getByTestId('copy-table-property-name-2'), 'region')
+        await user.selectOptions(screen.getByTestId('copy-table-property-name-2'), 'version')
+        expect(screen.getByTestId('copy-table-property-value-2-2')).toHaveValue(4)
+    })
+
+    it('does not submit a version another version of the table already carries', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
         await screen.findByTestId('copy-table-property-row-2')
         const copyButton = screen.getByRole('button', { name: 'project:copy_table_modal.copy' })
 
-        // The prefilled properties already carry a readable version, so the form starts submittable.
+        // The offered 1.2.4 is free, so the copy starts submittable.
         expect(copyButton).toBeEnabled()
 
-        const version = screen.getByTestId('copy-table-property-value-0')
-        await user.clear(version)
-        await user.type(version, 'v2')
+        // 1.2.2 belongs to a version that stepped aside: two versions under one number cannot be ordered.
+        await user.clear(screen.getByTestId('copy-table-property-value-0-2'))
+        await user.type(screen.getByTestId('copy-table-property-value-0-2'), '2')
         expect(copyButton).toBeDisabled()
 
-        await user.clear(version)
-        await user.type(version, '2.0.0')
-        expect(copyButton).toBeEnabled()
+        // And so does 1.2.3, the one the source itself stands for — carrying it over is no excuse.
+        await user.clear(screen.getByTestId('copy-table-property-value-0-2'))
+        await user.type(screen.getByTestId('copy-table-property-value-0-2'), '3')
+        expect(copyButton).toBeDisabled()
     })
 
-    it('lets the version the source carries through and checks any other', async () => {
-        // A table written when a shorter version was documented as valid: it must stay copyable as it stands.
+    it('offers a readable version even when the one the source carries is not', async () => {
+        // A table written when a shorter version was documented as valid: the copy must still be writable.
         mockGetInfo.mockResolvedValueOnce({
             name: 'Eligibility',
             kind: 'Rules',
             properties: [{ name: 'version', value: '1.0' }],
+            versions: { current: '1.0', next: '0.0.1', taken: ['1.0']},
         })
-        const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
         await openModal()
         await screen.findByTestId('copy-table-property-row-1')
-        const copyButton = screen.getByRole('button', { name: 'project:copy_table_modal.copy' })
 
-        // The prefilled '1.0' is the source's own, so it passes even though it is not three numbers.
-        expect(screen.getByTestId('copy-table-property-value-0')).toHaveValue('1.0')
-        expect(copyButton).toBeEnabled()
-
-        // Anything else is the author's own choice and has to be a version the engine reads.
-        const version = screen.getByTestId('copy-table-property-value-0')
-        await user.clear(version)
-        await user.type(version, '1.1')
-        expect(copyButton).toBeDisabled()
+        expect(screen.getByTestId('copy-table-property-value-0-0')).toHaveValue(0)
+        expect(screen.getByTestId('copy-table-property-value-0-2')).toHaveValue(1)
+        expect(screen.getByRole('button', { name: 'project:copy_table_modal.copy' })).toBeEnabled()
     })
 })

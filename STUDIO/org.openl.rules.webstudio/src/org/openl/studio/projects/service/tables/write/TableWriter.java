@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.tables.write;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -54,6 +55,7 @@ public abstract class TableWriter<T extends TableView> {
     protected final IOpenLTable table;
     protected final IGridTable originalTable;
     private MetaInfoWriter metaInfoWriter;
+    private Map<String, Object> stamped = Map.of();
 
     public TableWriter(IOpenLTable table) {
         this.table = table;
@@ -72,12 +74,41 @@ public abstract class TableWriter<T extends TableView> {
         try {
             getGridTable().edit();
             updateBusinessBody(tableView);
-            updateTableProperties(tableView.properties);
+            updateTableProperties(recorded(tableView.properties));
             updateHeader(tableView);
             save();
         } finally {
             getGridTable().stopEditing();
         }
+    }
+
+    /**
+     * Records what OpenL Studio notes about a table it writes, such as its author and creation date.
+     *
+     * <p>The properties are written by the same pass that writes the table, so the workbook is saved once.
+     *
+     * @param properties the properties to record, in the order they are written
+     */
+    public void stampWith(Map<String, Object> properties) {
+        this.stamped = properties;
+    }
+
+    /**
+     * The properties to write: what OpenL Studio records about the table, then what the table itself declares.
+     *
+     * <p>What the table says wins — a property it declares is written as it stands, whether it declares it as one of
+     * its own properties or as a row of the body already written.
+     */
+    private Map<String, Object> recorded(Map<String, Object> declared) {
+        if (stamped.isEmpty()) {
+            return declared;
+        }
+        var region = originalTable.getRegion();
+        var grid = originalTable.getGrid();
+        var properties = new LinkedHashMap<>(stamped);
+        properties.keySet().removeIf(name -> GridTool.getPropertyRowIndex(region, grid, name) != -1);
+        properties.putAll(declared);
+        return properties;
     }
 
     /**

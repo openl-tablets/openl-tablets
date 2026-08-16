@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -17,6 +19,7 @@ import org.openl.excel.parser.ExcelUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.table.constraints.RegexpValueConstraint;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -55,6 +58,9 @@ public class ProjectMetadataService {
             .sorted((left, right) -> String.CASE_INSENSITIVE_ORDER.compare(left.name(), right.name()))
             .toList();
 
+    /** The properties of each table type, resolved once per type: the definitions never change at runtime. */
+    private static final Map<String, List<PropertyDefinitionView>> BY_TABLE_TYPE = new ConcurrentHashMap<>();
+
     private final ProjectFilesService projectFilesService;
     private final ProjectFileRootFactory projectFileRootFactory;
 
@@ -74,12 +80,12 @@ public class ProjectMetadataService {
         if (internalType == null) {
             throw new BadRequestException("project.properties.table-type.message", new Object[]{tableType});
         }
-        return Arrays.stream(TablePropertyDefinitionUtils.getDefaultDefinitionsForTable(
-                        internalType, InheritanceLevel.TABLE, true))
+        return BY_TABLE_TYPE.computeIfAbsent(internalType, type -> Arrays
+                .stream(TablePropertyDefinitionUtils.getDefaultDefinitionsForTable(type, InheritanceLevel.TABLE, true))
                 .filter(definition -> definition.getDeprecation() == null)
                 .map(ProjectMetadataService::describe)
                 .sorted((left, right) -> String.CASE_INSENSITIVE_ORDER.compare(left.name(), right.name()))
-                .toList();
+                .toList());
     }
 
     /**
@@ -100,32 +106,59 @@ public class ProjectMetadataService {
     }
 
     /**
-     * What a value of the property looks like.
+     * How the property is presented and what a value of it looks like.
+     *
+     * <p>The property is described the way the Table Details editor names it — its display name and its group — so
+     * a dialog offering it reads the same as the rest of OpenL Studio, and the dimensional ones can be told apart
+     * from the rest.
      *
      * <p>An array of an enum is the same choice offered several times over: a dimension property such as
      * {@code state} holds a comma-separated list of the values its enum names.
      */
     private static PropertyDefinitionView describe(TablePropertyDefinition definition) {
         var type = definition.getType() == null ? null : definition.getType().getInstanceClass();
-        if (type == null) {
-            return new PropertyDefinitionView(definition.getName(), "text", false, List.of());
-        }
-        var element = type.isArray() ? type.getComponentType() : type;
-        if (element.isEnum()) {
+        var multiple = type != null && type.isArray();
+        var element = multiple ? type.getComponentType() : type;
+        if (element != null && element.isEnum()) {
             var codes = EnumUtils.getNames(element);
-            var values = EnumUtils.getValues(element);
-            return new PropertyDefinitionView(definition.getName(),
-                    "enum",
-                    type.isArray(),
-                    IntStream.range(0, codes.length)
-                            .mapToObj(index -> new PropertyValueView(codes[index], values[index]))
-                            .toList());
+            var displayValues = EnumUtils.getValues(element);
+            return describe(definition, "enum", multiple, IntStream.range(0, codes.length)
+                    .mapToObj(index -> new PropertyValueView(codes[index], displayValues[index]))
+                    .toList());
         }
-        return new PropertyDefinitionView(
-                definition.getName(),
-                scalarType(element),
-                type.isArray(),
-                List.of());
+        return describe(definition, element == null ? "text" : scalarType(element), multiple, List.of());
+    }
+
+    private static PropertyDefinitionView describe(TablePropertyDefinition definition, String type, boolean multiple,
+            List<PropertyValueView> values) {
+        return new PropertyDefinitionView(definition.getName(),
+                definition.getDisplayName(),
+                definition.getGroup(),
+                type,
+                multiple,
+                definition.isDimensional(),
+                definition.getDefaultValue(),
+                pattern(definition),
+                values);
+    }
+
+    /**
+     * The regular expression a value of the property must match, or {@code null} when it states none.
+     *
+     * <p>It is the same expression the compiler validates the property with, so a dialog refusing a value refuses
+     * exactly what the module would refuse.
+     */
+    private static @Nullable String pattern(TablePropertyDefinition definition) {
+        var constraints = definition.getConstraints();
+        if (constraints == null) {
+            return null;
+        }
+        return constraints.getAll()
+                .stream()
+                .filter(RegexpValueConstraint.class::isInstance)
+                .map(constraint -> ((RegexpValueConstraint) constraint).getRegexp())
+                .findFirst()
+                .orElse(null);
     }
 
     /** What a value that is not one of a list looks like. */
