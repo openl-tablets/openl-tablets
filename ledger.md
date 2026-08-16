@@ -385,6 +385,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-16 — run 181: idle, seventeenth in a row; `main` and #2004 head unchanged, merges clean, no new comments. 390 lines.
 - 08-16 — run 182: idle, eighteenth in a row; `main` and #2004 head unchanged, merges clean, no new comments. 390 lines.
 - 08-16 — run 183: idle, nineteenth in a row; `main` and #2004 head unchanged, merges clean, no new comments. 390 lines.
+- 08-16 — run 184: idle, twentieth in a row; `main` and #2004 head unchanged, merges clean, no new comments. 390 lines.
