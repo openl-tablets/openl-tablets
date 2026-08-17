@@ -69,6 +69,7 @@
           class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
         <property name="projectVersionCacheDB" ref="projectVersionCacheDB"/>
         <property name="designRepository" ref="designTimeRepository"/>
+        <property name="enabled" value="${repository.cache.monitor.enabled}"/>
     </bean>
 
     <bean class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheMonitor" destroy-method="release">

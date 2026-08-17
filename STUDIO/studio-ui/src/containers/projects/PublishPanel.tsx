@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Skeleton, Tag } from 'antd'
+import { Alert, Skeleton, Tag, Tooltip } from 'antd'
 import { createStyles } from 'antd-style'
 import { getProductionRepositories, getProjectDeployments } from '../../services/deployments'
 import { formatDateTime } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
-import { shortRevision } from './revisions'
+import { AuthorDate } from './AuthorDate'
 import { DeployConfigPanel } from './DeployConfigPanel'
 import { ValueText } from './ValueText'
 
@@ -51,12 +51,22 @@ const useStyles = createStyles(({ css, token }) => ({
     envTag: css`
         border-radius: ${token.borderRadiusSM}px;
     `,
+    /** Label beside value, so the revision the deployment carries never reads as the date it was deployed. */
     cardMeta: css`
-        display: flex;
-        gap: 12px;
-        margin-top: 6px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: start;
+        gap: 4px 8px;
+        margin-top: 8px;
+        font-size: 12px;
+    `,
+    metaLabel: css`
+        padding-top: 1px;
+        white-space: nowrap;
+    `,
+    deployedAt: css`
         color: ${token.colorTextTertiary};
-        font-size: 11px;
+        white-space: nowrap;
     `,
 }))
 
@@ -73,8 +83,11 @@ interface DeploymentCard {
     key: string
     service: string
     env: string
-    revision?: string
-    date?: string
+    /** Who committed the design revision this deployment carries, and when — absent when it is unknown. */
+    author: string | undefined
+    revisionDate: string | undefined
+    /** When the project was deployed, which is a different fact from the revision above. */
+    deployedAt: string | undefined
 }
 
 interface ProjectDeployedDetail {
@@ -98,8 +111,8 @@ const envColor = (name: string): string => {
 
 /**
  * The Publish tab: the project's `rules-deploy.xml` configuration on the left, and where this project is
- * currently deployed on the right (service, environment, deployed revision and date). Deploying opens the
- * shared deploy dialog.
+ * currently deployed on the right — service, environment, the design revision each deployment carries, and
+ * when it was deployed. Deploying opens the shared deploy dialog.
  */
 export const PublishPanel = ({
     projectId,
@@ -142,8 +155,9 @@ export const PublishPanel = ({
                                 key: `${repo.id}:${deployment.id}`,
                                 service: deployment.name,
                                 env: repo.name,
-                                ...(item.revision ? { revision: item.revision } : {}),
-                                ...(item.modifiedAt ? { date: item.modifiedAt } : {}),
+                                author: item.designRevision?.modifiedBy,
+                                revisionDate: item.designRevision?.modifiedAt,
+                                deployedAt: item.modifiedAt,
                             }
                             return [card]
                         })
@@ -160,6 +174,17 @@ export const PublishPanel = ({
     }, [deploymentsReloadToken, projectId, projectName, reloadToken])
 
     const cards = Array.isArray(deployments) ? deployments : []
+
+    /**
+     * The design revision a deployment carries, read the way a business user reads one: who committed it,
+     * and when. Unknown until the server has matched the deployed content against the design repository.
+     */
+    const designRevision = (card: DeploymentCard) => {
+        if (!card.author && !card.revisionDate) {
+            return <Tooltip title={t('deployments.revision_unknown')}><span>—</span></Tooltip>
+        }
+        return <AuthorDate author={card.author} date={formatDateTime(card.revisionDate)} />
+    }
 
     return (
         <div className={styles.panel} data-testid="publish-panel">
@@ -191,14 +216,14 @@ export const PublishPanel = ({
                                     <Tag className={cx(shared.chipTag, styles.envTag)} color={envColor(card.env)}>{card.env}</Tag>
                                 </div>
                                 <div className={styles.cardMeta}>
-                                    {card.revision && (
-                                        <span>
-                                            {t('browser.deployments.revision', {
-                                                revision: shortRevision(card.revision),
-                                            })}
-                                        </span>
-                                    )}
-                                    {card.date && <span>{formatDateTime(card.date)}</span>}
+                                    <span className={cx(shared.microLabel, styles.metaLabel)}>
+                                        {t('browser.publish.card_revision')}
+                                    </span>
+                                    <div>{designRevision(card)}</div>
+                                    <span className={cx(shared.microLabel, styles.metaLabel)}>
+                                        {t('browser.publish.card_deployed')}
+                                    </span>
+                                    <div className={styles.deployedAt}>{formatDateTime(card.deployedAt) ?? '—'}</div>
                                 </div>
                             </div>
                         ))}

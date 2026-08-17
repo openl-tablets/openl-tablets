@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button, Empty, Pagination, Skeleton, Tabs, Typography } from 'antd'
+import { Button, Empty, Pagination, Skeleton, Tabs, Tooltip, Typography } from 'antd'
 import { RocketOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../utils/errorMessage'
-import { getDeployment, type DeploymentDetail } from '../services/deployments'
+import { getDeployment, type DeploymentDetail, type DesignRevision } from '../services/deployments'
 import { formatDateTime } from '../utils/dateFormat'
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
 import { useSharedStyles } from './projects/sharedStyles'
+import { AuthorDate } from './projects/AuthorDate'
 
 const useStyles = createStyles(({ css, token }) => ({
     page: css`
@@ -143,6 +144,20 @@ export const DeploymentWorkspace = () => {
         [items, page, pageSize]
     )
 
+    /**
+     * The design repository revision a deployed project was built from, read the way a business user reads
+     * one: who committed it, and when. The technical revision id stays in the response, unshown.
+     *
+     * The revision is recognized by comparing content, which the server indexes in the background — a
+     * deployment read right after it was made, or one made from another OpenL Studio, has none to show.
+     */
+    const designRevision = (revision: DesignRevision | undefined) => {
+        if (!revision) {
+            return <Tooltip title={t('deployments.revision_unknown')}><span>—</span></Tooltip>
+        }
+        return <AuthorDate author={revision.modifiedBy} date={formatDateTime(revision.modifiedAt)} />
+    }
+
     const projects = () => {
         if (items.length === 0) {
             return (
@@ -169,7 +184,7 @@ export const DeploymentWorkspace = () => {
                                     {item.name}
                                 </Typography.Text>
                             </td>
-                            <td className={shared.valueText}>{item.revision ?? '—'}</td>
+                            <td>{designRevision(item.designRevision)}</td>
                             <td className={styles.hideMd}>{item.modifiedBy ?? '—'}</td>
                             <td className={styles.hideLg}>{formatDateTime(item.modifiedAt) ?? '—'}</td>
                         </tr>

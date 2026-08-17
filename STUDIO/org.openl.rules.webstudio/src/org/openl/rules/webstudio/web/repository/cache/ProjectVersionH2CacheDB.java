@@ -30,7 +30,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     private static final String REPOSITORY = "repository";
 
     private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + PROJECT_NAME + " varchar(1000)," + VERSION + " varchar(50), " + CREATED_AT + " TIMESTAMP, " + CREATED_BY + " varchar(50), " + HASH + " varchar(32), " + REPOSITORY + " varchar(6))";
-    private static final String SELECT_VERSION_QUERY = "SELECT " + VERSION + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + HASH + "=? AND " + REPOSITORY + "=?) AND " + HASH + "=?";
+    private static final String SELECT_VERSION_QUERY = "SELECT " + VERSION + ", " + CREATED_AT + ", " + CREATED_BY + " FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + HASH + "=? AND " + REPOSITORY + "=? ORDER BY " + CREATED_AT + " DESC FETCH FIRST 1 ROW ONLY";
     private static final String SELECT_HASH_QUERY = "SELECT " + HASH + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=? AND " + PROJECT_NAME + "=? AND " + REPOSITORY + "=? AND " + VERSION + "=?";
     private static final String INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + PROJECT_NAME + ", " + VERSION + ", " + CREATED_AT + ", " + CREATED_BY + ", " + HASH + ", " + REPOSITORY + ") values" + "(?,?,?,?,?,?)";
     private static final String SELECT_COUNT_QUERY = "SELECT COUNT(*) FROM " + TABLE_NAME;
@@ -132,7 +132,12 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
         }
     }
 
-    public String getVersion(String name, String hash, RepoType repoType) throws IOException {
+    /**
+     * Returns the latest version of a project whose content has the given hash.
+     *
+     * @return the version, or {@code null} when no version of that project has that content
+     */
+    public CachedProjectVersion getVersion(String name, String hash, RepoType repoType) throws IOException {
         Connection connection = null;
         ResultSet rs = null;
         PreparedStatement selectPreparedStatement = null;
@@ -144,12 +149,12 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
             selectPreparedStatement.setString(1, name);
             selectPreparedStatement.setString(2, hash);
             selectPreparedStatement.setString(3, repoType.name());
-            selectPreparedStatement.setString(4, hash);
             rs = selectPreparedStatement.executeQuery();
-            String version = null;
-            while (rs.next()) {
-                version = rs.getString(VERSION);
-            }
+            var version = rs.next()
+                    ? new CachedProjectVersion(rs.getString(VERSION),
+                            rs.getTimestamp(CREATED_AT),
+                            rs.getString(CREATED_BY))
+                    : null;
             connection.commit();
             return version;
         } catch (Exception e) {

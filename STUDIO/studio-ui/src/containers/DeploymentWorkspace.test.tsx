@@ -44,6 +44,8 @@ vi.mock('antd', () => {
     const Empty = ({ description, children, ...rest }: Record<string, unknown>) =>
         <div {...rest}>{description as never}{children as never}</div>
     const Skeleton = () => <div>skeleton</div>
+    const Tooltip = ({ children, title }: Record<string, unknown>) =>
+        <span title={title as string}>{children as never}</span>
     const Typography = {
         Text: ({ children, ellipsis, className, ...rest }: Record<string, unknown>) => {
             void ellipsis; void className
@@ -54,7 +56,7 @@ vi.mock('antd', () => {
             return <h1 {...rest}>{children as never}</h1>
         },
     }
-    return { Button, Empty, Skeleton, Tabs, Typography }
+    return { Button, Empty, Skeleton, Tabs, Tooltip, Typography }
 })
 
 const deployment = {
@@ -62,7 +64,16 @@ const deployment = {
     name: 'Benefits',
     repository: 'prod',
     items: [
-        { name: 'Benefits Rules', modifiedAt: '2026-07-09T10:30:00Z', modifiedBy: 'jane', revision: 'abc123' },
+        {
+            name: 'Benefits Rules',
+            modifiedAt: '2026-07-09T10:30:00Z',
+            modifiedBy: 'jane',
+            designRevision: {
+                revision: 'abc123def456789',
+                modifiedBy: 'john',
+                modifiedAt: '2026-07-08T08:15:00Z',
+            },
+        },
     ],
 }
 
@@ -88,8 +99,24 @@ describe('DeploymentWorkspace', () => {
         // One tab, and it is the projects the deployment carries.
         expect(screen.getByTestId('tab-projects')).toBeInTheDocument()
         expect(screen.getByTestId('deployment-project-row-Benefits Rules')).toBeInTheDocument()
-        expect(screen.getByText('abc123')).toBeInTheDocument()
         expect(screen.getByText('jane')).toBeInTheDocument()
+    })
+
+    it('shows the design revision the deployed project was built from, not the one of the deployment', async () => {
+        await renderPage()
+
+        // Who committed that revision and when, never the technical revision id the response still carries.
+        expect(screen.getByText('john')).toBeInTheDocument()
+        expect(screen.queryByText(/abc123/)).not.toBeInTheDocument()
+    })
+
+    it('explains the missing design revision when no design revision matches the deployed content', async () => {
+        const { designRevision, ...withoutRevision } = deployment.items[0]!
+        void designRevision
+        vi.mocked(getDeployment).mockResolvedValue({ ...deployment, items: [withoutRevision]})
+        await renderPage()
+
+        expect(screen.getByTitle('deployments.revision_unknown')).toHaveTextContent('—')
     })
 
     it('says so when the deployment carries no project', async () => {

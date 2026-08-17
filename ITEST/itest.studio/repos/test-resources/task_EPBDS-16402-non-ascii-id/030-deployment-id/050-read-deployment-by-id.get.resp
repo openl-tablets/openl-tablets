@@ -10,7 +10,11 @@ Content-Type: application/json
       "name": "Тарифный план",
       "modifiedBy": "admin",
       "modifiedAt": "*",
-      "revision": "*"
+      "designRevision": {
+        "revision": "*",
+        "modifiedBy": "admin",
+        "modifiedAt": "*"
+      }
     }
   ]
 }

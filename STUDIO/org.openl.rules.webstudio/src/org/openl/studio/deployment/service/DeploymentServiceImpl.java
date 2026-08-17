@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
@@ -23,6 +25,8 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
+import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
+import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -43,6 +47,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     private final ObjectProvider<UserWorkspace> userWorkspaceProvider;
     private final ProjectStateValidator projectStateValidator;
     private final AclProjectsHelper aclProjectsHelper;
+    private final ProjectVersionCacheManager projectVersionCacheManager;
 
     @Override
     public List<Deployment> getDeployments(DeploymentCriteriaQuery query) {
@@ -175,6 +180,22 @@ public class DeploymentServiceImpl implements DeploymentService {
             throw new ForbiddenException("default.message");
         }
         deploymentManager.deploy(request);
+    }
+
+    /**
+     * A project whose revision cannot be worked out — unreadable metadata, an unreachable version cache — costs
+     * its own revision only: the error is logged and the rest of the deployment is still listed.
+     */
+    @Override
+    public Optional<CachedProjectVersion> findDesignRevision(AProject deployedProject) {
+        try {
+            return Optional.ofNullable(projectVersionCacheManager.getDesignVersionOfDeployedProject(deployedProject));
+        } catch (Exception e) {
+            // A deploy repository that keeps no version info fails this way for every project, every listing,
+            // so it is a property of the repository to note rather than an incident to raise.
+            log.warn("Failed to find the design revision of deployed project '{}'.", deployedProject.getName(), e);
+            return Optional.empty();
+        }
     }
 
     private UserWorkspace getUserWorkspace() {

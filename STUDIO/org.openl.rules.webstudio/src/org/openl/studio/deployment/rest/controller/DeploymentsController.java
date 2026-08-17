@@ -26,12 +26,15 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.IProject;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.utils.AuditFields;
+import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.deployment.model.DeployProjectModel;
 import org.openl.studio.deployment.model.DeploymentItemViewModel;
 import org.openl.studio.deployment.model.DeploymentViewModel;
+import org.openl.studio.deployment.model.DesignRevisionViewModel;
 import org.openl.studio.deployment.model.RedeployProjectModel;
 import org.openl.studio.deployment.service.DeploymentCriteriaQuery;
 import org.openl.studio.deployment.service.DeploymentService;
@@ -147,7 +150,7 @@ public class DeploymentsController {
     private Optional<DeploymentViewModel> mapToProjectDeployment(Deployment deployment, String projectName) {
         var items = deployment.getProjects().stream()
                 .filter(project -> project.getName().equals(projectName))
-                .map(DeploymentsController::mapToItem)
+                .map(this::mapToItem)
                 .toList();
         if (items.isEmpty()) {
             return Optional.empty();
@@ -169,28 +172,41 @@ public class DeploymentsController {
 
     private DeploymentViewModel mapToFullViewModel(Deployment deployment) {
         return builder(deployment)
-                .items(deployment.getProjects().stream().map(DeploymentsController::mapToItem).toList())
+                .items(deployment.getProjects().stream().map(this::mapToItem).toList())
                 .build();
     }
 
-    private static DeploymentItemViewModel mapToItem(IProject project) {
-        var projectName = project.getName();
-        var builder = DeploymentItemViewModel.builder().name(projectName);
-        fileDataOf(project, projectName).ifPresent(fileData -> {
-            AuditFields.apply(fileData, builder::modifiedBy, builder::modifiedAt, builder::revision);
-        });
+    /**
+     * Describes one deployed project: who deployed it and when, and which design repository revision it was
+     * built from.
+     */
+    private DeploymentItemViewModel mapToItem(IProject project) {
+        var builder = DeploymentItemViewModel.builder().name(project.getName());
+        // A deployment holds its projects as AProject; anything else carries no metadata to describe.
+        if (project instanceof AProject deployedProject) {
+            fileDataOf(deployedProject)
+                    .ifPresent(fileData -> AuditFields.apply(fileData, builder::modifiedBy, builder::modifiedAt));
+            deploymentService.findDesignRevision(deployedProject)
+                    .map(DeploymentsController::mapToDesignRevision)
+                    .ifPresent(builder::designRevision);
+        }
         return builder.build();
     }
 
-    private static Optional<FileData> fileDataOf(IProject project, String projectName) {
-        if (!(project instanceof AProject aProject)) {
-            return Optional.empty();
-        }
+    private static DesignRevisionViewModel mapToDesignRevision(CachedProjectVersion designVersion) {
+        return DesignRevisionViewModel.builder()
+                .revision(designVersion.version())
+                .modifiedBy(designVersion.createdBy())
+                .modifiedAt(DateTimes.atSystemZone(designVersion.createdAt()))
+                .build();
+    }
+
+    private static Optional<FileData> fileDataOf(AProject project) {
         try {
-            return Optional.ofNullable(aProject.getFileData());
+            return Optional.ofNullable(project.getFileData());
         } catch (IllegalStateException e) {
             log.warn("Failed to read deployed project metadata for '{}'. Omitting audit fields.",
-                    projectName, e);
+                    project.getName(), e);
             return Optional.empty();
         }
     }

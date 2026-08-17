@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository.cache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -72,8 +73,23 @@ class ProjectVersionCacheMonitorTest {
         projectVersionCacheMonitor.cacheProjectVersion(project2, ProjectVersionH2CacheDB.RepoType.DESIGN);
         projectVersionCacheMonitor.cacheProjectVersion(project2, ProjectVersionH2CacheDB.RepoType.DEPLOY);
         projectVersionCacheMonitor.cacheProjectVersion(project3, ProjectVersionH2CacheDB.RepoType.DESIGN);
-        var deployedProjectVersion = projectVersionCacheManager.getDeployedProjectVersion(project2);
-        assertEquals(data2.getVersion(), deployedProjectVersion);
+        var designVersion = projectVersionCacheManager.getDesignVersionOfDeployedProject(project2);
+        assertEquals(data2.getVersion(), designVersion.version());
+        assertEquals("Default", designVersion.createdBy());
+        projectVersionCacheDB.closeDb();
+    }
+
+    @Test
+    void nothingIsLookedUpWhileTheDesignRepositoryIsNotIndexed() throws IOException {
+        var path = "project/test";
+        var data = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "1"));
+        var project = new AProject(repo, "project", data.getVersion());
+        projectVersionCacheMonitor.cacheProjectVersion(project, ProjectVersionH2CacheDB.RepoType.DESIGN);
+
+        // Without the indexer nothing can ever match, so hashing the deployed project would be pure loss.
+        projectVersionCacheManager.setEnabled(false);
+
+        assertNull(projectVersionCacheManager.getDesignVersionOfDeployedProject(project));
         projectVersionCacheDB.closeDb();
     }
 

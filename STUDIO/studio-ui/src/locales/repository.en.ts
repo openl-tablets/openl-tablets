@@ -115,15 +115,15 @@ i18next.addResourceBundle('en', 'repository', {
         col_deployment: 'Deployment',
         col_project: 'Project',
         col_revision: 'Revision in Design Repository',
+        revision_unknown: 'No design revision matches the deployed content. It is still being looked up if '
+            + 'the project was just deployed, and stays unknown for a project deployed from another '
+            + 'OpenL Studio.',
         col_modified_by: 'Modified By',
         col_modified_at: 'Modified At',
     },
     browser: {
         refresh: 'Refresh',
         load_error: 'Failed to load repositories',
-        deployments: {
-            revision: 'rev {{revision}}',
-        },
         no_repositories: 'No repositories available',
         no_projects: 'No projects in this repository',
         local_projects: 'Local projects',
@@ -459,6 +459,8 @@ i18next.addResourceBundle('en', 'repository', {
         },
         publish: {
             deployments_title: 'Existing deployments',
+            card_revision: 'Design Revision',
+            card_deployed: 'Deployed',
             no_deployments: 'No active deployments',
             load_failed: 'Failed to load deployments',
         },

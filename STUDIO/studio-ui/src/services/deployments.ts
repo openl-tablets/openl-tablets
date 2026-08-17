@@ -6,11 +6,19 @@ export interface Deployment {
     name: string
 }
 
+/** The revision a deployed project has in the design repository it was built from. */
+export interface DesignRevision {
+    revision: string
+    modifiedBy?: string
+    modifiedAt?: string
+}
+
 export interface DeploymentItem {
     name: string
     modifiedBy?: string
     modifiedAt?: string
-    revision?: string
+    /** Absent while the design repository is still being indexed, and for projects deployed elsewhere. */
+    designRevision?: DesignRevision
 }
 
 export interface DeploymentDetail extends Deployment {

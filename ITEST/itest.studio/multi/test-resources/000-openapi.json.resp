@@ -21673,6 +21673,9 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
+          "designRevision": {
+            "$ref": "#/components/schemas/DesignRevisionViewModel_Full"
+          },
           "modifiedAt": {
             "type": "string",
             "format": "date-time",
@@ -21685,23 +21688,21 @@ Content-Type: application/json
           "name": {
             "type": "string",
             "description": "***"
-          },
-          "revision": {
-            "type": "string",
-            "description": "***"
           }
         },
         "required": [
           "modifiedAt",
           "modifiedBy",
-          "name",
-          "revision"
+          "name"
         ]
       },
       "DeploymentItemViewModel_Short": {
         "type": "object",
         "description": "***",
         "properties": {
+          "designRevision": {
+            "$ref": "#/components/schemas/DesignRevisionViewModel_Short"
+          },
           "modifiedAt": {
             "type": "string",
             "format": "date-time",
@@ -21714,17 +21715,12 @@ Content-Type: application/json
           "name": {
             "type": "string",
             "description": "***"
-          },
-          "revision": {
-            "type": "string",
-            "description": "***"
           }
         },
         "required": [
           "modifiedAt",
           "modifiedBy",
-          "name",
-          "revision"
+          "name"
         ]
       },
       "DeploymentViewModel_Full": {
@@ -21867,6 +21863,50 @@ Content-Type: application/json
             "description": "***"
           }
         }
+      },
+      "DesignRevisionViewModel_Full": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "modifiedBy": {
+            "type": "string",
+            "description": "***"
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": [
+          "revision"
+        ]
+      },
+      "DesignRevisionViewModel_Short": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "modifiedBy": {
+            "type": "string",
+            "description": "***"
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": [
+          "revision"
+        ]
       },
       "DetailedMessageDescription": {
         "type": "object",
