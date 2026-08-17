@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- **Converged at `main` = `35027a736a` (EPBDS-16388 Restore in the Copy table dialog what the wizard guaranteed)**;
+- **Converged at `main` = `f5306e6bf5` (EPBDS-16318 Draw the data model as an ER diagram of typed entities)**;
   every queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector.
 - The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
   unchanged SHA. **The recorded SHA is usually gone from the next clone**, so match its *subject* in
@@ -215,9 +215,10 @@ detector this ledger has never run — not by re-running one of these.
   `ValidationMessages.properties` key is only ever written as its suffix in Java. Search by suffix.
 - A JSF page reaching a bundle as a prefix string concatenated with a lowercased enum name keeps that whole
   `messages.properties` family alive.
-- Property names composed at runtime stay: `repo-default.` plus the repository type plus the suffix, `repository.`
-  plus the id plus `.settings.`, and `openl-db-repository-` plus the database product name; the reference-key suffix
-  is exercised from ITEST init params.
+- Property names composed at runtime stay: `repo-default.` or `repo-` plus the repository type (`jdbc`, `jndi`, `git`,
+  `azure`) plus the suffix, `repository.` plus the id plus `.settings.`, and `openl-db-repository-` plus the database
+  product name; the reference-key suffix is exercised from ITEST init params. An `openl-default.properties` key is
+  therefore routinely written in full by its own defaults file alone, and a `hibernate.*`/`hikari.*` one is library-read.
 - `ApplicationPropertySource` loads `classpath:{appName}.properties`, so a properties file at a jar root can be alive
   through the deployed application's name alone — `DEMO/webservice.properties` is exactly that shape.
 - Spring pulls every `META-INF/openl/extension-*.xml` in through `@ImportResource("classpath*:...")` in
@@ -297,8 +298,7 @@ detector this ledger has never run — not by re-running one of these.
   webstudio Java from a run here.
 - ITEST modules cannot run `pmd:pmd` or `dependency:analyze-only`: the install does not publish `server-core`, so
   those 16 modules fail dependency resolution. They are out of the sweep's scope anyway.
-- Maven Central, registry.npmjs.org and github.com all work, so a jar can be `curl`ed from Central and read with
-  `unzip` plus `javap -c`.
+- Maven Central, registry.npmjs.org and github.com all work: `curl` a jar from Central and read it with `unzip`/`javap -c`.
 - **`sonarcloud.io` is blocked too** — 403 to CONNECT, same shape as shibboleth, confirmed against
   `$HTTPS_PROXY/__agentproxy/status`. So a red `SonarCloud Code Analysis` check can never be diagnosed from here:
   report the failed conditions from the check-run summary and hand the judgement to a maintainer.
@@ -323,7 +323,11 @@ detector this ledger has never run — not by re-running one of these.
 ## Exhausted veins
 
 - Base-name search over every image, `.xhtml` and `.js` file outside `Docs/`, and over all `Docs/` images.
-- Class and id selectors across all 11 hand-written CSS files in STUDIO — no provable orphan but `.te_hidden`.
+- Class and id selectors across all 11 hand-written CSS files in STUDIO — no provable orphan but `.te_hidden`. The
+  at-rule level has no surface at all: no stylesheet here, Bootstrap 2.3.2 included, declares a `@keyframes`, a
+  `@font-face` or a CSS custom property, and studio-ui styles live in `.styles.ts`.
+- All 98 keys of the 8 non-webstudio `openl-default.properties` files; the 8 no full-key search finds outside their
+  own file are reached by leaf — see *Keep-list*.
 - Key-reference scan over `openapi.properties`, `ValidationMessages.properties`, `messages.properties`,
   `sql-errors.properties` and webstudio `openl-default.properties`, plus every leaf key of the 15 studio-ui locale
   bundles, which are all English with no other language.
@@ -387,3 +391,5 @@ detector this ledger has never run — not by re-running one of these.
 
 - 08-16 — run 187: one new `main` commit (EPBDS-16388) swept, nothing orphaned; #2004 unchanged. 390 lines.
 - 08-17 — runs 188-193: idle; `main` and #2004 head unchanged, merges clean, no new comments. 389 lines.
+- 08-17 — run 194: EPBDS-16318 swept (additive; both studio-ui candidates alive), two new veins closed with zero
+  findings, #2004 unchanged. 395 lines.
