@@ -393,4 +393,5 @@ detector this ledger has never run — not by re-running one of these.
 ## Run log
 
 - 08-17 — runs 195-197: idle apart from sweeping EPBDS-16452, which yielded nothing. 398 lines.
-- 08-17 — run 198: idle; `main` still at the Resume point subject, #2004's head and `updated_at` unmoved. 396 lines.
+- 08-17 — runs 198-199: idle; `main` still at the Resume point subject, #2004's head, comment count and
+  `updated_at` unmoved, and it still merges clean against the newer `main`. 397 lines.
