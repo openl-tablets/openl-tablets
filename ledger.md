@@ -2,16 +2,15 @@
 
 ## Resume point
 
-- **Converged at `main` = `f5306e6bf5` (EPBDS-16318 Draw the data model as an ER diagram of typed entities)**;
-  every queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector.
-- The idle pass is two calls: the commits above the resume point and the open-PR check; never re-diagnose CI on an
-  unchanged SHA. **The recorded SHA is usually gone from the next clone**, so match its *subject* in
-  `git log --oneline -25 origin/main` and take every commit above it.
-- Sweep only what those commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`. Read the
-  **deleted** lines first — additive commits orphan nothing; a commit deleting a screen is the richest vein, so check
-  its locale keys, service functions, helper modules, dropped `throws`, and re-extract the class/id selectors over
-  `webstudio/webapp/css`. When a commit swaps a helper call for a new class, search each **method** of that helper
-  separately — the class stays alive through its other callers while the dropped method keeps only its own test.
+- **Converged at `main` = `f5306e6bf5` (EPBDS-16318 Draw the data model as an ER diagram of typed entities)**; every
+  queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector. That SHA is
+  usually gone from the next clone, so match its *subject* in `git log --oneline -25 origin/main`.
+- The idle pass is two calls: the commits above that subject, and the open-PR baseline; never re-diagnose CI on an
+  unchanged SHA. Sweep only what new commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`,
+  and read their **deleted** lines first — additive commits orphan nothing.
+- A commit deleting a screen is the richest vein: check its locale keys, service functions, helper modules, dropped
+  `throws`, and the class/id selectors over `webstudio/webapp/css`. Search a dropped helper call **per method** — the
+  class survives through its other callers while the dropped method keeps only its own test.
 
 ## Change-type queue
 
@@ -25,7 +24,9 @@ detector this ledger has never run — not by re-running one of these.
   raised nothing, body verified against the diff. Only a maintainer approval is missing — do not re-verify it.
   `mergeable_state` reads `blocked` or `unknown`, neither of which is a conflict — settle it locally with
   `git merge-tree --write-tree origin/main <branch>`. The branch is behind `main` only by unrelated commits and
-  merges clean; never push a catch-up merge to re-run green CI.
+  merges clean; never push a catch-up merge to re-run green CI. Idle baseline: head `0db9f19e7e`, 2 comments, 0 review
+  threads, `updated_at` 08-14T08:54 — that triple unchanged in one `list_pull_requests` call settles the whole PR
+  check, so fetch threads only when a number moved.
 
 ## Merged PRs
 
@@ -119,15 +120,14 @@ detector this ledger has never run — not by re-running one of these.
 - **A pom outside the root aggregator's `<module>` graph is normally a fixture, not an orphan.** All 120 unreachable
   poms are maven-invoker projects under `Util/openl-maven-plugin/it/**` or documentation examples under `Docs/`.
   Only a `<module>` naming a missing directory would be deletable, and there are none.
-- **A signature an incremental diff deletes is usually renamed or moved, not removed.** Renamed on the same stem
-  (`convertRegexToGlob` to `convertRegexToGlobs`); an inline `Pattern.compile` local promoted to a constant; moved
-  into a shared module the diff newly imports (`encodeProjectId` as `toUrlSafeId` in `services/projectId`), or into a
-  new same-package class the commit itself adds (`Branches`, taking the home-branch choice and the branch comparator
-  from two callers at once); moved into a new method of a collaborator the caller already constructs, which is where a
-  deleted **inline condition** goes; the *same* lines dropped from several files promoted to one new named export; and
-  two siblings swapping, where all of `ProjectIdModel.encode` went while `encodeUrlSafe` took over its name and its
-  `@JsonValue`. So read the commit's **added files** and added imports, search the added lines for the stem, and
-  always grep the **post-image** file — a deleted `import` or JSX line returns with one more name on it.
+- **A signature an incremental diff deletes is usually renamed or moved, not removed.** Six shapes seen: renamed on
+  the same stem (`convertRegexToGlob` to `convertRegexToGlobs`); an inline local promoted to a constant; moved into a
+  shared module the diff newly imports, or into a new same-package class the commit itself adds; a deleted **inline
+  condition** moved into a new method of a collaborator the caller already constructs; the *same* lines dropped from
+  several files promoted to one new named export; and two siblings swapping, where `ProjectIdModel.encode` went while
+  `encodeUrlSafe` took over its name and its `@JsonValue`. So read the commit's **added files** and added imports,
+  search the added lines for the stem, and always grep the **post-image** file — a deleted `import` or JSX line
+  returns with one more name on it.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
@@ -391,8 +391,7 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-17 — runs 188-193: idle; `main` and #2004 head unchanged, merges clean, no new comments. 389 lines.
 - 08-17 — run 194: EPBDS-16318 swept (additive; both studio-ui candidates alive), two new veins closed with zero
   findings, #2004 unchanged. 395 lines.
-- 08-17 — run 195: idle; `main` still at the resume point, #2004 unchanged and merging clean, `build.shibboleth.net`
-  re-probed and still 403. 398 lines.
+- 08-17 — runs 195-196: idle; `main` still at the resume point, #2004 at its idle baseline and merging clean.
+  `build.shibboleth.net` re-probed in 195 and still 403. 397 lines.
