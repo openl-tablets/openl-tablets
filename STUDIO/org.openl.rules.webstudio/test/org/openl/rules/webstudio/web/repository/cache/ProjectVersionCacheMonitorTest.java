@@ -1,7 +1,10 @@
 package org.openl.rules.webstudio.web.repository.cache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -13,6 +16,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -69,10 +73,11 @@ class ProjectVersionCacheMonitorTest {
         var project = new AProject(repo, "project", data.getVersion());
         var project2 = new AProject(repo, "project", data2.getVersion());
         var project3 = new AProject(repo, "project", data3.getVersion());
-        projectVersionCacheMonitor.cacheProjectVersion(project, ProjectVersionH2CacheDB.RepoType.DESIGN);
-        projectVersionCacheMonitor.cacheProjectVersion(project2, ProjectVersionH2CacheDB.RepoType.DESIGN);
-        projectVersionCacheMonitor.cacheProjectVersion(project2, ProjectVersionH2CacheDB.RepoType.DEPLOY);
-        projectVersionCacheMonitor.cacheProjectVersion(project3, ProjectVersionH2CacheDB.RepoType.DESIGN);
+        var fileHashCache = new HashMap<String, String>();
+        projectVersionCacheMonitor.cacheProjectVersion(project, ProjectVersionH2CacheDB.RepoType.DESIGN, fileHashCache);
+        projectVersionCacheMonitor.cacheProjectVersion(project2, ProjectVersionH2CacheDB.RepoType.DESIGN, fileHashCache);
+        projectVersionCacheMonitor.cacheProjectVersion(project2, ProjectVersionH2CacheDB.RepoType.DEPLOY, fileHashCache);
+        projectVersionCacheMonitor.cacheProjectVersion(project3, ProjectVersionH2CacheDB.RepoType.DESIGN, fileHashCache);
         var designVersion = projectVersionCacheManager.getDesignVersionOfDeployedProject(project2);
         assertEquals(data2.getVersion(), designVersion.version());
         assertEquals("Default", designVersion.createdBy());
@@ -84,13 +89,65 @@ class ProjectVersionCacheMonitorTest {
         var path = "project/test";
         var data = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "1"));
         var project = new AProject(repo, "project", data.getVersion());
-        projectVersionCacheMonitor.cacheProjectVersion(project, ProjectVersionH2CacheDB.RepoType.DESIGN);
+        projectVersionCacheMonitor.cacheProjectVersion(project,
+                ProjectVersionH2CacheDB.RepoType.DESIGN,
+                new HashMap<>());
 
         // Without the indexer nothing can ever match, so hashing the deployed project would be pure loss.
         projectVersionCacheManager.setEnabled(false);
 
         assertNull(projectVersionCacheManager.getDesignVersionOfDeployedProject(project));
         projectVersionCacheDB.closeDb();
+    }
+
+    @Test
+    void cachesEachVersionOfAProjectSharingTheHashOfAnUnchangedFile() throws IOException {
+        var versions = twoVersionsSharingAnUntouchedFile();
+        var projectV2 = versions.getFirst();
+        var projectV3 = versions.getLast();
+
+        // Index both design versions through one file-hash cache, the way the monitor indexes a project.
+        var fileHashCache = new HashMap<String, String>();
+        projectVersionCacheMonitor.cacheProjectVersion(projectV2, ProjectVersionH2CacheDB.RepoType.DESIGN, fileHashCache);
+        projectVersionCacheMonitor.cacheProjectVersion(projectV3, ProjectVersionH2CacheDB.RepoType.DESIGN, fileHashCache);
+
+        // Each content still resolves to its own design version, despite the shared file b.
+        assertEquals(projectV3.getVersion().getVersionName(),
+                projectVersionCacheManager.getDesignVersionOfDeployedProject(projectV3).version());
+        assertEquals(projectV2.getVersion().getVersionName(),
+                projectVersionCacheManager.getDesignVersionOfDeployedProject(projectV2).version());
+        projectVersionCacheDB.closeDb();
+    }
+
+    @Test
+    void computesTheSameHashWithAWarmCacheAndAColdOne() throws IOException {
+        var versions = twoVersionsSharingAnUntouchedFile();
+        var projectV2 = versions.getFirst();
+        var projectV3 = versions.getLast();
+
+        // A cache warmed by an earlier version must not change the hash of a later one.
+        var warmCache = new HashMap<String, String>();
+        projectVersionCacheManager.computeMD5(projectV2, warmCache);
+        assertEquals(2, warmCache.size(), "both files of the earlier version are memoized");
+
+        var hashWarm = projectVersionCacheManager.computeMD5(projectV3, warmCache);       // b taken from the cache
+        var hashCold = projectVersionCacheManager.computeMD5(projectV3, new HashMap<>()); // b read again
+
+        assertEquals(3, warmCache.size(), "only the changed file is read and memoized again");
+        assertNotNull(hashCold);
+        assertEquals(hashCold, hashWarm);
+    }
+
+    /**
+     * Two consecutive versions of a two-file project in which only file a changes, so file b is untouched
+     * between them. Returned earlier version first.
+     */
+    private List<AProject> twoVersionsSharingAnUntouchedFile() throws IOException {
+        repo.save(createFileData("project/a", "a"), IOUtils.toInputStream("a1"));
+        var v2 = repo.save(createFileData("project/b", "b"), IOUtils.toInputStream("b1"));
+        var v3 = repo.save(createFileData("project/a", "a"), IOUtils.toInputStream("a2"));
+        return List.of(new AProject(repo, "project", v2.getVersion()),  // a1, b1
+                new AProject(repo, "project", v3.getVersion()));        // a2, b1
     }
 
     @Test
@@ -141,14 +198,15 @@ class ProjectVersionCacheMonitorTest {
         monitor.setProjectVersionCacheManager(cacheManager);
         monitor.setDesignRepository(designRepository);
         monitor.setEnabled(true);
-        doNothing().when(monitor).cacheProjectVersion(historicProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
+        doNothing().when(monitor)
+                .cacheProjectVersion(eq(historicProject), eq(ProjectVersionH2CacheDB.RepoType.DESIGN), any());
 
         monitor.run();
 
         verify(branchProject, never()).getVersions();
         verify(branchRepository).listHistory("mapped/Pricing");
         verify(designRepository).getProjectByPath("design", "feature/rates", "mapped/Pricing", "revision-1");
-        verify(monitor).cacheProjectVersion(historicProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
+        verify(monitor).cacheProjectVersion(eq(historicProject), eq(ProjectVersionH2CacheDB.RepoType.DESIGN), any());
         verify(cacheDB).setCacheCalculatedState(true);
     }
 
