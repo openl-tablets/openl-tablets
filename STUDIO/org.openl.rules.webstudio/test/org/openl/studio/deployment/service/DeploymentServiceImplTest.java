@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
 
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -20,18 +23,22 @@ import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
+import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
 /**
- * The deployments listing must survive a broken repository: the broken one is skipped with a logged
- * error while the remaining repositories still answer.
+ * Reading deployments must survive what it cannot reach: a broken repository is skipped with a logged error
+ * while the remaining ones still answer, and an unreadable version cache costs a design revision, not the
+ * whole listing.
  */
 class DeploymentServiceImplTest {
 
     private SecureDeploymentRepositoryService deploymentRepositoryService;
     private DeploymentManager deploymentManager;
+    private ProjectVersionCacheManager projectVersionCacheManager;
     private DeploymentServiceImpl service;
 
     private RepositoryConfiguration broken;
@@ -43,12 +50,14 @@ class DeploymentServiceImplTest {
         deploymentRepositoryService = mock(SecureDeploymentRepositoryService.class);
         deploymentManager = mock(DeploymentManager.class);
         deploymentManager.repositoryFactoryProxy = mock(RepositoryFactoryProxy.class);
+        projectVersionCacheManager = mock(ProjectVersionCacheManager.class);
         service = new DeploymentServiceImpl(mock(ProjectDependencyResolver.class),
                 deploymentRepositoryService,
                 deploymentManager,
                 (ObjectProvider<UserWorkspace>) mock(ObjectProvider.class),
                 mock(ProjectStateValidator.class),
-                mock(AclProjectsHelper.class));
+                mock(AclProjectsHelper.class),
+                projectVersionCacheManager);
 
         broken = config("broken");
         when(deploymentManager.getDeployRepository("broken"))
@@ -98,5 +107,35 @@ class DeploymentServiceImplTest {
         var deployments = service.getDeployments(DeploymentCriteriaQuery.builder().repository("broken").build());
 
         assertTrue(deployments.isEmpty());
+    }
+
+    @Test
+    void the_design_revision_of_a_deployed_project_is_the_one_matching_its_content() throws IOException {
+        var deployedProject = mock(AProject.class);
+        var designVersion = new CachedProjectVersion("design-revision-1", new Date(1_721_000_000_000L), "john");
+        when(projectVersionCacheManager.getDesignVersionOfDeployedProject(deployedProject)).thenReturn(designVersion);
+
+        assertEquals(Optional.of(designVersion), service.findDesignRevision(deployedProject));
+    }
+
+    @Test
+    void no_design_revision_is_reported_when_the_version_cache_cannot_be_read() throws IOException {
+        var deployedProject = mock(AProject.class);
+        when(deployedProject.getName()).thenReturn("Alpha");
+        when(projectVersionCacheManager.getDesignVersionOfDeployedProject(deployedProject))
+                .thenThrow(new IOException("cache is unreadable"));
+
+        assertTrue(service.findDesignRevision(deployedProject).isEmpty());
+    }
+
+    @Test
+    void no_design_revision_is_reported_when_the_deployed_project_has_no_readable_version() throws IOException {
+        var deployedProject = mock(AProject.class);
+        when(deployedProject.getName()).thenReturn("Alpha");
+        // A deployed project with no file data has no version to hash: it must cost its revision, not the listing.
+        when(projectVersionCacheManager.getDesignVersionOfDeployedProject(deployedProject))
+                .thenThrow(new NullPointerException());
+
+        assertTrue(service.findDesignRevision(deployedProject).isEmpty());
     }
 }

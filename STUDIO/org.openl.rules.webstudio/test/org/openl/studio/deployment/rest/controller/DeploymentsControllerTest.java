@@ -7,7 +7,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +17,9 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.IProject;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.deployment.service.DeploymentService;
 import org.openl.studio.projects.converter.ProjectIdentityConverter;
 import org.openl.studio.projects.model.ProjectIdModel;
@@ -69,7 +73,37 @@ class DeploymentsControllerTest {
         assertEquals("Alpha", item.name);
         assertNull(item.modifiedBy);
         assertNull(item.modifiedAt);
-        assertNull(item.revision);
+        assertNull(item.designRevision);
+    }
+
+    @Test
+    void get_deployment_reports_the_design_revision_a_deployed_project_was_built_from() {
+        var service = mock(DeploymentService.class);
+        var project = project("Alpha");
+        var deployments = List.of(deployment("prod", "Service One", project));
+        when(service.getDeployments(any())).thenReturn(deployments);
+        when(service.findDesignRevision(project)).thenReturn(Optional
+                .of(new CachedProjectVersion("design-revision-1", new Date(1_721_000_000_000L), "john")));
+        var controller = new DeploymentsController(service, mock(ProjectIdentityConverter.class));
+        var id = ProjectIdModel.builder().repository("prod").projectName("Service One").build().encode();
+
+        var item = controller.getDeployment(id).items.getFirst();
+
+        assertEquals("design-revision-1", item.designRevision.revision);
+        assertEquals("john", item.designRevision.modifiedBy);
+        assertEquals(DateTimes.atSystemZone(new Date(1_721_000_000_000L)), item.designRevision.modifiedAt);
+    }
+
+    @Test
+    void get_deployment_omits_the_design_revision_when_no_design_revision_matches() {
+        var service = mock(DeploymentService.class);
+        var deployments = List.of(deployment("prod", "Service One", "Alpha"));
+        when(service.getDeployments(any())).thenReturn(deployments);
+        when(service.findDesignRevision(any())).thenReturn(Optional.empty());
+        var controller = new DeploymentsController(service, mock(ProjectIdentityConverter.class));
+        var id = ProjectIdModel.builder().repository("prod").projectName("Service One").build().encode();
+
+        assertNull(controller.getDeployment(id).items.getFirst().designRevision);
     }
 
     private static Deployment deployment(String repositoryId, String deploymentName, String... projectNames) {
@@ -78,11 +112,11 @@ class DeploymentsControllerTest {
                 .toList());
     }
 
-    private static Deployment deployment(String repositoryId, String deploymentName, IProject... projects) {
+    private static Deployment deployment(String repositoryId, String deploymentName, AProject... projects) {
         return deployment(repositoryId, deploymentName, List.of(projects));
     }
 
-    private static Deployment deployment(String repositoryId, String deploymentName, List<IProject> projects) {
+    private static Deployment deployment(String repositoryId, String deploymentName, List<? extends IProject> projects) {
         var repository = mock(Repository.class);
         when(repository.getId()).thenReturn(repositoryId);
 
@@ -90,12 +124,13 @@ class DeploymentsControllerTest {
         when(deployment.getRepository()).thenReturn(repository);
         when(deployment.getDeploymentName()).thenReturn(deploymentName);
         when(deployment.getName()).thenReturn(deploymentName);
-        when(deployment.getProjects()).thenReturn(projects);
+        when(deployment.getProjects()).thenReturn(List.copyOf(projects));
         return deployment;
     }
 
-    private static IProject project(String name) {
-        var project = mock(IProject.class);
+    /** A deployed project as a deployment carries it: an {@link AProject} with no metadata of its own. */
+    private static AProject project(String name) {
+        var project = mock(AProject.class);
         when(project.getName()).thenReturn(name);
         return project;
     }

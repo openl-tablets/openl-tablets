@@ -30,7 +30,33 @@ public class ProjectVersionCacheManager implements InitializingBean {
     @Setter
     private ProjectVersionH2CacheDB projectVersionCacheDB;
 
-    public String getDeployedProjectVersion(AProject project) throws IOException {
+    /**
+     * Whether the design repository is indexed at all. Nothing is looked up while it is not: without an index
+     * every lookup would hash the deployed project only to find nothing.
+     */
+    @Setter
+    private boolean enabled = true;
+
+    /**
+     * Finds the design repository revision a deployed project was built from.
+     *
+     * <p>A deployed project carries no reference back to its origin, so it is recognized by its content: the
+     * revision returned is the latest design revision of the project whose files are the same. Deployments of
+     * two design revisions with the same content are therefore indistinguishable.
+     *
+     * <p>The design repository is indexed in the background by {@link ProjectVersionCacheMonitor}. Until the
+     * revision reaches the index it cannot be found, and a project deployed from a design repository this
+     * OpenL Studio does not have is never found.
+     *
+     * @param project the deployed project
+     * @return the design revision, or {@code null} when none matches
+     */
+    public CachedProjectVersion getDesignVersionOfDeployedProject(AProject project) throws IOException {
+        if (!enabled) {
+            return null;
+        }
+        // Before anything is written: hashing the deployed project below would itself fill an emptied cache
+        // and hide that the design index has to be rebuilt.
         ensureCacheIsNotEmpty();
         var md5 = getProjectMD5(project, ProjectVersionH2CacheDB.RepoType.DEPLOY);
         return md5 != null ? projectVersionCacheDB

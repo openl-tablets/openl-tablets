@@ -738,6 +738,18 @@ OpenL Studio displays only the latest revisions of each deployment in the deploy
 
 When browsing deployments in the deployment repository, users can see their content, namely what rules projects are deployed.
 
+For every deployed project, the list displays the following information:
+
+-   **Revision in Design Repository** — the revision the project has in the design repository it was built from, named by who committed it and, underneath, when
+-   **Modified By** and **Modified At** — who deployed the project and when
+
+A deployed project keeps no reference back to where it came from, so its design revision is recognized by content: OpenL Studio indexes the revisions of the design repositories in the background and looks for the one whose files match the deployed project. Two consequences follow:
+
+-   the revision of a project that was just deployed appears once the indexing reaches it, not immediately;
+-   the revision stays unknown for a project deployed from a design repository this OpenL Studio does not have, and for content that no design revision matches.
+
+The indexing is controlled by the `repository.cache.monitor.enabled` property. Switching it off leaves the **Revision in Design Repository** column empty for every deployed project.
+
 ![](images/deployment-repository-deployed-projects.png)
 
 *Deployment repository with deployed projects*

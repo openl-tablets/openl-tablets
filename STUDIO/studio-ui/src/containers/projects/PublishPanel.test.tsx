@@ -26,7 +26,9 @@ vi.mock('antd', () => {
     }
     const Skeleton = () => <div data-testid="publish-loading" />
     const Tag = ({ children }: Record<string, unknown>) => <span>{children as never}</span>
-    return { Alert, Button, Skeleton, Tag }
+    const Tooltip = ({ children, title }: Record<string, unknown>) =>
+        <span title={title as string}>{children as never}</span>
+    return { Alert, Button, Skeleton, Tag, Tooltip }
 })
 
 vi.mock('@ant-design/icons', () => ({
@@ -60,8 +62,12 @@ describe('PublishPanel', () => {
                 repository: 'prod',
                 items: [{
                     name: 'Alpha',
-                    revision: 'abcdef123456',
-                    modifiedAt: '2024-01-02T00:00:00Z',
+                    designRevision: {
+                        revision: 'abcdef123456',
+                        modifiedBy: 'john',
+                        modifiedAt: '2024-01-02T00:00:00Z',
+                    },
+                    modifiedAt: '2024-03-04T00:00:00Z',
                 }],
             }]
             : [])
@@ -81,7 +87,40 @@ describe('PublishPanel', () => {
         expect(getProjectDeployments).toHaveBeenCalledWith('stage', 'Alpha')
         expect(screen.getByTestId('publish-deployment-prod:d1').textContent).toContain('Service One')
         expect(screen.getByTestId('publish-deployment-prod:d1').textContent).toContain('Production')
-        expect(screen.getByTestId('publish-deployment-prod:d1').textContent).toContain('abcdef')
+        // Who authored the deployed revision, never the technical revision id the response still carries.
+        const card = screen.getByTestId('publish-deployment-prod:d1')
+        expect(card.textContent).toContain('john')
+        expect(card.textContent).not.toContain('abcdef')
+        // The revision it carries and the date it was deployed are two labelled facts, not one.
+        expect(card.textContent).toContain('browser.publish.card_revision')
+        expect(card.textContent).toContain('browser.publish.card_deployed')
+        expect(card.textContent).toContain('Jan 2, 2024')
+        expect(card.textContent).toContain('Mar 4, 2024')
+    })
+
+    it('explains the dash when no design revision matches, and still dates the deployment', async () => {
+        vi.mocked(getProjectDeployments).mockImplementation(async (repoId) => repoId === 'prod'
+            ? [{
+                id: 'd1',
+                name: 'Service One',
+                repository: 'prod',
+                items: [{ name: 'Alpha', modifiedAt: '2024-03-04T00:00:00Z' }],
+            }]
+            : [])
+
+        render(
+            <PublishPanel
+                canWrite={false}
+                onChanged={vi.fn()}
+                projectId="p1"
+                projectName="Alpha"
+            />
+        )
+
+        await waitFor(() => expect(getProjectDeployments).toHaveBeenCalledTimes(2))
+
+        expect(screen.getByTitle('deployments.revision_unknown')).toHaveTextContent('\u2014')
+        expect(screen.getByTestId('publish-deployment-prod:d1').textContent).toContain('Mar 4, 2024')
     })
 
     it('reloads project deployments when the project reloads', async () => {
