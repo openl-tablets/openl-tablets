@@ -385,6 +385,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-16 — run 186: idle, twenty-second in a row; `main` and #2004 head unchanged, merges clean, no new comments. 390 lines.
 - 08-16 — run 187: one new `main` commit (EPBDS-16388) swept, nothing orphaned; #2004 unchanged. 390 lines.
 - 08-17 — run 188: idle; `main` and #2004 head unchanged, merges clean, no new comments. 390 lines.
+- 08-17 — run 189: idle; `main` and #2004 head unchanged, merges clean, no new comments. 390 lines.
