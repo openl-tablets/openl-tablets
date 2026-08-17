@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -98,15 +100,18 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         }
         versions.sort(Comparator.comparing(source -> source.version().getVersionInfo().getCreatedAt(),
                 Comparator.reverseOrder()));
+        // Most files survive a revision untouched, so the versions of one project share their file hashes.
+        var fileHashCache = new HashMap<String, String>();
         for (ProjectVersionSource source : versions) {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException("Project monitor cache task is interrupted.");
             }
-            cacheVersionIfAbsent(source);
+            cacheVersionIfAbsent(source, fileHashCache);
         }
     }
 
-    private void cacheVersionIfAbsent(ProjectVersionSource source) throws IOException {
+    private void cacheVersionIfAbsent(ProjectVersionSource source,
+                                      Map<String, String> fileHashCache) throws IOException {
         var branchProject = source.project();
         var projectVersion = source.version();
         if (projectVersion.isDeleted()) {
@@ -126,7 +131,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             if (designProject == null || designProject.isDeleted()) {
                 return;
             }
-            cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
+            cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN, fileHashCache);
         }
     }
 
@@ -139,8 +144,10 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private record ProjectVersionSource(AProject project, ProjectVersion version) {
     }
 
-    void cacheProjectVersion(AProject project, ProjectVersionH2CacheDB.RepoType repoType) throws IOException {
-        var md5 = projectVersionCacheManager.computeMD5(project);
+    void cacheProjectVersion(AProject project,
+                             ProjectVersionH2CacheDB.RepoType repoType,
+                             Map<String, String> fileHashCache) throws IOException {
+        var md5 = projectVersionCacheManager.computeMD5(project, fileHashCache);
         projectVersionCacheDB.insertProject(project.getBusinessName(), project.getVersion(), md5, repoType);
     }
 

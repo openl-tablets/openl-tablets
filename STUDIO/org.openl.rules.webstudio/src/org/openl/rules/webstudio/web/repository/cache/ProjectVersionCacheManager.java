@@ -3,6 +3,8 @@ package org.openl.rules.webstudio.web.repository.cache;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -72,10 +74,27 @@ public class ProjectVersionCacheManager implements InitializingBean {
         }
     }
 
-    public String computeMD5(AProject wsProject) {
+    /**
+     * Computes the content hash of a project version.
+     *
+     * <p>The hash is built from the content and the name of every file of the project, so two versions with
+     * the same content get the same hash whatever repository holds them. The deployment manifest is left out,
+     * because it is written at deploy time and describes the deployment rather than the project.
+     *
+     * <p>Where the repository gives every file an id of its own, the hash of a single file is looked up in
+     * {@code fileHashCache} by that id, so a file left untouched by a revision is read and hashed once for
+     * all the versions sharing the cache. A repository whose ids change on every write, and one that has no
+     * ids at all, simply never hits the cache and reads every file of every version.
+     *
+     * @param wsProject the project version to hash
+     * @param fileHashCache file id to file content hash, shared by the versions of one project
+     * @return the project content hash, or {@code null} when the project has no file to hash
+     */
+    String computeMD5(AProject wsProject, Map<String, String> fileHashCache) {
         var md5Strings = new ArrayList<String>();
         try {
             if (wsProject.getRepository().supports().folders()) {
+                var contentAddressable = wsProject.getRepository().supports().uniqueFileId();
                 final var manName = wsProject.getProject().getFolderPath() + "/" + JarFile.MANIFEST_NAME;
                 for (AProjectArtefact artefact : wsProject.getArtefacts()) {
                     if (manName.equals(artefact.getFileData().getName())) {
@@ -83,15 +102,13 @@ public class ProjectVersionCacheManager implements InitializingBean {
                         continue;
                     }
                     if (artefact instanceof AProjectResource resource) {
-                        try (var content = resource.getContent()) {
-                            md5Strings.add(DigestUtils.md5Hex(content));
-                            var fileName = artefact.getFileData().getName();
-                            var folderPath = wsProject.getFolderPath();
-                            if (!StringUtils.isEmpty(folderPath)) {
-                                fileName = fileName.substring(wsProject.getFolderPath().length() + 1);
-                            }
-                            md5Strings.add(DigestUtils.md5Hex(fileName));
+                        md5Strings.add(computeFileMD5(resource, contentAddressable, fileHashCache));
+                        var fileName = artefact.getFileData().getName();
+                        var folderPath = wsProject.getFolderPath();
+                        if (!StringUtils.isEmpty(folderPath)) {
+                            fileName = fileName.substring(folderPath.length() + 1);
                         }
+                        md5Strings.add(DigestUtils.md5Hex(fileName));
                     }
                 }
             } else {
@@ -122,13 +139,37 @@ public class ProjectVersionCacheManager implements InitializingBean {
                 : DigestUtils.md5Hex(md5Strings.stream().sorted().collect(Collectors.joining()));
     }
 
+    /**
+     * Returns the content hash of a single file, reusing the hash already computed for the same file id.
+     *
+     * <p>The id keys the already computed hashes: a file a revision left untouched keeps its id, so its
+     * content is read and hashed only once. A file without an id is always read.
+     */
+    private String computeFileMD5(AProjectResource resource,
+                                  boolean contentAddressable,
+                                  Map<String, String> fileHashCache) throws ProjectException, IOException {
+        var fileId = contentAddressable ? resource.getFileData().getUniqueId() : null;
+        var cached = fileId != null ? fileHashCache.get(fileId) : null;
+        if (cached != null) {
+            return cached;
+        }
+        try (var content = resource.getContent()) {
+            var md5 = DigestUtils.md5Hex(content);
+            if (fileId != null) {
+                fileHashCache.put(fileId, md5);
+            }
+            return md5;
+        }
+    }
+
     private String getProjectMD5(AProject wsProject, ProjectVersionH2CacheDB.RepoType repoType) throws IOException {
         var hash = projectVersionCacheDB.getHash(wsProject.getBusinessName(),
                 wsProject.getVersion().getVersionName(),
                 wsProject.getVersion().getVersionInfo().getCreatedAt(),
                 repoType);
         if (StringUtils.isEmpty(hash)) {
-            hash = computeMD5(wsProject);
+            // One version on its own: there is no sibling version to share file hashes with.
+            hash = computeMD5(wsProject, new HashMap<>());
             projectVersionCacheDB.insertProject(wsProject.getBusinessName(), wsProject.getVersion(), hash, repoType);
         }
         return hash;
