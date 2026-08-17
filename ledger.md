@@ -392,7 +392,5 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-17 — runs 195-196: idle; no new scope, #2004 at its idle baseline and merging clean. `build.shibboleth.net`
-  re-probed in 195 and still 403. 397 lines.
-- 08-17 — run 197: EPBDS-16452 swept, zero findings — every residual is a rename, a Lombok `@Builder` replacement or
-  Spring-wired, and its three added locale keys all have consumers. #2004 unchanged. 398 lines.
+- 08-17 — runs 195-197: idle apart from sweeping EPBDS-16452, which yielded nothing. 398 lines.
+- 08-17 — run 198: idle; `main` still at the Resume point subject, #2004's head and `updated_at` unmoved. 396 lines.
