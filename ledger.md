@@ -275,6 +275,8 @@ detector this ledger has never run — not by re-running one of these.
 
 - No `gh` CLI. Use the GitHub MCP tools for every PR operation. `git fetch --prune origin` can exceed a 2-minute
   tool timeout on a cold clone; give it 300 s.
+- The `get_comments` method 404s on this repository, so issue comments cannot be listed. Read new activity from the
+  PR's own `comments` count and `updated_at` plus `get_review_comments`; a 404 there is not a missing PR.
 - **The working tree never starts at `origin/main`** — the session opens on a `claude/*` branch and local `main` sits
   at the container's checkout base, an ancestor. Fast-forward first, or a grep answers about the wrong revision.
 - **The whole reactor installs in ~35 min from a cold `~/.m2` with `mvn install -Dquick -DnoPerf -T1C -fae
@@ -389,7 +391,8 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-16 — run 187: one new `main` commit (EPBDS-16388) swept, nothing orphaned; #2004 unchanged. 390 lines.
 - 08-17 — runs 188-193: idle; `main` and #2004 head unchanged, merges clean, no new comments. 389 lines.
 - 08-17 — run 194: EPBDS-16318 swept (additive; both studio-ui candidates alive), two new veins closed with zero
   findings, #2004 unchanged. 395 lines.
+- 08-17 — run 195: idle; `main` still at the resume point, #2004 unchanged and merging clean, `build.shibboleth.net`
+  re-probed and still 403. 398 lines.
