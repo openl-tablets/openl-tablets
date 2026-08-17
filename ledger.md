@@ -2,12 +2,13 @@
 
 ## Resume point
 
-- **Converged at `main` = `f5306e6bf5` (EPBDS-16318 Draw the data model as an ER diagram of typed entities)**; every
-  queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector. That SHA is
-  usually gone from the next clone, so match its *subject* in `git log --oneline -25 origin/main`.
+- **Converged at `main` = `d6d3eb8115` (EPBDS-16452 Show the design revision a deployed project was built from)**;
+  every queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector. That SHA
+  is usually gone from the next clone, so match its *subject* in `git log --oneline -25 origin/main`.
 - The idle pass is two calls: the commits above that subject, and the open-PR baseline; never re-diagnose CI on an
   unchanged SHA. Sweep only what new commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`,
-  and read their **deleted** lines first — additive commits orphan nothing.
+  and read their **deleted** lines first. A purely additive commit orphans nothing, but an identifier it *adds* can
+  arrive with no consumer — check each added locale key and model against a repo-wide search.
 - A commit deleting a screen is the richest vein: check its locale keys, service functions, helper modules, dropped
   `throws`, and the class/id selectors over `webstudio/webapp/css`. Search a dropped helper call **per method** — the
   class survives through its other callers while the dropped method keeps only its own test.
@@ -90,9 +91,10 @@ detector this ledger has never run — not by re-running one of these.
 - **Search an accessor by the property name — the field's own name may never appear as a read.** Lombok
   `@Getter`/`@Setter` generate it, so `TablePart.partName` is reached only as `getPartName`; and a private field can
   exist solely to make a bean property writable — `JavaOpenClassTest.BeanA.gg` is read by no code, but `setGg` is
-  what makes the asserted `gg` property work. Lombok also *replaces* deleted code: a diff dropping a hand-written
-  `@Autowired` constructor plus its import orphans none of its parameters once `@RequiredArgsConstructor` is on the
-  class, with any `@Qualifier` moved onto the field.
+  what makes the asserted `gg` property work. Lombok also *replaces* deleted code, so read the diff's **added
+  annotations** first: a dropped hand-written `@Autowired` constructor orphans none of its parameters once
+  `@RequiredArgsConstructor` is on the class (any `@Qualifier` moves onto the field), and a dropped nested `Builder`
+  class with its `builder()` factory and copy constructor orphans nothing once `@Builder` is.
 - **A test bean is usually named from inside an `.xlsx`/`.xls`, which no text search can see** — `Bean1`, `Bean2`,
   `EPBDS7956`, `IChildBean`, `MyProp`. Unzip every Excel resource and search as UTF-8 and UTF-16LE first. A
   deliberately malformed bean is worse: `epbds6830.BeanA` feeds
@@ -193,8 +195,8 @@ detector this ledger has never run — not by re-running one of these.
   coverage pass goes unverified**. Baseline 164 files / 1460 tests. `no-unused-vars` is `warn`, so read the output,
   not the exit code. `npm ci` works here; `node_modules` is gitignored.
 - When a deletion empties a parent object literal, delete the parent in the same commit.
-- A `Docs/` markdown page that nothing links to is not a candidate — Jekyll publishes it and documentation is this
-  repository's approved source of truth. The whole `Docs/` prose tree is out of scope, duplicated pages included.
+- The whole `Docs/` prose tree is out of scope: Jekyll publishes every page and documentation is this repository's
+  approved source of truth, so an unlinked or duplicated page is not a candidate.
 - **PMD report XML uses namespace `http://pmd.sourceforge.net/report/2.0.0`** (slash-dot, not underscores). A parser
   built for the ruleset namespace silently returns zero violations from a non-empty report. Most `target/pmd.xml`
   files here hold only `<suppressedviolation>` elements — grep `<violation ` to find the reports that matter.
@@ -204,10 +206,9 @@ detector this ledger has never run — not by re-running one of these.
   fails on them. Skip them by name rather than aborting the scan; they declare no profiles and no plugins of ours.
 - GitHub Actions compiles every push against the real opensaml BOM, so CI is the authoritative gate on anything the
   locally stubbed build could not verify.
-- **Never edit a source file while a Maven build is running.** A half-applied edit — import gone, field still
-  there — reads as a genuine compile error and costs the whole reactor pass. Finish the edits, then build.
-- `pgrep -f <pattern>` matches the polling shell's own command line, so a wait loop on it never exits. Poll the
-  log's mtime, or grep the process list for the JVM path instead.
+- **Never edit a source file while a Maven build is running** — a half-applied edit reads as a genuine compile
+  error and costs the whole reactor pass. Finish the edits, then build.
+- `pgrep -f <pattern>` matches the polling shell itself, so a wait loop on it never exits — poll the log's mtime.
 
 ## Keep-list
 
@@ -391,7 +392,7 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-17 — run 194: EPBDS-16318 swept (additive; both studio-ui candidates alive), two new veins closed with zero
-  findings, #2004 unchanged. 395 lines.
-- 08-17 — runs 195-196: idle; `main` still at the resume point, #2004 at its idle baseline and merging clean.
-  `build.shibboleth.net` re-probed in 195 and still 403. 397 lines.
+- 08-17 — runs 195-196: idle; no new scope, #2004 at its idle baseline and merging clean. `build.shibboleth.net`
+  re-probed in 195 and still 403. 397 lines.
+- 08-17 — run 197: EPBDS-16452 swept, zero findings — every residual is a rename, a Lombok `@Builder` replacement or
+  Spring-wired, and its three added locale keys all have consumers. #2004 unchanged. 398 lines.
