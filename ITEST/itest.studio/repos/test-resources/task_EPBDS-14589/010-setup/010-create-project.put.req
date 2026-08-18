@@ -1,0 +1,18 @@
+PUT /rest/repos/design/projects/EPBDS_14589?comment=EPBDS-14589%20Create%20a%20project%20in%20a%20database%20repository HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="templateType"
+
+predefined
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="templateCategory"
+
+templates
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="templateName"
+
+Sample Project
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

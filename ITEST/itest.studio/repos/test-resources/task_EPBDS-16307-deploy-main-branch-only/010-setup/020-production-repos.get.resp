@@ -21,6 +21,15 @@ Content-Type: application/json
     }
   },
   {
+    "aclId": "UFJPRDpwcm9kdWN0aW9uLWZpbGU=",
+    "id": "production-file",
+    "name": "Deployment File",
+    "type": "repo-file",
+    "capabilities": {
+      "canManage": true
+    }
+  },
+  {
     "aclId": "UFJPRDpwcm9kdWN0aW9uLWdpdA==",
     "id": "production-git",
     "name": "Deployment Git",

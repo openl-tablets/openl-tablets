@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "cHJvZHVjdGlvbi1naXQ6RVBCRFMtMTQ1ODktZ2l0",
+  "name": "EPBDS-14589-git",
+  "repository": "production-git",
+  "items": [
+    {
+      "name": "EPBDS_14589",
+      "modifiedBy": "*",
+      "modifiedAt": "*",
+      "designRevision": {
+        "revision": "*",
+        "modifiedBy": "admin",
+        "modifiedAt": "*"
+      }
+    }
+  ]
+}
+
