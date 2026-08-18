@@ -393,6 +393,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-18 — run 201: idle; the one new `main` commit is a guava property bump, and #2004 is unmoved. 398 lines.
 - 08-18 — run 202: idle; `main` head is still the Resume point commit, no new scope, #2004 unmoved. 398 lines.
 - 08-18 — run 203: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
+- 08-18 — run 204: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
