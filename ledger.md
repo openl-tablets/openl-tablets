@@ -2,10 +2,10 @@
 
 ## Resume point
 
-- **Converged at `main` = `c04c3960cc` (Exclude release.properties from Spotless so releases can pass the format
-  gate)**; every queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector.
-  That SHA is usually gone from the next clone, so match its *subject* in `git log --oneline -25 origin/main`; the
-  commit below it is Bump com.google.guava:guava from 33.6.0-jre to 33.7.0-jre.
+- **Converged at `main` = `a1658b7a79` (Drop the common.css titleColumn rules orphaned by the retired commit info
+  dialog — this routine's own merged commit)**; every queue row and vein done. New scope arrives only as new commits
+  on `main` — never invent a detector. That SHA is usually gone from the next clone, so match its *subject* in
+  `git log --oneline -25 origin/main`; the commit below it excludes release.properties from Spotless.
 - The idle pass is two calls: the commits above that subject, and the open-PR baseline; never re-diagnose CI on an
   unchanged SHA. Sweep only what new commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`,
   and read their **deleted** lines first. A purely additive commit orphans nothing, but an identifier it *adds* can
@@ -21,19 +21,16 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Open PR
 
-- #2004 on `dead-code/webstudio-css`, head `0db9f19e7e`, one commit: *Drop the common.css titleColumn rules orphaned by
-  the retired commit info dialog* (11 CSS lines). All 14 checks green, SonarCloud Quality Gate passed, CodeRabbit
-  raised nothing, body verified against the diff. Only a maintainer approval is missing — do not re-verify it.
-  `mergeable_state` reads `blocked` or `unknown`, neither of which is a conflict — settle it locally with
-  `git merge-tree --write-tree origin/main <branch>`. The branch is behind `main` only by unrelated commits and
-  merges clean; never push a catch-up merge to re-run green CI. Idle baseline: head `0db9f19e7e`, 2 comments, 0 review
-  threads, `updated_at` 08-14T08:54 — that triple unchanged in one `list_pull_requests` call settles the whole PR
-  check, so fetch threads only when a number moved.
+None. Open the next one from a fresh branch off the current `main`.
 
 ## Merged PRs
 
 - #1933 and #1940 both merged by yurkom with the SonarCloud Quality Gate red. That gate is **twice-confirmed as not
   blocking a deletion-only sweep**: state its conditions, leave the call to the maintainer, do not chase it.
+- #2004, 11 CSS lines, merged after four days green and unreviewed — a deletion PR waits on a maintainer, and
+  `mergeable_state` `blocked` or `unknown` is that wait, never a conflict. Settle mergeability locally with
+  `git merge-tree --write-tree origin/main <branch>`; never push a catch-up merge to re-run green CI. Head SHA,
+  comment count and `updated_at` unchanged together settle the whole PR check in one call.
 
 ## Module coverage
 
@@ -393,6 +390,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-18 — run 205: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
 - 08-18 — run 206: one new `main` commit, an additive Spotless exclude in the root pom; nothing orphaned. 399 lines.
 - 08-18 — run 207: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
+- 08-18 — run 208: #2004 merged as `a1658b7a79`; record collapsed, branch deleted, no open PR left. 395 lines.
