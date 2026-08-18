@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "cHJvZHVjdGlvbi1maWxlOkVQQkRTLTE0NTg5LWZpbGU=",
+  "name": "EPBDS-14589-file",
+  "repository": "production-file",
+  "items": [
+    {
+      "name": "EPBDS_14589",
+      "modifiedBy": "*",
+      "modifiedAt": "*",
+      "designRevision": {
+        "revision": "*",
+        "modifiedBy": "admin",
+        "modifiedAt": "*"
+      }
+    }
+  ]
+}
+
