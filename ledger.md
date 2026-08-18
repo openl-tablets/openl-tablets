@@ -390,6 +390,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-18 — run 206: one new `main` commit, an additive Spotless exclude in the root pom; nothing orphaned. 399 lines.
 - 08-18 — run 207: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
 - 08-18 — run 208: #2004 merged as `a1658b7a79`; record collapsed, branch deleted, no open PR left. 395 lines.
+- 08-18 — run 209: idle; `main` head still `a1658b7a79`, no open dead-code PR, all veins done. 395 lines.
