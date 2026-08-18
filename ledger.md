@@ -2,17 +2,16 @@
 
 ## Resume point
 
-- **Converged at `main` = `a1658b7a79` (Drop the common.css titleColumn rules orphaned by the retired commit info
-  dialog — this routine's own merged commit)**; every queue row and vein done. New scope arrives only as new commits
-  on `main` — never invent a detector. That SHA is usually gone from the next clone, so match its *subject* in
-  `git log --oneline -25 origin/main`; the commit below it excludes release.properties from Spotless.
-- The idle pass is two calls: the commits above that subject, and the open-PR baseline; never re-diagnose CI on an
-  unchanged SHA. Sweep only what new commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`,
-  and read their **deleted** lines first. A purely additive commit orphans nothing, but an identifier it *adds* can
-  arrive with no consumer — check each added locale key and model against a repo-wide search.
-- A commit deleting a screen is the richest vein: check its locale keys, service functions, helper modules, dropped
-  `throws`, and the class/id selectors over `webstudio/webapp/css`. Search a dropped helper call **per method** — the
-  class survives through its other callers while the dropped method keeps only its own test.
+- **Converged**: every queue row and vein done, `main` at this routine's own commit `a1658b7a79` *Drop the common.css
+  titleColumn rules orphaned by the retired commit info dialog*. That SHA is usually gone from the next clone — match
+  the **subject** in `git log --oneline -25 origin/main`. New scope is only the commits above it; never invent a
+  detector. The idle pass is two calls: those commits, and the open-PR baseline. Never re-diagnose CI on an
+  unchanged SHA.
+- Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`, and read its
+  **deleted** lines first — but an identifier an additive commit *adds* can also land with no consumer, so check each
+  added locale key and model repo-wide. A commit deleting a screen is the richest vein: its locale keys, service
+  functions, helper modules, dropped `throws`, and class/id selectors over `webstudio/webapp/css`. Search a dropped
+  helper **per method** — the class survives through its other callers while the dropped method keeps only its own test.
 
 ## Change-type queue
 
@@ -390,6 +389,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-18 — run 209: idle; `main` head still `a1658b7a79`, no open dead-code PR, all veins done. 395 lines.
 - 08-18 — run 210: idle; third consecutive unchanged `main` head, no open dead-code PR, no compaction owed. 395 lines.
 - 08-18 — run 211: idle; fourth unchanged head, the tip also confirmed against GitHub, no open dead-code PR. 395 lines.
+- 08-18 — run 212: idle; fifth unchanged head, confirmed against GitHub. Tightened the Resume point to its spec. 394 lines.
