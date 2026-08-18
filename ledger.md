@@ -393,7 +393,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-18 — run 204: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
 - 08-18 — run 205: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
-- 08-18 — run 206: one new `main` commit, an additive Spotless exclude in the root pom; nothing orphaned. #2004
-  unmoved. Resume point advanced. 399 lines.
+- 08-18 — run 206: one new `main` commit, an additive Spotless exclude in the root pom; nothing orphaned. 399 lines.
+- 08-18 — run 207: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
