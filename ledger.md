@@ -2,10 +2,10 @@
 
 ## Resume point
 
-- **Converged at `main` = `cc1a46c095` (Bump com.google.guava:guava from 33.6.0-jre to 33.7.0-jre)**; every queue row
-  and vein done. New scope arrives only as new commits on `main` — never invent a detector. That SHA is usually gone
-  from the next clone, so match its *subject* in `git log --oneline -25 origin/main`; the commit below it is
-  EPBDS-16452 Show the design revision a deployed project was built from.
+- **Converged at `main` = `c04c3960cc` (Exclude release.properties from Spotless so releases can pass the format
+  gate)**; every queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector.
+  That SHA is usually gone from the next clone, so match its *subject* in `git log --oneline -25 origin/main`; the
+  commit below it is Bump com.google.guava:guava from 33.6.0-jre to 33.7.0-jre.
 - The idle pass is two calls: the commits above that subject, and the open-PR baseline; never re-diagnose CI on an
   unchanged SHA. Sweep only what new commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`,
   and read their **deleted** lines first. A purely additive commit orphans nothing, but an identifier it *adds* can
@@ -393,6 +393,7 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-18 — run 203: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
 - 08-18 — run 204: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
 - 08-18 — run 205: idle; `main` head still the Resume point subject, #2004 head and `updated_at` unmoved. 398 lines.
+- 08-18 — run 206: one new `main` commit, an additive Spotless exclude in the root pom; nothing orphaned. #2004
+  unmoved. Resume point advanced. 399 lines.
