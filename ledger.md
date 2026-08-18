@@ -2,9 +2,10 @@
 
 ## Resume point
 
-- **Converged at `main` = `d6d3eb8115` (EPBDS-16452 Show the design revision a deployed project was built from)**;
-  every queue row and vein done. New scope arrives only as new commits on `main` — never invent a detector. That SHA
-  is usually gone from the next clone, so match its *subject* in `git log --oneline -25 origin/main`.
+- **Converged at `main` = `cc1a46c095` (Bump com.google.guava:guava from 33.6.0-jre to 33.7.0-jre)**; every queue row
+  and vein done. New scope arrives only as new commits on `main` — never invent a detector. That SHA is usually gone
+  from the next clone, so match its *subject* in `git log --oneline -25 origin/main`; the commit below it is
+  EPBDS-16452 Show the design revision a deployed project was built from.
 - The idle pass is two calls: the commits above that subject, and the open-PR baseline; never re-diagnose CI on an
   unchanged SHA. Sweep only what new commits touch, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`,
   and read their **deleted** lines first. A purely additive commit orphans nothing, but an identifier it *adds* can
@@ -392,6 +393,6 @@ detector this ledger has never run — not by re-running one of these.
 
 ## Run log
 
-- 08-17 — runs 195-197: idle apart from sweeping EPBDS-16452, which yielded nothing. 398 lines.
 - 08-17 — runs 198-199: idle; `main` at the Resume point subject and #2004 unmoved, still merging clean. 397 lines.
 - 08-18 — run 200: idle; same `main` subject, and #2004's head and `updated_at` both unchanged. 397 lines.
+- 08-18 — run 201: idle; the one new `main` commit is a guava property bump, and #2004 is unmoved. 398 lines.
