@@ -1727,6 +1727,12 @@
                                      and the Jetty distribution must stay intact. -->
                                 <exclude>DEMO/jre/**</exclude>
                                 <exclude>DEMO/jetty-home/**</exclude>
+                                <!-- State of an in-flight release, written by maven-release-plugin next to
+                                     the root pom before it runs the preparation goals. Its values are the
+                                     plugin's own, trailing space in scm.commentPrefix included, so
+                                     reformatting it either fails the release or corrupts the commit
+                                     messages of a resumed one. -->
+                                <exclude>release.properties</exclude>
                             </excludes>
                             <trimTrailingWhitespace />
                             <endWithNewline />
