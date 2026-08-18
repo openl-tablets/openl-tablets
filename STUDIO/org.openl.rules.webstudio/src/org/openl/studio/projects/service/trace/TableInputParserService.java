@@ -1,8 +1,13 @@
 package org.openl.studio.projects.service.trace;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.studio.common.exception.BadRequestException;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -43,7 +48,43 @@ public interface TableInputParserService {
      * @param mapper    ObjectMapper configured for the project with appropriate
      *                  type converters and serialization settings
      * @return parsed result containing parameters array and optional runtime context
-     * @throws IllegalArgumentException if the JSON is malformed or cannot be parsed
+     * @throws BadRequestException if the JSON is malformed or does not fit the method signature
      */
     ParseResult parseInput(String inputJson, IOpenMethod method, ObjectMapper mapper);
+
+    /**
+     * Reads a single parameter value from its JSON.
+     *
+     * <p>A spreadsheet result parameter is read in the same shape OpenL Rule Services publishes for it, so
+     * the request body of a deployed service can be replayed as is. Any other parameter is read into its own
+     * type.
+     *
+     * @param json          JSON of that one parameter value
+     * @param parameterType declared type of the parameter
+     * @param mapper        ObjectMapper configured for the project
+     * @return the parameter value, {@code null} when the JSON is the {@code null} literal
+     * @throws IOException if the JSON cannot be read as the parameter type
+     */
+    @Nullable
+    Object parseParameter(String json, IOpenClass parameterType, ObjectMapper mapper) throws IOException;
+
+    /**
+     * Writes parameter values and a runtime context as the structured format {@link #parseInput} reads back.
+     *
+     * <p>Spreadsheet result values are written in the shape OpenL Rule Services publishes, which is the shape
+     * {@link #parseParameter} reads.
+     *
+     * @param params         parameter values in the order of the method signature; shorter arrays and
+     *                       {@code null} elements are written as JSON nulls
+     * @param runtimeContext runtime context to include, omitted when {@code null}
+     * @param method         the method the values belong to, or {@code null} when its table is gone; the values
+     *                       are then left out, as there are no names to write them under
+     * @param mapper         ObjectMapper configured for the project
+     * @return JSON of the form {@code {"params": {...}, "runtimeContext": {...}}}
+     * @throws IOException if a value cannot be written
+     */
+    String formatInput(Object @Nullable [] params,
+                       @Nullable IRulesRuntimeContext runtimeContext,
+                       @Nullable IOpenMethod method,
+                       ObjectMapper mapper) throws IOException;
 }

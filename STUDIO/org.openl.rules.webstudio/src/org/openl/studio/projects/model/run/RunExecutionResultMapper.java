@@ -16,6 +16,7 @@ import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.studio.common.utils.SpreadsheetResultBean;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
 
@@ -60,10 +61,21 @@ public class RunExecutionResultMapper {
         var executionParamNames = results.getTestDataColumnDisplayNames();
         var parameters = IntStream.range(0, executionParams.length).mapToObj(i -> {
             var param = executionParams[i];
+            // A spreadsheet result argument is echoed — and described — through the bean class generated for it,
+            // the same shape the result itself is written in. Written as it stands it comes out as the engine's
+            // internal row/column tables, which no client can read back.
+            var spreadsheetResult = SpreadsheetResultBean.of(param.getType());
+            var value = spreadsheetResult == null
+                    ? param.getValue()
+                    : SpreadsheetResult.convertSpreadsheetResult(param.getValue(), spreadsheetResult.beanClass(),
+                            param.getType(), sprNamingStrategy);
             return ParameterValue.builder()
                     .name(param.getName())
-                    .value(objectMapper.valueToTree(param.getValue()))
-                    .schema(SafeSchemaGenerator.generate(schemaGenerator, param.getType().getInstanceClass()))
+                    .value(objectMapper.valueToTree(value))
+                    .schema(SafeSchemaGenerator.generate(schemaGenerator,
+                            spreadsheetResult != null
+                                    ? spreadsheetResult.beanClass()
+                                    : param.getType().getInstanceClass()))
                     .description(executionParamNames[i])
                     .build();
         }).toList();

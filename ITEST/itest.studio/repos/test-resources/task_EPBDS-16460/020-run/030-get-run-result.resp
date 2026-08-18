@@ -1,0 +1,31 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "PolicyOverrideCalculation",
+  "tableId": "0f30f36c590ef243c5787659b8e01a21",
+  "executionTimeMs": "*",
+  "result": {
+    "Doubled": 14.0,
+    "PlanCode": "P1"
+  },
+  "resultSchema": "***",
+  "parameters": [
+    {
+      "name": "ratingDetails",
+      "description": "ratingDetails",
+      "value": {
+        "Plan": "P1",
+        "Coverages": [
+          {
+            "code": "C1",
+            "premium": 3.0
+          }
+        ],
+        "Total": 7.0
+      },
+      "schema": "***"
+    }
+  ]
+}
+
