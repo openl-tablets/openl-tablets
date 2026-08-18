@@ -3,12 +3,14 @@ package org.openl.studio.projects.service.trace;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
@@ -82,6 +84,25 @@ class TableInputParserServiceImplTest {
         var result = parser.parseInput("{\"params\":{\"policy\":{\"policyID\":\"F900\"}}}", method, mapper);
 
         assertEquals("F900", ((Policy) result.params()[0]).policyID);
+    }
+
+    @Test
+    void plainValueFillsTheOnlyParameter() {
+        var method = method(new String[]{"amount"}, new Class<?>[]{int.class});
+
+        var result = parser.parseInput("7", method, mapper);
+
+        assertEquals(7, result.params()[0]);
+        assertNull(result.runtimeContext());
+    }
+
+    @Test
+    void inputThatDoesNotFitTheSignatureIsRejectedAsABadRequest() {
+        var method = method(new String[]{"amount"}, new Class<?>[]{int.class});
+
+        var error = assertThrows(BadRequestException.class, () -> parser.parseInput("\"abc\"", method, mapper));
+
+        assertEquals("openl.error.400.table.input.invalid.message", error.getErrorCode());
     }
 
     @Test

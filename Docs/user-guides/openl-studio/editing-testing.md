@@ -408,7 +408,7 @@ Tracing is available for everything that can be run:
 
         *Entering parameters for a rule table*
 
-    -   **JSON** — for advanced use. If a developer gave you the input as a JSON request, for example taken from a log, paste it here instead of filling in the fields. If the rule uses a runtime context (**Provide runtime context** is on in its deploy configuration), the JSON must include the `context` object. Most users can ignore this option and stay on **Tree Form**.
+    -   **JSON** — for advanced use. If a developer gave you the input as a JSON request, for example taken from a log, paste it here instead of filling in the fields. If the rule uses a runtime context (**Provide runtime context** is on in its deploy configuration), the JSON must include the `context` object. A parameter that is itself another spreadsheet's result is written by that spreadsheet's step names, exactly as OpenL Rule Services publishes it, so a request captured from a deployed service can be pasted as is. Most users can ignore this option and stay on **Tree Form**.
 
         ![JSON input option for tracing](images/trace-json-option.png "Tracing with JSON input")
 

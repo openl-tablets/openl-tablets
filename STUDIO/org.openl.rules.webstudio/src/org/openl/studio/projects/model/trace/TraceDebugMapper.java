@@ -33,7 +33,6 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.CustomSpreadsheetResultField;
-import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -51,6 +50,7 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.xls.XlsUtil;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.studio.common.utils.SpreadsheetResultBean;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.trace.CallNode;
@@ -1283,7 +1283,8 @@ public class TraceDebugMapper {
         if (type == null || type.getInstanceClass() == null) {
             return null;
         }
-        var clazz = type instanceof CustomSpreadsheetResultOpenClass csr ? csr.getBeanClass() : type.getInstanceClass();
+        var spreadsheetResult = SpreadsheetResultBean.of(type);
+        var clazz = spreadsheetResult != null ? spreadsheetResult.beanClass() : type.getInstanceClass();
         return SafeSchemaGenerator.generate(schemaGenerator, clazz);
     }
 
@@ -1292,7 +1293,8 @@ public class TraceDebugMapper {
             return null;
         }
         try {
-            Class<?> toType = type instanceof CustomSpreadsheetResultOpenClass csr ? csr.getBeanClass() : null;
+            var spreadsheetResult = type != null ? SpreadsheetResultBean.of(type) : null;
+            Class<?> toType = spreadsheetResult != null ? spreadsheetResult.beanClass() : null;
             Object converted = SpreadsheetResult.convertSpreadsheetResult(value, toType, type, null);
             return objectMapper.valueToTree(converted);
         } catch (Exception e) {
