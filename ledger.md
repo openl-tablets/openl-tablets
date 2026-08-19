@@ -2,10 +2,12 @@
 
 ## Resume point
 
-- **Converged, and `origin/main` has yielded nothing for seven runs running**: every queue row and vein is done. Tip
-  *Correct 6.4.0 release date* — match that **subject** in `git log --oneline -25 origin/main`, since the SHA is gone
-  from a fresh clone. New scope is only the commits above it; never invent a detector. The idle pass is two calls,
-  those commits and the open-PR baseline. Never re-diagnose CI on an unchanged SHA.
+- **Converged, and `origin/main` has yielded nothing for eight runs running**: every queue row and vein is done. Tip
+  is the *prepare for next development iteration* commit directly above *[maven-release-plugin] prepare release
+  6.4.0* — match the **release subject** in `git log --oneline -25 origin/main`, since the SHA is gone from a fresh
+  clone and the iteration subject repeats at every release. New scope is only the commits above that pair; never
+  invent a detector. The idle pass is two calls, those commits and the open-PR baseline. Never re-diagnose CI on an
+  unchanged SHA.
 - Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`; read its
   **deleted** lines first, and check every locale key, image and model an additive commit *adds* repo-wide too. A
   commit deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws`
@@ -157,6 +159,8 @@ None. Open the next one from a fresh branch off the current `main`.
   **inside** that file too. This one rule killed every member candidate ever raised: a secondary top-level class used
   by its file's primary class, a helper called only by its own file's other methods, and a TS type alias read only by
   a sibling interface's field, all look orphaned.
+- A maven-release-plugin pair (*prepare release*, *prepare for next development iteration*) rewrites every pom but
+  deletes only version and scm tag values, so it orphans nothing — screen it by that deleted-line set and skip it.
 - For a bundle key, search the full dotted path **and** the bare leaf name; either hit means keep.
 - Validate any bulk detector on two fabricated names *and* one known-live name — a fabricated hit or a live miss
   means the search is wrong. For a linter, plant a violation and confirm it is reported.
@@ -361,6 +365,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-19 — run 218: idle; `origin/main` unmoved, no open dead-code PR. 394 lines.
 - 08-19 — run 219: one additive `Docs/` commit on `main` orphaned nothing; compilation-reachability vein closed empty.
 - 08-19 — run 220: idle, one `Docs/` date commit on `main`; ledger compacted 399 to 366 lines.
+- 08-19 — run 221: idle; the 6.4.0 release-plugin pair on `main` orphaned nothing, no open dead-code PR.
