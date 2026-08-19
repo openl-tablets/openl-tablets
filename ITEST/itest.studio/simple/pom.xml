@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest.studio</artifactId>
-        <version>6.4.0</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.studio.simple</artifactId>
