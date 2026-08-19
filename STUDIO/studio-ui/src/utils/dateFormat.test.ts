@@ -9,7 +9,13 @@ describe('dateFormat', () => {
         expect(formatted).toContain('2026')
         expect(formatted).toContain('Jul')
         // a literal pattern in the output means the localizedFormat plugin is not registered
-        expect(formatted).not.toContain('lll')
+        expect(formatted).not.toContain('LTS')
+    })
+
+    // Revisions, deployments and locks are routinely made within the same minute; without seconds
+    // two of them read alike and there is nothing to tell them apart. See EPBDS-16458.
+    it('shows the time down to the second', () => {
+        expect(formatDateTime('2026-07-15T12:00:38Z')).toMatch(/\d:\d{2}:38\b/)
     })
 
     it('returns null for a missing date-time value', () => {

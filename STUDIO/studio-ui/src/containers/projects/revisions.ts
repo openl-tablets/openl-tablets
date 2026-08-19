@@ -5,25 +5,36 @@ import { getFileRevisions } from '../../services/files'
 import type { Project } from '../../types/projects'
 import { formatDateTime } from '../../utils/dateFormat'
 
-/** How many characters of a revision identify it on screen. */
+/** How many characters of a revision hash identify it on screen. */
 const SHORT_REVISION_LENGTH = 6
 
+/** A revision a repository counts rather than hashes, such as the row id a database repository assigns. */
+const NUMBERED_REVISION = /^-?\d+$/
+
 /**
- * The technical revision as it is shown: shortened, the way every screen shows it.
+ * The technical revision as it is shown: a hash cut to its leading characters, a counted revision whole.
+ *
+ * Cutting a counted revision would name a different one — revision 1000123 shown as 100012 — and give
+ * the same name to its nine neighbours, so only a hash is shortened.
  *
  * The full value stays in the model — it is what the server is asked about and what a user copies.
  */
-export const shortRevision = (revision: string): string => revision.slice(0, SHORT_REVISION_LENGTH)
+export const shortRevision = (revision: string): string => NUMBERED_REVISION.test(revision)
+    ? revision
+    : revision.slice(0, SHORT_REVISION_LENGTH)
 
 /**
- * How a revision reads to a business user: who changed the project and when.
+ * How a revision reads to a business user: which revision it is, then who changed the project and when.
  *
- * The technical revision number is what travels to the server; it is never what the user picks by.
+ * The revision opens the label because it is the only part that is always unique, and because the
+ * dropdowns showing it are narrow: a label too long for the field is cut at the end, so anything
+ * placed after the author and the date would be the first thing lost.
  */
 export const revisionLabel = (revision: ProjectRevision): string => {
     const author = revision.author?.displayName ?? revision.author?.email
     const changedAt = formatDateTime(revision.createdAt) ?? revision.createdAt
-    return author ? `${author}: ${changedAt}` : changedAt
+    const changedBy = author ? `${author}: ${changedAt}` : changedAt
+    return `${shortRevision(revision.revisionNo)} · ${changedBy}`
 }
 
 export interface ProjectRevisions {

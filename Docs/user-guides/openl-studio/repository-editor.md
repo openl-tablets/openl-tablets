@@ -336,7 +336,10 @@ Any project revision can be opened, with the project status set to **Viewing Rev
 To open a project revision using the **Open Revision** button, proceed as follows:
 
 1.  Click the **Open Revision** button.
-2.  In the **Project Revisions** field, select the required revision.
+2.  In the **Project Revision** field, select the required revision.
+
+    A revision is listed by its number, followed by the author and the time it was created,
+    so revisions made moments apart can be told apart.
 
     ![](images/open-project-revision-dialog.png)
 

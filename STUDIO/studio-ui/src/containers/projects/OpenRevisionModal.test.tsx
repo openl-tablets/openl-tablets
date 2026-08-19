@@ -103,8 +103,10 @@ describe('OpenRevisionModal', () => {
     it('offers the revisions the way a business user reads them', async () => {
         await renderModal()
 
-        expect(screen.getByText(/^DEFAULT: /)).toBeInTheDocument()
-        expect(screen.getByText(/^Joe Doe: /)).toBeInTheDocument()
+        // A revision leads its own label, so a picker never offers two entries that read alike.
+        // See EPBDS-16458.
+        expect(screen.getByText(/^rev-2 · DEFAULT: /)).toBeInTheDocument()
+        expect(screen.getByText(/^rev-1 · Joe Doe: /)).toBeInTheDocument()
         // The project name lives in the dialog title, not in a field of its own.
         expect(screen.getByRole('heading')).toHaveTextContent('browser.open_revision_dialog.title')
     })

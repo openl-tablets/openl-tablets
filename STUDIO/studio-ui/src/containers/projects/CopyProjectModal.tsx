@@ -380,6 +380,8 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
                                     loading={revisions === null}
                                     onChange={value => setChosen(value as string)}
                                     options={revisionOptions}
+                                    // A revision reads whole in the list: the field is narrower than the label it holds.
+                                    popupMatchSelectWidth={false}
                                     style={{ width: '100%' }}
                                     value={revision}
                                 />

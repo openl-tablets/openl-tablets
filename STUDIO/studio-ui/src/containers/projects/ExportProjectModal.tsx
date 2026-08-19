@@ -139,6 +139,8 @@ export const ExportProjectModal = ({ open, project, onClose, filePath }: ExportP
                     loading={revisions === null}
                     onChange={value => setChosen(value as string)}
                     options={options}
+                    // A revision reads whole in the list: the field is narrower than the label it holds.
+                    popupMatchSelectWidth={false}
                     // The newest revisions arrive first; older ones are fetched on demand, so a long
                     // history stays reachable without the dialog waiting for all of it.
                     popupRender={menu => withFooter(menu, loadOlder)}
