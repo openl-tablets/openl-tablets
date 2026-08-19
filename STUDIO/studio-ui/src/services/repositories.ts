@@ -445,7 +445,8 @@ export interface RevisionAuthor {
 
 export interface ProjectRevision {
     revisionNo: string
-    shortRevisionNo: string
+    /** Absent when the repository numbers its revisions instead of hashing them, so there is nothing to shorten. */
+    shortRevisionNo: string | null
     createdAt: string
     fullComment: string
     author?: RevisionAuthor

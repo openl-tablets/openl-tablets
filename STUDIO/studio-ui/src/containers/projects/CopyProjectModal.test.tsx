@@ -358,8 +358,9 @@ describe('CopyProjectModal', () => {
 
         await userEvent.click(screen.getByTestId('copy-project-old-revision'))
         await screen.findByTestId('copy-project-revision')
-        // Business users read a revision as who changed the project and when, not as its number.
-        expect(screen.getByText(/^Joe Doe: /)).toBeInTheDocument()
+        // A revision leads its own label, so a picker never offers two entries that read alike.
+        // See EPBDS-16458.
+        expect(screen.getByText(/^rev-2 · Joe Doe: /)).toBeInTheDocument()
         fireEvent.change(screen.getByTestId('copy-project-revision'), { target: { value: 'rev-1' } })
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 

@@ -15,6 +15,7 @@ import {
 import { formatDateTime } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
 import { GitCommitMessage } from './GitCommitMessage'
+import { shortRevision } from './revisions'
 import { DiscardChangesModal } from '../DiscardChangesModal'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -284,7 +285,7 @@ export const RevisionsPanel = ({
                                                 <div className={styles.meta}>
                                                     <span>{authorName(revision)}</span>
                                                     <span>{formatDateTime(revision.createdAt) ?? '—'}</span>
-                                                    <span className={shared.valueText}>{revision.shortRevisionNo}</span>
+                                                    <span className={shared.valueText}>{shortRevision(revision.revisionNo)}</span>
                                                 </div>
                                             </div>
                                             <div className={styles.actions}>

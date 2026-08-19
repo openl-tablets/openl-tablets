@@ -113,6 +113,8 @@ export const OpenRevisionModal = ({ open, project, onClose, onOpened }: OpenRevi
                     loading={revisions === null}
                     onChange={value => setChosen(value as string)}
                     options={options}
+                    // A revision reads whole in the list: the field is narrower than the label it holds.
+                    popupMatchSelectWidth={false}
                     style={{ width: '100%' }}
                     value={revision}
                 />
