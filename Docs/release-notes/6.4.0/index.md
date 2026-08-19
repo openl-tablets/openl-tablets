@@ -69,10 +69,6 @@ Spreadsheet, Smart Rules, Simple Rules, Smart Lookup, Simple Lookup, Rules, Test
 and Free Form. Lookup types build a two-dimensional matrix, values are entered through inputs typed to the column
 they fill, and a Datatype's optional **Extends** setting writes `extends <parentType>` into the header.
 
-Copying a table reuses the same path: the browser reads the raw cell matrix of the source, applies the header and
-property changes the author selected, and submits the result through the table-creation API. The copy itself runs on
-the server by table id instead of re-posting the table content.
-
 ![Table creation dialog](images/table-creation-dialog.png)
 
 ### React Projects and Deployments
