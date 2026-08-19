@@ -3,32 +3,22 @@ package org.openl.studio.projects.service.tables;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
-import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.DatatypeFieldView;
 import org.openl.studio.projects.model.tables.DatatypeView;
 import org.openl.studio.projects.service.tables.read.DatatypeTableReader;
-import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.write.DatatypeTableWriter;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 
@@ -238,31 +228,18 @@ class DatatypeTableIOTest {
     /** Create a datatype beside the tables the project already has, the way the create endpoint does. */
     private static void create(Path project, String sheetName, String name, List<DatatypeFieldView> fields) {
         var view = DatatypeView.builder().name(name).fields(fields).build();
-        var writer = new TableWritersFactory().getNewTableWriter(view, sheetGrid(project, sheetName));
-        ((DatatypeTableWriter) writer).write(view);
-    }
-
-    /**
-     * A writable grid over the sheet the project keeps its tables on. The resolved project only reads its
-     * workbook, so the create endpoint's own grid is used here rather than the one the tables were read from.
-     */
-    private static XlsSheetGridModel sheetGrid(Path project, String sheetName) {
-        var service = new TableCreatorService(null, null, null, null, null);
-        return service.sheetGridModel(projectModel(project), sheetName);
+        var grid = TableTestProjects.sheetGrid(project, sheetName);
+        ((DatatypeTableWriter) new TableWritersFactory().getNewTableWriter(view, grid)).write(view);
     }
 
     /** The datatype's cells as plain text, row by row, as they sit on the reloaded sheet. */
     private static List<List<String>> rawSourceOf(Path project) {
-        var rows = new ArrayList<List<String>>();
-        for (var row : new RawTableReader().read(load(project)).source) {
-            rows.add(row.stream().map(cell -> cell.value() == null ? null : String.valueOf(cell.value())).toList());
-        }
-        return rows;
+        return TableTestProjects.rawSource(load(project));
     }
 
     /** The one datatype of the single-module project. Fixtures declare no more than one. */
     private static IOpenLTable load(Path dir) {
-        for (TableSyntaxNode tsn : projectModel(dir).getAllTableSyntaxNodes()) {
+        for (TableSyntaxNode tsn : TableTestProjects.projectModel(dir).getAllTableSyntaxNodes()) {
             var table = new TableSyntaxNodeAdapter(tsn);
             if (table.getGridTable(IXlsTableNames.VIEW_DEVELOPER) != null && OpenLTableUtils.isDatatypeTable(table)) {
                 return table;
@@ -271,36 +248,7 @@ class DatatypeTableIOTest {
         throw new IllegalStateException("No datatype resolved in " + dir);
     }
 
-    /** Resolve and compile the single-module project at {@code dir}. */
-    private static ProjectModel projectModel(Path dir) {
-        try {
-            var modules = ProjectResolver.getInstance().resolve(dir).getModules();
-            var projectModel = new ProjectModel(mock(WebStudio.class), null);
-            projectModel.setModuleInfo(modules.getFirst());
-            return projectModel;
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to resolve project at " + dir, e);
-        }
-    }
-
-    /** Write a single-sheet workbook holding one table that starts at cell B2. {@code null} cells stay blank. */
     private Path writeProject(String name, String[][] grid) throws IOException {
-        var dir = tempDir.resolve(name);
-        Files.createDirectories(dir);
-        try (var workbook = new XSSFWorkbook()) {
-            var sheet = workbook.createSheet(name);
-            for (var r = 0; r < grid.length; r++) {
-                var sheetRow = sheet.createRow(r + 1);
-                for (var c = 0; c < grid[r].length; c++) {
-                    if (grid[r][c] != null) {
-                        sheetRow.createCell(c + 1).setCellValue(grid[r][c]);
-                    }
-                }
-            }
-            try (OutputStream out = Files.newOutputStream(dir.resolve(name + ".xlsx"))) {
-                workbook.write(out);
-            }
-        }
-        return dir;
+        return TableTestProjects.writeProject(tempDir.resolve(name), name, name, grid);
     }
 }

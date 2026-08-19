@@ -80,6 +80,16 @@ The ITable<?> tableBody (from OpenL API) contains:
 - **foreignKey** - Reference to another Data table (row 1, with `>` prefix, null if not present)
 - **displayName** - Human-readable column name shown to users
 
+OpenL reads the display-name row as the column titles whether or not the table titles its columns, so the row is
+always written. A table that supplies no display name at all is therefore refused with `400` and
+`openl.error.400.table.column-title.required.message`: writing it would leave that row blank, which ends the table
+there and leaves every data row below it out of it. A title is a business label, so the server asks for one rather
+than inventing it.
+
+A single column left untitled among titled ones is accepted, because the row still carries the other titles and so
+is not blank. That is also what reading such a table reports, so whatever a `GET` returns can be written back
+unchanged.
+
 ---
 
 ## API Endpoints
@@ -407,6 +417,8 @@ key         Report Date     Losses in This Year
 - If display names row is missing when FK exists
 - displayName field will be null
 - API returns valid response with null values
+- On write, a table that supplies no display name at all is refused, because the title row would reach the sheet
+  blank and end the table there
 
 **Empty Fields:**
 - Empty or null cells are handled gracefully

@@ -1,0 +1,3 @@
+GET /rest/projects/EPBDS-16459-Blank/tables/54c4501ad3b90d370edabd3cad9e3195?raw=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+
