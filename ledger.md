@@ -2,10 +2,10 @@
 
 ## Resume point
 
-- **Converged, and `origin/main` yields nothing for six runs running**: every queue row and vein done, tip *Release
-  notes 6.4.0 (#2019)* — match that **subject** in `git log --oneline -25 origin/main`, since the SHA is gone from a
-  fresh clone. New scope is only the commits above it; never invent a detector. The idle pass is two calls, those
-  commits and the open-PR baseline. Never re-diagnose CI on an unchanged SHA.
+- **Converged, and `origin/main` has yielded nothing for seven runs running**: every queue row and vein is done. Tip
+  *Correct 6.4.0 release date* — match that **subject** in `git log --oneline -25 origin/main`, since the SHA is gone
+  from a fresh clone. New scope is only the commits above it; never invent a detector. The idle pass is two calls,
+  those commits and the open-PR baseline. Never re-diagnose CI on an unchanged SHA.
 - Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`; read its
   **deleted** lines first, and check every locale key, image and model an additive commit *adds* repo-wide too. A
   commit deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws`
@@ -40,16 +40,15 @@ None. Open the next one from a fresh branch off the current `main`.
   `TableViewerTag.java` (7): written by public setters, read by nobody, named only by `META-INF/tableeditor.tld`.
   Never touch the fields alone — the setters are the taglib's declared attribute contract. Whether a downstream
   consumer still reaches this JSP taglib is the largest open question here and no in-repository evidence settles it.
-- `STUDIO/org.openl.rules.workspace` `dtr/RepositoryException` — a public class with zero repository-wide
-  references since EPBDS-8537 dropped the `throws` on `DesignTimeRepositoryImpl.init()`, its last user. A whole
-  public type in a published artifact, so a downstream `catch` may still need it.
-- `STUDIO/org.openl.rules.repository` `BranchRepository` — the four `@Deprecated(forRemoval = true)` default
-  methods (`createBranch` twice, `deleteBranch(String, String)`, `getBranches(String)`) have no caller of their
-  signature left; everything moved to `listBranches`/`createRepositoryBranch`. Public API, so a human removes them.
+- `STUDIO/org.openl.rules.workspace` `dtr/RepositoryException` — a public class with zero repository-wide references
+  since EPBDS-8537 dropped the `throws` on `DesignTimeRepositoryImpl.init()`. A whole public type in a published
+  artifact, so a downstream `catch` may still need it.
+- `STUDIO/org.openl.rules.repository` `BranchRepository` — the four `@Deprecated(forRemoval = true)` default methods
+  (`createBranch` twice, `deleteBranch(String, String)`, `getBranches(String)`) have no caller of their signature
+  left; everything moved to `listBranches`/`createRepositoryBranch`. Public API, so a human removes them.
 - `DEV/org.openl.commons` `FileSignatureHelper.isOle2Sign` — its only production caller was
-  `ProjectFilesServiceImpl.validateFileSignature`, which EPBDS-16379 replaced with `FileIntegrityValidator`; only
-  its own test names it now. Public API of a published artifact, and its siblings `isArchiveSign`/`isEmptyArchive`
-  stay live, so the class remains and a human decides on the method.
+  `ProjectFilesServiceImpl.validateFileSignature`, which EPBDS-16379 replaced with `FileIntegrityValidator`; only its
+  own test names it now. Public API, and its siblings `isArchiveSign`/`isEmptyArchive` stay live.
 - `STUDIO/org.openl.security` `SimpleGroup.description` — written by a public setter and a public constructor
   parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
@@ -72,35 +71,34 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## False-positive shapes
 
-- **An initializer PMD calls overwritten is live whenever any path reaches a read without the later assignment.**
-  Three ways it misses one: an early `return` in the constructor (`CellStyle`), an assignment in a `try` it treats as
-  overwritten by the `catch` (`GitRepository.result` — both live), and any conditional assignment. Check every branch
+- **An initializer a detector calls overwritten is live whenever any path reaches a read without the later
+  assignment.** Three ways it misses one: an early `return` in the constructor (`CellStyle`), an assignment in a `try`
+  it treats as overwritten by the `catch` (`GitRepository.result`), and any conditional assignment. Check every branch
   path; a sibling declared in the same block with no initializer that still compiles proves it.
-- **A never-read local can be the test itself.** Three shapes, all reported as unused: a variable that only hosts a
-  cast whose failure is asserted (a cast cannot stand alone as a statement); a try-with-resources name Java requires,
-  where the close is the point; and a null-out near `Runtime.gc()` or a weak reference, dropping the strong reference
-  so collection can happen. Read the assertions first.
+- **A never-read local can be the test itself.** Three shapes: a variable hosting only a cast whose failure is
+  asserted (a cast cannot stand alone as a statement); a try-with-resources name Java requires, where the close is the
+  point; and a null-out near `Runtime.gc()` or a weak reference, dropping the strong reference so collection can
+  happen. Read the assertions first. A `for (Object item : c) { size++; }` counting loop likewise needs its variable.
 - **A test can consume a member by its mere existence.** `JsonUtilsTest.BindingClasses` is the binding target passed
   to `getCachedObjectMapper` and `KeyClass.field` carries the cache key's identity; `AOpenClassTest.C.getC()` is what
   `assertNull(findMethod(methods, "getC"))` fails against, so deleting it leaves the assertion vacuous.
 - **Search an accessor by the property name — the field's own name may never appear as a read.** Lombok
   `@Getter`/`@Setter` generate it, so `TablePart.partName` is reached only as `getPartName`; and a private field can
-  exist solely to make a bean property writable — `JavaOpenClassTest.BeanA.gg` is read by no code, but `setGg` is
-  what makes the asserted `gg` property work. Lombok also *replaces* deleted code, so read the diff's **added
-  annotations** first: a dropped hand-written `@Autowired` constructor orphans none of its parameters once
-  `@RequiredArgsConstructor` is on the class (any `@Qualifier` moves onto the field), and a dropped nested `Builder`
-  class with its `builder()` factory and copy constructor orphans nothing once `@Builder` is.
+  exist solely to make a bean property writable — `JavaOpenClassTest.BeanA.gg` is read by no code, but `setGg` is what
+  makes the asserted `gg` property work. Lombok also *replaces* deleted code, so read a diff's **added annotations**
+  first: a dropped hand-written `@Autowired` constructor orphans none of its parameters once `@RequiredArgsConstructor`
+  is on the class, and a dropped nested `Builder` with its `builder()` factory orphans nothing once `@Builder` is.
 - **A test bean is usually named from inside an `.xlsx`/`.xls`, which no text search can see** — `Bean1`, `Bean2`,
   `EPBDS7956`, `IChildBean`, `MyProp`. Unzip every Excel resource and search as UTF-8 and UTF-16LE first. A
   deliberately malformed bean is worse: `epbds6830.BeanA` feeds
   `EPBDS-6830_external_datatypes_validation.xlsx.msg.txt` with one defect per expected error, and its private,
   wrongly-cased `getAB()` is one of them — the message list is unchanged by removing it, so the loss is silent.
-- **Surefire's default includes match a `Test` prefix as well as a suffix**, so `TestIf`, `TestAutoType0` and
-  friends are executed although nothing names them. Never call a `Test*` class dead.
-- **A nested `@Configuration @ComponentScan` keeps every class in its own package alive** — the 17 `appNNN`
-  controller fixtures in `spring.openapi`. A JMH `@Benchmark` class is likewise run by the harness and named by nothing.
-- **A `@Component`/`@Service` class implementing an interface is injected by interface type**, so its own name
-  appears in no other file — `FileNodeMapperImpl`. Check for a stereotype annotation before believing it is orphaned.
+- **Surefire's default includes match a `Test` prefix as well as a suffix**, so `TestIf`, `TestAutoType0` and friends
+  are executed although nothing names them. Never call a `Test*` class dead. A nested `@Configuration @ComponentScan`
+  likewise keeps every class in its own package alive (the 17 `appNNN` fixtures in `spring.openapi`), and a JMH
+  `@Benchmark` class is run by the harness and named by nothing.
+- **A `@Component`/`@Service` class implementing an interface is injected by interface type**, so its own name appears
+  in no other file — `FileNodeMapperImpl`. Check for a stereotype annotation before believing it is orphaned.
 - **A field can be written for the next line to read back, or blanked to change what a resolver returns.**
   `ServiceManagerImpl` sets `serviceDescriptionInProcess` before `createService`, which reaches it through
   `getRulesDeployInProcess()`; `DynamicPropertySource` sets `settings = Map.of()` so `resolver.getRawProperty` falls
@@ -109,14 +107,13 @@ None. Open the next one from a fresh branch off the current `main`.
   pins a plugin bound by a lifecycle default (`deploy`, `site`), by a packaging type (`maven-archetype`), or invoked
   as a bare goal (`release:prepare`, `scm:`, `license:`). A profile with no `-P` reference is alive when a property
   activates it (`quick`, `skipTests`, `!noPerf`, `noDocker`, `sonar`, `!sonar`, `!skipTests`, `env.CI`) or when it is
-  documented tooling — `owasp`, named by `SECURITY.md`, is the only one with neither. An `<exclusions>` entry is
-  defensive and stays correct even when the excluded artifact is absent today, because a transitive upgrade can
-  reintroduce it; removing one is a latent classpath change, not a deletion. A hand-written CVE pin looks superseded
-  once Dependabot bumps its property, but the `dependencyManagement` import is what overrides the parent BOM and both
-  it and its comment stay live; the comment names the fix condition, not the version, so a bump leaves it accurate.
+  documented tooling. An `<exclusions>` entry is defensive and stays correct even when the excluded artifact is absent
+  today, because a transitive upgrade can reintroduce it. A hand-written CVE pin looks superseded once Dependabot
+  bumps its property, but the `dependencyManagement` import is what overrides the parent BOM, and its comment names
+  the fix condition rather than the version, so a bump leaves it accurate. A pom property with no `${...}` reference
+  is almost always a plugin convention parameter — `maven.*`, `sonar.*`, `invoker.*`, `archetype.*`, `spotless.*`.
 - **A pom outside the root aggregator's `<module>` graph is normally a fixture, not an orphan.** All 120 unreachable
   poms are maven-invoker projects under `Util/openl-maven-plugin/it/**` or documentation examples under `Docs/`.
-  Only a `<module>` naming a missing directory would be deletable, and there are none.
 - **A signature an incremental diff deletes is usually renamed or moved, not removed.** Six shapes seen: renamed on
   the same stem (`convertRegexToGlob` to `convertRegexToGlobs`); an inline local promoted to a constant; moved into a
   shared module the diff newly imports, or into a new same-package class the commit itself adds; a deleted **inline
@@ -128,15 +125,14 @@ None. Open the next one from a fresh branch off the current `main`.
 - **A fixture can exist so a test asserts it is *absent* from the output** — the empty `assembly-template.xml` in the
   `openl-child-dependency` invoker project is named only by a negated assert in `openl-multiproject/verify.groovy`
   proving the pom's `**/assembly/*` exclude works. Read the one reference's polarity before calling a file orphaned.
-- A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
-- i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
-- A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
-  prefix as keeping its whole family alive. `t(someKeyVariable)` means the literals sit at the call sites instead.
 - Never test a CSS class by "does this token appear anywhere" — `ui-layout-*`, `tooltip_*` and `te_toolbar_*` are all
   built by string concatenation in JS or Java. `rf-*` cannot be proven dead (RichFaces ships its JS inside a jar) and
   `ant-*` come from antd at runtime. A regex of `#[a-zA-Z0-9]+` over CSS also reports every hex colour as an id.
+- i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting. A
+  locale key reached only through a template literal needs its `t(` + backtick call sites enumerated, each composed
+  prefix keeping its whole family alive; `t(someKeyVariable)` means the literals sit at the call sites instead.
 - `\b` does not match before `$`, so a `\b`-anchored search finds no call site for a `$`-leading name. Use
-  `(?<![\w$])name(?![\w$])`.
+  `(?<![\w$])name(?![\w$])`. Mixing `grep -E` with `-P` errors out, so hidden stderr reads every name dead.
 - A name defined as a key in an options object literal passed to a framework is a callback, not something anyone calls
   by name — `onFailure` in `TableEditor.js` belongs to `new Ajax.Request(...)`. Check the enclosing call first.
 - A module can be imported by a specifier that already carries its extension (`from './App.styles.ts'`), which
@@ -144,44 +140,30 @@ None. Open the next one from a fresh branch off the current `main`.
 - A "dead" JS function is usually called from inside its own file — exclude the defining file from the search and
   every private helper looks unreferenced. A studio-ui export used only inside its own file is likewise alive, and
   dropping the `export` keyword is a refactor this routine may not make: never list one.
-- **A dependency jar can read a resource by a name hardcoded in its own bytecode.** CXF's `AbstractHTTPServlet`
-  loads `/cxfServletStaticResourcesMap.txt`, so that file is named by no file here and is still load-bearing. When
-  a resource name looks invented-but-conventional, fetch the owning jar and grep its constants.
-- A pom property with no `${...}` reference anywhere is almost always a plugin convention parameter — `maven.*`,
-  `sonar.*`, `invoker.*`, `archetype.*`, `spotless.*`, `lombok.delombok.skip`, `project.build.sourceEncoding`.
+- **A dependency jar can read a resource by a name hardcoded in its own bytecode.** CXF's `AbstractHTTPServlet` loads
+  `/cxfServletStaticResourcesMap.txt`, so that file is named by no file here and is still load-bearing. When a
+  resource name looks invented-but-conventional, fetch the owning jar and grep its constants.
 - A CodeRabbit walkthrough describes intent, not the diff — it reported an insertion in a file with zero insertions.
   Verify any bot claim against `git diff --numstat`; its "possibly related PRs" is a similarity hint, not a claim.
-- **Bulk Java detectors fail in three ways that all look like real findings.** A field regex with no scope tracking
-  matches every local declaration (3313 "fields" against 112 real ones) — track brace depth and accept only a
-  declaration whose enclosing brace was opened by a type declaration. A scan-upwards for annotations is defeated by a
-  multi-line annotation, so a `@ParameterizedTest` whose `@CsvSource` ends on `})` reads as unannotated. And
-  duplicate-`<dependency>` detection must first strip `<dependencyManagement>`, `<plugin><dependencies>` and XML
-  comments, or correct practice and commented-out samples both report as duplicates.
 
 ## Method rules
 
-- **One detector rule is one change type**, so one PMD rule is one commit. The queue rows are coarser than that
-  and group several rules per row — never squash two commits just because they share a queue row.
-- **Screen an incremental commit mechanically**: per changed file, take the identifiers of its deleted lines minus
-  the identifiers of its post-image; an empty result proves the file orphaned nothing and needs no reading. A
-  residual of ordinary English words is the same proof — a JavaDoc or a `.properties` description rewrite drops
-  prose, not names; check only the residuals that could be a type or a member, and a `.properties` diff that
-  changes values while every key survives orphans nothing.
-- For a bundle key, search the full dotted path **and** the bare leaf name; either hit means keep.
-- Validate any bulk detector on two fabricated names *and* one known-live name — a fabricated hit or a live
-  miss means the search is wrong. Mixing `grep -E` with `-P` errors out, so hidden stderr reads every name dead.
-  For a linter, plant a violation and confirm it is reported.
+- **Screen an incremental commit mechanically**: per changed file, take the identifiers of its deleted lines minus the
+  identifiers of its post-image; an empty result proves the file orphaned nothing and needs no reading. A residual of
+  ordinary English words is the same proof — a JavaDoc or `.properties` description rewrite drops prose, not names;
+  check only residuals that could be a type or a member, and a `.properties` diff that changes values while every key
+  survives orphans nothing.
 - For any deadness check on a type **or a member**, "appears in one file" is not enough — count occurrences
-  **inside** that file too. This one rule killed every member candidate ever raised: a secondary top-level class
-  used by its file's primary class, a helper called only by its own file's other methods, and a TS type alias read
-  only by a sibling interface's field, all look orphaned.
-- **Run two independent Java detectors and resolve the union.** A brace-tracking parser silently drops members behind
-  an annotation or a multi-line signature; an indent-based one drops nested members and reports interface members,
-  which are implicitly public. Their disagreement is where the bugs are.
+  **inside** that file too. This one rule killed every member candidate ever raised: a secondary top-level class used
+  by its file's primary class, a helper called only by its own file's other methods, and a TS type alias read only by
+  a sibling interface's field, all look orphaned.
+- For a bundle key, search the full dotted path **and** the bare leaf name; either hit means keep.
+- Validate any bulk detector on two fabricated names *and* one known-live name — a fabricated hit or a live miss
+  means the search is wrong. For a linter, plant a violation and confirm it is reported.
 - **A production package can be named `test`** — `webstudio/src/.../web/test/`. Detect a test tree by the module's
   test source root, never by a path segment.
 - **This clone is shallow (50 commits).** Its earliest commit "adds" all 15032 files, so `git log --diff-filter=A`
-  attributes every older file to that graft and history proves nothing about a file's origin. Never argue from it.
+  attributes every older file to that graft and history proves nothing about a file's origin.
 - Resolve studio-ui imports with tsconfig `paths` `"*": ["./src/*"]` (a bare specifier is `src/`-relative), and follow
   side-effect `import 'x'` and `vi.mock('x')` too, or barrel-only and test-only modules look dead.
 - The tableeditor JS bundles `js/tableeditor.all.js` and `js/tableeditor.min.js` are checked in and are what the
@@ -195,18 +177,11 @@ None. Open the next one from a fresh branch off the current `main`.
 - When a deletion empties a parent object literal, delete the parent in the same commit.
 - The whole `Docs/` prose tree is out of scope: Jekyll publishes every page and documentation is this repository's
   approved source of truth, so an unlinked or duplicated page is not a candidate.
-- **PMD report XML uses namespace `http://pmd.sourceforge.net/report/2.0.0`** (slash-dot, not underscores). A parser
-  built for the ruleset namespace silently returns zero violations from a non-empty report. Most `target/pmd.xml`
-  files here hold only `<suppressedviolation>` elements — grep `<violation ` to find the reports that matter.
-- The `pmd` plugin prefix does not resolve with `-o` on a cold cache. Invoke the goal by full coordinates,
-  `mvn org.apache.maven.plugins:maven-pmd-plugin:3.28.0:pmd -fae`, and run it online the first time.
-- Two of the 207 poms are archetype-resource templates whose first line is Velocity, not XML, so any XML parser
-  fails on them. Skip them by name rather than aborting the scan; they declare no profiles and no plugins of ours.
 - GitHub Actions compiles every push against the real opensaml BOM, so CI is the authoritative gate on anything the
   locally stubbed build could not verify.
-- **Never edit a source file while a Maven build is running** — a half-applied edit reads as a genuine compile
-  error and costs the whole reactor pass. Finish the edits, then build.
-- `pgrep -f <pattern>` matches the polling shell itself, so a wait loop on it never exits — poll the log's mtime.
+- **Never edit a source file while a Maven build is running** — a half-applied edit reads as a genuine compile error
+  and costs the whole reactor pass. Finish the edits, then build. `pgrep -f <pattern>` matches the polling shell
+  itself, so a wait loop on it never exits — poll the log's mtime.
 
 ## Keep-list
 
@@ -217,7 +192,8 @@ None. Open the next one from a fresh branch off the current `main`.
 - Property names composed at runtime stay: `repo-default.` or `repo-` plus the repository type (`jdbc`, `jndi`, `git`,
   `azure`) plus the suffix, `repository.` plus the id plus `.settings.`, and `openl-db-repository-` plus the database
   product name; the reference-key suffix is exercised from ITEST init params. An `openl-default.properties` key is
-  therefore routinely written in full by its own defaults file alone, and a `hibernate.*`/`hikari.*` one is library-read.
+  therefore routinely written in full by its own defaults file alone, and a `hibernate.*`/`hikari.*` one is
+  library-read.
 - `ApplicationPropertySource` loads `classpath:{appName}.properties`, so a properties file at a jar root can be alive
   through the deployed application's name alone — `DEMO/webservice.properties` is exactly that shape.
 - Spring pulls every `META-INF/openl/extension-*.xml` in through `@ImportResource("classpath*:...")` in
@@ -236,7 +212,7 @@ None. Open the next one from a fresh branch off the current `main`.
   `js/prototype/prototype-1.7.3.js` in tableeditor are vendored despite not living under a `vendor/` folder; read the
   file header for a third-party licence before treating any `.js` as ours.
 - A private method named `readObject`, `writeObject`, `readResolve`, `writeReplace` or `readObjectNoData` is a Java
-  serialization hook the JVM calls reflectively — PMD reports it as unused. Never delete one.
+  serialization hook the JVM calls reflectively — a detector reports it as unused. Never delete one.
 - A private field carrying an injection or binding annotation (`@Autowired`, `@Inject`, `@Value`, `@Mock`,
   `@InjectMocks`, `@PersistenceContext`, a Jackson or JAXB annotation) is written by a framework, not by code.
   The same holds for a Maven plugin `@Parameter` field in `Util/openl-maven-plugin`.
@@ -280,9 +256,8 @@ None. Open the next one from a fresh branch off the current `main`.
   at the container's checkout base, an ancestor. Fast-forward first, or a grep answers about the wrong revision.
 - **The whole reactor installs in ~35 min from a cold `~/.m2` with `mvn install -Dquick -DnoPerf -T1C -fae
   -Dmaven.test.skip.exec=true`** — surefire skips execution while test sources still compile. The cache never
-  survives a container rebuild, so budget the download every run.
-- For a change confined to one module, `mvn test -pl <module> -am -Dquick -DnoPerf` is far cheaper than the reactor
-  and never reaches webstudio, so the opensaml block does not apply to it.
+  survives a container rebuild, so budget the download every run. For a change confined to one module,
+  `mvn test -pl <module> -am -Dquick -DnoPerf` is far cheaper and never reaches webstudio.
 - That install still runs `studio-ui`'s `npm run test` through frontend-maven-plugin, which `maven.test.skip.exec`
   does not gate, and it fails under the parallel load. Add `-pl '!STUDIO/studio-ui'` or expect one FAILURE that
   skips the Studio application module and the Studio ITEST suites. Afterwards the surefire provider jar is absent,
@@ -297,9 +272,8 @@ None. Open the next one from a fresh branch off the current `main`.
   `opensaml-saml-api`/`opensaml-saml-impl` 4.3.2 as non-optional compile dependencies and both are shibboleth-only.
   No stub helps, because webstudio code imports those classes. Six ITEST Studio suites skip with it. Never delete
   webstudio Java from a run here.
-- ITEST modules cannot run `pmd:pmd` or `dependency:analyze-only`: the install does not publish `server-core`, so
-  those 16 modules fail dependency resolution. They are out of the sweep's scope anyway.
-- Maven Central, registry.npmjs.org and github.com all work: `curl` a jar from Central and read it with `unzip`/`javap -c`.
+- Maven Central, registry.npmjs.org and github.com all work: `curl` a jar from Central and read it with `unzip` or
+  `javap -c`.
 - **`sonarcloud.io` is blocked too** — 403 to CONNECT, same shape as shibboleth, confirmed against
   `$HTTPS_PROXY/__agentproxy/status`. So a red `SonarCloud Code Analysis` check can never be diagnosed from here:
   report the failed conditions from the check-run summary and hand the judgement to a maintainer. Sweep PRs have
@@ -328,11 +302,10 @@ None. Open the next one from a fresh branch off the current `main`.
 - Class and id selectors across all 11 hand-written CSS files in STUDIO — no provable orphan but `.te_hidden`. The
   at-rule level has no surface at all: no stylesheet here, Bootstrap 2.3.2 included, declares a `@keyframes`, a
   `@font-face` or a CSS custom property, and studio-ui styles live in `.styles.ts`.
-- All 98 keys of the 8 non-webstudio `openl-default.properties` files; the 8 no full-key search finds outside their
-  own file are reached by leaf — see *Keep-list*.
-- Key-reference scan over `openapi.properties`, `ValidationMessages.properties`, `messages.properties`,
-  `sql-errors.properties` and webstudio `openl-default.properties`, plus every leaf key of the 15 studio-ui locale
-  bundles, which are all English with no other language.
+- Key-reference scan over every `.properties` bundle — `openapi.properties`, `ValidationMessages.properties`,
+  `messages.properties`, `sql-errors.properties` and all 9 `openl-default.properties` — plus every leaf key of the 15
+  studio-ui locale bundles, which are all English with no other language. Every survivor is reached by leaf or
+  composed at runtime; see *Keep-list*.
 - studio-ui: every exported const/function/class/interface/type/enum, the import graph over all 345 modules (every
   one has a production importer), all 62 declared npm dependencies, and `@typescript-eslint/no-unused-vars`.
 - Function, object-literal-method and prototype definitions across all 23 hand-written legacy `.js` files.
@@ -342,28 +315,22 @@ None. Open the next one from a fresh branch off the current `main`.
   zero-byte tracked file is deliberate too: empty jar and zip classpath fixtures, and Flyway `flyway.location` markers.
 - **Across all 207 poms**: every defined property, duplicate `<dependency>` and duplicate `.properties` keys, every
   profile, every `pluginManagement` entry and every `<exclusion>`, each resolved against `-P` references, activation
-  blocks, packaging types and goal invocations. Zero removable; every exclusion is defensive.
-- **The root aggregator's `<module>` graph** over all real poms, and all 8 `META-INF/services` files with every
-  declared implementation and `org.openl` interface resolved. Both closed with no finding; do not re-run either.
+  blocks, packaging types and goal invocations. Zero removable; every exclusion is defensive. The root aggregator's
+  `<module>` graph and all 8 `META-INF/services` files closed empty too.
 - **PMD 7.17 `UnusedAssignment`, `UnusedLocalVariable`, `UnusedPrivateField`, `UnusedPrivateMethod` and
   `UnusedFormalParameter` over main *and* test sources of all 42 analysable modules** (`includeTests=true`), the
-  detector validated against the known main-source baseline. No PMD scope is left open.
-- **Whole-type deadness over every `.java` file**: each non-public top-level type searched repository-wide with a
-  literal word-boundary search over every file type. Zero removable.
-- **Member deadness below `private`** — every unannotated package-private and protected method and field of the
-  files whose top-level type is non-public, resolved against an identifier index over all text files. The ones with
-  no outside reference are all read inside their own file. Zero removable.
-- **Package-private members of *public* types**, from the union of a brace-tracking and an indent-based detector.
-  Every one is alive: read in its own file, reached through a Lombok accessor, or written by a framework annotation.
-- **Public top-level types declared in test trees**, ITEST and the two test-jar modules excluded, each name resolved
-  against the identifier index and then against every Excel and archive resource. Only `JavaType` was removable;
-  the rest are surefire, Spring-scanned, JMH or named from a spreadsheet.
-- javac `-Xlint` over the whole reactor: no `UnusedVariable`, `UnusedMethod` or `UnusedNestedClass`; the only
-  `EffectivelyPrivate` hits are four constrainer test classes, which is a visibility refactor, not a deletion.
+  detector validated against the known main-source baseline. No PMD scope is left open. javac `-Xlint` over the whole
+  reactor adds nothing: no `UnusedVariable`, `UnusedMethod` or `UnusedNestedClass`, and its only `EffectivelyPrivate`
+  hits are four constrainer test classes, which is a visibility refactor rather than a deletion.
+- **Java type and member deadness, closed on every surface below public**: every non-public top-level type; every
+  unannotated package-private and protected member of those files; the package-private members of *public* types from
+  the union of a brace-tracking and an indent-based detector; and every public top-level type in a test tree (ITEST
+  and the two test-jar modules excluded), resolved against an identifier index over all text files and then against
+  every Excel and archive resource. Only `JavaType` was ever removable.
 - `dependency:analyze-only` over the 52 resolvable modules — every "Unused declared" hit is covered by the Keep-list
   entry on runtime wiring.
-- Incremental `main` scope up to the *Resume point* SHA: every author's own deletion was already complete, leaving no
-  orphaned export, locale key, bundle key or helper. Dependabot and npm lock-file bumps add no surface at all.
+- Incremental `main` scope up to the *Resume point* commit: every author's own deletion was already complete, leaving
+  no orphaned export, locale key, bundle key or helper. Dependabot and npm lock-file bumps add no surface at all.
 - **Compilation reachability of every tracked `.java` file**, deriving each file's source root from its own `package`
   declaration: zero package/path mismatches, and all 142 implied roots are either the reactor-wide `src`/`test` the
   root pom declares or sit in a Docs example, an invoker fixture, an archetype template or a `test-resources` rule
@@ -394,6 +361,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-19 — run 217: idle; `origin/main` unmoved, no open dead-code PR. 393 lines.
 - 08-19 — run 218: idle; `origin/main` unmoved, no open dead-code PR. 394 lines.
 - 08-19 — run 219: one additive `Docs/` commit on `main` orphaned nothing; compilation-reachability vein closed empty.
+- 08-19 — run 220: idle, one `Docs/` date commit on `main`; ledger compacted 399 to 366 lines.
