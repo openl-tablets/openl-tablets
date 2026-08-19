@@ -8,7 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
+import java.util.function.IntPredicate;
+import java.util.stream.IntStream;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,6 @@ import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -202,8 +202,8 @@ public class TableCreatorService {
                         mergeCell(sheet, stamped, rowIndex, columnIndex, sourceCell);
                     }
                 }
-                requireRowOnSheet(sheet, row);
             }
+            requireNoBlankLine(sheet, stamped.getHeight(), stamped.getWidth());
             workbook.write(output);
             return output.toByteArray();
         } catch (IOException e) {
@@ -320,37 +320,67 @@ public class TableCreatorService {
     }
 
     /**
-     * Rejects a row that reached the sheet blank.
+     * Rejects a table that reached the sheet with a blank row or a blank column.
      *
-     * <p>A row of nothing but covered cells is legitimate while a merge declared above really spans into it. When
-     * none does, the covered flags describe a coverage that does not exist and the row is written empty — and OpenL
-     * reads a blank row as the end of the table, so every row below it is lost from the table being created.
+     * <p>OpenL reads a table only as far as its first blank line, so a blank row drops the rows below it and a
+     * blank column drops the columns beyond it. A payload whose rows are all filled can still leave a column
+     * empty across every one of them, and a row of nothing but covered cells reaches the sheet empty unless a
+     * merge declared above really spans into it.
      *
-     * <p>The merges declared by earlier rows are already on the sheet by the time a row is checked.
+     * <p>Checked once the whole table is on the sheet: a line is only blank when no cell and no merge filled it.
+     *
+     * <p>Answers the same payload the same way as a write into an existing module, which reaches
+     * {@link TableWriter#hasBlankLineInside} over a grid instead of over a sheet.
+     *
+     * @param height number of rows the table declares
+     * @param width  number of columns the table declares
      */
-    private static void requireRowOnSheet(Sheet sheet, Row row) {
-        if (carriesValue(row) || isCoveredFromAbove(sheet, row.getRowNum())) {
-            return;
+    private static void requireNoBlankLine(Sheet sheet, int height, int width) {
+        // Read once: a sheet rebuilds its merged regions on every call, and a blank cell asks for them.
+        var merges = sheet.getMergedRegions();
+        IntPredicate rowFilled = row -> IntStream.range(0, width)
+                .anyMatch(column -> carriesContent(sheet, merges, column, row));
+        IntPredicate columnFilled = column -> IntStream.range(0, height)
+                .anyMatch(row -> carriesContent(sheet, merges, column, row));
+        if (TableWriter.hasBlankLineInside(0, height - 1, rowFilled)
+                || TableWriter.hasBlankLineInside(0, width - 1, columnFilled)) {
+            throw new BadRequestException("table.action.line.all-empty.message");
         }
-        throw new BadRequestException("table.action.line.all-empty.message");
     }
 
     /**
-     * Tells whether the row holds anything OpenL would read.
+     * Tells whether OpenL reads the cell as part of the table.
      *
-     * <p>A cell written blank is still one of the row's cells, so counting them would take a row of nothing but
-     * blanks for a filled one.
+     * <p>A cell carries content when it holds a value of its own, or when a merge spanning it starts from a cell
+     * that holds one. Mirrors what the grid reports for a table already on a sheet, including that a text cell of
+     * nothing but whitespace is empty — a table that passed a laxer check here would be read back short.
+     *
+     * @param merges the sheet's merged regions
+     * @param column column of the cell, relative to the table
+     * @param row    row of the cell, relative to the table
      */
-    private static boolean carriesValue(Row row) {
-        return StreamSupport.stream(row.spliterator(), false)
-                .anyMatch(cell -> cell.getCellType() != CellType.BLANK);
+    private static boolean carriesContent(Sheet sheet, List<CellRangeAddress> merges, int column, int row) {
+        var cellRow = TABLE_START_ROW + row;
+        var cellColumn = TABLE_START_COLUMN + column;
+        if (!isBlank(cellAt(sheet, cellColumn, cellRow))) {
+            return true;
+        }
+        return merges.stream()
+                .filter(region -> region.isInRange(cellRow, cellColumn))
+                .anyMatch(region -> !isBlank(cellAt(sheet, region.getFirstColumn(), region.getFirstRow())));
     }
 
-    /** Tells whether a merge starting on an earlier row spans into this one. */
-    private static boolean isCoveredFromAbove(Sheet sheet, int rowNumber) {
-        return sheet.getMergedRegions()
-                .stream()
-                .anyMatch(region -> region.getFirstRow() < rowNumber && rowNumber <= region.getLastRow());
+    private static @Nullable Cell cellAt(Sheet sheet, int column, int row) {
+        var sheetRow = sheet.getRow(row);
+        return sheetRow == null ? null : sheetRow.getCell(column);
+    }
+
+    /** Tells whether the cell holds nothing OpenL would read, as {@code XlsSheetGridModel} judges it. */
+    private static boolean isBlank(@Nullable Cell cell) {
+        if (cell == null || cell.getCellType() == CellType.BLANK) {
+            return true;
+        }
+        return cell.getCellType() == CellType.STRING && cell.getStringCellValue().isBlank();
     }
 
     /**
@@ -570,6 +600,6 @@ public class TableCreatorService {
      * @param gridModel the grid model the copy was written into
      */
     public void save(XlsSheetGridModel gridModel) {
-        TableWriter.save(gridModel);
+        TableWriter.saveWorkbook(gridModel);
     }
 }

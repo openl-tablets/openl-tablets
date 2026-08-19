@@ -228,6 +228,46 @@ class TableCreatorServiceTest {
     }
 
     @Test
+    void rejectsColumnThatReachesTheSheetBlank() {
+        var withBlankColumn = List.of(
+                // Both rows carry a value, so neither is blank on its own — the middle column is blank in both.
+                List.of(cell("Rules Boolean Greeting()"), cell(null), cell(null)),
+                List.of(cell("Condition"), cell(null), cell("Result")));
+        var request = request("rules/Greeting.xlsx", rawTable(withBlankColumn));
+
+        // OpenL reads the table only as far as the blank column, so the cells beyond it would be lost.
+        var descriptor = simpleDescriptor();
+
+        assertThrows(BadRequestException.class,
+                () -> createModuleWithTable(descriptor, request));
+    }
+
+    @Test
+    void keepsTrailingBlankColumnTheTableSimplyDoesNotReach() throws Exception {
+        var trailingBlank = List.of(
+                List.of(cell("Rules Boolean Greeting()"), cell(null)),
+                List.of(cell("Condition"), cell(null)));
+
+        // A blank line at the edge leaves the table narrower than the payload declared, which loses nothing — the
+        // same answer a write into an existing module gives.
+        createModuleWithTable(simpleDescriptor(), request("rules/Greeting.xlsx", rawTable(trailingBlank)));
+
+        assertTrue(createdResources.containsKey("rules/Greeting.xlsx"));
+    }
+
+    @Test
+    void keepsColumnCoveredByAMergeDeclaredToItsLeft() throws Exception {
+        var merged = List.of(
+                List.of(cell("Rules Boolean Greeting()", 2), RawTableCell.COVERED_CELL),
+                // The second column carries nothing of its own, but the header really does span into it.
+                List.of(cell("Condition"), cell(null)));
+
+        createModuleWithTable(simpleDescriptor(), request("rules/Greeting.xlsx", rawTable(merged)));
+
+        assertTrue(createdResources.containsKey("rules/Greeting.xlsx"));
+    }
+
+    @Test
     void keepsRowCoveredByAMergeDeclaredAbove() throws Exception {
         var merged = List.of(
                 List.of(RawTableCell.builder().value("Rules Boolean Greeting()").rowspan(2).build()),

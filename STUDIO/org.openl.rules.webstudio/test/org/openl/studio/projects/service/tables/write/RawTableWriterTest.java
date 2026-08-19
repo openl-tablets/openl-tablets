@@ -7,14 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +38,7 @@ import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
+import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 /**
@@ -473,6 +472,67 @@ class RawTableWriterTest {
     }
 
     @Test
+    void rejectsCellUpdatesThatBlankAWholeRow() {
+        // Clearing a row one cell at a time leaves it blank on the last one, which would end the table there and
+        // drop every row below it. The first two clears are legitimate; the last one is refused.
+        apply(updateCell(2, 0, null));
+        apply(updateCell(2, 1, null));
+        assertBadRequest(updateCell(2, 2, null));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size(), "the refused update must leave the table as it was");
+        assertEquals("beta", value(source, 2, 2));
+    }
+
+    @Test
+    void rejectsCellUpdatesThatBlankAWholeColumn() {
+        // The same, one column over: a blank column cuts the table off before the columns beyond it.
+        apply(updateCell(1, 1, null));
+        apply(updateCell(2, 1, null));
+        assertBadRequest(updateCell(3, 1, null));
+
+        var source = reload(mainProject);
+        assertEquals(3, width(source), "the refused update must leave the table as it was");
+        assertEquals("hour", value(source, 3, 1));
+    }
+
+    @Test
+    void rejectsRangeUpdateThatBlanksAWholeColumn() {
+        // Every row of the block keeps a value, so the block itself is not blank — the column it blanks is.
+        assertBadRequest(updateRange(1, 1, List.of(
+                row(null, "alpha"),
+                row(null, "beta"),
+                row(null, "gamma"))));
+    }
+
+    @Test
+    void rejectsFullUpdateWithABlankColumn() {
+        // A complete matrix whose middle column is blank in every row: the rows pass their own check, and the
+        // table would still be cut off before the third column.
+        var withBlankColumn = List.of(
+                List.of(cell("Datatype Greeting"), cell(null), cell(null)),
+                List.of(cell("String"), cell(null), cell("alpha")),
+                List.of(cell("String"), cell(null), cell("beta")));
+
+        assertThrows(BadRequestException.class, () -> write(mainProject, withBlankColumn));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size(), "the refused update must leave the table as it was");
+        assertEquals("code", value(source, 1, 1));
+    }
+
+    @Test
+    void rejectsCreateWithABlankColumn() throws IOException {
+        // The table is laid out into a sheet of its own, and the middle column of the matrix reaches it blank.
+        var project = writeProject("create-blank-column", new String[][]{{"Environment"}});
+        var withBlankColumn = List.of(
+                List.of(cell("Datatype BlankColumnCheck"), cell(null), cell(null)),
+                List.of(cell("String field1"), cell(null), cell("String field2")));
+
+        assertThrows(BadRequestException.class, () -> create(project, "BlankColumn", withBlankColumn));
+    }
+
+    @Test
     void rejectsActionThatBreaksTheHeader() {
         // an action that rewrites the header to an unrecognized keyword is rejected (mirrors create/update validation)
         assertBadRequest(updateCell(0, 0, "NotATableType"));
@@ -569,6 +629,21 @@ class RawTableWriterTest {
 
     private void apply(Path project, RawTableSourceAction action) {
         new RawTableWriter(load(project)).apply(action);
+    }
+
+    private void write(Path project, List<List<RawTableCell>> source) {
+        new RawTableWriter(load(project)).write(RawTableView.builder().source(source).build());
+    }
+
+    /** Write the matrix into a sheet of its own, the way the create endpoint does. */
+    private static void create(Path project, String sheetName, List<List<RawTableCell>> source) {
+        var view = RawTableView.builder().source(source).build();
+        var grid = TableTestProjects.sheetGrid(project, sheetName);
+        ((RawTableWriter) new TableWritersFactory().getNewTableWriter(view, grid)).write(view);
+    }
+
+    private static RawTableCell cell(Object value) {
+        return RawTableCell.builder().value(value).build();
     }
 
     private void assertBadRequest(RawTableSourceAction action) {
@@ -681,67 +756,21 @@ class RawTableWriterTest {
      * Resolve the single-module project at {@code dir} and return its first table.
      */
     private static IOpenLTable load(Path dir) {
-        try {
-            var modules = ProjectResolver.getInstance().resolve(dir).getModules();
-            var projectModel = new ProjectModel(mock(WebStudio.class), null);
-            projectModel.setModuleInfo(modules.getFirst());
-            for (TableSyntaxNode tsn : projectModel.getAllTableSyntaxNodes()) {
-                var table = new TableSyntaxNodeAdapter(tsn);
-                if (table.getGridTable(IXlsTableNames.VIEW_DEVELOPER) != null) {
-                    return table;
-                }
+        for (TableSyntaxNode tsn : TableTestProjects.projectModel(dir).getAllTableSyntaxNodes()) {
+            var table = new TableSyntaxNodeAdapter(tsn);
+            if (table.getGridTable(IXlsTableNames.VIEW_DEVELOPER) != null) {
+                return table;
             }
-            throw new IllegalStateException("No table resolved in " + dir);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to resolve project at " + dir, e);
         }
+        throw new IllegalStateException("No table resolved in " + dir);
     }
 
-    /**
-     * Write a single-sheet workbook holding one table that starts at cell B2. {@code null} cells are left blank.
-     */
     private Path writeProject(String name, String[][] grid) throws IOException {
-        var dir = tempDir.resolve(name);
-        Files.createDirectories(dir);
-        try (var workbook = new XSSFWorkbook()) {
-            var sheet = workbook.createSheet(name);
-            for (var r = 0; r < grid.length; r++) {
-                var sheetRow = sheet.createRow(r + 1);
-                for (var c = 0; c < grid[r].length; c++) {
-                    if (grid[r][c] != null) {
-                        sheetRow.createCell(c + 1).setCellValue(grid[r][c]);
-                    }
-                }
-            }
-            try (OutputStream out = Files.newOutputStream(dir.resolve(name + ".xlsx"))) {
-                workbook.write(out);
-            }
-        }
-        return dir;
+        return TableTestProjects.writeProject(tempDir.resolve(name), name, name, grid);
     }
 
-    /**
-     * Write a single-table workbook whose first row is one cell merged across every column.
-     */
     private Path writeProjectWithMergedHeader(String name, String[][] grid) throws IOException {
-        var dir = tempDir.resolve(name);
-        Files.createDirectories(dir);
-        try (var workbook = new XSSFWorkbook()) {
-            var sheet = workbook.createSheet(name);
-            for (var r = 0; r < grid.length; r++) {
-                var sheetRow = sheet.createRow(r + 1);
-                for (var c = 0; c < grid[r].length; c++) {
-                    if (grid[r][c] != null) {
-                        sheetRow.createCell(c + 1).setCellValue(grid[r][c]);
-                    }
-                }
-            }
-            sheet.addMergedRegion(new CellRangeAddress(1, 1, 1, grid[0].length));
-            try (OutputStream out = Files.newOutputStream(dir.resolve(name + ".xlsx"))) {
-                workbook.write(out);
-            }
-        }
-        return dir;
+        return TableTestProjects.writeProjectWithMergedHeader(tempDir.resolve(name), name, name, grid);
     }
 
     private static final Path FIXTURE = Path.of("test-resources/org/openl/rules/table/TableLogicTest.xlsx");

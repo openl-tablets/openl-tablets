@@ -1,0 +1,20 @@
+POST /rest/projects/EPBDS-16459-Blank/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Coverage",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Datatype",
+    "name": "Coverage",
+    "source": [
+      [{"value": "Datatype Coverage"}, {"value": null}, {"value": null}],
+      [{"value": "String"}, {"value": "code"}, {"value": "alpha"}],
+      [{"value": "String"}, {"value": "text"}, {"value": "beta"}],
+      [{"value": "String"}, {"value": "hour"}, {"value": "gamma"}]
+    ]
+  }
+}
+

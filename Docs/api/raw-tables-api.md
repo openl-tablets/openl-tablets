@@ -378,6 +378,19 @@ curl -X PUT "http://localhost:8080/projects/MyProject/tables/DATA_Bank" \
 - No schema interpretation or type conversion
 - Merge regions are applied after all values are written (two-phase)
 
+**Blank lines are refused:**
+
+OpenL reads a table only as far as its first entirely blank row or column, so a write that would leave one inside
+the table is answered with `400` and `openl.error.400.table.action.line.all-empty.message`, and the workbook is
+left unchanged.
+
+- The rule holds for every write — create, full update, append, and each cell, line and range action.
+- It is checked against the table the write produces, not only against the rows the request carries: a single-cell
+  update that empties the last filled cell of its row or column is refused just as a blank row is.
+- A cell a merge spans into is not blank, so a line an existing merge crosses stays valid.
+- Blank lines around the table are not affected — they leave the table smaller than the area it occupies, which
+  loses nothing.
+
 **Example: Writing with merged cells**
 
 ```json
@@ -643,7 +656,7 @@ for (let row = 0; row < matrix.length; row++) {
 | **Headers** | Parsed list as field | Part of source matrix (row 0+) |
 | **Data Access** | Type-safe field objects | Raw cell values (Object type) |
 | **Type Info** | Field types extracted | Not included |
-| **Validation** | Validated against schema | No validation applied |
+| **Validation** | Validated against schema | Structure only: a header OpenL knows, no blank line inside |
 | **Cell Spanning** | Not exposed | Explicit colspan/rowspan |
 | **Covered Cells** | N/A | Marked with covered=true flag |
 | **Use Case** | Type-safe data access | Export/Import/Raw access |

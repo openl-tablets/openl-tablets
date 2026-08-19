@@ -2048,23 +2048,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // module is written to is locked instead.
         var lockedBefore = project.isLockedByMe();
         project.tryLockOrThrow();
-        ProjectDescriptor projectDescriptor;
         try {
-            projectDescriptor = getProjectDescriptor(project);
+            var projectDescriptor = getProjectDescriptor(project);
             requireModuleAbsent(projectDescriptor.getModules(), createTableRequest.moduleName(),
                     createTableRequest.modulePath());
             var newTableName = rawTable.name;
             // Required whether or not the project has a module to compile first: without a name the table is written
             // and then cannot be found again, which answers a successful create with an empty body.
             tableCreatorService.requireTableName(newTableName);
+            tableCreatorService.createModuleWithTable(project, projectDescriptor, createTableRequest, rawTable);
         } catch (RuntimeException e) {
-            // Every check above answers ordinary input, and a rejected request leaves no lock behind: the project
-            // would otherwise stay reserved for a write that never happened, and clearing a lock its owner never
-            // meant to take takes an administrator.
+            // The checks answer ordinary input and the layout is refused the same way, so a rejected request leaves
+            // no lock behind: the project would otherwise stay reserved for a write that never happened, and
+            // clearing a lock its owner never meant to take takes an administrator.
             releaseLockTaken(project, lockedBefore);
             throw e;
         }
-        tableCreatorService.createModuleWithTable(project, projectDescriptor, createTableRequest, rawTable);
     }
 
     /** Releases the lock this request took, leaving one the session already held alone. */

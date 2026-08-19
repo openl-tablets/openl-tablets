@@ -163,7 +163,8 @@ other, but they belong to the table type: they carry no row controls, and the ta
 filled.
 
 Blank rows never reach the workbook. OpenL reads a blank row as the end of a table, so the trailing row kept for
-input — and any row left empty in the middle — is dropped on the way out.
+input — and any row left empty in the middle — is dropped on the way out. A blank column cuts a table off in the
+same way, and the server refuses any write that would leave either one inside the table, whatever produced it.
 
 ## Lookups
 
@@ -241,7 +242,8 @@ that the dialog cannot also show.
 
 The behaviour that looks arbitrary is not; each rule is the compiler's:
 
-- A blank row ends a table, so no blank row may be written.
+- A blank row ends a table and a blank column cuts it off before the columns beyond it, so neither may be written.
+  A line an existing merge spans into is not blank — the merge keeps it part of the table.
 - The height of a lookup's top-left cell is the number of horizontal arguments, so that cell must be merged, and
   a row of the band left empty would change the count.
 - A Properties table compiles only when it declares `scope`, so that row is there from the start.

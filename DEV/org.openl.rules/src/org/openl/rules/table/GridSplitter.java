@@ -27,16 +27,25 @@ public class GridSplitter {
     }
 
     boolean containsCell(int column, int row) {
+        return containsCell(grid, column, row);
+    }
+
+    /**
+     * Tells whether a cell is one OpenL reads as part of a table.
+     *
+     * <p>A cell carries content when it holds a value of its own, or when a merge spanning it starts from a cell
+     * that holds one. Every other cell is blank, and a whole line of blank cells is where a table ends.
+     *
+     * @param grid   the grid the cell belongs to
+     * @param column absolute column of the cell
+     * @param row    absolute row of the cell
+     */
+    public static boolean containsCell(IGrid grid, int column, int row) {
         if (!grid.isEmpty(column, row)) {
             return true;// not empty cell
         }
-        if (grid.isPartOfTheMergedRegion(column, row)) {
-            var region = grid.getRegionContaining(column, row);
-            if (!grid.isEmpty(region.getLeft(), region.getTop())) {
-                return true;// part of not empty merged cell
-            }
-        }
-        return false;
+        var region = grid.getRegionContaining(column, row);
+        return region != null && !grid.isEmpty(region.getLeft(), region.getTop());// part of not empty merged cell
     }
 
     boolean containsRow(int scol, int ecol, int row) {
