@@ -388,6 +388,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-19 — run 214: idle; one new commit, a guava property bump with no new identifier. No open dead-code PR. 394 lines.
 - 08-19 — run 215: idle; no commit above the resume point, no open dead-code PR. 394 lines.
 - 08-19 — run 216: idle; third consecutive run with `origin/main` unmoved and no open dead-code PR. 393 lines.
+- 08-19 — run 217: idle; fourth consecutive run, `origin/main` unmoved, no open dead-code PR. 393 lines.
