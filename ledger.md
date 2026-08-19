@@ -2,16 +2,15 @@
 
 ## Resume point
 
-- **Converged**: every queue row and vein done, `main` at `ee3c3fd0db` *Bump com.google.guava:guava from 33.7.0-jre to
-  33.7.1-jre*, one surface-free Dependabot bump above this routine's own *Drop the common.css titleColumn rules
-  orphaned by the retired commit info dialog*. A SHA is usually gone from the next clone — match the **subject** in
-  `git log --oneline -25 origin/main`. New scope is only the commits above it; never invent a detector. The idle pass
-  is two calls: those commits, and the open-PR baseline. Never re-diagnose CI on an unchanged SHA.
-- Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`, and read its
-  **deleted** lines first — but an identifier an additive commit *adds* can also land with no consumer, so check each
-  added locale key and model repo-wide. A commit deleting a screen is the richest vein: its locale keys, service
-  functions, helper modules, dropped `throws`, and class/id selectors over `webstudio/webapp/css`. Search a dropped
-  helper **per method** — the class survives through its other callers while the dropped method keeps only its own test.
+- **Converged**: every queue row and vein done, `main` at *Bump com.google.guava:guava from 33.7.0-jre to 33.7.1-jre*
+  — match that **subject** in `git log --oneline -25 origin/main`, since the SHA is gone from a fresh clone. New scope
+  is only the commits above it; never invent a detector. The idle pass is two calls, those commits and the open-PR
+  baseline. Never re-diagnose CI on an unchanged SHA.
+- Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`; read its
+  **deleted** lines first, and check every locale key and model an additive commit *adds* repo-wide too. A commit
+  deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws` and
+  class/id selectors over `webstudio/webapp/css`. Search a dropped helper **per method** — the class survives through
+  its other callers while the dropped method keeps only its own test.
 
 ## Change-type queue
 
@@ -389,6 +388,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-19 — run 213: idle; sixth unchanged head, confirmed against GitHub, no open dead-code PR. 394 lines.
 - 08-19 — run 214: idle; one new commit, a guava property bump with no new identifier. No open dead-code PR. 394 lines.
 - 08-19 — run 215: idle; no commit above the resume point, no open dead-code PR. 394 lines.
+- 08-19 — run 216: idle; third consecutive run with `origin/main` unmoved and no open dead-code PR. 393 lines.
