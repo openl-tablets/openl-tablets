@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- **Converged, and `origin/main` has yielded nothing for nine runs running**: every queue row and vein is done. Tip
+- **Converged, and `origin/main` has yielded nothing for ten runs running**: every queue row and vein is done. Tip
   is the *prepare for next development iteration* commit directly above *[maven-release-plugin] prepare release
   6.4.0* — match the **release subject** in `git log --oneline -25 origin/main`, since the SHA is gone from a fresh
   clone and the iteration subject repeats at every release. New scope is only the commits above that pair; never
@@ -25,7 +25,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Merged PRs
 
-- #1933 and #1940, both merged by yurkom with the SonarCloud Quality Gate red — see *Container facts*.
 - #2004, 11 CSS lines, merged after four days green and unreviewed — a deletion PR waits on a maintainer, and
   `mergeable_state` `blocked` or `unknown` is that wait, never a conflict. Settle mergeability locally with
   `git merge-tree --write-tree origin/main <branch>`; never push a catch-up merge to re-run green CI. Head SHA,
@@ -365,6 +364,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-19 — run 220: idle, one `Docs/` date commit on `main`; ledger compacted 399 to 366 lines.
 - 08-19 — run 221: idle; the 6.4.0 release-plugin pair on `main` orphaned nothing, no open dead-code PR.
 - 08-19 — run 222: idle in two calls; `main` tip unmoved from the resume point, no open dead-code PR.
+- 08-19 — run 223: idle in two calls; `main` tip still unmoved, no open dead-code PR.
