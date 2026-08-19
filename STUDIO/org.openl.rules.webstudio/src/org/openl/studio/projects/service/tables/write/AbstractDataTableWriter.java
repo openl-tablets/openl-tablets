@@ -10,6 +10,7 @@ import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.AbstractDataView;
 import org.openl.studio.projects.model.tables.DataHeaderView;
 import org.openl.studio.projects.model.tables.DataRowView;
@@ -53,6 +54,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
      */
     @Override
     protected final void updateBusinessBody(T tableView) {
+        requireColumnTitles(tableView.headers);
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
 
         var col = 0;
@@ -87,6 +89,31 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
             if (width < currentWidth) {
                 removeColumns(tableBody, currentWidth - width, width);
             }
+        }
+    }
+
+    /**
+     * Rejects a table that titles none of its columns.
+     *
+     * <p>OpenL reads the row under the field names as the column titles, so the row belongs to the table whether
+     * the table titles its columns or not. A table that titles none of them leaves that row blank, and a blank
+     * row ends the table and drops every data row below it.
+     *
+     * <p>A single column left untitled among titled ones is accepted: the row still carries the titles of the
+     * other columns, so it is not blank. This is also what a table read from a sheet reports, so what a read
+     * returns can always be written back.
+     *
+     * <p>Not covered by the blank-line guard the save goes through, and not only a better-worded duplicate of it:
+     * a table carrying no data rows ends with the title row, and a blank line at the edge of the table is one
+     * that guard deliberately tolerates.
+     */
+    private static void requireColumnTitles(Collection<DataHeaderView> headers) {
+        if (headers.isEmpty()) {
+            // Reported for what it is: a table with no column at all has no title row to speak of.
+            throw new BadRequestException("table.column.required.message");
+        }
+        if (headers.stream().noneMatch(header -> StringUtils.isNotBlank(header.displayName))) {
+            throw new BadRequestException("table.column-title.required.message");
         }
     }
 
