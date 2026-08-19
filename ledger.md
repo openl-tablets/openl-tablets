@@ -389,6 +389,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-18 — run 210: idle; third consecutive unchanged `main` head, no open dead-code PR, no compaction owed. 395 lines.
 - 08-18 — run 211: idle; fourth unchanged head, the tip also confirmed against GitHub, no open dead-code PR. 395 lines.
 - 08-18 — run 212: idle; fifth unchanged head, confirmed against GitHub. Tightened the Resume point to its spec. 394 lines.
+- 08-19 — run 213: idle; sixth unchanged head, confirmed against GitHub, no open dead-code PR. 394 lines.
