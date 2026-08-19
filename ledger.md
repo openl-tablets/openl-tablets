@@ -2,10 +2,11 @@
 
 ## Resume point
 
-- **Converged**: every queue row and vein done, `main` at *Bump com.google.guava:guava from 33.7.0-jre to 33.7.1-jre*
-  — match that **subject** in `git log --oneline -25 origin/main`, since the SHA is gone from a fresh clone. New scope
-  is only the commits above it; never invent a detector. The idle pass is two calls, those commits and the open-PR
-  baseline. Never re-diagnose CI on an unchanged SHA.
+- **Converged, and `origin/main` has not moved for five runs**: every queue row and vein done, tip still *Bump
+  com.google.guava:guava from 33.7.0-jre to 33.7.1-jre* — match that **subject** in `git log --oneline -25
+  origin/main`, since the SHA is gone from a fresh clone. New scope is only the commits above it; never invent a
+  detector. The idle pass is two calls, those commits and the open-PR baseline. Never re-diagnose CI on an
+  unchanged SHA.
 - Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`; read its
   **deleted** lines first, and check every locale key and model an additive commit *adds* repo-wide too. A commit
   deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws` and
@@ -388,6 +389,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-19 — run 215: idle; no commit above the resume point, no open dead-code PR. 394 lines.
 - 08-19 — run 216: idle; third consecutive run with `origin/main` unmoved and no open dead-code PR. 393 lines.
 - 08-19 — run 217: idle; fourth consecutive run, `origin/main` unmoved, no open dead-code PR. 393 lines.
+- 08-19 — run 218: idle; fifth consecutive run, `origin/main` unmoved, no open dead-code PR. 394 lines.
