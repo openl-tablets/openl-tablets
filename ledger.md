@@ -2,11 +2,11 @@
 
 ## Resume point
 
-- **Converged**: every queue row and vein done, `main` at this routine's own commit `a1658b7a79` *Drop the common.css
-  titleColumn rules orphaned by the retired commit info dialog*. That SHA is usually gone from the next clone — match
-  the **subject** in `git log --oneline -25 origin/main`. New scope is only the commits above it; never invent a
-  detector. The idle pass is two calls: those commits, and the open-PR baseline. Never re-diagnose CI on an
-  unchanged SHA.
+- **Converged**: every queue row and vein done, `main` at `ee3c3fd0db` *Bump com.google.guava:guava from 33.7.0-jre to
+  33.7.1-jre*, one surface-free Dependabot bump above this routine's own *Drop the common.css titleColumn rules
+  orphaned by the retired commit info dialog*. A SHA is usually gone from the next clone — match the **subject** in
+  `git log --oneline -25 origin/main`. New scope is only the commits above it; never invent a detector. The idle pass
+  is two calls: those commits, and the open-PR baseline. Never re-diagnose CI on an unchanged SHA.
 - Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`, and read its
   **deleted** lines first — but an identifier an additive commit *adds* can also land with no consumer, so check each
   added locale key and model repo-wide. A commit deleting a screen is the richest vein: its locale keys, service
@@ -389,6 +389,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-18 — run 211: idle; fourth unchanged head, the tip also confirmed against GitHub, no open dead-code PR. 395 lines.
 - 08-18 — run 212: idle; fifth unchanged head, confirmed against GitHub. Tightened the Resume point to its spec. 394 lines.
 - 08-19 — run 213: idle; sixth unchanged head, confirmed against GitHub, no open dead-code PR. 394 lines.
+- 08-19 — run 214: idle; one new commit, a guava property bump with no new identifier. No open dead-code PR. 394 lines.
