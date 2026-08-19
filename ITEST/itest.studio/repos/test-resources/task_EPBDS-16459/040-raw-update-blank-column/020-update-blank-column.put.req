@@ -1,0 +1,14 @@
+PUT /rest/projects/EPBDS-16459-Blank/tables/4387064d9c680055c841da8f6828d5b4 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "RawSource",
+  "source": [
+    [{"value": "Datatype Coverage"}, {"value": null}, {"value": null}],
+    [{"value": "String"}, {"value": null}, {"value": "alpha"}],
+    [{"value": "String"}, {"value": null}, {"value": "beta"}],
+    [{"value": "String"}, {"value": null}, {"value": "gamma"}]
+  ]
+}
+

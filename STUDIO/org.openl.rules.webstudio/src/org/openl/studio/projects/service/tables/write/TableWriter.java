@@ -6,7 +6,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -17,6 +19,7 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.CellKey.CellKeyFactory;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
@@ -123,7 +126,9 @@ public abstract class TableWriter<T extends TableView> {
             gridTable.edit();
             clearMergedRegions(gridTable);
             clearCells(gridTable);
-            save();
+            // The table is meant to be gone, so the area it occupied is left blank on purpose — saved past the
+            // blank-line guard that every write goes through.
+            saveWorkbook((XlsSheetGridModel) gridTable.getGrid());
         } finally {
             gridTable.stopEditing();
         }
@@ -288,12 +293,59 @@ public abstract class TableWriter<T extends TableView> {
         return metaInfoWriter;
     }
 
+    /** Persist the table that was written, refusing to leave it split by a blank line. */
     protected void save() {
-        save((XlsSheetGridModel) getGridTable().getGrid());
+        requireNoBlankLine();
+        saveWorkbook((XlsSheetGridModel) getGridTable().getGrid());
     }
 
-    /** Persist the workbook the grid belongs to, dropping the styles the write left unused. */
-    public static void save(XlsSheetGridModel gridModel) {
+    /**
+     * Rejects a write that leaves a blank row or a blank column inside the table.
+     *
+     * <p>OpenL reads a table as the block of filled cells reachable from its top-left corner, so a blank line
+     * inside it ends the table there. Everything beyond that line stops being part of the table and never
+     * compiles, while the write itself reports success.
+     *
+     * <p>A cell a merge spans into counts as filled, so a line that a merge declared elsewhere legitimately
+     * crosses is not blank.
+     */
+    private void requireNoBlankLine() {
+        var view = getGridTable(IXlsTableNames.VIEW_DEVELOPER);
+        var region = view.getRegion();
+        var grid = view.getGrid();
+        IntPredicate rowFilled = row -> IntStream.rangeClosed(region.getLeft(), region.getRight())
+                .anyMatch(column -> GridSplitter.containsCell(grid, column, row));
+        IntPredicate columnFilled = column -> IntStream.rangeClosed(region.getTop(), region.getBottom())
+                .anyMatch(row -> GridSplitter.containsCell(grid, column, row));
+        if (hasBlankLineInside(region.getTop(), region.getBottom(), rowFilled)
+                || hasBlankLineInside(region.getLeft(), region.getRight(), columnFilled)) {
+            throw new BadRequestException("table.action.line.all-empty.message");
+        }
+    }
+
+    /**
+     * Whether a blank line sits between two filled ones, which is what splits a table.
+     *
+     * <p>Only the block between the first and the last filled line counts. Blank lines around the table leave it
+     * smaller than the area it was written into, which loses nothing.
+     *
+     * <p>Shared with the writer that lays a table into a workbook of its own, which has no grid to scan and finds
+     * its filled lines over the sheet instead.
+     *
+     * @param filled tells whether the line at the given index carries content
+     */
+    public static boolean hasBlankLineInside(int from, int to, IntPredicate filled) {
+        var lines = IntStream.rangeClosed(from, to).filter(filled).summaryStatistics();
+        return lines.getCount() > 0 && lines.getMax() - lines.getMin() + 1 > lines.getCount();
+    }
+
+    /**
+     * Persist the workbook the grid belongs to, dropping the styles the write left unused.
+     *
+     * <p>Writes what the grid holds as it stands. A caller writing a table saves through {@link #save()} instead,
+     * which first refuses a table left split by a blank line.
+     */
+    public static void saveWorkbook(XlsSheetGridModel gridModel) {
         try {
             var workbook = gridModel.getSheetSource().getWorkbookSource();
             if (workbook.getWorkbook() instanceof XSSFWorkbook xssfWorkbook) {

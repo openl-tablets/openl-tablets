@@ -1130,6 +1130,41 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void create_new_table_releases_the_lock_when_the_table_layout_is_refused() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(project.isOpened()).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(emptyModulesDescriptor());
+        var service = newService(
+                acl,
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                tableCreatorService);
+        var request = new CreateNewTableRequest(
+                "pricing",
+                "Rules",
+                "rules/Pricing.xlsx",
+                rawTable("Pricing"));
+        // Not locked when the request arrives, and locked by the request itself before the layout is refused.
+        when(project.isLockedByMe()).thenReturn(false, true);
+        // What a matrix carrying a blank line is answered with once it reaches the sheet.
+        doThrow(new BadRequestException("table.action.line.all-empty.message"))
+                .when(tableCreatorService).createModuleWithTable(any(), any(), any(), any());
+
+        assertThrows(BadRequestException.class, () -> service.createNewTable(project, request));
+
+        // A refused layout is ordinary input too: the project must not stay reserved for a write that never
+        // happened, because clearing such a lock takes an administrator.
+        verify(project).unlock();
+    }
+
+    @Test
     void copy_table_into_a_new_module_writes_the_copy_and_returns_no_identifier() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var webStudio = mock(WebStudio.class);

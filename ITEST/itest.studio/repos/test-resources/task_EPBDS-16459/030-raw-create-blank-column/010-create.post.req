@@ -1,0 +1,18 @@
+POST /rest/projects/EPBDS-16459-Blank/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "BlankColumn",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Datatype",
+    "name": "BlankColumnCheck",
+    "source": [
+      [{"value": "Datatype BlankColumnCheck"}, {"value": null}, {"value": null}],
+      [{"value": "String field1"}, {"value": null}, {"value": "String field2"}]
+    ]
+  }
+}
+
