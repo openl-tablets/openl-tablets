@@ -13,13 +13,18 @@ interface EditToolbarProps {
     labels: { edit: string, save: string, cancel: string }
     /** Disables every button — used while an unrelated write (e.g. a migrate) is in flight for the same file. */
     disabled?: boolean | undefined
+    /**
+     * Disables the Edit button alone — used while the text a draft would be taken from is being replaced.
+     * An edit already under way is untouched: it ends by its own Save or Cancel.
+     */
+    disabledEdit?: boolean | undefined
 }
 
 /**
  * The small Edit / Save + Cancel control the editable panels share. One affordance, one look, so the
  * Overview, Publish and other tabs of a project never drift into a zoo of button sizes or orders.
  */
-export const EditToolbar = ({ editing, saving, onEdit, onSave, onCancel, testId, labels, disabled = false }: EditToolbarProps) => (
+export const EditToolbar = ({ editing, saving, onEdit, onSave, onCancel, testId, labels, disabled = false, disabledEdit = false }: EditToolbarProps) => (
     <Space size={8}>
         {editing
             ? (
@@ -33,7 +38,7 @@ export const EditToolbar = ({ editing, saving, onEdit, onSave, onCancel, testId,
                 </>
             )
             : (
-                <Button data-testid={`${testId}-edit`} disabled={disabled} icon={<EditOutlined />} onClick={onEdit} size="small">
+                <Button data-testid={`${testId}-edit`} disabled={disabled || disabledEdit} icon={<EditOutlined />} onClick={onEdit} size="small">
                     {labels.edit}
                 </Button>
             )}

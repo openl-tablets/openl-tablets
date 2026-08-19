@@ -705,6 +705,9 @@ interface DescriptorEditor {
  *
  * Editing is only offered once the file has been read — a failed read must not let a save overwrite a
  * real rules.xml from an empty base, silently dropping everything it declared.
+ *
+ * An edit under way ends only by its own Save or Cancel: nothing it does reaches the project before the
+ * save, and a reload of the same project refreshes the read view underneath it without dropping it.
  */
 const useRulesDescriptor = (project: Project, reloadToken: number | undefined, onSaved: () => void) => {
     const { t } = useTranslation('repository')
@@ -717,17 +720,28 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     const [editing, setEditing] = useState(false)
     const [draft, setDraft] = useState<RulesDescriptor>(EMPTY_RULES_DESCRIPTOR)
     const [saving, setSaving] = useState(false)
+    // The OpenAPI specification picked from the file system, waiting for the save that writes it into the
+    // project: until a save takes it, cancelling the edit leaves the project as it was.
+    const [stagedUpload, setStagedUpload] = useState<File | null>(null)
     // The projects a dependency can be chosen from — read once when editing starts.
     const [projectNames, setProjectNames] = useState<string[]>([])
     // The project the descriptor on screen belongs to; another one starts from nothing, the same one is
     // only refreshed.
     const readFor = useRef<string | null>(null)
+    // How many saves have written this descriptor, so a read that started before one can tell that its
+    // text is older than what is now in the file.
+    const saves = useRef(0)
     // Whether the shown descriptor is being replaced by a fresh read of the same project.
     const [refreshing, setRefreshing] = useState(false)
 
+    /** Leaves the edit: the file it staged goes with it, since only a save ever writes one. */
+    const endEditing = () => {
+        setEditing(false)
+        setStagedUpload(null)
+    }
+
     useEffect(() => {
         let cancelled = false
-        setEditing(false)
         // Re-reading the same project keeps what is already shown: dropping back to the loading state would
         // take the Edit and Migrate buttons away and put them back, which reads as a flicker, not as
         // progress. The reload the re-read belongs to shows itself over the whole project.
@@ -735,20 +749,29 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
         if (!sameProject) {
             readFor.current = project.id
             setState('loading')
+            // Another project is another descriptor, so an edit of the previous one has nothing to save here.
+            endEditing()
         }
         // The buttons keep their place through the re-read, but not their offer: an edit started here would
-        // take its draft from the descriptor about to be replaced and save it back over the newer one.
+        // take its draft from the descriptor about to be replaced and save it back over the newer one. An
+        // edit already under way keeps both draft and offer — it ends by its own Save or Cancel, and is
+        // saved over the base it was started from; a text this read brings while the save runs is dropped,
+        // so the base can never move under a save.
         setRefreshing(sameProject)
+        const savesAtRead = saves.current
         rootFileExists(project.id, 'rules.xml')
             .then(async exists => {
                 const xml = exists ? await getFileContent(project.id, 'rules.xml') : ''
-                if (!cancelled) {
+                if (cancelled) {
+                    return
+                }
+                if (saves.current === savesAtRead) {
                     setFileExists(exists)
                     setOriginalXml(xml)
                     setRules(parseRulesDescriptor(xml))
-                    setState('ready')
-                    setRefreshing(false)
                 }
+                setState('ready')
+                setRefreshing(false)
             })
             .catch(() => {
                 if (!cancelled) {
@@ -771,19 +794,43 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
             .catch(() => setProjectNames([]))
     }
 
-    const cancelEditing = () => setEditing(false)
+    /**
+     * Writes the picked OpenAPI specification into the project, and says whether the save may go on.
+     *
+     * Only a file the draft still names is written: a later pick replaced it, and writing it anyway would
+     * leave the project with a specification nothing refers to.
+     */
+    const writeStagedUpload = async (): Promise<boolean> => {
+        if (stagedUpload === null || draft.openapi?.path !== stagedUpload.name) {
+            return true
+        }
+        try {
+            await uploadFile(project.id, '', stagedUpload, stagedUpload.name)
+            return true
+        } catch (e) {
+            notification.error({ title: t('browser.overview.openapi_upload_failed'), description: errorMessage(e) })
+            return false
+        }
+    }
 
     const saveEditing = async () => {
         setSaving(true)
         try {
+            if (!await writeStagedUpload()) {
+                return
+            }
             const xml = serializeRulesDescriptor(draft, originalXml)
             await writeRootFile(project.id, 'rules.xml', xml, fileExists ? 'overwrite' : 'create')
+            // The file now says what this save wrote, so a read that started before it is answering a
+            // question this save has answered better: its text is dropped rather than put back. A save
+            // that failed wrote nothing, and leaves the read that was in flight to answer.
+            saves.current += 1
             // Adopt the saved text at once, so the read view shows it without waiting for the reload and a
             // second save writes over the file that now exists rather than re-creating it from nothing.
             setRules(draft)
             setOriginalXml(xml)
             setFileExists(true)
-            setEditing(false)
+            endEditing()
             onSaved()
         } catch (e) {
             notification.error({ title: t('browser.overview.save_failed'), description: errorMessage(e) })
@@ -796,7 +843,11 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     const moduleFilters = useMemo(() => moduleFiltersOf(rules.moduleDeclarations), [rules.moduleDeclarations])
 
     const editor: DescriptorEditor = { editing, shown: editing ? draft : rules, editDraft }
-    return { state, refreshing, editing, saving, fileExists, projectNames, moduleFilters, editor, startEditing, cancelEditing, saveEditing }
+    return {
+        state, refreshing, editing, saving, fileExists, projectNames, moduleFilters, editor,
+        startEditing, cancelEditing: endEditing, saveEditing,
+        staged: stagedUpload, stageUpload: (file: File) => setStagedUpload(file),
+    }
 }
 
 /**
@@ -1160,20 +1211,22 @@ const isOpenApiFile = (path: string): boolean => /\.(json|yaml|yml)$/i.test(path
 
 /**
  * The OpenAPI settings, edited in place the way the legacy editor configured them: the specification is
- * picked from the project files or uploaded, and the mode says whether the project is validated against
- * it or its tables are generated from it. The module names only matter for generation, so they only show
- * for it.
+ * picked from the project files or from the file system, and the mode says whether the project is
+ * validated against it or its tables are generated from it. The module names only matter for generation,
+ * so they only show for it.
+ *
+ * A specification picked from the file system reaches the project with the save that keeps it, not with
+ * the picking.
  */
-const OpenApiSection = ({ editor, projectId }: { editor: DescriptorEditor, projectId: string }) => {
+const OpenApiSection = ({ editor, projectId, staged, onPicked }: { editor: DescriptorEditor, projectId: string, staged: File | null, onPicked: (file: File) => void }) => {
     const { t } = useTranslation('repository')
-    const { notification } = App.useApp()
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { editing, shown, editDraft } = editor
     const [files, setFiles] = useState<string[]>([])
-    const [uploading, setUploading] = useState(false)
 
-    // The pickable files are read when the editing starts; without them the upload still works.
+    // The pickable files are read when the editing starts; without them a file can still be picked from
+    // the file system.
     useEffect(() => {
         if (!editing) {
             return
@@ -1203,20 +1256,15 @@ const OpenApiSection = ({ editor, projectId }: { editor: DescriptorEditor, proje
         </span>
     )
 
-    const upload = async (file: File) => {
-        setUploading(true)
-        try {
-            await uploadFile(projectId, '', file, file.name)
-            editOpenApi(shown, editDraft, { path: file.name })
-            setFiles(current => (current.includes(file.name)
-                ? current
-                : [...current, file.name].sort((left, right) => left.localeCompare(right))))
-        } catch (e) {
-            notification.error({ title: t('browser.overview.openapi_upload_failed'), description: errorMessage(e) })
-        } finally {
-            setUploading(false)
-        }
+    const pick = (file: File) => {
+        onPicked(file)
+        editOpenApi(shown, editDraft, { path: file.name })
     }
+
+    // A picked file is not in the project yet, so it is offered beside the ones that are.
+    const pickable = staged !== null && !files.includes(staged.name)
+        ? [...files, staged.name].sort((left, right) => left.localeCompare(right))
+        : files
 
     const row = (label: string, value: string) => (
         <div className={styles.openapiRow}>
@@ -1244,7 +1292,7 @@ const OpenApiSection = ({ editor, projectId }: { editor: DescriptorEditor, proje
                                     allowClear
                                     className={styles.openapiFileSelect}
                                     data-testid="edit-openapi-path"
-                                    options={files.map(file => ({ label: file, value: file }))}
+                                    options={pickable.map(file => ({ label: file, value: file }))}
                                     placeholder={t('browser.overview.openapi_pick')}
                                     showSearch={{ optionFilterProp: 'label' }}
                                     size="small"
@@ -1257,7 +1305,7 @@ const OpenApiSection = ({ editor, projectId }: { editor: DescriptorEditor, proje
                                 />
                                 <Upload
                                     accept=".json,.yaml,.yml"
-                                    beforeUpload={file => { void upload(file); return false }}
+                                    beforeUpload={file => { pick(file); return false }}
                                     showUploadList={false}
                                 >
                                     <Tooltip title={t('browser.overview.openapi_upload')}>
@@ -1265,7 +1313,6 @@ const OpenApiSection = ({ editor, projectId }: { editor: DescriptorEditor, proje
                                             aria-label={t('browser.overview.openapi_upload')}
                                             data-testid="edit-openapi-upload"
                                             icon={<UploadOutlined />}
-                                            loading={uploading}
                                             size="small"
                                         />
                                     </Tooltip>
@@ -1442,14 +1489,19 @@ export const OverviewPanel = ({
         projectId: project.id,
         tags: project.tags ?? {},
     })
+    // The sections turn into fields off the edit alone, so an edit under way always keeps the toolbar
+    // that ends it: a re-read that fails, a migration that becomes due or a write right lost in between
+    // must not stand the user in a form with no Save and no Cancel.
+    const editBar = descriptor.editing || (canWrite && descriptor.state === 'ready')
     return (
         <div className={styles.panel} data-testid="overview-panel">
             <div className={styles.left} data-testid="overview-left">
-                {canWrite && descriptor.state === 'ready' && (
+                {editBar && (
                     <div className={styles.editBar}>
-                        {!migration.mustMigrateBeforeEditing && (
+                        {(descriptor.editing || !migration.mustMigrateBeforeEditing) && (
                             <EditToolbar
-                                disabled={migration.migrating || descriptor.refreshing}
+                                disabled={migration.migrating}
+                                disabledEdit={descriptor.refreshing}
                                 editing={descriptor.editing}
                                 labels={{ edit: t('browser.overview.edit'), save: t('browser.overview.save'), cancel: t('browser.overview.cancel') }}
                                 onCancel={descriptor.cancelEditing}
@@ -1505,7 +1557,7 @@ export const OverviewPanel = ({
                     sources={project.descriptor?.sources ?? []}
                     sourcesDefault={project.descriptor?.sourcesDefault ?? false}
                 />
-                <OpenApiSection editor={descriptor.editor} projectId={project.id} />
+                <OpenApiSection editor={descriptor.editor} onPicked={descriptor.stageUpload} projectId={project.id} staged={descriptor.staged} />
             </div>
             <MetaColumn
                 busy={busy}

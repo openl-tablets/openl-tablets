@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { OverviewPanel } from './OverviewPanel'
 import { ProjectStatus } from '../../constants/project'
-import { getFileContent } from '../../services/files'
+import { getFileContent, rootFileExists, uploadFile, writeRootFile } from '../../services/files'
 import { getProjectMigration, migrateProject } from '../../services/migration'
 import type { Project } from '../../types/projects'
 
@@ -27,10 +27,22 @@ vi.mock('../../services/projectStatus', () => ({
 vi.mock('../../services/files', () => ({
     getFileContent: vi.fn(),
     rootFileExists: vi.fn().mockResolvedValue(true),
+    uploadFile: vi.fn().mockResolvedValue(undefined),
     writeRootFile: vi.fn().mockResolvedValue(undefined),
 }))
 
 const setRulesXml = (xml: string) => vi.mocked(getFileContent).mockResolvedValue(xml)
+
+/** The input behind the OpenAPI upload button — what a file is picked through. */
+const fileInput = (): HTMLInputElement => {
+    const input = document.querySelector('input[type="file"]')
+    if (!(input instanceof HTMLInputElement)) {
+        throw new Error('the OpenAPI upload input is not rendered')
+    }
+    return input
+}
+
+const openApiFile = () => new File(['{}'], 'spec.json', { type: 'application/json' })
 
 vi.mock('../../services/repositories', () => ({
     getProjectFiles: vi.fn().mockResolvedValue([
@@ -78,17 +90,20 @@ const base: Project = {
     status: ProjectStatus.Local,
 }
 
+/** The panel under test — a reload rerenders this same element with a bumped token. */
+const panel = (project: Project, { repoType, reloadToken = 0 }: { repoType?: string | undefined, reloadToken?: number } = {}) => (
+    <App>
+        <MemoryRouter>
+            <OverviewPanel onUnlock={() => {}} project={project} reloadToken={reloadToken} repoLabel="design" repoType={repoType} />
+        </MemoryRouter>
+    </App>
+)
+
 const renderPanel = async (project: Project, repoType?: string) => {
     let result!: ReturnType<typeof render>
     // The overview reads rules.xml on mount; flush that async effect so nothing updates after the test.
     await act(async () => {
-        result = render(
-            <App>
-                <MemoryRouter>
-                    <OverviewPanel onUnlock={() => {}} project={project} repoLabel="design" repoType={repoType} />
-                </MemoryRouter>
-            </App>
-        )
+        result = render(panel(project, { repoType }))
         await Promise.resolve()
         await Promise.resolve()
     })
@@ -99,6 +114,9 @@ describe('OverviewPanel', () => {
     beforeEach(() => {
         // No rules.xml text by default; a test that needs it sets its own.
         setRulesXml('')
+        // Nothing is written on mount, so what a test finds written is what the test itself caused.
+        vi.mocked(uploadFile).mockClear()
+        vi.mocked(writeRootFile).mockClear()
     })
 
     it('hides empty sections and metadata fields without placeholders', async () => {
@@ -383,7 +401,6 @@ describe('OverviewPanel', () => {
     })
 
     it('edits the descriptor text in place and saves it back to rules.xml', async () => {
-        const { writeRootFile } = await import('../../services/files')
         setRulesXml('<project><name>P</name><comment>old</comment></project>')
         const onChanged = vi.fn()
         await act(async () => {
@@ -430,7 +447,6 @@ describe('OverviewPanel', () => {
     })
 
     it('edits the sources and the declared dependencies, and writes them to rules.xml', async () => {
-        const { writeRootFile } = await import('../../services/files')
         setRulesXml('<project><name>P</name></project>')
         await act(async () => {
             render(
@@ -470,7 +486,6 @@ describe('OverviewPanel', () => {
 
 
     it('configures the OpenAPI file and mode inline, the way the legacy editor did', async () => {
-        const { writeRootFile } = await import('../../services/files')
         setRulesXml('<project><name>P</name></project>')
         await act(async () => {
             render(
@@ -509,7 +524,6 @@ describe('OverviewPanel', () => {
     })
 
     it('removes the whole OpenAPI configuration when the file is cleared', async () => {
-        const { writeRootFile } = await import('../../services/files')
         setRulesXml(`
             <project>
                 <name>P</name>
@@ -550,6 +564,177 @@ describe('OverviewPanel', () => {
         expect(saved).not.toContain('<mode>')
     })
 
+    it('picks an OpenAPI file without writing anything to the project', async () => {
+        setRulesXml('<project><name>P</name></project>')
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        await user.click(screen.getByTestId('overview-edit'))
+        await user.upload(fileInput(), openApiFile())
+
+        // The descriptor names the picked file at once, so the edit reads as it would be saved.
+        expect(within(screen.getByTestId('edit-openapi-path')).getByTitle('spec.json')).toBeInTheDocument()
+        // Nothing reached the project though, and the edit is still the user's to finish.
+        expect(uploadFile).not.toHaveBeenCalled()
+        expect(writeRootFile).not.toHaveBeenCalled()
+        expect(screen.getByTestId('overview-save')).toBeInTheDocument()
+    })
+
+    it('writes a picked OpenAPI file into the project with the save that keeps it', async () => {
+        setRulesXml('<project><name>P</name></project>')
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        await user.click(screen.getByTestId('overview-edit'))
+        const spec = openApiFile()
+        await user.upload(fileInput(), spec)
+        await user.click(screen.getByTestId('overview-save'))
+
+        await waitFor(() => expect(uploadFile).toHaveBeenCalledWith('p1', '', spec, 'spec.json'))
+        const saved = vi.mocked(writeRootFile).mock.calls.at(-1)![2]
+        expect(saved).toContain('<path>spec.json</path>')
+    })
+
+    it('keeps the edit when the picked OpenAPI file cannot be written', async () => {
+        vi.mocked(uploadFile).mockRejectedValueOnce(new Error('no space left'))
+        setRulesXml('<project><name>P</name></project>')
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        await user.click(screen.getByTestId('overview-edit'))
+        await user.upload(fileInput(), openApiFile())
+        await user.click(screen.getByTestId('overview-save'))
+
+        // A descriptor naming a file the project does not have is worse than an edit left to finish, so
+        // the save stops and the picked file stays on offer for another try.
+        await waitFor(() => expect(screen.getByTestId('overview-save')).toBeEnabled())
+        expect(writeRootFile).not.toHaveBeenCalled()
+        expect(within(screen.getByTestId('edit-openapi-path')).getByTitle('spec.json')).toBeInTheDocument()
+    })
+
+    it('forgets a picked OpenAPI file when the edit is cancelled', async () => {
+        setRulesXml('<project><name>P</name></project>')
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        await user.click(screen.getByTestId('overview-edit'))
+        await user.upload(fileInput(), openApiFile())
+        await user.click(screen.getByTestId('overview-cancel'))
+
+        // The next edit starts from the descriptor as it is, so the dropped file is written by no save.
+        await user.click(screen.getByTestId('overview-edit'))
+        await user.click(screen.getByTestId('overview-save'))
+
+        await waitFor(() => expect(writeRootFile).toHaveBeenCalled())
+        expect(uploadFile).not.toHaveBeenCalled()
+        expect(vi.mocked(writeRootFile).mock.calls.at(-1)![2]).not.toContain('spec.json')
+    })
+
+    it('keeps an edit under way when the project is read again', async () => {
+        setRulesXml('<project><name>P</name></project>')
+        const project = { ...base, capabilities: { canWrite: true } }
+        const result = await renderPanel(project)
+
+        await user.click(screen.getByTestId('overview-edit'))
+        await user.type(screen.getByTestId('edit-description'), 'Rates')
+
+        // Anything the project changes — an upload of its own, a commit by someone else — pings the page,
+        // which re-reads the project underneath the edit.
+        await act(async () => {
+            result.rerender(panel(project, { reloadToken: 1 }))
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+
+        // The edit ends by its own Save or Cancel, so it is still on screen with what was typed into it.
+        expect(screen.getByTestId('overview-save')).toBeInTheDocument()
+        expect(screen.getByTestId('edit-description')).toHaveValue('Rates')
+    })
+
+    it('lets a reload answer when the save it raced with failed', async () => {
+        setRulesXml('<project><name>P</name></project>')
+        const project = { ...base, capabilities: { canWrite: true } }
+        const result = await renderPanel(project)
+
+        await user.click(screen.getByTestId('overview-edit'))
+
+        // A reload starts while the edit is open, and its read of rules.xml hangs.
+        let rulesXml!: (xml: string) => void
+        vi.mocked(getFileContent).mockReturnValueOnce(new Promise<string>(resolve => { rulesXml = resolve }))
+        await act(async () => {
+            result.rerender(panel(project, { reloadToken: 1 }))
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+
+        // The save fails, so it wrote nothing and has no newer text of its own to keep.
+        vi.mocked(writeRootFile).mockRejectedValueOnce(new Error('locked'))
+        await user.click(screen.getByTestId('overview-save'))
+        await waitFor(() => expect(writeRootFile).toHaveBeenCalled())
+
+        await act(async () => {
+            rulesXml('<project><name>P</name><comment>from the reload</comment></project>')
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+        await user.click(screen.getByTestId('overview-cancel'))
+
+        // Nothing overtook the read, so what it brought is what the descriptor now reads as.
+        expect(screen.getByText('from the reload')).toBeInTheDocument()
+    })
+
+    it('keeps the way out of an edit when a reload cannot read the descriptor', async () => {
+        setRulesXml('<project><name>P</name></project>')
+        const project = { ...base, capabilities: { canWrite: true } }
+        const result = await renderPanel(project)
+
+        await user.click(screen.getByTestId('overview-edit'))
+        await user.type(screen.getByTestId('edit-description'), 'Rates')
+
+        vi.mocked(rootFileExists).mockRejectedValueOnce(new Error('offline'))
+        await act(async () => {
+            result.rerender(panel(project, { reloadToken: 1 }))
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+
+        // The read failed and says so, but the fields it failed under keep their Save and Cancel: the
+        // sections show fields off the edit alone, so taking the toolbar away would strand the user.
+        expect(screen.getByTestId('overview-descriptor-error')).toBeInTheDocument()
+        expect(screen.getByTestId('overview-save')).toBeInTheDocument()
+        expect(screen.getByTestId('overview-cancel')).toBeInTheDocument()
+        expect(screen.getByTestId('edit-description')).toHaveValue('Rates')
+    })
+
+    it('keeps what a save wrote when a read from before it answers afterwards', async () => {
+        setRulesXml('<project><name>P</name></project>')
+        const project = { ...base, capabilities: { canWrite: true } }
+        const result = await renderPanel(project)
+
+        await user.click(screen.getByTestId('overview-edit'))
+        await user.type(screen.getByTestId('edit-description'), 'Rates')
+
+        // A reload starts while the edit is open, and its read of rules.xml hangs.
+        let rulesXml!: (xml: string) => void
+        vi.mocked(getFileContent).mockReturnValueOnce(new Promise<string>(resolve => { rulesXml = resolve }))
+        await act(async () => {
+            result.rerender(panel(project, { reloadToken: 1 }))
+            // Two flushes, as the other reload tests use: the read awaits its lookup before the content.
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+
+        await user.click(screen.getByTestId('overview-save'))
+        await waitFor(() => expect(writeRootFile).toHaveBeenCalled())
+
+        // The read finally answers with the text from before the save.
+        await act(async () => {
+            rulesXml('<project><name>P</name><comment>stale</comment></project>')
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+
+        // The save is the newer word on the file, so what it wrote is what the read view shows.
+        expect(screen.getByText('Rates')).toBeInTheDocument()
+        expect(screen.queryByText('stale')).toBeNull()
+    })
+
     it('marks a protected current branch with a shield', async () => {
         const { container } = await renderPanel({ ...base, branch: 'main', branchProtected: true })
         expect(container.querySelector('.anticon-safety')).toBeTruthy()
@@ -585,26 +770,14 @@ describe('OverviewPanel', () => {
 
     it('keeps the descriptor toolbar in place while the project is read again', async () => {
         const project = { ...base, capabilities: { canWrite: true } }
-        let result!: ReturnType<typeof render>
-        const panel = (reloadToken: number) => (
-            <App>
-                <MemoryRouter>
-                    <OverviewPanel onUnlock={() => {}} project={project} reloadToken={reloadToken} repoLabel="design" />
-                </MemoryRouter>
-            </App>
-        )
-        await act(async () => {
-            result = render(panel(0))
-            await Promise.resolve()
-            await Promise.resolve()
-        })
+        const result = await renderPanel(project)
         expect(screen.getByTestId('overview-edit')).toBeInTheDocument()
 
         // A reload re-reads rules.xml. Taking the toolbar away until the new text lands would read as a
         // flicker, not as progress — the reload shows itself over the whole project instead.
         let rulesXml!: (xml: string) => void
         vi.mocked(getFileContent).mockReturnValueOnce(new Promise<string>(resolve => { rulesXml = resolve }))
-        result.rerender(panel(1))
+        result.rerender(panel(project, { reloadToken: 1 }))
 
         expect(screen.getByTestId('overview-edit')).toBeInTheDocument()
         // In place, but not on offer: an edit started here would take its draft from the descriptor about
