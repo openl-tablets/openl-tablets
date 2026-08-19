@@ -1,6 +1,6 @@
 ---
 title: OpenL Tablets 6.4.0 Release Notes
-date: 2026-08-18
+date: 2026-08-19
 description: Turns Trace into an interactive step debugger with a business view, rebuilds table creation and the
     Projects screens in React, and creates and deletes projects in any Git branch. Project changes now reach open
     pages over WebSocket. Project deletion is permanent and Git commit messages are stored verbatim.
