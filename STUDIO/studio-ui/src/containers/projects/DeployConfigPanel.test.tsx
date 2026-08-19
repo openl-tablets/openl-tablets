@@ -95,11 +95,35 @@ vi.mock('@ant-design/icons', () => ({
     ThunderboltOutlined: () => <span>migrate</span>,
 }))
 
+/** The panel under test — a reload rerenders this same element with a bumped token. */
+const panel = (canWrite = true, onSaved: () => void = vi.fn(), reloadToken = 0) => (
+    <DeployConfigPanel canWrite={canWrite} onSaved={onSaved} projectId="p1" reloadToken={reloadToken} />
+)
+
 async function renderPanel(canWrite = true, onSaved = vi.fn()) {
+    let result!: ReturnType<typeof render>
     await act(async () => {
-        render(<DeployConfigPanel canWrite={canWrite} onSaved={onSaved} projectId="p1" />)
+        result = render(panel(canWrite, onSaved))
         await new Promise(resolve => setTimeout(resolve, 0))
     })
+    return result
+}
+
+/** Rerenders the panel with a bumped reload token, as a change ping does, and lets the read run. */
+const reload = async (result: ReturnType<typeof render>) => {
+    await act(async () => {
+        result.rerender(panel(true, vi.fn(), 1))
+        await new Promise(resolve => setTimeout(resolve, 0))
+    })
+}
+
+const SVC_XML = '<rules-deploy><serviceName>svc</serviceName></rules-deploy>'
+
+/** Opens the edit and types a service name into it. */
+const editServiceName = async (name: string) => {
+    await userEvent.click(screen.getByTestId('deploy-config-edit'))
+    await userEvent.clear(screen.getByTestId('deploy-service-name'))
+    await userEvent.type(screen.getByTestId('deploy-service-name'), name)
 }
 
 describe('DeployConfigPanel', () => {
@@ -142,6 +166,73 @@ describe('DeployConfigPanel', () => {
         // Cancel discards the edit and returns to the read view of the saved value.
         expect(screen.getByTestId('deploy-service-name')).toHaveTextContent('svc')
         expect(writeRootFile).not.toHaveBeenCalled()
+    })
+
+    it('keeps an edit under way when the project is read again', async () => {
+        vi.mocked(getFileContent).mockResolvedValue(SVC_XML)
+        const result = await renderPanel()
+        await editServiceName('typed')
+
+        // A change elsewhere in the project pings the page, which re-reads the descriptor underneath.
+        await reload(result)
+
+        // The fields never gave way to a skeleton, and they still hold what was typed into them.
+        expect(screen.getByTestId('deploy-config-save')).toBeInTheDocument()
+        expect((screen.getByTestId('deploy-service-name') as HTMLInputElement).value).toBe('typed')
+    })
+
+    it('keeps the way out of an edit when a reload cannot read the descriptor', async () => {
+        vi.mocked(getFileContent).mockResolvedValue(SVC_XML)
+        const result = await renderPanel()
+        await editServiceName('typed')
+
+        vi.mocked(rootFileExists).mockRejectedValueOnce(new Error('offline'))
+        await reload(result)
+
+        // The read failed, but the form it failed under keeps its fields and the buttons that end it.
+        expect(screen.getByTestId('deploy-config-save')).toBeInTheDocument()
+        expect(screen.getByTestId('deploy-config-cancel')).toBeInTheDocument()
+        expect((screen.getByTestId('deploy-service-name') as HTMLInputElement).value).toBe('typed')
+    })
+
+    it('creates a missing descriptor even when a reload could not read it', async () => {
+        vi.mocked(rootFileExists).mockResolvedValue(false)
+        const result = await renderPanel()
+        await userEvent.click(screen.getByTestId('deploy-config-edit'))
+        await userEvent.type(screen.getByTestId('deploy-service-name'), 'brand-new')
+
+        // The reload fails, so the panel stops saying the descriptor is missing — but missing it stays.
+        vi.mocked(rootFileExists).mockRejectedValueOnce(new Error('offline'))
+        await reload(result)
+
+        await userEvent.click(screen.getByTestId('deploy-config-save'))
+
+        // Written as the file the project does not have yet: an overwrite would have nothing to write to.
+        await waitFor(() => expect(writeRootFile).toHaveBeenCalled())
+        expect(vi.mocked(writeRootFile).mock.calls.at(-1)![3]).toBe('create')
+    })
+
+    it('keeps what a save wrote when a read from before it answers afterwards', async () => {
+        vi.mocked(getFileContent).mockResolvedValue(SVC_XML)
+        const result = await renderPanel()
+        await editServiceName('saved')
+
+        // A reload starts while the edit is open, and its read of the descriptor hangs.
+        let deployXml!: (xml: string) => void
+        vi.mocked(getFileContent).mockReturnValueOnce(new Promise<string>(resolve => { deployXml = resolve }))
+        await reload(result)
+
+        await userEvent.click(screen.getByTestId('deploy-config-save'))
+        await waitFor(() => expect(writeRootFile).toHaveBeenCalled())
+
+        // The read finally answers with the descriptor as it was before the save.
+        await act(async () => {
+            deployXml(SVC_XML)
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        // The save is the newer word on the file, so what it wrote is what the read view shows.
+        expect(screen.getByTestId('deploy-service-name')).toHaveTextContent('saved')
     })
 
     it('shows the raw XML as a read-only file, even in the editing view', async () => {
