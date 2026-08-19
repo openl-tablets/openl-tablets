@@ -276,7 +276,7 @@ This section summarizes changes that may require action before or after upgradin
 | Swagger Core        | 2.2.53 (from 2.2.52)             |
 | Swagger Parser      | 2.1.46 (from 2.1.45)             |
 | Groovy              | 4.0.33 (from 4.0.32)             |
-| Guava               | 33.7.0-jre (from 33.6.0-jre)     |
+| Guava               | 33.7.1-jre (from 33.6.0-jre)     |
 | Bouncy Castle       | 1.85.2 (from 1.84)               |
 | Byte Buddy          | 1.18.11 (from 1.18.10)           |
 | Commons Codec       | 1.22.1 (from 1.22.0)             |
