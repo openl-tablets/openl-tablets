@@ -2,16 +2,15 @@
 
 ## Resume point
 
-- **Converged, and `origin/main` has not moved for five runs**: every queue row and vein done, tip still *Bump
-  com.google.guava:guava from 33.7.0-jre to 33.7.1-jre* — match that **subject** in `git log --oneline -25
-  origin/main`, since the SHA is gone from a fresh clone. New scope is only the commits above it; never invent a
-  detector. The idle pass is two calls, those commits and the open-PR baseline. Never re-diagnose CI on an
-  unchanged SHA.
+- **Converged, and `origin/main` yields nothing for six runs running**: every queue row and vein done, tip *Release
+  notes 6.4.0 (#2019)* — match that **subject** in `git log --oneline -25 origin/main`, since the SHA is gone from a
+  fresh clone. New scope is only the commits above it; never invent a detector. The idle pass is two calls, those
+  commits and the open-PR baseline. Never re-diagnose CI on an unchanged SHA.
 - Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`; read its
-  **deleted** lines first, and check every locale key and model an additive commit *adds* repo-wide too. A commit
-  deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws` and
-  class/id selectors over `webstudio/webapp/css`. Search a dropped helper **per method** — the class survives through
-  its other callers while the dropped method keeps only its own test.
+  **deleted** lines first, and check every locale key, image and model an additive commit *adds* repo-wide too. A
+  commit deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws`
+  and class/id selectors over `webstudio/webapp/css`. Search a dropped helper **per method** — the class survives
+  through its other callers while the dropped method keeps only its own test.
 
 ## Change-type queue
 
@@ -24,8 +23,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Merged PRs
 
-- #1933 and #1940 both merged by yurkom with the SonarCloud Quality Gate red. That gate is **twice-confirmed as not
-  blocking a deletion-only sweep**: state its conditions, leave the call to the maintainer, do not chase it.
+- #1933 and #1940, both merged by yurkom with the SonarCloud Quality Gate red — see *Container facts*.
 - #2004, 11 CSS lines, merged after four days green and unreviewed — a deletion PR waits on a maintainer, and
   `mergeable_state` `blocked` or `unknown` is that wait, never a conflict. Settle mergeability locally with
   `git merge-tree --write-tree origin/main <branch>`; never push a catch-up merge to re-run green CI. Head SHA,
@@ -127,6 +125,9 @@ None. Open the next one from a fresh branch off the current `main`.
   `encodeUrlSafe` took over its name and its `@JsonValue`. So read the commit's **added files** and added imports,
   search the added lines for the stem, and always grep the **post-image** file — a deleted `import` or JSX line
   returns with one more name on it.
+- **A fixture can exist so a test asserts it is *absent* from the output** — the empty `assembly-template.xml` in the
+  `openl-child-dependency` invoker project is named only by a negated assert in `openl-multiproject/verify.groovy`
+  proving the pom's `**/assembly/*` exclude works. Read the one reference's polarity before calling a file orphaned.
 - A `for (Object item : c) { size++; }` counting loop reports `item` as unused; the variable is required syntax.
 - i18next appends `_one`/`_other` itself when `count` is passed; check the plural-stripped base before deleting.
 - A locale key reached only through a template literal: enumerate `t(` + backtick call sites, treat each composed
@@ -301,7 +302,8 @@ None. Open the next one from a fresh branch off the current `main`.
 - Maven Central, registry.npmjs.org and github.com all work: `curl` a jar from Central and read it with `unzip`/`javap -c`.
 - **`sonarcloud.io` is blocked too** — 403 to CONNECT, same shape as shibboleth, confirmed against
   `$HTTPS_PROXY/__agentproxy/status`. So a red `SonarCloud Code Analysis` check can never be diagnosed from here:
-  report the failed conditions from the check-run summary and hand the judgement to a maintainer.
+  report the failed conditions from the check-run summary and hand the judgement to a maintainer. Sweep PRs have
+  been merged twice with that gate red, so it is confirmed not to block a deletion-only sweep — never chase it.
 - **Reading a CI log takes one shape only.** Listing runs ignores `per_page`, always returns 30 rows and overflows
   the tool limit — save it to a file and parse that with python for the run `id` (`run_number` is not an id).
   **Never trust the filters**: one workflow file plus branch `main` returned a page 9 days and ~20 commits stale.
@@ -362,15 +364,18 @@ None. Open the next one from a fresh branch off the current `main`.
   entry on runtime wiring.
 - Incremental `main` scope up to the *Resume point* SHA: every author's own deletion was already complete, leaving no
   orphaned export, locale key, bundle key or helper. Dependabot and npm lock-file bumps add no surface at all.
+- **Compilation reachability of every tracked `.java` file**, deriving each file's source root from its own `package`
+  declaration: zero package/path mismatches, and all 142 implied roots are either the reactor-wide `src`/`test` the
+  root pom declares or sit in a Docs example, an invoker fixture, an archetype template or a `test-resources` rule
+  project. No uncompiled source file exists, and both assembly descriptors are named.
 - Every `org.openl.*` class name referenced from `.xml`, `.xhtml`, `.properties`, `.tld`, `.yaml`, `.json` and
   `.txt`, resolved against the source tree. The ~90 with no `.java` are all runtime-generated datatype and
   spreadsheet-result beans or rule-project fixtures under test resources. No stale configuration exists.
 
 ## Human follow-ups
 
-- **Allowlist `build.shibboleth.net`** in the environment's network policy, or move the `org.opensaml:opensaml-bom`
-  import out of the root pom. `STUDIO/org.openl.rules.webstudio` — the largest untouched module — cannot be compiled
-  or swept until then, and the stub has to be re-seeded on every container rebuild.
+- **Allowlist `build.shibboleth.net`**, or move the `org.opensaml:opensaml-bom` import out of the root pom:
+  `STUDIO/org.openl.rules.webstudio`, the largest untouched module, cannot be compiled or swept until then.
 - **`itest.tracing` and `itest.kafka` both start the unpinned `apache/kafka-native:latest`** (see *CI flakes*), whose
   image segfaults in its own bootstrap and keeps reddening `main`. Pinning it to a released version needs a human.
 - The weekly cross-platform `build.yml` matrix needs an owner; *CI flakes* records what is failing.
@@ -389,6 +394,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-19 — run 216: idle; third consecutive run with `origin/main` unmoved and no open dead-code PR. 393 lines.
-- 08-19 — run 217: idle; fourth consecutive run, `origin/main` unmoved, no open dead-code PR. 393 lines.
-- 08-19 — run 218: idle; fifth consecutive run, `origin/main` unmoved, no open dead-code PR. 394 lines.
+- 08-19 — run 217: idle; `origin/main` unmoved, no open dead-code PR. 393 lines.
+- 08-19 — run 218: idle; `origin/main` unmoved, no open dead-code PR. 394 lines.
+- 08-19 — run 219: one additive `Docs/` commit on `main` orphaned nothing; compilation-reachability vein closed empty.
