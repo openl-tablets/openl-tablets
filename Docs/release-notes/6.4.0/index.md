@@ -55,6 +55,8 @@ The debugger is driven by a REST API under `/rest/projects/{projectId}/trace`, w
 `POST /pause`, `PUT /breakpoints`, `GET /watches` and frame-scoped reads such as `GET /frames/{index}/variables` and
 `GET /frames/{index}/highlights`.
 
+![Interactive rule debugger](images/interactive-rule-debugger.png)
+
 ### Table Creation and Copying in React
 
 The table creation and copy wizards are replaced by React modals built around the header cell OpenL actually
@@ -70,6 +72,8 @@ they fill, and a Datatype's optional **Extends** setting writes `extends <parent
 Copying a table reuses the same path: the browser reads the raw cell matrix of the source, applies the header and
 property changes the author selected, and submits the result through the table-creation API. The copy itself runs on
 the server by table id instead of re-posting the table content.
+
+![Table creation dialog](images/table-creation-dialog.png)
 
 ### React Projects and Deployments
 
@@ -88,6 +92,10 @@ RichFaces upload dialogs, the jQuery loading panel and the JSF user-profile and 
 
 Project descriptors and tags are cached per revision, so the used-by column and the facet counts no longer re-read
 every `rules.xml` on each request.
+
+![Projects](images/projects.png)
+
+![Deployments](images/deployments.png)
 
 ### Projects in Any Branch
 
@@ -117,6 +125,8 @@ surface within the repository polling period.
 
 The tables dependency graph draws the project's data model as an ER diagram of typed entities, so datatypes and the
 relations between them can be read alongside the table dependencies they participate in.
+
+![Data model visualization](images/data-model-visualization.png)
 
 ### Startup and Readiness Health Checks
 
