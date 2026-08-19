@@ -389,6 +389,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-18 — run 212: idle; fifth unchanged head, confirmed against GitHub. Tightened the Resume point to its spec. 394 lines.
 - 08-19 — run 213: idle; sixth unchanged head, confirmed against GitHub, no open dead-code PR. 394 lines.
 - 08-19 — run 214: idle; one new commit, a guava property bump with no new identifier. No open dead-code PR. 394 lines.
+- 08-19 — run 215: idle; no commit above the resume point, no open dead-code PR. 394 lines.
