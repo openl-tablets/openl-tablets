@@ -2,8 +2,10 @@ package org.openl.rules.calc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -30,6 +32,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.ValueMetaInfo;
@@ -141,6 +144,9 @@ public class SpreadsheetStructureBuilder {
 
     private final List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
 
+    private final List<SyntaxNodeException> onDemandErrors = new ArrayList<>();
+    private final Collection<OpenLMessage> onDemandMessages = new LinkedHashSet<>();
+
     private volatile boolean cellsExtracted = false;
 
     /**
@@ -157,6 +163,7 @@ public class SpreadsheetStructureBuilder {
                         extractCellDescriptions();
                     } finally {
                         cellsExtracted = true;
+                        reportOnDemandDiagnostics();
                     }
                 }
             }
@@ -279,7 +286,7 @@ public class SpreadsheetStructureBuilder {
                         var physicalRow = logicalToPhysicalRow[logicalRow];
                         var physicalCol = logicalToPhysicalColumn[logicalCol];
                         var rowContext = getRowContext(physicalRow);
-                        extractCellValue(rowContext, logicalRow, logicalCol, physicalRow, physicalCol);
+                        extractCellValueOnDemand(rowContext, logicalRow, logicalCol, physicalRow, physicalCol);
                         extractedCellValues.add(cell);
                     } finally {
                         cellInProgressSet.remove(cell);
@@ -294,6 +301,46 @@ public class SpreadsheetStructureBuilder {
             }
         }
         return cell.getType();
+    }
+
+    /**
+     * Compiles a single cell requested by an expression of another table.
+     *
+     * <p>Such a request arrives while the other table is still choosing how to bind its own expression. Everything
+     * reported during that attempt is dropped as soon as another way of binding succeeds. Errors and warnings of the
+     * cell are therefore kept aside and reported when this spreadsheet compiles its own cells.
+     */
+    private void extractCellValueOnDemand(IBindingContext rowBindingContext,
+                                          int logicalRow,
+                                          int logicalCol,
+                                          int physicalRow,
+                                          int physicalCol) {
+        if (cellsExtracted) {
+            // this spreadsheet has already reported its own cells, so there is no later moment to report at
+            extractCellValue(rowBindingContext, logicalRow, logicalCol, physicalRow, physicalCol);
+            return;
+        }
+        spreadsheetBindingContext.pushErrors();
+        spreadsheetBindingContext.pushMessages();
+        try {
+            extractCellValue(rowBindingContext, logicalRow, logicalCol, physicalRow, physicalCol);
+        } finally {
+            onDemandErrors.addAll(spreadsheetBindingContext.popErrors());
+            onDemandMessages.addAll(spreadsheetBindingContext.popMessages());
+        }
+    }
+
+    /**
+     * Reports errors and warnings kept aside by {@link #extractCellValueOnDemand} and forgets them.
+     */
+    private void reportOnDemandDiagnostics() {
+        if (onDemandErrors.isEmpty() && onDemandMessages.isEmpty()) {
+            return;
+        }
+        onDemandErrors.forEach(spreadsheetBindingContext::addError);
+        onDemandErrors.clear();
+        spreadsheetBindingContext.addMessages(onDemandMessages);
+        onDemandMessages.clear();
     }
 
     private void extractCellValue(IBindingContext rowBindingContext, int logicalRow, int logicalCol, int physicalRow, int physicalCol) {
