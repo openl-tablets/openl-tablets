@@ -365,8 +365,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-20 — run 224: idle in two calls; `main` tip still at the 6.4.0 iteration commit, no open dead-code PR.
-- 08-20 — run 225: idle; two Dependabot pom bumps (jackson-bom, byte-buddy) above the release pair, no surface;
-  no open dead-code PR.
+- 08-20 — run 225: idle; two Dependabot pom bumps (jackson-bom, byte-buddy) above the release pair, no surface.
 - 08-20 — run 226: idle in two calls; `main` tip still the jackson-bom bump, no open dead-code PR, no stale
   `dead-code/*` branch.
+- 08-20 — run 227: idle in three calls; same tip, no open dead-code PR, only `dead-code/ledger` remains remotely.
