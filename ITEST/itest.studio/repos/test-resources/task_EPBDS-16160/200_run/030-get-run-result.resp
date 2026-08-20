@@ -10,26 +10,20 @@ Content-Type: application/json
   },
   "resultSchema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "AnySpreadsheetResult": {
+        "type": "object",
+        "properties": {
+          "Test": {
+            "$ref": "#/$defs/AnySpreadsheetResult"
+          }
+        }
+      }
+    },
     "type": "object",
     "properties": {
-      "columnNames": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
-      "results": {
-        "type": "array",
-        "items": {
-          "type": "array",
-          "items": {}
-        }
-      },
-      "rowNames": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
+      "Test": {
+        "$ref": "#/$defs/AnySpreadsheetResult"
       }
     }
   }

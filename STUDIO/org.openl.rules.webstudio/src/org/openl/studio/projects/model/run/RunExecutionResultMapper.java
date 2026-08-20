@@ -49,10 +49,12 @@ public class RunExecutionResultMapper {
         ObjectNode resultSchema = null;
         if (!(actualResult instanceof Throwable)) {
             Object convertedResult = SpreadsheetResult.convertSpreadsheetResult(actualResult, sprNamingStrategy);
-            resultValue = convertedResult != null ? objectMapper.valueToTree(convertedResult) : null;
-            var actualParam = firstUnit.getActualParam();
-            if (actualParam != null) {
-                resultSchema = SafeSchemaGenerator.generate(schemaGenerator, actualParam.getType().getInstanceClass());
+            if (convertedResult != null) {
+                resultValue = objectMapper.valueToTree(convertedResult);
+                // The schema describes the value as it is written. A spreadsheet result travels as the bean class
+                // generated for it, so describing the raw value would document the engine's internal row and
+                // column tables, none of whose properties appear in the result.
+                resultSchema = SafeSchemaGenerator.generate(schemaGenerator, convertedResult.getClass());
             }
         }
 
