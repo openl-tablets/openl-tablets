@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -32,9 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.export.RulesResultExport;
 import org.openl.studio.common.exception.BadRequestException;
@@ -165,8 +162,8 @@ public class ProjectsRunController {
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
             var objectMapper = configureObjectMapper();
             var schemaGenerator = getSchemaGenerator(objectMapper);
-            var sprNamingStrategy = extractSpreadsheetNamingStrategy();
-            var mapper = new RunExecutionResultMapper(objectMapper, schemaGenerator, sprNamingStrategy);
+            var mapper = new RunExecutionResultMapper(objectMapper, schemaGenerator,
+                    projectService.getSpreadsheetResultNamingStrategy());
             return ResponseEntity.ok(mapper.mapResult(results));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             var output = new ByteArrayOutputStream();
@@ -185,15 +182,6 @@ public class ProjectsRunController {
     @DeleteMapping
     public void cancelRun(@ProjectId @PathVariable("projectId") RulesProject project) {
         runResultRegistry.clear();
-    }
-
-    private SpreadsheetResultBeanPropertyNamingStrategy extractSpreadsheetNamingStrategy() {
-        var studio = projectService.getWebStudio();
-        var model = studio.getModel();
-        PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
-                .extractPropertyNamingStrategy(studio.getCurrentProjectRulesDeploy(),
-                        model.getCompiledOpenClass().getClassLoader());
-        return propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy spr ? spr : null;
     }
 
     private ObjectMapper configureObjectMapper() {

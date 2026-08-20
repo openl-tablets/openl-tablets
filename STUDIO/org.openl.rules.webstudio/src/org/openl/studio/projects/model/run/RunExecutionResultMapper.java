@@ -9,25 +9,27 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
-import lombok.RequiredArgsConstructor;
 
-import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.studio.common.utils.SpreadsheetResultBean;
-import org.openl.studio.config.SafeSchemaGenerator;
+import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.model.ParameterValue;
 
-@RequiredArgsConstructor
 public class RunExecutionResultMapper {
 
     private static final double NANOS_IN_MILLISECOND = 1_000_000.0;
 
     private final ObjectMapper objectMapper;
-    private final SchemaGenerator schemaGenerator;
-    private final SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy;
+    private final ExecutionValueMapper valueMapper;
+
+    public RunExecutionResultMapper(ObjectMapper objectMapper,
+                                    SchemaGenerator schemaGenerator,
+                                    SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy) {
+        this.objectMapper = objectMapper;
+        this.valueMapper = new ExecutionValueMapper(objectMapper, schemaGenerator, sprNamingStrategy);
+    }
 
     public RunExecutionResult mapResult(TestUnitsResults results) {
         var testUnits = results.getTestUnits();
@@ -41,46 +43,23 @@ public class RunExecutionResultMapper {
 
         var firstUnit = testUnits.getFirst();
 
-        // Convert result the same way as legacy TestDownloadController#manualJson:
-        // SpreadsheetResult must be converted to Map/bean with proper naming strategy.
-        // getActualResult() returns Throwable when execution fails — skip conversion in that case.
+        // getActualResult() returns a Throwable when execution fails — such a result is reported through the errors.
         var actualResult = firstUnit.getActualResult();
         JsonNode resultValue = null;
         ObjectNode resultSchema = null;
         if (!(actualResult instanceof Throwable)) {
-            Object convertedResult = SpreadsheetResult.convertSpreadsheetResult(actualResult, sprNamingStrategy);
-            if (convertedResult != null) {
-                resultValue = objectMapper.valueToTree(convertedResult);
-                // The schema describes the value as it is written. A spreadsheet result travels as the bean class
-                // generated for it, so describing the raw value would document the engine's internal row and
-                // column tables, none of whose properties appear in the result.
-                resultSchema = SafeSchemaGenerator.generate(schemaGenerator, convertedResult.getClass());
-            }
+            // The schema describes the value as it is written, so that every property of the result is described.
+            var convertedResult = valueMapper.convert(actualResult);
+            resultValue = valueMapper.writeConverted(convertedResult);
+            resultSchema = valueMapper.schemaOf(convertedResult);
         }
 
         // Map input parameters
         var executionParams = firstUnit.getTest().getExecutionParams();
         var executionParamNames = results.getTestDataColumnDisplayNames();
-        var parameters = IntStream.range(0, executionParams.length).mapToObj(i -> {
-            var param = executionParams[i];
-            // A spreadsheet result argument is echoed — and described — through the bean class generated for it,
-            // the same shape the result itself is written in. Written as it stands it comes out as the engine's
-            // internal row/column tables, which no client can read back.
-            var spreadsheetResult = SpreadsheetResultBean.of(param.getType());
-            var value = spreadsheetResult == null
-                    ? param.getValue()
-                    : SpreadsheetResult.convertSpreadsheetResult(param.getValue(), spreadsheetResult.beanClass(),
-                            param.getType(), sprNamingStrategy);
-            return ParameterValue.builder()
-                    .name(param.getName())
-                    .value(objectMapper.valueToTree(value))
-                    .schema(SafeSchemaGenerator.generate(schemaGenerator,
-                            spreadsheetResult != null
-                                    ? spreadsheetResult.beanClass()
-                                    : param.getType().getInstanceClass()))
-                    .description(executionParamNames[i])
-                    .build();
-        }).toList();
+        var parameters = IntStream.range(0, executionParams.length)
+                .mapToObj(i -> valueMapper.writeParameter(executionParams[i], executionParamNames[i]))
+                .toList();
 
         // Map context parameters
         var contextParams = firstUnit.getContextParams(results);

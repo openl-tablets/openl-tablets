@@ -615,7 +615,8 @@ public class ProjectsController {
         CompletableFuture<List<TestUnitsResults>> testTask;
         var objectMapper = configureObjectMapper();
         var schemaGenerator = getSchemaGenerator(objectMapper);
-        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator);
+        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
+                projectService.getSpreadsheetResultNamingStrategy());
         if (StringUtils.isBlank(tableId)) {
             var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
                     projectId,
@@ -685,7 +686,8 @@ public class ProjectsController {
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
             var objectMapper = configureObjectMapper();
             var schemaGenerator = getSchemaGenerator(objectMapper);
-            var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator);
+            var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
+                    projectService.getSpreadsheetResultNamingStrategy());
             var query = new TestExecutionSummaryQuery(failuresOnly, failures);
             return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {

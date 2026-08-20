@@ -1,0 +1,120 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "executionTimeMs": "*",
+  "numberOfTests": 2,
+  "numberOfFailures": 1,
+  "testCases": [
+    {
+      "name": "WrapperTest",
+      "tableId": "f1552629c7b9999283c19b9092f79399",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 1,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "*",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Expected Total",
+              "expectedValue": 42.0,
+              "actualValue": 42.0,
+              "status": "TR_OK"
+            },
+            {
+              "description": "Expected Details",
+              "expectedValue": null,
+              "actualValue": {
+                "Plan": "P1",
+                "Coverages": [
+                  {
+                    "code": "A",
+                    "premium": 10.0
+                  }
+                ],
+                "Total": 42.0
+              },
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "planCode",
+              "description": "Plan Code",
+              "value": "P1",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PolicyOverrideCalculationTest",
+      "tableId": "2ff5dc4c24660d5a98036ed71cb26293",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "*",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Expected Doubled",
+              "expectedValue": 14.0,
+              "actualValue": 14.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "ratingDetails",
+              "description": "ratingDetails",
+              "value": {
+                "Plan": "P1",
+                "Total": 7.0
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "Plan": {
+                    "type": "string"
+                  },
+                  "Coverages": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "premium": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  },
+                  "Total": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
