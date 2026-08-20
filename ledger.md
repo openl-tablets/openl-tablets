@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- **Converged, and `origin/main` has yielded nothing for ten runs running**: every queue row and vein is done. Tip
+- **Converged, and `origin/main` has yielded nothing since**: every queue row and vein is done. Tip
   is the *prepare for next development iteration* commit directly above *[maven-release-plugin] prepare release
   6.4.0* — match the **release subject** in `git log --oneline -25 origin/main`, since the SHA is gone from a fresh
   clone and the iteration subject repeats at every release. New scope is only the commits above that pair; never
@@ -364,6 +364,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-19 — run 221: idle; the 6.4.0 release-plugin pair on `main` orphaned nothing, no open dead-code PR.
 - 08-19 — run 222: idle in two calls; `main` tip unmoved from the resume point, no open dead-code PR.
 - 08-19 — run 223: idle in two calls; `main` tip still unmoved, no open dead-code PR.
+- 08-20 — run 224: idle in two calls; `main` tip still at the 6.4.0 iteration commit, no open dead-code PR.
