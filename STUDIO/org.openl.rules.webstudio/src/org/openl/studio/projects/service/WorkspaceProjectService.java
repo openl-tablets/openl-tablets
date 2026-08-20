@@ -40,6 +40,7 @@ import org.springframework.stereotype.Component;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
+import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -68,6 +69,7 @@ import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -255,6 +257,24 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     @Lookup
     public CompilationJobRegistry getCompilationJobRegistry() {
         return null;
+    }
+
+    /**
+     * The strategy naming the properties of a spreadsheet result bean in the currently open project.
+     *
+     * <p>A project chooses how its spreadsheet steps are named in JSON through its deployment configuration. The run
+     * and tests APIs write spreadsheet results the way OpenL Rule Services publishes them, so they follow the same
+     * strategy.
+     *
+     * @return the naming strategy of the project, or {@code null} when the project names steps as they are written
+     */
+    @Nullable
+    public SpreadsheetResultBeanPropertyNamingStrategy getSpreadsheetResultNamingStrategy() {
+        var studio = getWebStudio();
+        var namingStrategy = ProjectJacksonObjectMapperFactoryBean.extractPropertyNamingStrategy(
+                studio.getCurrentProjectRulesDeploy(),
+                studio.getModel().getCompiledOpenClass().getClassLoader());
+        return namingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy spr ? spr : null;
     }
 
     public ProjectViewModel getProject(RulesProject project) {
