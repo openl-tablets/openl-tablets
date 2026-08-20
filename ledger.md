@@ -373,8 +373,5 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-20 — run 228: screened the nine EPBDS commits new above the jackson-bom bump, 459 deleted lines — one
-  deferred finding (`JsonUtils.fromJSON`), nothing deletable; the six moved locale keys all survive in their own
-  post-image. New pom resource-directory detector closed empty.
-- 08-20 — runs 229-232: idle in two calls each; `main` tip unchanged at the cell-errors commit, and the
-  repository has no open pull request at all.
+- 08-20 — run 228: screened nine EPBDS commits, 459 deleted lines; one deferred finding, nothing deletable.
+- 08-20 — runs 229-233: idle in two calls each; `main` tip and the empty PR list both unchanged.
