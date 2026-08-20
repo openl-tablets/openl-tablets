@@ -5,9 +5,10 @@
 - **Converged, and `origin/main` has yielded nothing since**: every queue row and vein is done. Tip
   is the *prepare for next development iteration* commit directly above *[maven-release-plugin] prepare release
   6.4.0* — match the **release subject** in `git log --oneline -25 origin/main`, since the SHA is gone from a fresh
-  clone and the iteration subject repeats at every release. New scope is only the commits above that pair; never
-  invent a detector. The idle pass is two calls, those commits and the open-PR baseline. Never re-diagnose CI on an
-  unchanged SHA.
+  clone and the iteration subject repeats at every release. Above that pair sit two Dependabot pom bumps
+  (jackson-bom, byte-buddy-parent), already cleared as no-surface — so new scope is only commits above the
+  jackson-bom bump; never invent a detector. The idle pass is two calls, those commits and the open-PR baseline.
+  Never re-diagnose CI on an unchanged SHA.
 - Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`; read its
   **deleted** lines first, and check every locale key, image and model an additive commit *adds* repo-wide too. A
   commit deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws`
@@ -364,6 +365,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-19 — run 222: idle in two calls; `main` tip unmoved from the resume point, no open dead-code PR.
 - 08-19 — run 223: idle in two calls; `main` tip still unmoved, no open dead-code PR.
 - 08-20 — run 224: idle in two calls; `main` tip still at the 6.4.0 iteration commit, no open dead-code PR.
+- 08-20 — run 225: idle; two Dependabot pom bumps (jackson-bom, byte-buddy) above the release pair, no surface;
+  no open dead-code PR.
