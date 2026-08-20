@@ -2,13 +2,12 @@
 
 ## Resume point
 
-- **Converged, and `origin/main` has yielded nothing since**: every queue row and vein is done. Tip
-  is the *prepare for next development iteration* commit directly above *[maven-release-plugin] prepare release
-  6.4.0* — match the **release subject** in `git log --oneline -25 origin/main`, since the SHA is gone from a fresh
-  clone and the iteration subject repeats at every release. Above that pair sit two Dependabot pom bumps
-  (jackson-bom, byte-buddy-parent), already cleared as no-surface — so new scope is only commits above the
-  jackson-bom bump; never invent a detector. The idle pass is two calls, those commits and the open-PR baseline.
-  Never re-diagnose CI on an unchanged SHA.
+- **Converged**: every queue row and vein is done, and `main` has yielded nothing deletable for many runs. Tip is
+  *Fix cell errors lost when another table compiles the cell first* — match that **subject** in
+  `git log --oneline -25 origin/main`, since a fresh clone loses the SHA. The nine EPBDS commits below it, down to
+  and including the *Bump jackson-bom from 2.22.1 to 2.22.2* Dependabot commit, are screened and closed, so new
+  scope is only commits above that subject. Never invent a detector; never re-diagnose CI on an unchanged SHA. The
+  idle pass is two calls, those commits and the open-PR baseline.
 - Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`; read its
   **deleted** lines first, and check every locale key, image and model an additive commit *adds* repo-wide too. A
   commit deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws`
@@ -33,8 +32,8 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Module coverage
 
-- `STUDIO/org.openl.rules.webstudio` Java is the one unswept surface — uncompilable here (see *Container facts*); its
-  resources are covered by the repo-wide veins. Every other module is swept, leaving only *Deferred findings*.
+- `STUDIO/org.openl.rules.webstudio` Java is the one unswept surface (see *Container facts*); its resources are
+  covered by the repo-wide veins. Every other module is swept, leaving only *Deferred findings*.
 
 ## Deferred findings
 
@@ -51,6 +50,10 @@ None. Open the next one from a fresh branch off the current `main`.
 - `DEV/org.openl.commons` `FileSignatureHelper.isOle2Sign` — its only production caller was
   `ProjectFilesServiceImpl.validateFileSignature`, which EPBDS-16379 replaced with `FileIntegrityValidator`; only its
   own test names it now. Public API, and its siblings `isArchiveSign`/`isEmptyArchive` stay live.
+- `STUDIO/org.openl.rules.jackson` `JsonUtils.fromJSON` — all four public static overloads (one already
+  `@Deprecated`) lost their last production callers when EPBDS-16460 rewrote `InputArgsBean` and
+  `TableInputParserServiceImpl`; only `JsonUtilsTest` names them, in text and in every binary resource. The sibling
+  `splitJSON` stays live. Public API in a published jar, so a human decides.
 - `STUDIO/org.openl.security` `SimpleGroup.description` — written by a public setter and a public constructor
   parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
@@ -114,6 +117,10 @@ None. Open the next one from a fresh branch off the current `main`.
   bumps its property, but the `dependencyManagement` import is what overrides the parent BOM, and its comment names
   the fix condition rather than the version, so a bump leaves it accurate. A pom property with no `${...}` reference
   is almost always a plugin convention parameter — `maven.*`, `sonar.*`, `invoker.*`, `archetype.*`, `spotless.*`.
+  A `<resource>`/`<testResource>` `<directory>` naming a path that does not exist beside its own pom is inherited
+  configuration resolved against each *module's* basedir: the root's `resources`, `src` and `test-resources`, and a
+  fixture parent's, are exactly that shape. An archetype's `archetype-resources/pom.xml` is a Velocity template and
+  does not parse as XML at all.
 - **A pom outside the root aggregator's `<module>` graph is normally a fixture, not an orphan.** All 120 unreachable
   poms are maven-invoker projects under `Util/openl-maven-plugin/it/**` or documentation examples under `Docs/`.
 - **A signature an incremental diff deletes is usually renamed or moved, not removed.** Six shapes seen: renamed on
@@ -317,10 +324,11 @@ None. Open the next one from a fresh branch off the current `main`.
   source maps, fonts, schemas, `.html`, `.csv`, `.sql`, `.groovy`, `.sh`, `.cmd`, `.txt`, `.json`, `.yaml`, `.xml`,
   `.svg`, and all 117 `.properties` files. Every orphan found is convention-loaded — see *Keep-list*. Every
   zero-byte tracked file is deliberate too: empty jar and zip classpath fixtures, and Flyway `flyway.location` markers.
-- **Across all 207 poms**: every defined property, duplicate `<dependency>` and duplicate `.properties` keys, every
-  profile, every `pluginManagement` entry and every `<exclusion>`, each resolved against `-P` references, activation
-  blocks, packaging types and goal invocations. Zero removable; every exclusion is defensive. The root aggregator's
-  `<module>` graph and all 8 `META-INF/services` files closed empty too.
+- **Across all 208 poms**: every defined property, duplicate `<dependency>` and duplicate `.properties` keys, every
+  profile, every `pluginManagement` entry, every `<exclusion>` and every `<resource>`/`<testResource>` directory path
+  resolved against disk, each also resolved against `-P` references, activation blocks, packaging types and goal
+  invocations. Zero removable; every exclusion is defensive. The root aggregator's `<module>` graph and all 8
+  `META-INF/services` files closed empty too.
 - **PMD 7.17 `UnusedAssignment`, `UnusedLocalVariable`, `UnusedPrivateField`, `UnusedPrivateMethod` and
   `UnusedFormalParameter` over main *and* test sources of all 42 analysable modules** (`includeTests=true`), the
   detector validated against the known main-source baseline. No PMD scope is left open. javac `-Xlint` over the whole
@@ -365,7 +373,9 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-20 — run 225: idle; two Dependabot pom bumps (jackson-bom, byte-buddy) above the release pair, no surface.
 - 08-20 — run 226: idle in two calls; `main` tip still the jackson-bom bump, no open dead-code PR, no stale
   `dead-code/*` branch.
 - 08-20 — run 227: idle in three calls; same tip, no open dead-code PR, only `dead-code/ledger` remains remotely.
+- 08-20 — run 228: screened the nine EPBDS commits new above the jackson-bom bump, 459 deleted lines — one
+  deferred finding (`JsonUtils.fromJSON`), nothing deletable; the six moved locale keys all survive in their own
+  post-image. New pom resource-directory detector closed empty.
