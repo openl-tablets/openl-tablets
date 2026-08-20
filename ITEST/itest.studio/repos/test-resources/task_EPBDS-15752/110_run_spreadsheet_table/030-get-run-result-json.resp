@@ -53,24 +53,131 @@ Content-Type: application/json
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
-      "columnNames": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
+      "Description_CapitalAdequacy": {
+        "type": "string"
       },
-      "results": {
-        "type": "array",
-        "items": {
-          "type": "array",
-          "items": {}
-        }
+      "Value_CapitalAdequacy": {
+        "type": "number"
       },
-      "rowNames": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
+      "Description_CapitalAdequacyScore": {
+        "type": "string"
+      },
+      "Value_CapitalAdequacyScore": {
+        "type": "number"
+      },
+      "Description_ClaimsOnCustomerRatio": {
+        "type": "string"
+      },
+      "Value_ClaimsOnCustomerRatio": {
+        "type": "number"
+      },
+      "Description_ClaimsOnCustomerRatioScore": {
+        "type": "string"
+      },
+      "Value_ClaimsOnCustomerRatioScore": {
+        "type": "number"
+      },
+      "Description_CreditPortfolioQuality": {
+        "type": "string"
+      },
+      "Value_CreditPortfolioQuality": {
+        "type": "number"
+      },
+      "Description_CreditPortfolioQualityScore": {
+        "type": "string"
+      },
+      "Value_CreditPortfolioQualityScore": {
+        "type": "number"
+      },
+      "Description_SecuredByPropertyChargesClaimsRatio": {
+        "type": "string"
+      },
+      "Value_SecuredByPropertyChargesClaimsRatio": {
+        "type": "number"
+      },
+      "Description_SecuredByPropertyChargesClaimsRatioScore": {
+        "type": "string"
+      },
+      "Value_SecuredByPropertyChargesClaimsRatioScore": {
+        "type": "number"
+      },
+      "Description_QuickRatio": {
+        "type": "string"
+      },
+      "Value_QuickRatio": {
+        "type": "number"
+      },
+      "Description_QuickRatioScore": {
+        "type": "string"
+      },
+      "Value_QuickRatioScore": {
+        "type": "number"
+      },
+      "Description_LiquidityRatio": {
+        "type": "string"
+      },
+      "Value_LiquidityRatio": {
+        "type": "number"
+      },
+      "Description_LiquidityRatioScore": {
+        "type": "string"
+      },
+      "Value_LiquidityRatioScore": {
+        "type": "number"
+      },
+      "Description_HighLiquidityRatio": {
+        "type": "string"
+      },
+      "Value_HighLiquidityRatio": {
+        "type": "number"
+      },
+      "Description_HighLiquidityRatioScore": {
+        "type": "string"
+      },
+      "Value_HighLiquidityRatioScore": {
+        "type": "number"
+      },
+      "Description_NetMoneyMarketLiabilities": {
+        "type": "string"
+      },
+      "Value_NetMoneyMarketLiabilities": {
+        "type": "number"
+      },
+      "Description_NetMoneyMarketLiabilitiesScore": {
+        "type": "string"
+      },
+      "Value_NetMoneyMarketLiabilitiesScore": {
+        "type": "number"
+      },
+      "Description_LiabilitiesToCustomersOnDemandRatio": {
+        "type": "string"
+      },
+      "Value_LiabilitiesToCustomersOnDemandRatio": {
+        "type": "number"
+      },
+      "Description_LiabilitiesToCustomersOnDemandRatioScore": {
+        "type": "string"
+      },
+      "Value_LiabilitiesToCustomersOnDemandRatioScore": {
+        "type": "number"
+      },
+      "Description_OtherAssetsRatio": {
+        "type": "string"
+      },
+      "Value_OtherAssetsRatio": {
+        "type": "number"
+      },
+      "Description_OtherAssetsRatioScore": {
+        "type": "string"
+      },
+      "Value_OtherAssetsRatioScore": {
+        "type": "number"
+      },
+      "Description_BalanceQualityIndex": {
+        "type": "string"
+      },
+      "Value_BalanceQualityIndex": {
+        "type": "number"
       }
     }
   },

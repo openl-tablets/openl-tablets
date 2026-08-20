@@ -75,13 +75,14 @@ class RunExecutionResultMapperTest {
         assertTrue(result.errors().isEmpty());
     }
 
+    /**
+     * A result of any other type keeps the schema of the value as it is written.
+     */
     @Test
     void mapResult_withActualResult() {
         var testUnit = mock(ITestUnit.class);
         var testDescription = mock(TestDescription.class);
         var schema = objectMapper.createObjectNode();
-        var paramType = mock(IOpenClass.class);
-        var actualParam = mock(ParameterWithValueDeclaration.class);
 
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
         when(results.getExecutionTime()).thenReturn(5_000_000L);
@@ -89,14 +90,11 @@ class RunExecutionResultMapperTest {
         when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
 
         when(testUnit.getActualResult()).thenReturn(42);
-        when(testUnit.getActualParam()).thenReturn(actualParam);
         when(testUnit.getTest()).thenReturn(testDescription);
         when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         when(testUnit.getErrors()).thenReturn(List.of());
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
-        when(actualParam.getType()).thenReturn(paramType);
-        when(paramType.getInstanceClass()).thenReturn((Class) Integer.class);
         when(schemaGenerator.generateSchema(Integer.class)).thenReturn(schema);
 
         var result = mapper.mapResult(results);
@@ -144,7 +142,6 @@ class RunExecutionResultMapperTest {
         when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
 
         when(testUnit.getActualResult()).thenReturn(null);
-        when(testUnit.getActualParam()).thenReturn(null);
         when(testUnit.getTest()).thenReturn(testDescription);
         when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         when(testUnit.getErrors()).thenReturn(List.of());
