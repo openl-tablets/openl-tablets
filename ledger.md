@@ -373,9 +373,9 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-20 — run 226: idle in two calls; `main` tip still the jackson-bom bump, no open dead-code PR, no stale
-  `dead-code/*` branch.
 - 08-20 — run 227: idle in three calls; same tip, no open dead-code PR, only `dead-code/ledger` remains remotely.
 - 08-20 — run 228: screened the nine EPBDS commits new above the jackson-bom bump, 459 deleted lines — one
   deferred finding (`JsonUtils.fromJSON`), nothing deletable; the six moved locale keys all survive in their own
   post-image. New pom resource-directory detector closed empty.
+- 08-20 — run 229: idle in two calls; `main` tip unchanged at the cell-errors commit, and the repository has no
+  open pull request at all.
