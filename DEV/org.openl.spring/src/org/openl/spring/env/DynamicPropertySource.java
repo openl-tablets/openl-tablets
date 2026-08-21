@@ -113,6 +113,19 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         return version;
     }
 
+    /**
+     * Stores the given settings, keeping only what differs from the application defaults.
+     *
+     * <p>A property with a {@code null} value is removed, and settings that leave nothing to store delete the
+     * file. A password is stored encrypted when a secret key is configured.
+     *
+     * <p>The stored file stays newer than what this source has read, so the running application meets it as a
+     * change on its next {@link #reloadIfModified()} and reloads its configuration. A caller that stores
+     * settings the application already holds — during start-up, for instance — calls {@link #reloadIfModified()}
+     * itself right after, otherwise its own write is taken for a change someone made.
+     *
+     * @param config settings to store, a {@code null} value removing the property
+     */
     public synchronized void save(Map<String, String> config) throws IOException {
         final var properties = new TreeMap<>(settings);
         for (Map.Entry<String, String> pair : config.entrySet()) {

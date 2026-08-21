@@ -244,6 +244,10 @@ earlier runs stay until `mvn clean`. Look into them when a suite fails on reposi
   attribute when a run ends — the files stay, only their attribute changes.
 - The listener is registered through `META-INF/services`, so a new suite needs no wiring of its own; it only
   needs `server-core` on its test classpath, which every suite already has.
+- A suite that has to put a file into the home **before** the application starts resolves the placeholder
+  itself, creates the directory and re-sets the `openl.home` system property to the resolved path — see
+  `itest.studio/demo`, which seeds the settings file a first start of the DEMO package meets. Keep the
+  resolved name under `target`, so the listener above still meets it.
 
 ### Updating Expected OpenAPI Responses
 

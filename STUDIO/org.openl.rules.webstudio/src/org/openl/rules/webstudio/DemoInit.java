@@ -62,7 +62,12 @@ public class DemoInit {
         try {
             var config = new HashMap<String, String>();
             config.put("demo.init", null);
-            DynamicPropertySource.get().save(config);
+            var settings = DynamicPropertySource.get();
+            settings.save(config);
+            // The settings file was written by the application itself, so it carries no change to reload. Left
+            // unread, it is taken for a change someone made and the Spring context is refreshed a second later,
+            // while the web application is still starting up, which fails the start-up (EPBDS-16473).
+            settings.reloadIfModified();
         } catch (IOException ex) {
             log.error("Could not clean demo.init property", ex);
         }
