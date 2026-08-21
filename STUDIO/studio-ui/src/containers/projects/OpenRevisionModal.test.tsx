@@ -80,7 +80,10 @@ const renderModal = async (overrides: Partial<Project> = {}) => {
             project={{ ...project, ...overrides }}
         />
     )
-    await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
+    // The dialog renders an empty picker until the history answers, and every test below reads the revisions that
+    // answer brings — the one it opens by default among them. So the wait is for them to be on screen, not for the
+    // request to have been made.
+    await waitFor(() => expect(screen.getByTestId('open-revision-select')).not.toBeEmptyDOMElement())
     return { onOpened, onClose }
 }
 
