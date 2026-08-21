@@ -116,7 +116,7 @@
          through another client of the same user - an integration, an MCP server, the legacy pages. -->
     <filter>
         <filter-name>changeOriginFilter</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <filter-class>org.openl.studio.projects.messaging.ChangeOriginFilter</filter-class>
     </filter>
 
     <filter-mapping>
