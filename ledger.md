@@ -374,6 +374,6 @@ None. Open the next one from a fresh branch off the current `main`.
 ## Run log
 
 - 08-20 — run 228: screened nine EPBDS commits, 459 deleted lines; one deferred finding, nothing deletable.
-- 08-20/21 — runs 229-242: idle; new `main` work was a spotless bump, three EPBDS-16473 start-up fixes and two
+- 08-20/21 — runs 229-243: idle; new `main` work was a spotless bump, three EPBDS-16473 start-up fixes and two
   EPBDS-16463 commits confined to webstudio Java and ITEST fixtures. Every deletion was in-file or moved into a
-  file the same commit adds, so nothing was orphaned. No `dead-code/*` PR open throughout.
+  file the same commit adds, so nothing was orphaned. `main` unchanged since run 242, no `dead-code/*` PR open.
