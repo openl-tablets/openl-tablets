@@ -3,7 +3,7 @@
 ## Resume point
 
 - **Converged**: every queue row and vein is done, and `main` has yielded nothing deletable for many runs. Screened
-  and closed up to *Write a spreadsheet result of a test as the bean a client can read* — match that **subject** in
+  and closed up to *Wait for the revisions a dialog loads before reading them in its tests* — match that **subject** in
   `git log --oneline -25 origin/main`, since a fresh clone loses the SHA — plus every Dependabot or lock-file bump
   above it, which add no surface and need no reading. New scope is only the authored commits above that subject.
   Never invent a detector; never re-diagnose CI on an unchanged SHA. The idle pass is two calls, those commits and
@@ -374,6 +374,6 @@ None. Open the next one from a fresh branch off the current `main`.
 ## Run log
 
 - 08-20 — run 228: screened nine EPBDS commits, 459 deleted lines; one deferred finding, nothing deletable.
-- 08-20/21 — runs 229-244: idle; new `main` work was a spotless bump, three EPBDS-16473 start-up fixes and two
-  EPBDS-16463 commits confined to webstudio Java and ITEST fixtures. Every deletion was in-file or moved into a
-  file the same commit adds, so nothing was orphaned. `main` unchanged since run 242, no `dead-code/*` PR open.
+- 08-20/21 — runs 229-245: idle; new `main` work was a spotless bump, EPBDS-16473, EPBDS-16463 and EPBDS-16450 plus
+  two studio-ui test-wait commits. Every deletion was in-file, or moved into a new same-package class the commit
+  adds (`TablePropertyText`), so nothing was orphaned. No `dead-code/*` PR open.
