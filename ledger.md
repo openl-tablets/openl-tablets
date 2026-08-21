@@ -2,12 +2,12 @@
 
 ## Resume point
 
-- **Converged**: every queue row and vein is done, and `main` has yielded nothing deletable for many runs. Tip is
-  *Fix cell errors lost when another table compiles the cell first* — match that **subject** in
-  `git log --oneline -25 origin/main`, since a fresh clone loses the SHA. The nine EPBDS commits below it, down to
-  and including the *Bump jackson-bom from 2.22.1 to 2.22.2* Dependabot commit, are screened and closed, so new
-  scope is only commits above that subject. Never invent a detector; never re-diagnose CI on an unchanged SHA. The
-  idle pass is two calls, those commits and the open-PR baseline.
+- **Converged**: every queue row and vein is done, and `main` has yielded nothing deletable for many runs. Screened
+  and closed up to *Fix cell errors lost when another table compiles the cell first* — match that **subject** in
+  `git log --oneline -25 origin/main`, since a fresh clone loses the SHA — plus every Dependabot or lock-file bump
+  above it, which add no surface and need no reading. New scope is only the authored commits above that subject.
+  Never invent a detector; never re-diagnose CI on an unchanged SHA. The idle pass is two calls, those commits and
+  the open-PR baseline.
 - Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`; read its
   **deleted** lines first, and check every locale key, image and model an additive commit *adds* repo-wide too. A
   commit deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws`
@@ -375,3 +375,4 @@ None. Open the next one from a fresh branch off the current `main`.
 
 - 08-20 — run 228: screened nine EPBDS commits, 459 deleted lines; one deferred finding, nothing deletable.
 - 08-20/21 — runs 229-236: idle in two calls each; `main` tip and the empty PR list both unchanged.
+- 08-21 — run 237: only new `main` commit is a one-line spotless plugin bump; no surface, PR list still empty.
