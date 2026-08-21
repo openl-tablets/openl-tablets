@@ -374,7 +374,7 @@ None. Open the next one from a fresh branch off the current `main`.
 ## Run log
 
 - 08-20 — run 228: screened nine EPBDS commits, 459 deleted lines; one deferred finding, nothing deletable.
-- 08-20/21 — runs 229-246: idle; new `main` work was a spotless bump, EPBDS-16473, EPBDS-16463 and EPBDS-16450 plus
+- 08-20/21 — runs 229-247: idle; new `main` work was a spotless bump, EPBDS-16473, EPBDS-16463 and EPBDS-16450 plus
   two studio-ui test-wait commits. Every deletion was in-file, or moved into a new same-package class the commit
-  adds (`TablePropertyText`), so nothing was orphaned. No `dead-code/*` PR open, and the repository has no open PR
-  of any kind, so the whole `list_pull_requests` call now closes the PR half of the idle pass.
+  adds (`TablePropertyText`), so nothing was orphaned. `main` HEAD has since stopped moving, and the repository has
+  no open PR of any kind, so the whole `list_pull_requests` call closes the PR half of the idle pass.
