@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import { fireEvent } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -66,6 +66,9 @@ const project = {
     status: ProjectStatus.Opened,
 } as unknown as Project
 
+/** The entry the picker offers before any revision arrives: the workspace copy of an opened project. */
+const WORKSPACE_OPTION = 'workspace'
+
 const renderModal = async ({ filePath, ...overrides }: Partial<Project> & { filePath?: string } = {}) => {
     const onClose = vi.fn()
     render(
@@ -76,7 +79,12 @@ const renderModal = async ({ filePath, ...overrides }: Partial<Project> & { file
             project={{ ...project, ...overrides }}
         />
     )
-    await waitFor(() => expect(filePath ? getFileRevisions : getProjectRevisions).toHaveBeenCalled())
+    // An opened project offers its workspace copy from the first render, so waiting for a picker that is merely
+    // not empty would not wait at all. Every test below reads or selects a revision the history answers with, so
+    // the wait is for one of those to be on screen.
+    await waitFor(() => expect(within(screen.getByTestId('export-project-revision'))
+        .getAllByRole('option')
+        .filter(option => option.getAttribute('value') !== WORKSPACE_OPTION)).not.toHaveLength(0))
     return { onClose }
 }
 
