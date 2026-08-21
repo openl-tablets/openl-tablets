@@ -374,5 +374,5 @@ None. Open the next one from a fresh branch off the current `main`.
 ## Run log
 
 - 08-20 — run 228: screened nine EPBDS commits, 459 deleted lines; one deferred finding, nothing deletable.
-- 08-20/21 — runs 229-236: idle in two calls each; `main` tip and the empty PR list both unchanged.
-- 08-21 — run 237: only new `main` commit is a one-line spotless plugin bump; no surface, PR list still empty.
+- 08-20/21 — runs 229-238: idle in two calls each; the only new `main` commit was a spotless plugin bump with no
+  surface, and the PR list stayed empty throughout.
