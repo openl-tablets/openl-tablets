@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,17 +81,41 @@ class TableVersionServiceTest {
     }
 
     @Test
-    void readsARequestedDimensionValueTheWayTheEngineDoes() {
-        var declared = service.declaredDimensions(Map.of("state", "AL, CA", "version", "0.0.2"));
+    void picksTheDimensionValuesOutOfTheOnesARequestDeclares() {
+        var states = new UsStatesEnum[]{UsStatesEnum.AL, UsStatesEnum.CA};
+        var declared = service.declaredDimensions(Map.of("state", states, "version", "0.0.2"));
 
-        // The version is not a dimension, and the states are read as the list the engine dispatches on.
+        // The version is not a dimension: the engine does not dispatch on it.
         assertFalse(declared.containsKey("version"));
         assertEquals(List.of(UsStatesEnum.AL, UsStatesEnum.CA), List.of((UsStatesEnum[]) declared.get("state")));
 
         // A table declaring those same states answers the same requests; one declaring none does not.
-        var alabamaAndCalifornia = new UsStatesEnum[]{UsStatesEnum.AL, UsStatesEnum.CA};
-        assertTrue(service.sameGroup(properties(Map.of("state", alabamaAndCalifornia), null), declared));
+        assertTrue(service.sameGroup(properties(Map.of("state", states), null), declared));
         assertFalse(service.sameGroup(properties(Map.of(), null), declared));
+    }
+
+    @Test
+    void keepsADeclaredValueTheWayTheEngineDoes() {
+        // A table's own values are the ones the engine kept, so a declared one is kept the same way before the two
+        // are compared: several values ordered, and a date closing a period moved to the end of its day.
+        var declared = service.declaredDimensions(Map.of(
+                "state", new UsStatesEnum[]{UsStatesEnum.CA, UsStatesEnum.AL},
+                "expirationDate", day(2009, 12, 31)));
+
+        assertEquals(List.of(UsStatesEnum.AL, UsStatesEnum.CA), List.of((UsStatesEnum[]) declared.get("state")));
+        assertEquals(endOfDay(2009, 12, 31), declared.get("expirationDate"));
+        // A table declaring the day the request names answers the same requests, whichever moment of it was sent.
+        assertTrue(service.sameGroup(properties(Map.of("expirationDate", endOfDay(2009, 12, 31)), null),
+                service.declaredDimensions(Map.of("expirationDate", day(2009, 12, 31)))));
+    }
+
+    private static Date day(int year, int month, int dayOfMonth) {
+        return Date.from(LocalDate.of(year, month, dayOfMonth).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+    private static Date endOfDay(int year, int month, int dayOfMonth) {
+        return Date.from(LocalDate.of(year, month, dayOfMonth).atTime(23, 59, 59, 999_000_000)
+                .atZone(ZoneId.systemDefault()).toInstant());
     }
 
     private static IOpenLTable table(boolean versionable, String version) {

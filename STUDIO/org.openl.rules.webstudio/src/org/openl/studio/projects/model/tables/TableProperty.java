@@ -6,14 +6,18 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A single table property: its name and value in display string form.
+ * A single table property: its name and its value as a string.
  * <p>
- * The value is a string, exactly as it appears in the Table Details editor. When a copy is created, the value is
- * parsed back with the property's definition, so a typed property (a date, an enumeration) is stored correctly. A blank
- * value removes the property from the copy.
+ * A date is written in ISO-8601 — {@code 2009-01-01}, with the time after it only when the value carries one — so
+ * the same text is read the same way whatever the reader's locale. A property closing a period, which the engine
+ * keeps at the close of the day it names, is written as that day. Every other value is written as the Table Details
+ * editor shows it.
+ * <p>
+ * When a copy is created, the value is read back as the property it names, so a typed property (a date, an
+ * enumeration) is stored as such. A blank value removes the property from the copy.
  *
  * @param name  property name
- * @param value property value in display string form; a blank value removes the property
+ * @param value property value; a blank value removes the property
  * @author Vladyslav Pikus
  */
 public record TableProperty(
@@ -21,7 +25,8 @@ public record TableProperty(
         @NotBlank
         String name,
 
-        @Parameter(description = "Property value in display string form. A blank value removes the property.")
+        @Parameter(description = "Property value. A date is written in ISO-8601, any other value as the Table "
+                + "Details editor shows it. A blank value removes the property.")
         @Nullable String value
 ) {
 }

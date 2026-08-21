@@ -238,6 +238,9 @@ public class TableCopyServiceImpl implements TableCopyService {
     /**
      * The requested properties as an ordered name-to-value map, dropping the blank ones that remove a property.
      *
+     * <p>Each value is read as the property it names, so a date is written to the copy as a date rather than as the
+     * text it was sent as, and the dimension values are the ones the engine dispatches on.
+     *
      * <p>Names and values are taken without the space around them, so a value is written as it was checked.
      */
     private static Map<String, Object> toPropertyMap(List<TableProperty> properties) {
@@ -245,7 +248,8 @@ public class TableCopyServiceImpl implements TableCopyService {
         for (var property : properties) {
             var value = property.value();
             if (value != null && !value.isBlank()) {
-                map.put(property.name().trim(), value.strip());
+                var name = property.name().trim();
+                map.put(name, TablePropertyText.parse(name, value.strip()));
             }
         }
         return map;

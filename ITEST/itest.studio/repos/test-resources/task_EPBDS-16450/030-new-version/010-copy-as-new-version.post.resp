@@ -1,0 +1,19 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "6e26d31aaa80c5d6da4a7a0f16145d03",
+  "tableType": "Rules",
+  "kind": "Rules",
+  "name": "BankLimitIndexDated",
+  "properties": {
+    "expirationDate": "2009-12-31T23:59:59.999",
+    "effectiveDate": "2009-01-01T00:00:00.000",
+    "version": "0.0.2"
+  },
+  "returnType": "Double",
+  "signature": "BankLimitIndexDated (String bank, String bankRatingGroup)",
+  "file": "EPBDS-16450/BankLimits.xlsx",
+  "pos": "B54:H65"
+}
+

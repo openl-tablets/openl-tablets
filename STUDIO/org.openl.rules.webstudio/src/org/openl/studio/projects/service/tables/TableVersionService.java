@@ -5,18 +5,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.studio.projects.model.tables.TableVersionsView;
 
@@ -30,7 +28,6 @@ import org.openl.studio.projects.model.tables.TableVersionsView;
  *
  * @author Vladyslav Pikus
  */
-@Slf4j
 @Service
 public class TableVersionService {
 
@@ -132,27 +129,22 @@ public class TableVersionService {
     }
 
     /** The dimension values a table declares itself. */
-    private static Map<String, Object> dimensionsOf(@Nullable ITableProperties properties) {
-        var own = properties == null ? Map.<String, Object>of() : properties.getTableProperties();
-        return dimensions(own::get);
+    private Map<String, Object> dimensionsOf(@Nullable ITableProperties properties) {
+        return declaredDimensions(properties == null ? Map.of() : properties.getTableProperties());
     }
 
     /**
-     * The dimension values a request declares, read as the table editor reads them when it writes the property.
+     * The dimension values among the ones a request declares, as the engine keeps them.
      *
-     * <p>A text the property cannot be read from is kept as it stands, so it compares equal to nothing declared and
-     * the copy is left to stand beside the source rather than replacing it.
+     * <p>A table's own values are the ones the engine kept — several of them ordered, a date closing a period
+     * moved to the end of its day — so a declared value is kept the same way before the two are compared.
      */
     public Map<String, Object> declaredDimensions(Map<String, Object> declared) {
-        return dimensions(name -> valueOf(name, declared.get(name)));
-    }
-
-    private static Map<String, Object> dimensions(Function<String, @Nullable Object> value) {
         var values = new HashMap<String, Object>();
         for (var name : TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames()) {
-            var declared = value.apply(name);
-            if (declared != null) {
-                values.put(name, declared);
+            var value = declared.get(name);
+            if (value != null) {
+                values.put(name, TableProperties.preprocess(name, value));
             }
         }
         return values;
@@ -170,23 +162,5 @@ public class TableVersionService {
     private static String currentVersion(@Nullable ITableProperties properties) {
         var version = properties == null ? null : properties.getVersion();
         return version == null ? INITIAL_VERSION : version;
-    }
-
-    private static @Nullable Object valueOf(String name, @Nullable Object text) {
-        if (text == null) {
-            return null;
-        }
-        var definition = TablePropertyDefinitionUtils.getPropertyByName(name);
-        var type = definition == null ? null : definition.getType();
-        if (type == null) {
-            return text;
-        }
-        try {
-            return FormattersManager.getFormatter(type.getInstanceClass(), definition.getFormat())
-                    .parse(text.toString());
-        } catch (RuntimeException e) {
-            log.debug("Cannot read property '{}' from '{}'.", name, text, e);
-            return text;
-        }
     }
 }

@@ -1,5 +1,6 @@
 import React from 'react'
-import { act, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import type { Dayjs } from 'dayjs'
 import userEvent from '@testing-library/user-event'
 import type { MockedFunction } from 'vitest'
 import { getModuleSheets, getProjectModules, getProjectProperties } from 'services/projects'
@@ -108,6 +109,24 @@ vi.mock('antd', async () => {
             ))}
         </select>
     )
+    // A real dayjs value: the editor reads the day out of it and carries over the time the value it replaces held.
+    const dayjs = (await import('dayjs')).default
+    const MockDatePicker = ({
+        value,
+        onChange,
+        ...props
+    }: {
+        value?: Dayjs | null
+        onChange?: (date: Dayjs | null) => void
+        'data-testid'?: string
+    }) => (
+        <input
+            data-testid={props['data-testid']}
+            onChange={event => onChange?.(event.target.value ? dayjs(event.target.value) : null)}
+            type="date"
+            value={value ? value.format('YYYY-MM-DD') : ''}
+        />
+    )
     const MockInputNumber = ({
         value,
         onChange,
@@ -129,6 +148,7 @@ vi.mock('antd', async () => {
     return {
         ...actual,
         AutoComplete: MockAutoComplete,
+        DatePicker: MockDatePicker,
         InputNumber: MockInputNumber,
         Modal: MockModal,
         Select: MockSelect,
@@ -213,6 +233,81 @@ describe('CopyTableModal', () => {
             kind: 'Rules',
             name: 'EligibilityCopy',
         })
+    })
+
+    it('prefills a date property with the date the source declares', async () => {
+        const user = userEvent.setup({ delay: null })
+        mockGetInfo.mockResolvedValue({
+            ...sourceInfo,
+            properties: [
+                { name: 'effectiveDate', value: '2009-01-01' },
+                { name: 'expirationDate', value: '2009-12-31T23:59' },
+            ],
+        })
+        mockGetProperties.mockResolvedValue([
+            property({
+                name: 'effectiveDate',
+                displayName: 'Effective Date',
+                group: 'Business Dimension',
+                dimensional: true,
+                type: 'date',
+            }),
+            property({
+                name: 'expirationDate',
+                displayName: 'Expiration Date',
+                group: 'Business Dimension',
+                dimensional: true,
+                type: 'date',
+            }),
+        ])
+        render(<CopyTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
+
+        // An author who cannot see the date cannot tell it is there, and picking one silently replaces it.
+        expect(screen.getByTestId('copy-table-property-value-0')).toHaveValue('2009-01-01')
+        // A date naming a moment of the day is shown as the day it falls on.
+        expect(screen.getByTestId('copy-table-property-value-1')).toHaveValue('2009-12-31')
+
+        await user.clear(screen.getByTestId('copy-table-name'))
+        await user.type(screen.getByTestId('copy-table-name'), 'EligibilityCopy')
+        await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
+
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
+        expect(mockCopy.mock.calls[0]![2].properties).toEqual([
+            { name: 'effectiveDate', value: '2009-01-01' },
+            { name: 'expirationDate', value: '2009-12-31T23:59' },
+        ])
+    })
+
+    it('keeps the time of day a date carries when another day is picked', async () => {
+        const user = userEvent.setup({ delay: null })
+        mockGetInfo.mockResolvedValue({
+            ...sourceInfo,
+            properties: [{ name: 'expirationDate', value: '2009-12-31T23:59' }],
+        })
+        mockGetProperties.mockResolvedValue([
+            property({
+                name: 'expirationDate',
+                displayName: 'Expiration Date',
+                group: 'Business Dimension',
+                dimensional: true,
+                type: 'date',
+            }),
+        ])
+        render(<CopyTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
+
+        await user.clear(screen.getByTestId('copy-table-name'))
+        await user.type(screen.getByTestId('copy-table-name'), 'EligibilityCopy')
+        // The picker chooses a day; the moment the value names is not the author's to lose by touching the field.
+        fireEvent.change(screen.getByTestId('copy-table-property-value-0'), { target: { value: '2010-06-30' } })
+        await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
+
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
+        expect(mockCopy.mock.calls[0]![2].properties)
+            .toEqual([{ name: 'expirationDate', value: '2010-06-30T23:59' }])
     })
 
     it('reads the properties and copies the table on the server by its id', async () => {

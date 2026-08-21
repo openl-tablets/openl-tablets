@@ -116,8 +116,18 @@ boolean, and a dropdown for an enum. An enum dropdown shows its display value an
 A single-value enum exposes no text input; an enum accepting several values uses a multi-select. Completing the last
 row adds another; a row can be deleted with the same control as a Spreadsheet argument. Multiple selected values wrap
 across lines in a bounded value column instead of widening the table. The date picker displays a date in the user's
-locale and writes it to the workbook in the ISO 8601 `yyyy-MM-dd` form. A partially filled row or repeated property
-name makes the form invalid, and so does a value the property's own pattern refuses.
+locale and both reads and writes it as ISO 8601 `yyyy-MM-dd`, the form a date value crosses the network in, so the
+date the copied table declares opens the picker rather than an empty field. A value naming a moment of the day keeps
+that moment: the picker chooses a day, and a dimension date would otherwise be moved to midnight by being touched,
+which changes the requests the table answers.
+
+A property closing a period — **Expiration Date**, **End Request Date** — is the exception. A table stays in force
+through its last day, so the engine keeps such a value at the close of the day it names. That moment is the engine's
+rather than one an author wrote, and it is left where the Table Details editor leaves it: the day is what crosses the
+network, and the engine stamps the end of it again when the value is read back. A declared dimension value is
+compared the way the engine keeps it — several values ordered, a closing date moved to the end of its day — so a copy
+declaring the day its source declares is a new version of it rather than a table standing beside it. A partially filled row or repeated
+property name makes the form invalid, and so does a value the property's own pattern refuses.
 
 The version is the one property with an editor of its own: three spinners for the numbers the engine orders versions
 by, and the version the copied table stands for named beside them. It opens on the first version the table's versions
@@ -126,7 +136,9 @@ leave free, and a version any of them carries is refused — by the dialog and b
 The copy is written on the server. The dialog sends the destination, the copy's name and its properties; the table
 itself never crosses the network. The server rebuilds it on the destination sheet the way the table editor writes a
 new table, so the copy keeps the source's cell styles, merged cells and comments, and — being a new table — is
-stamped with the author and date OpenL Studio records for a table it creates, while it is set to record them.
+stamped with the author and date OpenL Studio records for a table it creates, while it is set to record them. Each
+declared value is read back as the property it names, so a date is written into the workbook as a date and the
+dimension values are compared the way the engine dispatches on them.
 
 Its properties section is laid out the way one written by hand is: the marker down the left, the property name beside
 it, and the value reaching the table's right edge. A value left in its own column would leave the columns beside it
@@ -202,7 +214,9 @@ One question per resource, each asked of the thing that owns the answer:
   concern and is not part of property metadata.
 - **The versions of the table being copied** — `/projects/{projectId}/tables/{tableId}/properties` answers with the
   table's own properties and, for a kind of table that carries versions, the one it stands for, the ones its versions
-  already carry and the first one left free.
+  already carry and the first one left free. A value crosses in the form the dialog edits it in — a date in ISO 8601,
+  every other value the way the Table Details editor shows it — and the copy request carries it back the same way,
+  so a value left untouched reaches the copy as the one the source declared.
 - **The tables a test can call** — the same tables list, narrowed to the kinds OpenL compiles into a method.
 - **A module's worksheets** — the only one of these that belongs to a module rather than to the project.
 - **The fields of one datatype or the values of one vocabulary** — read when an author picks it, when a tested

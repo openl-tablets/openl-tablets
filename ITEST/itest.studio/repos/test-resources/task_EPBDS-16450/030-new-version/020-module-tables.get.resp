@@ -1,0 +1,53 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "1fa70febac8963814fc05ffbdfd307a1",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "BankLimitIndex",
+      "returnType": "Double",
+      "signature": "BankLimitIndex (String bank, String bankRatingGroup)",
+      "file": "EPBDS-16450/BankLimits.xlsx",
+      "pos": "B22:H30"
+    },
+    {
+      "id": "6e26d31aaa80c5d6da4a7a0f16145d03",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "BankLimitIndexDated",
+      "properties": {
+        "expirationDate": "2009-12-31T23:59:59.999",
+        "version": "0.0.2",
+        "effectiveDate": "2009-01-01T00:00:00.000"
+      },
+      "returnType": "Double",
+      "signature": "BankLimitIndexDated (String bank, String bankRatingGroup)",
+      "file": "EPBDS-16450/BankLimits.xlsx",
+      "pos": "B54:H65"
+    },
+    {
+      "id": "4b200c0ac327e1ec9ced088f18451197",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "BankLimitIndexDated",
+      "properties": {
+        "version": "0.0.1",
+        "effectiveDate": "2009-01-01T00:00:00.000",
+        "active": false,
+        "expirationDate": "2009-12-31T23:59:59.999"
+      },
+      "returnType": "Double",
+      "signature": "BankLimitIndexDated (String bank, String bankRatingGroup)",
+      "file": "EPBDS-16450/BankLimits.xlsx",
+      "pos": "B67:H79"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 3,
+  "total": 3
+}
+
