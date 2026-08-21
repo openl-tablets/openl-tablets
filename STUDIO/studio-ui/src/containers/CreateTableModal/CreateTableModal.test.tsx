@@ -1,6 +1,7 @@
 import React from 'react'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent, { type UserEvent } from '@testing-library/user-event'
+import type { Dayjs } from 'dayjs'
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
 import { getModuleSheets, getProjectModules, getProjectProperties } from 'services/projects'
@@ -129,28 +130,22 @@ vi.mock('antd', async () => {
     )
     const MockSpin = ({ children }: { children?: React.ReactNode }) => <>{children}</>
     const MockTooltip = ({ children }: { children?: React.ReactNode }) => <>{children}</>
+    // A real dayjs value: the editors read the day out of it and carry over the time the value they replace held.
+    const dayjs = (await import('dayjs')).default
     const MockDatePicker = ({
+        value,
         onChange,
         ...props
     }: {
-        onChange?: (date: { format: (pattern: string) => string } | null) => void
+        value?: Dayjs | null
+        onChange?: (date: Dayjs | null) => void
         'data-testid'?: string
     }) => (
         <input
             data-testid={props['data-testid']}
+            onChange={event => onChange?.(event.target.value ? dayjs(event.target.value) : null)}
             type="date"
-            onChange={event => onChange?.({
-                format: pattern => {
-                    if (pattern === 'YYYY-MM-DD') {
-                        return event.target.value
-                    }
-                    if (pattern === 'MM/DD/YYYY') {
-                        const [year, month, day] = event.target.value.split('-')
-                        return `${month}/${day}/${year}`
-                    }
-                    return `unexpected:${pattern}`
-                },
-            })}
+            value={value ? value.format('YYYY-MM-DD') : ''}
         />
     )
     const MockInputNumber = ({

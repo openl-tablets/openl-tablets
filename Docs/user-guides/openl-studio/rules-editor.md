@@ -506,7 +506,9 @@ To create a table as a copy of the existing table, proceed as follows:
     - enter text directly, select a date in the date picker, select or clear a Boolean check box, or select an enum
       display value from the dropdown, according to the property type. A single-value enum is selected from a closed
       dropdown and does not accept typed text.
-      The date picker follows the user's locale; OpenL Studio writes the selected date as ISO 8601 `yyyy-MM-dd`.
+      The date picker opens on the date the copied table declares and follows the user's locale; OpenL Studio
+      carries a date value as ISO 8601 `yyyy-MM-dd`. A date naming a moment of the day keeps that moment when
+      another day is selected, because the picker chooses a day.
     - **Version** is entered as its three numbers — major, minor and variant — with the version the copied table
       stands for named beside them. It opens on the first version the table's versions leave free, and a version
       one of them already carries is refused.

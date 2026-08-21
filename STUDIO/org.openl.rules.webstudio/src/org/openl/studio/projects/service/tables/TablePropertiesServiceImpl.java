@@ -9,15 +9,13 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.studio.projects.model.tables.TableProperty;
 
 /**
- * Reads a table's own properties for the copy dialog, in the display form the Table Details editor shows.
+ * Reads a table's own properties for the copy dialog.
  * <p>
- * Values cross the wire as strings, in the display form the property's definition gives them, so the copy dialog can
+ * Values cross the wire as strings, in the form {@link TablePropertyText} writes them, so the copy dialog can
  * prefill them and send them back unchanged.
  *
  * @author Vladyslav Pikus
@@ -39,27 +37,18 @@ public class TablePropertiesServiceImpl implements TablePropertiesService {
         for (var definition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             var name = definition.getName();
             if (defined.containsKey(name) && placed.add(name)) {
-                ordered.add(new TableProperty(name, format(name, defined.get(name))));
+                ordered.add(property(name, defined.get(name)));
             }
         }
         // Any property the definitions do not know, appended in a stable alphabetical order.
         defined.entrySet().stream()
                 .filter(entry -> !placed.contains(entry.getKey()))
                 .sorted(Map.Entry.comparingByKey())
-                .forEach(entry -> ordered.add(new TableProperty(entry.getKey(), format(entry.getKey(), entry.getValue()))));
+                .forEach(entry -> ordered.add(property(entry.getKey(), entry.getValue())));
         return ordered;
     }
 
-    /** The property value in its display string form, using the definition's formatter when the property is known. */
-    private static @Nullable String format(String name, @Nullable Object value) {
-        if (value == null) {
-            return null;
-        }
-        var definition = TablePropertyDefinitionUtils.getPropertyByName(name);
-        if (definition == null) {
-            return String.valueOf(value);
-        }
-        return FormattersManager.getFormatter(definition.getType().getInstanceClass(), definition.getFormat())
-                .format(value);
+    private static TableProperty property(String name, @Nullable Object value) {
+        return new TableProperty(name, TablePropertyText.format(name, value));
     }
 }

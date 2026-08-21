@@ -821,7 +821,25 @@ public class TableProperties implements ITableProperties {
         reset();
     }
 
-    private Object preprocess(String name, Object value) {
+    /**
+     * The properties whose value stands for the close of the day it names.
+     *
+     * <p>A table stays in force through its last day, so the moment such a property is kept as is the end of that
+     * day rather than its start. The date a table declares names the day; the moment is the engine's.
+     */
+    public static final Set<String> END_OF_DAY_PROPERTIES = Set.of("expirationDate", "endRequestDate");
+
+    /**
+     * The value a property stands for, as the engine keeps it.
+     *
+     * <p>Several values are ordered, so that two tables declaring the same ones in another order answer the same
+     * requests. A date closing a period stands for the end of its day.
+     *
+     * @param name  name of the property the value belongs to
+     * @param value the value as it was read
+     * @return the value the engine keeps for it
+     */
+    public static Object preprocess(String name, Object value) {
         if (value == null) {
             return null;
         }
@@ -835,7 +853,7 @@ public class TableProperties implements ITableProperties {
                 return ((Object[]) value).clone();
             }
         }
-        if (("expirationDate".equals(name) || "endRequestDate".equals(name)) && value instanceof Date date) {
+        if (END_OF_DAY_PROPERTIES.contains(name) && value instanceof Date date) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
             calendar.set(Calendar.HOUR_OF_DAY, 23);

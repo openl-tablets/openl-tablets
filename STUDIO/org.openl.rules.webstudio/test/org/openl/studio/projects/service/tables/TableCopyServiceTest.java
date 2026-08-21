@@ -125,6 +125,33 @@ class TableCopyServiceTest {
     }
 
     @Test
+    void aDateTheSourceCarriesIsReadAndWrittenBackAsTheSameDate(@TempDir Path projectDir) throws Exception {
+        var source = bankLimitIndex(projectDir);
+        var sheet = sheetOf(source.table());
+        writeProperty(source, "effectiveDate", "01/01/2009 12:00 AM");
+        var dated = resolve(projectDir, "BankLimitIndex", sheet);
+        var declaredDate = dated.table().getProperties().getEffectiveDate();
+
+        // What the copy dialog is prefilled with: the date the source declares, in the form its picker reads.
+        var prefilled = new TablePropertiesServiceImpl().read(dated.table());
+        var effectiveDate = prefilled.stream().filter(property -> "effectiveDate".equals(property.name()))
+                .findFirst().orElseThrow();
+        assertEquals("2009-01-01", effectiveDate.value());
+
+        // Sent back untouched, it is the same date again — and answers the same requests, so the copy is a new
+        // version of the source rather than a table standing beside it.
+        var destGrid = creator.sheetGridModel(dated.model(), "Copies");
+        service.copyInto(dated.table(), "BankLimitIndex",
+                List.of(effectiveDate, new TableProperty("version", "0.0.2")), destGrid, tables(dated));
+        creator.save(destGrid);
+
+        var copy = resolve(projectDir, "BankLimitIndex", "Copies").table().getProperties();
+        assertEquals(declaredDate, copy.getEffectiveDate(), "the copy carries the date the source did");
+        var replaced = resolve(projectDir, "BankLimitIndex", sheet).table().getProperties();
+        assertEquals(Boolean.FALSE, replaced.getActive(), "the version it answers for steps aside");
+    }
+
+    @Test
     void aNewVersionTakesTheActiveRoleFromTheTableItReplaces(@TempDir Path projectDir) throws Exception {
         var source = bankLimitIndex(projectDir);
         var sourceSheet = sheetOf(source.table());
