@@ -25,10 +25,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Merged PRs
 
-- #2004, 11 CSS lines, merged after four days green and unreviewed — a deletion PR waits on a maintainer, and
-  `mergeable_state` `blocked` or `unknown` is that wait, never a conflict. Settle mergeability locally with
-  `git merge-tree --write-tree origin/main <branch>`; never push a catch-up merge to re-run green CI. Head SHA,
-  comment count and `updated_at` unchanged together settle the whole PR check in one call.
+- #2004 merged unreviewed and constrains nothing further; its lasting rules sit in *Method rules*.
 
 ## Module coverage
 
@@ -190,6 +187,9 @@ None. Open the next one from a fresh branch off the current `main`.
   approved source of truth, so an unlinked or duplicated page is not a candidate.
 - GitHub Actions compiles every push against the real opensaml BOM, so CI is the authoritative gate on anything the
   locally stubbed build could not verify.
+- **A deletion PR waits on a maintainer, never on a conflict**: `mergeable_state` `blocked`/`unknown` is that wait —
+  settle it locally with `git merge-tree --write-tree origin/main <branch>`, never with a catch-up merge that re-runs
+  green CI. Head SHA, comment count and `updated_at` unchanged together settle the whole PR check in one call.
 - **Never edit a source file while a Maven build is running** — a half-applied edit reads as a genuine compile error
   and costs the whole reactor pass. Finish the edits, then build. `pgrep -f <pattern>` matches the polling shell
   itself, so a wait loop on it never exits — poll the log's mtime.
@@ -373,6 +373,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-20/22 — runs 228-249: nine EPBDS commits screened (every deletion in-file or moved into a class the commit
+- 08-20/22 — runs 228-250: nine EPBDS commits screened (every deletion in-file or moved into a class the commit
   itself adds, orphaning nothing), then idle. `main` HEAD unmoved since run 247 and equal to the *Resume point*
   commit, and no PR of any kind open, so the whole idle pass closes in two calls.
