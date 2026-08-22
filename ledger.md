@@ -373,7 +373,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-20/22 — runs 228-248: nine EPBDS commits screened, then idle. Every deletion in them was in-file or moved into
-  a new same-package class the commit adds (`TablePropertyText`), so nothing was orphaned. `main` HEAD has not moved
-  since run 247 and now equals the *Resume point* commit itself, so the screening set is empty; the repository has
-  no open PR of any kind, so one `list_pull_requests` call closes the PR half of the idle pass.
+- 08-20/22 — runs 228-249: nine EPBDS commits screened (every deletion in-file or moved into a class the commit
+  itself adds, orphaning nothing), then idle. `main` HEAD unmoved since run 247 and equal to the *Resume point*
+  commit, and no PR of any kind open, so the whole idle pass closes in two calls.
