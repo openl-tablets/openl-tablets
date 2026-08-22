@@ -2,17 +2,11 @@
 
 ## Resume point
 
-- **Converged**: every queue row and vein is done, and `main` has yielded nothing deletable for many runs. Screened
-  and closed up to *Wait for the revisions a dialog loads before reading them in its tests* — match that **subject** in
-  `git log --oneline -25 origin/main`, since a fresh clone loses the SHA — plus every Dependabot or lock-file bump
-  above it, which add no surface and need no reading. New scope is only the authored commits above that subject.
-  Never invent a detector; never re-diagnose CI on an unchanged SHA. The idle pass is two calls, those commits and
-  the open-PR baseline.
-- Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`; read its
-  **deleted** lines first, and check every locale key, image and model an additive commit *adds* repo-wide too. A
-  commit deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws`
-  and class/id selectors over `webstudio/webapp/css`. Search a dropped helper **per method** — the class survives
-  through its other callers while the dropped method keeps only its own test.
+- **Converged**: every queue row and vein is done. Screened and closed up to the commit subject *Wait for the
+  revisions a dialog loads before reading them in its tests* — match that **subject** in
+  `git log --oneline -25 origin/main`, since a fresh clone loses the SHA. New scope is only the authored commits above
+  it; Dependabot and lock-file bumps add no surface and need no reading. The idle pass is two calls, those commits and
+  the open-PR list. Never invent a detector; never re-diagnose CI on an unchanged SHA.
 
 ## Change-type queue
 
@@ -25,7 +19,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Merged PRs
 
-- #2004 merged unreviewed and constrains nothing further; its lasting rules sit in *Method rules*.
+- None constrains a future run; the lasting rules of the merged sweeps sit in *Method rules* and *Keep-list*.
 
 ## Module coverage
 
@@ -36,21 +30,19 @@ None. Open the next one from a fresh branch off the current `main`.
 
 - `STUDIO/org.openl.rules.tableeditor` `taglib/TableEditorTag.java` (11 unread private fields) and
   `TableViewerTag.java` (7): written by public setters, read by nobody, named only by `META-INF/tableeditor.tld`.
-  Never touch the fields alone — the setters are the taglib's declared attribute contract. Whether a downstream
-  consumer still reaches this JSP taglib is the largest open question here and no in-repository evidence settles it.
+  Never touch the fields alone — the setters are the taglib's declared attribute contract, and no in-repository
+  evidence settles whether a downstream consumer still reaches this JSP taglib.
 - `STUDIO/org.openl.rules.workspace` `dtr/RepositoryException` — a public class with zero repository-wide references
-  since EPBDS-8537 dropped the `throws` on `DesignTimeRepositoryImpl.init()`. A whole public type in a published
-  artifact, so a downstream `catch` may still need it.
+  since EPBDS-8537 dropped the `throws` on `DesignTimeRepositoryImpl.init()`; a downstream `catch` may still need it.
 - `STUDIO/org.openl.rules.repository` `BranchRepository` — the four `@Deprecated(forRemoval = true)` default methods
   (`createBranch` twice, `deleteBranch(String, String)`, `getBranches(String)`) have no caller of their signature
-  left; everything moved to `listBranches`/`createRepositoryBranch`. Public API, so a human removes them.
+  left; everything moved to `listBranches`/`createRepositoryBranch`.
 - `DEV/org.openl.commons` `FileSignatureHelper.isOle2Sign` — its only production caller was
   `ProjectFilesServiceImpl.validateFileSignature`, which EPBDS-16379 replaced with `FileIntegrityValidator`; only its
-  own test names it now. Public API, and its siblings `isArchiveSign`/`isEmptyArchive` stay live.
-- `STUDIO/org.openl.rules.jackson` `JsonUtils.fromJSON` — all four public static overloads (one already
-  `@Deprecated`) lost their last production callers when EPBDS-16460 rewrote `InputArgsBean` and
-  `TableInputParserServiceImpl`; only `JsonUtilsTest` names them, in text and in every binary resource. The sibling
-  `splitJSON` stays live. Public API in a published jar, so a human decides.
+  own test names it now. Its siblings `isArchiveSign`/`isEmptyArchive` stay live.
+- `STUDIO/org.openl.rules.jackson` `JsonUtils.fromJSON` — all four public static overloads lost their last
+  production callers when EPBDS-16460 rewrote `InputArgsBean` and `TableInputParserServiceImpl`; only `JsonUtilsTest`
+  names them, in text and in every binary resource. The sibling `splitJSON` stays live.
 - `STUDIO/org.openl.security` `SimpleGroup.description` — written by a public setter and a public constructor
   parameter, read nowhere. Removing it changes public API consumed by webstudio, which cannot be compiled here.
 - `DEV/org.openl.rules` `DecisionTableBuilder.methodName` plus its public `setMethodName` and the single call in
@@ -65,11 +57,10 @@ None. Open the next one from a fresh branch off the current `main`.
 - `.te_hidden` in `STUDIO/org.openl.rules.tableeditor/css/common.css` — the only real CSS orphan. Blocked because the
   CSS bundles are not reproducible (see *Method rules*), so the removal cannot be propagated to what ships.
 - webstudio `webapp/javascript/common.js:127` guards a submit handler with `!$submit.hasClass('own-loader-handler')`;
-  the class is carried by no element since the Export dialogs went to React, but dropping the test rewrites a live
-  condition rather than deleting a declaration, and its explanatory comment would go with it.
+  no element has carried the class since the Export dialogs went to React, but dropping the test rewrites a live
+  condition rather than deleting a declaration.
 - `STUDIO/org.openl.rules.workspace/resources/deployer.properties` — a `production-repository.$ref` sample no file
-  names, in a library jar with no matching application. `{appName}.properties` would load it for an app named
-  `deployer`, so only a human knows whether one still exists downstream.
+  names, in a library jar; `{appName}.properties` would load it for a downstream app named `deployer`.
 
 ## False-positive shapes
 
@@ -112,12 +103,10 @@ None. Open the next one from a fresh branch off the current `main`.
   documented tooling. An `<exclusions>` entry is defensive and stays correct even when the excluded artifact is absent
   today, because a transitive upgrade can reintroduce it. A hand-written CVE pin looks superseded once Dependabot
   bumps its property, but the `dependencyManagement` import is what overrides the parent BOM, and its comment names
-  the fix condition rather than the version, so a bump leaves it accurate. A pom property with no `${...}` reference
-  is almost always a plugin convention parameter — `maven.*`, `sonar.*`, `invoker.*`, `archetype.*`, `spotless.*`.
-  A `<resource>`/`<testResource>` `<directory>` naming a path that does not exist beside its own pom is inherited
-  configuration resolved against each *module's* basedir: the root's `resources`, `src` and `test-resources`, and a
-  fixture parent's, are exactly that shape. An archetype's `archetype-resources/pom.xml` is a Velocity template and
-  does not parse as XML at all.
+  the fix condition rather than the version. A property with no `${...}` reference is almost always a plugin
+  convention parameter — `maven.*`, `sonar.*`, `invoker.*`, `archetype.*`, `spotless.*`. A resource or test-resource
+  directory naming a path absent beside its own pom is inherited configuration resolved against each *module's*
+  basedir. An archetype's `archetype-resources/pom.xml` is a Velocity template and does not parse as XML at all.
 - **A pom outside the root aggregator's `<module>` graph is normally a fixture, not an orphan.** All 120 unreachable
   poms are maven-invoker projects under `Util/openl-maven-plugin/it/**` or documentation examples under `Docs/`.
 - **A signature an incremental diff deletes is usually renamed or moved, not removed.** Six shapes seen: renamed on
@@ -159,6 +148,11 @@ None. Open the next one from a fresh branch off the current `main`.
   ordinary English words is the same proof — a JavaDoc or `.properties` description rewrite drops prose, not names;
   check only residuals that could be a type or a member, and a `.properties` diff that changes values while every key
   survives orphans nothing.
+- Sweep only what a new commit touches, skipping webstudio Java, ITEST fixtures, `Docs/` and `.github/`; read its
+  **deleted** lines first, and check every locale key, image and model an additive commit *adds* repo-wide too. A
+  commit deleting a screen is the richest vein: its locale keys, service functions, helper modules, dropped `throws`
+  and class/id selectors over `webstudio/webapp/css`. Search a dropped helper **per method** — the class survives
+  through its other callers while the dropped method keeps only its own test.
 - For any deadness check on a type **or a member**, "appears in one file" is not enough — count occurrences
   **inside** that file too. This one rule killed every member candidate ever raised: a secondary top-level class used
   by its file's primary class, a helper called only by its own file's other methods, and a TS type alias read only by
@@ -355,17 +349,14 @@ None. Open the next one from a fresh branch off the current `main`.
 
 - **Allowlist `build.shibboleth.net`**, or move the `org.opensaml:opensaml-bom` import out of the root pom:
   `STUDIO/org.openl.rules.webstudio`, the largest untouched module, cannot be compiled or swept until then.
-- **`itest.tracing` and `itest.kafka` both start the unpinned `apache/kafka-native:latest`** (see *CI flakes*), whose
-  image segfaults in its own bootstrap and keeps reddening `main`. Pinning it to a released version needs a human.
+- Pin `apache/kafka-native:latest`, started by `itest.tracing` and `itest.kafka`, to a released version (*CI flakes*).
 - The weekly cross-platform `build.yml` matrix needs an owner; *CI flakes* records what is failing.
-- `OverviewPanel.tsx` starts two unawaited promises that resolve into state setters, at lines 797 and 1227. Nothing
-  synchronises them with the test, so `OverviewPanel.test.tsx` fails whenever the machine is slow. Needs the effect
-  awaited or the test made to wait on it; raising the CI timeout to 20 s treated the symptom only.
+- `OverviewPanel.tsx` starts two unawaited promises that resolve into state setters, at lines 797 and 1227; nothing
+  synchronises them with the test. Await the effect or make the test wait — the 20 s CI timeout treated the symptom.
 - Weigh every public-API removal parked in *Deferred findings*: each needs a downstream-break judgement this routine
   may not make, and the tableeditor taglib and the `MergeModal` interfaces carry the largest consequences.
-- Name the authoritative side of the committed tableeditor CSS bundles, which `compile.css.sh` does not reproduce;
-  `.te_hidden` is blocked until then. That step is wired into no Maven phase, so editing a `js/` or `css/` source
-  silently fails to reach the runtime.
+- Name the authoritative side of the committed tableeditor CSS bundles, which `compile.css.sh` does not reproduce
+  and no Maven phase runs; `.te_hidden` is blocked until then.
 - **`Docs/production-deployment/example/` and `Docs/examples/production/` are the same 32-file example tree twice**,
   differing only in one relative link in `README.md`, and both published and linked, so neither is dead and this
   routine cannot pick. `Docs/README.MD:232` also points at a missing `operations/production-deployment.md`.
@@ -373,6 +364,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
+- 08-22 — run 258: `main` unmoved at the *Resume point* commit and no PR of any kind open; compacted the ledger.
 - 08-20/22 — runs 228-257: nine EPBDS commits screened (every deletion in-file or moved into a class the commit
-  itself adds, orphaning nothing), then idle. `main` HEAD unmoved since run 247 and equal to the *Resume point*
-  commit, and no PR of any kind open, so the whole idle pass closes in two calls.
+  itself adds, orphaning nothing), then idle.
