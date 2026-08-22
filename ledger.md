@@ -364,6 +364,7 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-22 — run 258: `main` unmoved at the *Resume point* commit and no PR of any kind open; compacted the ledger.
+- 08-22 — runs 258-259: `main` unmoved at the *Resume point* commit, no PR of any kind open, and the opensaml block
+  re-probed unchanged (shibboleth 403 through the proxy, Central 404); ledger compacted and inside budget.
 - 08-20/22 — runs 228-257: nine EPBDS commits screened (every deletion in-file or moved into a class the commit
   itself adds, orphaning nothing), then idle.
