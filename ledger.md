@@ -373,6 +373,6 @@ None. Open the next one from a fresh branch off the current `main`.
 
 ## Run log
 
-- 08-20/22 — runs 228-252: nine EPBDS commits screened (every deletion in-file or moved into a class the commit
+- 08-20/22 — runs 228-253: nine EPBDS commits screened (every deletion in-file or moved into a class the commit
   itself adds, orphaning nothing), then idle. `main` HEAD unmoved since run 247 and equal to the *Resume point*
   commit, and no PR of any kind open, so the whole idle pass closes in two calls.
