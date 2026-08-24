@@ -8,8 +8,8 @@ Additionally, a project can contain `rules.xml`, Java classes, JAR files, Groovy
 
 Thereby, the structure can be adjusted according to the developer's preferences, for example, to comply with the Maven structure.
 
-**Note for experienced users:** The `rules.xml` project file is a rules project descriptor that contains project and configuration details. For instance, a user may redefine a module name there that is the same as a name of the corresponding Excel file by default. When updating project details via OpenL Studio, the `rules.xml` file is automatically created or updated accordingly. All `rules.xml` tags are optional: if omitted, the project name defaults to the folder name, the modules to the `rules/**/*.xlsx` files, and the classpath to the `groovy/` folder.
-For more information on configuring `rules.xml, `see [OpenL Tablets Developers Guide > Rules Project Descriptor](../../../developer-guides/rules-projects.md#rules-project-descriptor).
+**Note for experienced users:** The `rules.xml` project file is a rules project descriptor that contains project and configuration details. For instance, a user may redefine a module name there that is the same as a name of the corresponding Excel file by default. When updating project details via OpenL Studio, the `rules.xml` file is automatically created or updated accordingly. All `rules.xml` tags are optional: if omitted, the project name defaults to the folder name, the modules to the `rules/**/*.xlsx` and `tests/**/*.xlsx` workbooks, and the classpath to `groovy/` and `lib/*.jar`.
+For more information on configuring `rules.xml`, see [OpenL Tablets Developers Guide > Rules Project Descriptor](../../../developer-guides/rules-projects.md#rules-project-descriptor).
 
 The following topics are included in this section:
 
