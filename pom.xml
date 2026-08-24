@@ -94,7 +94,7 @@
              a denial-of-service vulnerability in Micrometer's HTTP server instrumentation. micrometer-core
              is a required (compile-scope) dependency of spring-ldap-core, not an optional add-on.
              Remove once spring-ldap-core 4.x (requires Spring Framework 7.x) manages a fixed version by default. -->
-        <micrometer.version>1.17.0</micrometer.version>
+        <micrometer.version>1.17.1</micrometer.version>
 
         <!-- Security -->
         <spring.security.version>6.5.11</spring.security.version>
