@@ -388,7 +388,6 @@ This section describes advanced customization for logging requests to OpenL Rule
 The following topics are included:
 
 -   [Storage Service for Log Requests and Their Responds](#storage-service-for-log-requests-and-their-responds)
--   [Customization for Apache Cassandra](#customization-for-apache-cassandra)
 -   [Customization for the Relational Database](#customization-for-the-relational-database)
 
 #### Storage Service for Log Requests and Their Responds
@@ -401,7 +400,7 @@ This section describes storage service used for log requests and responds and in
 
 ##### Log Request and Response Storage Service Overview
 
-OpenL Rule Services supports Apache Cassandra and relational database storages to log request and their responds out of the box. This part of the system is designed customizable and extendable via the org.openl.rules.ruleservice.storelogdata.StoreLogDataService interface to support the third-party storages.
+OpenL Rule Services supports relational database storage to log requests and their responds out of the box. This part of the system is designed customizable and extendable via the org.openl.rules.ruleservice.storelogdata.StoreLogDataService interface to support the third-party storages.
 
 The StoreLogDataService interface has the following methods:
 
@@ -481,132 +480,11 @@ public final class ZonedDataTimeToDateConvertor implements Converter<ZonedDateTi
 }
 ```
 
-#### Customization for Apache Cassandra
-
-This section describes customization for Apache Cassandra and automatically creating a table schema for entity classes. The following topics are described:
-
--   [Log Requests and Responds Customization for Apache Cassandra](#log-requests-and-responds-customization-for-apache-cassandra)
--   [Automatically Creating a Cassandra Table Schema Creation for Entity Classes](#automatically-creating-a-cassandra-table-schema-for-entity-classes)
-
-##### Log Requests and Responds Customization for Apache Cassandra
-
-Service storing log requests and their responds for Apache Cassandra requires a Cassandra driver version 4.x. The Cassandra driver uses a new mapping model between object in the code and a table in a database. For more information on mapping, see <https://docs.datastax.com/en/developer/java-driver/4.3/manual/mapper/>. The nutshell working with this model assumes that there are three objects: Entity, Dao, and Mapper interface.
-
-For a method, to enable logging requests and their responds to Apache Cassandra, annotate calling method with the `@org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra` annotation. The annotation has an optional attribute that obtains entity classes. If `@StoreLogDataToCassandra` is used with an empty value, the default table described in [Storing Log Records in Apache Cassandra](#storing-log-records-in-apache-cassandra) is used. If more than one entity class is used in the value attribute for the `@StoreLogDataToCassandra` annotation, the system splits data and stores it in multiple Cassandra tables.
-
-An entity is a simple data container that represents a row in the product table. For more information on entities, see <https://docs.datastax.com/en/developer/java-driver/4.3/manual/mapper/entities/>.
-
-Cassandra entity example is as follows:
-
-```java
-@Entity
-@EntitySupport(PersonOperations.class)
-@CqlName("person")
-public class Person {
-   @PartitionKey()
-   @Value("id")
-   private String id;
-   @PartitionKey(1)
-   @Value(value = "birthday")
-   private ZonedDateTime birthday;
-   @Request
-   private String request;
-   @Response
-   private String response;
-…
-}
-```
-
-A **data access object** (DAO) defines a set of query methods to insert entities into a storage. For more information on DAO, see <https://docs.datastax.com/en/developer/java-driver/4.3/manual/mapper/daos/>.
-
-DAO interface example to insert a Person entity is as follows:
-
-```java
-@Dao
-public interface PersonDao {
-   @Insert
-   CompletionStage<Void> insert(Person entity);
-}
-```
-
-Mapper interface is a top-level entry point for mapper features used to obtain DAO instances. For more information on Mapper interface, see <https://docs.datastax.com/en/developer/java-driver/4.3/manual/mapper/mapper/>.
-
-Mapper example that obtains PersonDao is as follows:
-
-```java
-@Mapper
-public interface PersonMapper {
-   @DaoFactory
-   PersonDao getDao();
-}
-```
-
-Generate an implementation for these interfaces to use it at runtime. To generate the code annotation processor, add it to the Maven build script. For more information on how to configure the annotation processor, see <https://docs.datastax.com/en/developer/java-driver/4.3/manual/mapper/config/>.
-
-An example of using Maven plugin to generate implementations is as follows:
-
-```xml
-<plugin>
-    <artifactId>maven-compiler-plugin</artifactId>
-    <configuration>
-        <annotationProcessorPaths>
-            <path>
-                <groupId>com.datastax.oss</groupId>
-                <artifactId>java-driver-mapper-processor</artifactId>
-                <version>${cassandra.driver.version}</version>
-            </path>
-        </annotationProcessorPaths>
-    </configuration>
-</plugin>      
-```
-
-The @org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport annotation is used to define a class that instantiates a mapper instance with generated mapper builder and implements insert operation. This annotation must be used on the entity class as follows:
-
-```java
-@Entity
-@EntitySupport(PersonOperations.class)
-@CqlName("person")
-public class Person {
-  …
-}
-public class PersonOperations implements EntityOperations<PersonDao, Person> {
-   @Override
-   public PersonDao buildDao(CqlSession cqlSession) throws DaoCreationException {
-       PersonMapper entityMapper = new PersonMapperBuilder(cqlSession).build();
-       return entityMapper.getDao();
-   }
-   @Override
-   public CompletionStage<Void> insert(PersonDao, Person person) {
-       return personDao.insert(person);
-   }
-}
-```
-
-##### Automatically Creating a Cassandra Table Schema for Entity Classes
-
-The system uses the ClassLoader CQL scripts that are located in the same package and have the same names as entity classes and the `.cql` file extension to create Cassandra schema tables automatically on application launch.
-
-Cassandra identifiers, such as keyspace, table, and column names, are case-insensitive by default. There are several naming strategies to map names and fields. By default , it is [`SNAKE_CASE_INSENSITIVE`](https://docs.datastax.com/en/drivers/java/4.3/com/datastax/oss/driver/api/mapper/entity/naming/NamingConvention.html#SNAKE_CASE_INSENSITIVE) that divides the Java name into words, splits on upper-case characters, lower-cases everything concatenates the words with underscore separators, and makes the result a case-insensitive CQL name. For example, Product =\> product, productId =\> product_id.
-
-The default strategy can be modified. For more information on naming strategies, see [https://docs.datastax.com/en/developer/java-driver/4.3/manual/mapper/entities/\#naming-strategy](https://docs.datastax.com/en/developer/java-driver/4.3/manual/mapper/entities/#naming-strategy).
-
-An example is as follows:
-
-```sql
-CREATE TABLE IF NOT EXISTS person(
-  id text,
-  birthday timestamp,
-  request text,
-  response text,
-  …
-}
-```
-
 #### Customization for the Relational Database
 
 OpenL Rule Services uses Hibernate implementation to store requests and their responds in the relational database.
 
-To enable logging requests and their responses to the relational database, mark the method with the org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB annotation. It resembles @StoreLogDataToCassandra described in [Log Requests and Responds Customization for Apache Cassandra](#log-requests-and-responds-customization-for-apache-cassandra), and it has entity classes as optional attributes.
+To enable logging requests and their responses to the relational database, mark the method with the org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB annotation. It has entity classes as optional attributes.
 
 If entity classes are not defined in @StoreLogDataToDB, all records are stored in `openl_log_data`.
 

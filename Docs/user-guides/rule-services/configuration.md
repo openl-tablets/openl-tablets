@@ -772,7 +772,6 @@ The system provides an ability to store all requests to OpenL Rule Services and 
 
 -   [Understanding Logging to an External Storage](#understanding-logging-to-an-external-storage)
 -   [Enabling Logging to an External Storage](#enabling-logging-to-an-external-storage)
--   [Storing Log Records in Apache Cassandra](#storing-log-records-in-apache-cassandra)
 -   [Storing Log Records in the Relational Database](#storing-log-records-in-the-relational-database)
 
 ##### Understanding Logging to an External Storage
@@ -802,51 +801,6 @@ ruleservice.store.logs.enabled = false
 ```
 
 To enable logging, set `ruleservice.store.logs.enabled = true`.
-
-##### Storing Log Records in Apache Cassandra
-
-Apache Cassandra is a free and open-source, distributed, wide column storage database that can be used as external storage. To start using Apache Cassandra, proceed as follows:
-
-1.  Download the OpenL Rule Services full web application at <https://openl-tablets.org/downloads> or use the following Maven command:
-
-    ```sh
-    mvn dependency:copy -Dartifact=org.openl.rules:org.openl.rules.ruleservice.ws.full:<openl version here>:war -DoutputDirectory=./
-    ```
-
-1.  Enable the Cassandra Storing Log feature using the `ruleservice.store.logs.cassandra.enabled=true` setting in the `application.properties` file.
-2.  Set up Cassandra connection settings defined in the `application.properties` file as described in the following lines:
-
-    ```properties
-    datastax-java-driver.basic.load-balancing-policy.local-datacenter = datacenter1
-    datastax-java-driver.basic.contact-points.0 = 127.0.0.1:9042
-    datastax-java-driver.basic.session-keyspace = openl_ws_logging
-    datastax-java-driver.advanced.protocol.version = V4
-    datastax-java-driver.advanced.auth-provider.username =
-    datastax-java-driver.advanced.auth-provider.password =
-    ```
-
-    For more information on Cassandra, see <https://docs.datastax.com/en/developer/java-driver/4.5/manual/core/configuration/>. For more information on connection configuration options, see <https://docs.datastax.com/en/developer/java-driver/4.5/manual/core/configuration/reference/>.
-
-3.  Before running the application, create a keyspace in Cassandra as described in <https://docs.datastax.com/en/cql/3.1/cql/cql_reference/create_keyspace_r.html>.
-4.  To create a schema in the Cassandra database, start OpenL Rule Services for the first time with the `ruleservice.store.logs.cassandra.schema.create = true` property.
-
-    By default, this option is enabled. When the schema is created, set this property to the `false` value.
-
-As a result, the following table with the `openl_log_data` name is created in the Cassandra database:
-
-| Column name    | Type      | Description                                                    |
-|----------------|-----------|----------------------------------------------------------------|
-| ID             | TEXT      | Unique ID for the request. It is a primary key for the record. |
-| INCOMINGTIME   | TIMESTAMP | Incoming request time.                                         |
-| METHOD_NAME    | TEXT      | Method of a service that was called.                           |
-| OUTCOMINGTIME  | TIMESTAMP | Outgoing response time.                                        |
-| PUBLISHER_TYPE | TEXT      | Request source, such as web service or REST service.           |
-| REQUEST        | TEXT      | Request body.                                                  |
-| RESPONSE       | TEXT      | Response body.                                                 |
-| SERVICE_NAME   | TEXT      | Deployment service that was called.                            |
-| URL            | TEXT      | URL of the request.                                            |
-
-**Note:** Only methods annotated with `org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra `are used for storing their requests and responses in Apache Cassandra. The system supports customization to use different tables for each OpenL Tablets project, use product specific table names, and configure a set of columns of tables. For more information on customization using annotations, see [Service Customization through Annotations](#service-customization-through-annotations).
 
 ##### Storing Log Records in the Relational Database
 
