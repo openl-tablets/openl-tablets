@@ -608,7 +608,6 @@ Proceed as follows:
 3.  In the window that appears, enter the following information about the rules:
     -   Provide runtime context.
     -   Use the Rule Service runtime context.
-    -   Define variations.
     -   Create services specifying the versions of web services to support, which is either the RESTful service, or RMI, or both of them.
     -   Enter the service name.
 
