@@ -6,7 +6,7 @@ ARG LOG4J_VER=2.26.1
 FROM alpine AS otel
 
 # OTEL_VER must match opentelemetry.version in the root pom.xml. Enforced by `mvn validate -N`.
-ENV OTEL_VER 2.30.0
+ENV OTEL_VER 2.31.0
 
 RUN <<EOT
 set -euxv
