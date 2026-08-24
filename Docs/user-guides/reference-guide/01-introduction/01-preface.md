@@ -20,7 +20,10 @@ The following table lists sources of information related to contents of this gui
 
 | Title                                                                                                                                                       | Description                                                                                                               |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| [Getting Started with OpenL Tablets](../../getting-started/index.md) | Tutorial describing how to create a first OpenL Tablets project.                            |
+| [OpenL Tablets Installation Guide](../../installation-guide/index.md) | Document describing how to install and deploy OpenL Studio and OpenL Rule Services.        |
 | [OpenL Studio Guide](../../openl-studio/index.md) | Document describing OpenL Studio, a web application for managing OpenL Tablets projects through a web browser. |
+| [OpenL Tablets Rule Services Usage and Customization Guide](../../rule-services/index.md) | Document describing how to expose OpenL Tablets rules as web services. |
 | <https://openl-tablets.org/>                                                                                                                                | OpenL Tablets open source project website.                                                                                |
 
 ### Typographic Conventions
