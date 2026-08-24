@@ -608,13 +608,12 @@ Proceed as follows:
 3.  In the window that appears, enter the following information about the rules:
     -   Provide runtime context.
     -   Use the Rule Service runtime context.
-    -   Create services specifying the versions of web services to support, which is either the RESTful service, or RMI, or both of them.
+    -   Create services specifying the versions of web services to support.
     -   Enter the service name.
 
         The service name is displayed for a deployed project only in the embedded mode.
 
     -   Define the service class.
-    -   Define an RMI service class.
     -   Define the service version.
 
         For more information on service version definition, see [Defining Rule Service Version](#defining-rule-service-version).
