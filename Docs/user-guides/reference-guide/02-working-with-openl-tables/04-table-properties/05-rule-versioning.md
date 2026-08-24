@@ -174,9 +174,9 @@ For some reason, the rule for the year 2012 must be entered into the system in a
 
 Assume that a new rule with different factors from 2/3/2012 is introduced as displayed in the following figure.
 
-![The rule for calculating the Quote is introduced from2.3.2011](../../ref-guide-images/ruleCalculatingQuoteIntroducedFrom232011.png)
+![The rule for calculating the Quote is introduced from 2/3/2012](../../ref-guide-images/ruleCalculatingQuoteIntroducedFrom232011.png)
 
-*The rule for calculating the Quote is introduced from2.3.2011*
+*The rule for calculating the Quote is introduced from 2/3/2012*
 
 However, the US legal regulations require that the same rules for premium calculations must be used; therefore, users must follow the previous rules for older policies. In this case, storing a request date in the application helps to solve this issue. By the provided request date, OpenL Tablets will be able to select rules available in the system on the designated date.
 
@@ -188,7 +188,7 @@ The following figure displays results of testing the rules for BMW for particula
 
 In this example, the dates for which the calculation is performed are displayed in the Current Date column. Remember that it is not today’s date. The dates when the rule is run and calculation is performed are displayed in the **Request Date** column. Request date is the date when the results of the rule call are actually requested.
 
-Pay attention to the row where **Request Date** is 3/10/2012. This date falls in both start and end Request date intervals displayed in Figure 144 and Figure 145. However, the **Start Request** date in Figure 145 is later than the one defined in the rule in Figure 144. As a result, correct factor value is **35**.
+Pay attention to the row where **Request Date** is 3/10/2012. This date falls within the Request date intervals of both rules shown above. However, the **Start Request** date of the second rule, 2/3/2012, is later than the 12/1/2011 date defined in the first rule. As a result, correct factor value is **35**.
 
 ###### Using Context Variables as Arguments
 
