@@ -24,9 +24,9 @@ The following is an example of a smart lookup table with several horizontal cond
 
 OpenL Tablets supports titles for horizontal conditions. A horizontal condition title is defined either together with the last vertical condition header, separated by a slash character, or as a separate column after all vertical conditions.
 
-![Slash character in a red cell indicating that the cell contains condition titles for a vertical condition "Rating of Agency" and a horizontal condition "Total Assets](../../../ref-guide-images/slashCharacterRedCellIndicatingThat.jpeg)
+![Slash character in a red cell indicating that the cell contains condition titles for a vertical condition "Rating of Agency" and a horizontal condition "Total Assets"](../../../ref-guide-images/slashCharacterRedCellIndicatingThat.jpeg)
 
-*Slash character in a red cell indicating that the cell contains condition titles for a vertical condition "Rating of Agency" and a horizontal condition "Total Assets*
+*Slash character in a red cell indicating that the cell contains condition titles for a vertical condition "Rating of Agency" and a horizontal condition "Total Assets"*
 
 ![Algorithm identifying the third column as horizontal condition titles because the third column values are empty](../../../ref-guide-images/algorithmIdentifyingThirdColumnHorizontalCondition.jpeg)
 
