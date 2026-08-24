@@ -774,7 +774,6 @@ The system provides an ability to store all requests to OpenL Rule Services and 
 -   [Enabling Logging to an External Storage](#enabling-logging-to-an-external-storage)
 -   [Storing Log Records in Apache Cassandra](#storing-log-records-in-apache-cassandra)
 -   [Storing Log Records in the Relational Database](#storing-log-records-in-the-relational-database)
--   [Storing Log Records in Hive](#storing-log-records-in-hive)
 
 ##### Understanding Logging to an External Storage
 
@@ -893,54 +892,3 @@ If table creating is enabled in Hibernate, the system creates the following tabl
 | URL            | TEXT      | URL of the request.                                            |
 
 **Note:** Only methods annotated with `org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB `are used for storing their requests and responses in a relational database. The system supports customization to use different tables for each OpenL Tablets project, use product specific table names, and configure a set of columns for tables. For more information on customization using annotations, see [Service Customization through Annotations](#service-customization-through-annotations).
-
-##### Storing Log Records in Hive
-
-Apache Hive is supported as external storage out of the box. The Hive data warehouse software facilitates reading, writing, and managing large datasets residing in distributed storage using SQL. Structure can be projected onto data already in storage. A command line tool and JDBC driver are provided to connect users to Hive.
-
-The system uses the JDBC driver to communicate with the Hive server that process application requests.
-
-To start using Hive, proceed as follows:
-
-1.  Download the OpenL Rule Services full web application at <https://openl-tablets.org/downloads> or use the following Maven command:
-
-    ```sh
-    mvn dependency:copy -Dartifact=org.openl.rules:org.openl.rules.ruleservice.ws.all:<openl version here>:war -DoutputDirectory=./
-    ```
-
-1.  Set up Hive connection settings defined in the `application.properties` file as follows:
-
-    ```properties
-    ruleservice.store.logs.hive.enabled = true
-    hive.connection.url = jdbc:hive2://localhost:10000/default
-    hive.connection.username =
-    hive.connection.password =
-    hive.connection.pool.maxSize = 10
-    ```
-
-The following properties can be modified to configure Hive:
-
-| Property                                 | Description                                                                                                                                                                                             |
-|------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ruleservice.store.logs.hive.enabled      | Property to enable storing Hive logs.                                                                                                                                                                   |
-| hive.connection.url                      | URL for connecting to the Hive server. <br/>**Example:** `hive.connection.url = jdbc:hive2://localhost:10000/default`                                                                         |
-| hive.connection.username                 | Username for connecting to the Hive server.                                                                                                                                                           |
-| hive.connection.password                 | Password for connecting to the Hive server.                                                                                                                                                           |
-| hive.connection.pool.maxSize             | OpenL Tablets uses HikariCP JDBC connection pool for managing Hive connections. The default pool size is 10. <br/>For more information on HikariCP, see <https://github.com/brettwooldridge/HikariCP>. |
-| ruleservice.store.logs.hive.table.create | If set to true, property that enables the SQL script to create a table before making a record in it.                                                                                                  |
-
-As a result, the following table with the default openl_log_data name is created in Hive:
-
-| **Column name** | **Type**  | **Description**                                                |
-|-----------------|-----------|----------------------------------------------------------------|
-| ID              | STRING    | Unique ID for the request. It is a primary key for the record. |
-| INCOMINGTIME    | TIMESTAMP | Incoming request time.                                         |
-| METHODNAME      | STRING    | Method of a service that was called.                           |
-| OUTCOMINGTIME   | TIMESTAMP | Outgoing response time.                                        |
-| PUBLISHERTYPE   | STRING    | Request source, such as web service or REST service.           |
-| REQUEST         | STRING    | Request body stored as JSON.                                   |
-| RESPONSE        | STRING    | Response body stored as JSON.                                  |
-| SERVICENAME     | STRING    | Deployment service that was called.                            |
-| URL             | STRING    | URL of the request.                                            |
-
-**Note:** Only methods annotated with org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive are used for storing their requests and responses to Hive. The system supports customization to use different tables for each OpenL Tablets project, use product specific table names, and configure a set of columns of the tables. For more information on customization using annotations, see [Service Customization through Annotations](#service-customization-through-annotations).

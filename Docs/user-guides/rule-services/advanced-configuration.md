@@ -390,7 +390,6 @@ The following topics are included:
 -   [Storage Service for Log Requests and Their Responds](#storage-service-for-log-requests-and-their-responds)
 -   [Customization for Apache Cassandra](#customization-for-apache-cassandra)
 -   [Customization for the Relational Database](#customization-for-the-relational-database)
--   [Customization for Hive](#customization-for-hive)
 
 #### Storage Service for Log Requests and Their Responds
 
@@ -636,54 +635,3 @@ public class Person {
 
 }
 ```
-
-#### Customization for Hive
-
-OpenL Rule Services stores its requests and responds in Hive.
-
-To enable logging requests and their responses to Hive, mark the method with the `org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive` annotation. It resembles `@StoreLogDataToCassandra` described in [Log Requests and Responds Customization for Apache Cassandra](#log-requests-and-responds-customization-for-apache-cassandra), and it has entity classes as optional attributes.
-
-If entity classes are not defined in `@StoreLogDataToHive`, all records are stored in the table described in [Storing Log Records in Hive](#storing-log-records-in-hive).
-
-If only one entity class is defined, for example, `@StoreLogDataToHive(CustomHiveEntity.class)`, the system uses a table defined in the custom entity.
-
-If multiple entity classes are defined, for example, `@StoreLogDataToHive(HiveEntity1.class, HiveEntity2.class, ..., HiveEntityN.class)`, the system splits data into multiple Hive tables.
-
-Custom Hive entity example is as follows:
-
-```java
-@Entity("person_data")
-public class Person {
-
-    @Value(converter = RandomUUID.class)
-    private String id;
-
-    @IncomingTime
-    private ZonedDateTime incomingTime;
-
-    @OutcomingTime
-    private ZonedDateTime  outcomingTime;
-
-    @Request
-    private String request;
-
-    @Response
-    private String response;
-
-    @ServiceName
-    private String serviceName;
-
-    @MethodName
-    private String methodName;
-
-    @Publisher
-    private String publisherType;
-
-    @Url
-    private String url;
-}
-```
-
-Entity annotation identifies a domain object to be persisted in Hive.
-
-The system uses the ClassLoader SQL scripts which are located in the same package and have the same names as entity classes and the .sql file extension to create Hive table automatically on application launch. For more information on how to enable this feature, see [Storing Log Records in Hive](#storing-log-records-in-hive).
