@@ -439,7 +439,7 @@ The following features, protocols, and APIs have been completely removed from Op
 
 #### Removed Libraries & Extensions
 
-* **Activity Extension**
+* **Activiti Extension**
   * **Migration**: Implement custom solution if needed
 * **Spreadsheet Result Calculation Step Library**
   * **Migration**: Use SpreadsheetResult directly without meta-structure conversion
