@@ -11,29 +11,53 @@ These projects are organized into following groups:
 
 OpenL Tablets provides a set of the tutorial projects demonstrating basic OpenL Tablets features starting from very simple and following with more advanced projects. Files in the tutorial projects contain detailed comments allowing new users to grasp basic concepts quickly.
 
+The following tutorials are available:
+
+| Tutorial   | Topic                                       |
+|------------|---------------------------------------------|
+| Tutorial 1 | Introduction to Decision Tables             |
+| Tutorial 2 | Introduction to Data Tables                 |
+| Tutorial 3 | More Advanced Decision and Data Tables      |
+| Tutorial 4 | Introduction to Column Match Tables         |
+| Tutorial 5 | Introduction to TBasic Tables               |
+| Tutorial 6 | Introduction to Spreadsheet Tables          |
+| Tutorial 7 | Introduction to Table Properties            |
+| Tutorial 8 | Introduction to Smart Rules and Smart Lookup Tables |
+
 To create a tutorial project, proceed as follows:
 
-1.  To open Repository Editor, in OpenL Studio, in the top line menu, click the **Repository** item.
-2.  Click the **Create Project** button ![Create Project button](../ref-guide-images/tutorials.png).
-3.  In the **Create Project from** window, click the required tutorial name.
-4.  Click **Create** to complete.
+1.  In OpenL Studio, click **+ New Project** ![New Project button](../ref-guide-images/tutorials.png).
 
-    The project appears in the **Projects** list of Repository Editor.
+    The **Create project** dialog appears.
 
-    ![Creating tutorial projects](../ref-guide-images/tutorials_1.png)
+1.  Click **From template**.
+1.  Click the **Tutorials** category.
 
-    *Creating tutorial projects*
+    The tutorials listed above appear.
 
-1.  In the top line menu, click **Rules Editor**.
+1.  Click the required tutorial.
 
-The project is displayed in the **Projects** list and available for usage. It is highly recommended to start from reading Excel files for examples and tutorials which provide clear explanations for every step involved.
+    The **Project Name** and **Comment** fields are filled in automatically and can be changed.
 
-![Tutorial project in the OpenL Studio](../ref-guide-images/tutorialProjectOpenlStudio.png)
+    ![Creating a tutorial project from the Tutorials category](../ref-guide-images/tutorials_1.png)
 
-*Tutorial project in the OpenL Studio*
+    *Creating a tutorial project*
+
+1.  Optionally, change the **Repository** and, for a branch-capable repository, the **Branch**. Both are filled in with defaults.
+1.  Click **Create**.
+
+    The project appears in the **Projects** list and is available for usage.
+
+For more information on the other ways to create a project, see [OpenL Studio Guide > Creating a Project from Template](../../openl-studio/repository-editor.md#creating-a-project-from-template).
+
+To open the project, in the top line menu, click **Editor**. It is highly recommended to start from reading Excel files for examples and tutorials which provide clear explanations for every step involved.
+
+![Tutorial project listed in the OpenL Studio Editor](../ref-guide-images/tutorialProjectOpenlStudio.png)
+
+*Tutorial project in OpenL Studio*
 
 #### Examples
 
 In addition to tutorials, OpenL Tablets provides several example projects that demonstrate how OpenL Tablets can be used in various business domains.
 
-To create an example project, follow the steps described in [Tutorials](#tutorials), and in the **Create Project from** dialog, select an example to explore. When completed, the example appears in the OpenL Studio Rules Editor.
+To create an example project, follow the steps described in [Tutorials](#tutorials) but click the **Examples** category instead of **Tutorials**, and select an example to explore. When completed, the example appears in the OpenL Studio Editor.
