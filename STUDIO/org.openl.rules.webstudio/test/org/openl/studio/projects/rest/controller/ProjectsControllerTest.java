@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.core.env.Environment;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -32,6 +31,7 @@ import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectMigrationService;
+import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
@@ -198,7 +198,7 @@ class ProjectsControllerTest {
                 mock(TestsExecutorService.class),
                 mock(ExecutionTestsResultRegistry.class),
                 mock(SocketProjectAllTestsExecutionProgressListenerFactory.class),
-                mock(Environment.class),
+                mock(ProjectObjectMapperService.class),
                 mock(ProjectsMergeConflictsSessionHolder.class),
                 mock(ProjectIdentifierMapper.class),
                 projectStatusMapper,

@@ -1,0 +1,12 @@
+PUT /rest/projects/{PROJECT_ID}/files/rules-deploy.xml HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/xml
+
+<rules-deploy>
+    <configuration>
+        <entry>
+            <string>jackson.propertyNamingStrategy</string>
+            <string>org.example.project.MissingNamingStrategy</string>
+        </entry>
+    </configuration>
+</rules-deploy>
