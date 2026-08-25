@@ -31,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -98,6 +97,7 @@ import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectMigrationService;
+import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
@@ -137,7 +137,7 @@ public class ProjectsController {
     private final TestsExecutorService testsExecutorService;
     private final ExecutionTestsResultRegistry executionTestsResultRegistry;
     private final SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory;
-    private final Environment environment;
+    private final ProjectObjectMapperService objectMapperService;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ProjectStatusMapper projectStatusMapper;
@@ -613,7 +613,7 @@ public class ProjectsController {
         var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
         CompletableFuture<List<TestUnitsResults>> testTask;
-        var objectMapper = configureObjectMapper();
+        var objectMapper = objectMapperService.createObjectMapper();
         var schemaGenerator = getSchemaGenerator(objectMapper);
         var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
                 projectService.getSpreadsheetResultNamingStrategy());
@@ -684,7 +684,7 @@ public class ProjectsController {
         }
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-            var objectMapper = configureObjectMapper();
+            var objectMapper = objectMapperService.createObjectMapper();
             var schemaGenerator = getSchemaGenerator(objectMapper);
             var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
                     projectService.getSpreadsheetResultNamingStrategy());
@@ -699,16 +699,6 @@ public class ProjectsController {
                     .body(output.toByteArray());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
-        }
-    }
-
-    private ObjectMapper configureObjectMapper() {
-        try {
-            var objectMapperFactory = projectService.getWebStudio().getCurrentProjectJacksonObjectMapperFactoryBean();
-            objectMapperFactory.setEnvironment(environment);
-            return objectMapperFactory.createJacksonObjectMapper();
-        } catch (ClassNotFoundException e) {
-            throw new ConflictException("object.mapper.configuration.failed.message");
         }
     }
 

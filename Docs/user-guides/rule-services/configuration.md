@@ -533,6 +533,11 @@ Example of the deployment configuration file is as follows:
 </rules-deploy>
 ```
 
+Every class named in `rules-deploy.xml` must be available on the project classpath. If a class is missing, OpenL
+Studio does not start Tests, Run, or Trace execution. The error identifies the missing class so the project
+configuration or classpath can be corrected. This includes `rootClassNamesBinding` and class-valued Jackson settings
+such as `jackson.propertyNamingStrategy`.
+
 ##### RMI Publisher
 
 RMI Service Publisher implementation class is `org.openl.rules.ruleservice.publish.RmiRuleServicePublisher`. The Spring configuration for this publisher is located in the `openl-ruleservice-rmi-publisher-beans.xml `file.

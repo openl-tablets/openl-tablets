@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,6 +43,7 @@ import org.openl.studio.projects.model.run.RunExecutionResultMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.run.ExecutionRunResultRegistry;
 import org.openl.studio.projects.service.run.RunExecutorService;
@@ -69,7 +69,7 @@ public class ProjectsRunController {
     private final ExecutionRunResultRegistry runResultRegistry;
     private final SocketRunExecutionProgressListenerFactory listenerFactory;
     private final TableInputParserService inputParserService;
-    private final Environment environment;
+    private final ProjectObjectMapperService objectMapperService;
     private final ProjectIdentifierMapper projectIdentifierMapper;
 
     @Lookup
@@ -111,7 +111,7 @@ public class ProjectsRunController {
             throw new BadRequestException("run.test-table.not.supported.message");
         }
 
-        var parseResult = inputParserService.parseInput(inputJson, method, configureObjectMapper());
+        var parseResult = inputParserService.parseInput(inputJson, method, objectMapperService.createObjectMapper());
 
         runResultRegistry.cancelIfAny();
 
@@ -160,7 +160,7 @@ public class ProjectsRunController {
         }
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-            var objectMapper = configureObjectMapper();
+            var objectMapper = objectMapperService.createObjectMapper();
             var schemaGenerator = getSchemaGenerator(objectMapper);
             var mapper = new RunExecutionResultMapper(objectMapper, schemaGenerator,
                     projectService.getSpreadsheetResultNamingStrategy());
@@ -184,14 +184,4 @@ public class ProjectsRunController {
         runResultRegistry.clear();
     }
 
-    private ObjectMapper configureObjectMapper() {
-        try {
-            var objectMapperFactory = projectService.getWebStudio()
-                    .getCurrentProjectJacksonObjectMapperFactoryBean();
-            objectMapperFactory.setEnvironment(environment);
-            return objectMapperFactory.createJacksonObjectMapper();
-        } catch (ClassNotFoundException e) {
-            throw new ConflictException("object.mapper.configuration.failed.message");
-        }
-    }
 }

@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -63,6 +62,7 @@ import org.openl.studio.projects.model.trace.WatchView;
 import org.openl.studio.projects.model.trace.WatchesRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
@@ -102,7 +102,7 @@ public class ProjectsTraceDebugController {
     private final TraceHighlightService traceHighlightService;
     private final TraceExportService traceExportService;
     private final ProjectTablesGraphService tablesGraphService;
-    private final Environment environment;
+    private final ProjectObjectMapperService objectMapperService;
 
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
@@ -150,7 +150,7 @@ public class ProjectsTraceDebugController {
         // of the same user and table share one notification topic, and an old one may be reaped much later.
         var sessionId = UUID.randomUUID().toString();
         var listener = listenerFactory.create(user, projectId, tableId, sessionId);
-        var objectMapper = configureObjectMapper();
+        var objectMapper = objectMapperService.createObjectMapper();
         // The launcher sends the input server-side once; a restart (profiling toggle, replay) re-runs the trace
         // without resending it. Reuse the remembered input when this call carries neither input nor test ranges;
         // otherwise it is a fresh launch, so remember its input for the next restart.
@@ -492,18 +492,7 @@ public class ProjectsTraceDebugController {
     }
 
     private TraceDebugMapper buildMapper() {
-        var objectMapper = configureObjectMapper();
+        var objectMapper = objectMapperService.createObjectMapper();
         return new TraceDebugMapper(objectMapper, getSchemaGenerator(objectMapper), parameterRegistry);
-    }
-
-    private ObjectMapper configureObjectMapper() {
-        try {
-            var objectMapperFactory = projectService.getWebStudio()
-                    .getCurrentProjectJacksonObjectMapperFactoryBean();
-            objectMapperFactory.setEnvironment(environment);
-            return objectMapperFactory.createJacksonObjectMapper();
-        } catch (ClassNotFoundException e) {
-            throw new ConflictException("object.mapper.configuration.failed.message");
-        }
     }
 }
