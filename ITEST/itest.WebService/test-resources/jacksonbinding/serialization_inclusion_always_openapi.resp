@@ -127,27 +127,6 @@ Content-Type: application/json
           }
         }
       },
-      "LocalTime" : {
-        "type" : "object",
-        "properties" : {
-          "hour" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "minute" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "second" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "nano" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }
-      },
       "MyType" : {
         "type" : "object",
         "properties" : {
@@ -192,7 +171,8 @@ Content-Type: application/json
             "format" : "date"
           },
           "lt" : {
-            "$ref" : "#/components/schemas/LocalTime"
+            "type" : "string",
+            "format" : "time-local"
           },
           "zdt" : {
             "type" : "string",
