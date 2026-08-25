@@ -1,0 +1,22 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "8833af30e7ba142f27162434a8753d0a",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "Categorize",
+      "returnType": "String",
+      "signature": "Categorize(Integer x)",
+      "file": "EPBDS-16495/Main.xlsx",
+      "pos": "B2:C4"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}
+
