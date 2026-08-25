@@ -1,0 +1,6 @@
+POST /rest/projects/{PROJECT_ID}/trace?tableId={CATEGORIZE_TABLE_ID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+[7]
+

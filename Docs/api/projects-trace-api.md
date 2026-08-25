@@ -144,9 +144,12 @@ via `PUT /breakpoints`) apply immediately.
   **active** frame, so stepping does not re-send every frame's `steps`; read another frame's steps with
   `GET /stack?view=full` or its variables endpoint.
 
-**Request body** (optional, `application/json`): raw input for a regular method. Supports the structured
-form (`{ "runtimeContext": {...}, "params": {...} }`), a raw named-parameter object, or a positional
-array — parsed by `TableInputParserService`.
+**Request body** (optional, `application/json`): raw input for a regular method. Supports a structured form
+whose `params` is either a named object or a positional array (`{ "runtimeContext": {...}, "params": [...] }`),
+a raw named-parameter object, or a raw positional array. Positional values are matched in method signature order.
+For a method whose only parameter is an array, a raw array remains that parameter's value; use the structured form
+to express positional input unambiguously. A positional array cannot contain more values than the method declares;
+missing trailing values remain unset. The body is parsed by `TableInputParserService`.
 
 > [!Note]
 > The session remembers the last input. A restart that sends **neither** a body **nor** `testRanges`

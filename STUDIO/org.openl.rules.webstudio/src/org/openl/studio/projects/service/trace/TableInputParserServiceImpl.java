@@ -26,8 +26,8 @@ import org.openl.util.StringUtils;
  * <p>
  * Parses table input JSON by auto-detecting the format and extracting
  * method parameters and runtime context. Supports both structured format
- * (with explicit "params" and "runtimeContext" fields) and raw user input
- * (field names matching parameter names).
+ * (with explicit "params" and "runtimeContext" fields) and raw user input.
+ * Parameters can be matched by name or by their position in the method signature.
  * </p>
  *
  */
@@ -98,7 +98,8 @@ public class TableInputParserServiceImpl implements TableInputParserService {
     }
 
     /**
-     * Parses structured format: {@code {"params": {...}, "runtimeContext": {...}}}
+     * Parses structured format with named or positional parameters:
+     * {@code {"params": {...}, "runtimeContext": {...}}} or {@code {"params": [...]}}.
      *
      * @param rootNode    the parsed JSON root node
      * @param method      the method being executed
@@ -117,7 +118,9 @@ public class TableInputParserServiceImpl implements TableInputParserService {
         IRulesRuntimeContext runtimeContext = null;
 
         var paramsNode = rootNode.get(PARAMS_FIELD);
-        if (paramsNode != null && paramsNode.isObject()) {
+        if (paramsNode != null && paramsNode.isArray()) {
+            params = parsePositionalParameters(paramsNode, method, mapper, beanClasses);
+        } else if (paramsNode != null && paramsNode.isObject()) {
             for (var i = 0; i < paramCount; i++) {
                 var paramValue = paramsNode.get(signature.getParameterName(i));
                 if (paramValue != null) {
@@ -140,6 +143,7 @@ public class TableInputParserServiceImpl implements TableInputParserService {
      * Supports:
      * <ul>
      *   <li>{@code {"paramName": value, ...}} with optional runtime context</li>
+     *   <li>{@code [value, ...]} matched by method signature position, unless the only parameter is itself an array</li>
      *   <li>Plain value for single parameter methods</li>
      * </ul>
      * </p>
@@ -158,6 +162,10 @@ public class TableInputParserServiceImpl implements TableInputParserService {
         var signature = method.getSignature();
         var paramCount = signature.getNumberOfParameters();
         Object[] params = new Object[paramCount];
+
+        if (rootNode.isArray() && (paramCount != 1 || !signature.getParameterType(0).isArray())) {
+            return new ParseResult(parsePositionalParameters(rootNode, method, mapper, beanClasses), null);
+        }
 
         // Not a JSON object - might be plain value for single parameter
         if (!rootNode.isObject()) {
@@ -209,6 +217,23 @@ public class TableInputParserServiceImpl implements TableInputParserService {
         }
 
         return new ParseResult(params, runtimeContext);
+    }
+
+    private Object[] parsePositionalParameters(JsonNode values,
+                                               IOpenMethod method,
+                                               ObjectMapper mapper,
+                                               BeanClassRegistry beanClasses) throws IOException {
+        var signature = method.getSignature();
+        var params = new Object[signature.getNumberOfParameters()];
+        if (values.size() > params.length) {
+            throw new BadRequestException("table.input.invalid.message", new Object[]{
+                    "Expected at most %d positional parameter values, but got %d."
+                            .formatted(params.length, values.size())});
+        }
+        for (var i = 0; i < values.size(); i++) {
+            params[i] = parseParameter(values.get(i), signature.getParameterType(i), mapper, beanClasses);
+        }
+        return params;
     }
 
     /**
