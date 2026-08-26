@@ -1,0 +1,22 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "90890ebee17a1feb816a50e276d73f86",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "ErrorAfterTwoProperties",
+  "properties": {
+    "state": [
+      "AL"
+    ],
+    "lob": [
+      "TEST"
+    ]
+  },
+  "returnType": "String",
+  "signature": "ErrorAfterTwoProperties(Integer a)",
+  "file": "EPBDS-16492-ErrorLocation/Main.xlsx",
+  "pos": "B2:D7"
+}
+

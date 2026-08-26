@@ -1,0 +1,34 @@
+POST /rest/projects/EPBDS-16492-ErrorLocation/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "OneProperty",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "ErrorAfterOneProperty",
+    "properties": {
+      "lob": "TEST"
+    },
+    "returnType": "String",
+    "args": [
+      {
+        "name": "a",
+        "type": "Integer"
+      }
+    ],
+    "steps": [
+      {
+        "name": "Step1",
+        "value": "=BlaBla+100"
+      },
+      {
+        "name": "Step2",
+        "value": "Test"
+      }
+    ]
+  }
+}
+
