@@ -160,8 +160,6 @@ Users can have multiple rules with different start and end request dates, where 
 
 If the start and end request dates coincide completely, the system displays an error message saying that such table already exists.
 
-**Note:** A rule table version with exactly the same **Start Request Date** or **End Request Date** cannot be created because it causes an error message.
-
 **Note:** In particular cases, request date is used to define the date when the business rule was called for the very first time.
 
 Consider the same rule for calculating a car insurance quote but add date properties, **Start Request Date** and **End Request Date**, in addition to the effective and expiration dates.
