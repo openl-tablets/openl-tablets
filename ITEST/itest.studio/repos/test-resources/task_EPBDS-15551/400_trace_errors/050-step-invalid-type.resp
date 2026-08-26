@@ -2,5 +2,6 @@ HTTP/1.1 400
 Content-Type: application/json
 
 {
+  "code": "openl.error.400.default.message",
   "message": "Unknown StepType value: bogus"
 }

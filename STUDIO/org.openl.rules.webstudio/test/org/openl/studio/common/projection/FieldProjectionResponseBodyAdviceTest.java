@@ -20,11 +20,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJacksonValue;
+import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,6 +42,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import org.openl.studio.common.JsonViewControllerAdvice;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.model.BaseError;
 import org.openl.studio.common.projection.test.ProjectionTestController;
 import org.openl.studio.config.ObjectMapperConfig;
 
@@ -79,6 +86,26 @@ class FieldProjectionResponseBodyAdviceTest {
         var body = json(get("/projection-test/single").param("fields", "   "));
         assertEquals("1", body.get("id").asText());
         assertEquals("OPENED", body.get("status").asText());
+    }
+
+    @Test
+    void nonProjectableErrorDoesNotReadRequestParameters() throws Exception {
+        var servletRequest = new MockHttpServletRequest() {
+            @Override
+            public String getParameter(String name) {
+                throw new AssertionError("Error serialization must not parse request parameters");
+            }
+        };
+        var advice = new FieldProjectionResponseBodyAdvice(new FieldProjectionSupport());
+        var returnType = new MethodParameter(
+                FieldProjectionResponseBodyAdviceTest.class.getDeclaredMethod("errorResponse"), -1);
+
+        advice.beforeBodyWriteInternal(
+                new MappingJacksonValue(errorResponse()),
+                MediaType.APPLICATION_JSON,
+                returnType,
+                new ServletServerHttpRequest(servletRequest),
+                new ServletServerHttpResponse(new MockHttpServletResponse()));
     }
 
     @Test
@@ -371,6 +398,10 @@ class FieldProjectionResponseBodyAdviceTest {
         }
         assertEquals(200, result.getResponse().getStatus());
         return READER.readTree(result.getResponse().getContentAsString());
+    }
+
+    private static BaseError errorResponse() {
+        return BaseError.builder().message("Request failed").build();
     }
 
     @Configuration

@@ -1,0 +1,7 @@
+HTTP/1.1 413
+Content-Type: application/json
+
+{
+  "code": "openl.error.413.default.message",
+  "message": "Maximum upload size exceeded"
+}

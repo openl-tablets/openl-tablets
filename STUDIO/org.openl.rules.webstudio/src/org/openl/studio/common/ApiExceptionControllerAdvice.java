@@ -16,6 +16,7 @@ import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.WebUtils;
 
@@ -43,6 +46,8 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
+    // org.eclipse.jetty.http.MultiPart.Parser uses this prefix when Request.maxFormKeys is exceeded.
+    private static final String JETTY_TOO_MANY_PARTS_MESSAGE_PREFIX = "Form with too many keys [";
 
     private final ExceptionMappingService exceptionMappingService;
 
@@ -121,6 +126,15 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), code, request);
     }
 
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<Object> handleMultipartException(MultipartException e, WebRequest request) throws Exception {
+        if (isJettyPartLimitExceeded(e)) {
+            return handleException(new MaxUploadSizeExceededException(-1, e), request);
+        }
+        log.debug(e.getMessage(), e);
+        return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
     @ExceptionHandler(ConversionFailedException.class)
     public ResponseEntity<?> handleConversionFailedException(ConversionFailedException e, WebRequest request) {
         if (e.getCause() instanceof RestRuntimeException ex) {
@@ -171,12 +185,18 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
             var handledBody = handledEx.getBody();
             if (handledBody instanceof BaseError) {
                 return handledEx;
+            } else if (handledBody instanceof ProblemDetail problemDetail) {
+                var builder = BaseError.builder()
+                        .code(exceptionMappingService.buildDefaultErrorCode(status))
+                        .message(problemDetailMessage(problemDetail, status));
+                return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
             } else {
                 var builder = BaseError.builder()
+                        .code(exceptionMappingService.buildDefaultErrorCode(status))
                         .message(Optional.ofNullable(handledBody)
                                 .map(Object::toString)
                                 .filter(StringUtils::isNotBlank)
-                                .orElseGet(() -> HttpStatus.resolve(status.value()).getReasonPhrase()));
+                                .orElseGet(() -> reasonPhrase(status)));
                 return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
             }
         } else {
@@ -185,6 +205,29 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                     .message(e.getMessage());
             return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
         }
+    }
+
+    private static String problemDetailMessage(ProblemDetail problemDetail, HttpStatusCode status) {
+        return Optional.ofNullable(problemDetail.getDetail())
+                .filter(StringUtils::isNotBlank)
+                .or(() -> Optional.ofNullable(problemDetail.getTitle()).filter(StringUtils::isNotBlank))
+                .orElseGet(() -> reasonPhrase(status));
+    }
+
+    private static String reasonPhrase(HttpStatusCode status) {
+        var httpStatus = HttpStatus.resolve(status.value());
+        return httpStatus != null ? httpStatus.getReasonPhrase() : status.toString();
+    }
+
+    private static boolean isJettyPartLimitExceeded(Throwable exception) {
+        for (var cause = exception; cause != null; cause = cause.getCause()) {
+            if (cause instanceof IllegalStateException
+                    && cause.getMessage() != null
+                    && cause.getMessage().startsWith(JETTY_TOO_MANY_PARTS_MESSAGE_PREFIX)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private <T extends BaseError> ResponseEntity<T> _handleExceptionInternal(Exception e,
