@@ -6,6 +6,13 @@ Content-Type: application/json
   "tableType": "Test",
   "kind": "Test",
   "name": "HelloTest3",
+  "messages": [
+    {
+      "id": "*",
+      "summary": "Tested rules have errors",
+      "severity": "WARN"
+    }
+  ],
   "headers": [
     {
       "fieldName": "hour",

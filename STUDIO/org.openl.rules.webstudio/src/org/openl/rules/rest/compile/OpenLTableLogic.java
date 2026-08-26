@@ -61,6 +61,12 @@ public class OpenLTableLogic {
         return targetTables;
     }
 
+    /** Returns whether a test or run table targets rules with compilation errors. */
+    public static boolean testedRulesHaveErrors(IOpenLTable table, ProjectModel model, boolean openedModule) {
+        return getTargetTables(table, model, openedModule).stream()
+                .anyMatch(targetTable -> !model.getErrorsByUri(targetTable.getUri()).isEmpty());
+    }
+
     public static List<OpenlProblemMessage> processTableProblems(List<OpenLMessage> messages, ProjectModel model) {
         var problems = new ArrayList<OpenlProblemMessage>();
         for (OpenLMessage message : messages) {

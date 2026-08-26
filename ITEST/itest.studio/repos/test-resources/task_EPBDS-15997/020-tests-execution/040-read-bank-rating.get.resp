@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ee556da016e9f542b668014182bf28c4",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "BankRatingCalculation",
+  "messages": [
+    {
+      "id": "*",
+      "summary": "Identifier 'MaxLimitвыв' is not found.",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "ee556da016e9f542b668014182bf28c4",
+        "name": "BankRatingCalculation",
+        "module": "Bank Rating",
+        "cell": "G21"
+      },
+      "stacktrace": true
+    }
+  ],
+  "pos": "D9:G21",
+  "source": "*"
+}

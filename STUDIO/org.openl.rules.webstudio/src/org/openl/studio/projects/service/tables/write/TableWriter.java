@@ -165,7 +165,7 @@ public abstract class TableWriter<T extends TableView> {
     protected void updateTableProperties(Map<String, Object> properties) {
         var originalRegion = originalTable.getRegion();
         var originalGrid = originalTable.getGrid();
-        for (var entry : properties.entrySet()) {
+        for (var entry : properties.entrySet().stream().toList().reversed()) {
             List<IUndoableGridTableAction> actions = new ArrayList<>();
             var propName = entry.getKey();
             boolean newProperty = GridTool.getPropertyRowIndex(originalRegion, originalGrid, propName) == -1;
