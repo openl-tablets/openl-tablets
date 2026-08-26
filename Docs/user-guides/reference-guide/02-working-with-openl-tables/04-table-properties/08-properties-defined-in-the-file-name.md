@@ -14,7 +14,7 @@ The file name pattern can include the following:
 
 -   wildcards, or characters that may be substituted for any of a defined subset of all possible characters
 
-For more information on wildcards that can be used in a pattern as regular expressions, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/SimpleDateFormat.html>.
+For more information on wildcards that can be used in a pattern as regular expressions, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/regex/Pattern.html>.
 
 If a table property value is supposed to be a date, the **Date** format must be specified right after the property name and colon as follows:
 

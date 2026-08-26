@@ -196,7 +196,7 @@ The following table contains a list of the constants and their descriptions:
 
 For more information on the constants representing rounding modes, see [https://docs.oracle.com/en/java/javase/21/docs/api/constant-values.html\#java.math.BigDecimal.ROUND_HALF_DOWN](https://docs.oracle.com/en/java/javase/21/docs/api/constant-values.html#java.math.BigDecimal.ROUND_HALF_DOWN).
 
-For more information on the constants with examples, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/class-use/RoundingMode.html>, *Enum Constant Details* section.
+For more information on the constants with examples, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/RoundingMode.html>, *Enum Constant Details* section.
 
 The following example demonstrates how the rounding works with the DOWN constant.
 
@@ -219,7 +219,7 @@ An example is as follows:
 round(32.285, 2, DOWN)=32.28
 ```
 
-![Usage of the round(number,int,int/String) format with the DOWN rounding mode](../ref-guide-images/usageRoundnumberintintstringFormatDownRoundingMode_1.jpeg)
+![Usage of the round(number,int,String) format with the DOWN rounding mode](../ref-guide-images/usageRoundnumberintintstringFormatDownRoundingMode_1.jpeg)
 
 *Usage of the round(number,int,int/String) format with the DOWN rounding mode*
 
