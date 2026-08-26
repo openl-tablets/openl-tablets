@@ -6,7 +6,7 @@ An alternative keyword for the state business property is CW, which stands for *
 
 To use the feature, define the **Properties** pattern for a file name as described in [Properties Defined in the File Name](08-properties-defined-in-the-file-name.md#properties-defined-in-the-file-name).
 
-![Defining a property pattern for a state and line of business](../../ref-guide-images/definingPropertyPatternStateLineBusiness.jpeg)
+![Defining a property pattern for a state and line of business](../../ref-guide-images/definingPropertyPatternStateLineBusiness.png)
 
 *Defining a property pattern for a state and line of business*
 

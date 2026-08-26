@@ -34,7 +34,7 @@ File name pattern definition can use wildcards. For example, the .\*`-%`startReq
 
 In the following example, the **Bank Rating** project is configured in the way so that a user can specify the **US State** and **Start Request Date** properties values using the module file name:
 
-![File name pattern configured via OpenL Studio](../../ref-guide-images/fileNamePatternConfiguredViaOpenl.jpeg)
+![File name pattern configured via OpenL Studio](../../ref-guide-images/fileNamePatternConfiguredViaOpenl.png)
 
 *File name pattern configured via OpenL Studio*
 
