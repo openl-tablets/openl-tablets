@@ -45,7 +45,7 @@ When dealing with almost equal rules of the same structure but with slight diffe
 
 Now the rule can be called by its name from any place in the project or application. If there are multiple rules with the same name but different Business Dimension properties, OpenL Tablets reviews all rules and selects the corresponding one according to the specified context variables or, in developers’ language, by runtime context values.
 
-**Note: **When creating a versioned rule, keep the input parameter name exactly the same as in the original rule. This is required for backward compatibility.
+**Note:** When creating a versioned rule, keep the input parameter name exactly the same as in the original rule. This is required for backward compatibility.
 
 The following table contains a list of **Business Dimension** properties used in OpenL Tablets:
 
