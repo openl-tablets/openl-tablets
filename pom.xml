@@ -154,7 +154,7 @@
         <!-- DB -->
         <h2.version>2.4.240</h2.version>
         <hikaricp.version>7.1.0</hikaricp.version>
-        <hibernate.orm.version>6.6.55.Final</hibernate.orm.version>
+        <hibernate.orm.version>6.6.56.Final</hibernate.orm.version>
         <hibernate.validator.version>8.0.5.Final</hibernate.validator.version>
 
         <!-- Testing -->
