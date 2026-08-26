@@ -400,7 +400,7 @@ This section describes storage service used for log requests and responds and in
 
 ##### Log Request and Response Storage Service Overview
 
-OpenL Rule Services supports relational database storage to log requests and their responds out of the box. This part of the system is designed customizable and extendable via the org.openl.rules.ruleservice.storelogdata.StoreLogDataService interface to support the third-party storages.
+OpenL Rule Services supports relational database storage to log requests and their responses out of the box. This part of the system is designed customizable and extendable via the org.openl.rules.ruleservice.storelogdata.StoreLogDataService interface to support the third-party storages.
 
 The StoreLogDataService interface has the following methods:
 
@@ -484,7 +484,7 @@ public final class ZonedDataTimeToDateConvertor implements Converter<ZonedDateTi
 
 OpenL Rule Services uses Hibernate implementation to store requests and their responds in the relational database.
 
-To enable logging requests and their responses to the relational database, mark the method with the org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB annotation. It has entity classes as optional attributes.
+To enable logging requests and their responses to the relational database, set `ruleservice.store.logs.db.enabled` to `true` as described in [Storing Log Records in the Relational Database](configuration.md#storing-log-records-in-the-relational-database), and mark the service class or a method with the org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB annotation. If both the class and the method are annotated, the method annotation is used. It has entity classes as optional attributes.
 
 If entity classes are not defined in @StoreLogDataToDB, all records are stored in `openl_log_data`.
 
