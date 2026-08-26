@@ -4,15 +4,15 @@ To address an attribute of an object in a rule, use the following syntaxes:
 
 -   \<object name\>.\<attribute name\>
 
-    ![Defining an object attribute](../../ref-guide-images/referencingAttributes.jpeg)
+    ![Referencing an attribute with the object.attribute syntax](../../ref-guide-images/referencingAttributes.jpeg)
 
-    *Defining an object attribute*
+    *Referencing an attribute with the object.attribute syntax*
 
 -   \<attribute name\> (\<object name\>)
 
-    ![Defining an object attribute](../../ref-guide-images/referencingAttributes_1.jpeg)
+    ![Referencing an attribute with the attribute(object) syntax](../../ref-guide-images/referencingAttributes_1.jpeg)
 
-    *Defining an object attribute*
+    *Referencing an attribute with the attribute(object) syntax*
 
 The following rules apply:
 

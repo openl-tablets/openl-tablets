@@ -6,7 +6,7 @@ Cells of a spreadsheet result, which is returned by the rule table, can be teste
 
 *A sample spreadsheet table*
 
-Simplified syntax is used to pull results from a spreadsheet table if a spreadsheet table contains only one column besides the row name column:` _res_.$<row name>`.
+Simplified syntax is used to pull results from a spreadsheet table if a spreadsheet table contains only one column besides the row name column: `_res_.$<row name>`.
 
 ![Test for the sample spreadsheet table](../../../ref-guide-images/testSampleSpreadsheetTable.png)
 

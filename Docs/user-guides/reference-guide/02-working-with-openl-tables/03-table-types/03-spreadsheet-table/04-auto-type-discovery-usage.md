@@ -21,7 +21,7 @@ This logic also works when a user explicitly defines the type of the value as co
 
 However, there are several limitations of auto type discovering when the system cannot possibly determine the cell data type:
 
--   Type identification algorithm is not able to properly identify the cell type when a cell refers to another cell with the same name because of occurred circular dependencies.
+-   Type identification algorithm cannot correctly identify the cell type when a cell refers to another cell with the same name because of occurred circular dependencies.
 
     ![Limitation for referring to another cell with the same name](../../../ref-guide-images/autoTypeDiscoveryUsage.png)
 
