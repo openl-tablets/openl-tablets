@@ -42,6 +42,8 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
     private static final String THIS = SpringInitializer.class.getName();
     private static final int PERIOD = 10;
+    // Keep short form fields in memory while spilling larger workbook parts to disk.
+    private static final int MULTIPART_FILE_SIZE_THRESHOLD = 8 * 1024;
 
     private final ReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock read = rwl.readLock();
@@ -156,7 +158,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         registration.setLoadOnStartup(1);
         registration.addMapping("/rest/*", "/web/*");
 
-        MultipartConfigElement multipartConfigElement = new MultipartConfigElement("", -1L, -1L, 0);
+        var multipartConfigElement = new MultipartConfigElement("", -1L, -1L, MULTIPART_FILE_SIZE_THRESHOLD);
         registration.setMultipartConfig(multipartConfigElement);
     }
 
