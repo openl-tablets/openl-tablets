@@ -4,54 +4,16 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ZGVzaWduOkVQQkRTLTE1OTUyLVByb2plY3Q6MjYyZGM4ZmY4NjY2YTA4NTBkNzU5YWExNjdiNzAwYmYzZDMxMmY0NGUwOGUyYTJjZDI0NDM4OGE3NTI3YTc4ZQ==",
+      "id": "bG9jYWw6RVBCRFMtMTU5NTItUHJvamVjdA==",
       "name": "EPBDS-15952-Project",
-      "branch": "master",
-      "status": "OPENED",
-      "repository": "design",
+      "status": "LOCAL",
+      "repository": "local",
       "modifiedBy": "*",
       "modifiedAt": "*",
-      "revision": "*",
-      "path": "EPBDS-15952-Project",
-      "comment": "*",
-      "descriptor": {
-        "modules": [
-          {
-            "name": "Main",
-            "path": "Main.xlsx"
-          },
-          {
-            "name": "Main2",
-            "path": "Main2.xlsx"
-          }
-        ],
-        "sources": [
-          "groovy/",
-          "lib/*.jar"
-        ],
-        "sourcesDefault": true
-      },
-      "branchDefault": true,
-      "repositoryInfo": {
-        "id": "design",
-        "name": "Design",
-        "type": "repo-git",
-        "features": {
-          "branches": true,
-          "searchable": true,
-          "mappedFolders": true
-        }
-      },
       "capabilities": {
         "canWrite": true,
         "canDelete": true,
-        "canClose": true,
-        "canCompare": true,
-        "canViewHistory": true,
-        "canManage": true,
-        "canCopy": true,
-        "canManageBranches": true,
-        "canExport": true
+        "canSave": true
       }
     }
   ],
