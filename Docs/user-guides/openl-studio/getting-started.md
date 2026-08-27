@@ -18,7 +18,7 @@ To sign in to OpenL Studio, proceed as follows:
 
     `http://<server>:<port>/webstudio`
 
-    In the single user mode, users are automatically signed in using the DEFAULT account. In the multi-user mode, the following form appears.
+    In the single user mode, users are automatically signed in using the single user account, which by default is the operating system account that runs OpenL Studio. In the multi-user mode, the following form appears.
 
        <img src="images/login-page.png" width="400" alt="OpenL Studio login form with username and password fields and a Sign in button"/>
 
@@ -29,7 +29,7 @@ To sign in to OpenL Studio, proceed as follows:
 If the user profile does not contain an email address or display name, the **Complete Your Profile** window opens after
 authentication. Enter the required details and click **Save** to continue to OpenL Studio. First Name and Last Name are
 optional. The display name can be entered directly or generated from them. The same check runs when OpenL Studio
-automatically signs in the DEFAULT account in single-user mode.
+automatically signs in the single user account in single-user mode.
 
 For more information on OpenL Studio UI, see [Introducing Rules Editor](#introducing-rules-editor) and [Introducing Repository Editor](#introducing-repository-editor). For more information on the single and multi-user modes, see [Security Overview](introduction.md#security-overview).
 
