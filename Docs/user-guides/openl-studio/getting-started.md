@@ -287,19 +287,24 @@ The two following modes display a project in a way convenient to experienced use
 
 ### Introducing Repository Editor
 
-**Repository Editor** provides controls for browsing and managing Design repository. A user can switch to Repository Editor by clicking the **Repository** control. Repository Editor resembles the following:
+**Repository Editor** provides controls for browsing and managing Design repository. A user can switch to Repository Editor by clicking the **Projects** control. Repository Editor resembles the following:
 
 ![OpenL Studio Repository Editor](images/repository-editor-overview.jpeg)
 
 *OpenL Studio Repository Editor*
 
-The following table describes Repository Editor organization:
+Repository Editor is organized as follows:
 
-| Pane        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Left pane | Contains a tree of projects stored in Design repository and user's workspace. <br/>Unlike Rules Editor, Repository Editor displays physical project contents in terms of files and folders.                                                                                                                                                                                                                                                                                                                                                           |
-| Middle pane | Displays content for the element selected in the tree. For each project, the following actions are available: <br/>- copying a project ![](images/repo-action-copy-project-icon.png) <br/>- deleting a project ![](images/delete-element-icon.png) <br/>- closing a project ![](images/repo-action-close-project-icon.png) <br/>- opening a project ![](images/repo-action-open-project-icon.png) <br/>- deploying a project ![](images/repo-action-deploy-project-icon.png) |
+-   **Left panel** — switches between **Filters**, which narrow the project list by repository, branch, and status, and **Tree**, which displays projects stored in Design repository and user's workspace. Unlike Rules Editor, Repository Editor displays physical project contents in terms of files and folders.
+-   **Project list** — displays the projects that match the filters, as a list or as cards. For each project, the following actions are available:
+    -   copying a project ![](images/repo-action-copy-project-icon.png)
+    -   opening a project ![](images/repo-action-open-project-icon.png)
+    -   closing a project ![](images/repo-action-close-project-icon.png)
+    -   deleting a project ![](images/delete-element-icon.png)
+    -   deploying a project ![](images/repo-action-deploy-project-icon.png)
 
-A user can switch to Rules Editor by clicking the **Rules Editor** control.
+Copying, opening, and closing a project appear as buttons in the project row, and the remaining actions appear in the **Actions** menu of the row. Only actions allowed for the current user are displayed.
+
+A user can switch to Rules Editor by clicking the **Editor** control.
 
 For more information on tasks that can be performed in Repository Editor, see [Using Repository Editor](repository-editor.md#using-repository-editor).
