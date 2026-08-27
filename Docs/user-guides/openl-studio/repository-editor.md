@@ -536,7 +536,7 @@ To copy a project from the **Create project** dialog, proceed as follows:
 
 To copy the selected project, proceed as follows:
 
-1.  In the **Projects** tree or list, select the project and click **Copy**.
+1.  In the **Projects** tree or list, select the project and click **Copy** ![](images/copy-project-item-icon.png).
 2.  Select **Create a New Project** if the dialog initially offers to create a project branch.
 3.  Enter the new project name and select the target repository.
 4.  For a branch-capable target repository, select an existing branch or enter a new branch name in **Branch**.
