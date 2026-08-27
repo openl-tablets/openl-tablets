@@ -1,4 +1,5 @@
 import { createStyles } from 'antd-style'
+import { useListPageStyles } from '../../styles/listPageStyles'
 import { MOCKUP } from './projectsTheme'
 
 /**
@@ -13,7 +14,7 @@ import { MOCKUP } from './projectsTheme'
  * <span className={cx(shared.chipTag, styles.tag)} />
  * ```
  */
-export const useSharedStyles = createStyles(({ css, token }) => ({
+const useProjectSharedStyles = createStyles(({ css, token }) => ({
     /** A plain list read the way exposed methods are: values on their own lines, a line down the left. */
     linedList: css`
         list-style: none;
@@ -45,17 +46,6 @@ export const useSharedStyles = createStyles(({ css, token }) => ({
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    `,
-    /**
-     * The small uppercase caption of a section, a column header or a metadata label — the one typographic
-     * accent for anything that names a value rather than being one.
-     */
-    microLabel: css`
-        color: ${token.colorTextTertiary};
-        font-size: 11px;
-        font-weight: 500;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
     `,
     /**
      * The header strip of a Files-tab pane. One rule keeps the tree toolbar and the file header at the
@@ -202,108 +192,6 @@ export const useSharedStyles = createStyles(({ css, token }) => ({
         flex: 1;
         min-width: 0;
     `,
-    /** The screen's header band: title, summary and the actions of the whole screen. */
-    header: css`
-        padding: 12px 16px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
-        background: ${token.colorBgContainer};
-    `,
-    /** The title row of the header, with the screen actions pushed to the far side. */
-    headTop: css`
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 12px;
-    `,
-    /** The screen title. */
-    pageTitle: css`
-        margin: 0;
-        font-size: 20px;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-    `,
-    /** The line under the title that says what the list currently holds. */
-    subtitle: css`
-        margin-top: 4px;
-        color: ${token.colorTextTertiary};
-        font-size: 12px;
-    `,
-    /** The actions of the whole screen, at the end of the title row. */
-    headActions: css`
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: none;
-    `,
-    /** The scrolling area the list itself lives in. */
-    content: css`
-        flex: 1;
-        min-height: 0;
-        overflow: auto;
-    `,
-    /** The padded box an empty or failed list is shown in. */
-    stateBox: css`
-        margin: 24px;
-        padding: 48px;
-        border: 1px solid ${token.colorBorderSecondary};
-        border-radius: ${token.borderRadiusLG}px;
-        background: ${token.colorBgContainer};
-    `,
-    /** The padding a skeleton is shown with while the list loads. */
-    loading: css`
-        padding: 24px;
-    `,
-    /** A list table: white rows on the page tint, framed like a card. */
-    listTable: css`
-        width: calc(100% - 32px);
-        border-collapse: separate;
-        border-spacing: 0;
-        margin: 16px;
-        border: 1px solid ${token.colorBorderSecondary};
-        border-radius: ${token.borderRadiusLG}px;
-        background: ${token.colorBgContainer};
-        font-size: 14px;
-        overflow: hidden;
-    `,
-    /** The header row of a list table. */
-    listHead: css`
-        background: ${token.colorBgContainer};
-
-        th {
-            padding: 8px 12px;
-            border-bottom: 1px solid ${token.colorBorderSecondary};
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        th:first-of-type {
-            padding-left: 16px;
-        }
-    `,
-    /** One row of a list table. */
-    listRow: css`
-        background: ${token.colorBgContainer};
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid ${token.colorBorderSecondary};
-            vertical-align: middle;
-        }
-
-        td:first-of-type {
-            padding-left: 16px;
-        }
-
-        &:hover td {
-            background: ${token.colorFillQuaternary};
-        }
-
-        &:last-of-type td {
-            border-bottom: none;
-        }
-    `,
-
     /** A card the user picks from a set — a creation method, an access-subject kind. */
     selectableCard: css`
         border: 1px solid ${token.colorBorder};
@@ -356,3 +244,13 @@ export const useSharedStyles = createStyles(({ css, token }) => ({
         text-transform: inherit;
     `,
 }))
+
+/** Project-specific primitives plus the common list-screen structure used by Projects and Deployments. */
+export const useSharedStyles = () => {
+    const common = useListPageStyles()
+    const project = useProjectSharedStyles()
+    return {
+        ...project,
+        styles: { ...common.styles, ...project.styles },
+    }
+}

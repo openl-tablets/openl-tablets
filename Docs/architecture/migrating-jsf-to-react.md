@@ -80,7 +80,7 @@ are ignored — and re-renders only when the set of mounted islands changes.
 4. For anything beyond a couple of scalars, fetch from REST inside the component (see *Backend data*) rather
    than stuffing state into `data-*`.
 
-Worked examples: `home.xhtml` → `Help`, `pages/modules/project.xhtml` → `ProjectPage`.
+Worked examples: `home.xhtml` → `Help`, `pages/modules/changes.xhtml` → `LocalChangesView`.
 
 ## Pattern B — Event-triggered overlay (dialogs, popups, modals)
 
@@ -164,6 +164,12 @@ full-screen `LoadingOverlay` that replaced the jQuery `#loadingPanel` spinner).
 The React component talks to the server through REST (`services/apiCall.ts`), **never** by reading JSF beans.
 
 - For read-only views, call an existing `GET`.
+- Identify project and module state in every read and action instead of reading the JSF session. For example, the
+  Local Changes island calls `GET /projects/{projectId}/local-history?module={moduleName}` to read history and
+  `POST /projects/{projectId}/local-history/restore?module={moduleName}` to restore it. Project-wide deletion uses
+  `DELETE /projects/{projectId}/local-history`. Its legacy comparison page
+  receives the same project ID and module name. This keeps every action scoped to the island after remounts, in a
+  fresh HTTP session, and when another browser tab changes the session's current module.
 - For editable state, put a REST **façade** in front of the domain service and make it the **source of
   truth** (e.g. `GET`/`PUT /projects/{id}/descriptor`). Guard concurrent edits with an optimistic
   **content hash**: `GET` returns it, `PUT` echoes it, a mismatch returns `409` → the UI confirms and retries

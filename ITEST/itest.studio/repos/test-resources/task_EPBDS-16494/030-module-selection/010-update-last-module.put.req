@@ -1,0 +1,19 @@
+PUT /rest/projects/ZGVzaWduOkVQQkRTLTE2NDk0LUhpc3Rvcnk=/tables/a1d315aeb34000ddd832d4909ec0c5a6 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Foo",
+  "fields": [
+    {
+      "name": "prop1",
+      "type": "String"
+    },
+    {
+      "name": "prop2",
+      "type": "String"
+    }
+  ]
+}

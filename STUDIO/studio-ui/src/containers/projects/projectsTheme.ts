@@ -1,4 +1,5 @@
 import type { ThemeConfig } from 'antd'
+import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 
 /**
  * Exact design tokens from the Projects Figma mockup (oklch → sRGB), light theme only. Used both by the
@@ -6,21 +7,7 @@ import type { ThemeConfig } from 'antd'
  * has no Ant Design token (accent hover, sidebar, the code-editor monospace stack).
  */
 export const MOCKUP = {
-    primary: '#2757b6',
-    primaryFg: '#f9fcff',
-    // Neutrals biased a touch toward the brand indigo so the page ground reads chosen, not inherited.
-    pageBg: '#f6f8fc',
-    containerBg: '#ffffff',
-    text: '#131922',
-    textSecondary: '#4b525c',
-    textTertiary: '#646972',
-    textQuaternary: '#8b9199',
-    border: '#dbdee2',
-    borderSecondary: '#e7e9ee',
-    secondaryBg: '#eef0f3',
-    accent: '#e4ecf9',
-    accentFg: '#223251',
-    sidebarBg: '#f4f5f7',
+    ...LIST_PAGE_COLORS,
     success: '#249057',
     warning: '#df911a',
     info: '#2a75ba',
