@@ -81,7 +81,7 @@ administrator-facing settings and screens are removed. Workspace metadata is mig
   ```
 
 * **Workspace metadata migrates on first start.** The `.studioProps` migration always runs so local workspaces
-  survive the upgrade, and the single-user workspace is moved to the resolved user name. No manual step is required;
+  survive the upgrade, and the Single-User workspace is moved to the resolved username. No manual step is required;
   allow for the migration on the first start after the upgrade.
 
 * **Project permissions are evaluated per branch.** Authorization is applied separately to each branch membership of

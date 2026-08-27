@@ -161,7 +161,7 @@ readinessProbe:
 ### OpenL Studio Administration
 
 * Improved the Users and Groups management tables, and added search to both tabs.
-* Added editing of user data in single user mode through the OpenL Studio UI.
+* Added editing of user data in Single-User mode through the OpenL Studio UI.
 * Added a prompt for the profile data a user is missing after authentication.
 * Moved the active user badge to Last Login.
 
