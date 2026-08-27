@@ -388,7 +388,7 @@ Tracing is available for everything that can be run:
 
 #### Starting a Trace
 
-1.  In Rules editor, open the table to trace and click **Trace** in the toolbar above the table.
+1.  In Rules Editor, open the table to trace and click **Trace** in the toolbar above the table.
 
     ![Trace button in the table toolbar with the trace options open](images/trace-start-button.png "Starting a trace")
 

@@ -1,6 +1,6 @@
 ## Using Repository Editor
 
-This chapter describes tasks that can be performed in repository editor. For general information on repository editor, see [Introducing Repository Editor](getting-started.md#introducing-repository-editor).
+This chapter describes tasks that can be performed in Repository Editor. For general information on Repository Editor, see [Introducing Repository Editor](getting-started.md#introducing-repository-editor).
 
 The following topics are included in this chapter:
 
@@ -23,7 +23,7 @@ The following topics are included in this chapter:
 
 ### Browsing Design Repository
 
-Repository editor displays all projects in user's workspace and Design repository. The project tree is organized into the following categories:
+Repository Editor displays all projects in user's workspace and Design repository. The project tree is organized into the following categories:
 
 | Category                  | Description                                                                                                                                                                         |
 |---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -44,7 +44,7 @@ The status of each project in the tree is identified by a specific icon. The fol
 
 ### Filtering and Grouping the Project Tree
 
-Projects in the repository editor are filtered the same way as in Rules Editor.
+Projects in the Repository Editor are filtered the same way as in Rules Editor.
 
 To filter projects by name, enter the name in the filter text box. All projects matching the name are displayed in the **Projects** list.
 
@@ -373,7 +373,7 @@ The **Search Filter** field helps users quickly locate specific revisions by sea
 
 ### Closing a Project
 
-Closing a project deletes it from the user's workspace. No changes made to the project will be applied and stored. From that point, the project is not available for selection in Rules Editor. Users can still browse closed projects in repository editor.
+Closing a project deletes it from the user's workspace. No changes made to the project will be applied and stored. From that point, the project is not available for selection in Rules Editor. Users can still browse closed projects in Repository Editor.
 
 To close a project, in the project tree, select the project and, in the right pane, click **Close**.
 
@@ -468,7 +468,7 @@ To upload a file to a project folder, proceed as follows:
 
 #### Updating a File
 
-To update a file of a project via repository editor, proceed as follows:
+To update a file of a project via Repository Editor, proceed as follows:
 
 1.  In the project tree, select the file to be updated and, in the right pane, click **Update file**.
 2.  In the window that displays, click **Add** and choose the required file for updating.
@@ -499,7 +499,7 @@ Deleting a folder or a file changes the opened project. Save the project to stor
 
 #### Copying a File
 
-A user can create a copy of a file using the repository editor. The current revision of the file or any revision stored in the repository can be used for copying. Proceed as follows:
+A user can create a copy of a file using the Repository Editor. The current revision of the file or any revision stored in the repository can be used for copying. Proceed as follows:
 
 1.  Select a project that contains a file to copy and in the files tree, select the required file.
 2.  In the upper left corner of the page, click **Copy file** ![](images/copy-file-icon.png).
@@ -509,7 +509,7 @@ A user can create a copy of a file using the repository editor. The current revi
 
     ![](images/copy-file-in-repository-dialog.png)
 
-    *Copying a file in repository editor*
+    *Copying a file in Repository Editor*
 
 1.  Click **Copy**.
 
@@ -688,7 +688,7 @@ To compare contents of the currently opened project revision with any other revi
 
 ### Exporting a Project or a File
 
-To export a project from repository editor, proceed as follows:
+To export a project from Repository Editor, proceed as follows:
 
 1.  In the project tree, select the project.
 2.  In the right pane, click **Export**.
