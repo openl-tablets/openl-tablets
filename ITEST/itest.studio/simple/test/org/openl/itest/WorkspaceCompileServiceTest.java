@@ -3,11 +3,8 @@ package org.openl.itest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.ZipInputStream;
 
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
@@ -33,32 +30,13 @@ class WorkspaceCompileServiceTest {
     private static HttpClient startServerWithSeededWorkspace() {
         try {
             Path userDir = Path.of("target", "compile-workspace", "jdoe");
-            seedLocalProject(userDir, "Sample", Path.of("test-resources", "workspace-compile", "Sample.zip"));
+            LocalProjectFixture.seed(userDir, "Sample", Path.of("test-resources", "workspace-compile", "Sample.zip"));
             return JettyServer.get()
                     .withInitParam("user.workspace.home", "target/compile-workspace")
                     .start();
         } catch (Exception e) {
             throw new IllegalStateException("Cannot seed the test workspace", e);
         }
-    }
-
-    private static void seedLocalProject(Path userDir, String projectName, Path zip) throws IOException {
-        Path projectDir = userDir.resolve(projectName).normalize();
-        try (var stream = new ZipInputStream(Files.newInputStream(zip))) {
-            for (var entry = stream.getNextEntry(); entry != null; entry = stream.getNextEntry()) {
-                Path file = projectDir.resolve(entry.getName()).normalize();
-                if (!file.startsWith(projectDir)) {
-                    throw new IOException("Zip entry escapes the project folder: " + entry.getName());
-                }
-                Files.createDirectories(file.getParent());
-                Files.copy(stream, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            }
-        }
-        // The registry record makes the folder a registered local project: folders without a record
-        // are deleted at the first workspace load.
-        Path metainfo = userDir.resolve(".metainfo");
-        Files.createDirectories(metainfo);
-        Files.writeString(metainfo.resolve(projectName + ".properties"), "format-version=1\nrepository-id=local\n");
     }
 
     @Test
