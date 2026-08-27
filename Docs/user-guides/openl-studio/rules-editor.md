@@ -24,7 +24,7 @@ The following topics are included in this chapter:
 
 To limit a list of projects displayed in the **Projects** list, start typing a project name in the field located above the list of projects.
 
-![](images/filter-projects-by-name.png)
+![Filtering projects by Name](images/filter-projects-by-name.png)
 
 *Filtering projects by Name*
 
@@ -34,7 +34,7 @@ To get a full list of projects, delete filter text value in the field.
 
 Rules Editor allows a user to work with one project at a time. To select a project, in the **Projects** tree, select the blue hyperlink of the required project name. The project page with general information about the project and configuration details appears in the middle pane of the editor.
 
-![](images/project-page-rules-editor.png)
+![A project page in Rules Editor](images/project-page-rules-editor.png)
 
 *A project page in Rules Editor*
 
@@ -55,7 +55,7 @@ For more information on project and module dependencies, see [OpenL Tablets Refe
 
 The first opened module page is displayed right after the module is loaded, while loading of the whole project continues in the background. The loading progress bar is displayed in the **Problems** section. Errors and warnings are displayed dynamically while more modules are compiled.
 
-![](images/loading-progress-bar.jpeg)
+![Loading progress bar](images/loading-progress-bar.jpeg)
 
 *Loading progress bar*
 
@@ -147,11 +147,11 @@ A user can export, update, or edit a module directly in Rules Editor. Proceed as
 
 1.  To modify module configuration, such as module name, path, and included or excluded methods, in the **Module** page place the mouse cursor over the module name and click **Edit** ![](images/edit-icon.png).
 
-    ![](images/initiate-module-editing.png)
+    ![Initiating module editing](images/initiate-module-editing.png)
 
     *Initiating module editing*
 
-    ![](images/edit-module-information-form.png)
+    ![Editing module information](images/edit-module-information-form.png)
 
     *Editing module information*
 
@@ -170,25 +170,25 @@ To compare module versions, proceed as follows:
 2.  In the top line menu, select **More** **\>** **Local** **Changes**.
     The **Local** **Changes** page appears displaying all module versions, with the latest versions on the top.
 
-    ![](images/local-changes-window.jpeg)
+    ![Displaying the Changes window](images/local-changes-window.jpeg)
 
     *Displaying the Changes window*
 
     When a project is modified, upon clicking the **Save** icon ![](images/save-icon-alt.png), a temporary version of the module is created, and it appears in the list of local changes. When project update is complete, clicking **Save** removes all temporary versions from Local Changes, and a new version is added to the list of revisions.
 
-    ![](images/save-project-update-revision.jpeg)
+    ![Clicking Save to complete project update and save changes as a revision version](images/save-project-update-revision.jpeg)
 
     *Clicking Save to complete project update and save changes as a revision version*
 
 1. To compare the changes, select check boxes for two required versions and click **Compare**.
 
-    ![](images/compare-module-versions.jpeg)
+    ![Comparing module versions](images/compare-module-versions.jpeg)
 
     *Comparing module versions*
 
     The system displays the module in a separate browser window where changed tables are marked as displayed in the following example.
 
-    ![](images/tables-with-changes-comparison.jpeg)
+    ![Tables with changes](images/tables-with-changes-comparison.jpeg)
 
     *Tables with changes*
 
@@ -196,7 +196,7 @@ To compare module versions, proceed as follows:
 
     The result of the comparison is displayed in the bottom of the window.
 
-    ![](images/module-version-comparison-result.jpeg)
+    ![The result of the module version comparison](images/module-version-comparison-result.jpeg)
 
     *The result of the module version comparison*
 
@@ -234,7 +234,7 @@ To create a copy of a module, proceed as follows:
 
 A new simple module is displayed in the modules list.
 
-![](images/copy-module-result.png)
+![Creating a copy of a module](images/copy-module-result.png)
 
 *Creating a copy of a module*
 
@@ -251,7 +251,7 @@ If the module is defined using **File Path Pattern**, to copy such module, proce
 
 The new module is displayed in the modules list.
 
-![](images/copy-module-with-file-path-pattern.png)
+![Copying a module with the defined file path and properties patterns](images/copy-module-with-file-path-pattern.png)
 
 *Copying a module with the defined file path and properties patterns*
 
@@ -268,7 +268,7 @@ To define a dependency on another project, proceed as follows:
 3.  Put the mouse cursor over the **Dependencies** label and click **Manage Dependencies** ![](images/edit-icon.png) .
 4.  In the window that appears, update information as required and click **Save**.
 
-![](images/manage-project-dependencies.png)
+![Managing project dependencies](images/manage-project-dependencies.png)
 
 *Managing project dependencies*
 
@@ -316,7 +316,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     The selected table is displayed in the middle pane in read mode.
 
-    ![](images/table-read-mode.png)
+    ![Table opened in OpenL Studio](images/table-read-mode.png)
 
     *Table opened in OpenL Studio*
 
@@ -330,7 +330,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     The following table is switched to the edit mode:
 
-    ![](images/table-edit-mode.png)
+    ![Table in the edit mode](images/table-edit-mode.png)
 
     *Table in the edit mode*
 
@@ -365,13 +365,13 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     If a table contains an error, the appropriate message is displayed.
 
-    ![](images/table-error-example.png)
+    ![Example of an error in a table](images/table-error-example.png)
 
     *Example of an error in a table*
 
     The arrow under the message allows viewing all stack trace for this error.
 
-    ![](images/error-stack-trace.png)
+    ![Error stack trace example](images/error-stack-trace.png)
 
     *Error stack trace example*
 
@@ -387,19 +387,19 @@ Links to the following tables are allowed:
 
 Links to the rule tables are underlined and marked blue. When a mouse cursor is put over the link, a tooltip with method name and input parameters with types is displayed.
 
-![](images/decision-table-method-link-tooltip.jpeg)
+![A tooltip for the linked method to a decision table](images/decision-table-method-link-tooltip.jpeg)
 
 *A tooltip for the linked method to a decision table*
 
 Links to the data and datatype tables are underlined with a dotted line and has an appropriate tooltip with description.
 
-![](images/datatype-table-links.png)
+![Links to the datatype tables from the decision and datatype table](images/datatype-table-links.png)
 
 *Links to the datatype tables from the decision and datatype table*
 
 All fields of the datatype tables are also linked and contain tooltips.
 
-![](images/datatype-field-link-tooltip.png)
+![A link to the field of the Corporate datatype table](images/datatype-field-link-tooltip.png)
 
 *A link to the field of the Corporate datatype table*
 
@@ -421,7 +421,7 @@ If any editor control is used, for example, a check box or the **Done** button, 
 
 The following example displays the decision table with data represented as a range:
 
-![](images/decision-table-with-range-data.png)
+![Decision table with a range data type](images/decision-table-with-range-data.png)
 
 *Decision table with a range data type*
 
@@ -443,7 +443,7 @@ To create a range, proceed as follows:
 
     For example, edit the cell containing 18-21. The table is extended by the pop-up window with a set of controls for editing the range.
 
-    ![](images/range-editor-create-range.png)
+    ![Creating a range in Range Editor](images/range-editor-create-range.png)
 
     *Creating a range in Range Editor*
 
@@ -457,7 +457,7 @@ To create a range, proceed as follows:
 
     The last cell in the **Hour** column is filled as follows:
 
-    ![](images/range-editor-new-range-created.png)
+    ![New range created in Range Editor](images/range-editor-new-range-created.png)
 
     *New range created in Range Editor*
 
@@ -465,7 +465,7 @@ To create a range, proceed as follows:
 
     The table resembles the following:
 
-    ![](images/range-editor-edit-range.png)
+    ![Editing a range in Range Editor](images/range-editor-edit-range.png)
 
     *Editing a range in Range Editor*
 
@@ -474,7 +474,7 @@ To create a range, proceed as follows:
 
     The range resembles the following:
 
-    ![](images/range-editor-edited-range.png)
+    ![The range edited in Range Editor](images/range-editor-edited-range.png)
 
     *The range edited in Range Editor*
 
@@ -533,13 +533,13 @@ The following topics describe search modes in OpenL Studio:
 In the **simple search** mode, the system searches for a specific word or phrase across all tables within the current module, the current project, or the current project and its dependency projects depending on the selected option.
 To perform a simple search, in the **Search** field, enter a word or phrase and press **Enter**.
 
-![](images/simple-search-field.png)
+![Starting a simple search](images/simple-search-field.png)
 
 *Starting a simple search*
 
 OpenL Studio displays all tables containing the entered text. The **View Table** link opens the table in Rules Editor.
 
-![](images/search-results.png)
+![Search results](images/search-results.png)
 
 *Search results*
 
@@ -551,13 +551,13 @@ Advanced search allows specifying criteria to narrow the search through tables. 
 
 1.  To launch an advanced search, click the arrow to the right of the search window.
 
-    ![](images/advanced-search-initiate.png)
+    ![Initiating the advanced search](images/advanced-search-initiate.png)
 
     *Initiating the advanced search*
 
 1.  In the **Search** field on the top, select whether search must be performed within the current module, or within the project, or within the current project and its dependent projects.
 
-    ![](images/advanced-search-area-selection.png)
+    ![Specifying search area](images/advanced-search-area-selection.png)
 
     *Specifying search area*
 
@@ -571,7 +571,7 @@ Advanced search allows specifying criteria to narrow the search through tables. 
 2.  In the similar way, add as many table properties as required.
 3.  To remove a property, click the cross icon to the right of the property.
 
-    ![](images/advanced-search-form.png)
+    ![A filled form for advanced search](images/advanced-search-form.png)
 
     *A filled form for advanced search*
 
@@ -579,7 +579,7 @@ Advanced search allows specifying criteria to narrow the search through tables. 
 
 As a result, the system displays the tables matching the search criteria along with links to the relevant Excel files and the **View Table** links leading to the table editing page.
 
-![](images/advanced-search-results.png)
+![Advanced search result](images/advanced-search-results.png)
 
 *Advanced search result*
 
@@ -756,14 +756,14 @@ OpenL Studio supports comparing contents of Excel files displaying tables and Ex
 
 1.  In OpenL Studio Rules Editor, in the top line menu, select **More \> Compare Excel Files.**
 
-    ![](images/excel-comparison-initiate.png)
+    ![Initiating Excel comparison functionality](images/excel-comparison-initiate.png)
 
     *Initiating Excel comparison functionality*
 
 1.  In the window that appears, click **Add** and select two Excel files to compare.
 2.  Click **Upload** and wait until file status is changed to **Done.**
 
-    ![](images/excel-files-ready-for-comparison.png)
+    ![Excel files ready for comparison](images/excel-files-ready-for-comparison.png)
 
     *Excel files ready for comparison*
 
@@ -771,7 +771,7 @@ OpenL Studio supports comparing contents of Excel files displaying tables and Ex
 
     The list of tables and Excel elements is displayed, grouped by Excel sheets. Clicking on the table or element in the list displays the changes in the section below.
 
-    ![](images/excel-comparison-results.jpeg)
+    ![Excel file comparison results](images/excel-comparison-results.jpeg)
 
     *Excel file comparison results*
 
@@ -790,7 +790,7 @@ When a project is generated from the imported OpenAPI file, it becomes available
 
 The generated project contains information about the last file import date, name of the OpenAPI file, mode, and modules names in rules.xml. This information is available in OpenL Studio, the OpenAPI section.
 
-![](images/openapi-project-rules-editor.png)
+![OpenAPI project in Rules Editor, in the Tables Generation mode](images/openapi-project-rules-editor.png)
 
 *OpenAPI project in Rules Editor, in the Tables Generation mode*
 
@@ -818,13 +818,13 @@ If a project is not generated from an OpenAPI file and it is necessary to add th
 1.  In Rules Editor, open the project overview page.
 2.  Click the **OpenAPI** section.
 
-    ![](images/openapi-file-generation-initiate.png)
+    ![Initiating OpenAPI file generation](images/openapi-file-generation-initiate.png)
 
     *Initiating OpenAPI file generation*
 
 1.  If an OpenAPI file does not exist, ensure that the **Generate from Rules and Datatype tables** and **Reconciliation** options are selected.
 
-    ![](images/openapi-generation-settings.jpeg)
+    ![Reviewing settings for the OpenAPI file generation](images/openapi-generation-settings.jpeg)
 
     *Reviewing settings for the OpenAPI file generation*
 
@@ -834,7 +834,7 @@ If a project is not generated from an OpenAPI file and it is necessary to add th
 
 The file creation confirmation message is displayed. The OpenAPI file is added to the project and appears in the OpenAPI section.
 
-![](images/openapi-file-added-to-section.png)
+![The OpenAPI file added to the OpenAPI section](images/openapi-file-added-to-section.png)
 
 *The OpenAPI file added to the OpenAPI section*
 
@@ -847,27 +847,27 @@ If a project is not generated from the OpenAPI file, but it is required to add t
 1.  Ensure that the OpenAPI file is uploaded to the project via the **Repository** tab.
 2.  In Rules Editor, click **Click to Import OpenAPI File.**
 
-    ![](images/openapi-import-initiate.png)
+    ![Initiating OpenAPI file import](images/openapi-import-initiate.png)
 
     *Initiating OpenAPI file import*
 
 1.  Enter the name of the OpenAPI imported file, such as example.json.
 2.  Select the **Tables generation** mode.
 
-    ![](images/openapi-select-generation-mode.png)
+    ![Selecting the generation mode](images/openapi-select-generation-mode.png)
 
     *Selecting the generation mode*
 
 1.  If necessary, modify the default values for the rules and data modules and click **Import**.
 2.  If no module with the entered name is found, set up the path to the generated file and click **Import.**
 
-    ![](images/openapi-module-settings-new.png)
+    ![Module settings window, both modules are new](images/openapi-module-settings-new.png)
 
     *Module settings window, both modules are new*
 
     If a module already exists, it will be overwritten, and the corresponding warning message is displayed. In this case, there is no option to define a file name.
 
-    ![](images/openapi-module-settings-existing.png)
+    ![Module settings window, one of modules already exists](images/openapi-module-settings-existing.png)
 
     *Module settings window, one of modules already exists*
 
@@ -888,19 +888,19 @@ To reconcile a project using an OpenAPI file with a different name, proceed as f
 1.  Ensure that the OpenAPI file is uploaded to the project via the **Repository** tab.
 2.  In Rules Editor, click **OpenAPI Import icon ![](images/openapi-import-icon.png).**
 
-    ![](images/openapi-import-dialog.jpeg)
+    ![Initiating OpenAPI import](images/openapi-import-dialog.jpeg)
 
     *Initiating OpenAPI import*
 
 1.  In the Import OpenAPI File window, enter the OpenAPI file location, select **Reconciliation,** and click **Import**.
 
-    ![](images/openapi-select-file-for-reconciliation.png)
+    ![Selecting an OpenAPI file for reconciliation](images/openapi-select-file-for-reconciliation.png)
 
     *Selecting an OpenAPI file for reconciliation*
 
 The project is validated using the newly imported file.
 
-![](images/openapi-reconciliation-results.png)
+![Viewing results of the last reconciliation](images/openapi-reconciliation-results.png)
 
 *Viewing results of the last reconciliation*
 

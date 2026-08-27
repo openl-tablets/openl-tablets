@@ -43,7 +43,7 @@ OpenL Studio provides a navigation panel accessible from the top-right corner of
 -   **Help** — open the OpenL Studio help
 -   **Sign Out** — end the current session
 
-![](images/user-profile-dropdown.png)
+![Opening the user profile panel](images/user-profile-dropdown.png)
 
 *Opening the user profile panel*
 
@@ -61,7 +61,7 @@ To manage profile details, proceed as follows:
 1.  In OpenL Studio, in the top-right corner, click the user icon.
 2.  In the panel, click **My Profile**.
 
-    ![](images/user-details-form.png)
+    ![My Profile page](images/user-details-form.png)
 
     *My Profile page*
 
@@ -121,7 +121,7 @@ To manage personal settings, proceed as follows:
 1.  In OpenL Studio, in the top-right corner, click the user icon.
 2.  In the panel, click **My Settings**.
 
-    ![](images/user-settings-form.png)
+    ![My Settings page](images/user-settings-form.png)
 
     *My Settings page*
 
@@ -156,13 +156,13 @@ To create a personal access token, proceed as follows:
 1.  In OpenL Studio, in the top-right corner, click the user icon.
 2.  In the panel, click **Personal Access Tokens**.
 
-    ![](images/personal-access-tokens-view.png)
+    ![Personal Access Tokens page](images/personal-access-tokens-view.png)
 
     *Personal Access Tokens page*
 
 3.  Click **+ Create Token**.
 
-    ![](images/create-token.png)
+    ![Create Token drawer](images/create-token.png)
 
     *Create Token drawer*
 
@@ -203,13 +203,13 @@ For more information on tasks that can be performed in Rules Editor, see [Using 
 
 **Rules Editor** enables users to browse rule modules and modify table data. A default editor is displayed when a user opens a table in a module.
 
-![](images/rules-editor-overview.png)
+![OpenL Studio Rules Editor](images/rules-editor-overview.png)
 
 *OpenL Studio Rules Editor*
 
 Rules Editor displays one module at a time. To switch between modules, select a module in the **Projects** tree or use breadcrumb navigation for quick switching between projects or modules of the current project.
 
-![](images/rules-editor-breadcrumb-navigation.png)
+![Rules Editor breadcrumb navigation](images/rules-editor-breadcrumb-navigation.png)
 
 *Rules Editor breadcrumb navigation*
 
@@ -252,19 +252,19 @@ To switch between views, in the top right corner, select **My Settings** and use
 
 When a table is opened in a simple view, OpenL Studio hides various technical table details, such as table header and MS Excel formulas. An example of a table opened in a simple view is as follows.
 
-![](images/table-simple-view.png)
+![A rule table in a simple view](images/table-simple-view.png)
 
 *A rule table in a simple view*
 
 In the extended view, all table structure is displayed. An example of a table opened in an extended view is as follows.
 
-![](images/table-extended-view.png)
+![A rule table in an extended view](images/table-extended-view.png)
 
 *A rule table in an extended view*
 
 Rule tables can be organized, or sorted, and displayed in the module tree in different way depending on the selected value.
 
-![](images/module-tree-sorting-modes.png)
+![Modes for sorting tables in the module tree](images/module-tree-sorting-modes.png)
 
 *Modes for sorting tables in the module tree*
 
@@ -289,7 +289,7 @@ The two following modes display a project in a way convenient to experienced use
 
 **Repository Editor** provides controls for browsing and managing Design repository. A user can switch to Repository Editor by clicking the **Repository** control. Repository Editor resembles the following:
 
-![](images/repository-editor-overview.jpeg)
+![OpenL Studio Repository Editor](images/repository-editor-overview.jpeg)
 
 *OpenL Studio Repository Editor*
 

@@ -48,7 +48,7 @@ the branch menu is opened. Proceed as follows:
 
 1.  To switch between branches in the editor, click the last link in the address bar identifying the branch name and in the list that appears, select the required branch.
 
-    ![](images/switching-branches-in-editor.jpeg)
+    ![Switching between branches in the editor](images/switching-branches-in-editor.jpeg)
 
     *Switching between branches in the editor*
 
@@ -78,7 +78,7 @@ the branch menu is opened. Proceed as follows:
       branch removes the project, so it takes the same permission as deleting the project. Users who have it are
       warned in the confirmation dialog that the project will be gone.
 
-    ![](images/delete-branch-unmerged-commits.png)
+    ![Deleting a non-default branch with unmerged commits](images/delete-branch-unmerged-commits.png)
 
     *Deleting a non-default branch with unmerged commits*
 
@@ -101,13 +101,13 @@ the branch menu is opened. Proceed as follows:
     target can always be selected. Synchronizing a clean project introduces it into the selected branch, and the
     dialog says so when the selected branch does not hold the project yet.
 
-    ![](images/sync-merge-with-branch.png)
+    ![Selecting a branch that does not hold the project yet](images/sync-merge-with-branch.png)
 
     *Selecting a branch that does not hold the project yet*
 
     If upon saving there is a conflict due to updates in the same module sheet, the **Resolve Conflicts** dialog appears.
 
-    ![](images/resolve-conflicts-on-merge.png)
+    ![Resolving conflicts on merging branches](images/resolve-conflicts-on-merge.png)
 
     *Resolving conflicts on merging branches*
 
@@ -126,13 +126,13 @@ the branch menu is opened. Proceed as follows:
 
 If the same version of the project is edited by several users, upon submitting their changes using different clients, the **Resolve Conflicts** dialog appears, listing the conflicting files and the resolution options for each one.
 
-![](images/save-conflict-error-message.png)
+![Resolving conflicts upon saving concurrent changes](images/save-conflict-error-message.png)
 
 *Resolving conflicts upon saving concurrent changes*
 
 The dialog contains the **Compare File Versions** link that allows viewing both conflicting versions for comparison.
 
-![](images/compare-conflicting-versions.jpeg)
+![Comparing conflicting versions](images/compare-conflicting-versions.jpeg)
 
 *Comparing conflicting versions*
 

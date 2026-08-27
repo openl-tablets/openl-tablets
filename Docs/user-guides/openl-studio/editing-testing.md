@@ -24,7 +24,7 @@ This section describes table editing and includes the following topics:
 
 OpenL Studio allows editing comma separated arrays of values. A multi selection window displaying all values appears enabling the user to select the required values.
 
-![](images/comma-array-editor.png)
+![Editing comma separated arrays](images/comma-array-editor.png)
 
 *Editing comma separated arrays*
 
@@ -34,7 +34,7 @@ This section describes table properties available in OpenL Studio. For more info
 
 If default property values are defined for a table, they appear only in the right hand **Properties** section, but not in the table. In the following example, there are **Active = true** and **Fail On Miss = false** default properties.
 
-![](images/default-table-properties.png)
+![Default table properties example](images/default-table-properties.png)
 
 *Default table properties example*
 
@@ -44,7 +44,7 @@ Default properties can be overridden at the table level; in other words, they ca
 
     lnstead of the property value, a checkbox appears:
 
-    ![](images/updating-default-property.png)
+    ![Updating a default property](images/updating-default-property.png)
 
     *Updating a default property*
 
@@ -52,7 +52,7 @@ Default properties can be overridden at the table level; in other words, they ca
 
     The property appears in the table with its new value.
 
-    ![](images/default-property-updated.png)
+    ![Default property was updated by a user](images/default-property-updated.png)
 
     *Default property was updated by a user*
 
@@ -60,7 +60,7 @@ Default properties can be overridden at the table level; in other words, they ca
 
 Module or category level properties are those inherited from a **Properties** table as described in [OpenL Tablets Reference Guide > Properties Table](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-table). In the **Properties** section of the given table, inherited properties appear in a different color and are accompanied with a link to the **Properties** table where they are defined. The values of the inherited properties are not stored in the table, they are displayed in the **Properties** section, since they are inherited and applied to this table. Inherited properties can be overridden at a Table level, i.e. they can be changed.
 
-![](images/inherited-category-level-properties.png)
+![An example of inherited category-level properties](images/inherited-category-level-properties.png)
 
 *An example of inherited category-level properties*
 
@@ -69,13 +69,13 @@ To change an inherited property, perform the following steps:
 1.  In the **Properties** section, click the inherited property to be changed.
 2.  Enter or select the required values from the drop-down list and click **Save**.
 
-    ![](images/updating-inherited-property.png)
+    ![Updating an inherited property](images/updating-inherited-property.png)
 
     *Updating an inherited property*
 
     The system displays the property in the table.
 
-    ![](images/inherited-property-updated.png)
+    ![Inherited category-level property updated by a user](images/inherited-property-updated.png)
 
     *Inherited category-level property updated by a user*
 
@@ -96,7 +96,7 @@ The **createdBy** and **modifiedBy** properties are only applied in the multi-mo
 
 System properties cannot be edited in UI. The OpenL Studio users can delete those properties if required.
 
-![](images/system-properties-example.png)
+![An example of system properties](images/system-properties-example.png)
 
 *An example of system properties*
 
@@ -106,13 +106,13 @@ Some properties are only applicable to particular types of tables. When opening 
 
 For example, such property as **Validate DT** is available for Decision Tables. That means it can be selected in the drop-down list after clicking the **Add** link at the bottom of the **Properties** section. The following figure shows properties applied to a Decision Table:
 
-![](images/decision-table-properties.png)
+![Properties for the Decision table type](images/decision-table-properties.png)
 
 *Properties for the Decision table type*
 
 When opening a Data Table in the same project, these properties are not available for selecting from the drop-down list in the **Properties** section.
 
-![](images/decision-table-properties-not-available.png)
+![The Decision table properties that are not available for a Data table](images/decision-table-properties-not-available.png)
 
 *The Decision table properties that are not available for a Data table*
 
@@ -136,13 +136,13 @@ To add a new property for the selected table, perform the following steps:
 
 1.  In the **Properties** pane, click the **Add Property** link.
 
-    ![](images/add-new-property-link.png)
+    ![Add new property for the current table](images/add-new-property-link.png)
 
     *Add new property for the current table*
 
 1.  Enter the required property or select it from the drop-down list and click the **Add** button.
 
-    ![](images/select-table-property-to-add.png)
+    ![Selected table property to be added](images/select-table-property-to-add.png)
 
     *Selected table property to be added*
 
@@ -150,7 +150,7 @@ To add a new property for the selected table, perform the following steps:
 
     All steps are collected in the following figure:
 
-    ![](images/save-new-property-for-table.png)
+    ![Saving a new property for the current table](images/save-new-property-for-table.png)
 
     *Saving a new property for the current table*
 
@@ -161,19 +161,19 @@ property.
 
 A new table version has the same identity, that is, signature and dimensional properties of the previous version. When a new table version is created, the previous version becomes inactive since only one table version can be active at a time. By default, all tables are active. The following is an example of an inactive table version.
 
-![](images/inactive-table-version.png)
+![An inactive table version](images/inactive-table-version.png)
 
 *An inactive table version*
 
 Versions of the same table are grouped in the module tree under the table name. Clicking the table name displays the active version. If all tables are set to inactive, the latest created version is displayed.
 
-![](images/table-versions-in-module-tree.png)
+![Displaying table versions in the module tree](images/table-versions-in-module-tree.png)
 
 *Displaying table versions in the module tree*
 
 The table version is defined in a three digit format, such as 4.0.1. Table versions must be set in an increasing order.
 
-![](images/enter-new-version-number.png)
+![Entering a new version number](images/enter-new-version-number.png)
 
 *Entering a new version number*
 
@@ -183,7 +183,7 @@ Unit tests are used in OpenL Tablets to validate data accuracy. OpenL Tablets Te
 
 For example, in the following diagram, the table on the left is a decision table but the table on the right is a unit test table that tests data of the decision table:
 
-![](images/decision-table-with-test-table.png)
+![Decision table and its test table](images/decision-table-with-test-table.png)
 
 *Decision table and its test table*
 
@@ -199,7 +199,7 @@ The following topics are included in this section:
 
 OpenL Studio adds a view navigation link to the appropriate test table and vice versa. See the following example:
 
-![](images/navigation-link-to-target-table.png)
+![Navigation link to target table](images/navigation-link-to-target-table.png)
 
 *Navigation link to target table*
 
@@ -218,7 +218,7 @@ The system automatically executes all test runs, test cases, in every unit test 
 
 Test results display resembles the following sample:
 
-![](images/all-project-tests-results.jpeg)
+![Results of running all project tests](images/all-project-tests-results.jpeg)
 
 *Results of running all project tests*
 
@@ -230,7 +230,7 @@ Test results display resembles the following sample:
 
 1.  To run the tests in the current module and its dependent modules only, select the **Within Current Module Only** check box in the button menu or test results page.
 
-    ![](images/test-settings-within-module.jpeg)
+    ![Defining test settings](images/test-settings-within-module.jpeg)
 
     *Defining test settings*
 
@@ -238,7 +238,7 @@ Test results display resembles the following sample:
 
 1.  To change the setting for a particular test run without updating user settings, click the arrow to the right of the **Run Tests** ![](images/run-tests-dropdown-icon.png) and choose a required number of **Tests per page**. There is an alternative way: the same setting options are displayed on the top of the window after executing all tests. The following picture provides an illustration:
 
-    ![](images/tests-per-page-setting.png)
+    ![Number of tests per page setting](images/tests-per-page-setting.png)
 
     *Number of tests per page setting*
 
@@ -252,7 +252,7 @@ This section describes test execution. Proceed as follows:
 
     Test results resemble the following:
 
-    ![](images/test-results-single-table.png)
+    ![Results of executing all test runs for one rule table](images/test-results-single-table.png)
 
     *Results of executing all test runs for one rule table*
 
@@ -263,7 +263,7 @@ This section describes test execution. Proceed as follows:
 
     The form for entering required values to test rule table appears.
 
-    ![](images/testing-rule-without-tests.jpeg)
+    ![Testing a rule table without tests](images/testing-rule-without-tests.jpeg)
 
     *Testing a rule table without tests*
 1.  To run a test for the currently opened module and its dependent modules only, ensure that the **Within Current Module Only** option is selected.
@@ -271,7 +271,7 @@ This section describes test execution. Proceed as follows:
 
         The results of the testing are displayed.
 
-    ![](images/virtual-test-result.png)
+    ![Result of running virtual test](images/virtual-test-result.png)
 
     *Result of running virtual test*
 3. To export the results to an Excel file, click the "Run Into File" button. This action will generate an Excel file named "test-results.xlsx", which includes two sheets: 'Result' and 'Parameters'. <br/> By default, the 'Parameters' sheet lists each attribute's name and value on separate rows. For a more compact table format, deselect the ***Flat Parameter Layout*** option. <br/>To exclude any empty input values, select the ***Skip Empty Parameters*** checkbox.
@@ -291,7 +291,7 @@ case a unique value, or leave it out and OpenL Studio numbers the cases itself.
 2.  Navigate to the **Run** button above the Test table and click the small black arrow ![](images/run-dropdown-arrow-icon.png).
 3.  In the pop-up window that appears, select or clear the check boxes for the appropriate IDs, and to run several particular test cases, define them in the **Use the Range** field.
 
-    ![](images/select-test-cases-range.png)
+    ![Select test cases via Range field to be executed](images/select-test-cases-range.png)
 
     *Select test cases via Range field to be executed*
 
@@ -300,7 +300,7 @@ case a unique value, or leave it out and OpenL Studio numbers the cases itself.
 
     Only the selected test cases are executed.
 
-    ![](images/selective-test-results.jpeg)
+    ![Result of selective testing](images/selective-test-results.jpeg)
 
     *Result of selective testing*
 
@@ -318,7 +318,7 @@ This option is configured for each user individually in User Profile as the **Fa
 
 Additionally, the number of failed test cases displayed for one unit test can be limited. For example, a user is testing rules iteratively and is interested just in the first several failures in order to analyze and correct them, and re-execute tests, sequentially correcting errors. To do this, change **All** on an appropriate value next to **Failures per test** label or **first** label (for method 3). The setting is available only if **Failures only** is selected.
 
-![](images/failures-only-settings.png)
+![Settings for displaying failed test cases only](images/failures-only-settings.png)
 
 *Settings for displaying failed test cases only*
 
@@ -326,19 +326,19 @@ Additionally, the number of failed test cases displayed for one unit test can be
 
 The result of a rule table execution can be a single value or compound value such as spreadsheet. A test table specifies what is tested, full result or particular parts of it, and their expected results of each test case. In the following example, *IncomeForecastTest* is intended to check Minimal and Maximal Total Salary values in the resulting spreadsheet:
 
-![](images/test-compound-result-table.png)
+![Testing tables with compound result on](images/test-compound-result-table.png)
 
 *Testing tables with compound result on*
 
 After running the test, OpenL Studio displays each test case with input values and actual results marked as passed or failed.
 
-![](images/test-spreadsheet-result.png)
+![Testing spreadsheet result](images/test-spreadsheet-result.png)
 
 *Testing spreadsheet result*
 
 In cases when test result is complex (compound), there is an option to display the full result of running test cases as well, not only values which are being tested. It is configured for each user individually in User Profile as “**Compound Result**” setting. If the option is switched on, the result of running *IncomeForecastTest* looks as follows:
 
-![](images/test-compound-result-display.png)
+![Displaying compound result](images/test-compound-result-display.png)
 
 *Displaying compound result*
 
@@ -350,7 +350,7 @@ OpenL Studio provides a convenient way to create a new test table.
 
 When an executable table, such as Decision, Method, Spreadsheet, ColumnMatch, or TBasic table, is created, the **Create Test** item becomes available.
 
-![](images/create-test-table-button.png)
+![Create new test table](images/create-test-table-button.png)
 
 *Create new test table*
 
@@ -560,7 +560,7 @@ OpenL Studio provides benchmarking tools for measuring execution time for all ap
 
 The benchmarking icon is displayed above the table to be traced.
 
-![](images/benchmarking-controls.png)
+![Controls for measuring performance](images/benchmarking-controls.png)
 
 *Controls for measuring performance*
 
@@ -576,7 +576,7 @@ For a test table, select the test cases as follows:
 
 Clicking the benchmarking icon runs the corresponding method or set of methods and displays the results in a table.
 
-![](images/benchmarking-results.png)
+![Benchmarking results](images/benchmarking-results.png)
 
 *Benchmarking results*
 
@@ -594,6 +594,6 @@ OpenL Studio remembers all benchmarking runs executed within one session. Every 
 Benchmarking results can be compared to identify the most time consuming methods. Select the required check boxes and click **Compare** to compare results in the results table.
 Comparison results are displayed below the benchmarking table.
 
-![](images/benchmarking-compare-results.png)
+![Comparing benchmarking results](images/benchmarking-compare-results.png)
 
 *Comparing benchmarking results*

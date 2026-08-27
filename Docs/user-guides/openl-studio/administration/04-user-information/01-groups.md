@@ -99,7 +99,7 @@ To view the list of groups, proceed as follows:
 
    The system displays a list of invited groups, including their names, descriptions, and number of members:
 
-   ![](../../images/user-groups-list.png "Groups list in the Groups tab")
+   ![Groups list in the Groups tab](../../images/user-groups-list.png "Groups list in the Groups tab")
 
    *Groups list in the* **Groups** *tab*
 
@@ -128,7 +128,7 @@ To invite a group, proceed as follows:
 
    The **Invite Group** dialog appears.
 
-   ![](../../images/invite-group-dialog.png "Invite Group dialog")
+   ![Invite Group dialog](../../images/invite-group-dialog.png "Invite Group dialog")
 
    *Invite Group dialog*
 
@@ -149,7 +149,7 @@ To invite a group, proceed as follows:
    | **Resource** | The repository or project to which access is granted. Select from the available repositories and projects listed in the system. |
    | **Role**     | The role to assign for the selected resource: **Viewer**, **Contributor**, or **Manager**.                                      |
 
-   ![](../../images/invite-group-access-management.png "Access Management section of the Invite Group dialog")
+   ![Access Management section of the Invite Group dialog](../../images/invite-group-access-management.png "Access Management section of the Invite Group dialog")
 
    *Access Management section of the Invite Group dialog*
 

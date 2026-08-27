@@ -15,7 +15,7 @@ To configure the Default Group, proceed as follows:
 2.  In the **Default Group** field, select a group from the list, or select **None** to disable automatic default access for all users.
 3.  Click **Apply** to apply the changes.
 
-![](../../images/security-default-group.png "Default Group configuration in the Security tab")
+![Default Group configuration in the Security tab](../../images/security-default-group.png "Default Group configuration in the Security tab")
 
 *Default Group configuration in the* **Security** *tab*
 

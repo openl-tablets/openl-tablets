@@ -17,7 +17,7 @@ To create project tags, proceed as follows:
 
 1.  To add a tag type, in the input field at the bottom of the tag table, enter the tag type name and press **Enter** or click outside the field.
 
-    ![](../images/select-tags-admin.png "Selecting tags")
+    ![Selecting tags](../images/select-tags-admin.png "Selecting tags")
 
     *Selecting tags*
 
@@ -34,7 +34,7 @@ To create project tags, proceed as follows:
 
 5.  To add a tag value, in the **Tags** column of the tag type row, click **+ Add Tag**, enter the tag name, and press **Enter** or click outside the field.
 
-    ![](../images/add-tag-values.png "Adding tag values")
+    ![Adding tag values](../images/add-tag-values.png "Adding tag values")
 
     *Adding tag values*
 
@@ -65,7 +65,7 @@ The **Projects without tags** window appears. It contains all projects that have
 
 Please note that only projects currently opened by the user can be modified. If a project exists in the repository but is not opened for the current user, it will appear in the pop-up but will be grayed out and cannot be selected.
 
-![](../images/apply-tags-window.png "Applying tags for projects matching project name templates")
+![Applying tags for projects matching project name templates.](../images/apply-tags-window.png "Applying tags for projects matching project name templates")
 
 *Applying tags for projects matching project name templates.*
 

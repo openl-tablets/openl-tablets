@@ -6,6 +6,6 @@ To send a notification, enter the message text in the **Message** field and clic
 
 To remove the notification for all users and instances, click **Clear**.
 
-![](../images/notification-red-bar.png "Red bar identifying a notification sent to all active users and instances")
+![Red bar identifying a notification sent to all active users and instances](../images/notification-red-bar.png "Red bar identifying a notification sent to all active users and instances")
 
 *Red bar identifying a notification sent to all active users and instances*

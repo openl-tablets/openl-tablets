@@ -25,7 +25,7 @@ To view a list of users, proceed as follows:
 
    The system displays a list of OpenL Studio users.
 
-   ![](../../images/users-list.png "Users list in the Users tab")
+   ![Users list in the Users tab](../../images/users-list.png "Users list in the Users tab")
 
    *Users list in the* **Users** *tab*
 
@@ -54,7 +54,7 @@ To view a list of users, proceed as follows:
       groups are shown individually or collapsed into a **+N** badge indicating the count of unmatched groups. Clicking
       the badge expands the full list.
 
-   ![](../../images/users-list-group-colors.png "Users list showing color-coded group membership")
+   ![Users list showing color-coded group membership](../../images/users-list-group-colors.png "Users list showing color-coded group membership")
 
    *Users list showing color-coded group membership*
 
@@ -72,7 +72,7 @@ To create a new user, proceed as follows:
 
    The system displays the **Add User** form.
 
-   ![](../../images/create-user-form.png "Creating a user")
+   ![Creating a user](../../images/create-user-form.png "Creating a user")
 
    *Creating a user*
 
@@ -108,7 +108,7 @@ To create a new user, proceed as follows:
 The system displays the new user in the **Users** list. If the username and password values are the same, an exclamation
 mark is displayed next to the username. A user can change the password to improve security.
 
-![](../../images/user-matching-password.png "User list with a password security warning")
+![User list with a password security warning](../../images/user-matching-password.png "User list with a password security warning")
 
 *User list with a password security warning*
 

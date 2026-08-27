@@ -50,7 +50,7 @@ To filter projects by name, enter the name in the filter text box. All projects 
 
 To group projects by repository or tag types, click the **Group Projects** icon ![](images/group-projects-icon.png)and select the required values. Please note that values of tags for grouping are taken from the most recent version of a project. If user has changed project tags in an opened project, a project is required to be saved in order for a change to be reflected in a tree. For more information on tag definition for a project, see [Managing Tags](administration/06-tags.md#managing-tags).
 
-![](images/projects-grouped-by-tags.jpeg)
+![Grouping projects by tags](images/projects-grouped-by-tags.jpeg)
 
 *Grouping projects by tags*
 
@@ -153,7 +153,7 @@ A custom project template can be created and then used during new projects defin
 
     For example, `\<OPENL_HOME>\project-templates\My Custom Templates\MyRule1\rating.xlsx` will be presented as the **MyRule1** template project in the `My Custom Templates` category containing the `rating.xlsx` file.
 
-    ![](images/create-custom-project-template.jpeg)
+    ![Creating a custom project template](images/create-custom-project-template.jpeg)
 
     *Creating a custom project template*
 
@@ -279,7 +279,7 @@ A new project may already contain tag values. This can happen, for instance, whe
 
 If the project contains tags that cannot be applied, a **Missing tags** pop-up window is displayed. This window lists the tag values, explains why they cannot be applied, and indicates what will happen next. If a tag type is not configured in OpenL Studio, the corresponding tag will be ignored. If a tag value is not permitted, a follow-up dialog prompts the user to enter a valid value.
 
-![](images/missing-tags-popup.png)
+![Some tags are not configured properly](images/missing-tags-popup.png)
 
 *Some tags are not configured properly*
 
@@ -291,7 +291,7 @@ Default tag values are determined in the following order:
 2. If a tag value can be derived from the project name templates, it is applied.
 3. Otherwise, **None** is set as the default.
 
-![](images/select-project-tags-dialog.jpeg)
+![Selecting project tags](images/select-project-tags-dialog.jpeg)
 
 *Selecting project tags*
 
@@ -339,7 +339,7 @@ To open a project revision using the **Open Revision** button, proceed as follow
     A revision is listed by its number, followed by the author and the time it was created,
     so revisions made moments apart can be told apart.
 
-    ![](images/open-project-revision-dialog.png)
+    ![Opening a project revision using the Open Revision button](images/open-project-revision-dialog.png)
 
     *Opening a project revision using the Open Revision button*
 
@@ -354,7 +354,7 @@ To open a project revision using the **Revisions** tab, proceed as follows:
 
     A list of revisions appears.
 
-    ![](images/project-revisions-list.jpeg)
+    ![List of project revisions](images/project-revisions-list.jpeg)
 
     *List of project revisions*
 
@@ -387,7 +387,7 @@ To save a project, proceed as follows:
 
     The **Save changes** window appears:
 
-    ![](images/save-project-changes-dialog.jpeg)
+    ![Save changes in a project](images/save-project-changes-dialog.jpeg)
 
     *Save changes in a project*
 
@@ -401,7 +401,7 @@ An editable project can be saved and closed directly from Rules Editor as descri
 
 Each rule project has a set of properties displayed in the **Properties** tab when a project is selected.
 
-![](images/project-properties-tab.jpeg)
+![Project properties](images/project-properties-tab.jpeg)
 
 *Project properties*
 
@@ -457,7 +457,7 @@ To upload a file to a project folder, proceed as follows:
 
     The **Upload File** window appears:
 
-    ![](images/upload-file-dialog.png)
+    ![Uploading a file](images/upload-file-dialog.png)
 
     *Uploading a file*
 
@@ -482,13 +482,13 @@ To delete a folder or a file in the project structure, proceed as follows:
 1.  Perform one of the following steps as required:
     -   Expand the project tree, select the folder or file to be deleted and, in the right pane, click **Delete**.
 
-    ![](images/delete-project-element-button.png)
+    ![Deleting a project element](images/delete-project-element-button.png)
 
     *Deleting a project element*
 
     -   To delete an element inside the parent folder, select that folder, click **Elements** to expand the folder and then click **Delete** ![](images/delete-element-icon.png)at the right of the item to be deleted.
 
-    ![](images/delete-project-element-from-elements-tab.png)
+    ![Deleting project elements from the Elements tab](images/delete-project-element-from-elements-tab.png)
 
     *Deleting project elements from the* **Elements** *tab*
 
@@ -507,7 +507,7 @@ A user can create a copy of a file using the Repository Editor. The current revi
 4.  Optionally, enter the **New File Path** property value.
 5.  In the **New File Name** field, enter the file name.
 
-    ![](images/copy-file-in-repository-dialog.png)
+    ![Copying a file in Repository Editor](images/copy-file-in-repository-dialog.png)
 
     *Copying a file in Repository Editor*
 
@@ -579,7 +579,7 @@ To deploy a project, proceed as follows:
 
     The **Deploy "&lt;Project Name&gt;" project** dialog appears.
 
-    ![](images/deploy-project-popup.png)
+    ![Deploy project dialog](images/deploy-project-popup.png)
 
     *Deploy project dialog*
 
@@ -634,7 +634,7 @@ Proceed as follows:
 
     The selected rules are displayed in the **Rules Deploy Configuration** tab.
 
-    ![](images/rules-deploy-configuration-settings.png)
+    ![Defining rules deploy configuration settings](images/rules-deploy-configuration-settings.png)
 
     *Defining rules deploy configuration settings*
 
@@ -644,7 +644,7 @@ OpenL Studio supports versioning definition for rule services. This functionalit
 
 To check the services version deployment, in OpenL Tablets Rule Services, find the name of the deployed project. Services version is set both in the services header and in the services URL.
 
-![](images/services-version-header.png)
+![Services header and URL with the version number](images/services-version-header.png)
 
 *Services header and URL with the version number*
 
@@ -661,7 +661,7 @@ To define the rule service version, proceed as follows:
 
     For example, to create the services version 1.0, Major = 1 and Minor = 0 must be selected.
 
-    ![](images/services-versioning-settings.png)
+    ![Defining services versioning](images/services-versioning-settings.png)
 
     *Defining services versioning*
 
@@ -679,7 +679,7 @@ To compare contents of the currently opened project revision with any other revi
 
         A window appears listing contents of the currently opened project version on the left side and contents of another project revision on the right side.
 
-    ![](images/compare-project-revisions.png)
+    ![Comparing the current project revision from user workspace to the second project revision](images/compare-project-revisions.png)
 
     *Comparing the current project revision from user workspace to the second project revision*
 
@@ -703,7 +703,7 @@ To export any revision of a file from Repository, proceed as follows:
 3.  In the right pane, click **Export file**.
 4.  In the displayed window, select the required file revision and click **Export**.
 
-![](images/export-file-from-project.png)
+![Exporting a file from a project](images/export-file-from-project.png)
 
 *Exporting a file from a project*
 
@@ -751,7 +751,7 @@ A deployed project keeps no reference back to where it came from, so its design 
 
 The indexing is controlled by the `repository.cache.monitor.enabled` property. Switching it off leaves the **Revision in Design Repository** column empty for every deployed project.
 
-![](images/deployment-repository-deployed-projects.png)
+![Deployment repository with deployed projects](images/deployment-repository-deployed-projects.png)
 
 *Deployment repository with deployed projects*
 
