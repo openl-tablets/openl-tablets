@@ -774,7 +774,7 @@ export const ProjectsHome = () => {
     }
 
     return (
-        <div className={shared.page} data-testid="projects-home">
+        <div className={cx(shared.page, shared.listPageRoot)} data-testid="projects-home">
             <ProjectsRail
                 onOpenGroup={openGroup}
                 onOpenProject={openProject}

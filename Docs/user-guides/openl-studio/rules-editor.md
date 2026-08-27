@@ -168,9 +168,11 @@ To compare module versions, proceed as follows:
 
 1.  In the **Projects** tree, select the module.
 2.  In the top line menu, select **More** **\>** **Local** **Changes**.
-    The **Local** **Changes** page appears displaying all module versions, with the latest versions on the top.
+    The **Local** **Changes** page appears displaying the selected module's local versions, with the latest
+    versions on the top. In a multi-module project, switching modules shows the local history stored for that
+    module only.
 
-    ![](images/local-changes-window.jpeg)
+    ![Local changes for the selected module](images/local-changes-window.png "Local changes for the selected module")
 
     *Displaying the Changes window*
 

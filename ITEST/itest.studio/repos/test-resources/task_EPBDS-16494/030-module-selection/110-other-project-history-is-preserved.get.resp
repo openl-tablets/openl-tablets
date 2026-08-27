@@ -1,0 +1,14 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "***_current",
+    "modifiedOn": "***",
+    "current": true
+  },
+  {
+    "id": "Revision Version",
+    "modifiedOn": "Revision Version"
+  }
+]
