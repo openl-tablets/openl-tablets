@@ -248,6 +248,9 @@ This section summarizes changes that may require action before or after upgradin
   longer resolve.
 * **Manual project import is removed** — Importing a project from a repository is superseded by automatic project
   detection.
+* **The username in Single-User mode comes from the operating system** — In Single-User mode OpenL Studio signs in
+  the account that runs the server, where it signed in `DEFAULT` before. To keep the previous username, set
+  `security.single.username` explicitly.
 * **The project descriptor size limit is 1 MB** — A `rules.xml` above 1 MB is refused, where the previous limit was
   16 MB.
 * **gRPC is no longer a dependency** — The obsolete Studio AI search integration is removed together with its gRPC
