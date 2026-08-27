@@ -105,13 +105,11 @@ Projects represented as Examples and Tutorials can be used not only to learn how
 
 To create a new project from template, proceed as follows:
 
-1.  In the top line menu, click **Create Project**.
+1.  Click **+ New Project**.
 
-    The **Create Project from** window appears.
+    The **Create project** dialog appears.
 
-1.  Clicks the **Template** tab.
-
-    **Note:** This tab is normally selected by default.
+1.  Click **From template**.
 
     All project templates are organized into three areas: Simple Templates, Examples and Tutorials described above in this topic.
 
@@ -165,8 +163,8 @@ A rule project in the Design repository can be created by loading one or more Ex
 
 Proceed as follows:
 
-1.  Click **Create Project** in the top line menu.
-2.  In the **Create Project from** dialog, click the **Excel Files** tab.
+1.  Click **+ New Project**.
+2.  In the **Create project** dialog, click **From Excel files**.
 3.  Click the **Add** button, locate the necessary Excel file in a file system and click **Open**.
 4.  If required, repeat the previous step to add more files for the project.
 
@@ -200,8 +198,8 @@ The OpenAPI file must have a valid structure and a JSON, YAML(YML) extension.
 
 To create a project from the OpenAPI file, proceed as follows:
 
-1.  Click **Create Project** in the top line menu.
-2.  In the **Create Project from** window, click the **OpenAPI** tab.
+1.  Click **+ New Project**.
+2.  In the **Create project** dialog, click **From OpenAPI**.
 3.  Click **Add**, select the required OpenAPI file in a file system, and double click it or click **Open**.
 4.  To remove an uploaded file, click **Clear**.
 
@@ -228,8 +226,8 @@ ZIP is the only supported archive format — `.rar` or `.7z` archives cannot be 
 
 The archive must also arrive in full. OpenL Studio reads the directory the archive keeps at its end, so an upload that was cut short is rejected instead of becoming a project with part of its content, and checks the files the archive carries against the checksums recorded for them. An archive that unpacks to more than 2 GB keeps the first check and skips the checksums, so that verifying it cannot itself be turned into an attack.
 
-1.  Click **Create Project** in the top line menu.
-1.  In the **Create Project from** dialog, click the **Zip Archive** tab.
+1.  Click **+ New Project**.
+1.  In the **Create project** dialog, click **From archive**.
 1.  Choose **Archive** or **Folder**, click the **Add** button, locate the necessary zip archive or project folder, and click **Open**.
 
     ![Configuring an archive project and its target branch](images/create-project-from-zip-dialog.png "Creating a project from a ZIP file")
@@ -257,8 +255,8 @@ If tag types are defined as described in the [Managing Tags](administration/06-t
 
 A new project can be created in Design repository by loading a project with the **Local** status from user workspace.
 
-1.  Click **Create Project** in the top line menu.
-2.  In the **Create Project from** dialog, click the **Workspace** tab.
+1.  Click **+ New Project**.
+2.  In the **Create project** dialog, click **From workspace**.
 
     The system displays rule projects available in the workspace:
 
@@ -520,11 +518,11 @@ The newly created file appears in the file tree.
 ### Copying a Project
 
 Copying a project creates a new project with identical contents and a different name in Design repository. A copy can
-be created from the **Create Project** wizard or from the selected project's **Copy** action.
+be created from the **Create project** dialog or from the selected project's **Copy** action.
 
-To copy a project from the **Create Project** wizard, proceed as follows:
+To copy a project from the **Create project** dialog, proceed as follows:
 
-1.  Click **Create Project** and select **Copy project**.
+1.  Click **+ New Project** and select **Copy project**.
 2.  Select the source project and enter the new project name.
 3.  Select the target repository.
 4.  For a branch-capable repository, select an existing branch or enter a new branch name in the single **Branch**
@@ -534,7 +532,7 @@ To copy a project from the **Create Project** wizard, proceed as follows:
 
 ![Configuring a project copy and its target branch](images/copy-project-dialog.png "Copying a project")
 
-*Copying a project in the Create Project wizard*
+*Copying a project in the Create project dialog*
 
 To copy the selected project, proceed as follows:
 

@@ -18,7 +18,7 @@ Repository](administration/01-repository-settings/02-git-repository-settings.md#
 
 Proceed as follows:
 
-1.  In the repository, click **Create Project** and select a creation method.
+1.  In the repository, click **+ New Project** and select a creation method.
 1.  Select a branch-capable Design repository.
 1.  In the single **Branch** field, select an existing branch from the suggestions or enter a valid new branch name.
 1.  Complete the remaining fields and click **Create**.
@@ -60,7 +60,7 @@ the branch menu is opened. Proceed as follows:
 
     ![Viewing the Git branches that contain a project](images/view-project-branches.png "Viewing project branch membership")
 
-    To create a copy in another branch, use **Create Project** > **Copy Project** and select the target branch.
+    To create a copy in another branch, use **+ New Project** > **Copy project** and select the target branch.
     To remove a project from a branch, switch the project to that branch and use **Delete**.
 
 1.  To delete a non-default branch, switch to this branch in the project properties and click **Delete Branch.**
