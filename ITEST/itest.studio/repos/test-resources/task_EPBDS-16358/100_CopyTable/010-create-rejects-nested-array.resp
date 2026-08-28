@@ -8,7 +8,7 @@ Content-Type: application/json
       "code": "openl.error.CellValueConstraint",
       "message": "*",
       "field": "table.source[3][1].value",
-      "rejectedValue": ["R1"]
+      "rejectedValue": [["R1"]]
     }
   ]
 }

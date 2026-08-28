@@ -1,0 +1,16 @@
+POST /rest/projects/{PROJECT_NAME}/tables/{TABLE_ID}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "update",
+  "target": {
+    "type": "range",
+    "row": 2,
+    "column": 0,
+    "cells": [
+      [{"value": "Array attributes"}, {"value": "Expected first"}],
+      [{"value": ["range-a", "range-b"]}, {"value": "range-a"}]
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "projectId": "***",
+  "branch": "master",
+  "revision": "***",
+  "compileState": "ok",
+  "lastModifiedBy": {
+    "author": "***",
+    "date": "***"
+  },
+  "compilation": {
+    "messages": {
+      "total": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "modules": {
+      "compiledModules": "***",
+      "total": 2,
+      "compiled": 2
+    },
+    "tests": {
+      "total": 1
+    }
+  },
+  "pendingChanges": {
+    "total": 3,
+    "files": [
+      {
+        "path": "EPBDS-16509-CellArrays/rules.xml",
+        "type": "added"
+      },
+      {
+        "path": "EPBDS-16509-CellArrays/rules/ArrayDefaults.xlsx",
+        "type": "added"
+      },
+      {
+        "path": "EPBDS-16509-CellArrays/Main.xlsx",
+        "type": "modified"
+      }
+    ]
+  }
+}

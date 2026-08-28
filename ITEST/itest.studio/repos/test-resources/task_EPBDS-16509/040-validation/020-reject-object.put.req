@@ -1,0 +1,13 @@
+PUT /rest/projects/{PROJECT_NAME}/tables/{TABLE_ID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "RawSource",
+  "source": [
+    [{"value": "Test first attributesTest"}, {"value": null}],
+    [{"value": "attributes"}, {"value": "_res_"}],
+    [{"value": "Attributes"}, {"value": "Result"}],
+    [{"value": [{"unsupported": true}]}, {"value": "alpha"}]
+  ]
+}

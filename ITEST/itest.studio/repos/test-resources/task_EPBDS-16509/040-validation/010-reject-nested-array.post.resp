@@ -1,0 +1,14 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.CellValueConstraint",
+      "message": "The cell value must be a string, a number, a boolean or a representable array of these values. An array must not be empty or contain blank strings or surrounding whitespace, and a one-element array must not contain null.",
+      "field": "target.value",
+      "rejectedValue": [["nested"]]
+    }
+  ]
+}

@@ -60,10 +60,17 @@ class RawTableValidationTest {
     }
 
     @Test
-    void rejectsNonScalarCellInAppendMatrix() {
+    void acceptsArrayCellInAppendMatrix() {
         var append = new RawTableAppend();
         append.setRows(List.of(List.of(RawTableCell.builder().value(List.of(1, 2)).build())));
-        assertEquals(1, validator.validate(append).size(), "a JSON array cell value is rejected");
+        assertTrue(validator.validate(append).isEmpty(), "a JSON array cell value is accepted");
+    }
+
+    @Test
+    void rejectsNestedArrayCellInAppendMatrix() {
+        var append = new RawTableAppend();
+        append.setRows(List.of(List.of(RawTableCell.builder().value(List.of(List.of(1, 2))).build())));
+        assertEquals(1, validator.validate(append).size(), "a nested JSON array cell value is rejected");
     }
 
     @Test

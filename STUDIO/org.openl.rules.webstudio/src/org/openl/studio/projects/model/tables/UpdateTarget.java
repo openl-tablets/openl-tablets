@@ -69,8 +69,10 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             @NotNull
             @Min(0)
             Integer column,
-            @Schema(description = "New cell value: a string, a number or a boolean. Null clears the cell.",
-                    oneOf = {String.class, Number.class, Boolean.class})
+            @Parameter(description = """
+                    New cell value: a string, a number, a boolean or a one-dimensional array of these values. \
+                    Null clears the cell.""")
+            @Schema(oneOf = {NullableCellValueSchema.class, Number.class, Boolean.class, CellValueArraySchema.class})
             @CellValueConstraint
             @Nullable Object value) implements UpdateTarget {
     }

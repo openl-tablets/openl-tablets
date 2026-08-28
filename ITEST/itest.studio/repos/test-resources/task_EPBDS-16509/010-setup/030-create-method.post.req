@@ -1,0 +1,17 @@
+POST /rest/projects/{PROJECT_NAME}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "TestMethod",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Method",
+    "name": "first",
+    "source": [
+      [{"value": "Method String first(String[] attributes)"}],
+      [{"value": "attributes[0]"}]
+    ]
+  }
+}

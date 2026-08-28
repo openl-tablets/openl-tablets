@@ -13,7 +13,7 @@ Content-Type: application/json
       [{"value": "Rules Double BankLimitIndexCopy (String bank, String bankRatingGroup)", "colspan": 3}, {"value": null, "covered": true}, {"value": null, "covered": true}],
       [{"value": "Rule"}, {"value": "C1"}, {"value": "RET1"}],
       [{"value": null}, {"value": "String[]"}, {"value": null}],
-      [{"value": 7}, {"value": ["R1"]}, {"value": 1}]
+      [{"value": 7}, {"value": [["R1"]]}, {"value": 1}]
     ]
   }
 }

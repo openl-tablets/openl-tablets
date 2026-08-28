@@ -43,11 +43,14 @@ import org.openl.studio.projects.model.tables.UpdateTarget;
  *   <li>Cleans up removed rows automatically
  * </ul>
  * <p>
- * The source matrix is written directly without interpretation:
+ * The source matrix is written uniformly without mapping it to a typed table DTO:
  * <ul>
- *   <li>Cell values are written as-is (Object type)
+ *   <li>Cell values are validated as supported scalars or one-dimensional scalar arrays
+ *   <li>Context-parsed arrays are converted to their canonical workbook representation
+ *   <li>Enum arrays preserve null positions and use constant names
+ *   <li>Date arrays use the Excel format, workbook date system, and server locale, or lossless ISO for General cells
  *   <li>Merge information (colspan/rowspan) is implicit in the matrix structure
- *   <li>No type validation or schema interpretation is performed
+ *   <li>No table-kind-specific header or body schema is interpreted
  *   <li>Works with any table type (Data, Test, Spreadsheet, etc.)
  * </ul>
  * <p>
