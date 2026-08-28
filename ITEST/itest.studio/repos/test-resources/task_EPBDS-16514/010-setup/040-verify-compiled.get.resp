@@ -1,0 +1,40 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "projectId": "***",
+  "branch": "master",
+  "revision": "***",
+  "compileState": "ok",
+  "lastModifiedBy": {
+    "author": "***",
+    "date": "***"
+  },
+  "compilation": {
+    "messages": {
+      "total": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "modules": {
+      "compiledModules": [
+        "Main"
+      ],
+      "total": 1,
+      "compiled": 1
+    },
+    "tests": {
+      "total": 0
+    }
+  },
+  "pendingChanges": {
+    "total": 1,
+    "files": [
+      {
+        "path": "EPBDS-16514-MetaRows/Main.xlsx",
+        "type": "modified"
+      }
+    ]
+  }
+}
+
