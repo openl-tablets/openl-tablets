@@ -1,0 +1,99 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "*",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "pos": "B4:F16",
+  "source": [
+    [
+      {
+        "cell": "B13",
+        "value": 23,
+        "rowspan": 2
+      },
+      {
+        "cell": "C13",
+        "value": 27
+      },
+      {
+        "cell": "D13",
+        "value": "Inserted"
+      },
+      {
+        "cell": "E13",
+        "value": "row1-extra-a"
+      },
+      {
+        "cell": "F13",
+        "value": "row1-extra-b"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C14",
+        "value": 28
+      },
+      {
+        "cell": "D14",
+        "value": "Inserted2"
+      },
+      {
+        "cell": "E14",
+        "value": "row2-extra-a"
+      },
+      {
+        "cell": "F14",
+        "value": "row2-extra-b"
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": 24,
+        "rowspan": 2
+      },
+      {
+        "cell": "C15",
+        "value": 30
+      },
+      {
+        "cell": "D15",
+        "value": "Late"
+      },
+      {
+        "cell": "E15"
+      },
+      {
+        "cell": "F15"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C16",
+        "value": 36
+      },
+      {
+        "cell": "D16",
+        "value": "VeryLate"
+      },
+      {
+        "cell": "E16"
+      },
+      {
+        "cell": "F16",
+        "value": "tail"
+      }
+    ]
+  ],
+  "totalRows": 13
+}
+

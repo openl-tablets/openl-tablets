@@ -26,7 +26,8 @@ public sealed interface InsertTarget permits InsertTarget.Rows, InsertTarget.Col
     @Schema(name = "InsertRows", description = """
             Inserts one or more rows at the given position, shifting the rows at \
             and below it down. The first row is the header, so the position must be between 1 and the table height \
-            (height appends to the end). Each new row must be exactly as wide as the table.""")
+            (height appends to the end). Each new row must be exactly as wide as the table. A rowspan may cover later \
+            rows from the same insert block.""")
     record Rows(
             @Schema(description = "0-based index the first new row will occupy (1..height; height appends to the end).")
             @NotNull
@@ -35,7 +36,8 @@ public sealed interface InsertTarget permits InsertTarget.Rows, InsertTarget.Col
             @NotEmpty
             @Parameter(description = """
                     New rows top to bottom, each a list of cells left to right. A cell may set \
-                    colspan/rowspan to merge. Each row must be exactly as wide as the table.""")
+                    colspan/rowspan to merge. Mark covered positions with `covered: true`. Each span must fit the \
+                    table after the complete block is inserted, and each row must be exactly as wide as the table.""")
             List<List<@Valid RawCellInput>> cells) implements InsertTarget {
     }
 
@@ -43,7 +45,7 @@ public sealed interface InsertTarget permits InsertTarget.Rows, InsertTarget.Col
             Inserts one or more columns at the given position, shifting the \
             columns at and to the right of it. The first column carries the leading labels, so the position must be \
             between 1 and the table width (width appends to the end). Each new column must be exactly as tall as the \
-            table.""")
+            table. A colspan may cover later columns from the same insert block.""")
     record Columns(
             @Schema(description = "0-based index the first new column will occupy (1..width; width appends to the end).")
             @NotNull
@@ -52,7 +54,8 @@ public sealed interface InsertTarget permits InsertTarget.Rows, InsertTarget.Col
             @NotEmpty
             @Parameter(description = """
                     New columns left to right, each a list of cells top to bottom. A cell may set \
-                    colspan/rowspan to merge. Each column must be exactly as tall as the table.""")
+                    colspan/rowspan to merge. Mark covered positions with `covered: true`. Each span must fit the \
+                    table after the complete block is inserted, and each column must be exactly as tall as the table.""")
             List<List<@Valid RawCellInput>> cells) implements InsertTarget {
     }
 
