@@ -501,6 +501,10 @@ complete block is added.
 Span regions declared in the same action must not overlap each other. An overlapping batch is rejected with a `400`
 response before its merge regions are applied.
 
+A raw read after an append or insert returns the added cells and their span structure even when the current compiled
+Datatype model does not yet include those cells. Cells outside that bound logical body are returned without
+Datatype-specific metadata until the table is rebound.
+
 Insert operations allocate the complete block before applying its inline merges. Existing rows or columns at and after
 the insertion position are shifted together and preserved; an inline merge does not expand when another item from the
 same request is inserted.

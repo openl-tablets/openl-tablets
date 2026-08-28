@@ -24,6 +24,12 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ParserUtils;
 
+/**
+ * Provides metadata for cells represented by the bound Datatype logical table.
+ *
+ * <p>Cells outside the bound logical body have no Datatype metadata. This can occur when the raw grid grows before
+ * the table is rebound.
+ */
 @Slf4j
 public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTableBoundNode> {
 
@@ -60,6 +66,9 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
             var temp = r;
             r = c;
             c = temp;
+        }
+        if (r >= logicalTable.getHeight()) {
+            return null;
         }
 
         if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.DEFAULT_COLUMN_TITLE), c) || Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.EXAMPLE_COLUMN_TITLE), c)) {
