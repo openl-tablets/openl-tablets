@@ -486,6 +486,25 @@ const newRows = [
 const success = await appendRows("DATA_Bank", newRows);
 ```
 
+### Appending and Inserting Structural Blocks
+
+The source action endpoint can append or insert one or more rows or columns in a single request:
+
+```text
+POST /rest/projects/{projectId}/tables/{tableId}/actions
+```
+
+For `append` and `insert` operations, a span in an earlier row or column may cover later rows or columns from the same
+request. Mark each covered position with `covered: true`. The span is validated against the table dimensions after the
+complete block is added.
+
+Span regions declared in the same action must not overlap each other. An overlapping batch is rejected with a `400`
+response before its merge regions are applied.
+
+Insert operations allocate the complete block before applying its inline merges. Existing rows or columns at and after
+the insertion position are shifted together and preserved; an inline merge does not expand when another item from the
+same request is inserted.
+
 ### Read-Write Cycle
 
 A complete example of reading a table, modifying it, and writing it back:

@@ -1,0 +1,39 @@
+POST /rest/projects/${PROJECT_NAME}/tables/{TABLE_ID}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "append",
+  "target": {
+    "type": "columns",
+    "cells": [
+      [
+        {"value": "Batch group", "colspan": 2},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null}
+      ],
+      [
+        {"covered": true},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": "tail"}
+      ]
+    ]
+  }
+}
+
