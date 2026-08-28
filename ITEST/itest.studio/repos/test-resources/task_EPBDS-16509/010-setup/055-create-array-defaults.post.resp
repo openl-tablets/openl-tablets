@@ -1,0 +1,11 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "ArrayDefaults",
+  "file": "***",
+  "pos": "B2:D4"
+}

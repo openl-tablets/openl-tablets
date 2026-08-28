@@ -1,5 +1,8 @@
 package org.openl.rules.table.actions;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -43,19 +46,43 @@ public class UndoableSetValueAction extends AUndoableCellAction {
     }
 
     private Object convertToCellType(Object value) {
-        if (!(value instanceof String)) {
-            return value;
-        }
         var metaInfo = metaInfoWriter.getMetaInfo(getRow(), getCol());
         if (metaInfo != null && metaInfo.getDataType() != null) {
             var targetType = metaInfo.getDataType().getInstanceClass();
-            try {
-                return String2DataConvertorFactory.getConvertor(targetType).parse((String) value, null);
-            } catch (Exception ignored) {
-                return value;
+            if (metaInfo.isMultiValue() && value instanceof Object[] values) {
+                return convertMultiValue(values, targetType);
             }
+            return convertToType(value, targetType);
         }
         return value;
+    }
+
+    private static Object convertMultiValue(Object[] values, Class<?> targetType) {
+        var convertedValues = new Object[values.length];
+        var canUseTargetArrayType = !targetType.isPrimitive();
+        for (var i = 0; i < values.length; i++) {
+            convertedValues[i] = convertToType(values[i], targetType);
+            if (convertedValues[i] != null && !targetType.isInstance(convertedValues[i])) {
+                canUseTargetArrayType = false;
+            }
+        }
+        if (!canUseTargetArrayType) {
+            return convertedValues;
+        }
+        var typedValues = (Object[]) Array.newInstance(targetType, convertedValues.length);
+        System.arraycopy(convertedValues, 0, typedValues, 0, convertedValues.length);
+        return typedValues;
+    }
+
+    private static Object convertToType(Object value, Class<?> targetType) {
+        if (!(value instanceof String stringValue) || targetType == String.class) {
+            return value;
+        }
+        try {
+            return String2DataConvertorFactory.getConvertor(targetType).parse(stringValue, null);
+        } catch (Exception ignored) {
+            return value;
+        }
     }
 
     @Override
@@ -74,6 +101,12 @@ public class UndoableSetValueAction extends AUndoableCellAction {
             return null;
         }
         var prevMetaInfo = getPrevMetaInfo();
+        if (prevMetaInfo != null
+                && prevMetaInfo.isMultiValue()
+                && value instanceof Object[] values
+                && matchesMultiValueType(values, prevMetaInfo)) {
+            return removeNodeUsage(prevMetaInfo);
+        }
         IOpenClass newType = JavaOpenClass.getOpenClass(value.getClass());
         if (prevMetaInfo != null && prevMetaInfo.getDataType() != null && prevMetaInfo.getDataType().equals(newType)) {
             return removeNodeUsage(prevMetaInfo);
@@ -97,6 +130,17 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         }
 
         return new CellMetaInfo(newType, multiValue);
+    }
+
+    private static boolean matchesMultiValueType(Object[] values, CellMetaInfo metaInfo) {
+        var dataType = metaInfo.getDataType();
+        if (dataType == null) {
+            return false;
+        }
+        var elementType = dataType.getInstanceClass();
+        return Arrays.stream(values)
+                .allMatch(value -> value == null ? !elementType.isPrimitive()
+                        : ClassUtils.isAssignable(value.getClass(), elementType));
     }
 
     /**

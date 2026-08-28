@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "attributesTest",
+  "pos": "B2:C5",
+  "source": [
+    [{"cell": "B2", "value": "Test first attributesTest"}, {"cell": "C2"}],
+    [{"cell": "B3", "value": "attributes"}, {"cell": "C3", "value": "_res_"}],
+    [{"cell": "B4", "value": "Attributes"}, {"cell": "C4", "value": "Result"}],
+    [{"cell": "B5", "value": ["row-a", "row-b"]}, {"cell": "C5", "value": "row-a"}]
+  ]
+}

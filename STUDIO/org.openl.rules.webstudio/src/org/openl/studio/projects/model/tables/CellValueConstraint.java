@@ -9,10 +9,13 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 /**
- * Restricts a cell value to a type that can be written into a table cell: a string, a number or a boolean.
+ * Restricts a cell value to a type that can be written into a table cell: a string, a number, a boolean, a date or a
+ * one-dimensional array of these values. Dates are internal grid values. JSON requests represent date values using
+ * string or number scalars.
  * <p>
- * A {@code null} value is allowed (it clears the cell). Objects and arrays are rejected, since the grid would only
- * store their {@code toString()} form as a cell of text.
+ * A {@code null} value is allowed (it clears the cell). Arrays must not be empty or consist of one null because the
+ * workbook format cannot distinguish those values from an empty cell. String elements must be non-empty and carry no
+ * surrounding whitespace because OpenL trims array elements. Objects and nested arrays are rejected.
  *
  * @author Vladyslav Pikus
  */

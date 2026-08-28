@@ -20418,6 +20418,77 @@ Content-Type: application/json
           }
         }
       },
+      "CellValueArraySchema": {
+        "oneOf": [
+          {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                }
+              ],
+              "pattern": "^\\S(?:[\\s\\S]*\\S)?$"
+            },
+            "maxItems": 1,
+            "minItems": 1
+          },
+          {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "nullable": true,
+                  "pattern": "^\\S(?:[\\s\\S]*\\S)?$"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "minItems": 2
+          }
+        ]
+      },
+      "CellValueMultipleArraySchema": {
+        "oneOf": [
+          {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\S(?:[\\s\\S]*\\S)?$"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          }
+        ]
+      },
+      "CellValueSingletonArraySchema": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          }
+        ],
+        "pattern": "^\\S(?:[\\s\\S]*\\S)?$"
+      },
       "ChangePasswordModel": {
         "type": "object",
         "properties": {
@@ -24962,17 +25033,20 @@ Content-Type: application/json
             "minimum": 1
           },
           "value": {
-            "type": "object",
             "description": "***",
             "oneOf": [
               {
-                "type": "string"
+                "type": "string",
+                "nullable": true
               },
               {
                 "type": "number"
               },
               {
                 "type": "boolean"
+              },
+              {
+                "$ref": "#/components/schemas/CellValueArraySchema"
               }
             ]
           }
@@ -25033,8 +25107,22 @@ Content-Type: application/json
             "$ref": "#/components/schemas/RawTableCellStyle"
           },
           "value": {
-            "type": "object",
-            "description": "***"
+            "description": "***",
+            "oneOf": [
+              {
+                "type": "string",
+                "nullable": true
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "$ref": "#/components/schemas/CellValueArraySchema"
+              }
+            ]
           }
         }
       },
@@ -27381,20 +27469,23 @@ Content-Type: application/json
                 "minimum": 0
               },
               "value": {
-                "type": "object",
-                "description": "***",
-                "oneOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "boolean"
-                  }
-                ]
-              }
+                  "description": "***",
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CellValueArraySchema"
+                    }
+                  ]
+                }
             }
           }
         ],

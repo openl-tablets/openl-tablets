@@ -1,0 +1,19 @@
+POST /rest/projects/{PROJECT_NAME}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "TestData",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Test",
+    "name": "attributesTest",
+    "source": [
+      [{"value": "Test first attributesTest"}, {"value": null}],
+      [{"value": "attributes"}, {"value": "_res_"}],
+      [{"value": "Attributes"}, {"value": "Result"}],
+      [{"value": "alpha, beta"}, {"value": "alpha"}]
+    ]
+  }
+}

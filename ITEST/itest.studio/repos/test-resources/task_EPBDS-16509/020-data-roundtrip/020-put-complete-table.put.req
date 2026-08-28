@@ -1,0 +1,19 @@
+PUT /rest/projects/{PROJECT_NAME}/tables/{TABLE_ID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "RawSource",
+  "kind": "Data",
+  "name": "ratings",
+  "source": [
+    [{"cell": "B2", "value": "Data Rating ratings", "colspan": 3}, {"covered": true}, {"covered": true}],
+    [{"cell": "B3", "value": "attributes"}, {"cell": "C3", "value": "effectiveDates"}, {"cell": "D3", "value": "countries"}],
+    [{"cell": "B4", "value": "Bank ratings"}, {"cell": "C4", "value": "Effective dates"}, {"cell": "D4", "value": "Countries"}],
+    [
+      {"cell": "B5", "value": ["C:\\", "ACME, Inc"]},
+      {"cell": "C5", "value": ["2050-01-02T03:04:05.678", "2051-02-03T04:05:06.789"]},
+      {"cell": "D5", "value": ["US", null, "UA"]}
+    ]
+  ]
+}

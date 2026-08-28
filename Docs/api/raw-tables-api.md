@@ -2,7 +2,11 @@
 
 ## Overview
 
-The Raw Tables API provides a way to read any table in its raw format as a 2D matrix of cells with merge information. Unlike the parsed APIs (Data Tables, Test Tables), the raw format does not parse table headers, determine data types, or validate structure - it simply returns the table as-is with cell merge metadata.
+The Raw Tables API represents any table as a 2D matrix of cells with merge information. Unlike the parsed APIs
+(Data Tables, Test Tables), it does not split the table into a typed header and body model or expose a field schema.
+It preserves the physical matrix while using available cell metadata to represent and round-trip typed multi-value
+cells. Write operations validate the raw value shapes and structural invariants that keep the matrix readable by
+OpenL.
 
 **Use Cases:**
 - Exporting tables in their original Excel structure
@@ -99,7 +103,8 @@ Represents the entire table in raw 2D matrix format as a structured view. Extend
 Represents a single cell in raw format with explicit span information.
 
 **Fields with OpenAPI Annotations:**
-- `value` (Object) - Cell value (null if covered by another cell's span)
+- `value` (Object) - Cell value: a string, number, boolean, or one-dimensional array of these values (null if covered
+  by another cell's span)
 - `colspan` (Integer) - Number of columns this cell spans (null if single column or covered)
 - `rowspan` (Integer) - Number of rows this cell spans (null if single row or covered)
 - `covered` (Boolean) - True if cell is masked by another cell's span
@@ -127,10 +132,29 @@ Span information is extracted from the underlying TableModel's rowspan/colspan. 
 - Cell (1,1): `{covered: true}` (masked by both spans)
 
 **Note:**
+
 - Fields with `null` values are excluded from JSON response due to `@JsonInclude(NON_NULL)` annotation
 - Covered cells appear in the matrix only with `{covered: true}`
 - Clients can detect merged regions by checking: `colspan > 1 || rowspan > 1`
 - Covered cells should be skipped when processing the matrix
+
+**Multi-value cells:**
+
+- A context-parsed multi-value cell is returned as a JSON array, for example
+  `{"value": ["MA2", "FA+", "SPA"]}`.
+- POST into existing or new modules, PUT, append, insert, and cell/row/column/range actions accept the same
+  one-dimensional array representation. The writer converts it to the scalar workbook representation used by the
+  cell's OpenL type, so a representable raw GET response can be submitted unchanged.
+- Array elements can be strings, numbers, booleans, or null. Commas and trailing backslashes in string elements are
+  preserved through the workbook representation. Null elements keep their positions, including in enum arrays.
+- When table metadata parses an array into typed values, PUT and source actions convert the JSON values back to that
+  element type. Enum elements are stored by their constant names. Dates use the cell's actual Excel date format,
+  workbook date system, and server locale consistently for formatting and parsing; a General-formatted cell uses the
+  lossless raw API ISO representation. An unchanged raw GET response therefore stays parseable after it is written
+  back.
+- Arrays must contain at least one element and cannot consist of a single null. String elements must be non-empty and
+  have no leading or trailing whitespace because OpenL trims array elements. Invalid arrays, JSON objects, and nested
+  arrays are rejected with a `400` validation response.
 
 ### JSON Example
 
@@ -369,13 +393,14 @@ curl -X PUT "http://localhost:8080/projects/MyProject/tables/DATA_Bank" \
 - Covered cells (marked with `covered: true`) are automatically skipped
 - Merge information (colspan/rowspan) is preserved implicitly through the matrix structure
 - Any rows in the original table beyond the source matrix size are automatically removed
-- No type validation or interpretation - raw values written as-is
+- Validates each value as a supported scalar or one-dimensional scalar array
+- Converts context-parsed arrays to their canonical workbook representation so raw GET responses round-trip
 
 **Key Characteristics:**
 - Works with any table type (Data, Test, Spreadsheet, etc.)
 - Preserves exact cell positioning and merge regions
 - Treats entire source matrix uniformly (including headers)
-- No schema interpretation or type conversion
+- Does not map headers or rows to a table-kind-specific schema; type conversion is limited to context-parsed arrays
 - Merge regions are applied after all values are written (two-phase)
 
 **Blank lines are refused:**
@@ -554,7 +579,7 @@ const success = await updateRawTable(modified);
 - Raw table can be read, modified, and written back without loss of structure
 - Covered cells are preserved in the matrix but skipped during writes
 - Merge information is maintained through colspan/rowspan fields
-- No type conversion or validation occurs
+- Cell values are validated, and context-parsed arrays are converted to their canonical workbook representation
 
 ### Comparing Parsed vs Raw Formats
 
@@ -705,7 +730,7 @@ curl -X GET "http://localhost:8080/projects/MyProject/tables/DATA_Bank?raw=false
 # Returns: DataView with typed fields
 
 curl -X GET "http://localhost:8080/projects/MyProject/tables/DATA_Bank?raw=true"
-# Returns: RawTableView with all cells as Object (no type info)
+# Returns: RawTableView with runtime JSON cell values instead of typed table fields
 ```
 
 ## Limitations
@@ -720,7 +745,7 @@ curl -X GET "http://localhost:8080/projects/MyProject/tables/DATA_Bank?raw=true"
 - ✅ Write/update tables in raw format
 - ✅ Preserve cell merging (colspan/rowspan)
 - ✅ Works with any table type
-- ✅ Full matrix control without type interpretation
+- ✅ Full matrix control without mapping the table to a typed header/body DTO
 
 ## Future Enhancements
 
