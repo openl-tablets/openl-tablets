@@ -38,10 +38,11 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 
 ## Open PR
 
-- #2058 on `dead-code/java-unused-members`, 3 commits.
+- #2058 on `dead-code/java-unused-members`, head `79074f5b73`, 3 commits, 2 files, 4 insertions / 8 deletions.
   - `9a074c89c3` Remove the never-read base folder normalization in MappedRepository — change type 7.
   - `f09316534a` Drop the unused base folder parameter of the project index scan — change type 11.
-  - third commit deletes `cxfServletStaticResourcesMap.txt` — change type 16.
+  - `79074f5b73` Delete the CXF static resources map orphaned by the RapiDoc migration — change type 16. Its
+    reachability was re-proved after the push; the description carries the argument, do not re-litigate it.
 - No review threads. CodeRabbit's "Docstring Coverage 33%" pre-merge warning is advisory and asks for additions,
   which a delete-only sweep never makes; ignore it, do not answer it again.
 
@@ -166,6 +167,13 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   the PMD plugin after the unique two-line anchor `</pluginManagement>` followed by `<plugins>`.
 - Removing an unused parameter of a PRIVATE method is a legitimate deletion, but it is change type 11, so it
   ships in its own commit even when the assignment that made it unused ships in the same PR.
+- A resource named by no file in the repository can still be loaded by a DEPENDENCY, by filename convention:
+  CXF's `AbstractHTTPServlet` reads `/WEB-INF/cxfServletStaticResourcesMap.txt`, then `/<same name>`. Before
+  deleting a config-shaped resource, grep the dependency jars for its base name, then prove the value it feeds is
+  never read — the loader existing is not the same as the value being used.
+- `ruleservice.ws` serves `resources/static/**` from `RuleServicesFilter`, typed by `ServletContext::getMimeType`.
+  Its `CXFServlet` sets no static-resources list, welcome file or redirect list, so CXF's own static-content path
+  is unreachable there.
 - `mvn -o dependency:analyze-only` after a reactor build costs about a minute and needs no recompilation. Triage
   its output by scope first: `provided` and `test` findings are the root POM's shared `<dependencies>` block
   inherited by every module, never a module's own declaration.
