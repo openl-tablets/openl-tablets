@@ -3,12 +3,12 @@
 ## Resume point
 
 PR #2058 is open on `dead-code/java-unused-members`; maintain it before anything else.
-Every change type in the queue is now closed. New work needs a NEW detector, not another pass of an old one:
-the only unswept surface left is `org.openl.rules.webstudio`, which cannot be compiled here (see
-*Human follow-ups*), so a Java deletion there is out of reach until that is fixed.
-Candidate next detectors, none tried yet: unreachable `.xhtml` fragments included only by a dead page, duplicate
-resource files, `web.xml` / `faces-config.xml` entries naming classes that no longer exist, and `Docs/` images
-referenced by no page.
+Every change type in the queue is closed. New work needs a NEW detector, not another pass of an old one: the
+only unswept surface left is `org.openl.rules.webstudio`, still uncompilable here (see *Human follow-ups*), so a
+Java deletion there stays out of reach.
+Ten detectors have now returned nothing; the repository is close to clean on everything provable by search.
+Candidate next detectors, none tried yet: `.xhtml` fragments included only by a dead page, unused `id` and
+`binding` attributes in webstudio pages, and Spring bean definitions no context imports.
 Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'` before cutting a branch.
 
 ## Change-type queue
@@ -30,13 +30,20 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 | 13 | Whole-type deadness in `.impl.` / internal packages | done, no finding (run 5) |
 | 14 | Dead TypeScript in `STUDIO/studio-ui` | done, no finding (runs 2-3) |
 | 15 | Unused `studio-ui` locale keys | done (run 3, 17 keys) |
+| 16 | Orphaned non-web resource files (config and data) | done (run 7, 1 shipped) |
+| 17 | Unused pom `<properties>` | done, no finding (run 7) |
+| 18 | Unused `studio-ui` npm dependencies | done, no finding (run 7) |
+| 19 | Unused `openl-default.properties` keys | done, no finding (run 7) |
+| 20 | Unused package-private methods and fields | done, no finding (run 7) |
 
 ## Open PR
 
-- #2058 on `dead-code/java-unused-members`, head `f09316534a`, 2 commits, 1 file, 4 insertions / 7 deletions.
+- #2058 on `dead-code/java-unused-members`, 3 commits.
   - `9a074c89c3` Remove the never-read base folder normalization in MappedRepository — change type 7.
   - `f09316534a` Drop the unused base folder parameter of the project index scan — change type 11.
-- No review threads yet.
+  - third commit deletes `cxfServletStaticResourcesMap.txt` — change type 16.
+- No review threads. CodeRabbit's "Docstring Coverage 33%" pre-merge warning is advisory and asks for additions,
+  which a delete-only sweep never makes; ignore it, do not answer it again.
 
 ## Merged PRs
 
@@ -71,6 +78,10 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 - `tooltip_skin-{blue,green,red}`, `tooltip_top_center`, `tooltip_top_left` in tableeditor `css/tooltip.css` —
   the widget's theming API; the single caller passes neither, so they are unreachable.
 - `iframe.iehack` in tableeditor `css/datepicker.css` — no producer, but the file is a vendored stylesheet.
+- `Docs/examples/production/` (33 files) and `Docs/production-deployment/` (32) are byte-identical apart from two
+  README files, and both are navigable. Collapsing them means repointing links, which a delete-only sweep may not do.
+- ~190 public accessors and static helpers in `DEV/**`, `STUDIO/**` and `WSFrontend/**` have their name in exactly
+  one place in the repository, their own declaration. All are published API, so none is deletable here.
 - `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, whose two classes never touch it, but
   `ruleservice.ws` and `ruleservice.ws.storelogdata` reach it transitively from there. Removing it needs a
   declaration added elsewhere, which a delete-only sweep may not do.
@@ -119,6 +130,12 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   (`expiration_options.7_days`), so such keys look dead in a token scan.
 - A composed lookup can still be guarded: `browser.${id}_confirm` fires only when `id === 'unlock'`, so
   `browser.delete_confirm` was dead despite matching the shape. Read the branch, not just the template.
+- A configuration key is reached by prefix composition (`"ruleservice." + "jackson.typingPropertyName"`) or by
+  `$ref` indirection from user settings, so its full literal appears nowhere else. Search the tail of the key too.
+- A markdown link is relative, so a grep for the path from the repository root misses it: `Docs/examples/index.md`
+  reaches `examples/production/` as `production/README.md`. Search a doc folder by its own name, not its full path.
+- In a Java signature regex, a greedy `[ \t]+` indent backtracks past a visibility keyword, so a `(?!public|...)`
+  lookahead silently admits public members. Reject the line by token instead of by lookahead.
 
 ## Method rules
 
@@ -175,6 +192,12 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 - `serviceDescriptionInProcess` in `ServiceManagerImpl` is published to other beans through
   `@Qualifier("serviceDescriptionInProcess")` getters; its assignments are a deployment protocol, not bookkeeping.
 - Fields in `tableeditor/taglib/*Tag.java` back JSP tag attributes declared in a `.tld`.
+- `META-INF/openl/extension-*.xml` files are pulled in by a wildcard `@ImportResource` in `ExtensionsConfiguration`,
+  so no file names one.
+- `openl-db-repository-<databaseCode>[-v<major>[.<minor>]].properties` and `-ext` are loaded by a name `Settings`
+  composes at runtime; the flyway `db/flyway/**/V*.sql` migrations are loaded by directory convention.
+- Convention files nothing names: `banner.txt` (filtered by the pom), `.claude/**`, `.github/workflows/*`,
+  `archetype-metadata.xml`, `CITATION.cff`, `Gemfile`, `compose.override.example.yaml`, `.idea/**`.
 - Runtime-only artifacts that `dependency:analyze` always calls unused: `jaxb-runtime`, `awssdk:sts`,
   `log4j-slf4j2-impl`, `hibernate-hikaricp`, the CXF `cxf-rt-*` feature and provider jars, and the Jackson
   artifacts the Azure repository pins.
@@ -247,6 +270,12 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 - PMD dead-code scan over the reactor except `org.openl.rules.webstudio` — 29 findings, all triaged.
 - `dependency:analyze-only` over the 51 analyzable modules — every compile-scope finding is a runtime provider or
   is consumed transitively by a dependent; nothing deletable.
+- Whole-file deadness over every non-image, non-web resource type outside test fixtures — `.xml`, `.properties`,
+  `.txt`, `.json`, `.yaml`, `.sql`, `.env`, `.csv`, `.vm`, `.tld`, `.groovy`, `.md`, plus a catch-all over every
+  remaining extension. One finding; every other hit is a convention file now on the keep-list.
+- All 114 pom `<properties>`, all 44 `studio-ui` npm dependencies and all 194 `openl-default.properties` keys.
+- All 474 package-private methods and 645 package-private fields in production sources: every name is referenced.
+- Identical-content duplicates across production files — only the two `Docs` example trees, which stay.
 
 ## Human follow-ups
 
@@ -257,12 +286,14 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   has no delete-branch tool, so this needs a human or the repo's auto-delete setting.
 - Decide on `DecisionTableBuilder.methodName` and `SimpleGroup.description`: both are dead private fields whose
   removal takes a public setter with them.
+- Collapse the duplicated deployment examples: `Docs/examples/production/` and `Docs/production-deployment/` hold
+  the same 32 files under two navigable paths, so every future edit has to be made twice.
 
 ## Run log
 
-- Run 4: unblocked Maven, built the whole reactor bar webstudio, and ran the first PMD scan — 39 findings,
-  triaged, none shipped: the build consumed the run. Closed row 11, moved rows 7-10 to ready.
 - Run 5: no code shipped. Closed rows 8, 10 and 13 as no-finding with repo-wide proof, re-ran PMD to exact line
   numbers, and found the two build/process facts that had been silently wasting runs.
 - Run 6: PR #2058 opened with the first Java deletions (rows 7 and 11). Closed rows 9 and 12 after proving both
-  are blocked by public API and by transitive consumption. Every change type in the queue is now closed.
+  are blocked by public API and by transitive consumption.
+- Run 7: five new detectors (rows 16-20); only one finding, the orphaned CXF static-resources map, shipped onto
+  #2058. Confirmed `build.shibboleth.net` is still unreachable, so webstudio stays unscannable.
