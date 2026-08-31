@@ -2,7 +2,7 @@
 
 ## Resume point
 
-Next run: maintain PR #2056 (branch `dead-code/studio-scripts`, 2 commits) — it is the only open sweep PR.
+Next run: no PR is open — #2056 merged. Cut a fresh branch off `origin/main`.
 Rows 7-13 stay blocked until Maven can resolve the root POM; check that first with `mvn validate -N`.
 If Maven works, do row 12 (Maven dependencies) before rows 7-11: one reactor build serves both.
 If Maven is still dead, the next search-provable vein is `.properties` keys outside STUDIO (DEV, WSFrontend,
@@ -31,14 +31,15 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 
 ## Open PR
 
-- `dead-code/studio-scripts`, PR #2056, head `2567278e87`.
-- `8dde444c34` Remove OpenL Studio locale keys no component looks up — 17 keys in three `*.en.ts` bundles.
-- `2567278e87` Drop the table editor CSS rule no markup applies — `.te_hidden` plus regenerated bundles.
+None. Cut the next branch from a freshly fetched `origin/main`.
 
 ## Merged PRs
 
 - #2054 — 2 commits, 12 lines, change types 1 and 5. Merged by yurkom with no review comments, which sets the
   precedent that a mechanical single-type resource sweep is accepted as-is.
+- #2056 — 2 commits, 30 deletions, change types 5 and 15. Merged within 35 minutes, no review comments;
+  CodeRabbit and the Sonar quality gate both clean. A locale-key batch spanning three bundles is accepted
+  as one commit.
 
 ## Module coverage
 
@@ -172,5 +173,5 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 - Run 1: built the queue, swept rows 1-5, shipped PR #2054 (2 commits, 12 lines) — merged same day.
 - Run 2: overlapped run 1 and duplicated its image finding; PR #2055 closed, no code shipped. Swept
   `ValidationMessages.properties`, `layout/*.css`, `common.js`/`bomjs.js` and the studio-ui exports — all clean.
-- Run 3: opened PR #2056 (2 commits, 30 deletions) — 17 dead locale keys and the `.te_hidden` rule. Closed
-  rows 5, 6 and 14 and added row 15. Maven still blocked by the shibboleth 403.
+- Run 3: PR #2056 (2 commits, 30 deletions) merged the same hour — 17 dead locale keys and the `.te_hidden`
+  rule. Closed rows 5, 6 and 14 and added row 15. Maven still blocked by the shibboleth 403.
