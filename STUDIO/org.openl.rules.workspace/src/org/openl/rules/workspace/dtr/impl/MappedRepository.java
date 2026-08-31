@@ -197,7 +197,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             delegate.setListener(() -> {
                 indexLock.writeLock().lock();
                 try {
-                    var updatedIndex = readExternalToInternalMap(delegate, baseFolder);
+                    var updatedIndex = readExternalToInternalMap(delegate);
                     indexCache.set(new ProjectIndexCache(updatedIndex));
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
@@ -640,13 +640,11 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      * Generate project index by scanning the repository.
      * The index is maintained only in memory and regenerated when needed.
      *
-     * @param delegate   original repository
-     * @param baseFolder virtual base folder. OpenL Studio will think that projects can be found in this folder.
+     * @param delegate original repository
      * @return generated mapping
      * @throws IOException if it was any error during operation
      */
-    private ProjectIndex readExternalToInternalMap(Repository delegate,
-                                                   String baseFolder) throws IOException {
+    private ProjectIndex readExternalToInternalMap(Repository delegate) throws IOException {
         var treeRevisionBefore = getRootTreeRevision(delegate);
         if (treeRevisionBefore != null) {
             var cached = indexesByTreeRevision.get(treeRevisionBefore);
@@ -797,7 +795,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     private void refreshMapping() {
         try {
-            var updatedIndex = readExternalToInternalMap(delegate, baseFolder);
+            var updatedIndex = readExternalToInternalMap(delegate);
             indexCache.set(new ProjectIndexCache(updatedIndex));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
