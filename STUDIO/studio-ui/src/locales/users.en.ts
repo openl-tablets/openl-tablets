@@ -70,9 +70,6 @@ i18next.addResourceBundle('en', 'users', {
         trace_settings: 'Trace Settings',
         show_numbers_without_formatting: 'Show Numbers Without Formatting',
     },
-    action: {
-        delete_user: 'Delete User',
-    },
     resend_verification_email: 'Resend Verification Email',
     resend_verification_email_timer: 'You can request a new email in {{seconds}} seconds.',
     email_verification_warning: 'Please verify your new email address. Check your mailbox for a verification link.',
