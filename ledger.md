@@ -2,12 +2,13 @@
 
 ## Resume point
 
-No PR is open; cut a fresh branch off `origin/main`. Maven works after the local POM edit in *Container facts* —
-start the reactor build as the FIRST action, in the background, with the FULL exclusion list (four modules, not
-one) given there. The previous two runs were consumed by that build; budget for it.
-Rows 7 and 9 are the only shippable Java work left, and *Deferred findings* already carries every finding with
-its exact file and line, so the next run can edit immediately and use the build purely as the verification gate.
-Ship row 7 first: exactly two of its nine findings are safe, both named in *Deferred findings*.
+PR #2058 is open on `dead-code/java-unused-members`; maintain it before anything else.
+Every change type in the queue is now closed. New work needs a NEW detector, not another pass of an old one:
+the only unswept surface left is `org.openl.rules.webstudio`, which cannot be compiled here (see
+*Human follow-ups*), so a Java deletion there is out of reach until that is fixed.
+Candidate next detectors, none tried yet: unreachable `.xhtml` fragments included only by a dead page, duplicate
+resource files, `web.xml` / `faces-config.xml` entries naming classes that no longer exist, and `Docs/` images
+referenced by no page.
 Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'` before cutting a branch.
 
 ## Change-type queue
@@ -20,19 +21,22 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 | 4 | Unused `.properties` keys (STUDIO bundles) | done, no finding (runs 1-2) |
 | 5 | Dead CSS rules | done for own stylesheets (runs 1, 3); vendor files stay |
 | 6 | Dead JS functions (own scripts) | done, no finding (runs 2-3) |
-| 7 | Never-read assignments (PMD `UnusedAssignment`) | ready — 9 found, 2 safe (run 5) |
+| 7 | Never-read assignments (PMD `UnusedAssignment`) | done (run 6, 1 shipped of 9) |
 | 8 | Unused local variables (PMD) | done, no deletable finding (run 5) |
-| 9 | Unused private fields (PMD) | ready — 19 found (run 5), 18 framework-bound |
+| 9 | Unused private fields (PMD) | done, no deletable finding (run 6) |
 | 10 | Unused private methods (PMD) | done, no finding (run 5) |
-| 11 | Unused formal parameters (PMD, private only) | no finding (runs 4-5); webstudio unscanned |
-| 12 | Unused declared Maven dependencies | blocked — needs the real root POM (see *Method rules*) |
+| 11 | Unused formal parameters (PMD, private only) | done (run 6, 1 shipped); webstudio unscanned |
+| 12 | Unused declared Maven dependencies | done, no deletable finding (run 6) |
 | 13 | Whole-type deadness in `.impl.` / internal packages | done, no finding (run 5) |
 | 14 | Dead TypeScript in `STUDIO/studio-ui` | done, no finding (runs 2-3) |
 | 15 | Unused `studio-ui` locale keys | done (run 3, 17 keys) |
 
 ## Open PR
 
-None. Cut the next branch from a freshly fetched `origin/main`.
+- #2058 on `dead-code/java-unused-members`, head `f09316534a`, 2 commits, 1 file, 4 insertions / 7 deletions.
+  - `9a074c89c3` Remove the never-read base folder normalization in MappedRepository — change type 7.
+  - `f09316534a` Drop the unused base folder parameter of the project index scan — change type 11.
+- No review threads yet.
 
 ## Merged PRs
 
@@ -44,40 +48,19 @@ None. Cut the next branch from a freshly fetched `origin/main`.
 
 ## Module coverage
 
-- Search-provable veins: nothing open. `DEV`, `WSFrontend`, `Util`, `ITEST`, `Docs`, `STUDIO/*` are swept for
-  every change type that needs no Maven.
-- `STUDIO/org.openl.rules.webstudio` has never been scanned by PMD — it is the one module that cannot be built
-  here. Its Java surface is the largest unswept area in the repository. PMD is source-only and would scan it,
-  but a Java deletion there could never be compile-verified in this container, so it stays out of scope.
+- Nothing open. Every module that builds here is swept for all 15 change types.
+- `STUDIO/org.openl.rules.webstudio` has never been scanned: it is the one module that cannot be built here, so
+  a Java deletion in it could never be compile-verified. Largest unswept area in the repository.
 
 ## Deferred findings
 
-Row 7 (`UnusedAssignment`, 9 findings) — SAFE TO DELETE, exactly two:
-- `STUDIO/.../workspace/dtr/impl/MappedRepository.java:650` — `baseFolder` is normalized and never read again.
-  Delete the assignment statement only; leave the parameter, since dropping it is a signature change.
-- `DEV/org.openl.rules/src/org/openl/rules/table/ui/CellStyle.java:16,19` — field initializers for
-  `horizontalAlignment` / `verticalAlignment`, overwritten in the only constructor. Confirm no second
-  constructor before deleting.
-
-Row 7 — DO NOT DELETE, and the reason is behavioral, not stylistic:
-- `WSFrontend/.../management/ServiceManagerImpl.java:228` — PMD names line 228, which is the load-bearing
-  assignment: `createService()` on the next line lets other beans read the marker through the
-  `@Qualifier("serviceDescriptionInProcess")` getters. The redundant twin is line 230, AFTER the call. Following
-  PMD here breaks service deployment.
-- `STUDIO/.../repository/git/GitRepository.java:3199,3234` — `result` is assigned in a `try` and re-assigned only
-  in `catch (FileNotFoundException)`; on the success path `getResult()` returns it. See *False-positive shapes*.
-- `DEV/.../spring/env/DynamicPropertySource.java:156` — field `settings`, same try/catch shape; verify the
-  success path before touching.
-- `DEV/org.openl.rules.test/src/.../RulesInFolderTestRunner.java:80,116` — `messagesCount` is reported as
-  "overwritten on line 72", i.e. BEFORE the flagged lines, so PMD's dataflow is reading a loop back-edge.
-
-Row 9 (`UnusedPrivateField`, 19 findings) — 18 are framework-bound and must NOT be deleted without reading the
-binding: 11 fields in tableeditor `taglib/TableEditorTag.java` and 7 in `taglib/TableViewerTag.java` back JSP tag
-attributes declared in a `.tld`. Only two are worth acting on: `methodName` in DEV
-`validation/properties/dimentional/DecisionTableBuilder.java:32` and `description` in
-`STUDIO/org.openl.security` `SimpleGroup.java:14` (check serialization on the latter first).
-
-Not code, kept for a maintainer:
+- `DecisionTableBuilder.methodName` (DEV `validation/properties/dimentional`) — private, written by the public
+  `setMethodName`, called from `TableSyntaxNodeDispatcherBuilder`, never read. Removing it removes a public
+  setter from `DEV/**`, which is public API.
+- `SimpleGroup.description` (`STUDIO/org.openl.security`) — private, never read; removal takes with it the public
+  `setDescription` and a public constructor parameter used by `PrivilegesEvaluator` and `ExternalGroupServiceImpl`.
+- 11 fields in tableeditor `taglib/TableEditorTag.java` and 7 in `taglib/TableViewerTag.java` back JSP tag
+  attributes declared in a `.tld`.
 - 17 `rf-*` classes and `ant-select-input` in webstudio `common.css` — generated outside the repository;
   unprovable, keep permanently.
 - `MergeRequest`, `ResolveConflictsRequest`, `ResolveConflictsResponse` in
@@ -88,9 +71,14 @@ Not code, kept for a maintainer:
 - `tooltip_skin-{blue,green,red}`, `tooltip_top_center`, `tooltip_top_left` in tableeditor `css/tooltip.css` —
   the widget's theming API; the single caller passes neither, so they are unreachable.
 - `iframe.iehack` in tableeditor `css/datepicker.css` — no producer, but the file is a vendored stylesheet.
+- `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, whose two classes never touch it, but
+  `ruleservice.ws` and `ruleservice.ws.storelogdata` reach it transitively from there. Removing it needs a
+  declaration added elsewhere, which a delete-only sweep may not do.
 
 ## False-positive shapes
 
+- PMD `UnusedAssignment` on a field initializer is wrong when the constructor can return early: on that path the
+  initializer IS the value the getter returns. `CellStyle` returns early on a null argument.
 - PMD `UnusedAssignment` misreads try/catch: for `x = f();` in a `try` with `x = null;` in the `catch`, it calls
   the try-block assignment overwritten, ignoring the success path. Every hit whose "overwritten on" line sits in
   a `catch` is a false positive.
@@ -100,6 +88,8 @@ Not code, kept for a maintainer:
   call may read the field through a getter exposed to other beans. Decide which of the two writes is load-bearing.
 - `UnusedLocalVariable` on an enhanced-`for` variable used only to count iterations is not deletable — the
   variable cannot be removed without rewriting the loop, which a delete-only sweep may not do.
+- A private field whose only writer is a public setter is not deletable: the setter goes with it, and that is a
+  public API change.
 - A non-public-type scan is dominated by JUnit 5 test classes: `AGENTS.md` requires them package-private and the
   runner discovers them, so none is ever referenced by name. Filter test sources before triaging (674 hits fell
   to 1).
@@ -157,8 +147,14 @@ Not code, kept for a maintainer:
   yields zero violations from reports that are full of them.
 - The root POM has no `<build><plugins>` opening pair to anchor on — `<build>` starts with `<defaultGoal>`. Insert
   the PMD plugin after the unique two-line anchor `</pluginManagement>` followed by `<plugins>`.
-- Row 12 needs an unedited root POM, which the local build edit removes, so it cannot share a run with the PMD
-  rows unless the edit is re-applied for verification and reverted for the commit. Give it a run of its own.
+- Removing an unused parameter of a PRIVATE method is a legitimate deletion, but it is change type 11, so it
+  ships in its own commit even when the assignment that made it unused ships in the same PR.
+- `mvn -o dependency:analyze-only` after a reactor build costs about a minute and needs no recompilation. Triage
+  its output by scope first: `provided` and `test` findings are the root POM's shared `<dependencies>` block
+  inherited by every module, never a module's own declaration.
+- A `compile`-scope "unused declared" finding is only deletable when no dependent module reaches the artifact
+  THROUGH it. Grep the artifact's packages across the whole repository, not just the declaring module, and check
+  `Used undeclared` for the same module — a swap of one declaration for another is an addition, not a deletion.
 
 ## Keep-list
 
@@ -179,6 +175,9 @@ Not code, kept for a maintainer:
 - `serviceDescriptionInProcess` in `ServiceManagerImpl` is published to other beans through
   `@Qualifier("serviceDescriptionInProcess")` getters; its assignments are a deployment protocol, not bookkeeping.
 - Fields in `tableeditor/taglib/*Tag.java` back JSP tag attributes declared in a `.tld`.
+- Runtime-only artifacts that `dependency:analyze` always calls unused: `jaxb-runtime`, `awssdk:sts`,
+  `log4j-slf4j2-impl`, `hibernate-hikaricp`, the CXF `cxf-rt-*` feature and provider jars, and the Jackson
+  artifacts the Azure repository pins.
 
 ## CI flakes
 
@@ -192,25 +191,24 @@ Not code, kept for a maintainer:
 
 - Maven works after deleting ONLY the `org.opensaml:opensaml-bom` import block from the root `pom.xml`
   (`<dependencyManagement>`, near the jackson-bom import). Never commit it; `git checkout -- pom.xml` after.
-- Excluding `org.openl.rules.webstudio` is NOT enough: `itest.studio.demo`, `itest.studio.disabled-settings` and
-  `itest.studio.acl` depend on its WAR and fail the reactor at module 56 of 84. Use the full list:
-  `mvn install -Dquick -DnoPerf -T1C -B -pl '!:org.openl.rules.webstudio,!:itest.studio.demo,!:itest.studio.disabled-settings,!:itest.studio.acl'`
+- Seven modules need the webstudio WAR and must all be excluded, or the reactor dies on the first of them:
+  `mvn install -Dquick -DnoPerf -T1C -B -pl '!:org.openl.rules.webstudio,!:itest.studio.demo,!:itest.studio.disabled-settings,!:itest.studio.acl,!:itest.studio.dtr,!:itest.studio.repos,!:itest.studio.multi'`
+- That build takes about 14 minutes and installs every production module; the remaining ITEST modules and the
+  Maven plugin are skipped, which is expected and does not block any change type.
 - `pgrep -f "mvn install"` NEVER matches the running build — `mvn` execs java through plexus classworlds, so the
   string is gone from the cmdline. Match `[c]lassworlds`. A wait loop on the wrong pattern exits instantly and
-  makes a running build look finished. Wait on a terminal marker in the log instead.
+  makes a running build look finished.
 - Killing the launcher shell does NOT kill the Maven JVM. A second launch then races the first on the same
   `target/` dirs and both logs interleave into one file. Check `pgrep -f '[c]lassworlds'` before every launch,
   and never `pkill -f <pattern>` where the pattern also matches your own shell — it kills the tool call.
-- A full reactor build from an empty `~/.m2` costs 35-40 minutes and is the run's binding constraint. Start it in
-  the background as the first action and do the search-provable work while it runs.
+- `dependency:analyze-only` needs the same `-pl` exclusions plus `-fae`; ITEST modules cannot resolve
+  `org.openl.itest:server-core` outside the itest profile. 51 modules analyze successfully.
 - `mvn pmd:pmd` needs no installed artifacts and produces a usable report even when the reactor later fails; with
   `-fae` it wrote 43 of the module reports after a downstream resolution error. It is far cheaper than the build,
   so a run short on time can scan without a green build — but a Java deletion still needs a compile.
 - The container's global git config signs commits over ssh (`gpg.format=ssh`, `commit.gpgsign=true`), which
   fails `GitRepositoryTest` and `SameSecondHistoryOrderTest` in STUDIO Repository Git with jgit
   `UnsupportedSigningFormatException`. Fix once per session: `git config --global commit.gpgsign false`.
-- `mvn pmd:pmd` must run with `-fae`: several ITEST modules cannot resolve `org.openl.itest:server-core`
-  outside the itest profile and abort the whole scan at the first one.
 - `-rf` breaks resolution for modules built earlier in the same reactor but never installed
   (`org.openl.rules.test`). Resume with a plain full build, not with `-rf`.
 - Error Prone contributes nothing: the whole reactor emits 8 unused-* warnings, all reflection false positives
@@ -224,11 +222,10 @@ Not code, kept for a maintainer:
   pass `GIT_AUTHOR_*` / `GIT_COMMITTER_*` inline on every commit; `--amend` alone keeps the wrong author,
   so it needs `--reset-author`.
 - `git push origin --delete <branch>` fails through the proxy with HTTP 403; normal pushes work.
-- `~/.m2/repository` starts empty each session; a full build re-downloads everything.
 - `gh` CLI and `xxd` are absent. Use the GitHub MCP tools.
 - `.toDelete/` is gitignored (`.gitignore:35`) and safe for scan scratch files.
 - Spotless runs from the `validate` phase on; after any build check `git status` and revert churn you did not
-  intend. Runs 4 and 5 saw none beyond the deliberate POM edit.
+  intend. Runs 4-6 saw none beyond the deliberate POM edit.
 
 ## Exhausted veins
 
@@ -247,7 +244,9 @@ Not code, kept for a maintainer:
   and no `.ftl` or non-test `.xsd`.
 - Whole-type deadness, repo-wide: all 977 non-public top-level types and all 310 types in `.impl.` / `.internal.`
   packages. Zero real findings — do not repeat this scan.
-- PMD dead-code scan over the reactor except `org.openl.rules.webstudio` — 29 findings, all listed above.
+- PMD dead-code scan over the reactor except `org.openl.rules.webstudio` — 29 findings, all triaged.
+- `dependency:analyze-only` over the 51 analyzable modules — every compile-scope finding is a runtime provider or
+  is consumed transitively by a dependent; nothing deletable.
 
 ## Human follow-ups
 
@@ -256,14 +255,14 @@ Not code, kept for a maintainer:
 - Delete the abandoned remote branch `dead-code/studio-resources` (PR #2055 closed unmerged; its only change is
   already on `main` via #2054). `git push --delete` gets HTTP 403 through the proxy and the GitHub MCP server
   has no delete-branch tool, so this needs a human or the repo's auto-delete setting.
+- Decide on `DecisionTableBuilder.methodName` and `SimpleGroup.description`: both are dead private fields whose
+  removal takes a public setter with them.
 
 ## Run log
 
-- Run 3: PR #2056 (2 commits, 30 deletions) merged the same hour — 17 dead locale keys and the `.te_hidden`
-  rule. Closed rows 5, 6 and 14 and added row 15. Maven still blocked by the shibboleth 403.
 - Run 4: unblocked Maven, built the whole reactor bar webstudio, and ran the first PMD scan — 39 findings,
   triaged, none shipped: the build consumed the run. Closed row 11, moved rows 7-10 to ready.
 - Run 5: no code shipped. Closed rows 8, 10 and 13 as no-finding with repo-wide proof, re-ran PMD to exact line
-  numbers, and found the two build/process facts that had been silently wasting runs (incomplete `-pl` exclusion
-  list, `pgrep` never matching Maven). Caught that PMD's named line in `ServiceManagerImpl` is the load-bearing
-  one.
+  numbers, and found the two build/process facts that had been silently wasting runs.
+- Run 6: PR #2058 opened with the first Java deletions (rows 7 and 11). Closed rows 9 and 12 after proving both
+  are blocked by public API and by transitive consumption. Every change type in the queue is now closed.
