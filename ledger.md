@@ -2,7 +2,7 @@
 
 ## Resume point
 
-Next run: PR #2054 is green and mergeable, waiting on a human reviewer — only re-check it. Continue row 6
+Next run: no PR is open — #2054 merged. Start a fresh branch off `origin/main` and continue row 6
 with the `org.openl.rules.tableeditor` scripts —
 `common.js` and `bomjs.js` are already swept. Row 14 (TypeScript) is open and verifiable here.
 Rows 7-13 stay blocked until Maven can resolve the root POM — check that first with `mvn validate -N`.
@@ -32,16 +32,12 @@ Row 5 remains open for CSS files other than `common.css`; `layout/main.css` and 
 
 ## Open PR
 
-- Branch `dead-code/studio-legacy-resources`, PR #2054, head `dbb2411c18`, 2 commits.
-- `e9e9ec1af9` Delete the OpenL Studio guide screenshot no reference points to — change type 1.
-- `dbb2411c18` Drop the common.css lock and close icon rules nothing applies — change type 5.
-- CodeRabbit reviewed: no actionable comments, 5 pre-merge checks passed. No review threads.
-- `mergeable_state: clean` — all 14 checks green, Sonar quality gate passed. Waiting on a human reviewer.
-- `IT (studio-acl)` failed once here, then passed on its one re-run, confirming the Oracle flake.
+None. Cut the next branch from a freshly fetched `origin/main`.
 
 ## Merged PRs
 
-None yet.
+- #2054 — 2 commits, 12 lines, change types 1 and 5. Merged by yurkom with no review comments, which sets the
+  precedent that a mechanical single-type resource sweep is accepted as-is.
 
 ## Module coverage
 
@@ -155,13 +151,15 @@ None yet.
 
 - The environment needs `build.shibboleth.net` allowlisted, or `opensaml-bom` mirrored, before this routine can
   sweep any Java, PMD or Maven-dependency change type.
-- Delete the abandoned remote branch `dead-code/studio-resources`: its PR #2055 is closed and this container
-  cannot push a branch deletion.
+- Delete the abandoned remote branch `dead-code/studio-resources` (PR #2055 closed unmerged; its only change,
+  the same image deletion, is on `main` via #2054, so nothing is lost). Retried: `git push --delete` gets
+  HTTP 403 through the proxy and the GitHub MCP server has no delete-branch tool, so this needs a human or
+  the repo's auto-delete setting. GitHub did auto-delete the merged branch, so only this one is left over.
 
 ## Run log
 
-- Run 1: first run. Built the queue, swept rows 1-5, opened PR #2054 with 2 commits (12 lines removed).
-  Maven unusable, so rows 7-13 untouched. Stood down in one comment on the unrelated studio-acl failure.
+- Run 1: first run. Built the queue, swept rows 1-5, shipped PR #2054 (2 commits, 12 lines) — merged same day.
+  Maven unusable, so rows 7-13 untouched. Stood down on the unrelated studio-acl failure; it passed on re-run.
 - Run 2: overlapped run 1 and duplicated its image finding; PR #2055 closed, no code shipped. Swept
   `ValidationMessages.properties`, `layout/*.css`, `common.js`/`bomjs.js` and the studio-ui exports — all
   clean. Established that TypeScript compiles here and diagnosed the studio-acl Oracle flake.
