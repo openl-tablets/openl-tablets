@@ -2,11 +2,12 @@
 
 ## Resume point
 
-Next run: no PR is open — #2056 merged. Cut a fresh branch off `origin/main`.
-Rows 7-13 stay blocked until Maven can resolve the root POM; check that first with `mvn validate -N`.
-If Maven works, do row 12 (Maven dependencies) before rows 7-11: one reactor build serves both.
-If Maven is still dead, the next search-provable vein is `.properties` keys outside STUDIO (DEV, WSFrontend,
-Util) and unreferenced non-image resources (`.xml`, `.xsd`, `.txt`, `.ftl`) repo-wide.
+Maven is usable again — see *Container facts* for the one-line local POM edit that unblocks it. Start the
+reactor build as the FIRST action of the run, in the background, and do everything else while it runs.
+No PR is open. Cut a fresh branch off `origin/main`.
+Next work: the 39 PMD findings below are already triaged in *Deferred findings*; re-run the scan to get exact
+line numbers, then ship the safe ones. Take rows 7, 8 and 10 first (18 findings, low risk), row 9 last.
+Row 12 (Maven dependencies) needs the real POM, which cannot coexist with the local edit — see *Method rules*.
 Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'` before cutting a branch.
 
 ## Change-type queue
@@ -19,13 +20,13 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 | 4 | Unused `.properties` keys (STUDIO bundles) | done, no finding (runs 1-2) |
 | 5 | Dead CSS rules | done for own stylesheets (runs 1, 3); vendor files stay |
 | 6 | Dead JS functions (own scripts) | done, no finding (runs 2-3) |
-| 7 | Never-read assignments (PMD `UnusedAssignment`) | blocked — no Maven |
-| 8 | Unused local variables (PMD) | blocked — no Maven |
-| 9 | Unused private fields (PMD) | blocked — no Maven |
-| 10 | Unused private methods (PMD) | blocked — no Maven |
-| 11 | Unused formal parameters (PMD, private only) | blocked — no Maven |
-| 12 | Unused declared Maven dependencies | blocked — no Maven |
-| 13 | Whole-type deadness in `.impl.` / internal packages | blocked — no Maven; public API never removed |
+| 7 | Never-read assignments (PMD `UnusedAssignment`) | ready — 12 found (run 4) |
+| 8 | Unused local variables (PMD) | ready — 2 found (run 4) |
+| 9 | Unused private fields (PMD) | ready — 23 found (run 4), mostly framework-bound |
+| 10 | Unused private methods (PMD) | ready — 2 found (run 4) |
+| 11 | Unused formal parameters (PMD, private only) | no finding (run 4); webstudio unscanned |
+| 12 | Unused declared Maven dependencies | blocked — needs the real root POM (see *Method rules*) |
+| 13 | Whole-type deadness in `.impl.` / internal packages | open; public API never removed |
 | 14 | Dead TypeScript in `STUDIO/studio-ui` | done, no finding (runs 2-3) |
 | 15 | Unused `studio-ui` locale keys | done (run 3, 17 keys) |
 
@@ -43,8 +44,10 @@ None. Cut the next branch from a freshly fetched `origin/main`.
 
 ## Module coverage
 
-- Open work: none in the search-provable veins. `DEV`, `WSFrontend`, `Util`, `ITEST`, `Docs`,
-  `STUDIO/*` are all swept for every change type that does not need Maven.
+- Search-provable veins: nothing open. `DEV`, `WSFrontend`, `Util`, `ITEST`, `Docs`, `STUDIO/*` are swept for
+  every change type that needs no Maven.
+- `STUDIO/org.openl.rules.webstudio` has never been scanned by PMD — it is the one module that cannot be built
+  here. Its Java surface is the largest unswept area in the repository.
 
 ## Deferred findings
 
@@ -58,6 +61,14 @@ None. Cut the next branch from a freshly fetched `origin/main`.
 - `tooltip_skin-{blue,green,red}`, `tooltip_top_center`, `tooltip_top_left` in tableeditor `css/tooltip.css` —
   the widget's theming API; the single caller passes neither, so they are unreachable. Maintainer decision.
 - `iframe.iehack` in tableeditor `css/datepicker.css` — no producer, but the file is a vendored stylesheet.
+- PMD `UnusedPrivateField`, 19 of 23 are framework-bound and must NOT be deleted without reading the binding:
+  the 11 fields in tableeditor `taglib/TableEditorTag.java` and 7 in `taglib/TableViewerTag.java` back JSP tag
+  attributes declared in a `.tld`, and the three in `org.openl.rules.jackson` `JsonUtilsTest` plus `gg` in
+  `JavaOpenClassTest` are read reflectively. Check the `.tld` and the reflection before touching any of them.
+- PMD `UnusedPrivateField` worth acting on: `methodName` in DEV `dimentional/DecisionTableBuilder.java` and
+  `description` in `STUDIO/org.openl.security` `SimpleGroup.java` (check serialization on the latter first).
+- PMD `UnusedPrivateMethod`: `getAB()` in DEV test bean `generated/epbds6830/BeanA.java` and `getC()` in
+  `AOpenClassTest.java` — both are OpenL test fixtures reached by reflection. Verify before deleting.
 
 ## False-positive shapes
 
@@ -81,6 +92,9 @@ None. Cut the next branch from a freshly fetched `origin/main`.
   (`expiration_options.7_days`), so such keys look dead in a token scan.
 - A composed lookup can still be guarded: `browser.${id}_confirm` fires only when `id === 'unlock'`, so
   `browser.delete_confirm` was dead despite matching the shape. Read the branch, not just the template.
+- A private field backing a JSP tag attribute or read by reflection is reported by PMD as unused. Every
+  `UnusedPrivateField` hit in a `taglib` package or a test bean is a false positive until the `.tld` or the
+  reflective reader says otherwise.
 
 ## Method rules
 
@@ -101,6 +115,11 @@ None. Cut the next branch from a freshly fetched `origin/main`.
   page by its base name with and without `.xhtml`.
 - Dead-CSS cleanup has maintainer precedent on `main`: "Drop the common.css titleColumn rules orphaned by the
   retired commit info dialog". Same change type — no need to hedge on it.
+- Parse `target/pmd.xml` with the namespace `http://pmd.sourceforge.net/report/2.0.0`. The ruleset namespace
+  (`ruleset/2.0.0`) and the schema name (`report_2_0_0`) both differ from it, and either wrong guess silently
+  yields zero violations from reports that are full of them.
+- Row 12 needs an unedited root POM, which the local build edit removes, so it cannot share a run with the PMD
+  rows unless the edit is re-applied for verification and reverted for the commit. Give it a run of its own.
 
 ## Keep-list
 
@@ -129,10 +148,22 @@ None. Cut the next branch from a freshly fetched `origin/main`.
 
 ## Container facts
 
-- Maven cannot read the root POM at all: `org.opensaml:opensaml-bom` resolves only from
-  `build.shibboleth.net`, and the agent proxy rejects the CONNECT with 403. Central has neither
-  `opensaml-bom` nor `shibboleth-bom`. This kills `mvn validate -N` too, so PMD, `dependency:analyze`
-  and every Java compile gate are unavailable.
+- Maven works after deleting ONLY the `org.opensaml:opensaml-bom` import block from the root `pom.xml`
+  (`<dependencyManagement>`, near the jackson-bom import). Never commit it; `git checkout -- pom.xml` after.
+  With that edit the whole reactor builds except `org.openl.rules.webstudio`, whose opensaml jars resolve only
+  from `build.shibboleth.net` (proxy answers 403 to CONNECT); Maven Central has no opensaml artifact at all.
+  Exclude it: `mvn install -Dquick -DnoPerf -T1C -B -pl '!:org.openl.rules.webstudio'`.
+- A full reactor build from an empty `~/.m2` costs 35-40 minutes. Start it in the background as the run's first
+  action and do the search-provable work while it runs; nothing else in the run is that slow.
+- The container's global git config signs commits over ssh (`gpg.format=ssh`, `commit.gpgsign=true`), which
+  fails `GitRepositoryTest` and `SameSecondHistoryOrderTest` in STUDIO Repository Git with jgit
+  `UnsupportedSigningFormatException`. Fix once per session: `git config --global commit.gpgsign false`.
+- `mvn pmd:pmd` must run with `-fae`: several ITEST modules cannot resolve `org.openl.itest:server-core`
+  outside the itest profile and abort the whole scan at the first one.
+- `-rf` breaks resolution for modules built earlier in the same reactor but never installed
+  (`org.openl.rules.test`). Resume with a plain full build, not with `-rf`.
+- Error Prone contributes nothing: the whole reactor emits 8 unused-* warnings, all reflection false positives
+  or `EffectivelyPrivate` visibility narrowing, which is a refactor and out of scope. PMD is the only Java signal.
 - Frontend verification works and is the gate for `studio-ui`: `npm ci`, `npx tsc --noEmit`,
   `npx eslint <files>`, and `npx vitest run` (183 files, ~3 minutes).
 - `compile.js.sh` reproduces `tableeditor.all.js` and `.min.js` byte for byte; `compile.css.sh` drops the
@@ -141,7 +172,7 @@ None. Cut the next branch from a freshly fetched `origin/main`.
 - The global git identity is rewritten back to `Claude <noreply@anthropic.com>` mid-session. Re-set it and
   pass `GIT_AUTHOR_*` / `GIT_COMMITTER_*` inline on every commit; `--amend` alone keeps the wrong author,
   so it needs `--reset-author`.
-- `git push origin --delete <branch>` fails through the proxy with "the remote end hung up unexpectedly".
+- `git push origin --delete <branch>` fails through the proxy with HTTP 403; normal pushes work.
 - `~/.m2/repository` starts empty each session; a full build re-downloads everything.
 - `gh` CLI and `xxd` are absent. Use the GitHub MCP tools.
 - `.toDelete/` is gitignored (`.gitignore:35`) and safe for scan scratch files.
@@ -159,19 +190,23 @@ None. Cut the next branch from a freshly fetched `origin/main`.
 - Unused-export scan over all 776 exports in `STUDIO/studio-ui/src`, and whole-file deadness over its 562
   source files — only tests and `.d.ts` files are unreferenced, which is expected.
 - All 1316 `studio-ui` locale keys, by leaf name and by full dotted path.
+- Message bundles and templates outside STUDIO: `DEV`, `WSFrontend` and `Util` hold no message bundle at all
+  (only Spring `openl-default.properties`, log4j and maven-invoker fixtures) and no `.ftl` or non-test `.xsd`.
+- PMD dead-code scan over the whole reactor except `org.openl.rules.webstudio` — 39 findings, all listed above.
 
 ## Human follow-ups
 
-- The environment needs `build.shibboleth.net` allowlisted, or `opensaml-bom` mirrored, before this routine can
-  sweep any Java, PMD or Maven-dependency change type. This has blocked seven change types for three runs.
+- Allowlist `build.shibboleth.net`, or mirror the opensaml artifacts, so `org.openl.rules.webstudio` can build
+  here. It is now the ONLY module this routine cannot compile, and the largest one never scanned.
 - Delete the abandoned remote branch `dead-code/studio-resources` (PR #2055 closed unmerged; its only change is
   already on `main` via #2054). `git push --delete` gets HTTP 403 through the proxy and the GitHub MCP server
   has no delete-branch tool, so this needs a human or the repo's auto-delete setting.
 
 ## Run log
 
-- Run 1: built the queue, swept rows 1-5, shipped PR #2054 (2 commits, 12 lines) — merged same day.
 - Run 2: overlapped run 1 and duplicated its image finding; PR #2055 closed, no code shipped. Swept
   `ValidationMessages.properties`, `layout/*.css`, `common.js`/`bomjs.js` and the studio-ui exports — all clean.
 - Run 3: PR #2056 (2 commits, 30 deletions) merged the same hour — 17 dead locale keys and the `.te_hidden`
   rule. Closed rows 5, 6 and 14 and added row 15. Maven still blocked by the shibboleth 403.
+- Run 4: unblocked Maven, built the whole reactor bar webstudio, and ran the first PMD scan — 39 findings,
+  triaged, none shipped: the build consumed the run. Closed row 11, moved rows 7-10 to ready.
