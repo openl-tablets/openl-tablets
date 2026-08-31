@@ -2,7 +2,8 @@
 
 ## Resume point
 
-Next run: on PR #2054 spend the owed single re-run of `IT (studio-acl)`, then continue row 6 with the
+Next run: read the `IT (studio-acl)` re-run result on `dbb2411c18` — the re-run budget for that SHA is
+spent, so a second failure is real and must be root-caused, not re-run. Then continue row 6 with the
 `org.openl.rules.tableeditor` scripts —
 `common.js` and `bomjs.js` are already swept. Row 14 (TypeScript) is open and verifiable here.
 Rows 7-13 stay blocked until Maven can resolve the root POM — check that first with `mvn validate -N`.
@@ -36,8 +37,8 @@ Row 5 remains open for CSS files other than `common.css`; `layout/main.css` and 
 - `e9e9ec1af9` Delete the OpenL Studio guide screenshot no reference points to — change type 1.
 - `dbb2411c18` Drop the common.css lock and close icon rules nothing applies — change type 5.
 - CodeRabbit reviewed: no actionable comments, 5 pre-merge checks passed. No review threads.
-- `IT (studio-acl)` red on this head; stood down in one comment. Its one re-run is still owed.
-- Everything else green on this head, `Build artifacts` included.
+- `IT (studio-acl)` red on this head; stood down in one comment and re-run once — budget for this SHA spent.
+- Every other check green on this head, `Build artifacts` and `Tests (without ITEST)` included.
 
 ## Merged PRs
 
