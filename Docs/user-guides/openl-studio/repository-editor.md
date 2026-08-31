@@ -383,6 +383,10 @@ To close a project, in the project tree, select the project and, in the right pa
 
 A modified project is saved and copied from the user's workspace to Design repository as a new revision.
 
+**Save** is available only for a project linked to a Design repository. A project with the **Local** status has no
+Design repository revision to update; import it as described in
+[Importing a Project from Workspace](#importing-a-project-from-workspace) instead.
+
 To save a project, proceed as follows:
 
 1.  In the project tree, select the project, and, in the right pane, click **Save**.

@@ -30,4 +30,9 @@ final class LocalProjectFixture {
         Files.writeString(metainfo.resolve(projectName + ".properties"),
                 "format-version=1\nrepository-id=local\n");
     }
+
+    static void seed(Path userDir, String projectName, Path zip, String rulesXml) throws IOException {
+        seed(userDir, projectName, zip);
+        Files.writeString(userDir.resolve(projectName).resolve("rules.xml"), rulesXml);
+    }
 }
