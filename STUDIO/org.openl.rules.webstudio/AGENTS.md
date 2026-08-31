@@ -66,12 +66,26 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 - A browser that has to build an id itself uses `encodeProjectId` from `studio-ui`'s `services/projectId.ts`; a legacy
   JSF page reaches the same function as `globalThis.openl.encodeProjectId`. Never call `btoa` directly: it reads a
   string as Latin-1, so it throws above U+00FF and mis-encodes the range below it, and it emits the standard alphabet.
-- **The name inside a project id is the design folder, not the business name the API reports as `name`.** They differ
-  whenever `rules.xml` renames the project and that rename is not saved yet: the workspace copy already sits in a
-  folder named after the new name, while the design repository still holds the old one. An id **MUST** keep resolving
-  across that gap, otherwise the project becomes unaddressable and can be neither closed, reverted nor deleted
-  (EPBDS-16229). `Base64ProjectResolveStrategy` therefore resolves a mapped id by its folder first — the id's name
-  prefixed with `DesignTimeRepository.getRulesLocation()`, through `FolderMapper.getRealPath` and
+- **The name inside a project id is its storage folder, not the logical name declared in `rules.xml`.** A design
+  project's id uses its design folder; a local-only project's id uses its workspace folder. The names differ when a
+  project is renamed in `rules.xml` or when EDT loads a folder whose project declares a friendlier name. A local-only
+  dependency matches that logical name because it has no Design repository identity, but the resolved dependency
+  carries the folder-based id so following its link addresses the actual project (EPBDS-16518).
+
+  A repository-backed project keeps its stable business name for dependency lookup. Do not index it by the logical
+  name read from the currently selected branch: an unsaved rename there must not hide the original name from another
+  branch that still contains and declares it. Branch membership remains the deciding scope as documented in
+  `Docs/architecture/cross-branch-projects.md`.
+
+  Legacy Editor hash routes are separate from REST project ids: `WebStudio.init` resolves their project segment by
+  the logical `ProjectDescriptor` name. Build every legacy project and module breadcrumb link from that logical name,
+  not from the `RulesProject` workspace folder.
+
+  Before a mapped-project rename is saved, the workspace copy already sits in a folder named after the new name while
+  the design repository still holds the old one. An id **MUST** keep resolving across that gap, otherwise the project
+  becomes unaddressable and can be neither closed, reverted nor deleted (EPBDS-16229).
+  `Base64ProjectResolveStrategy` therefore resolves a mapped id by its folder first — the id's name prefixed with
+  `DesignTimeRepository.getRulesLocation()`, through `FolderMapper.getRealPath` and
   `UserWorkspace.getProjectByPath`. **Resolve by folder before resolving by business name**: a business name is
   carried by more than one project, so it can answer with a different project and let a destructive endpoint act on
   the wrong one.

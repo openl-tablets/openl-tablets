@@ -9,10 +9,13 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 public interface ProjectStateValidator {
 
     /**
-     * Check if project can be saved
+     * Checks whether a modified project can be committed to its Design repository.
+     *
+     * <p>A project that exists only in the local workspace has no Design repository revision to save.
+     * It must be imported instead.
      *
      * @param project project
-     * @return true or false
+     * @return {@code true} when the project can be saved
      */
     boolean canSave(UserWorkspaceProject project);
 

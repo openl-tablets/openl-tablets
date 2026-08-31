@@ -264,7 +264,7 @@
                                     <ui:param name="dependentProject"
                                               value="#{studio.getProjectByName(dependency.name)}"/>
                                     <h:panelGroup rendered="#{!empty dependentProject}">
-                                        <a href="#{utils.toUrl(dependentProject.repository.id, dependentProject.name)}">#{dependency.name}</a>
+                                        <a href="#{utils.toUrl(dependentProject.repository.id, dependency.name)}">#{dependency.name}</a>
                                         <h:panelGroup rendered="#{dependency.autoIncluded}" styleClass="path">
                                             All Modules
                                         </h:panelGroup>

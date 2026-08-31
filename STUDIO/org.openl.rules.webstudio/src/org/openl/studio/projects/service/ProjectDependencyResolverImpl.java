@@ -37,10 +37,10 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
 
     @Override
     public List<ProjectDependency> getDependencies(RulesProject project) {
-        // Build the business-name index once per request; listing a page resolves dependencies for
+        // Build the dependency-name index once per request; listing a page resolves dependencies for
         // every project and would otherwise rebuild it each time (O(N^2)).
         var projectIndex = listingContext.dependencyIndex(() ->
-                getAllProjects().stream().collect(Collectors.groupingBy(RulesProject::getBusinessName)));
+                getAllProjects().stream().collect(Collectors.groupingBy(this::dependencyLookupName)));
 
         var dependencies = new ArrayList<ProjectDependency>();
         var declared = declaredDependencies(project);
@@ -48,7 +48,7 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
                 project.getBranch(),
                 declared.stream().map(ProjectDependencyDescriptor::getName).collect(Collectors.toSet()),
                 projectIndex,
-                new HashSet<>(Set.of(project.getBusinessName())));
+                new HashSet<>(Set.of(dependencyLookupName(project))));
         calcDependencies(project, declared, walk, dependencies);
         return dependencies;
     }
@@ -70,17 +70,25 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
 
     @Override
     public List<RulesProject> getDependsOnProject(RulesProject project) throws ProjectException {
-        // Match on the business name: a rules.xml <dependency> references a project by that name, and it
-        // is stable across states, unlike getName() which for a closed project in a mapped repo carries the
-        // internal path suffix and would not match.
-        var businessName = project.getBusinessName();
+        var dependencyName = dependencyLookupName(project);
         var usedByIndex = listingContext.usedByIndex(this::buildUsedByIndex);
         var repositoryId = project.getRepository().getId();
         var branch = project.getBranch();
-        return usedByIndex.getOrDefault(businessName, List.of())
+        return usedByIndex.getOrDefault(dependencyName, List.of())
                 .stream()
                 .filter(dependent -> visibleTo(dependent, repositoryId, branch))
                 .toList();
+    }
+
+    /**
+     * Returns the name a dependency descriptor uses to address the project.
+     *
+     * <p>A local-only project has no Design repository identity, so its logical {@code rules.xml} name is
+     * authoritative. A repository-backed project keeps its stable business name. Its currently selected branch
+     * may have an unsaved logical-name change that must not hide the project from another branch.
+     */
+    private String dependencyLookupName(RulesProject project) {
+        return project.isLocalOnly() ? projectDescriptorResolver.getLogicalName(project) : project.getBusinessName();
     }
 
     private Map<String, List<RulesProject>> buildUsedByIndex() throws ProjectException {

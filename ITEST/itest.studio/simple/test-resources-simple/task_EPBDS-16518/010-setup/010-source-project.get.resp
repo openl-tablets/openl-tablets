@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "bG9jYWw6ZXBiZHMtMTY1MTgtc291cmNl",
+  "name": "epbds-16518-source",
+  "status": "LOCAL",
+  "repository": "local",
+  "dependencies": [
+    {
+      "id": "bG9jYWw6ZXBiZHMtMTY1MTgtdGFyZ2V0",
+      "name": "EPBDS-16518 Target"
+    }
+  ],
+  "capabilities": {
+    "canWrite": true,
+    "canDelete": true
+  }
+}

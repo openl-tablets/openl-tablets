@@ -702,7 +702,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var project = dependency.project();
         var builder = project == null
                 ? ProjectDependencyViewModel.builder().name(dependency.name()).missing(true)
-                : mapProjectDependency(project);
+                : mapProjectDependency(project).name(dependency.name());
         return builder.transitive(dependency.transitive());
     }
 
@@ -871,7 +871,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isModified()) {
             return;
         }
-        if (!projectStateValidator.canSave(project) || project.isLocalOnly()) {
+        if (!projectStateValidator.canSave(project)) {
             throw new ConflictException("project.save.conflict.message");
         }
         requireGranted(project, BasePermission.WRITE);
