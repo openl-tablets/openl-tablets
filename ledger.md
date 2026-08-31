@@ -2,7 +2,8 @@
 
 ## Resume point
 
-Next run: maintain PR #2054, then continue row 6 with the `org.openl.rules.tableeditor` scripts —
+Next run: on PR #2054 spend the owed single re-run of `IT (studio-acl)`, then continue row 6 with the
+`org.openl.rules.tableeditor` scripts —
 `common.js` and `bomjs.js` are already swept. Row 14 (TypeScript) is open and verifiable here.
 Rows 7-13 stay blocked until Maven can resolve the root POM — check that first with `mvn validate -N`.
 If Maven works, do row 12 (Maven dependencies) before rows 7-11: one reactor build serves both.
@@ -34,7 +35,9 @@ Row 5 remains open for CSS files other than `common.css`; `layout/main.css` and 
 - Branch `dead-code/studio-legacy-resources`, PR #2054, head `dbb2411c18`, 2 commits.
 - `e9e9ec1af9` Delete the OpenL Studio guide screenshot no reference points to — change type 1.
 - `dbb2411c18` Drop the common.css lock and close icon rules nothing applies — change type 5.
-- No review threads yet.
+- CodeRabbit reviewed: no actionable comments, 5 pre-merge checks passed. No review threads.
+- `IT (studio-acl)` red on this head; stood down in one comment. Its one re-run is still owed.
+- Everything else green on this head, `Build artifacts` included.
 
 ## Merged PRs
 
@@ -88,6 +91,8 @@ None yet.
   `index.xhtml` build `page + ".xhtml"` from the fragment, so a page is named without its extension — by
   `studio.url('test/run')`, or by a link carrying `?page=revisions` as `topPanel.xhtml` does. Search a page
   by its base name with and without `.xhtml`.
+- Dead-`common.css` cleanup has maintainer precedent on `main`: "Drop the common.css titleColumn rules
+  orphaned by the retired commit info dialog". Same change type, same file — no need to hedge on it.
 
 ## Keep-list
 
@@ -102,12 +107,16 @@ None yet.
 - `ValidationMessages.properties` keys are looked up by a short form: the code drops the `openl.error.`
   prefix and, for exceptions, the three-digit status segment. All are live. See
   `.claude/skills/localized-exceptions-and-validation-skill/SKILL.md`.
+- ITEST `001-Get-Static-CSS` fixtures (`simple`, `multi`, `sso`) GET `/css/common.css` with a `***` wildcard
+  body: they assert status and `Content-Type` only, so editing `common.css` content cannot break them.
 
 ## CI flakes
 
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails with `ORA-12516: ... does not have a protocol handler
   for TCP ready or registered for service freepdb1`, the Oracle TestContainer listener not yet accepting
   connections. Infrastructure, never the diff. Budget: one rerun per SHA.
+- `rerun_failed_jobs` returns 403 "This workflow is already running" while any job of the run is still in
+  progress. Wait for the whole run to finish, then re-run.
 
 ## Container facts
 
@@ -119,6 +128,11 @@ None yet.
   frontend deletions can be proved here even while Maven is dead.
 - `git push origin --delete <branch>` fails through the proxy with "the remote end hung up unexpectedly".
   Branch deletion needs a GitHub API call or a human.
+- With Maven dead, the PR's `Build artifacts` job is the Java compile gate, and it went green on the first
+  push — a resource-only sweep can be verified that way.
+- The global git identity is rewritten back to `Claude <noreply@anthropic.com>` mid-session. Re-set it and
+  pass `GIT_AUTHOR_*` / `GIT_COMMITTER_*` inline on every commit; `--amend` alone keeps the wrong author,
+  so it needs `--reset-author`.
 - `~/.m2/repository` starts empty each session; a full build re-downloads everything.
 - `gh` CLI is absent. Use the GitHub MCP tools.
 - `xxd` is absent.
@@ -146,7 +160,7 @@ None yet.
 ## Run log
 
 - Run 1: first run. Built the queue, swept rows 1-5, opened PR #2054 with 2 commits (12 lines removed).
-  Maven unusable, so rows 7-13 untouched.
+  Maven unusable, so rows 7-13 untouched. Stood down in one comment on the unrelated studio-acl failure.
 - Run 2: overlapped run 1 and duplicated its image finding; PR #2055 closed, no code shipped. Swept
   `ValidationMessages.properties`, `layout/*.css`, `common.js`/`bomjs.js` and the studio-ui exports — all
   clean. Established that TypeScript compiles here and diagnosed the studio-acl Oracle flake.
