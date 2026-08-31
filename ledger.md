@@ -2,9 +2,8 @@
 
 ## Resume point
 
-Next run: read the `IT (studio-acl)` re-run result on `dbb2411c18` — the re-run budget for that SHA is
-spent, so a second failure is real and must be root-caused, not re-run. Then continue row 6 with the
-`org.openl.rules.tableeditor` scripts —
+Next run: PR #2054 is green and mergeable, waiting on a human reviewer — only re-check it. Continue row 6
+with the `org.openl.rules.tableeditor` scripts —
 `common.js` and `bomjs.js` are already swept. Row 14 (TypeScript) is open and verifiable here.
 Rows 7-13 stay blocked until Maven can resolve the root POM — check that first with `mvn validate -N`.
 If Maven works, do row 12 (Maven dependencies) before rows 7-11: one reactor build serves both.
@@ -37,8 +36,8 @@ Row 5 remains open for CSS files other than `common.css`; `layout/main.css` and 
 - `e9e9ec1af9` Delete the OpenL Studio guide screenshot no reference points to — change type 1.
 - `dbb2411c18` Drop the common.css lock and close icon rules nothing applies — change type 5.
 - CodeRabbit reviewed: no actionable comments, 5 pre-merge checks passed. No review threads.
-- `IT (studio-acl)` red on this head; stood down in one comment and re-run once — budget for this SHA spent.
-- Every other check green on this head, `Build artifacts` and `Tests (without ITEST)` included.
+- `mergeable_state: clean` — all 14 checks green, Sonar quality gate passed. Waiting on a human reviewer.
+- `IT (studio-acl)` failed once here, then passed on its one re-run, confirming the Oracle flake.
 
 ## Merged PRs
 
@@ -115,7 +114,8 @@ None yet.
 
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails with `ORA-12516: ... does not have a protocol handler
   for TCP ready or registered for service freepdb1`, the Oracle TestContainer listener not yet accepting
-  connections. Infrastructure, never the diff. Budget: one rerun per SHA.
+  connections. Infrastructure, never the diff — confirmed on PR #2054, where it passed on the re-run of an
+  unchanged commit. Budget: one rerun per SHA.
 - `rerun_failed_jobs` returns 403 "This workflow is already running" while any job of the run is still in
   progress. Wait for the whole run to finish, then re-run.
 
