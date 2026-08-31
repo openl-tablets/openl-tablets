@@ -647,7 +647,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      */
     private ProjectIndex readExternalToInternalMap(Repository delegate,
                                                    String baseFolder) throws IOException {
-        baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
         var treeRevisionBefore = getRootTreeRevision(delegate);
         if (treeRevisionBefore != null) {
             var cached = indexesByTreeRevision.get(treeRevisionBefore);
