@@ -233,6 +233,10 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails with `ORA-12516: ... does not have a protocol handler
   for TCP ready or registered for service freepdb1`, the Oracle TestContainer listener not yet accepting
   connections. Infrastructure, never the diff. Budget: one rerun per SHA.
+- `IT (services-data)` — `RunStoreLogDataITest.setUp` cannot start `apache/kafka-native:latest`: the image
+  segfaults in its own entrypoint at `Pwd.getpwuid` resolving `user.name`, exits 1, and the wait strategy times
+  out on `Transitioning from RECOVERY to RUNNING`. A crash before any test body, never the diff — `ITEST - Kafka
+  Smoke` passes in the same job. Budget: one rerun per SHA. The tag floats; never pin it away.
 - `rerun_failed_jobs` returns 403 "This workflow is already running" while any job of the run is still in
   progress. Wait for the whole run to finish, then re-run.
 
