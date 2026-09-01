@@ -18,8 +18,8 @@ covered. Numbering continues at 57.
 
 ## Open PR
 
-- #2062 on `dead-code/commented-out-java`, head 4235110e.
-  Single commit: `Remove commented-out Java statements` — 344 lines, 53 files, production sources only.
+- #2062 on `dead-code/commented-out-java`, head 4235110e — GREEN and mergeable, SonarCloud gate passed, and
+  CodeRabbit found nothing. One commit: 344 lines of commented-out Java, 53 files, production sources only.
 
 ## Merged PRs
 
