@@ -150,7 +150,7 @@ public class InputArgsBean {
         if (rulesDeploy == null) {
             return true;
         } else {
-            return rulesDeploy.isProvideRuntimeContext();
+            return Boolean.TRUE.equals(rulesDeploy.isProvideRuntimeContext());
         }
     }
 
