@@ -55,13 +55,15 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
     private String getName(AnnotatedMember member, String defaultName) {
         if (member.hasAnnotation(SpreadsheetCell.class)) {
             var spreadsheetCell = member.getAnnotation(SpreadsheetCell.class);
+            String name;
             if (StringUtils.isEmpty(spreadsheetCell.column())) {
-                return transform(spreadsheetCell.row());
+                name = transform(spreadsheetCell.row());
             } else if (StringUtils.isEmpty(spreadsheetCell.row())) {
-                return transform(spreadsheetCell.column());
+                name = transform(spreadsheetCell.column());
             } else {
-                return transform(spreadsheetCell.column(), spreadsheetCell.row());
+                name = transform(spreadsheetCell.column(), spreadsheetCell.row());
             }
+            return name + spreadsheetCell.suffix();
         }
         return defaultName;
     }
