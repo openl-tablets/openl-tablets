@@ -67,3 +67,7 @@ Rate = coverage.fundingType == "FullyInsured" ? RateCalculation ( rateBasis, $To
 ```
 
 If passing results of the Rate step to another rule, the type of the spreadsheet defined in this step is a united spreadsheet SRRateCalculation & SRASORate.
+
+When fields in a united spreadsheet result receive numeric suffixes to keep their generated names unique, OpenL
+preserves the suffixes after applying a property naming strategy. For example, `Code` and `code` become `code` and
+`code1` with the lower camel case strategy.
