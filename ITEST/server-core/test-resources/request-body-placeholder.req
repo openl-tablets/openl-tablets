@@ -1,0 +1,6 @@
+PATCH /rest/projects/example HTTP/1.1
+Content-Type: APPLICATION/JSON ; charset=UTF-8
+
+{
+  "revision": "${REVISION}"
+}

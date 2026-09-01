@@ -163,12 +163,32 @@ missing, or its identity resolves to nothing at all.
 
 ### Environment Variables
 
-Values come from `itest.env` files (loaded hierarchically per folder) and `HttpClient.localEnv` (set programmatically, highest priority). Two substitution syntaxes apply:
+Values come from `itest.env` files (loaded hierarchically per folder) and `HttpClient.localEnv` (set programmatically,
+highest priority). Two substitution syntaxes apply:
 
-- `${VAR}` — in **header values** (e.g. `Authorization: ${TOKEN}`); an undefined variable fails the request.
-- `{VAR}` — in the **request URL path** (e.g. `PUT /rest/repos/design/projects/{PROJECT}`); an undefined variable is left as-is.
+- `${VAR}` — in **header values** and unencoded textual request bodies (JSON, XML, URL-encoded forms and `text/*`);
+  an undefined variable fails the request. Text bodies use the charset declared by `Content-Type`, or UTF-8 when it
+  is absent. Bodies without placeholders and bodies with `Content-Encoding` are preserved byte-for-byte.
+- `{VAR}` — in the **request URL path** (e.g. `PUT /rest/repos/design/projects/{PROJECT}`); an undefined variable
+  is left as-is.
 
 This lets one shared `.req`/`.resp` folder drive several projects/users by changing only `localEnv` between runs.
+
+### Capturing Response Values
+
+An optional `.env` file with the same basename as a `.req`/`.resp` pair captures scalar values from a successful JSON
+response. Each entry maps an environment variable to a JSONPath expression:
+
+```properties
+# 040-get-history.env accompanies 040-get-history.req and 040-get-history.resp
+INITIAL_REVISION=$.content[0].revisionNo
+```
+
+The captured value is available to later requests in the same first-level test folder. Captured values override
+hierarchical `itest.env` values, while programmatic `HttpClient.localEnv` values keep the highest priority. A missing
+value or an expression selecting an object or array fails the test instead of leaving a stale variable in use.
+Response content encoding is decoded before evaluating JSONPath, including layered, case-insensitive `gzip` and
+`x-gzip` JSON responses whose comma-separated encoding names contain surrounding whitespace.
 
 ### Cookie/Session Handling
 

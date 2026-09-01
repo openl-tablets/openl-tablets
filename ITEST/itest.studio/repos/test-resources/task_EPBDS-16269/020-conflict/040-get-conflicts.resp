@@ -1,0 +1,33 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "conflictGroups": [
+    {
+      "projectName": "EPBDS-16269-Second-Rename",
+      "projectPath": "EPBDS-16269",
+      "files": [
+        "EPBDS-16269/rules.xml"
+      ]
+    }
+  ],
+  "oursRevision": {
+    "commit": "*",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "theirsRevision": {
+    "commit": "*",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "baseRevision": {
+    "commit": "*",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "defaultMessage": "*"
+}
