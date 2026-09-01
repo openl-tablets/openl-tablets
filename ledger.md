@@ -9,8 +9,7 @@ The productive shape is contract-satisfiability: an entry loaded or resolved by 
 cannot exist. It has now found the dead TLD, two dead managed entries, two dead plugin pins and a component scan
 of a package that no longer exists — every name-based vein returns nothing.
 Candidate next detectors, none tried: Spring `@Bean` methods whose type nothing injects; `id` attributes in
-webstudio pages; `<exclusion>` entries for artifacts their dependency never brings; entries in the JS/CSS bundle
-build scripts naming a source that is gone.
+webstudio pages; `<exclusion>` entries for artifacts their dependency never brings.
 Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'` before cutting a branch.
 
 ## Change-type queue
@@ -349,6 +348,8 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   pom, profiles and reporting sections included. Two dead, four reached without a declaration.
 - Every `org.openl` class and package reference in every configuration file, and all 24 component-scan base
   packages. One finding; the rest resolve or are third-party.
+- Every input named by the four tableeditor bundle build scripts. All 26 exist; the only unbundled source is the
+  vendored prototype library, which loads on its own.
 - Whole-file deadness over every non-image, non-web resource type outside test fixtures — `.xml`, `.properties`,
   `.txt`, `.json`, `.yaml`, `.sql`, `.env`, `.csv`, `.vm`, `.tld`, `.groovy`, `.md`, plus a catch-all over every
   remaining extension. One finding; every other hit is a convention file now on the keep-list.
