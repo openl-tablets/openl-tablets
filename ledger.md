@@ -47,6 +47,8 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   - `7d41eeea8c` Drop the JSP API dependency that no TableEditor source uses — change type 12.
 - No review threads. CodeRabbit's "Docstring Coverage" pre-merge warning is advisory and asks for additions,
   which a delete-only sweep never makes; ignore it, do not answer it again.
+- Every check passed on head `7d41eeea8c` except `IT (services-data)`, which hit the Kafka container flake; its
+  one rerun for that SHA is already spent, so a second failure there is real and must be root-caused.
 
 ## Merged PRs
 
