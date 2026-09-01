@@ -15,10 +15,10 @@ covered. Numbering continues at 73.
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `46b5c291`. Three commits, each one change type: the dead
-  `@ts-ignore` and the dead Java `deprecation` suppression together (types 67 and 72), the Mercurial `syntax:
-  glob` line with the unread root `.gitconfig` (68 and 70), the surefire system property nothing reads (71). No
-  human review comment; CodeRabbit and the Sonar gate pass.
+- #2063, branch `dead-code/dead-suppressions`, head `46b5c291`. Three commits, one per change type: the dead
+  `@ts-ignore` and Java `deprecation` suppression (67, 72), the `syntax: glob` line with the unread `.gitconfig`
+  (68, 70), the surefire property nothing reads (71). CodeRabbit and Sonar pass, no human review comment.
+  `IT (services-data)` is red on the Kafka image, not this PR: comment posted, rerun spent — leave it alone.
 
 ## Merged PRs
 
@@ -43,8 +43,7 @@ covered. Numbering continues at 73.
   API, unreachable only because its single caller passes none of them.
 - `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, whose two classes never touch it, yet
   two other modules reach it transitively from there; removing it needs a declaration added elsewhere.
-- `WSFrontend/org.openl.rules.ruleservice.ws.annotation` holds only a pom — a published aggregator of annotation
-  dependencies for rule service consumers, so nothing in-repo depends on it.
+- `WSFrontend/org.openl.rules.ruleservice.ws.annotation` is a pom-only published dependency aggregator.
 - Editor and VCS globs matching nothing today but working the moment such a file appears: `.editorconfig`
   `[*.scss]`, `.gitattributes` `**/*.http`, and `htm`, `jsp`, `jsx`, `bat` inside brace lists. Defensive, not dead.
 - The 153 `/* (non-Javadoc) @see ... */` markers beside overriding methods — redundant next to `@Override`, but
@@ -233,8 +232,8 @@ covered. Numbering continues at 73.
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails with `ORA-12516 ... no protocol handler for TCP ready`,
   the Oracle TestContainer listener not yet accepting connections. Infrastructure, never the diff. One rerun.
 - `IT (services-data)` — `RunKafkaSmokeITest.setUp` or `RunStoreLogDataITest.setUp` cannot start
-  `apache/kafka-native:latest`: the native image segfaults in `Pwd.getpwuid` under `System.getProperty` inside
-  its own entrypoint, so the container exits 1 before any test body. The tag floats, never pin it away. One rerun.
+  `apache/kafka-native:latest`: the native image segfaults in `Pwd.getpwuid` inside its own entrypoint, so the
+  container exits 1 before any test body. Now DETERMINISTIC: it survives a rerun, so spend none. Never pin.
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
   overlapping `coverage-*` artifacts the job merges. Transient, and it suppresses the gate entirely because
   nothing is uploaded. One rerun per SHA.
@@ -379,6 +378,7 @@ covered. Numbering continues at 73.
 
 - Allowlist `sonarcloud.io`, or paste the rule key and file/line when the gate fails — undiagnosable from here.
   Also allowlist `build.shibboleth.net` or mirror the OpenSAML artifacts, so webstudio can build here.
+- `apache/kafka-native:latest` is broken upstream; `IT (services-data)` stays red until `latest` is fixed or pinned.
 - Delete the abandoned remote branch `dead-code/studio-resources` — auto-delete does not reach it, since PR
   #2055 closed unmerged. `git push --delete` gets HTTP 403 here and the MCP server has no delete-branch tool.
 - Decide on the *Deferred findings* entries that are public in a published artifact, the commented-out test
