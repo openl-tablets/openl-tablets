@@ -21,8 +21,9 @@ All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a de
 
 - #2060 on `dead-code/maven-managed-entries`, head `a093dd584a`, one commit: "Drop the managed webstudio jar
   entries no module can consume" (type 50; root and `ITEST/pom.xml`, 11 lines). CodeRabbit found nothing.
-  `IT (services-data)` is red with the known kafka-native flake; the stand-down comment is posted and the one
-  rerun for this SHA is still UNSPENT — spend it first thing, the run was live and refused it.
+  Every check is green: the `IT (services-data)` failure was confirmed as the kafka-native flake by its tell and
+  the one rerun for this SHA is now SPENT and passed. A further failure on `a093dd584a` is real, not the flake.
+  The PR is green and mergeable, so it waits on the owner — nothing to push.
 
 ## Merged PRs
 
