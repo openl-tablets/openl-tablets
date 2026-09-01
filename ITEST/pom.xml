@@ -74,12 +74,6 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.webstudio</artifactId>
                 <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.webstudio</artifactId>
-                <version>${project.version}</version>
                 <type>war</type>
                 <scope>test</scope>
             </dependency>
