@@ -35,7 +35,6 @@ If necessary, modify the OpenL Rule Services configuration by overriding the exi
 | `openl-ruleservice-loader-beans.xml`          | Configuration for rules loader.                                                                                                                |
 | `openl-ruleservice-publisher-beans.xml`       | Common publisher configurations.                                                                                                               |
 | `openl-ruleservice-jaxrs-publisher-beans.xml` | Configuration for RESTful services publisher.                                                                                                  |
-| `openl-ruleservice-rmi-publisher-beans.xml`   | Configuration for RMI services publisher.                                                                                                      |
 | `openl-ruleservice-kafka-publisher-beans.xml` | Configuration for Kafka services publisher.                                                                                                    |
 | `openl-ruleservice-conf-beans.xml`            | Configuration for Service Configurer.                                                                                                          |
 | `openl-ruleservice-store-log-data-beans.xml`  | Configuration for external request and response storages.                                                                                      |
@@ -329,12 +328,11 @@ When deploying a project to OpenL Rule Services, if the rules-deploy.xml file is
 | isProvideRuntimeContext           | Identifies, if set to `true`, that a project provides a runtime context.  <br/>The default value is defined in the `application.properties` file.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | No                  |
 | serviceName                       | Defines a service name. <br/>The service name defined in the file is displayed for a deployed project in the embedded mode only. <br/>Otherwise, the service name is derived from its path. <br/>A default pattern is "{deployment_configuration_name}/{project_name}".                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | No                  |
 | serviceClass                      | Defines a service class. If it is not defined, a generated class is used.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | No                  |
-| rmiServiceClass                   | Define a service class to be used by RMI publisher.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Yes <br/>if RMI is used |
 | version                           | Defines a service version.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | No                  |
 | url                               | Defines URL for a service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | No                  |
 | annotationTemplateClassName       | Defines an interface being used as a template to annotate dynamic generated interface class.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | No                  |
 | groups                            | Defines a list of comma-separated groups used for this project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | No                  |
-| publishers                        | Defines a list of publishers for a project. <br/>Available values are as follows: <br/>- [RESTFUL](#cxf-rest-publisher) <br/>- [RMI](#rmi-publisher) <br/>- [KAFKA](#kafka-publisher) <br/>If the publisher list is empty, the service is deployed as a Java object without network API defined. <br/>This can be useful if deploying multiple projects in one deployment <br/>where some of these projects must not define the network API.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | No                  |
+| publishers                        | Defines a list of publishers for a project. <br/>Available values are as follows: <br/>- [RESTFUL](#cxf-rest-publisher) <br/>- [KAFKA](#kafka-publisher) <br/>If the publisher list is empty, the service is deployed as a Java object without network API defined. <br/>This can be useful if deploying multiple projects in one deployment <br/>where some of these projects must not define the network API.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | No                  |
 | configuration                     | Is used as extension point for custom service configuration.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | No                  |
 | jackson.serializationInclusion    | Serialization option for JSON based services.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | No                  |
 | jackson.defaultDateFormat         | Used to define date format is used in JSON.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | No                  |
@@ -392,7 +390,6 @@ To add a publisher, use any framework by implementations of `org.openl.rules.rul
 OpenL Rule Services supports following publisher implementations out of the box:
 
 -   [CXF REST Publisher](#cxf-rest-publisher)
--   [RMI Publisher](#rmi-publisher)
 -   [Kafka Publisher](#kafka-publisher)
 
 ##### CXF REST Publisher
@@ -537,21 +534,6 @@ Every class named in `rules-deploy.xml` must be available on the project classpa
 Studio does not start Tests, Run, or Trace execution. The error identifies the missing class so the project
 configuration or classpath can be corrected. This includes `rootClassNamesBinding` and class-valued Jackson settings
 such as `jackson.propertyNamingStrategy`.
-
-##### RMI Publisher
-
-RMI Service Publisher implementation class is `org.openl.rules.ruleservice.publish.RmiRuleServicePublisher`. The Spring configuration for this publisher is located in the `openl-ruleservice-rmi-publisher-beans.xml `file.
-
-**Note:** The full RMI service address is `rmi://hostname:port/rmi name specified by you in rules.xml file`.
-
-The appropriate port and host name for RMI can be defined in the `application.properties` file.
-
-By default, these properties are defined as follows:
-
-```properties
-ruleservice.rmiPort = 1099 // Port for RMI
-ruleservice.rmiHost = 127.0.0.1 // Used as host for RMI
-```
 
 ##### Kafka Publisher
 
@@ -790,9 +772,7 @@ The system provides an ability to store all requests to OpenL Rule Services and 
 
 -   [Understanding Logging to an External Storage](#understanding-logging-to-an-external-storage)
 -   [Enabling Logging to an External Storage](#enabling-logging-to-an-external-storage)
--   [Storing Log Records in Apache Cassandra](#storing-log-records-in-apache-cassandra)
 -   [Storing Log Records in the Relational Database](#storing-log-records-in-the-relational-database)
--   [Storing Log Records in Hive](#storing-log-records-in-hive)
 
 ##### Understanding Logging to an External Storage
 
@@ -821,51 +801,6 @@ ruleservice.store.logs.enabled = false
 ```
 
 To enable logging, set `ruleservice.store.logs.enabled = true`.
-
-##### Storing Log Records in Apache Cassandra
-
-Apache Cassandra is a free and open-source, distributed, wide column storage database that can be used as external storage. To start using Apache Cassandra, proceed as follows:
-
-1.  Download the OpenL Rule Services full web application at <https://openl-tablets.org/downloads> or use the following Maven command:
-
-    ```sh
-    mvn dependency:copy -Dartifact=org.openl.rules:org.openl.rules.ruleservice.ws.full:<openl version here>:war -DoutputDirectory=./
-    ```
-
-1.  Enable the Cassandra Storing Log feature using the `ruleservice.store.logs.cassandra.enabled=true` setting in the `application.properties` file.
-2.  Set up Cassandra connection settings defined in the `application.properties` file as described in the following lines:
-
-    ```properties
-    datastax-java-driver.basic.load-balancing-policy.local-datacenter = datacenter1
-    datastax-java-driver.basic.contact-points.0 = 127.0.0.1:9042
-    datastax-java-driver.basic.session-keyspace = openl_ws_logging
-    datastax-java-driver.advanced.protocol.version = V4
-    datastax-java-driver.advanced.auth-provider.username =
-    datastax-java-driver.advanced.auth-provider.password =
-    ```
-
-    For more information on Cassandra, see <https://docs.datastax.com/en/developer/java-driver/4.5/manual/core/configuration/>. For more information on connection configuration options, see <https://docs.datastax.com/en/developer/java-driver/4.5/manual/core/configuration/reference/>.
-
-3.  Before running the application, create a keyspace in Cassandra as described in <https://docs.datastax.com/en/cql/3.1/cql/cql_reference/create_keyspace_r.html>.
-4.  To create a schema in the Cassandra database, start OpenL Rule Services for the first time with the `ruleservice.store.logs.cassandra.schema.create = true` property.
-
-    By default, this option is enabled. When the schema is created, set this property to the `false` value.
-
-As a result, the following table with the `openl_log_data` name is created in the Cassandra database:
-
-| Column name    | Type      | Description                                                    |
-|----------------|-----------|----------------------------------------------------------------|
-| ID             | TEXT      | Unique ID for the request. It is a primary key for the record. |
-| INCOMINGTIME   | TIMESTAMP | Incoming request time.                                         |
-| METHOD_NAME    | TEXT      | Method of a service that was called.                           |
-| OUTCOMINGTIME  | TIMESTAMP | Outgoing response time.                                        |
-| PUBLISHER_TYPE | TEXT      | Request source, such as web service or REST service.           |
-| REQUEST        | TEXT      | Request body.                                                  |
-| RESPONSE       | TEXT      | Response body.                                                 |
-| SERVICE_NAME   | TEXT      | Deployment service that was called.                            |
-| URL            | TEXT      | URL of the request.                                            |
-
-**Note:** Only methods annotated with `org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra `are used for storing their requests and responses in Apache Cassandra. The system supports customization to use different tables for each OpenL Tablets project, use product specific table names, and configure a set of columns of tables. For more information on customization using annotations, see [Service Customization through Annotations](#service-customization-through-annotations).
 
 ##### Storing Log Records in the Relational Database
 
@@ -911,54 +846,3 @@ If table creating is enabled in Hibernate, the system creates the following tabl
 | URL            | TEXT      | URL of the request.                                            |
 
 **Note:** Only methods annotated with `org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB `are used for storing their requests and responses in a relational database. The system supports customization to use different tables for each OpenL Tablets project, use product specific table names, and configure a set of columns for tables. For more information on customization using annotations, see [Service Customization through Annotations](#service-customization-through-annotations).
-
-##### Storing Log Records in Hive
-
-Apache Hive is supported as external storage out of the box. The Hive data warehouse software facilitates reading, writing, and managing large datasets residing in distributed storage using SQL. Structure can be projected onto data already in storage. A command line tool and JDBC driver are provided to connect users to Hive.
-
-The system uses the JDBC driver to communicate with the Hive server that process application requests.
-
-To start using Hive, proceed as follows:
-
-1.  Download the OpenL Rule Services full web application at <https://openl-tablets.org/downloads> or use the following Maven command:
-
-    ```sh
-    mvn dependency:copy -Dartifact=org.openl.rules:org.openl.rules.ruleservice.ws.all:<openl version here>:war -DoutputDirectory=./
-    ```
-
-1.  Set up Hive connection settings defined in the `application.properties` file as follows:
-
-    ```properties
-    ruleservice.store.logs.hive.enabled = true
-    hive.connection.url = jdbc:hive2://localhost:10000/default
-    hive.connection.username =
-    hive.connection.password =
-    hive.connection.pool.maxSize = 10
-    ```
-
-The following properties can be modified to configure Hive:
-
-| Property                                 | Description                                                                                                                                                                                             |
-|------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ruleservice.store.logs.hive.enabled      | Property to enable storing Hive logs.                                                                                                                                                                   |
-| hive.connection.url                      | URL for connecting to the Hive server. <br/>**Example:** `hive.connection.url = jdbc:hive2://localhost:10000/default`                                                                         |
-| hive.connection.username                 | Username for connecting to the Hive server.                                                                                                                                                           |
-| hive.connection.password                 | Password for connecting to the Hive server.                                                                                                                                                           |
-| hive.connection.pool.maxSize             | OpenL Tablets uses HikariCP JDBC connection pool for managing Hive connections. The default pool size is 10. <br/>For more information on HikariCP, see <https://github.com/brettwooldridge/HikariCP>. |
-| ruleservice.store.logs.hive.table.create | If set to true, property that enables the SQL script to create a table before making a record in it.                                                                                                  |
-
-As a result, the following table with the default openl_log_data name is created in Hive:
-
-| **Column name** | **Type**  | **Description**                                                |
-|-----------------|-----------|----------------------------------------------------------------|
-| ID              | STRING    | Unique ID for the request. It is a primary key for the record. |
-| INCOMINGTIME    | TIMESTAMP | Incoming request time.                                         |
-| METHODNAME      | STRING    | Method of a service that was called.                           |
-| OUTCOMINGTIME   | TIMESTAMP | Outgoing response time.                                        |
-| PUBLISHERTYPE   | STRING    | Request source, such as web service or REST service.           |
-| REQUEST         | STRING    | Request body stored as JSON.                                   |
-| RESPONSE        | STRING    | Response body stored as JSON.                                  |
-| SERVICENAME     | STRING    | Deployment service that was called.                            |
-| URL             | STRING    | URL of the request.                                            |
-
-**Note:** Only methods annotated with org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive are used for storing their requests and responses to Hive. The system supports customization to use different tables for each OpenL Tablets project, use product specific table names, and configure a set of columns of the tables. For more information on customization using annotations, see [Service Customization through Annotations](#service-customization-through-annotations).

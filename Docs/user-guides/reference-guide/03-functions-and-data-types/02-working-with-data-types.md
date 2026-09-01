@@ -7,7 +7,7 @@ All data types used in OpenL Tablets can be divided into the following groups:
 | Type                               | Description                                                                            |
 |------------------------------------|----------------------------------------------------------------------------------------|
 | Predefined data types              | Types that exist in OpenL Tablets, can be used, but cannot be modified.                |
-| Custom data types and vocabularies | Types created by a user as described in the [Datatype Table](../../02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md#datatype-table) section. |
+| Custom data types and vocabularies | Types created by a user as described in the [Datatype Table](../02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md#datatype-table) section. |
 
 This section describes predefined data types that include the following ones:
 
@@ -55,7 +55,7 @@ OpenL Tablets supports the following range data types:
 
 The following illustration provides a very simple example of how to use a range data type. The value of discount percentage depends on the number of orders and is the same for 4 to 5 orders and 7 to 8 orders. A number of cars per order is defined as IntRange data type. For a number of orders from, for example, 6 to 8, the rule for calculating the discount percentage is the same: the discount percentage is 10.00% for BMW, 4.00% for Porsche, and 6.00% for Audi.
 
-![](../ref-guide-images/usageRangeDataType.png)
+![Usage of the range data type](../ref-guide-images/usageRangeDataType.png)
 
 *Usage of the range data type*
 
