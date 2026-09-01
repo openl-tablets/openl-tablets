@@ -18,34 +18,18 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 | # | Change type | Status |
 |---|---|---|
 | 1 | Unreferenced images | done (run 1) |
-| 2 | Unreferenced whole `.xhtml` pages | done, no finding (run 1) |
-| 3 | Unreferenced whole `.js` / `.css` files | done, no finding (run 1) |
-| 4 | Unused `.properties` keys (STUDIO bundles) | done, no finding (runs 1-2) |
 | 5 | Dead CSS rules | done for own stylesheets (runs 1, 3); vendor files stay |
-| 6 | Dead JS functions (own scripts) | done, no finding (runs 2-3) |
 | 7 | Never-read assignments (PMD `UnusedAssignment`) | done (run 6, 1 shipped of 9) |
-| 8 | Unused local variables (PMD) | done, no deletable finding (run 5) |
-| 9 | Unused private fields (PMD) | done, no deletable finding (run 6) |
-| 10 | Unused private methods (PMD) | done, no finding (run 5) |
 | 11 | Unused formal parameters (PMD, private only) | done (run 6, 1 shipped); webstudio unscanned |
 | 12 | Unused declared Maven dependencies | done (runs 6, 8; 1 shipped) |
-| 13 | Whole-type deadness in `.impl.` / internal packages | done, no finding (run 5) |
-| 14 | Dead TypeScript in `STUDIO/studio-ui` | done, no finding (runs 2-3) |
 | 15 | Unused `studio-ui` locale keys | done (run 3, 17 keys) |
 | 16 | Orphaned resource files (config, data, descriptors) | done (runs 7-8, 2 shipped) |
-| 17 | Unused pom `<properties>` | done, no finding (run 7) |
-| 18 | Unused `studio-ui` npm dependencies | done, no finding (run 7) |
-| 19 | Unused `openl-default.properties` keys | done, no finding (run 7) |
-| 20 | Unused package-private methods and fields | done, no finding (run 7) |
-| 21 | Unused enum constants | done, no deletable finding (run 8) |
 | 22 | Descriptors whose declared class breaks the contract | done (run 8, 1 shipped) |
 | 23 | Unused root-pom `dependencyManagement` entries | done (run 9, 2 shipped) |
-| 24 | Dead Maven profiles | done, no finding (run 9) |
-| 25 | Unread servlet `param-name` entries | done, no finding (run 9) |
-| 26 | Dead helper types in test sources | done, no deletable finding (run 9) |
 | 27 | Unused root-pom `pluginManagement` entries | done (run 10, 1 shipped) |
 | 28 | Config entries whose declared target does not exist | done (run 10, 1 shipped) |
-| 29 | Dead CSS id selectors | done, no finding (run 10) |
+| 2-4, 6, 8-10, 13-14 | Whole `.xhtml` / `.js` / `.css` files, STUDIO bundle keys, JS functions, PMD locals, private fields and methods, internal-package types, studio-ui TypeScript | done, no deletable finding (runs 1-6) |
+| 17-21, 24-26, 29 | pom `<properties>`, npm dependencies, `openl-default.properties` keys, package-private members, enum constants, Maven profiles, servlet `param-name`, test helper types, CSS id selectors | done, no deletable finding (runs 7-10) |
 
 ## Open PR
 
@@ -57,6 +41,9 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   - `af5b8accc7` Drop dependency management entries that no module declares — change type 23, two entries.
   - `65e0bc1d41` Drop plugin management entries for plugins nothing invokes — change type 27, two entries.
   - `41aecf7662` Drop the component scan of a package left behind by the studio move — change type 28.
+- While the Sonar gate is red and unexplained, STOP adding commits: each push burns a full CI cycle and cannot
+  make the PR mergeable. CodeRabbit already auto-paused its reviews on this branch for "an influx of new
+  commits". Bank new findings for the next PR instead.
 - No review threads. CodeRabbit's "Docstring Coverage" pre-merge warning is advisory and asks for additions,
   which a delete-only sweep never makes; ignore it, do not answer it again.
 - The SonarCloud quality gate fails on "C Reliability Rating on New Code"; every other check is green. It has
