@@ -2,25 +2,23 @@
 
 ## Resume point
 
-PR #2062 is open on `dead-code/commented-out-java` — two commits, types 56 and 57.
+PR #2062 is open on `dead-code/commented-out-java`, green and waiting only on a human merge.
 CONCURRENCY: a fresh session every two hours shares this ledger, so another run may write it while you work —
 add what is missing instead of replacing its text, treat a CI event for a superseded `head_sha` as stale, and
 never arm a self-perpetuating check-in chain; the next firing already covers the PR.
-All 60 change types are closed: Java member-level deadness and comment-shaped deadness are both finished in
-every language the repository uses. Untried: mojo parameters no goal reads and Spring bean ids nothing names
-(both public config, likely deferred); a selector declared twice in one stylesheet (merging blocks is a refactor).
+All 66 change types are closed and every remaining lead named in an earlier resume point has been run and came
+back empty. Nothing deletable is known to be left; a run that finds nothing is the expected outcome now.
 
 ## Change-type queue
 
-All 60 closed — eighteen shipped a deletion, forty-two found nothing; *Exhausted veins* records what each
-covered. Numbering continues at 61.
+All 66 closed — eighteen shipped a deletion, forty-eight found nothing; *Exhausted veins* records what each
+covered. Numbering continues at 67.
 
 ## Open PR
 
 - #2062 on `dead-code/commented-out-java`, head e50c7906 — 2 commits, 58 files, 417 deletions. Type 56
-  commented-out Java (55 files); type 57 stylesheets and scripts (3 files). CodeRabbit found nothing on either.
-  GREEN and mergeable: the `Sonar analysis` `Unknown block type c7` flake failed once here and passed on the
-  single re-run, with the SonarCloud gate green after it. Waiting only on a human merge.
+  commented-out Java (55 files); type 57 stylesheets and scripts (3 files). CodeRabbit found nothing, no review
+  thread is open, and all 14 checks pass including the SonarCloud gate. Waiting only on a human merge.
 
 ## Merged PRs
 
@@ -53,10 +51,10 @@ covered. Numbering continues at 61.
 - Two commented-out alternatives that share a line with live code (`ColumnDescriptor.loadMultiRowArray`,
   `XlsSheetGridModel.setCellStyle`) — removing either edits a live line, so the deletion-only proof is lost.
 - Commented-out statements in TEST sources, ~30 runs — disabled bodies (`ValidatorTest`, `TokenizerParserTest`)
-  and disabled assertions (`MethodSearchTest`, `PropertyTableTest`, `OpenAPIGroovyScriptGeneratorTest`): a
-  commented assertion can be a known-issue marker, so type 56 shipped production sources only.
-- The commented `files = new File[] {new File(testsDir, "EPBDS-10072...")};` line in `RulesInFolderTestRunner`,
-  `OpenAPIGenerationTest` and `OpenAPIProjectCreatorTest` — a single-folder debug switch, dead but deliberate.
+  and disabled assertions (`MethodSearchTest`, `PropertyTableTest`, `OpenAPIGroovyScriptGeneratorTest`) can be
+  known-issue markers, and the commented `files = new File[] {...}` line in `RulesInFolderTestRunner`,
+  `OpenAPIGenerationTest` and `OpenAPIProjectCreatorTest` is a deliberate single-folder debug switch. Type 56
+  therefore shipped production sources only.
 
 ## False-positive shapes
 
@@ -128,6 +126,9 @@ covered. Numbering continues at 61.
   `/* Element */` parameter-type annotation in Prototype-era JS.
 - A Java comment scanner must consume `"""` text blocks as literals: a text block holding `rules/*.xlsx`
   otherwise opens a comment that swallows the rest of the file and reports it as commented-out code.
+- A `serialVersionUID` looks dead whenever serializability arrives through a framework base a repo-only
+  inheritance map cannot see — `RecursiveAction`, `PhaseListener`, `HttpServlet` all carry it. A nested class
+  named with `$` also escapes a `\w+` type-name regex, so its field is misattributed to the enclosing class.
 
 ## Method rules
 
@@ -146,9 +147,8 @@ covered. Numbering continues at 61.
   private member, whose scope is one file; CI's `Build artifacts` job is then the compile gate.
 - Search an accessor by its property name as well as its method name: Velocity `$w.propertyType` and JSF EL
   `#{bean.propertyType}` call `getPropertyType()` without ever spelling it.
-- A `#`-hash link in legacy WebStudio is a server page route, not a React route. The crossroads routes in
-  `index.xhtml` build `page + ".xhtml"` from the fragment, so search a page by its base name with and without
-  the extension.
+- A `#`-hash link in legacy WebStudio is a server page route, not a React route: the crossroads routes in
+  `index.xhtml` build `page + ".xhtml"` from the fragment, so search a page with and without the extension.
 - A descriptor loaded by convention is dead when its declared handler cannot satisfy the loader's contract, even
   though the class it names exists: a `.tld` tag class must implement the JSP tag interface, and the tableeditor
   ones extend `UIComponentBase`. Check the contract, not the name — but first confirm the descriptor declares
@@ -157,8 +157,7 @@ covered. Numbering continues at 61.
   CXF's `AbstractHTTPServlet` reads `/WEB-INF/cxfServletStaticResourcesMap.txt`, then `/<same name>`. Grep the
   dependency jars for the base name, then prove the value it feeds is never read — a loader is not a reader.
 - Resolve every dotted reference in configuration against the repository: collect each `.java` file's package,
-  then check class and package names separately. Artifact ids share the shape, so exclude POMs; a third-party
-  name is unverifiable, not dead.
+  then check class and package names separately. Artifact ids share the shape, so exclude POMs.
 - Collect Maven dependency consumers by PARSING every pom, not grepping: `<artifactItem>` blocks of the
   dependency plugin consume a managed version exactly as `<dependency>` does, and a grep for the artifact name
   cannot tell the type and classifier apart.
@@ -180,6 +179,8 @@ covered. Numbering continues at 61.
   release-notes entry only when a user could observe it, which an internal endpoint with no button never is.
 - A public member of a package-private or nested class is not published API, so it is admissible — but its
   caller is usually in the same file or package. Count occurrences repo-wide and read every hit; two is a call.
+- Two rule blocks sharing a selector are BOTH live unless the earlier one's property set is a subset of the
+  later one's — compare property sets and `!important`, never selectors. Every duplicate here is disjoint.
 - A comment-only removal is proved by the diff, not a build: strip every comment from each touched file at both
   ends and compare — identical code proves it, and unlike a "removed lines all start with `//`" check it also
   covers a `/* */` block whose interior lines do not. `git diff --numstat` must add zero lines. Treat a maximal
@@ -196,23 +197,21 @@ covered. Numbering continues at 61.
 - Keys under `ws.project.openapi.mode.` are reached by
   `#{msg['ws.project.openapi.mode.'.concat(project.openapi.mode.name().toLowerCase())]}` in `project.xhtml`.
 - `rf-*` (RichFaces, JS inside a jar) and antd-generated class names can never be proven dead, so the 17 `rf-*`
-  classes and `ant-select-input` in webstudio `common.css` and the `rf-*` selectors inside the `<style>` blocks
-  of `searchForm.xhtml`, `compare.xhtml` and `tree.xhtml` stay permanently. RichFaces is alive: two modules
-  declare `org.openl.richfaces` and webstudio uses it.
+  classes and `ant-select-input` in webstudio `common.css` and the `rf-*` selectors in the `<style>` blocks of
+  `searchForm.xhtml`, `compare.xhtml` and `tree.xhtml` stay. RichFaces is alive: two modules declare it.
 - `openapi.properties` keys are annotation values resolved by `OpenApiPropertyResolverImpl`; all 625 are live.
 - Public API in `DEV/**` and every published artifact is off limits even when unused in-repo.
 - `ValidationMessages.properties` keys are looked up by a short form: the code drops the `openl.error.` prefix
   and, for exceptions, the three-digit status segment. All live; see the localized-exceptions skill.
-- `onFailure` in the tableeditor scripts is a Prototype Ajax callback, invoked as `'on' + state`.
+- `onFailure` in the tableeditor scripts is a Prototype Ajax callback, invoked as `'on' + state`. ITEST
+  `001-Get-Static-CSS` asserts only the status and `Content-Type` of `/css/common.css`, never its body.
 - Vendored third-party scripts and stylesheets carry commented-out code of their own and stay untouched, since
   editing one forks the upstream copy: tableeditor `js/datepicker.js` and `css/datepicker.css` (DatePicker 5.4,
   CC BY-SA), `js/prototype/prototype-1.7.3.js`, and webstudio `diff2html.*` and `javascript/vendor/**`.
-- ITEST `001-Get-Static-CSS` asserts only the status and `Content-Type` of `/css/common.css`, never its body.
 - `serviceDescriptionInProcess` in `ServiceManagerImpl` is published to other beans through
   `@Qualifier("serviceDescriptionInProcess")` getters; its assignments are a deployment protocol, not bookkeeping.
-- `META-INF/openl/extension-*.xml` files are pulled in by a wildcard `@ImportResource` in `ExtensionsConfiguration`,
-  so no file names one.
-- `openl-db-repository-<databaseCode>[-v<major>[.<minor>]].properties` and `-ext` are loaded by a name `Settings`
+- `META-INF/openl/extension-*.xml` is pulled in by a wildcard `@ImportResource` in `ExtensionsConfiguration`;
+  `openl-db-repository-<databaseCode>[-v<major>[.<minor>]].properties` and `-ext` are loaded by a name `Settings`
   composes at runtime; the flyway `db/flyway/**/V*.sql` migrations are loaded by directory convention.
 - Convention files nothing names: `banner.txt` (filtered by the pom), `.claude/**`, `.github/workflows/*`,
   `archetype-metadata.xml`, `CITATION.cff`, `Gemfile`, `compose.override.example.yaml`, `.idea/**`.
@@ -238,11 +237,11 @@ covered. Numbering continues at 61.
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails with `ORA-12516 ... no protocol handler for TCP ready`,
   the Oracle TestContainer listener not yet accepting connections. Infrastructure, never the diff. One rerun.
 - `IT (services-data)` — `RunStoreLogDataITest.setUp` cannot start `apache/kafka-native:latest`: log4j
-  `StatusLogger` init segfaults in `Pwd.getpwuid` inside the image's own entrypoint, so the container exits 1 and
-  the wait strategy times out. A crash before any test body; the tag floats, never pin it away. One rerun.
+  `StatusLogger` init segfaults in `Pwd.getpwuid` inside the image's own entrypoint, so the container exits 1
+  before any test body. The tag floats, never pin it away. One rerun.
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
-  overlapping `coverage-*` artifacts the job merges. Transient: it passed on re-run. Distinct from the gate, and
-  it suppresses the gate entirely because nothing is uploaded. Budget: one rerun per SHA.
+  overlapping `coverage-*` artifacts the job merges. Transient, and it suppresses the gate entirely because
+  nothing is uploaded. One rerun per SHA.
 - `rerun_failed_jobs` is refused while a job of the run is still in progress — 403 "This workflow is already
   running", or a bare 500. A 500 is NOT proof it failed: on #2060 the run reached `run_attempt` 2 and went green
   after one. Read `run_attempt` before retrying or reporting a budget unspent.
@@ -282,15 +281,15 @@ covered. Numbering continues at 61.
 - The global git identity can be rewritten back to `Claude <noreply@anthropic.com>` mid-session. Re-set it and
   pass `GIT_AUTHOR_*` / `GIT_COMMITTER_*` inline on every commit; `--amend` alone keeps the wrong author,
   so it needs `--reset-author`.
-- `git push origin --delete <branch>` fails through the proxy with HTTP 403; normal pushes work.
-- `gh` CLI and `xxd` are absent. Use the GitHub MCP tools. A body sent through them loses angle-bracketed text:
-  a `maven.deploy.skip` XML element written as a tag pair was stored as a bare `true`, silently gutting the
+- `git push origin --delete <branch>` fails through the proxy with HTTP 403; normal pushes work. `gh` CLI and
+  `xxd` are absent — use the GitHub MCP tools. A body sent through them loses angle-bracketed text: a
+  `maven.deploy.skip` XML element written as a tag pair was stored as a bare `true`, silently gutting the
   evidence it carried. Name an XML element in prose with backticks, never as a tag.
 - `sonarcloud.io` is blocked by the sandbox proxy (`CONNECT tunnel failed, response 403`), and a failed
   SonarCloud check run carries only the rating — empty `output.text`, no annotations, no review comments. A
   quality-gate failure therefore cannot be diagnosed from here; say so and ask for the rule key and file/line.
-- `.toDelete/` is gitignored (`.gitignore:35`) and safe for scan scratch files.
-- Spotless runs from `validate` on; check `git status` after any build and revert churn you did not intend.
+- `.toDelete/` is gitignored (`.gitignore:35`) and safe for scan scratch files. Spotless runs from `validate`
+  on; check `git status` after any build and revert churn you did not intend.
 - Write the ledger through `git worktree add --detach <dir> origin/dead-code/ledger`; it never touches the
   sweep branch's working tree and needs no orphan-branch dance.
 
@@ -340,8 +339,8 @@ covered. Numbering continues at 61.
 - Every `org.openl` class and package reference in every configuration file, and all 24 component-scan base
   packages. One finding; the rest resolve or are third-party.
 - Whole-file deadness over every non-image, non-web resource type outside test fixtures — `.xml`, `.properties`,
-  `.txt`, `.json`, `.yaml`, `.sql`, `.env`, `.csv`, `.vm`, `.tld`, `.groovy`, `.md` and a catch-all over the
-  rest. One finding; every other hit is a convention file now on the keep-list.
+  `.txt`, `.json`, `.yaml`, `.sql`, `.env`, `.csv`, `.vm`, `.tld`, `.groovy`, `.md` plus a catch-all. One
+  finding; every other hit is a convention file now on the keep-list. No backup or placeholder file is tracked.
 - In production sources: all 474 package-private methods and 645 package-private fields are referenced, and of
   all 572 enum constants counted by occurrence, the 10 candidates all reach `values()` or a published enum.
 - Class references in all 67 convention-loaded descriptors (`web.xml`, `faces-config.xml`, `*.taglib.xml`,
@@ -360,26 +359,29 @@ covered. Numbering continues at 61.
 - The whole of `DEV/org.openl.rules.gen`: all 12 templates against the variables the generator supplies, both
   directions, plus every public member of the eleven helper classes. Four dead members, now shipped.
 - Both archetype modules, both directions: every `archetype-resources` file against every `<fileSet>`, and every
-  fileset against the files it matches. Also all four assembly descriptors in the repository. No finding.
-- Docs example poms and `openl-maven-plugin` `it/` fixtures are out of scope of every pom scan.
-- Pom `<resource>`/`<testResource>` directories all exist, and every module re-declaring a root-inherited
-  dependency changes its scope.
+  fileset against the files it matches. Also all four assembly descriptors. Pom `<resource>`/`<testResource>`
+  directories all exist, and every module re-declaring a root-inherited dependency changes its scope. Docs
+  example poms and `openl-maven-plugin` `it/` fixtures are out of scope of every pom scan.
+- All 45 JSF `<c:set var>` declarations, every one read by an EL expression; all 36 `openl-maven-plugin` mojo
+  `@Parameter` fields, every one read by its goal; and all 5 own `.sh`/`.cmd` scripts. No finding in any.
+- All 79 `serialVersionUID` declarations — the 4 whose type looks unserializable inherit it from a framework
+  base. The one `<ui:remove>` block in the repository is prose, and no faces config declares a navigation rule.
+- Duplicate selector blocks in every own stylesheet (10 pairs in `common.css` and `layout/main.css`): each pair
+  declares disjoint properties, so none is shadowed. No page includes the same `.js` or `.css` resource twice.
 - CSS animation names and custom properties: the repository declares neither. Selector deadness in
   `DEMO/webapps/ROOT/main.css`, the last own stylesheet uncovered — every id and class is used by `index.html`.
 - Public and protected members of package-private top-level classes (246 types) and non-public nested classes
   (318 types) — 186 non-overriding members, every one with a caller. This closed Java member deadness entirely.
 - Commented-out code, every language: all 4033 `.java` files as `//` runs and all 6511 `/* */` blocks, all 543
-  `/* */` blocks in every `.css` and `.js` file, all 1540 in the 562 `studio-ui` `.ts`/`.tsx` files, and all 23
-  HTML comments in the 54 `.xhtml`/`.html` files. Shipped from production sources only (55 Java, 3 script and
-  stylesheet files); test sources, 15 documentation-shaped blocks and every vendored library stay. Markup and
-  TypeScript hold none at all.
+  `/* */` blocks in `.css` and `.js`, all 1540 in `studio-ui`, and all 23 HTML comments in `.xhtml`/`.html`.
+  Shipped from production sources only (58 files); test sources, 15 documentation-shaped blocks and every
+  vendored library stay. Markup and TypeScript hold none at all.
 
 ## Human follow-ups
 
-- Allowlist `sonarcloud.io`, or paste the rule key and file/line when the gate fails — undiagnosable from here.
-  It tracks only what the diff touches (red on #2058, green on #2060 and #2062); the owner merges either way.
-- Mirror the OpenSAML artifacts, or allowlist `build.shibboleth.net`, so `org.openl.rules.webstudio` can build
-  here — they are not on Central. PMD scans it without compiling, so this blocks only a Java deletion inside it.
+- Allowlist `sonarcloud.io`, or paste the rule key and file/line when the gate fails — undiagnosable from here;
+  the owner merges either way. Also mirror the OpenSAML artifacts, or allowlist `build.shibboleth.net`, so
+  `org.openl.rules.webstudio` can build here — they are not on Central and PMD scans it without compiling.
 - Delete the abandoned remote branch `dead-code/studio-resources` — auto-delete does not reach it, since PR
   #2055 closed unmerged. `git push --delete` gets HTTP 403 here and the MCP server has no delete-branch tool.
 - Decide on the *Deferred findings* entries that are public in a published artifact, the commented-out test
@@ -392,7 +394,7 @@ covered. Numbering continues at 61.
 
 ## Run log
 
-- Run 17: opened #2060 (type 50); the owner merged it green the same hour. Types 49, 51, 52 closed empty.
 - Run 18: types 53-55 closed empty; type 56 shipped commented-out Java as #2062, then a concurrent run folded
   `/* */` blocks in and added type 57. Verified both, rewrote the PR body and title, re-ran the Sonar flake.
 - Run 19: types 58-60 closed empty; verified #2062's two commits with a 75-module reactor build.
+- Run 20: types 61-66 closed empty, no commit. #2062 confirmed green and unchanged; ledger compacted.
