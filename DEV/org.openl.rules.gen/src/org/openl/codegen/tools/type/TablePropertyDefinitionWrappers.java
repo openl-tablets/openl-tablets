@@ -23,10 +23,6 @@ public class TablePropertyDefinitionWrappers {
         }
     }
 
-    public List<TablePropertyDefinitionWrapper> asList() {
-        return new ArrayList<>(wrappers);
-    }
-
     public List<TablePropertyDefinitionWrapper> getDimensionalProperties(Selector selector) {
 
         var dimensionalTablePropertyDefinitions = new ArrayList<TablePropertyDefinitionWrapper>();

@@ -3,8 +3,6 @@ package org.openl.codegen.tools.type;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-
 @RequiredArgsConstructor
 public class TablePriorityRuleWrapper {
     @Getter
@@ -15,17 +13,11 @@ public class TablePriorityRuleWrapper {
         private final String operationName;
         @Getter
         private final String propertyName;
-        private final Class<?> propertyType;
 
         public SimplePriorityRuleWrapper(String priorityRule, String operationName, String propertyName) {
             super(priorityRule);
             this.operationName = operationName;
             this.propertyName = propertyName;
-            propertyType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propertyName);
-        }
-
-        public String getPropertyType() {
-            return propertyType.getName();
         }
     }
 
