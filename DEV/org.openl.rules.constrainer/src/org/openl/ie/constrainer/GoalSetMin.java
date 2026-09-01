@@ -22,20 +22,15 @@ public class GoalSetMin extends GoalImpl {
     private final IntExp _exp;
     private int _min;
 
-    // private UndoableInt _minI;
-
     public GoalSetMin(IntExp exp) {
         super(exp.constrainer(), "min");
         _exp = exp;
         _min = exp.min();
-        // _minI = _constrainer.addUndoableInt(min,"min");
     }
 
     @Override
     public Goal execute() throws Failure {
-        // Debug.print("\nExecute "+this);
         _exp.setMin(_min);
-        // _exp.setMin(_minI.value());
         return null;
     }
 
@@ -44,13 +39,11 @@ public class GoalSetMin extends GoalImpl {
      */
     public void min(int m) {
         _min = m;
-        // _minI.setValue(m);
     }
 
     @Override
     public String toString() {
         return _exp + ">=" + _min;
-        // return _exp+">="+_minI.value();
     }
 
 }

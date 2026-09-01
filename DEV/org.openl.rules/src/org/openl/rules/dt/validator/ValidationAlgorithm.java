@@ -64,14 +64,10 @@ public class ValidationAlgorithm {
             var cdt = new CDecisionTableImpl(expressions,
                     vars,
                     decisionTableToValidate.isOverrideAscending());
-            // System.out.println(" **** Checking " + decisionTable);
             var tableChecker = new DTCheckerImpl(cdt);
 
             List<Uncovered> completeness = tableChecker.checkCompleteness();
             List<Overlapping> overlappings = tableChecker.checkOverlappings();
-
-            // System.out.println("C: " + completeness);
-            // System.out.println("O:" + overlappings);
 
             result = new DecisionTableValidationResult(decisionTable,
                     overlappings.toArray(new Overlapping[0]),

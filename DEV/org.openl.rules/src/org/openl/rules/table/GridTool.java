@@ -360,10 +360,6 @@ public class GridTool {
         // clear cells for properties
         for (var prpCell = leftCell + 1; prpCell < leftCell + regionWidth; prpCell++) {
             actions.add(new UndoableClearAction(prpCell, headerRegion.getBottom() + 1, metaInfoWriter));
-            /*
-             * actions.add(new SetBorderStyleAction(prpCell, headerRegion.getBottom() + 1, makeNewPropStyle(grid,
-             * prpCell, headerRegion.getBottom() + 1, prpCell, regionWidth, null) ));
-             */
         }
 
         if (regionWidth >= 3) {

@@ -93,11 +93,9 @@ public class TypeBindingContext extends BindingContextDelegator {
                                           String name,
                                           IOpenClass[] parTypes) throws AmbiguousMethodException {
         IMethodCaller res = null;
-        // IOpenMethod method = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
             res = MethodSearch.findMethod(name, parTypes, this, localVar.getType(), true);
 
-            // method = localVar.getType().getMatchingMethod(name, parTypes);
             if (res != null) {
                 res = new LocalVarMethodCaller(localVar, res);
             }

@@ -58,8 +58,6 @@ final class AlgorithmErrorHelper {
             return errorMethod.invoke(environment.getTbasicTarget(), null, environment);
         }
 
-        // throw new RuntimeException(String.format("Execution of algorithm
-        // failed: %s", error.getMessage()), error);
         throw RuntimeExceptionWrapper.wrap(error);
 
     }

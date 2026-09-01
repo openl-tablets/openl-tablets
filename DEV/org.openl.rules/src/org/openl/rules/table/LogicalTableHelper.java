@@ -148,7 +148,6 @@ public class LogicalTableHelper {
         if (gt.getHeight() == nRows && gt.getWidth() == nColumns) {
             // TODO Light delegator
             return new SimpleLogicalTable(gt);
-            // return new LogicalTable(gt, nColumns, nRows);
         }
 
         int[] rowsOffset = new int[nRows + 1];

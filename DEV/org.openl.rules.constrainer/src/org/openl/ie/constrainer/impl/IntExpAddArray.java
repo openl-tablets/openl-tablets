@@ -16,7 +16,6 @@ public final class IntExpAddArray extends IntExpImpl {
     class ExpAddVectorObserver extends Observer {
 
         ExpAddVectorObserver() {
-            // super(event_map);
         }
 
         @Override
@@ -37,8 +36,6 @@ public final class IntExpAddArray extends IntExpImpl {
         @Override
         public void update(Subject exp, EventOfInterest event) throws Failure {
             var e = (IntEvent) event;
-
-            // System.out.println("Event:" + e);
 
             _sum.setMin(_sum.min() + e.mindiff());
             _sum.setMax(_sum.max() + e.maxdiff());
@@ -147,12 +144,6 @@ public final class IntExpAddArray extends IntExpImpl {
 
     @Override
     public void onMaskChange() {
-        // int mask = publisherMask();
-        // IntExp[] data =_vars.data();
-        // for(int i=0; i < data.length; i++)
-        // {
-        // _observer.publish(mask,data[i]);
-        // }
     }
 
     @Override
@@ -189,8 +180,6 @@ public final class IntExpAddArray extends IntExpImpl {
             return;
         }
 
-        // System.out.println("++++ Set max: " + max + " in " + this);
-
         var min_sum = min();
 
         var vars = _vars.data();
@@ -201,7 +190,6 @@ public final class IntExpAddArray extends IntExpImpl {
                 vari.setMax(maxi);
             }
         }
-        // System.out.println("---- set max:" + max + " in " + this);
     }
 
     @Override
@@ -210,8 +198,6 @@ public final class IntExpAddArray extends IntExpImpl {
         if (min <= min()) {
             return;
         }
-
-        // System.out.println("++++ Set min: " + min + " in " + this);
 
         var max_sum = max();
 
@@ -223,7 +209,6 @@ public final class IntExpAddArray extends IntExpImpl {
                 vari.setMin(mini);
             }
         }
-        // System.out.println("---- set min:" + min + " in " + this);
     }
 
     @Override
@@ -244,8 +229,6 @@ public final class IntExpAddArray extends IntExpImpl {
             return;
         }
 
-        // System.out.println("++++ Set value: " + value + " in " + this);
-
         var vars = _vars.data();
 
         for (IntExp vari : vars) {
@@ -262,8 +245,6 @@ public final class IntExpAddArray extends IntExpImpl {
                 vari.setMax(new_max);
             }
         }
-
-        // System.out.println("---- set value: " + value + " in " + this);
     }
 
     @Override

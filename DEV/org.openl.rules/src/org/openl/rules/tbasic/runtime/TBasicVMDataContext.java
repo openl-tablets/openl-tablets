@@ -24,7 +24,6 @@ public class TBasicVMDataContext {
                                Map<String, RuntimeOperation> labels,
                                boolean isMainMethod) {
         assert operations != null;
-        // assert operations.size() > 0;
         assert labels != null;
 
         this.operations = operations;
