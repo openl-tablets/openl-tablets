@@ -1,7 +1,6 @@
 import React from 'react'
 import InfoFieldModal from '../../components/modal/InfoFieldModal'
 
-// @ts-ignore
 export const ProtectedBranchesModal = (
     <InfoFieldModal
         text={(
