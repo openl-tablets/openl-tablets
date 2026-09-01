@@ -2,30 +2,30 @@
 
 ## Resume point
 
-PR #2062 is open on `dead-code/commented-out-java` — one commit, type 56.
+PR #2062 is open on `dead-code/commented-out-java` — two commits, types 56 and 57.
 CONCURRENCY: a fresh session every two hours shares this ledger, so another run may write it while you work —
 add what is missing instead of replacing its text, treat a CI event for a superseded `head_sha` as stale, and
 never arm a self-perpetuating check-in chain; the next firing already covers the PR.
-All 56 change types are closed; Java MEMBER-level deadness is finished in every admissible scope. Untried:
-commented-out markup and stylesheet code (a change type of its own, and deliberate more often than in Java);
-duplicate declarations inside one CSS rule block; mojo parameters no goal reads (public config, likely deferred);
-Spring bean ids nothing names.
+All 57 change types are closed; Java MEMBER-level deadness is finished in every admissible scope. Untried:
+commented-out markup in `.xhtml` (deliberate more often than in Java or CSS); duplicate declarations inside one
+CSS rule block; mojo parameters no goal reads (public config, likely deferred); Spring bean ids nothing names.
 
 ## Change-type queue
 
-All 56 closed — seventeen shipped a deletion, thirty-nine found nothing; *Exhausted veins* records what each
-covered. Numbering continues at 57.
+All 57 closed — eighteen shipped a deletion, thirty-nine found nothing; *Exhausted veins* records what each
+covered. Numbering continues at 58.
 
 ## Open PR
 
-- #2062 on `dead-code/commented-out-java`, head 4235110e — GREEN and mergeable, SonarCloud gate passed, and
-  CodeRabbit found nothing. One commit: 344 lines of commented-out Java, 53 files, production sources only.
+- #2062 on `dead-code/commented-out-java`, head e50c7906 — 2 commits, 58 files, 417 deletions, CI re-running
+  after a later run's fixup. Type 56 commented-out Java (55 files); type 57 stylesheets and scripts (3 files).
+  Green on the previous head with the SonarCloud gate passed; CodeRabbit found nothing on either.
 
 ## Merged PRs
 
-- #2054/#2056 (42 deletions), #2058 (11 commits, 411 deletions), #2060 (1 commit). No review comment on any.
-- The owner merges with or without a green SonarCloud gate, accepts a sweep of one commit per change type, and
-  the repository auto-deletes a merged sweep branch.
+- #2054/#2056 (42 deletions), #2058 (11 commits, 411 deletions), #2060 (1 commit); no review comment on any. The
+  owner merges with or without a green SonarCloud gate, accepts one commit per change type, and the repository
+  auto-deletes a merged sweep branch.
 
 ## Module coverage
 
@@ -35,23 +35,23 @@ covered. Numbering continues at 57.
 
 - `TableViewerTag` and `TableEditorTag` (tableeditor `taglib/`) — unreferenced since run 8 deleted their TLD;
   `faces-config.xml` registers component types for both tag names. Deletable but `public` in a published jar.
-- Five `XlsProjectionType` `CELL_*` constants (`STUDIO/org.openl.rules.diff`) — named nowhere; the enum's own
-  comment asks whether they are needed. Public enum constants in a published artifact.
+- Five `XlsProjectionType` `CELL_*` constants (`STUDIO/org.openl.rules.diff`) — named nowhere, and the enum's
+  own comment asks whether they are needed. Public enum constants in a published artifact.
 - `DecisionTableBuilder.methodName` (DEV `validation/properties/dimentional`) and `SimpleGroup.description`
-  (`STUDIO/org.openl.security`) — private, written, never read; removing either takes a public setter with it.
-- `MergeRequest`, `ResolveConflictsRequest` and `ResolveConflictsResponse` (`studio-ui`
-  `containers/MergeModal/types.ts`) — unused in code, but `Docs/api/projects-merge-api.md` documents all three.
-- ~70 exported types in `studio-ui` are used only inside their own file; dropping `export` is a refactor.
-- `tooltip_skin-{blue,green,red}` and `tooltip_top_{center,left}` in tableeditor `css/tooltip.css` — the
-  widget's theming API, unreachable because its single caller passes none of them.
-- ~190 public accessors in `DEV/**`/`STUDIO/**`/`WSFrontend/**` are named only at their declaration; published API.
-- `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, whose two classes never touch it, but
-  two other modules reach it transitively from there. Removing it needs a declaration added elsewhere.
-- The module `WSFrontend/org.openl.rules.ruleservice.ws.annotation` holds only a pom — a published aggregator of
-  annotation dependencies for rule service consumers, so nothing in-repo depends on it.
+  (`STUDIO/org.openl.security`) are private, written, never read; removing either takes a public setter with it.
+- `MergeRequest`, `ResolveConflictsRequest`, `ResolveConflictsResponse` (`studio-ui` `MergeModal/types.ts`) —
+  unused in code, but `Docs/api/projects-merge-api.md` documents all three.
+- ~70 exported types in `studio-ui` are used only inside their own file (dropping `export` is a refactor), and
+  `npm run clean` is the one script nothing names — but an npm script is a human entry point.
+- `tooltip_skin-{blue,green,red}` and `tooltip_top_{center,left}` in tableeditor `css/tooltip.css` — the widget's
+  theming API, unreachable because its single caller passes none of them.
+- ~190 public accessors across `DEV`, `STUDIO` and `WSFrontend` are named only at their declaration; published API.
+- `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, whose two classes never touch it, yet
+  two other modules reach it transitively from there; removing it needs a declaration added elsewhere.
+- `WSFrontend/org.openl.rules.ruleservice.ws.annotation` holds only a pom — a published aggregator of annotation
+  dependencies for rule service consumers, so nothing in-repo depends on it.
 - `MergeResult.status` is a record component its compact constructor always overwrites, so the `@Builder` takes a
-  value no caller can influence. Removing a record component is a public API change.
-- `npm run clean` is the one `studio-ui` script nothing names, but an npm script is a human entry point.
+  value no caller can influence; removing a record component is a public API change.
 - Commented-out statements in TEST sources, ~30 runs — disabled bodies (`ValidatorTest`, `TokenizerParserTest`)
   and disabled assertions (`MethodSearchTest`, `PropertyTableTest`, `OpenAPIGroovyScriptGeneratorTest`): a
   commented assertion can be a known-issue marker, so type 56 shipped production sources only.
@@ -79,7 +79,7 @@ covered. Numbering continues at 57.
   beside it, or a release note, names the CVE or the provider it corrects. Only an entry whose artifact no build
   can produce, or that no consumer can reach, is dead. Seventeen of nineteen such entries are live pins.
 - A managed PLUGIN nothing declares is usually still reached: by the default lifecycle, by a packaging that binds
-  it (`maven-archetype`), by a workflow goal (`release:prepare`), or by its own `site/` configuration.
+  it, by a workflow goal (`release:prepare`), or by its own `site/` configuration.
 - A pom `<include>`/`<exclude>` path absent from git is usually build-generated (`jetty-home/`, `logs/`,
   `release.properties`); nothing in this shape has ever been dead.
 - A path in a descriptor is relative or servlet-mapped, so it looks absent: `html/inputVersion.xhtml` resolves
@@ -96,12 +96,10 @@ covered. Numbering continues at 57.
 - A private field whose only writer is a public setter is not deletable: the setter goes with it, and that is a
   public API change. The mirror case IS deletable: a field whose only reader is a dead getter goes with it.
 - A private field read only by reflection is reported by PMD as unused, so an `UnusedPrivateField` hit in a test
-  bean stays a false positive until the reflective reader says otherwise — `JsonUtilsTest.BindingClasses` fields
-  are the Jackson binding surface the test passes to `getCachedObjectMapper`.
+  bean is a false positive until the reflective reader says otherwise (`JsonUtilsTest.BindingClasses`).
 - Test sources dominate any unreferenced-member scan and are almost never dead: JUnit 5 classes are required
-  package-private and the runner discovers them (674 hits fell to 1); a type with no `@Test` is a Spring fixture,
-  an abstract base's runner or an OpenL bean loaded by name; a private member can be an assertion's SUBJECT; a
-  bean under `test/org/openl/generated/` mixes accessor visibility on purpose. Never tidy any of it.
+  package-private and the runner discovers them (674 hits fell to 1); a type with no `@Test` is a fixture, a
+  runner or an OpenL bean loaded by name; a private member can be an assertion's SUBJECT. Never tidy any of it.
 - A package-private `@Component` is injected by its interface, so its own simple name appears in no other file.
 - A token comparison fails in both directions unless it is exact: a regex admitting `(` swallows the paren from
   markdown `![alt](name.png)`, a substring search matches `add.png` inside `toolbar_add.png`, and a greedy indent
@@ -178,10 +176,11 @@ covered. Numbering continues at 57.
   release-notes entry only when a user could observe it, which an internal endpoint with no button never is.
 - A public member of a package-private or nested class is not published API, so it is admissible — but its
   caller is usually in the same file or package. Count occurrences repo-wide and read every hit; two is a call.
-- A comment-only removal is proved by the diff, not a build: `git diff --numstat` must add zero lines and every
-  removed line must be blank or start with `//`. Treat a maximal run of consecutive `//` lines as the unit — a
-  per-line rule leaves half a statement behind — and drop the blank line it orphaned, comparing `{`-then-blank,
-  blank-then-`}` and double-blank counts against HEAD so no new artifact appears.
+- A comment-only removal is proved by the diff, not a build: strip every comment from each touched file at both
+  ends and compare — identical code proves it, and unlike a "removed lines all start with `//`" check it also
+  covers a `/* */` block whose interior lines do not. `git diff --numstat` must add zero lines. Treat a maximal
+  comment run as the unit — a per-line rule leaves half a statement behind — and drop the blank line it
+  orphaned, comparing `{`-then-blank, blank-then-`}` and double-blank counts against HEAD.
 
 ## Keep-list
 
@@ -267,7 +266,9 @@ covered. Numbering continues at 57.
 - Frontend verification works and is the gate for `studio-ui`: `npm ci`, `npx tsc --noEmit`,
   `npx eslint <files>`, and `npx vitest run` (183 files, ~3 minutes).
 - `compile.js.sh` reproduces the tableeditor JS bundles byte for byte; `compile.css.sh` drops the trailing
-  newline of `tableeditor.min.css`, so restore it. The `yuicompressor` jar is committed.
+  newline of `tableeditor.min.css`, so restore it. The `yuicompressor` jar is committed. A comment-only edit to
+  a bundled source changes `tableeditor.all.js` (concatenation) but never `*.min.*` — the minifier strips
+  comments already, so an unchanged `.min.` file is correct, not a forgotten regeneration.
 - Run a long build in the harness's background mode and read the log it names: a `nohup mvn ... &` exit code
   says nothing, killing the launcher leaves the JVM running, and a second launch races the first on the same
   `target/` dirs. `-rf` breaks modules built earlier but never installed. A foreground `sleep` is blocked.
@@ -331,13 +332,11 @@ covered. Numbering continues at 57.
   25 `pluginManagement` entries against every plugin declared anywhere, profiles and reporting included: two
   dead, four reached without a declaration. Non-root blocks the same way: one dead entry in `ITEST/pom.xml` and
   its twin in the root pom, both shipped.
-- All 9 Maven profile ids, all 8 servlet `param-name` entries, all 114 pom `<properties>`, all 44 `studio-ui`
-  npm dependencies, all 194 `openl-default.properties` keys, and every literal include/exclude path in every
-  pom. No finding in any of them.
+- All 9 Maven profile ids, all 8 servlet `param-name` entries, all 114 pom `<properties>`, all 44 `studio-ui` npm
+  dependencies, all 194 `openl-default.properties` keys, every literal include/exclude path in every pom, and all
+  26 inputs of the four tableeditor bundle scripts. No finding in any of them.
 - Every `org.openl` class and package reference in every configuration file, and all 24 component-scan base
   packages. One finding; the rest resolve or are third-party.
-- All 26 inputs named by the four tableeditor bundle build scripts exist; the only unbundled source is the
-  vendored prototype library, which loads on its own.
 - Whole-file deadness over every non-image, non-web resource type outside test fixtures — `.xml`, `.properties`,
   `.txt`, `.json`, `.yaml`, `.sql`, `.env`, `.csv`, `.vm`, `.tld`, `.groovy`, `.md` and a catch-all over the
   rest. One finding; every other hit is a convention file now on the keep-list.
@@ -354,22 +353,22 @@ covered. Numbering continues at 57.
   one read), and every Jekyll layout, include and `navigation.yml` url under `Docs/`. No finding.
 - All 442 `xmlns:` prefix declarations in the 279 XML, XHTML, TLD, XSD and HTML files that carry one: every
   prefix is used by a tag or an attribute in its own file.
-- The three log4j2 configurations: every appender used, and no named logger declared at all. `compose.yaml` uses
-  all five of its volumes and all five services, and the `Dockerfile` uses every stage, `ARG` and `ENV`.
+- The three log4j2 configurations: every appender used, no named logger declared. `compose.yaml` uses all five
+  volumes and services; the `Dockerfile` uses every stage, `ARG` and `ENV`.
 - The whole of `DEV/org.openl.rules.gen`: all 12 templates against the variables the generator supplies, both
   directions, plus every public member of the eleven helper classes. Four dead members, now shipped.
 - Both archetype modules, both directions: every `archetype-resources` file against every `<fileSet>`, and every
   fileset against the files it matches. Also all four assembly descriptors in the repository. No finding.
 - Docs example poms and `openl-maven-plugin` `it/` fixtures are out of scope of every pom scan.
-- Pom `<resource>` and `<testResource>` directories against the tree: every directory a production module
-  declares exists, and every module re-declaring a root-inherited dependency changes its scope.
+- Pom `<resource>`/`<testResource>` directories all exist, and every module re-declaring a root-inherited
+  dependency changes its scope.
 - CSS animation names and custom properties: the repository declares neither. Selector deadness in
   `DEMO/webapps/ROOT/main.css`, the last own stylesheet uncovered — every id and class is used by `index.html`.
 - Public and protected members of package-private top-level classes (246 types) and non-public nested classes
   (318 types) — 186 non-overriding members, every one with a caller. This closed Java member deadness entirely.
-- Commented-out Java statements, all 4033 files read as maximal `//` runs: 221 pure-code runs plus 13 curated
-  from mixed ones shipped from production sources; test sources and 12 documentation-shaped runs stay. Only
-  `/* */` and markup comments are left untried.
+- Commented-out code in all 4033 `.java` files, both `//` runs and `/* */` blocks, plus every own `.js` and
+  `.css` file: shipped from production sources (55 Java files, 3 script/stylesheet files). Test sources and 12
+  documentation-shaped runs stay. Only `.xhtml` markup comments are left untried.
 
 ## Human follow-ups
 
@@ -397,4 +396,5 @@ covered. Numbering continues at 57.
 - Run 17: opened #2060 (type 50, two dead managed jar entries); the owner merged it green the same hour. Types
   49, 51 and 52 closed empty, closing Java member-level deadness for good.
 - Run 18: types 53-55 (`ui:param`, `xmlns:` prefixes, inline `<style>` selectors) closed empty; type 56 shipped
-  344 lines of commented-out Java from production sources as #2062.
+  commented-out Java as #2062. A concurrent run then folded `/* */` blocks into it and added type 57 (scripts
+  and stylesheets); this run verified both and rewrote the PR body to the 2-commit, 417-deletion state.
