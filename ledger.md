@@ -20,7 +20,9 @@ All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a de
 ## Open PR
 
 - #2060 on `dead-code/maven-managed-entries`, head `a093dd584a`, one commit: "Drop the managed webstudio jar
-  entries no module can consume" (type 50; root and `ITEST/pom.xml`, 11 lines). No review comment yet.
+  entries no module can consume" (type 50; root and `ITEST/pom.xml`, 11 lines). CodeRabbit found nothing.
+  `IT (services-data)` is red with the known kafka-native flake; the stand-down comment is posted and the one
+  rerun for this SHA is still UNSPENT — spend it first thing, the run was live and refused it.
 
 ## Merged PRs
 
@@ -223,15 +225,16 @@ All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a de
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails with `ORA-12516: ... does not have a protocol handler
   for TCP ready or registered for service freepdb1`, the Oracle TestContainer listener not yet accepting
   connections. Infrastructure, never the diff. Budget: one rerun per SHA.
-- `IT (services-data)` — `RunStoreLogDataITest.setUp` cannot start `apache/kafka-native:latest`: the image
-  segfaults in its own entrypoint at `Pwd.getpwuid` resolving `user.name`, exits 1, and the wait strategy times
-  out on `Transitioning from RECOVERY to RUNNING`. A crash before any test body, never the diff — `ITEST - Kafka
-  Smoke` passes in the same job. Budget: one rerun per SHA. The tag floats; never pin it away.
+- `IT (services-data)` — `RunStoreLogDataITest.setUp` cannot start `apache/kafka-native:latest`: inside the
+  image's own `setup` entrypoint, log4j `StatusLogger` init resolves `user.home` and segfaults in `Pwd.getpwuid`;
+  the container exits 1 and the wait strategy times out on `Transitioning from RECOVERY to RUNNING`. A crash
+  before any test body, never the diff — `ITEST - Kafka Smoke` passes in the same job. Budget: one rerun per SHA.
+  The tag floats, so it breaks with no commit here; never pin it away.
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
   overlapping `coverage-*` artifacts the job merges. Transient: it passed on re-run. Distinct from the gate, and
   it suppresses the gate entirely because nothing is uploaded. Budget: one rerun per SHA.
-- `rerun_failed_jobs` returns 403 "This workflow is already running" while any job of the run is still in
-  progress. Wait for the whole run to finish, then re-run.
+- `rerun_failed_jobs` is refused while any job of the run is still in progress — as 403 "This workflow is
+  already running", or as a bare 500 through the MCP server. Wait for the whole run to finish, then re-run.
 
 ## Container facts
 
