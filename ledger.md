@@ -2,7 +2,11 @@
 
 ## Resume point
 
-PR #2058 is open on `dead-code/java-unused-members`, 10 commits; maintain it before anything else. Its only red
+SESSIONS RUN CONCURRENTLY: the cron spawns a FRESH session every two hours, so several sweeps share this branch,
+ledger and PR at once — two runs pushed commits and ledger updates past each other today. Never arm a
+self-perpetuating check-in chain; the next firing already covers the PR and the chains accumulate forever.
+Re-fetch before every write, never force-push, and treat a CI event for a superseded `head_sha` as stale.
+PR #2058 is open on `dead-code/java-unused-members`, 11 commits; maintain it before anything else. Its only red
 check is the SonarCloud quality gate, which cannot be diagnosed from here (see *Open PR*). Keep pushing verified
 work to it anyway: only one sweep PR may be open, so holding findings back ships nothing.
 All 48 change types are closed; new work needs a NEW detector. Member-level deadness is finished in every
@@ -40,8 +44,7 @@ All 48 closed; *Exhausted veins* records what each covered. Fifteen shipped a de
 
 ## Merged PRs
 
-- #2054 and #2056 (42 deletions, types 1, 5, 15) merged with no review comment; a locale-key batch across three
-  bundles was accepted as one commit.
+- #2054 and #2056 (42 deletions, types 1, 5, 15) merged with no review comment, a locale-key batch included.
 
 ## Module coverage
 
@@ -50,29 +53,25 @@ All 48 closed; *Exhausted veins* records what each covered. Fifteen shipped a de
 
 ## Deferred findings
 
-- `TableViewerTag` and `TableEditorTag` (tableeditor `taglib/`) — nothing references either class since run 8
-  deleted their TLD; `faces-config.xml` registers component types for both tag names instead, and their 18
-  private fields are write-only. Deletable but `public` in a published jar.
+- `TableViewerTag` and `TableEditorTag` (tableeditor `taglib/`) — unreferenced since run 8 deleted their TLD;
+  `faces-config.xml` registers component types for both tag names. Deletable but `public` in a published jar.
 - Five `XlsProjectionType` `CELL_*` constants (`STUDIO/org.openl.rules.diff`) — named nowhere; the enum's own
   comment asks whether they are needed. Public enum constants in a published artifact.
 - `DecisionTableBuilder.methodName` (DEV `validation/properties/dimentional`) and `SimpleGroup.description`
   (`STUDIO/org.openl.security`) — private, written, never read; removing either takes a public setter with it.
 - `MergeRequest`, `ResolveConflictsRequest` and `ResolveConflictsResponse` (`studio-ui`
-  `containers/MergeModal/types.ts`) — unused in code, but `Docs/api/projects-merge-api.md` documents all three
-  by name as the REST contract.
+  `containers/MergeModal/types.ts`) — unused in code, but `Docs/api/projects-merge-api.md` documents all three.
 - ~70 exported types in `studio-ui` are used only inside their own file; dropping `export` is a refactor.
 - `tooltip_skin-{blue,green,red}` and `tooltip_top_{center,left}` in tableeditor `css/tooltip.css` — the
   widget's theming API, unreachable because its single caller passes none of them.
-- ~190 public accessors and static helpers in `DEV/**`, `STUDIO/**` and `WSFrontend/**` have their name in exactly
-  one place in the repository, their own declaration. All are published API, so none is deletable here.
+- ~190 public accessors in `DEV/**`/`STUDIO/**`/`WSFrontend/**` are named only at their declaration; published API.
 - `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, whose two classes never touch it, but
   two other modules reach it transitively from there. Removing it needs a declaration added elsewhere.
 - The module `WSFrontend/org.openl.rules.ruleservice.ws.annotation` holds only a pom: it is a published
   pom-packaged aggregator of annotation dependencies for rule service consumers, so nothing in-repo depends on it.
 - `MergeResult.status` is a record component its compact constructor always overwrites, so the `@Builder` takes a
   value no caller can influence. Removing a record component is a public API change.
-- `npm run clean` is the one `studio-ui` script nothing names, but an npm script is a human entry point, so
-  non-reference is not proof of deadness.
+- `npm run clean` is the one `studio-ui` script nothing names, but an npm script is a human entry point.
 
 ## False-positive shapes
 
