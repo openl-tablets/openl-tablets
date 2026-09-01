@@ -17,9 +17,10 @@ covered. Numbering continues at 61.
 
 ## Open PR
 
-- #2062 on `dead-code/commented-out-java`, head e50c7906 — 2 commits, 58 files, 417 deletions, CI re-running
-  after a later run's fixup. Type 56 commented-out Java (55 files); type 57 stylesheets and scripts (3 files).
-  Green on the previous head with the SonarCloud gate passed; CodeRabbit found nothing on either.
+- #2062 on `dead-code/commented-out-java`, head e50c7906 — 2 commits, 58 files, 417 deletions. Type 56
+  commented-out Java (55 files); type 57 stylesheets and scripts (3 files). CodeRabbit found nothing on either.
+  11 of 12 checks green; `Sonar analysis` hit the `Unknown block type c7` flake, commented on and RE-RUN ALREADY
+  SPENT for this SHA — a second failure on it is real.
 
 ## Merged PRs
 
@@ -391,10 +392,7 @@ covered. Numbering continues at 61.
 
 ## Run log
 
-- Run 17: opened #2060 (type 50, two dead managed jar entries); the owner merged it green the same hour. Types
-  49, 51 and 52 closed empty, closing Java member-level deadness for good.
-- Run 18: types 53-55 (`ui:param`, `xmlns:` prefixes, inline `<style>` selectors) closed empty; type 56 shipped
-  commented-out Java as #2062. A concurrent run then folded `/* */` blocks into it and added type 57 (scripts
-  and stylesheets); this run verified both and rewrote the PR body to the 2-commit, 417-deletion state.
-- Run 19: closed types 58-60 (markup, TypeScript, duplicate CSS declarations) empty and verified #2062's two
-  commits with a 75-module reactor build; the concurrent run had already rewritten the PR body.
+- Run 17: opened #2060 (type 50); the owner merged it green the same hour. Types 49, 51, 52 closed empty.
+- Run 18: types 53-55 closed empty; type 56 shipped commented-out Java as #2062, then a concurrent run folded
+  `/* */` blocks in and added type 57. Verified both, rewrote the PR body and title, re-ran the Sonar flake.
+- Run 19: types 58-60 closed empty; verified #2062's two commits with a 75-module reactor build.
