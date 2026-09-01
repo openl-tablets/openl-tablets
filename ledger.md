@@ -2,39 +2,34 @@
 
 ## Resume point
 
-SESSIONS RUN CONCURRENTLY: the cron spawns a FRESH session every two hours, so several sweeps share this branch,
-ledger and PR at once — two runs pushed commits and ledger updates past each other today. Never arm a
-self-perpetuating check-in chain; the next firing already covers the PR and the chains accumulate forever.
-Re-fetch before every write, never force-push, and treat a CI event for a superseded `head_sha` as stale.
-NO PR IS OPEN. #2058 merged; cut a fresh `dead-code/<topic>` branch for the next findings and open one PR that
-accumulates commits. The owner merged #2058 with the SonarCloud gate still red, so a red gate does not block a
-merge here — keep pushing verified work and report the gate rather than holding findings back.
-All 48 change types are closed; new work needs a NEW detector. Member-level deadness is finished in every
-admissible scope — published API is off limits, non-published modules are unprovable (`.xls*` callers), and
-internal packages hold nothing. Maven metadata still pays: type 48 found three dead exclusions.
-Candidate next detectors, none tried: `openl-maven-plugin` mojo parameters no goal reads; Spring bean ids
-nothing names; `<resource>`/`<testResource>` directories no module ships; duplicate CSS rules inside one file.
+SESSIONS RUN CONCURRENTLY: a fresh session every two hours shares this branch, ledger and PR. Re-fetch before
+every write, never force-push the ledger, and treat a CI event for a superseded `head_sha` as stale. Never arm a
+self-perpetuating check-in chain — the next firing already covers the PR.
+PR #2060 is open; maintain it before sweeping anything new.
+All 52 change types are closed. Member-level deadness is now finished for the package-private and nested-class
+scopes as well, so a new detector must leave Java members alone; Maven metadata is the vein that still pays.
+Untried: `openl-maven-plugin` mojo parameters no goal reads (public plugin config — likely deferred); Spring
+bean ids nothing names; duplicate CSS rules inside one file; `.xhtml` `ui:param` names never read.
 Check `git ls-remote --heads origin 'dead-code/*'` before cutting a branch.
 
 ## Change-type queue
 
-All 48 closed; *Exhausted veins* records what each covered. Fifteen shipped a deletion — 1, 5, 7, 11, 12, 15,
-16, 22, 23, 27, 28, 34, 39, 42, 48 — the other thirty-three found nothing. Numbering continues at 49.
+All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a deletion — 1, 5, 7, 11, 12, 15,
+16, 22, 23, 27, 28, 34, 39, 42, 48, 50 — the other thirty-six found nothing. Numbering continues at 53.
 
 ## Open PR
 
-- None. Cut a branch, then record its number, head and one line per commit here.
+- #2060 on `dead-code/maven-managed-entries`, head `a093dd584a`, one commit: "Drop the managed webstudio jar
+  entries no module can consume" (type 50; root and `ITEST/pom.xml`, 11 lines). No review comment yet.
 
 ## Merged PRs
 
-- #2054 and #2056 (42 deletions, types 1, 5, 15) merged with no review comment, a locale-key batch included.
-- #2058 (11 commits, 13 files, 411 deletions; types 7, 11, 12, 16, 23, 27, 28, 34, 39, 42, 48) merged by the
-  owner about a day after opening, with the SonarCloud gate red and no review comment on any commit. A
-  multi-type sweep accumulating one commit per change type is accepted.
+- #2054/#2056 (42 deletions) and #2058 (11 commits, 411 deletions) merged with no review comment on any commit.
+- The owner merges over a red SonarCloud gate and accepts a sweep that accumulates one commit per change type.
 
 ## Module coverage
 
-- Nothing open: every module is swept for all 48 change types, main and test sources, webstudio included. Only
+- Nothing open: every module is swept for all 52 change types, main and test sources, webstudio included. Only
   ITEST fixtures stay out of scope.
 
 ## Deferred findings
@@ -117,6 +112,10 @@ All 48 closed; *Exhausted veins* records what each covered. Fifteen shipped a de
   a composed lookup can be guarded (`browser.${id}_confirm` fires only when `id === 'unlock'`).
 - A duplicate-key scan over `.properties` must join backslash continuation lines first: a multi-line value that
   embeds JSON or Markdown otherwise reports its own `"params"` and `**Note` lines as repeated keys.
+- A Jackson MixIn declares abstract methods only to carry annotations, so being named nowhere is the point:
+  `OpenApiXmlIgnoreMixIn.getXml` is matched by name against `Schema`. Never delete a member of a MixIn class.
+- A managed entry that looks duplicated inside one pom is usually two artifacts: the pair differs by `type`, so
+  a group-plus-artifact key both reports a false duplicate and hides the jar variant that is the real finding.
 
 ## Method rules
 
@@ -172,6 +171,8 @@ All 48 closed; *Exhausted veins* records what each covered. Fifteen shipped a de
 - Dead CSS and an unreachable `/action/*` servlet both have maintainer precedent on `main` and need no hedging.
   A removal needs a release-notes entry only when a user could observe it — an internal AJAX endpoint with no
   button, menu or documented contract ships without one; a user-visible feature does not.
+- A public member of a package-private or nested class is not published API, so it is admissible — but its
+  caller is usually in the same file or package. Count occurrences repo-wide and read every hit; two is a call.
 
 ## Keep-list
 
@@ -353,36 +354,36 @@ All 48 closed; *Exhausted veins* records what each covered. Fifteen shipped a de
   directions, plus every public member of the eleven helper classes. Four dead members, now shipped.
 - Both archetype modules, both directions: every `archetype-resources` file against every `<fileSet>`, and every
   fileset against the files it matches. Also all four assembly descriptors in the repository. No finding.
+- Non-root `dependencyManagement` and `pluginManagement` blocks, keyed by type and classifier against every
+  declaration: one dead entry in `ITEST/pom.xml` and its twin in the root pom, both shipped. Docs example poms
+  and `openl-maven-plugin` `it/` fixtures are out of scope.
+- Pom `<resource>` and `<testResource>` directories against the tree: every directory a production module
+  declares exists, and every module re-declaring a root-inherited dependency changes its scope.
+- CSS animation names and custom properties: the repository declares neither. Selector deadness in
+  `DEMO/webapps/ROOT/main.css`, the last own stylesheet uncovered — every id and class is used by `index.html`.
+- Public and protected members of package-private top-level classes (246 types, 121 non-overriding members) and
+  of non-public nested classes (318 types, 65 members). Every one has a caller.
 
 ## Human follow-ups
 
 - Allowlist `sonarcloud.io`, or paste the rule key and file/line when the gate fails. It failed "C Reliability
-  Rating on New Code" on every #2058 head and will likely do the same on the next sweep PR; the owner merged
-  #2058 over it, so it is an unread signal rather than a blocker.
+  Rating on New Code" on every #2058 head; the owner merged over it, so it is an unread signal, not a blocker.
 - Mirror the OpenSAML artifacts, or allowlist `build.shibboleth.net`, so `org.openl.rules.webstudio` can build
-  here. Maven Central is not an alternative — the artifacts are not published there. PMD now scans the module
-  without compiling it, so this only blocks compile-verifying a Java deletion in it.
+  here — they are not on Maven Central. PMD scans the module without compiling, so this blocks only a Java
+  deletion inside it.
 - Delete the abandoned remote branch `dead-code/studio-resources` (PR #2055 closed unmerged; its only change is
-  already on `main` via #2054). `git push --delete` gets HTTP 403 through the proxy and the GitHub MCP server
-  has no delete-branch tool, so this needs a human or the repo's auto-delete setting.
+  on `main` via #2054). `git push --delete` gets HTTP 403 here and the MCP server has no delete-branch tool.
 - Decide on `TableViewerTag` / `TableEditorTag`, `DecisionTableBuilder.methodName`, `SimpleGroup.description`,
-  `MergeResult.status` and the five `XlsProjectionType` cell constants: all are dead but public in published
-  artifacts.
+  `MergeResult.status` and the five `XlsProjectionType` cell constants: dead but public in published artifacts.
 - Collapse the duplicated deployment examples: `Docs/examples/production/` and `Docs/production-deployment/` hold
   the same 32 files under two navigable paths, so every future edit has to be made twice.
-- `Docs/developer-guides/rules-projects.md` tells a developer to define a validator constraint in
-  `TablePropertyValidatorsWrapper.init()`, a method that does not exist; the constructor does that work.
-- `openl-project-archetype`'s descriptor name is `org.wso2.carbon.authenticator.connectors.email`, a copy-paste
-  leftover; renaming is not a deletion.
-- `studio-ui` developer documentation is stale: `Docs/onboarding/common-tasks.md` names `npm run test:coverage`,
-  which is not a script, and `README.md` calls `start` webpack, `serve` a `serve -p 3002` run and `lint` a
-  Stylelint run. Fixing text is not a deletion.
+- Stale documentation, all text fixes rather than deletions: `Docs/developer-guides/rules-projects.md` names
+  `TablePropertyValidatorsWrapper.init()`, which does not exist; `Docs/onboarding/common-tasks.md` and the
+  `studio-ui` README name npm scripts and tools the project no longer has; `openl-project-archetype`'s
+  descriptor name is the copy-paste leftover `org.wso2.carbon.authenticator.connectors.email`.
 
 ## Run log
 
-- Run 13: no new detector; a `Sonar analysis` re-run passed, proving its JaCoCo error transient.
-- Run 14: PMD standalone over all 4031 Java files — 50 violations, one shipped; three cheap detectors empty.
-- Run 15: types 44-47 (public members of non-published modules and of internal packages, duplicate keys inside
-  one file, npm scripts) closed empty; type 48 shipped three dead exclusions. Ledger compacted from 398 lines.
-- Run 16: #2058 merged by the owner over the red gate — 11 commits, 411 deletions. Cleared *Open PR*, recorded
-  the concurrency rule above, and unsubscribed. Next run starts a fresh branch at change type 49.
+- Run 15: types 44-47 closed empty; type 48 shipped three dead exclusions. Ledger compacted from 398 lines.
+- Run 16: #2058 merged by the owner over the red gate — 11 commits, 411 deletions. Cleared *Open PR*.
+- Run 17: opened #2060 with type 50 (two dead managed jar entries); types 49, 51 and 52 closed empty.
