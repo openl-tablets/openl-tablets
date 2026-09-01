@@ -64,8 +64,8 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 ## Deferred findings
 
 - `TableViewerTag` and `TableEditorTag` (tableeditor `taglib/`) — after run 8 deleted the TLD that named them,
-  nothing references either class; both are absent from `faces-config.xml`, carry no `@FacesComponent`, and
-  their 18 private fields are write-only. Deletable but `public` in a published jar.
+  nothing references either class; `faces-config.xml` registers `component.UITableEditor` / `UITableViewer` for
+  both tag names instead, and their 18 private fields are write-only. Deletable but `public` in a published jar.
 - Five `XlsProjectionType` `CELL_*` constants (`STUDIO/org.openl.rules.diff`) — named nowhere; the enum's own
   comment asks whether they are needed. Public enum constants in a published artifact.
 - Root pom `dependencyManagement` entry for `jakarta.servlet.jsp-api` — orphaned since run 8 removed the only
@@ -123,9 +123,9 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   private method is not exposed, so PMD reporting it uncalled is the point of the fixture.
 - A fixture bean deliberately mixes accessor visibility (private `getAB()` beside public `setAB()`) to exercise
   accessor discovery. Never "tidy" a bean under `test/org/openl/generated/`.
-- A private field backing a JSP tag attribute or read by reflection is reported by PMD as unused. Every
-  `UnusedPrivateField` hit in a `taglib` package or a test bean is a false positive until the `.tld` or the
-  reflective reader says otherwise.
+- A private field read only by reflection is reported by PMD as unused, so an `UnusedPrivateField` hit in a test
+  bean stays a false positive until the reflective reader says otherwise. A `taglib` package is NOT such a case
+  any more: the TLD that bound those fields is gone, and their 18 write-only fields are real (see *Deferred*).
 - A basename regex that admits `(` swallows the paren from markdown `![alt](name.png)`, so the token never
   equals the basename and every image referenced only from markdown looks dead. Strip leading punctuation.
 - A plain substring search inflates hits in the other direction: `add.png` matches inside `toolbar_add.png`.
