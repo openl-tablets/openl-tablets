@@ -1417,17 +1417,6 @@ function initTableEditor(editorId, url, cellToEdit, actions, mode, editable) {
         [save_item, undo_item].each(function(item) {
             processItem(getItemId(editorId, item), hasItems);
         });
-       /* if (hasItems) {
-            window.onbeforeunload = function() {
-               // alert('not saved');
-           
-                return "Your changes have not been saved.";
-            };
-        } else { // remove handler if Save/Undo items are disabled
-           
-          //  window.onbeforeunload = function() {};
-           
-        }*/
     };
 
     tableEditor.redoStateUpdated = function(hasItems) {
