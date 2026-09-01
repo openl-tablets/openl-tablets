@@ -234,8 +234,9 @@ All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a de
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
   overlapping `coverage-*` artifacts the job merges. Transient: it passed on re-run. Distinct from the gate, and
   it suppresses the gate entirely because nothing is uploaded. Budget: one rerun per SHA.
-- `rerun_failed_jobs` is refused while any job of the run is still in progress — as 403 "This workflow is
-  already running", or as a bare 500 through the MCP server. Wait for the whole run to finish, then re-run.
+- `rerun_failed_jobs` is refused while a job of the run is still in progress — 403 "This workflow is already
+  running", or a bare 500. A 500 is NOT proof it failed: on #2060 the run reached `run_attempt` 2 and went green
+  after one. Read `run_attempt` before retrying or reporting a budget unspent.
 
 ## Container facts
 
@@ -370,8 +371,9 @@ All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a de
 
 ## Human follow-ups
 
-- Allowlist `sonarcloud.io`, or paste the rule key and file/line when the gate fails. It failed "C Reliability
-  Rating on New Code" on every #2058 head; the owner merged over it, so it is an unread signal, not a blocker.
+- Allowlist `sonarcloud.io`, or paste the rule key and file/line when the gate fails — it is undiagnosable from
+  here. It failed "C Reliability Rating on New Code" on every #2058 head but PASSED on #2060, so the gate tracks
+  what the diff touches and is not permanently red; the owner merges over it either way.
 - Mirror the OpenSAML artifacts, or allowlist `build.shibboleth.net`, so `org.openl.rules.webstudio` can build
   here — they are not on Maven Central. PMD scans the module without compiling, so this blocks only a Java
   deletion inside it.
