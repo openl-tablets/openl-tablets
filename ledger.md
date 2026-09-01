@@ -2,38 +2,36 @@
 
 ## Resume point
 
-SESSIONS RUN CONCURRENTLY: a fresh session every two hours shares this branch, ledger and PR. Re-fetch before
-every write, never force-push the ledger, and treat a CI event for a superseded `head_sha` as stale. Never arm a
-self-perpetuating check-in chain — the next firing already covers the PR.
-PR #2060 is open; maintain it before sweeping anything new.
-All 52 change types are closed. Member-level deadness is now finished for the package-private and nested-class
-scopes as well, so a new detector must leave Java members alone; Maven metadata is the vein that still pays.
-Untried: `openl-maven-plugin` mojo parameters no goal reads (public plugin config — likely deferred); Spring
-bean ids nothing names; duplicate CSS rules inside one file; `.xhtml` `ui:param` names never read.
-Check `git ls-remote --heads origin 'dead-code/*'` before cutting a branch.
+NO PR IS OPEN. #2060 merged; cut a fresh `dead-code/<topic>` branch from `origin/main`.
+CONCURRENCY: a fresh session every two hours shares this ledger, and another run WILL write it while you work —
+re-fetch and re-read before every write, add only what is missing instead of replacing another run's text, never
+force-push it, and treat a CI event for a superseded `head_sha` as stale. Never arm a self-perpetuating check-in
+chain; the next firing already covers the PR.
+All 52 change types are closed, so the next run MUST bring a new detector, and not a Java member-level one —
+that is finished in every admissible scope. Maven metadata still pays (types 48 and 50 both shipped from it).
+Untried: mojo parameters no goal reads (public plugin config, likely deferred); Spring bean ids nothing names;
+duplicate CSS rules inside one file; `.xhtml` `ui:param` names never read.
 
 ## Change-type queue
 
-All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a deletion — 1, 5, 7, 11, 12, 15,
-16, 22, 23, 27, 28, 34, 39, 42, 48, 50 — the other thirty-six found nothing. Numbering continues at 53.
+All 52 closed — sixteen shipped a deletion, thirty-six found nothing. *Exhausted veins* records what each
+covered, which is the only part that still matters. Numbering continues at 53.
 
 ## Open PR
 
-- #2060 on `dead-code/maven-managed-entries`, head `a093dd584a`, one commit: "Drop the managed webstudio jar
-  entries no module can consume" (type 50; root and `ITEST/pom.xml`, 11 lines). CodeRabbit found nothing.
-  Every check is green: the `IT (services-data)` failure was confirmed as the kafka-native flake by its tell and
-  the one rerun for this SHA is now SPENT and passed. A further failure on `a093dd584a` is real, not the flake.
-  The PR is green and mergeable, so it waits on the owner — nothing to push.
+- None. Cut a branch, then record its number, head and one line per commit here.
 
 ## Merged PRs
 
 - #2054/#2056 (42 deletions) and #2058 (11 commits, 411 deletions) merged with no review comment on any commit.
-- The owner merges over a red SonarCloud gate and accepts a sweep that accumulates one commit per change type.
+- #2060 (1 commit, 11 deletions; type 50) merged green in about 80 minutes, with no review comment.
+- The owner merges with or without a green SonarCloud gate, and accepts a sweep of one commit per change type.
+  A merged sweep branch is auto-deleted by the repository; only a branch whose PR closed UNMERGED lingers.
 
 ## Module coverage
 
-- Nothing open: every module is swept for all 52 change types, main and test sources, webstudio included. Only
-  ITEST fixtures stay out of scope.
+- Nothing open: every module is swept for all 52 types, main and test sources, webstudio included; only ITEST
+  fixtures are out of scope.
 
 ## Deferred findings
 
@@ -252,17 +250,13 @@ All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a de
 - One ITEST suite CAN be built here, and needs the `install` lifecycle: `mvn install -Pitest -Dquick -DnoPerf
   -T1C -B -pl ITEST/<suite> -am` builds a 28-module reactor. `test-compile` is too early a phase — the suite's
   `unpack-dependencies` of the webapp fails with MDEP-98 before any test source is compiled.
-- PMD runs standalone, with no Maven and no auxclasspath, and is the ONLY way to scan
-  `org.openl.rules.webstudio`: fetch `net.sourceforge.pmd:pmd-cli` and `pmd-java` with a scratch pom plus
-  `dependency:copy-dependencies`, then `java -cp '.toDelete/pmd/lib/*' net.sourceforge.pmd.cli.PmdCli check
-  --file-list <list> -R <ruleset> -f xml -r <out> --no-cache -t 4`. All 4031 files scan in a minute. Prefer it
-  over the maven-pmd-plugin route, which needs the root-pom edit, misses webstudio and skips test sources.
-- `help:effective-pom` accepts the same `-pl` exclusions, finishes in seconds and writes all 55 effective poms
-  into one 17 MB file. It is the cheapest whole-reactor verification available here.
-- `dependency:analyze-only` needs the same `-pl` exclusions plus `-fae`; ITEST modules cannot resolve
-  `org.openl.itest:server-core` outside the itest profile. 51 modules analyze successfully.
-- Error Prone contributes nothing: 8 unused-* warnings over the whole reactor, all reflection false positives or
-  `EffectivelyPrivate` narrowing, a refactor and out of scope. PMD is the only Java signal.
+- PMD run standalone (`pmd-cli` + `pmd-java` fetched into `.toDelete/`, no Maven, no auxclasspath) scans all
+  4031 files in a minute and is the only way to reach `org.openl.rules.webstudio`. Its vein is closed; revive
+  the recipe only for a NEW rule, never the maven-pmd-plugin route, which misses webstudio and test sources.
+- `help:effective-pom -Pitest` writes all 172 effective poms into one 20 MB file in seconds — the cheapest
+  whole-reactor verification here, and the proof for any managed-entry removal.
+- `dependency:analyze-only` needs the same `-pl` exclusions plus `-fae` (ITEST cannot resolve `server-core`
+  outside the itest profile); 51 modules analyze. Error Prone contributes nothing — PMD is the only Java signal.
 - Frontend verification works and is the gate for `studio-ui`: `npm ci`, `npx tsc --noEmit`,
   `npx eslint <files>`, and `npx vitest run` (183 files, ~3 minutes).
 - `compile.js.sh` reproduces the tableeditor JS bundles byte for byte; `compile.css.sh` drops the trailing
@@ -366,8 +360,8 @@ All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a de
   declares exists, and every module re-declaring a root-inherited dependency changes its scope.
 - CSS animation names and custom properties: the repository declares neither. Selector deadness in
   `DEMO/webapps/ROOT/main.css`, the last own stylesheet uncovered — every id and class is used by `index.html`.
-- Public and protected members of package-private top-level classes (246 types, 121 non-overriding members) and
-  of non-public nested classes (318 types, 65 members). Every one has a caller.
+- Public and protected members of package-private top-level classes (246 types) and non-public nested classes
+  (318 types) — 186 non-overriding members, every one with a caller. This closed Java member deadness entirely.
 
 ## Human follow-ups
 
@@ -377,8 +371,9 @@ All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a de
 - Mirror the OpenSAML artifacts, or allowlist `build.shibboleth.net`, so `org.openl.rules.webstudio` can build
   here — they are not on Maven Central. PMD scans the module without compiling, so this blocks only a Java
   deletion inside it.
-- Delete the abandoned remote branch `dead-code/studio-resources` (PR #2055 closed unmerged; its only change is
-  on `main` via #2054). `git push --delete` gets HTTP 403 here and the MCP server has no delete-branch tool.
+- Delete the abandoned remote branch `dead-code/studio-resources` — the one branch auto-delete does not reach,
+  since PR #2055 closed unmerged (its only change is on `main` via #2054). `git push --delete` gets HTTP 403
+  here and the MCP server has no delete-branch tool.
 - Decide on `TableViewerTag` / `TableEditorTag`, `DecisionTableBuilder.methodName`, `SimpleGroup.description`,
   `MergeResult.status` and the five `XlsProjectionType` cell constants: dead but public in published artifacts.
 - Collapse the duplicated deployment examples: `Docs/examples/production/` and `Docs/production-deployment/` hold
@@ -392,4 +387,5 @@ All 52 closed; *Exhausted veins* records what each covered. Sixteen shipped a de
 
 - Run 15: types 44-47 closed empty; type 48 shipped three dead exclusions. Ledger compacted from 398 lines.
 - Run 16: #2058 merged by the owner over the red gate — 11 commits, 411 deletions. Cleared *Open PR*.
-- Run 17: opened #2060 with type 50 (two dead managed jar entries); types 49, 51 and 52 closed empty.
+- Run 17: opened #2060 (type 50, two dead managed jar entries); the owner merged it green the same hour. Types
+  49, 51 and 52 closed empty, closing Java member-level deadness for good.
