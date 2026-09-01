@@ -53,10 +53,11 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   - `af5b8accc7` Drop dependency management entries that no module declares — change type 23, two entries.
 - No review threads. CodeRabbit's "Docstring Coverage" pre-merge warning is advisory and asks for additions,
   which a delete-only sweep never makes; ignore it, do not answer it again.
-- The SonarCloud quality gate fails on "C Reliability Rating on New Code"; every other check is green. The gate
-  passed on head `79074f5b73` with the identical four added lines, so the finding is not in them. Blocked and
-  reported in one comment — the issue list is only on the unreachable dashboard. Do not comment again while the
-  blocker holds; a new head re-runs the gate, so check whether it clears before re-diagnosing.
+- The SonarCloud quality gate fails on "C Reliability Rating on New Code"; every other check is green. It has
+  now failed on TWO freshly analysed heads (`7d41eeea8c`, `af5b8accc7`) and passed on `79074f5b73`, so it is
+  stable and reproducible — not a new-code boundary artefact of the force-push, and a new head will not clear
+  it. Blocked and reported in two comments; do not comment again unless something genuinely new appears. The
+  issue list is only on the unreachable dashboard, so a human must supply the rule key and file/line.
 
 ## Merged PRs
 
