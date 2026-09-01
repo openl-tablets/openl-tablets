@@ -1,0 +1,18 @@
+PUT /rest/projects/{PROJECT_ID}/files/rules.xml HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="rules.xml"
+Content-Type: application/octet-stream
+
+<project>
+    <name>EPBDS-16269-Renamed</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+</project>
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW--

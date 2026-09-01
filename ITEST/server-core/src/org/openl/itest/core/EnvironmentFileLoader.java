@@ -94,7 +94,7 @@ public final class EnvironmentFileLoader {
      * @param envFile path to the env file
      * @return parsed environment map, or empty map if file doesn't exist
      */
-    private static Map<String, String> parseEnvFile(Path envFile) {
+    static Map<String, String> parseEnvFile(Path envFile) {
         Map<String, String> env = new LinkedHashMap<>();
         if (!Files.isRegularFile(envFile)) {
             return env;

@@ -88,7 +88,10 @@ that id travels as a **path segment**, so it **MUST** stay within one.
   `DesignTimeRepository.getRulesLocation()`, through `FolderMapper.getRealPath` and
   `UserWorkspace.getProjectByPath`. **Resolve by folder before resolving by business name**: a business name is
   carried by more than one project, so it can answer with a different project and let a destructive endpoint act on
-  the wrong one.
+  the wrong one. While a save-time merge conflict is unresolved, `MergeConflictProjectResolveStrategy` keeps the
+  session's project addressable by that same id. The conflict dialog makes several requests after the failed save;
+  each must resolve even when a workspace refresh has removed the transient renamed key (EPBDS-16269).
+
 - **A design project named in a request body goes through the same resolver as one named in the path.** A non-flat
   repository tells its projects apart by the folder they live in, so it may carry one name in several folders;
   resolving a body field by business name therefore picks the wrong folder or none at all (EPBDS-16328). Call

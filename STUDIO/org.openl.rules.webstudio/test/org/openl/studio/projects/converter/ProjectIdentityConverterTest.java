@@ -41,8 +41,11 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectIdentifierMapperImpl;
+import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 
 /**
  * @author Vladyslav Pikus
@@ -62,9 +65,28 @@ class ProjectIdentityConverterTest {
     @Autowired
     private UserWorkspace userWorkspace;
 
+    @Autowired
+    private ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
+
     @BeforeEach
     void setUp() {
-        reset(designRepositoryAclService, userWorkspace);
+        reset(designRepositoryAclService, userWorkspace, conflictsSessionHolder);
+    }
+
+    @Test
+    void convert_byId_resolvesProjectRetainedByMergeConflict() throws ProjectException {
+        var repoId = "design-repo";
+        var projectName = "projectName:123456789";
+        var projectId = ProjectIdModel.builder().repository(repoId).projectName(projectName).build();
+        var project = mock(RulesProject.class);
+        var conflictInfo = mock(MergeConflictInfo.class);
+
+        when(conflictInfo.project()).thenReturn(project);
+        when(conflictsSessionHolder.getConflictInfo(projectId)).thenReturn(conflictInfo);
+        when(designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
+
+        assertSame(project, projectConverter.convert(projectId.encode()));
+        verify(userWorkspace, never()).getProject(repoId, projectName);
     }
 
     @Test
@@ -457,6 +479,12 @@ class ProjectIdentityConverterTest {
         }
 
         @Bean
+        MergeConflictProjectResolveStrategy mergeConflictProjectResolveStrategy(
+                ProjectsMergeConflictsSessionHolder conflictsSessionHolder) {
+            return new MergeConflictProjectResolveStrategy(conflictsSessionHolder);
+        }
+
+        @Bean
         ProjectNameResolveStrategy projectNameResolveStrategy() {
             return new ProjectNameResolveStrategy();
         }
@@ -474,6 +502,11 @@ class ProjectIdentityConverterTest {
         @Bean
         UserWorkspace userWorkspace() {
             return mock(UserWorkspace.class);
+        }
+
+        @Bean
+        ProjectsMergeConflictsSessionHolder conflictsSessionHolder() {
+            return mock(ProjectsMergeConflictsSessionHolder.class);
         }
     }
 }

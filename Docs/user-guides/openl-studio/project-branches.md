@@ -126,7 +126,10 @@ the branch menu is opened. Proceed as follows:
 
 If the same version of the project is edited by several users, upon submitting their changes using different clients, the **Resolve Conflicts** dialog appears, listing the conflicting files and the resolution options for each one.
 
-![](images/save-conflict-error-message.png)
+The dialog also appears when a project is renamed and saved, then an earlier revision is opened and renamed again.
+The project remains available to the dialog under the identifier issued after the first rename.
+
+![Save conflict dialog](images/save-conflict-error-message.png "Resolving a save conflict")
 
 *Resolving conflicts upon saving concurrent changes*
 
