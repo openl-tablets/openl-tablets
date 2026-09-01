@@ -47,8 +47,10 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   - `7d41eeea8c` Drop the JSP API dependency that no TableEditor source uses — change type 12.
 - No review threads. CodeRabbit's "Docstring Coverage" pre-merge warning is advisory and asks for additions,
   which a delete-only sweep never makes; ignore it, do not answer it again.
-- Every check passed on head `7d41eeea8c` except `IT (services-data)`, which hit the Kafka container flake; its
-  one rerun for that SHA is already spent, so a second failure there is real and must be root-caused.
+- On head `7d41eeea8c` every check is green except the SonarCloud quality gate, which fails on "C Reliability
+  Rating on New Code". The `IT (services-data)` Kafka flake passed on its re-run; that SHA's rerun is spent.
+  The same gate passed on the previous head with the identical four added lines, so the finding is not in them.
+  Blocked and reported in one comment: the issue list is only on the unreachable dashboard.
 
 ## Merged PRs
 
@@ -281,6 +283,9 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   so it needs `--reset-author`.
 - `git push origin --delete <branch>` fails through the proxy with HTTP 403; normal pushes work.
 - `gh` CLI and `xxd` are absent. Use the GitHub MCP tools.
+- `sonarcloud.io` is blocked by the sandbox proxy (`CONNECT tunnel failed, response 403`), and a failed
+  SonarCloud check run carries only the rating — empty `output.text`, no annotations, no review comments. A
+  quality-gate failure therefore cannot be diagnosed from here; say so and ask for the rule key and file/line.
 - `.toDelete/` is gitignored (`.gitignore:35`) and safe for scan scratch files.
 - Spotless runs from the `validate` phase on; after any build check `git status` and revert churn you did not
   intend. Runs 4-8 saw none beyond the deliberate POM edit.
