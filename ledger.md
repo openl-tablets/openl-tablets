@@ -283,7 +283,9 @@ Numbering continues at 40 for any new detector.
   pass `GIT_AUTHOR_*` / `GIT_COMMITTER_*` inline on every commit; `--amend` alone keeps the wrong author,
   so it needs `--reset-author`.
 - `git push origin --delete <branch>` fails through the proxy with HTTP 403; normal pushes work.
-- `gh` CLI and `xxd` are absent. Use the GitHub MCP tools.
+- `gh` CLI and `xxd` are absent. Use the GitHub MCP tools. A body sent through them loses angle-bracketed text:
+  a `maven.deploy.skip` XML element written as a tag pair was stored as a bare `true`, silently gutting the
+  evidence it carried. Name an XML element in prose with backticks, never as a tag.
 - `sonarcloud.io` is blocked by the sandbox proxy (`CONNECT tunnel failed, response 403`), and a failed
   SonarCloud check run carries only the rating — empty `output.text`, no annotations, no review comments. A
   quality-gate failure therefore cannot be diagnosed from here; say so and ask for the rule key and file/line.
@@ -367,3 +369,8 @@ Numbering continues at 40 for any new detector.
   the stale component scan, the `/action/prop_values` servlet, and four members of the non-published code
   generator, compile-verified by hand since Maven never compiles that module. #2058 now holds 9 commits.
   SonarCloud has been blocked throughout, so its gate is still the only red check.
+- Run 13: no new detector — the run went to the ledger and to #2058. Compacted the ledger 400 to 369 lines. The
+  re-run of `Sonar analysis` passed, confirming its earlier JaCoCo aggregate error was transient artifact-merge
+  corruption; the `SonarCloud Code Analysis` gate is unchanged and still the only red check. Repaired the PR body,
+  where the evidence for the code generator commit had lost its `maven.deploy.skip` element. The owner has been
+  notified once that the sweep is out of detectors AND blocked on the gate; do not re-notify without a change.
