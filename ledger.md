@@ -2,14 +2,14 @@
 
 ## Resume point
 
-PR #2058 is open on `dead-code/java-unused-members`, 7 commits; maintain it before anything else. Its only red
+PR #2058 is open on `dead-code/java-unused-members`, 8 commits; maintain it before anything else. Its only red
 check is the SonarCloud quality gate, which cannot be diagnosed from here (see *Open PR*).
 Every change type in the queue is closed. New work needs a NEW detector, not another pass of an old one.
 The productive shape is contract-satisfiability: an entry loaded or resolved by convention whose declared target
-cannot exist. It has now found the dead TLD, two dead managed entries, two dead plugin pins and a component scan
-of a package that no longer exists — every name-based vein returns nothing.
-Candidate next detectors, none tried: Spring `@Bean` methods whose type nothing injects; `id` attributes in
-webstudio pages; `<exclusion>` entries for artifacts their dependency never brings.
+cannot exist or whose caller is gone. It has found the dead TLD, two managed entries, two plugin pins, a stale
+component scan and now a servlet no client requests — every purely name-based vein returns nothing.
+Candidate next detectors, none tried: Spring `@Bean` methods whose type nothing injects; `<exclusion>` entries for
+artifacts their dependency never brings; `.vm` template variables; `compose.yaml` services and volumes.
 Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'` before cutting a branch.
 
 ## Change-type queue
@@ -27,12 +27,14 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 | 23 | Unused root-pom `dependencyManagement` entries | done (run 9, 2 shipped) |
 | 27 | Unused root-pom `pluginManagement` entries | done (run 10, 1 shipped) |
 | 28 | Config entries whose declared target does not exist | done (run 10, 1 shipped) |
+| 34 | Web endpoints no client can reach | done (run 11, 1 shipped) |
 | 2-4, 6, 8-10, 13-14 | Whole `.xhtml` / `.js` / `.css` files, STUDIO bundle keys, JS functions, PMD locals, private fields and methods, internal-package types, studio-ui TypeScript | done, no deletable finding (runs 1-6) |
 | 17-21, 24-26, 29 | pom `<properties>`, npm dependencies, `openl-default.properties` keys, package-private members, enum constants, Maven profiles, servlet `param-name`, test helper types, CSS id selectors | done, no deletable finding (runs 7-10) |
+| 30-33 | Facelets taglib tags, `ui:define` names, log4j2 appenders, Jekyll layouts and includes | done, no deletable finding (run 11) |
 
 ## Open PR
 
-- #2058 on `dead-code/java-unused-members`, head `41aecf7662`, 7 commits, 6 files, 4 insertions / 287 deletions.
+- #2058 on `dead-code/java-unused-members`, head `b25fced566`, 8 commits, 8 files, 4 insertions / 372 deletions.
   - `9a074c89c3` Remove the never-read base folder normalization in MappedRepository — change type 7.
   - `f09316534a` Drop the unused base folder parameter of the project index scan — change type 11.
   - `481a3ed7cd` Delete descriptor resources that no loader can ever read — change type 16, two files.
@@ -40,15 +42,13 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   - `af5b8accc7` Drop dependency management entries that no module declares — change type 23, two entries.
   - `65e0bc1d41` Drop plugin management entries for plugins nothing invokes — change type 27, two entries.
   - `41aecf7662` Drop the component scan of a package left behind by the studio move — change type 28.
-- While the Sonar gate is red and unexplained, STOP adding commits: each push burns a full CI cycle and cannot
-  make the PR mergeable. CodeRabbit already auto-paused its reviews on this branch for "an influx of new
-  commits". Bank new findings for the next PR instead.
-- No review threads. CodeRabbit's "Docstring Coverage" pre-merge warning is advisory and asks for additions,
-  which a delete-only sweep never makes; ignore it, do not answer it again.
-- The SonarCloud quality gate fails on "C Reliability Rating on New Code"; every other check is green. It has
-  failed on two freshly analysed heads and passed on an earlier one, so it is stable, not a boundary artefact of
-  the force-push. Reported in two comments; do not comment again unless something new appears. The issue list is
-  only on the unreachable dashboard, so a human must supply the rule key and file/line.
+  - `b25fced566` Remove the table property values servlet no client requests — change type 34.
+- No review threads. CodeRabbit auto-paused its reviews on this branch for "an influx of new commits", and its
+  "Docstring Coverage" pre-merge warning asks for additions, which a delete-only sweep never makes; ignore both.
+- The SonarCloud quality gate fails on "C Reliability Rating on New Code"; every other check is green. It has now
+  failed on three freshly analysed heads, so it is stable, not a boundary artefact of the force-push. Reported in
+  two comments; do not comment again unless something new appears. The check run's `output.text` is empty and the
+  issue list is only on the unreachable dashboard, so a human must supply the rule key and file/line.
 
 ## Merged PRs
 
@@ -57,7 +57,7 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 
 ## Module coverage
 
-- Nothing open. Every module that builds here is swept for all 26 change types.
+- Nothing open. Every module that builds here is swept for all 34 change types.
 - `STUDIO/org.openl.rules.webstudio` has never been scanned: it is the one module that cannot be built here, so
   a Java deletion in it could never be compile-verified. Largest unswept area in the repository.
 
@@ -79,7 +79,6 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   refactor, not a deletion, so it stays out of scope permanently.
 - `tooltip_skin-{blue,green,red}`, `tooltip_top_center`, `tooltip_top_left` in tableeditor `css/tooltip.css` —
   the widget's theming API; the single caller passes neither, so they are unreachable.
-- `iframe.iehack` in tableeditor `css/datepicker.css` — no producer, but the file is a vendored stylesheet.
 - `Docs/examples/production/` (33 files) and `Docs/production-deployment/` (32) are byte-identical apart from two
   README files, and both are navigable. Collapsing them means repointing links, which a delete-only sweep may not do.
 - ~190 public accessors and static helpers in `DEV/**`, `STUDIO/**` and `WSFrontend/**` have their name in exactly
@@ -107,11 +106,9 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   under `WEB-INF/taglib/`, `/faces/pages/x.xhtml` under `pages/`, and `/cxf/cxf.xml` inside a dependency jar.
 - PMD `UnusedAssignment` on a field initializer is wrong when the constructor can return early: on that path the
   initializer IS the value the getter returns. `CellStyle` returns early on a null argument.
-- PMD `UnusedAssignment` misreads try/catch: for `x = f();` in a `try` with `x = null;` in the `catch`, it calls
-  the try-block assignment overwritten, ignoring the success path. Every hit whose "overwritten on" line sits in
-  a `catch` is a false positive.
-- PMD `UnusedAssignment` also reports a line as overwritten by an EARLIER line number, which means it followed a
-  loop back-edge. Read the loop before believing it.
+- PMD `UnusedAssignment` misreads control flow twice over: a `try`-block assignment paired with one in the
+  `catch` is called overwritten though the success path reads it, and a line "overwritten" by an EARLIER line
+  number means it followed a loop back-edge. Read the catch and the loop before believing either.
 - A duplicated field assignment straddling a call is not free to remove at the line PMD names: an intervening
   call may read the field through a getter exposed to other beans. Decide which of the two writes is load-bearing.
 - `UnusedLocalVariable` on an enhanced-`for` variable used only to count iterations is not deletable — the
@@ -132,12 +129,11 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 - A private field read only by reflection is reported by PMD as unused, so an `UnusedPrivateField` hit in a test
   bean stays a false positive until the reflective reader says otherwise. A `taglib` package is NOT such a case
   any more: the TLD that bound those fields is gone, and their 18 write-only fields are real (see *Deferred*).
-- A basename regex that admits `(` swallows the paren from markdown `![alt](name.png)`, so the token never
-  equals the basename and every image referenced only from markdown looks dead. Strip leading punctuation.
-- A plain substring search inflates hits in the other direction: `add.png` matches inside `toolbar_add.png`.
-  Require a boundary or compare token sets.
-- A CSS "class" may be a property value: `.gradient` came from
-  `filter: progid:DXImageTransform.Microsoft.gradient(...)`, not a selector.
+- A token comparison fails in both directions unless it is exact: a basename regex that admits `(` swallows the
+  paren from markdown `![alt](name.png)`, while a plain substring search matches `add.png` inside
+  `toolbar_add.png`. Strip leading punctuation and require a boundary.
+- A file with NO extension is invisible to an extension-filtered grep, and the caller that keeps a finding alive
+  can sit in exactly such a file: `Docs/_includes/nav_list` is the only place that includes `nav_auto.html`.
 - A message key can be built by EL `concat` from an enum constant, so the literal key appears nowhere.
 - A `.js` / `.css` source whose only hits are `compile.*.sh` / `compile.*.cmd` is a build input, not dead.
 - A key suffixed by convention is never found by its literal: `ValidationMessages.properties` keys, and every
@@ -165,12 +161,16 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 ## Method rules
 
 - Prove non-reference with a plain repo-wide full-text search over every text file type, not a regex scoped to
-  one attribute, one file type or one module.
+  one attribute, one file type or one module — and never pipe a proof grep through `head`, which hides the very
+  hit that would have refuted the finding.
 - A descriptor loaded by convention is dead when its declared handler cannot satisfy the loader's contract, even
   though the class it names exists. A `.tld` tag class must implement the JSP tag interface; the tableeditor
   ones extend `UIComponentBase`, so no container could ever instantiate them. Check the contract, not the name.
 - Before deleting a descriptor, confirm it declares nothing a scanner registers on sight — a TLD listener,
   function or validator entry is active even when no page uses the tags.
+- Deleting a Java class is provable without compiling its module: Java can name a type only by its simple name or
+  its fully qualified name, so a repo-wide search for both, plus the reflective registrations that name it as a
+  string, is a complete reference check. That is how the webstudio servlet shipped though the module cannot build.
 - Collect Maven dependency consumers by PARSING every pom, not grepping: `<artifactItem>` blocks of the
   dependency plugin consume a managed version exactly as `<dependency>` does, and a grep for the artifact name
   cannot tell the type and classifier apart.
@@ -193,14 +193,14 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 - Delete lines by matching their exact text, never by line number from an earlier listing and never by a
   repeated fragment: a bare `},` deletes every closing brace in the file.
 - Search a message key by its full literal AND by its prefix up to the last dot, to catch composed lookups.
-- Flatten `studio-ui` locale bundles by replacing `i18next.addResourceBundle(` with a capture function and
-  running the file in `node:vm` — the bundles are plain object literals, so no TypeScript tooling is needed.
-- Before deleting one name from a grouped CSS selector, verify each remaining name separately; keep the rule.
 - A `#`-hash link in legacy WebStudio is a server page route, not a React route. The crossroads routes in
   `index.xhtml` build `page + ".xhtml"` from the fragment, so search a page by its base name with and without
   the extension.
-- Dead-CSS cleanup has maintainer precedent on `main`: "Drop the common.css titleColumn rules orphaned by the
-  retired commit info dialog". Same change type — no need to hedge on it.
+- Two removals have maintainer precedent on `main`, so neither needs hedging: dead CSS ("Drop the common.css
+  titleColumn rules orphaned by the retired commit info dialog") and an unreachable `/action/*` servlet, which
+  the 6.2.0 release notes record for `/action/launch` when its button went.
+- A removal needs a release-notes entry only when a user could observe it. An internal AJAX endpoint with no
+  button, menu or documented contract changes nothing, so it ships without one; a user-visible feature does not.
 - Parse `target/pmd.xml` with the namespace `http://pmd.sourceforge.net/report/2.0.0`. The ruleset namespace
   (`ruleset/2.0.0`) and the schema name (`report_2_0_0`) both differ from it, and either wrong guess silently
   yields zero violations from reports that are full of them.
@@ -256,6 +256,9 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   `Docs/architecture/technology-stack.md`. All nine root profiles are live.
 - `redirectPage` is read by `SessionTimeoutFilter.getInitParameter`; `xForwardedPrefixStrategy` by the
   third-party `de.qaware.xff.filter.ForwardedHeaderFilter`. The other six `param-name`s are framework constants.
+- `Docs/` renders through the remote theme `mmistakes/minimal-mistakes`, whose gem owns the layouts and calls the
+  includes. A file under `Docs/_layouts` or `Docs/_includes` overrides a theme file of the same name, so nothing
+  in this repository has to name it: `release-notes.html`, `nav_list` and `nav_auto.html` are all live.
 
 ## CI flakes
 
@@ -275,6 +278,7 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   jackson, log4j and asm past what the image's `~/.m2` holds. Maven Central is reachable; only
   `build.shibboleth.net` is 403, so the `org.opensaml:opensaml-bom` import block still has to come out of the
   root `pom.xml` first. Never commit that; `git checkout -- pom.xml` after. `mvn validate -N` needs it out too.
+  OpenSAML 5.2.3 and `net.shibboleth:parent` are NOT on Maven Central (404), so no repository swap fixes this.
 - Ten modules need the webstudio WAR and must all be excluded, or the reactor dies on the first of them:
   `mvn install -Dquick -DnoPerf -T1C -B -pl '!:org.openl.rules.webstudio,!:itest.studio.demo,!:itest.studio.disabled-settings,!:itest.studio.acl,!:itest.studio.dtr,!:itest.studio.repos,!:itest.studio.multi,!:itest.studio.simple,!:itest.studio.users,!:itest.studio.sso'`
 - That build takes about 19 minutes including downloads and installs 55 modules, TableEditor and STUDIO Web
@@ -313,7 +317,7 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   quality-gate failure therefore cannot be diagnosed from here; say so and ask for the rule key and file/line.
 - `.toDelete/` is gitignored (`.gitignore:35`) and safe for scan scratch files.
 - Spotless runs from the `validate` phase on; after any build check `git status` and revert churn you did not
-  intend. Runs 4-9 saw none beyond the deliberate POM edit.
+  intend. Runs 4-11 saw none beyond the deliberate POM edit.
 - Write the ledger through `git worktree add --detach <dir> origin/dead-code/ledger`; it never touches the
   sweep branch's working tree and needs no orphan-branch dance.
 
@@ -361,11 +365,18 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 - Class references in all 67 convention-loaded descriptors (`web.xml`, `faces-config.xml`, `*.taglib.xml`,
   `*.tld`, `META-INF/services/*`, `spring.factories`) and path references in the seven webapp descriptors. Every
   named class exists; the single finding was the TLD whose classes cannot satisfy the JSP contract.
+- Every entry of the webstudio web descriptor: all six filters and both servlets against their mappings, all
+  three listeners, the error page target, and every mapped URL against every client in the repository. One
+  finding, the `/action/prop_values` servlet; `/action/*` now has no entry left.
+- Both Facelets taglibs (3 custom tags, each used by a page), every `ui:define` name against every `ui:insert`
+  (only `content` and `title` exist, both matched), all appenders in the three log4j2 configurations, and every
+  Jekyll layout and include under `Docs/`. No finding in any of the four.
 
 ## Human follow-ups
 
-- Allowlist `build.shibboleth.net`, or mirror the opensaml artifacts, so `org.openl.rules.webstudio` can build
-  here. It is now the ONLY module this routine cannot compile, and the largest one never scanned.
+- Mirror the OpenSAML artifacts, or allowlist `build.shibboleth.net`, so `org.openl.rules.webstudio` can build
+  here. It is the ONLY module this routine cannot compile and the largest one never scanned, and Maven Central
+  is not an alternative — the artifacts are not published there.
 - Give the sweep the SonarCloud rule key and file/line for PR #2058's new-code reliability issue, or allowlist
   `sonarcloud.io`. The quality gate is the only thing keeping that pull request from green.
 - Delete the abandoned remote branch `dead-code/studio-resources` (PR #2055 closed unmerged; its only change is
@@ -378,9 +389,9 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 
 ## Run log
 
-- Run 8: two new detectors (rows 21-22). The contract-satisfiability scan found the TableEditor JSP TLD, dead
-  since the Faces 4 migration; it and the JSP API dependency it justified shipped onto #2058, now 4 commits.
 - Run 9: four new detectors (rows 23-26). Row 23 found two dead managed entries, verified by an effective-pom
   diff over the whole reactor, and shipped onto #2058, now 5 commits. SonarCloud still unreachable.
 - Run 10: three new detectors (rows 27-29). Two findings, both shipped onto #2058, now 7 commits: the dead plugin
   pins and the stale component scan. SonarCloud is still blocked, so the gate is still the only red check.
+- Run 11: five new detectors (rows 30-34). One finding, the `/action/prop_values` servlet, shipped onto #2058,
+  now 8 commits. SonarCloud is still blocked and its gate is still the only red check.
