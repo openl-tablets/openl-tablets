@@ -19,8 +19,8 @@ covered. Numbering continues at 61.
 
 - #2062 on `dead-code/commented-out-java`, head e50c7906 — 2 commits, 58 files, 417 deletions. Type 56
   commented-out Java (55 files); type 57 stylesheets and scripts (3 files). CodeRabbit found nothing on either.
-  11 of 12 checks green; `Sonar analysis` hit the `Unknown block type c7` flake, commented on and RE-RUN ALREADY
-  SPENT for this SHA — a second failure on it is real.
+  GREEN and mergeable: the `Sonar analysis` `Unknown block type c7` flake failed once here and passed on the
+  single re-run, with the SonarCloud gate green after it. Waiting only on a human merge.
 
 ## Merged PRs
 
