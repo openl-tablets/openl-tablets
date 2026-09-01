@@ -2,10 +2,9 @@
 
 ## Resume point
 
-PR #2062 is open on `dead-code/commented-out-java`, green and waiting only on a human merge.
-CONCURRENCY: a fresh session every two hours shares this ledger, so another run may write it while you work —
-add what is missing instead of replacing its text, treat a CI event for a superseded `head_sha` as stale, and
-never arm a self-perpetuating check-in chain; the next firing already covers the PR.
+NO PR IS OPEN. #2062 merged; cut a fresh `dead-code/<topic>` branch from `origin/main` for any new work.
+CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
+replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 All 66 change types are closed and every remaining lead named in an earlier resume point has been run and came
 back empty. Nothing deletable is known to be left; a run that finds nothing is the expected outcome now.
 
@@ -16,14 +15,15 @@ covered. Numbering continues at 67.
 
 ## Open PR
 
-- #2062 on `dead-code/commented-out-java`, head e50c7906 — 2 commits, 58 files, 417 deletions. Type 56
-  commented-out Java (55 files); type 57 stylesheets and scripts (3 files). CodeRabbit found nothing, no review
-  thread is open, and all 14 checks pass including the SonarCloud gate. Waiting only on a human merge.
+- None. Cut a branch, then record its number, head and one line per commit here.
 
 ## Merged PRs
 
-- #2054/#2056 (42 deletions), #2058 (11 commits, 411 deletions), #2060 (1 commit); no review comment on any. The
-  owner merges with or without a green gate, accepts one commit per change type; merged branches auto-delete.
+- #2054/#2056 (42 deletions), #2058 (11 commits, 411 deletions), #2060 (1 commit), #2062 (2 commits, 417
+  deletions, types 56-57); no review comment on any. The owner merges with or without a green gate, accepts one
+  commit per change type; merged branches auto-delete.
+- A comment-only sweep is mergeable: #2062 went in as two commits, so both the deletion-only proof and one
+  commit per change type are accepted for comments as well as code.
 
 ## Module coverage
 
@@ -394,7 +394,7 @@ covered. Numbering continues at 67.
 
 ## Run log
 
-- Run 18: types 53-55 closed empty; type 56 shipped commented-out Java as #2062, then a concurrent run folded
-  `/* */` blocks in and added type 57. Verified both, rewrote the PR body and title, re-ran the Sonar flake.
+- Run 18: types 53-57 shipped as #2062 (three runs contributed); re-ran the Sonar flake; the owner merged it
+  about three hours after opening and its branch auto-deleted.
 - Run 19: types 58-60 closed empty; verified #2062's two commits with a 75-module reactor build.
-- Run 20: types 61-66 closed empty, no commit. #2062 confirmed green and unchanged; ledger compacted.
+- Run 20: types 61-66 closed empty, no commit; ledger compacted.
