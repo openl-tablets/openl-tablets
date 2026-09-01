@@ -232,9 +232,9 @@ covered. Numbering continues at 73.
 
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails with `ORA-12516 ... no protocol handler for TCP ready`,
   the Oracle TestContainer listener not yet accepting connections. Infrastructure, never the diff. One rerun.
-- `IT (services-data)` — `RunStoreLogDataITest.setUp` cannot start `apache/kafka-native:latest`: log4j
-  `StatusLogger` init segfaults in `Pwd.getpwuid` inside the image's own entrypoint, so the container exits 1
-  before any test body. The tag floats, never pin it away. One rerun.
+- `IT (services-data)` — `RunKafkaSmokeITest.setUp` or `RunStoreLogDataITest.setUp` cannot start
+  `apache/kafka-native:latest`: the native image segfaults in `Pwd.getpwuid` under `System.getProperty` inside
+  its own entrypoint, so the container exits 1 before any test body. The tag floats, never pin it away. One rerun.
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
   overlapping `coverage-*` artifacts the job merges. Transient, and it suppresses the gate entirely because
   nothing is uploaded. One rerun per SHA.
