@@ -161,7 +161,6 @@ class ProjectDescriptorTest {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     void testWriteDescriptor1() throws Exception {
         var descriptor = new ProjectDescriptor();
