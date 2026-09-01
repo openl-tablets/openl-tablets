@@ -6,9 +6,9 @@ SESSIONS RUN CONCURRENTLY: the cron spawns a FRESH session every two hours, so s
 ledger and PR at once — two runs pushed commits and ledger updates past each other today. Never arm a
 self-perpetuating check-in chain; the next firing already covers the PR and the chains accumulate forever.
 Re-fetch before every write, never force-push, and treat a CI event for a superseded `head_sha` as stale.
-PR #2058 is open on `dead-code/java-unused-members`, 11 commits; maintain it before anything else. Its only red
-check is the SonarCloud quality gate, which cannot be diagnosed from here (see *Open PR*). Keep pushing verified
-work to it anyway: only one sweep PR may be open, so holding findings back ships nothing.
+NO PR IS OPEN. #2058 merged; cut a fresh `dead-code/<topic>` branch for the next findings and open one PR that
+accumulates commits. The owner merged #2058 with the SonarCloud gate still red, so a red gate does not block a
+merge here — keep pushing verified work and report the gate rather than holding findings back.
 All 48 change types are closed; new work needs a NEW detector. Member-level deadness is finished in every
 admissible scope — published API is off limits, non-published modules are unprovable (`.xls*` callers), and
 internal packages hold nothing. Maven metadata still pays: type 48 found three dead exclusions.
@@ -23,28 +23,14 @@ All 48 closed; *Exhausted veins* records what each covered. Fifteen shipped a de
 
 ## Open PR
 
-- #2058 on `dead-code/java-unused-members`, 11 commits, head `60c15c0e19`. Derive counts mechanically before
-  editing the body: `git log --oneline origin/main..HEAD | wc -l` and `git diff --shortstat origin/main...HEAD`.
-  - `9a074c89c3` never-read base folder normalization in MappedRepository — type 7.
-  - `f09316534a` unused base folder parameter of the project index scan — type 11.
-  - `481a3ed7cd` descriptor resources no loader can read — type 16, two files.
-  - `7d41eeea8c` JSP API dependency no TableEditor source uses — type 12.
-  - `af5b8accc7` dependency management entries no module declares — type 23, two entries.
-  - `65e0bc1d41` plugin management entries for plugins nothing invokes — type 27, two entries.
-  - `41aecf7662` component scan of a package left behind by the studio move — type 28.
-  - `b25fced566` table property values servlet no client requests — type 34.
-  - `8b8003615c` code generator helpers no template calls — type 39, four members.
-  - `63b66a5957` local declaration the tracing span check never uses — type 42.
-  - `60c15c0e19` three Azure blob exclusions of artifacts it no longer brings — type 48.
-- No review threads. CodeRabbit auto-paused its reviews for "an influx of new commits", and its "Docstring
-  Coverage" pre-merge warning asks for additions, which a delete-only sweep never makes; ignore both.
-- The SonarCloud quality gate fails on "C Reliability Rating on New Code"; every other check is green. It failed
-  on four freshly analysed heads, so it is stable, not a force-push artefact. Reported in two comments; do not
-  comment again. The issue list is only on the unreachable dashboard, so a human must supply the rule and line.
+- None. Cut a branch, then record its number, head and one line per commit here.
 
 ## Merged PRs
 
 - #2054 and #2056 (42 deletions, types 1, 5, 15) merged with no review comment, a locale-key batch included.
+- #2058 (11 commits, 13 files, 411 deletions; types 7, 11, 12, 16, 23, 27, 28, 34, 39, 42, 48) merged by the
+  owner about a day after opening, with the SonarCloud gate red and no review comment on any commit. A
+  multi-type sweep accumulating one commit per change type is accepted.
 
 ## Module coverage
 
@@ -370,8 +356,9 @@ All 48 closed; *Exhausted veins* records what each covered. Fifteen shipped a de
 
 ## Human follow-ups
 
-- Give the sweep the SonarCloud rule key and file/line for PR #2058's new-code reliability issue, or allowlist
-  `sonarcloud.io`. The quality gate is the only thing keeping that pull request from green.
+- Allowlist `sonarcloud.io`, or paste the rule key and file/line when the gate fails. It failed "C Reliability
+  Rating on New Code" on every #2058 head and will likely do the same on the next sweep PR; the owner merged
+  #2058 over it, so it is an unread signal rather than a blocker.
 - Mirror the OpenSAML artifacts, or allowlist `build.shibboleth.net`, so `org.openl.rules.webstudio` can build
   here. Maven Central is not an alternative — the artifacts are not published there. PMD now scans the module
   without compiling it, so this only blocks compile-verifying a Java deletion in it.
@@ -397,3 +384,5 @@ All 48 closed; *Exhausted veins* records what each covered. Fifteen shipped a de
 - Run 14: PMD standalone over all 4031 Java files — 50 violations, one shipped; three cheap detectors empty.
 - Run 15: types 44-47 (public members of non-published modules and of internal packages, duplicate keys inside
   one file, npm scripts) closed empty; type 48 shipped three dead exclusions. Ledger compacted from 398 lines.
+- Run 16: #2058 merged by the owner over the red gate — 11 commits, 411 deletions. Cleared *Open PR*, recorded
+  the concurrency rule above, and unsubscribed. Next run starts a fresh branch at change type 49.
