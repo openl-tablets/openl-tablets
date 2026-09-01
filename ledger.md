@@ -2,14 +2,15 @@
 
 ## Resume point
 
-PR #2058 is open on `dead-code/java-unused-members`, 5 commits; maintain it before anything else. Its only red
+PR #2058 is open on `dead-code/java-unused-members`, 7 commits; maintain it before anything else. Its only red
 check is the SonarCloud quality gate, which cannot be diagnosed from here (see *Open PR*).
-Every change type in the queue is closed, and seventeen detectors have now returned nothing. New work needs a NEW
-detector, not another pass of an old one.
+Every change type in the queue is closed. New work needs a NEW detector, not another pass of an old one.
 The productive shape is contract-satisfiability: an entry loaded or resolved by convention whose declared target
-cannot exist. It found the dead TLD and both dead managed entries after fifteen name-based veins found nothing.
+cannot exist. It has now found the dead TLD, two dead managed entries, two dead plugin pins and a component scan
+of a package that no longer exists — every name-based vein returns nothing.
 Candidate next detectors, none tried: Spring `@Bean` methods whose type nothing injects; `id` attributes in
-webstudio pages; `<exclusion>` entries for artifacts their dependency never brings.
+webstudio pages; `<exclusion>` entries for artifacts their dependency never brings; entries in the JS/CSS bundle
+build scripts naming a source that is gone.
 Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'` before cutting a branch.
 
 ## Change-type queue
@@ -42,29 +43,31 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 | 24 | Dead Maven profiles | done, no finding (run 9) |
 | 25 | Unread servlet `param-name` entries | done, no finding (run 9) |
 | 26 | Dead helper types in test sources | done, no deletable finding (run 9) |
+| 27 | Unused root-pom `pluginManagement` entries | done (run 10, 1 shipped) |
+| 28 | Config entries whose declared target does not exist | done (run 10, 1 shipped) |
+| 29 | Dead CSS id selectors | done, no finding (run 10) |
 
 ## Open PR
 
-- #2058 on `dead-code/java-unused-members`, head `af5b8accc7`, 5 commits, 5 files, 4 insertions / 276 deletions.
+- #2058 on `dead-code/java-unused-members`, head `41aecf7662`, 7 commits, 6 files, 4 insertions / 287 deletions.
   - `9a074c89c3` Remove the never-read base folder normalization in MappedRepository — change type 7.
   - `f09316534a` Drop the unused base folder parameter of the project index scan — change type 11.
   - `481a3ed7cd` Delete descriptor resources that no loader can ever read — change type 16, two files.
   - `7d41eeea8c` Drop the JSP API dependency that no TableEditor source uses — change type 12.
   - `af5b8accc7` Drop dependency management entries that no module declares — change type 23, two entries.
+  - `65e0bc1d41` Drop plugin management entries for plugins nothing invokes — change type 27, two entries.
+  - `41aecf7662` Drop the component scan of a package left behind by the studio move — change type 28.
 - No review threads. CodeRabbit's "Docstring Coverage" pre-merge warning is advisory and asks for additions,
   which a delete-only sweep never makes; ignore it, do not answer it again.
 - The SonarCloud quality gate fails on "C Reliability Rating on New Code"; every other check is green. It has
-  now failed on TWO freshly analysed heads (`7d41eeea8c`, `af5b8accc7`) and passed on `79074f5b73`, so it is
-  stable and reproducible — not a new-code boundary artefact of the force-push, and a new head will not clear
-  it. Blocked and reported in two comments; do not comment again unless something genuinely new appears. The
-  issue list is only on the unreachable dashboard, so a human must supply the rule key and file/line.
+  failed on two freshly analysed heads and passed on an earlier one, so it is stable, not a boundary artefact of
+  the force-push. Reported in two comments; do not comment again unless something new appears. The issue list is
+  only on the unreachable dashboard, so a human must supply the rule key and file/line.
 
 ## Merged PRs
 
-- #2054 — 2 commits, 12 lines, change types 1 and 5. Merged with no review comments, which sets the precedent
-  that a mechanical single-type resource sweep is accepted as-is.
-- #2056 — 2 commits, 30 deletions, change types 5 and 15. Merged in 35 minutes, no review comments; a locale-key
-  batch spanning three bundles is accepted as one commit.
+- #2054 (12 lines, types 1 and 5) and #2056 (30 deletions, types 5 and 15) merged fast with no review comment:
+  a mechanical single-type sweep, a locale-key batch across three bundles included, is accepted as one commit.
 
 ## Module coverage
 
@@ -165,6 +168,11 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   reaches `examples/production/` as `production/README.md`. Search a doc folder by its own name, not its full path.
 - In a Java signature regex, a greedy `[ \t]+` indent backtracks past a visibility keyword, so a `(?!public|...)`
   lookahead silently admits public members. Reject the line by token instead of by lookahead.
+- A managed PLUGIN nothing declares is usually still reached: by the default lifecycle (deploy, clean, jar), by a
+  packaging that binds it (`maven-archetype`), by a workflow goal (`release:prepare`), or by its own configuration
+  feeding a `site/` directory. Only a plugin no lifecycle binds and no command names is dead.
+- A `<component-type>` or `<renderer-type>` in a faces config is a dotted identifier, not a class name, so a
+  class-existence scan reports it missing. The `<component-class>` beside it is the real class.
 - A pom `<include>` or `<exclude>` naming a path that does not exist in git is usually a build-generated
   directory (`jetty-home/`, `logs/`, `release.properties`). Nothing in this shape has ever been dead.
 
@@ -180,9 +188,12 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 - Collect Maven dependency consumers by PARSING every pom, not grepping: `<artifactItem>` blocks of the
   dependency plugin consume a managed version exactly as `<dependency>` does, and a grep for the artifact name
   cannot tell the type and classifier apart.
-- Verify a `dependencyManagement` removal with `mvn help:effective-pom -Doutput=<file>` over the reactor before
-  and after the edit. The diff must add no line, and every artifact reference outside `dependencyManagement`
-  must be identical. That runs in seconds and proves more than the 19-minute rebuild does.
+- Verify a `dependencyManagement` or `pluginManagement` removal with `mvn help:effective-pom -Doutput=<file>`
+  over the reactor before and after the edit. The diff must add no line and remove only the entry, once per
+  effective POM. That runs in seconds and proves more than the 19-minute rebuild does.
+- Resolve every dotted reference in configuration against the repository: collect the package of each `.java`
+  file, then check class names (last segment capitalized) and package names separately. Artifact ids share the
+  package shape, so exclude POM files, and treat a name from a third-party package as unverifiable, not dead.
 - No war module here sets `attachClasses`, so none publishes a `classes`-classifier jar. The extra jar that
   `ruleservice.ws` attaches comes from `assembly/assembly-jar.xml` with `appendAssemblyId` false, so it has no
   classifier. The `classes` classifier in the docs belongs to rule projects built by `openl:package`.
@@ -285,12 +296,10 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   which is expected and does not block any change type.
 - `help:effective-pom` accepts the same `-pl` exclusions, finishes in seconds and writes all 55 effective poms
   into one 17 MB file. It is the cheapest whole-reactor verification available here.
-- `pgrep -f "mvn install"` NEVER matches the running build — `mvn` execs java through plexus classworlds, so the
-  string is gone from the cmdline. Match `[c]lassworlds`. A wait loop on the wrong pattern exits instantly and
-  makes a running build look finished.
-- Killing the launcher shell does NOT kill the Maven JVM. A second launch then races the first on the same
-  `target/` dirs and both logs interleave into one file. Check `pgrep -f '[c]lassworlds'` before every launch,
-  and never `pkill -f <pattern>` where the pattern also matches your own shell — it kills the tool call.
+- `pgrep -f "mvn install"` never matches a running build — `mvn` execs java through plexus classworlds; match
+  `[c]lassworlds` instead, and check it before every launch. Killing the launcher shell leaves the Maven JVM
+  alive, so a second launch races the first on the same `target/` dirs. Never `pkill -f <pattern>` where the
+  pattern also matches your own shell — it kills the tool call.
 - `dependency:analyze-only` needs the same `-pl` exclusions plus `-fae`; ITEST modules cannot resolve
   `org.openl.itest:server-core` outside the itest profile. 51 modules analyze successfully.
 - `mvn pmd:pmd` needs no installed artifacts and produces a usable report even when the reactor later fails; with
@@ -330,7 +339,7 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 - Unused keys in `i18n/openapi.properties` (625), webstudio `messages.properties` (46) and
   `ValidationMessages.properties`.
 - Class-level deadness in webstudio `css/common.css`, `layout/main.css`, `layout/simple.css`, and in all seven
-  own tableeditor stylesheets (77 class tokens).
+  own tableeditor stylesheets (77 class tokens), plus every id selector in the same eleven files (9 tokens).
 - Function and prototype-method deadness in `webapp/javascript/common.js`, `bomjs.js` and every own
   tableeditor script (119 method names).
 - Unused-export scan over all 776 exports in `STUDIO/studio-ui/src`, and whole-file deadness over its 562
@@ -349,6 +358,10 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
   against every `<dependency>` and `<artifactItem>` in every pom. Two dead, seventeen live transitive pins.
 - All 9 Maven profile ids, all 8 servlet `param-name` entries, and every literal include/exclude path in every
   pom. No finding in any of the three.
+- All 25 root-pom `pluginManagement` entries against every plugin declared outside plugin management in every
+  pom, profiles and reporting sections included. Two dead, four reached without a declaration.
+- Every `org.openl` class and package reference in every configuration file, and all 24 component-scan base
+  packages. One finding; the rest resolve or are third-party.
 - Whole-file deadness over every non-image, non-web resource type outside test fixtures — `.xml`, `.properties`,
   `.txt`, `.json`, `.yaml`, `.sql`, `.env`, `.csv`, `.vm`, `.tld`, `.groovy`, `.md`, plus a catch-all over every
   remaining extension. One finding; every other hit is a convention file now on the keep-list.
@@ -377,9 +390,9 @@ Only one sweep PR may be open: check `git ls-remote --heads origin 'dead-code/*'
 
 ## Run log
 
-- Run 7: five new detectors (rows 16-20); only one finding, the orphaned CXF static-resources map, shipped onto
-  #2058. Confirmed `build.shibboleth.net` is still unreachable, so webstudio stays unscannable.
 - Run 8: two new detectors (rows 21-22). The contract-satisfiability scan found the TableEditor JSP TLD, dead
   since the Faces 4 migration; it and the JSP API dependency it justified shipped onto #2058, now 4 commits.
 - Run 9: four new detectors (rows 23-26). Row 23 found two dead managed entries, verified by an effective-pom
   diff over the whole reactor, and shipped onto #2058, now 5 commits. SonarCloud still unreachable.
+- Run 10: three new detectors (rows 27-29). Two findings, both shipped onto #2058, now 7 commits: the dead plugin
+  pins and the stale component scan. SonarCloud is still blocked, so the gate is still the only red check.
