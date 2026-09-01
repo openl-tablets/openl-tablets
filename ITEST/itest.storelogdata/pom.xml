@@ -72,9 +72,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
                         <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
-                        <systemPropertyVariables>
-                            <someExternalProperty>#{${geocodeProvider}.mapSuggestion}</someExternalProperty>
-                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
             </plugins>
