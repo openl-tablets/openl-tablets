@@ -52,7 +52,6 @@ public class GoalGenerate extends GoalImpl {
      */
     @Override
     public Goal execute() throws Failure {
-        // Debug.on();Debug.print("Generate"+_intvars);Debug.off();
         var index = -1;
         var size = _intvars.size();
         for (var i = 0; i < size; i++) {
@@ -65,9 +64,6 @@ public class GoalGenerate extends GoalImpl {
         if (index == -1) {
             return null; // all vars are instantiated
         }
-
-        // IntVar var = (IntVar)_intvars.elementAt(index);
-        // Debug.on();Debug.print("Var Selected:"+var);Debug.off();
 
         var search_goal = (Goal) _goals.elementAt(index);
 

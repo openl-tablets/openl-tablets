@@ -179,8 +179,6 @@ public final class IntExpAddValue extends IntExpImpl {
     @Override
     public void setMin(int min) throws Failure {
 
-        // System.out.println("++++ Set min: " + min + " in " + this);
-
         _exp.setMin(min - _value);
     }
 

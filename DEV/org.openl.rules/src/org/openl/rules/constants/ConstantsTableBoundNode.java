@@ -107,12 +107,10 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                     boolean noErrors;
                     CompositeMethod compositeMethod;
                     cxt.pushErrors();
-                    // cxt.pushMessages();
                     try {
                         compositeMethod = OpenLManager.makeMethod(openl, source, methodHeader, cxt);
                     } finally {
 
-                        // cxt.popMessages();
                         List<SyntaxNodeException> syntaxNodeExceptions = cxt.popErrors();
                         noErrors = syntaxNodeExceptions.isEmpty();
                         syntaxNodeExceptions.forEach(cxt::addError);

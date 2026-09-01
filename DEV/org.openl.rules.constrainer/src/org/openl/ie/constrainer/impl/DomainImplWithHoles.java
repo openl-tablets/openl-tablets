@@ -63,15 +63,11 @@ public final class DomainImplWithHoles extends DomainImpl {
 
     @Override
     public int max() {
-        // DomainInterval interval = (DomainInterval)_values.lastElement();
-        // return interval.to;
         return _max;
     }
 
     @Override
     public int min() {
-        // DomainInterval interval = (DomainInterval)_values.firstElement();
-        // return interval.from;
         return _min;
     }
 
@@ -84,7 +80,6 @@ public final class DomainImplWithHoles extends DomainImpl {
             return setMax(value - 1);
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         for (var i = 0; i < _values.size(); i++) {
@@ -123,7 +118,6 @@ public final class DomainImplWithHoles extends DomainImpl {
             constrainer().fail("Max < Min for " + _variable);
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         // remove a hole
@@ -159,7 +153,6 @@ public final class DomainImplWithHoles extends DomainImpl {
             constrainer().fail("Min > Max for " + _variable);
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         // remove hole
@@ -186,9 +179,7 @@ public final class DomainImplWithHoles extends DomainImpl {
 
     @Override
     public boolean setValue(int value) throws Failure {
-        // Debug.print("setValue " + value);
         if (_min == value && _max == value) {
-            // constrainer().fail("Redundant value "+_variable);
             return false;
         }
 
@@ -196,7 +187,6 @@ public final class DomainImplWithHoles extends DomainImpl {
             constrainer().fail("attempt to set invalid value for " + _variable);
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         _values.clear();
@@ -218,8 +208,6 @@ public final class DomainImplWithHoles extends DomainImpl {
 
     @Override
     public String toString() {
-        // return "["+min()+((size()==1) ? "" : ";"+max())+"]"
-        // +((values().size()==1)?"":"-"+values().size()+"intervals");
         return _values.toString();
     }
 

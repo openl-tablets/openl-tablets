@@ -118,15 +118,12 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
                     int B = _dt.isOverrideAscending() ? j : i;
 
                     if (completelyOverlaps(_dt.getRule(rules[A]), _dt.getRule(rules[B]))) {
-                        // System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = blocks");
                         this.overlappings
                                 .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.BLOCK));
                     } else if (completelyOverlaps(_dt.getRule(rules[B]), _dt.getRule(rules[A]))) {
-                        // System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = overrides");
                         this.overlappings
                                 .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.OVERRIDE));
                     } else /* if (!blocks && !overrides) */ {
-                        // System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = partial overlap");
                         this.overlappings
                                 .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.PARTIAL));
                     }
@@ -154,12 +151,10 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         var C = exp1.constrainer();
         var stackSize = C.getStackSize();
         var overlaps = exp1.lt(exp2).asConstraint();
-        // GoalCompare compare = new GoalCompare(C, exp1, exp2);
         var generate = new GoalGenerate(_dt.getVars());
         var target = new GoalAnd(overlaps, generate);
         var flag = C.execute(target, true);
         C.backtrackStack(stackSize);
-        // boolean res = compare.result;
         return !flag;
     }
 

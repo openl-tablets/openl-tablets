@@ -72,9 +72,4 @@ public final class IntBoolExpEqValue extends IntBoolExpForSubject {
         _exp.setValue(_value);
     }
 
-    // public Constraint asConstraint()
-    // {
-    // return _exp.equals(_value);
-    // }
-
 } // ~IntBoolExpEqValue

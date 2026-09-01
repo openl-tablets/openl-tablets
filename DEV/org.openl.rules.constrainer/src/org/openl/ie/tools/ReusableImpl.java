@@ -32,10 +32,8 @@ public class ReusableImpl implements Reusable {
     public ReusableImpl() {
     }
 
-    // public final void free()
     @Override
     public void free() {
-        // if (_factory != null)
         _factory.freeElement(this);
     }
 

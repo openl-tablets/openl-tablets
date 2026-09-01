@@ -80,9 +80,6 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
         Class<?> retClass = retType.getInstanceClass();
         if (!(int.class == retClass) && !(Integer.class == retClass)) {
             var msg = "Score algorithm supports int or Integer return type only.";
-            // String uri =
-            // columnMatch.getTableSyntaxNode().getTableBody().getGridTable().getUri(0,
-            // 0);
             var uri = columnMatch.getSourceUrl();
             throw SyntaxNodeExceptionUtils.createError(msg, new StringSourceCodeModule(null, uri));
         }

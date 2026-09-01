@@ -96,7 +96,6 @@ public class DecisionTableValidationResult implements IValidationResult {
     public boolean hasProblems() {
 
         return hasErrors() || hasWarnings();
-        // return overlappings != null && overlappings.length > 0 || uncovered != null && uncovered.length > 0;
     }
 
     public boolean hasErrors() {
@@ -140,10 +139,6 @@ public class DecisionTableValidationResult implements IValidationResult {
             validationResultDetails
                     .append("There is an uncovered case for values: %s\r\n".formatted(Arrays.asList(getUncovered())));
         }
-
-        // if (getOverlappings().length > 0) {
-        // validationResultDetails.append(String.format("There is an overlap: %s", Arrays.asList(getOverlappings())));
-        // }
 
         var maxCounter = 3;
         var cnt = 0;

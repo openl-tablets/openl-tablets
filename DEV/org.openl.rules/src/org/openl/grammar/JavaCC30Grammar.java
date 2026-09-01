@@ -104,7 +104,6 @@ public abstract class JavaCC30Grammar implements IGrammar {
         // TODO exception?
         switch (stack.size()) {
             case 0:
-                // addError(new SyntaxException());
                 return null;
             case 1:
                 return pop();
@@ -122,8 +121,6 @@ public abstract class JavaCC30Grammar implements IGrammar {
                         null,
                         node);
                 return node;
-            // throw new RuntimeException("More than one syntax node on
-            // stack");
         }
     }
 
