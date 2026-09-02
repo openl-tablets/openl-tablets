@@ -30,7 +30,11 @@ public class CombinedRangeIndex implements IRuleIndex {
     @Override
     public DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult) {
         if (staticDecision != null) {
-            throw new UnsupportedOperationException("Static decision is not supported for CombinedRangeIndex");
+            // both indexes hold the same rules, and a rule is empty only when both of its cells are
+            return ARuleIndexV2.decidedNode(
+                    Boolean.TRUE.equals(staticDecision) ? collectRules() : emptyRules(),
+                    prevResult,
+                    nextNode.getNextIndex());
         }
         if (castToConditionType != null && castToConditionType.isImplicit()) {
             value = castToConditionType.convert(value);
@@ -49,6 +53,13 @@ public class CombinedRangeIndex implements IRuleIndex {
     @Override
     public Iterable<? extends DecisionTableRuleNode> nodes() {
         return List.of(nextNode);
+    }
+
+    /**
+     * Returns the rules that match whatever the inputs are: the condition holds both of its cells empty.
+     */
+    private int[] emptyRules() {
+        return EqualsIndexV2.intersectionSortedArrays(minIndex.emptyRules, maxIndex.emptyRules);
     }
 
     @Override

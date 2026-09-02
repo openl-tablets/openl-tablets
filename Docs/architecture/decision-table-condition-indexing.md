@@ -62,12 +62,17 @@ A condition may guard the indexed part with a check on the table inputs only:
 
 ```
 isEmpty(codes) or contains(codes, code)
+isNotEmpty(codes) and contains(codes, code)
 ```
 
 Such an expression is split in two. The left part is compiled as a static method that runs once per table call, and
-the right part is compiled as the indexed expression. When the static part returns `true`, the index returns all its
-rules without a lookup; otherwise the lookup runs as usual. The split is applied only when the left part uses the
-table inputs alone and the right part is one of the indexed shapes.
+the right part is compiled as the indexed expression. The static answer then decides what the index does:
+
+- **or** — a static `true` returns every rule of the index without a lookup, anything else runs the lookup;
+- **and** — a static `true` runs the lookup, anything else leaves only the rules with an empty condition cell.
+
+The split is applied only when the left part uses the table inputs alone and the right part is one of the indexed
+shapes.
 
 ## Falling back
 
