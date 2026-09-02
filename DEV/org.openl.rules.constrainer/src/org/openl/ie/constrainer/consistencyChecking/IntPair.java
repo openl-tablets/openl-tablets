@@ -10,7 +10,6 @@ public class IntPair {
     private final int y;
 
     public IntPair(int x, int y) {
-        super();
         this.x = x;
         this.y = y;
     }

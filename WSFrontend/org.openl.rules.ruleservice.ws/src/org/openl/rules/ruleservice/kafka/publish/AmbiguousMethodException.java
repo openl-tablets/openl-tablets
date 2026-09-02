@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.kafka.publish;
 public class AmbiguousMethodException extends RuntimeException {
 
     public AmbiguousMethodException() {
-        super();
     }
 
     public AmbiguousMethodException(String message,

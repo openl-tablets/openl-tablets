@@ -12,7 +12,6 @@ public class ProjectResolvingException extends OpenLCheckedException {
     private static final long serialVersionUID = 1L;
 
     public ProjectResolvingException() {
-        super();
     }
 
     public ProjectResolvingException(String message,

@@ -110,7 +110,6 @@ public class TypeBindingContext extends BindingContextDelegator {
         private final IMethodCaller method;
 
         private LocalVarMethodCaller(ILocalVar localvar, IMethodCaller method) {
-            super();
             this.localvar = localvar;
             this.method = method;
         }

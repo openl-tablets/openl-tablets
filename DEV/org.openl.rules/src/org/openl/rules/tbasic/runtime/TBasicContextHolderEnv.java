@@ -33,7 +33,6 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
                                   DelegatedDynamicObject tbasicTarget,
                                   Object[] params,
                                   TBasicVM tbasicVM) {
-        super();
         this.env = env;
         tbasicVm = tbasicVM;
         tbasicParams = params;

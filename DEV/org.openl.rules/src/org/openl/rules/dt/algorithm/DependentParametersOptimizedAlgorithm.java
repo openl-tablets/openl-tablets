@@ -694,7 +694,6 @@ class DependentParametersOptimizedAlgorithm {
         RelationRangeAdaptor(EvaluatorFactory evaluatorFactory,
                              ITypeAdaptor<?, C> typeAdaptor,
                              ConditionCasts conditionCasts) {
-            super();
             this.evaluatorFactory = evaluatorFactory;
             this.typeAdaptor = (ITypeAdaptor<Object, C>) typeAdaptor;
             this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionsCasts cannot be null");
@@ -838,7 +837,6 @@ class DependentParametersOptimizedAlgorithm {
         final String expression;
 
         EvaluatorFactory(IParameterDeclaration signatureParam, String expression) {
-            super();
             this.signatureParam = signatureParam;
             this.expression = expression;
         }

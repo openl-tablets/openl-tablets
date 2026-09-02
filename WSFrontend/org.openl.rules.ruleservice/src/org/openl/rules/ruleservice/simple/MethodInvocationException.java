@@ -18,7 +18,6 @@ public class MethodInvocationException extends RuleServiceException {
      * Constructs a new MethodInvocationException
      */
     public MethodInvocationException() {
-        super();
     }
 
     /**

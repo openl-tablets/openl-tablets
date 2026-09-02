@@ -5,7 +5,6 @@ public class DTScale {
     private final int vScale, hScale;
 
     public DTScale(int vScale, int hScale) {
-        super();
         this.vScale = vScale;
         this.hScale = hScale;
     }

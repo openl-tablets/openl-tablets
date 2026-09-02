@@ -23,7 +23,6 @@ class CacheAndWriteOutputStream extends CachedOutputStream {
     private final ByteArrayOutputStream flowThroughStreamCache = new ByteArrayOutputStream();
 
     public CacheAndWriteOutputStream(OutputStream stream) {
-        super();
         if (stream == null) {
             throw new IllegalArgumentException("Stream may not be null");
         }

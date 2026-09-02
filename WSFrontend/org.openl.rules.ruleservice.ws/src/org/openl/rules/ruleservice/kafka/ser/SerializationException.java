@@ -7,7 +7,6 @@ public class SerializationException extends RuntimeException {
     private static final long serialVersionUID = -8022442458648677937L;
 
     public SerializationException() {
-        super();
     }
 
     public SerializationException(String message,

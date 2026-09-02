@@ -16,7 +16,6 @@ public class ConditionOrActionParameterField implements IOpenField {
     private final int paramNum;
 
     ConditionOrActionParameterField(IBaseDecisionRow conditionOrAction, int paramNum) {
-        super();
         this.conditionOrAction = conditionOrAction;
         this.paramNum = paramNum;
     }

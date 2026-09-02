@@ -35,7 +35,6 @@ class MatchedDefinition {
                              List<ExpressionIdentifier> identifiers,
                              MatchType matchType,
                              boolean mayHaveCompilationErrors) {
-        super();
         this.dtColumnsDefinition = dtColumnsDefinition;
         this.statement = statement;
         this.usedMethodParameterIndexes = usedMethodParameterIndexes;

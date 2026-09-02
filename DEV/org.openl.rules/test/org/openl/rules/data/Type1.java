@@ -13,11 +13,9 @@ public class Type1 {
     private String value;
 
     public Type1() {
-        super();
     }
 
     public Type1(String name, String value) {
-        super();
         this.name = name;
         this.value = value;
     }
