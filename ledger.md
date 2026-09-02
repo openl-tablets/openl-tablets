@@ -213,8 +213,9 @@ covered. Numbering continues at 90.
 
 ## CI flakes
 
-- `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails with `ORA-12516 ... no protocol handler for TCP ready`,
-  the Oracle TestContainer listener not yet accepting connections. Infrastructure, never the diff. One rerun.
+- `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails two ways, both infrastructure and never the diff: `ORA-12516
+  no protocol handler for TCP ready`, the listener not yet accepting connections, or `Failed requests: expected
+  <0> but was <5>` raised after Oracle and Jetty are up and the suite has run for two minutes. One rerun.
 - `IT (services-data)` — `RunKafkaSmokeITest.setUp` or `RunStoreLogDataITest.setUp` exiting 1 inside the
   `apache/kafka-native:latest` entrypoint, before any test body, is upstream. Never pin the tag. One rerun.
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
