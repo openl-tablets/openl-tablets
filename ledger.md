@@ -2,29 +2,29 @@
 
 ## Resume point
 
-PR #2063 (types 67-72, 77-79, 88-90, 94) is open, head `defc0ddd`, and now FULLY green — all 14 checks pass, the
-Sonar quality gate included, `mergeable_state` clean. It waits only on the owner's merge; nothing on it is
-actionable. No human review comment on any head, and CodeRabbit reports none either. All 99 change types are
-closed and every vein is exhausted: Java members, whole types, resources, descriptors, build configuration,
-every dependency scope, JavaDoc, the project manifest and plugin configuration. Expect a run to be PR
-maintenance plus a zero-finding pass, and prefer ledger compaction over inventing a vein. Numbering continues
-at 100.
+PR #2063 is open and waits only on the owner's merge; no human has ever reviewed it and CodeRabbit reports
+nothing. All 103 change types are closed: Java members, whole types, resources, descriptors, build
+configuration, every dependency scope, JavaDoc, the manifest, plugin configuration and the frontend.
+Numbering continues at 104. Expect PR maintenance plus a zero-finding pass, and prefer ledger compaction over
+inventing a vein — but before calling a swept area empty, run a tool the repository does not run itself: that
+is how type 103 found 51 dead imports in a module a linter had already passed.
 CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
 replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
-All 99 closed — 30 shipped a deletion, 69 found nothing; *Exhausted veins* records what each covered.
+All 103 closed — 31 shipped a deletion, 72 found nothing; *Exhausted veins* records what each covered.
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `defc0ddd`, 18 files and 92 deleted lines, 0 added, every
-  check green. Ten commits, one per change type: the dead `@ts-ignore` and Java `deprecation` suppression
-  (67, 72), the `syntax: glob` line with the unread `.gitconfig` (68, 70), the surefire property nothing reads
-  (71), the build configuration naming absent files (77), the unused ESLint config import (78) and its
-  `@eslint/js` dev dependency (79), the unloadable `deployer.properties` (88), the JavaDoc tags documenting
-  nothing (89), the CRA `homepage` field (90) and the plugin `requirements` block no mojo accepts (94). Derive
-  the counts with `git log --oneline` and `git diff --shortstat` before editing the body.
+- #2063, branch `dead-code/dead-suppressions`, head `85721346`, 68 files, 144 deleted lines and 13 added.
+  Eleven commits, one per change type: the dead `@ts-ignore` and Java `deprecation` suppression (67, 72), the
+  `syntax: glob` line with the unread `.gitconfig` (68, 70), the surefire property nothing reads (71), the build
+  configuration naming absent files (77), the unused ESLint config import (78) and its `@eslint/js` dev
+  dependency (79), the unloadable `deployer.properties` (88), the JavaDoc tags documenting nothing (89), the CRA
+  `homepage` field (90), the plugin `requirements` block no mojo accepts (94) and the 51 dead `React` imports
+  (103). Everything through `defc0ddd` was green on all 14 checks; `85721346` re-runs them. Derive the counts
+  with `git log --oneline` and `git diff --shortstat` against the merge base before editing the body.
 
 ## Merged PRs
 
@@ -59,16 +59,17 @@ All 99 closed — 30 shipped a deletion, 69 found nothing; *Exhausted veins* rec
   its own comment explains, and ~30 runs in TEST sources, where a disabled body can be a known-issue marker.
 - The class-level `@return` of `TableVersionComparator` is real prose describing `compare`, which JavaDoc drops
   because a type returns nothing; moving it onto the method is a refactor, not a deletion.
-- 47 `<dependency><version>` elements repeat the version the root already manages — 44 in `jacoco-report`, one
-  each in `itest.storelogdata`, `itest.tracing` and the root's own lombok. Maven reads them and they pin, so
-  they are a DRY fix for a human, not a deletion this routine may make.
-- The one `<reporting>` block (`Util/openl-maven-plugin`) declares maven-plugin-plugin, which ships no report
-  mojo, so it generates nothing. Broken rather than dead — migrating it is the *Human follow-ups* entry, and the
-  declaration stays either way. Only its `requirements` configuration was dead, and that shipped.
-- Every `id` attribute in the 46 `.xhtml` pages: 70 of the 323 are named by nothing else in the repository, and
-  none is deletable. A JSF id is a naming-container prefix whose removal renames every descendant's client id
-  (`h:form`, `f:subview`), or the anchor out-of-repo UI automation clicks, or what keeps a generated client id
-  stable instead of `j_idt123`. An unreferenced id here is markup, not dead code.
+- Explicit pom values that only repeat what Maven would apply anyway: 47 `<dependency><version>` elements the
+  root already manages (44 in `jacoco-report`, one each in `itest.storelogdata`, `itest.tracing` and the root's
+  own lombok) and three default-valued elements (`scope` compile in the two spring-boot ITEST apps, `type` jar
+  in one `artifactItem`). Maven reads every one, so they are a DRY fix for a human, not a deletion.
+- Three class-level type parameters are unused inside their own declaration yet public in a published artifact:
+  `ReturnOperation<ResultValueType>`, `IStorage<T>` and `ProjectService<T extends AProject>`. Dropping one
+  breaks every caller that writes the type with an argument.
+- The one `<reporting>` block (`Util/openl-maven-plugin`) is broken rather than dead: it generates nothing, but
+  the fix is the migration in *Human follow-ups*, so the declaration stays. Its `requirements` block shipped.
+- The 70 unreferenced `id` attributes of the 46 `.xhtml` pages are markup, not dead code: a JSF id is a
+  naming-container prefix, an automation anchor, or what keeps a client id stable instead of `j_idt123`.
 
 ## False-positive shapes
 
@@ -109,6 +110,11 @@ All 99 closed — 30 shipped a deletion, 69 found nothing; *Exhausted veins* rec
   signature regex backtracks past a visibility keyword. Require a boundary; reject a line by token.
 - Read the installed package's own source before calling a configuration key dead: an option missing from your
   memory of the API may be a recent addition, as `resolve.tsconfigPaths` is in Vite 8.
+- A linter can be blind by construction, so its silence proves nothing: `@typescript-eslint` scope analysis
+  defaults its JSX pragma to `React` and synthesises a reference for every JSX element, so `no-unused-vars`
+  never reports an unread `React` import under the automatic runtime. Only the compiler decides that one.
+- An unread LEADING callback parameter is positional, not dead: dropping `url` from `(url, options) => …`
+  shifts `options` onto the first argument. ESLint's `args: 'after-used'` default encodes the same rule.
 - A dependency whose only consumer is itself dead counts as used, so a dependency sweep that runs before the code
   sweep misses it: `@eslint/js` survived the npm pass because the dead import in `eslint.config.js` named it.
 - A scan keyed on a file list misses whatever owns no file of its own: an extensionless dotfile is invisible to an
@@ -269,8 +275,10 @@ All 99 closed — 30 shipped a deletion, 69 found nothing; *Exhausted veins* rec
 - `javadoc -Xdoclint:all` is only an oracle WITH a classpath: it stops at the first unresolved import, so point
   `-classpath` at the built `target/classes` of the module and its dependencies before reading its tag errors.
 - Frontend verification is the gate for `studio-ui`: `npm ci`, `npx tsc --noEmit`, `npx eslint <files>` and
-  `npx vitest run` (183 files, ~3 min); never judge it while Maven runs `-T1C`, and never run npm while the
-  reactor is building — its own `npm install` writes the same `node_modules`. `npx eslint ./src` itself exits 1
+  `npx vitest run` (183 files, 1699 tests, ~3.5 min); never judge it while Maven runs `-T1C`, while another pass
+  rewrites the sources, or while the reactor builds — its `npm install` writes the same `node_modules`. Those
+  four commands plus `npm run build` are the WHOLE gate for a TypeScript-only diff: they are what
+  frontend-maven-plugin runs, and no Java module can reference a TypeScript import. `npx eslint ./src` exits 1
   on `main` (15 `object-curly-spacing` errors, 2 warnings, six untouched files, no CI lint job) — never fix those.
 - `compile.js.sh` reproduces the tableeditor JS bundles byte for byte; `compile.css.sh` drops the trailing
   newline of `tableeditor.min.css`, so restore it. The `yuicompressor` jar is committed. A comment-only edit to a
@@ -299,7 +307,8 @@ Java, all of it closed. PMD's five dead-code rules over all 4031 files (50 viola
 `@SuppressWarnings` key (151, only the 14 `deprecation` ones decidable, one dead); every JavaDoc `@param`,
 `@return`, `@throws` and `{@inheritDoc}` (nine dead tags shipped, one `@return` deferred); commented-out code in
 all 4033 files as `//` runs and `/* */` blocks (58 production files shipped); every method type parameter (only
-generic-overload fixtures unused); all 79 `serialVersionUID`; `package-info.java` in a source-less package.
+generic-overload fixtures unused); all 79 `serialVersionUID`; every class-level type parameter of the 105
+generic declarations (three unused, all public API); `package-info.java` in a source-less package.
 Members: all 474 package-private methods, 645 package-private fields, 572 enum constants by occurrence, and the
 186 non-overriding public or protected members of the 246 package-private top-level and 318 non-public nested
 classes — every one has a caller. Whole types: all 977 non-public top-level, all 310 in `.impl.`/`.internal.`,
@@ -316,6 +325,8 @@ surefire in all 10 blocks (one shipped); both root `<repositories>` and no `<plu
 `openl-maven-plugin` mojo `@Parameter` fields. And every top-level child of every `<configuration>` block — 121
 elements over 51 blocks and 23 plugins, checked against each plugin's own `plugin.xml`, execution-level ones also
 against the goals their execution declares — one dead `requirements` block shipped, everything else accepted.
+Also every dependency declaration against its whole parent chain's own `<dependencies>` (two overlaps, both real
+scope overrides) and every element whose value is simply the Maven default (three, all deferred).
 
 Resources and descriptors, all of it closed. Unreferenced whole files: all 710 images of every extension, 46
 `.xhtml`, 55 non-`studio-ui` `.js`/`.css`, the 8 tracked `.html` files, every non-image non-web resource type
@@ -345,11 +356,13 @@ one read, only `collapseProps` supported without a caller. JS: function and prot
 of the four bundle scripts, and every module-scope variable in those scripts — 13, all in `TableEditor.js`, all
 read by its toolbar code. `studio-ui`: all 776 exports, whole-file deadness over its 562 sources, every
 `tsconfig.json` option, all 8 `@ts-ignore` (one dead), every `eslint-disable` (none exist), the nine npm scripts,
-all 44 npm declarations, every top-level `package.json` field (the CRA `homepage` shipped), and the imports of
-the three files no linter covers (one dead). Also all 442 `xmlns:` prefixes, all 18 `data-*` attributes, every
-`.editorconfig` section, `.gitattributes` pattern and `.gitignore` line (one dead), every Jekyll layout, include
-and `navigation.yml` url, the whole of `DEV/org.openl.rules.gen` (four dead members shipped), all 5 own
-`.sh`/`.cmd` scripts, identical-content duplicates across production files, and every tracked build leftover.
+all 44 npm declarations, every top-level `package.json` field (the CRA `homepage` shipped), the imports of
+the three files no linter covers (one dead), and `tsc --noUnusedLocals --noUnusedParameters` over the whole
+project — 52 findings, the 51 dead `React` imports shipped. Also all 442 `xmlns:` prefixes, all 18 `data-*`
+attributes, every `.editorconfig` section, `.gitattributes` pattern and `.gitignore` line (one dead), every
+Jekyll layout, include and `navigation.yml` url, the whole of `DEV/org.openl.rules.gen` (four dead members
+shipped), all 5 own `.sh`/`.cmd` scripts, identical-content duplicates across production files, and every
+tracked build leftover.
 
 ## Human follow-ups
 
@@ -372,10 +385,7 @@ and `navigation.yml` url, the whole of `DEV/org.openl.rules.gen` (four dead memb
 
 ## Run log
 
-- Run 27: type 90 shipped the CRA `homepage` field, proved by a byte-identical `dist`; types 91-93 (`f:facet`
-  names, pom plugin declarations, method type parameters) closed empty, the last two on false positives only.
-- Run 28: type 94 shipped the plugin `requirements` block no mojo accepts, proved by each plugin's own
-  descriptor; types 95-96 (`.html` whole files, the file types a type census missed) closed empty. Ledger
-  compacted from its 400-line ceiling.
-- Run 29: no deletion and none to make. #2063 reached fully green, Sonar included, so PR maintenance was a
-  no-op; types 97-99 (module-scope JS variables, own Facelets tag attributes, `.xhtml` ids) closed empty.
+- Run 28: type 94 shipped the plugin `requirements` block no mojo accepts; types 95-96 closed empty.
+- Run 29: no deletion and none to make. #2063 reached fully green, Sonar included; types 97-99 closed empty.
+- Run 30: type 103 shipped the 51 dead `React` imports the linter cannot see; types 100-102 (ancestor-inherited
+  dependency declarations, default-valued pom elements, class-level type parameters) closed with deferrals only.
