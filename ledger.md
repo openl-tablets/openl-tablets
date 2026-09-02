@@ -15,10 +15,9 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `aa9cc2fb`, 136 files, 282 deleted lines and 15
-  added. Fifteen commits, one per change type, each named in its own section of the PR body. Derive the counts
-  with `git log --oneline` and `git diff --shortstat` against the merge base before editing that body, and
-  re-read its reachability claims: it is the only record of what each commit kept and why.
+- #2063, branch `dead-code/dead-suppressions`, head `aa9cc2fb`, 136 files, 282 deleted and 15 added lines, 15
+  commits, one per change type with its own PR-body section. Derive the counts with `git diff --shortstat`
+  against the MERGE BASE before editing that body: it is the only record of what each commit kept and why.
 
 ## Merged PRs
 
@@ -260,6 +259,8 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
   overlapping `coverage-*` artifacts the job merges. Transient, and it suppresses the gate entirely because
   nothing is uploaded. One rerun per SHA.
+- A RE-RUN job can die in 8 s in project scanning (`Unresolveable build extension archetype-packaging`, the 2
+  archetype poms then unreadable): a runner-local transient a sibling job resolves, and it burns the re-run.
 - `rerun_failed_jobs` is refused while a job still runs — 403, or a bare 500 that is not failure. Read `run_attempt`.
 
 ## Container facts
@@ -380,21 +381,20 @@ tracked build leftover.
   #2055 closed unmerged. `git push --delete` gets HTTP 403 here and the MCP server has no delete-branch tool.
 - Decide on the *Deferred findings* entries that are public in a published artifact, the two empty test jars,
   the commented-out test code, and the 153 `(non-Javadoc) @see` markers — each is dead, each needs a human's word.
-- Restore the plugin documentation `Util/openl-maven-plugin/site/site.xml` links to: the report goal lives in
-  maven-plugin-report-plugin now, not in maven-plugin-plugin, so that `<reporting>` entry generates nothing and
-  `plugin-info.html` plus the seven `*-mojo.html` pages are dead links.
+- Restore what `Util/openl-maven-plugin/site/site.xml` links to: the report goal lives in
+  maven-plugin-report-plugin now, so that `<reporting>` entry generates none of the 8 pages the menu names.
 - Correct `@SuppressWarnings("deprecated")` on `RulesUtilsTest.testParseFormattedDouble`: the key is `deprecation`.
 - Collapse the duplicated deployment examples: `Docs/examples/production/` and `Docs/production-deployment/`
   hold the same 32 files twice, so every future edit has to be made twice.
 - Fix the `studio-ui` web manifest: its 512x512 icon entry names `android-chrome-512x512.pngs`, one character off
   the file that exists, so that icon never loads. A typo fix, not a deletion.
-- Stale documentation, text fixes rather than deletions: `Docs/developer-guides/rules-projects.md` names
-  `TablePropertyValidatorsWrapper.init()`, which does not exist; `Docs/onboarding/common-tasks.md` and the
-  `studio-ui` README name npm scripts the project no longer has; the archetype descriptor name is a WSO2 leftover.
+- Stale documentation, text fixes rather than deletions: `rules-projects.md` names a nonexistent
+  `TablePropertyValidatorsWrapper.init()`; `common-tasks.md` and the `studio-ui` README name npm scripts the
+  project no longer has; the archetype descriptor name is a WSO2 leftover.
 
 ## Run log
 
 - Run 30: type 103 shipped the 51 dead `React` imports the linter cannot see; types 100-102 closed, deferrals only.
 - Run 31: type 105 shipped the 47 redundant `super()` calls; type 104 closed with four deferrals, 18 load-bearing.
-- Run 32: types 106-108 shipped 27 redundant constructors, 2 no-op `return`s and 2 implied interface modifiers,
-  all found by PMD rules no earlier run had enabled.
+- Run 32: types 106-108 shipped 27 constructors, 2 no-op `return`s, 2 implied modifiers, via new PMD rules.
+- Run 33: re-verified all three of run 32's commits and found no defect; shipped nothing; both flakes hit at once.
