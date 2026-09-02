@@ -67,10 +67,11 @@ varargs; 117 `UnnecessaryBoxing`, 10 redundant `valueOf`/`xxxValue` calls; 118 `
 - A framework calls an accessor without naming it, in four ways worth checking before believing a hit: a JPA
   `@Entity` accessor (Hibernate), a `@Bean` factory method (Spring), a setter for injection (`setEntityManager`),
   and an interface method whose implementation carries no `@Override` (`StompSessionHandler.handleFrame`).
+- `Outer.this.x` -> `this.x` is safe in a LAMBDA, which does not rebind `this`, but changes behavior in an
+  ANONYMOUS CLASS, where `synchronized (Outer.this)` silently takes another monitor — and it compiles either way.
 - An override whose body is only a `super` call is load-bearing in four ways, and all 22 here are: its annotations
-  are the point (`@NotBlank`, `@JsonProperty`); a `hashCode` delegating to `super` satisfies the contract Sonar
-  enforces; an override of a GENERIC super method keeps the concrete parameter type the erased inherited method
-  lacks; `wrapper/base/**` needs it for `WrapperValidation`.
+  are the point; a `hashCode` delegating to `super` satisfies the contract Sonar enforces; an override of a GENERIC
+  super method keeps the concrete parameter type erasure drops; `wrapper/base/**` needs `WrapperValidation`.
 - A redundant no-op construct is load-bearing when the construct itself is the mechanism: `synchronized (this) {
   return; }` waits out every other synchronized block, an empty `while (in.read() != -1);` drains a stream, and a
   trailing `return;` in the last arm of a chain of `if (…) { setX(); return; }` is symmetry. PMD flags all three.
@@ -98,10 +99,9 @@ varargs; 117 `UnnecessaryBoxing`, 10 redundant `valueOf`/`xxxValue` calls; 118 `
 - A token comparison fails both ways unless exact: a regex admitting `(` swallows the paren of markdown
   `![alt](name.png)`, a substring matches `add.png` inside `toolbar_add.png` and a typo'd `512x512.pngs`, so a
   BROKEN reference makes a file look alive. Require a boundary; reject a line by token.
-- A linter or compiler is blind by construction on parts of its own project, so its silence proves nothing: no
-  tool reports on its own configuration file, `@typescript-eslint` synthesises a `React` reference for every JSX
-  element so an unread `React` import is invisible to `no-unused-vars`, and an option missing from your memory of
-  an API may be a recent addition (`resolve.tsconfigPaths` in Vite 8). Read the installed package's own source.
+- A linter or compiler is blind by construction on parts of its own project, so its silence proves nothing: none
+  reports on its own config file, `@typescript-eslint` synthesises a `React` reference per JSX element so an unread
+  import is invisible, and an option absent from memory may be new (`resolve.tsconfigPaths`). Read the package.
 - An unread LEADING callback parameter is positional, not dead: dropping `url` from `(url, options) => …`
   shifts `options` onto the first argument. ESLint's `args: 'after-used'` default encodes the same rule.
 - A dependency whose only consumer is itself dead counts as used, so a dependency sweep that runs before the code
@@ -111,8 +111,7 @@ varargs; 117 `UnnecessaryBoxing`, 10 redundant `valueOf`/`xxxValue` calls; 118 `
   .ContentTooLargeException` read as an unknown type.
 - An identifier is routinely composed at runtime, so its literal appears nowhere: an i18next plural suffix, a
   template literal, prefix composition, a `$ref` tail, JSF `compared_#{bean.order}`, JS `"status-" + status`, the
-  tableeditor `t_te_table` id. Build a regex per template, and read the branch: `browser.${id}_confirm` needs
-  `id === 'unlock'`.
+  tableeditor `t_te_table` id. Build a regex per template, and read the branch (`browser.${id}_confirm`).
 - A Jackson MixIn declares abstract methods only to carry annotations, so being named nowhere is the point:
   `OpenApiXmlIgnoreMixIn.getXml` is matched by name against `Schema`. Never delete a member of a MixIn class.
 - A commented-out line is often documentation, not a leftover: pseudo-code, the Java equivalent of emitted
@@ -297,7 +296,8 @@ varargs; 117 `UnnecessaryBoxing`, 10 redundant `valueOf`/`xxxValue` calls; 118 `
   read a PR body to a file and `PATCH` it back. An MCP body argument also swallows angle-bracketed text.
 - `sonarcloud.io`'s WEB UI is blocked (403) but its API answers 200, so a gate failure IS diagnosable here:
   `api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=<n>&types=BUG` names every issue,
-  and the same query without `pullRequest` gives `main`'s 398 open BUGs, which is how one is proved pre-existing.
+  and the same query without `pullRequest` gives `main`'s 398 open BUGs, which is how one is proved pre-existing
+  — check `api/project_analyses/search` too, since that list is only as fresh as main's last analysis.
 - Write the ledger through `git worktree add --detach <dir> origin/dead-code/ledger`, never an orphan-branch dance.
 
 ## Exhausted veins
