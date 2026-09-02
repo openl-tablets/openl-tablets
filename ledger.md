@@ -2,32 +2,31 @@
 
 ## Resume point
 
-PR #2063 waits only on the owner's merge; no human has ever reviewed it and CodeRabbit reports nothing.
-Types 110 and 111 are found and unshipped — start there, they need no new detector. A swept area is only empty
-against the tools already run: enabling one more PMD rule keeps finding work in files eight closed veins called
-clean, so prefer a NEW PMD rule over inventing a vein by hand.
+PR #2063 waits only on the owner's merge: no human has ever reviewed it, CodeRabbit reports nothing, every CI job
+is green, and only the SonarCloud gate is red on the pre-existing Critical already answered on the PR.
+Types 114-118 are found and unshipped — start there, they need no new detector. A swept area is only empty
+against the tools already run: one more PMD rule keeps finding work in files nine closed veins called clean, so
+prefer a NEW PMD rule over inventing a vein by hand.
 CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
 replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
-All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* records what each covered.
-- 110 `UnnecessaryAnnotationValueElement`, 168 sites: `value =` inside a single-element annotation, which JLS 9.7.3
-  implies. Pure text deletion, same shape as 108; found, not yet shipped.
-- 111 `UselessQualifiedThis`, 2 sites: a `Type.this` qualifier inside the type itself. Found, not yet shipped.
-- 112 `UnnecessaryFullyQualifiedName`, 304 sites: NOT a deletion — shortening a qualified name needs an import
-  added, so it is a maintainer's style call. Closed.
+All 113 closed — 38 shipped a deletion, 75 found nothing; *Exhausted veins* records what each covered.
+Found and unshipped, one commit each, cheapest proof first: 114 `UnnecessaryCast`, 5 redundant casts; 115
+`AddEmptyString`, 7 `"" +` concatenations; 116 `UnnecessaryVarargsArrayCreation`, 5 explicit arrays wrapping
+varargs; 117 `UnnecessaryBoxing`, 10 redundant `valueOf`/`xxxValue` calls; 118 `UnnecessaryBooleanAssertion`, 2
+`assertTrue(true)`. All five are PMD rules, so the finding list is one 27 s standalone run.
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `6f1bad50`, 216 files, 429 deleted and 162 added lines, 16
+- #2063, branch `dead-code/dead-suppressions`, head `7c31b5e2`, 276 files, 599 deleted and 332 added lines, 18
   commits, one per change type with its own PR-body section. Derive the counts against the MERGE BASE; that body
   alone records what each commit kept and why.
 
 ## Merged PRs
 
-- #2054/#2056, #2058, #2060, #2062 merged with no review comment; the owner merges green or not, and the branch
-  auto-deletes.
+- #2054/#2056, #2058, #2060, #2062 merged with no review comment; the owner merges green or not, branch auto-deletes.
 
 ## Module coverage
 
@@ -79,8 +78,6 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
   `class X` hits the JavaDoc prose "The class X implements…" first and invents an API break that is not there.
 - Before standing down on a red check, compare the MERGE BASE's own run, not only the latest `main`: a job red at
   the base with every other job green is inherited, and rebasing onto a recovered tip is the fix, not a re-run.
-- A modifier redundant to the compiler can be deliberate: implicit `final` on a try-with-resources resource is
-  style in a file that writes `final` on every local, and dropping it alone is churn.
 - A managed dependency or plugin that NO module declares is normally still live: a deliberate transitive version
   pin whose neighbouring comment or release note names the CVE, or a plugin the default lifecycle, the packaging,
   a workflow goal or a `site/` configuration reaches. Only an entry no build can produce or reach is dead.
@@ -139,6 +136,8 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
 ## Method rules
 
 - Never pipe a proof grep through `head`, nor read a source from the middle — both hide the refuting caller.
+- Re-derive every site of a bulk PMD finding with an own parse of the same construct, and let that parse descend
+  into NESTED annotations — the single disagreement is where the real site hides (Lombok `onMethod_`).
 - Confirm every survivor of a bulk scan with an individual `grep -rIF` before deleting it — the bulk scan finds
   candidates, the individual search is the proof. For a large candidate set, tokenize the whole corpus in ONE
   pass and set-difference: per-candidate regex never finishes, one pass over 13.4k text files takes a minute.
@@ -165,9 +164,6 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
   (9.3/9.4). For a constructor, check BOTH that its class declares no other and that their access matches.
 - Search an accessor by its property name as well as its method name: Velocity `$w.propertyType` and JSF EL
   `#{bean.propertyType}` call `getPropertyType()` without ever spelling it.
-- A resource named by no file in the repository can still be loaded by a DEPENDENCY by filename convention:
-  CXF's `AbstractHTTPServlet` reads `/WEB-INF/cxfServletStaticResourcesMap.txt`, then `/<same name>`. Decompress
-  every class of both built wars' `WEB-INF/lib` and search the base name — a loader is not a reader.
 - When this container's npm rewrites unrelated lock metadata, remove the lock's own regions by hand instead and
   prove coherence with `npm ci`, which fails when the lock and `package.json` disagree.
 - An empty no-argument constructor is the implicit default (JLS 8.8.9) only when it is the class's ONLY declared
@@ -250,14 +246,13 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
 ## CI flakes
 
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails two infrastructure ways, never the diff: `ORA-12516` with
-  the listener not yet accepting, or `Failed requests: expected <0> but was <N>`. Two proofs settle the second in
-  one log read, no rerun needed: `MysqlRdbmsTest` passes the SAME request suite in the same job, and N varies on
-  identical code (5, 2, 2, 4). It also fails on `main` with every other job of that run green.
+  the listener not yet accepting, or `Failed requests: expected <0> but was <N>`. One log read settles the second,
+  no rerun: `MysqlRdbmsTest` passes the SAME suite in that job, N varies on identical code, `main` fails it too.
 - `IT (services-data)` — `apache/kafka-native:latest` exiting 1 in its entrypoint before any test body (any of
   the 3 kafka suites) is upstream and intermittent: one suite can pass as the next fails. Never pin the tag.
 - `Sonar analysis` — runs only when every IT job is green, so it reads as `skipped` while any flake is red, and
-  clearing them is what finally gates the PR. Its own flake: `jacoco:report-aggregate` failing with "Unknown
-  block type c7" from the overlapping `coverage-*` artifacts, which suppresses the gate. One rerun per SHA.
+  clearing them is what finally gates the PR. Its own flake, one rerun per SHA: `jacoco:report-aggregate` dying
+  with "Unknown block type c7" from the overlapping `coverage-*` artifacts, which suppresses the gate.
 - A RE-RUN can die in 8 s resolving the `archetype-packaging` extension: a runner-local transient that burns it.
 - `rerun_failed_jobs` is refused while a job still runs — 403, or a bare 500 that is not failure. Read `run_attempt`.
 
@@ -324,7 +319,12 @@ redundant-construct rules over all 4031-4033 files: 147 field initializers assig
 over 83 files), 29 no-argument constructors identical to the implicit default (27 shipped), 4 unnecessary
 `return` statements (2 shipped) and 4 unnecessary modifiers (2 shipped); no `class X extends Object` and no
 unnecessary import exists at all; the 46 `UselessParentheses` and 304 `UnnecessaryFullyQualifiedName` are style,
-all 16 `EmptyControlStatement` are load-bearing, and 168 `value =` plus 2 `Type.this` are queued as 110 and 111.
+all 16 `EmptyControlStatement` are load-bearing, and the 168 `value =` elements plus 2 `Type.this` qualifiers are
+shipped. Fifteen more pure-deletion rules ran in one pass: `UnnecessarySemicolon`, `UnusedLabel`, `EmptyFinalizer`,
+`UnnecessaryConversionTemporary`, `UselessStringValueOf` and `StringToString` report nothing, and
+`UselessOverridingMethod` only 3 of the 22 already deferred; `DanglingJavadoc` is a non-vein, 104 of its 120 being
+the constrainer's Exigen copyright banner and the rest `/** */` on an in-method comment whose prose is real. The
+remaining five are queued as 114-118.
 
 Maven, all of it closed. `dependency:analyze-only` over all 51 analyzable modules in every scope; all 18
 `<exclusion>` entries resolved in isolation (three shipped); all 147 non-import `dependencyManagement` and 25
@@ -395,6 +395,6 @@ tracked build leftover.
 
 ## Run log
 
-- Run 32: types 106-108 shipped 27 constructors, 2 no-op `return`s, 2 implied modifiers, via new PMD rules.
 - Run 33: re-verified run 32's three commits (no defect); shipped nothing; rebased the PR onto a recovered base.
 - Run 34: type 109 shipped 147 redundant field initializers; types 110-112 found by three new PMD rules.
+- Run 35: types 110-111 shipped 168 `value =` elements and 2 `Type.this`; 15 more PMD rules run, 114-118 queued.
