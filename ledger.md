@@ -261,10 +261,11 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
 
 ## Container facts
 
-- `~/.m2` is EMPTY at session start, so the cold reactor build — `LANG=C.UTF-8 LC_ALL=C.UTF-8 mvn clean install
-  -Dquick -DnoPerf -T1C -B`, all 85 modules, none skipped — takes 32 minutes instead of 18. Start it in the
-  harness's background mode as soon as the edits are in and run the text passes while it downloads; never pipe
-  it through `tail`, which buffers every line away. A release-only plugin needs `dependency-plugin:3.11.0:get`.
+- `~/.m2` is EMPTY at session start, so the cold reactor build — `LANG=C.UTF-8 LC_ALL=C.UTF-8 mvn install -Dquick
+  -DnoPerf -T2 -B`, all 86 modules — takes 32 minutes. Use `-T2`, NOT `-T1C`: four threads starve the studio-ui
+  vitest run and `UserDetailsTab` fails a 6 s `findByText` that passes in 1.3 s idle. Start it in the harness's
+  background mode as soon as the edits are in; never pipe it through `tail`, and fetch a release-only plugin
+  with `dependency-plugin:3.11.0:get`.
 - The build must run ONLINE: `-o` fails before the reactor starts, because `main` keeps bumping dependencies past
   what any cache holds. `build.shibboleth.net` answers 200, so the root `pom.xml` needs no surgery.
 - That locale is required: the container's own is POSIX, and `ZipArchiveValidatorTest.testArchives` then dies on
@@ -289,18 +290,18 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
   `tableeditor.min.css`, so restore it.
 - `rg` is the tokenizer: `xargs -a <list> rg -oH --no-line-number -w -F -f names.txt` scans the corpus in a
   minute, where `grep -f` never finishes and rg's `--files-from` yields nothing. Never `pkill -f` a grep pattern.
-- Run a long build in the harness's background mode and read the log it names: `nohup mvn ... &` hides the exit
-  code, a second launch races the same `target/` dirs, and `-rf` breaks modules built earlier but not installed.
+- A failed reactor can only be resumed by a FULL rebuild, never `-rf`: `org.openl.rules.test` skips artifact
+  installation, so nothing downstream of it resolves outside one reactor session. Dropping `clean` is what makes
+  the second pass cheap. `nohup mvn ... &` hides the exit code and a second launch races the same `target/`.
 - The container's global git config signs commits over ssh, failing `GitRepositoryTest` and
   `SameSecondHistoryOrderTest` with jgit `UnsupportedSigningFormatException`: `git config --global commit.gpgsign 0`.
 - The global git identity can be rewritten back to `Claude <noreply@anthropic.com>` mid-session. Re-set it and
   pass `GIT_AUTHOR_*` / `GIT_COMMITTER_*` inline on every commit; `--amend` alone keeps the wrong author,
   so it needs `--reset-author`.
-- `git push --delete` fails through the proxy (403), normal pushes work; `gh` and `xxd` are absent. The GitHub
-  MCP tools swallow angle-bracketed text in a body: name an XML element in backticked prose, never as a tag.
+- `gh` and `xxd` are absent and `git push --delete` gets 403, but `$GITHUB_TOKEN` is set: `curl` the REST API to
+  read a PR body to a file and `PATCH` it back. An MCP body argument also swallows angle-bracketed text.
 - `sonarcloud.io` is blocked by the sandbox proxy (403), and a failed SonarCloud check run carries only the
   rating — no annotations, no comments — so a quality-gate failure cannot be diagnosed from here.
-- `.toDelete/` is gitignored and safe for scratch files; Spotless runs from `validate` on, so check `git status`.
 - Write the ledger through `git worktree add --detach <dir> origin/dead-code/ledger`, never an orphan-branch dance.
 
 ## Exhausted veins
@@ -377,8 +378,8 @@ tracked build leftover.
 ## Human follow-ups
 
 - Allowlist `sonarcloud.io`, or paste the rule key and file/line when the gate fails — undiagnosable from here.
-- Delete the abandoned remote branch `dead-code/studio-resources` — auto-delete does not reach it, since PR
-  #2055 closed unmerged. `git push --delete` gets HTTP 403 here and the MCP server has no delete-branch tool.
+- Delete the abandoned remote branch `dead-code/studio-resources` (PR #2055 closed unmerged, so auto-delete
+  missed it); `git push --delete` gets 403 here.
 - Decide on the *Deferred findings* entries that are public in a published artifact, the two empty test jars,
   the commented-out test code, and the 153 `(non-Javadoc) @see` markers — each is dead, each needs a human's word.
 - Restore what `Util/openl-maven-plugin/site/site.xml` links to: the report goal lives in
