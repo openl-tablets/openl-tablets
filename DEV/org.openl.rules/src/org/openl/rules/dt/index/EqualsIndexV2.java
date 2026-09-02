@@ -71,12 +71,12 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
     }
 
     /**
-     * Returns every rule of the index in the order of the table.
+     * Collects every rule of the index in the order of the table.
      *
-     * <p>A rule is returned once even when it is registered under several values, as an array column does.
+     * <p>A rule is collected once even when it is registered under several values, as an array column does.
      */
     @Override
-    public int[] collectRules() {
+    protected int[] computeRules() {
         var rules = new BitSet();
         for (int[] arr : index.values()) {
             for (int ruleN : arr) {

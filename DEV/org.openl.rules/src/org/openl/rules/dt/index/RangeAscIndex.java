@@ -102,7 +102,7 @@ public class RangeAscIndex extends ARuleIndexV2 {
     }
 
     @Override
-    public int[] collectRules() {
+    protected int[] computeRules() {
         int[] result = new int[rulesTotalSize];
         var k = 0;
         for (IndexNode indexNode : index) {
