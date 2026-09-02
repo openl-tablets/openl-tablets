@@ -23,7 +23,7 @@ All 103 closed — 31 shipped a deletion, 72 found nothing; *Exhausted veins* re
   configuration naming absent files (77), the unused ESLint config import (78) and its `@eslint/js` dev
   dependency (79), the unloadable `deployer.properties` (88), the JavaDoc tags documenting nothing (89), the CRA
   `homepage` field (90), the plugin `requirements` block no mojo accepts (94) and the 51 dead `React` imports
-  (103). Everything through `defc0ddd` was green on all 14 checks; `85721346` re-runs them. Derive the counts
+  (103). Head `85721346` is green on all 14 checks, Sonar gate included. Derive the counts
   with `git log --oneline` and `git diff --shortstat` against the merge base before editing the body.
 
 ## Merged PRs
