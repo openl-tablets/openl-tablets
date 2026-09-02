@@ -56,6 +56,16 @@ A condition is indexed when its expression is one of the shapes below, where `in
 `contains(input, column)` is indexed only when the input is an array of single values: an array column or a range
 column keeps the default evaluator, because those are served by the other index kinds.
 
+Several lookups over the same array may be joined by `or`:
+
+```
+contains(codes, code) or contains(codes, linkedCode)
+```
+
+Every value is registered in one index, so a rule is found by any of its values. The values may be declared by
+other condition columns of the same table, as long as those columns hold values rather than formulas and their
+type is the same.
+
 ## Conditions that start with a static check
 
 A condition may guard the indexed part with a check on the table inputs only:
@@ -80,7 +90,8 @@ Indexing is skipped, and the condition is evaluated row by row, when:
 
 - the expression is not one of the shapes above;
 - the condition cells contain formulas;
-- the condition uses `$Rule`, `$RuleId` or the parameters of another column;
+- the condition uses `$Rule` or `$RuleId`;
+- the condition uses the parameters of another column in any shape but the chain of lookups above;
 - the column and the input types cannot be converted to each other.
 
 The fallback is always available, so an unrecognized expression costs performance, never correctness.

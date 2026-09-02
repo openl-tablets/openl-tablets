@@ -364,22 +364,30 @@ public class Condition extends FunctionalRow implements ICondition {
 
         IBoundNode left;
         IBoundNode right;
+        ISyntaxNode operator;
         boolean conjunction;
         if (expression instanceof BinaryOpNodeOr or) {
-            left = or.getLeft();
-            right = or.getRight();
+            // "a or b or c" reads as "(a or b) or c", and only the leftmost part can be the static one
+            var first = or;
+            while (first.getLeft() instanceof BinaryOpNodeOr nested) {
+                first = nested;
+            }
+            left = first.getLeft();
+            right = first == or ? or.getRight() : expression;
+            operator = first.getSyntaxNode();
             conjunction = false;
         } else if (expression instanceof BinaryOpNodeAnd and) {
             left = and.getLeft();
             right = and.getRight();
+            operator = and.getSyntaxNode();
             conjunction = true;
         } else {
             return false;
         }
 
-        var staticMethod = compileStaticExpression(expression.getSyntaxNode(), left, signature, openl);
+        var staticMethod = compileStaticExpression(operator, left, signature, openl);
         if (staticMethod != null && !isDependentOnInputParams(staticMethod)) {
-            var indexMethod = compileIndexExpression(expression.getSyntaxNode(),
+            var indexMethod = compileIndexExpression(operator,
                     right,
                     signature,
                     openl,
@@ -416,7 +424,7 @@ public class Condition extends FunctionalRow implements ICondition {
                                                   OpenL openl,
                                                   IBindingContext bindingContext) {
         IOpenSourceCodeModule indexSourceCodeModule;
-        if (rightBoundNode instanceof BinaryOpNode) {
+        if (rightBoundNode instanceof BinaryOpNode || rightBoundNode instanceof BinaryOpNodeOr) {
             var module = operator.getModule();
             var location = operator.getSourceLocation();
             var sourceCode = module.getCode();
