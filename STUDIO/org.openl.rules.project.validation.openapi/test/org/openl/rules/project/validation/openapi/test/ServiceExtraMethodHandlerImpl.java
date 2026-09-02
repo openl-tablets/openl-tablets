@@ -14,9 +14,6 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://openapi.generated.openl.org", name = "$1ServiceExtraMethodHandlerImpl", propOrder = {})
 public class ServiceExtraMethodHandlerImpl implements ServiceExtraMethodHandler<SpreadsheetResult>, Serializable {
-    public ServiceExtraMethodHandlerImpl() {
-    }
-
     @Override
     public String toString() {
         return "ServiceExtraMethodHandlerImpl{" + " }";

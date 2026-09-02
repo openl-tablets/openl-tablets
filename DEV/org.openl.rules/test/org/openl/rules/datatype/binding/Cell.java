@@ -34,9 +34,6 @@ public class Cell implements ICell {
 
     private ICellComment comment;
 
-    public Cell() {
-    }
-
     @Override
     public int getAbsoluteColumn() {
         return getColumn();

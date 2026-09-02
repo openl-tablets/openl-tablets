@@ -162,9 +162,6 @@ public class LocalFrameBuilder {
     private final LinkedList<LocalVarFrameElement> localFrames = new LinkedList<>();
     private int localVarFrameSize = 0;
 
-    public LocalFrameBuilder() {
-    }
-
     /*
      * (non-Javadoc)
      *

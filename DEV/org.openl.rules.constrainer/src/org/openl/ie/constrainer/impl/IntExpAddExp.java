@@ -16,9 +16,6 @@ import org.openl.ie.constrainer.Subject;
  */
 public final class IntExpAddExp extends IntExpImpl {
     class ExpAddExpObserver extends Observer {
-        ExpAddExpObserver() {
-        }
-
         @Override
         public Object master() {
             return IntExpAddExp.this;
