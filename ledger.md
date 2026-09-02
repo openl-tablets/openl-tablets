@@ -16,8 +16,8 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
 ## Open PR
 
 - #2063, branch `dead-code/dead-suppressions`, head `9d8b6577` (rebased onto `main`), 136 files, 282 deleted and
-  15 added lines, 15 commits, one per change type with its own PR-body section. Derive the counts with `git diff
-  --shortstat` against the MERGE BASE before editing that body: it alone records what each commit kept and why.
+  15 added lines, 15 commits, one per change type with its own PR-body section. GREEN on all 14 checks, Sonar
+  gate included. Derive the counts against the MERGE BASE; that body alone records what each commit kept and why.
 
 ## Merged PRs
 
@@ -257,9 +257,9 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
   identical code (5, 2, 2, 4). It also fails on `main` with every other job of that run green.
 - `IT (services-data)` — `apache/kafka-native:latest` exiting 1 in its entrypoint before any test body (any of
   the 3 kafka suites) is upstream and intermittent: one suite can pass as the next fails. Never pin the tag.
-- `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
-  overlapping `coverage-*` artifacts the job merges. Transient, and it suppresses the gate entirely because
-  nothing is uploaded. One rerun per SHA.
+- `Sonar analysis` — runs only when every IT job is green, so it reads as `skipped` while any flake is red, and
+  clearing them is what finally gates the PR. Its own flake: `jacoco:report-aggregate` failing with "Unknown
+  block type c7" from the overlapping `coverage-*` artifacts, which suppresses the gate. One rerun per SHA.
 - A RE-RUN can die in 8 s resolving the `archetype-packaging` extension: a runner-local transient that burns it.
 - `rerun_failed_jobs` is refused while a job still runs — 403, or a bare 500 that is not failure. Read `run_attempt`.
 
