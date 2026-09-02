@@ -2,25 +2,26 @@
 
 ## Resume point
 
-PR #2063 (types 67-72, 77-79, 88-89) is open and green — keep it that way, then cut the next change type from
-`origin/main`. Java members, resources, descriptors, build configuration, every scope of the dependency analysis
-and now the JavaDoc tags are closed. What may still yield is a `package.json` field no Vite build reads.
+PR #2063 (types 67-72, 77-79, 88-90) is open; only the known `IT (studio-acl)` Oracle flake is red, and the type
+90 push is its retry. Java members, resources, descriptors, build configuration, every scope of the dependency
+analysis, JavaDoc tags and now the project manifest are closed. No cheap vein is left: the next run should expect
+to spend its time on PR maintenance, and treat a zero-finding pass as the normal outcome.
 CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
 replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
-All 89 closed — twenty-eight shipped a deletion, sixty-one found nothing; *Exhausted veins* records what each
-covered. Numbering continues at 90.
+All 93 closed — twenty-nine shipped a deletion, sixty-four found nothing; *Exhausted veins* records what each
+covered. Numbering continues at 94.
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `d277ab27`, 17 files and 84 deleted lines. Eight
-  commits, one per change type: the dead `@ts-ignore` and Java `deprecation` suppression (67, 72), the
-  `syntax: glob` line with the unread `.gitconfig` (68, 70), the surefire property nothing reads (71), the build
-  configuration naming absent files (77), the unused ESLint config import (78), its `@eslint/js` dev dependency
-  (79), the unloadable `deployer.properties` (88) and the JavaDoc tags documenting nothing (89). All 14 checks
-  passed on the previous head. No human review comment on any head.
+- #2063, branch `dead-code/dead-suppressions`, head `1648ee33`, 17 files and 85 deleted lines. Nine commits, one
+  per change type: the dead `@ts-ignore` and Java `deprecation` suppression (67, 72), the `syntax: glob` line
+  with the unread `.gitconfig` (68, 70), the surefire property nothing reads (71), the build configuration
+  naming absent files (77), the unused ESLint config import (78), its `@eslint/js` dev dependency (79), the
+  unloadable `deployer.properties` (88), the JavaDoc tags documenting nothing (89) and the CRA `homepage` field
+  (90). No human review comment on any head; CodeRabbit and the Sonar gate both pass.
 
 ## Merged PRs
 
@@ -37,20 +38,15 @@ covered. Numbering continues at 90.
   `TableEditorTag` (their `faces-config.xml` component types are the live path), five `XlsProjectionType` `CELL_*`
   constants, `DecisionTableBuilder.methodName`, `SimpleGroup.description` and `MergeResult.status` (each takes a
   public setter with it), and ~190 accessors named only at their declaration.
-- The `test-jar` executions of `org.openl.rules.ruleservice` and `.deployer` include only
-  `org/openl/rules/ruleservice/test/*`, a package neither module has, so each publishes a test jar with no class
-  in it. No pom consumes either. Dropping the executions un-publishes two artifacts, so a maintainer decides.
+- The `test-jar` executions of `org.openl.rules.ruleservice` and `.deployer` include only a package neither
+  module has, so each publishes an empty test jar no pom consumes; un-publishing an artifact is a human's call.
 - `MergeRequest`, `ResolveConflictsRequest`, `ResolveConflictsResponse` (`studio-ui` `MergeModal/types.ts`) —
   unused in code, but `Docs/api/projects-merge-api.md` documents all three.
 - ~70 exported types in `studio-ui` are used only inside their own file (dropping `export` is a refactor), and
   `npm run clean` is the one script nothing names — but an npm script is a human entry point.
-- The `tooltip_skin-*` and `tooltip_top_*` classes in tableeditor `css/tooltip.css` are the widget's theming
-  API, unreachable only because its single caller passes none of them.
-- `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, whose two classes never touch it, yet
-  two other modules reach it transitively from there; removing it needs a declaration added elsewhere.
-- `WSFrontend/org.openl.rules.ruleservice.ws.annotation` is a pom-only published dependency aggregator.
-- Editor and VCS globs matching nothing today but working the moment such a file appears: `.editorconfig`
-  `[*.scss]`, `.gitattributes` `http`/`htm`/`jsp`/`jsx`/`bat`, the Spotless `aj` and `scss` includes.
+- The tableeditor `css/tooltip.css` `tooltip_skin-*` and `tooltip_top_*` classes are the widget's theming API.
+- `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, which never touches it, yet two
+  modules reach it transitively from there; removing it needs a declaration added elsewhere.
 - `studio-ui` `eslint.config.js` registers the `react-hooks` plugin but enables no rule from it, so the
   registration is inert; enabling the rules and dropping the plugin are both changes of intent, not deletions.
 - The 153 `/* (non-Javadoc) @see ... */` markers beside overriding methods — redundant next to `@Override`, but
@@ -60,6 +56,9 @@ covered. Numbering continues at 90.
   its own comment explains, and ~30 runs in TEST sources, where a disabled body can be a known-issue marker.
 - The class-level `@return` of `TableVersionComparator` is real prose describing `compare`, which JavaDoc drops
   because a type returns nothing; moving it onto the method is a refactor, not a deletion.
+- 47 `<dependency><version>` elements repeat the version the root already manages — 44 in `jacoco-report`, one
+  each in `itest.storelogdata`, `itest.tracing` and the root's own lombok. Maven reads them and they pin, so
+  they are a DRY fix for a human, not a deletion this routine may make.
 
 ## False-positive shapes
 
@@ -98,9 +97,7 @@ covered. Numbering continues at 90.
   markdown `![alt](name.png)`, a substring search matches `add.png` inside `toolbar_add.png` and a typo'd
   `512x512.pngs` inside a manifest, so a BROKEN reference makes a file look alive; and a greedy indent in a Java
   signature regex backtracks past a visibility keyword. Require a boundary; reject a line by token.
-- A `data-`-prefixed token is as often a class or an id as an attribute, and a class name can contain one
-  (`table-data-value` holds `data-value`): match the attribute form `data-x=` before counting.
-- Read the installed package's own `.d.ts` before calling a configuration key dead: an option missing from your
+- Read the installed package's own source before calling a configuration key dead: an option missing from your
   memory of the API may be a recent addition, as `resolve.tsconfigPaths` is in Vite 8.
 - A dependency whose only consumer is itself dead counts as used, so a dependency sweep that runs before the code
   sweep misses it: `@eslint/js` survived the npm pass because the dead import in `eslint.config.js` named it.
@@ -120,6 +117,10 @@ covered. Numbering continues at 90.
   as proof is silently truncated: pass `-Xmaxwarns 100000`, and confirm the category is live in the same run.
 - A "test sources" path filter must anchor the directory exactly: `(^|/)test/` also matches the PRODUCTION
   packages `src/.../web/test/` and `src/.../testmethod/`, turning live code into a phantom finding.
+- A Java type parameter can be used only as the RETURN type, which sits before the parameter list: a scan that
+  starts its usage window at the opening paren calls every `<R> R invoke(...)` dead. Start it at the modifiers.
+- A manifest field is read by a tool DEEP in the dependency tree, not by the one the project names: Babel, which
+  `@vitejs/plugin-react` drives, reads the `browserslist` field because it never sets `browserslistConfigFile`.
 
 ## Method rules
 
@@ -210,6 +211,8 @@ covered. Numbering continues at 90.
   it is the fixture for the properties-spec parser. Never dedupe it.
 - Four `studio-ui` dependencies no file imports are live all the same: `license-checker-rseidelsohn` is run by
   the `build` script, the three `@types/*` by the tsconfig `types` list, `@vitest/coverage-v8` by the reporter.
+- Every remaining `package.json` field is live: `browserslist` reaches Babel, `engines` is npm's own check, and
+  `name`, `version`, `private` and `type` govern resolution and publishing. Only `homepage` was CRA's.
 
 ## CI flakes
 
@@ -250,8 +253,7 @@ covered. Numbering continues at 90.
 - `rg` is the tokenizer: `xargs -a <list> rg -oH --no-line-number -w -F -f names.txt` scans the corpus in a
   minute, where `grep -f` never finishes and rg's `--files-from` yields nothing. Never `pkill -f` a grep pattern.
 - Run a long build in the harness's background mode and read the log it names: `nohup mvn ... &` hides the exit
-  code, killing the launcher leaves the JVM up, a second launch races the same `target/` dirs, and `-rf` breaks
-  modules built earlier but never installed.
+  code, a second launch races the same `target/` dirs, and `-rf` breaks modules built earlier but not installed.
 - The container's global git config signs commits over ssh, failing `GitRepositoryTest` and
   `SameSecondHistoryOrderTest` with jgit `UnsupportedSigningFormatException`: `git config --global commit.gpgsign 0`.
 - The global git identity can be rewritten back to `Claude <noreply@anthropic.com>` mid-session. Re-set it and
@@ -260,9 +262,8 @@ covered. Numbering continues at 90.
 - `git push origin --delete <branch>` fails through the proxy with HTTP 403; normal pushes work. `gh` CLI and
   `xxd` are absent — use the GitHub MCP tools, which swallow angle-bracketed text in a body: name an XML element
   in prose with backticks, never as a tag, or the evidence it carried is silently gutted.
-- `sonarcloud.io` is blocked by the sandbox proxy (`CONNECT tunnel failed, response 403`), and a failed
-  SonarCloud check run carries only the rating — empty `output.text`, no annotations, no review comments. A
-  quality-gate failure therefore cannot be diagnosed from here; say so and ask for the rule key and file/line.
+- `sonarcloud.io` is blocked by the sandbox proxy (403), and a failed SonarCloud check run carries only the
+  rating — no annotations, no comments — so a quality-gate failure cannot be diagnosed from here.
 - The clone is shallow (50 commits), so `git log --diff-filter=A` names the boundary commit, not a file's author.
 - `.toDelete/` is gitignored and safe for scratch files; Spotless runs from `validate` on, so check `git status`.
 - Write the ledger through `git worktree add --detach <dir> origin/dead-code/ledger`, never an orphan-branch dance.
@@ -293,9 +294,8 @@ covered. Numbering continues at 90.
   `<dependency>`, `<exclusion>`, `<plugin>`, `<module>` and `<properties>` children in all 208 poms, and every
   property repeated in one CSS rule block in all 17 stylesheets. The one hit is the deliberate `specs.properties`
   fixture; a repeated CSS property always carries a different value, so it is a browser fallback.
-- The nine `STUDIO/studio-ui` npm scripts (only `clean` is unnamed), and identical-content duplicates across
-  production files (only the two `Docs` example trees, which stay).
-- CSS, exhaustively: every class and id selector in all eleven own stylesheets (86 tokens), in the 22 inline
+- The nine `studio-ui` npm scripts (only `clean` is unnamed); identical-content duplicates across production
+  files (only the two `Docs` example trees, which stay). CSS, exhaustively: every class and id selector in all eleven own stylesheets (86 tokens), in the 22 inline
   `<style>` blocks (166) and in `DEMO/webapps/ROOT/main.css`; the 10 duplicate selector pairs, each declaring
   disjoint properties; no animation name or custom property is declared; no page includes one resource twice.
 - Function and prototype-method deadness in `common.js`, `bomjs.js` and every own tableeditor script (119 names),
@@ -320,6 +320,10 @@ covered. Numbering continues at 90.
   `param-name` entries, all 114 pom `<properties>`, all 44 `studio-ui` npm dependencies, all 194
   `openl-default.properties` keys and the 8 DEMO overrides, both root `<repositories>` entries (no pom declares a
   `<pluginRepository>`), and all 26 inputs of the four tableeditor bundle scripts. No finding in any of them.
+- Every top-level `package.json` field (one dead, the CRA `homepage`); all 43 `f:facet` names, each a standard
+  RichFaces facet of the component it sits in; all 129 `<build><plugins>` declarations, where the 89 without an
+  executions block are reached by the packaging lifecycle, a CLI goal or the `<reporting>` section; and every
+  method type parameter in all 4030 `.java` files, where the only unused ones are generic-overload fixtures.
 - All 112 `<include>` / `<exclude>` patterns in every pom, literal and wildcard, against the working tree: three
   surefire excludes and one resource include named files nothing creates, and shipped; every other absent path is
   build output. Every one of the 206 pom directories is reachable from the root reactor, `openl-maven-plugin`
@@ -388,9 +392,9 @@ covered. Numbering continues at 90.
 
 ## Run log
 
-- Run 24: types 78-79 shipped into #2063 — the unused `@eslint/js` import and the dev dependency it was the only
-  consumer of; types 80-85 closed empty, among them the import-scope BOMs and every `data-*` attribute.
 - Run 25: type 88 shipped `deployer.properties` into #2063, proved dead against both wars' whole `lib`; types 86
   (dependency analysis, test and provided scope) and 87 (the own jQuery plugins) closed empty.
 - Run 26: type 89 shipped nine dead JavaDoc tags into #2063 — the diff is provably comment-only. The `beans.xml`
   pair, `context.xml`, the DEMO property keys and every unknown `@SuppressWarnings` key proved live.
+- Run 27: type 90 shipped the CRA `homepage` field, proved by a byte-identical `dist`; types 91-93 (`f:facet`
+  names, pom plugin declarations, method type parameters) closed empty, the last two on false positives only.
