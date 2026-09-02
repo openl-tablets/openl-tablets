@@ -150,7 +150,7 @@ jobs:
           - name: studio
             modules: ITEST/server-core,ITEST/itest.studio/users,ITEST/itest.studio/simple,ITEST/itest.studio/multi,ITEST/itest.studio/repos,ITEST/itest.studio/dtr,ITEST/itest.studio/disabled-settings,ITEST/itest.studio/demo
           - name: services
-            modules: ITEST/server-core,ITEST/itest.WebService,ITEST/itest.BigServiceDeploy,ITEST/itest.ruleServices-large-response
+            modules: ITEST/server-core,ITEST/itest.WebService,ITEST/itest.BigServiceDeploy,ITEST/itest.ruleServices-memory,ITEST/itest.ruleServices-large-response
           - name: services-smoke
             modules: ITEST/server-core,ITEST/itest.smoke,ITEST/itest.security,ITEST/itest.healthchecks,ITEST/itest.deployment-filter,ITEST/itest.unpackClasspathJar,ITEST/itest.unpackClasspathZip,ITEST/itest.ws-rest-rules-deploy,ITEST/itest.local-zip-repository,ITEST/itest.spring-boot,ITEST/itest.spring-boot/spring-boot-app,ITEST/itest.spring-boot/spring-boot-web-app,ITEST/itest.spring-boot/openl-rules
           - name: services-data

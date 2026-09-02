@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openl.itest</groupId>
+        <artifactId>itest</artifactId>
+        <version>6.5.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>itest.ruleServices-memory</artifactId>
+    <packaging>jar</packaging>
+    <name>ITEST - Rule Services Memory</name>
+    <url>https://openl-tablets.org</url>
+
+    <properties>
+        <!-- Keep the same limit in every profile so -DnoPerf cannot hide a memory regression. -->
+        <surefire.argLine.noPerf>-Xms8m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.noPerf>
+        <surefire.argLine.perf>-Xms8m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.perf>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.itest</groupId>
+            <artifactId>server-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

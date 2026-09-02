@@ -23,6 +23,7 @@
         <module>itest.healthchecks</module>
         <module>itest.WebService</module>
         <module>itest.BigServiceDeploy</module>
+        <module>itest.ruleServices-memory</module>
         <module>itest.deployment-filter</module>
         <module>itest.unpackClasspathJar</module>
         <module>itest.unpackClasspathZip</module>
