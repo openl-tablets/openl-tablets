@@ -37,7 +37,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");
     }
 
-    private int[] findIndex(Object value) {
+    protected int[] findIndex(Object value) {
         int[] result = null;
         if (value != null) {
             value = conditionCasts.castToConditionType(value);
@@ -195,7 +195,19 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
                 }
             }
 
-            return new EqualsIndexV2(nextNodeBuilder.makeNode(), result, emptyBuilder.makeRulesAry(), conditionCasts);
+            return newIndex(nextNodeBuilder.makeNode(), result, emptyBuilder.makeRulesAry(), conditionCasts);
+        }
+
+        /**
+         * Creates the index for the collected rules.
+         *
+         * <p>Subclasses return their own index kind built from the same collected data.
+         */
+        protected EqualsIndexV2 newIndex(DecisionTableRuleNode nextNode,
+                                         Map<Object, int[]> index,
+                                         int[] emptyRules,
+                                         ConditionCasts conditionCasts) {
+            return new EqualsIndexV2(nextNode, index, emptyRules, conditionCasts);
         }
     }
 

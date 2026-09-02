@@ -13,6 +13,7 @@ import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.AContainsInArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.ContainsInInputArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluatorV2;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -71,6 +72,34 @@ class DecisionTableIndexCompilationTest {
         assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluatorV2.class);
         assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
         assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
+
+        dt = findDt("ContainsInInputArrayIndex_When_MethodExpr", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+
+        dt = findDt("ContainsInInputArrayIndex_WithStatic", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+        assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+        assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
+
+        dt = findDt("ContainsInInputArrayIndex_AfterEqualsIndex", openClass);
+        assertEquals(2, dt.getConditionRows().length);
+        assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluatorV2.class);
+        assertConditionEvaluatorClass(dt.getConditionRows()[1], ContainsInInputArrayIndexedEvaluator.class);
+
+        dt = findDt("ContainsInInputArrayIndex_BeforeRangeIndex", openClass);
+        assertEquals(2, dt.getConditionRows().length);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+        assertInstanceConditionEvaluatorClass(dt.getConditionRows()[1], ARangeIndexEvaluator.class);
+
+        dt = findDt("ContainsInInputArrayIndex_WithCast", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+
+        dt = findDt("ContainsInArrayIndex_OppositeOrder", openClass);
+        assertConditionsNumber(dt);
+        assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], AContainsInArrayIndexedEvaluator.class);
 
         dt = findDt("RangeIndex_WithStatic", openClass);
         assertEquals(2, dt.getConditionRows().length);
