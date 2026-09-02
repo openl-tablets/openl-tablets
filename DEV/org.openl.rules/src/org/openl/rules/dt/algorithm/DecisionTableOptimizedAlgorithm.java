@@ -167,6 +167,13 @@ import org.openl.vm.IRuntimeEnv;
  * <td>Constant(HashMap) performance</td>
  * </tr>
  * <tr>
+ * <td>any T[] ary</td>
+ * <td align="center">1</td>
+ * <td>T value</td>
+ * <td><code>contains(ary, value)</code></td>
+ * <td>Constant(HashMap) performance per array element</td>
+ * </tr>
+ * <tr>
  * <td>Comparable T x</td>
  * <td align="center">2</td>
  * <td>T min, T max</td>

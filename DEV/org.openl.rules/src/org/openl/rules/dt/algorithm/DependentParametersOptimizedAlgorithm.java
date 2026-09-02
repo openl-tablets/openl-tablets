@@ -24,6 +24,7 @@ import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluatorV2;
+import org.openl.rules.dt.algorithm.evaluator.ContainsInInputArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluatorV2;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -43,6 +44,24 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.ParameterDeclaration;
 
+/**
+ * Builds an index for a condition whose expression mentions the condition column parameters.
+ *
+ * <p>The following expressions are recognized, where {@code input} is a decision table argument or a path that
+ * starts from one, and {@code column} is the condition column parameter:
+ *
+ * <ul>
+ * <li>{@code input == column} - an equals index over the column values;</li>
+ * <li>{@code contains(column, input)} - an equals index over the values of the column array;</li>
+ * <li>{@code contains(input, column)} - an equals index over the column values, looked up once per element of the
+ * input array;</li>
+ * <li>{@code input >= column} and the other comparisons, with one or two boundary columns - a range index.</li>
+ * </ul>
+ *
+ * <p>Any other expression returns no evaluator, and the condition is evaluated row by row.
+ *
+ * @see DecisionTableOptimizedAlgorithm
+ */
 class DependentParametersOptimizedAlgorithm {
 
     static IConditionEvaluator makeEvaluator(ICondition condition,
@@ -125,6 +144,14 @@ class DependentParametersOptimizedAlgorithm {
         var params = condition.getParams();
         var conditionParamType = params[0].getType();
 
+        if (evaluatorFactory instanceof OneParameterContainsInInputArrayFactory) {
+            var evaluator = makeContainsInInputArrayEvaluator(expressionType, conditionParamType, bindingContext);
+            if (evaluator != null) {
+                evaluator.setOptimizedSourceCode(evaluatorFactory.getExpression());
+            }
+            return evaluator;
+        }
+
         if (evaluatorFactory instanceof OneParameterContainsInFactory factory) {
             var aggregateInfo = conditionParamType.getAggregateInfo();
             if (aggregateInfo.isAggregate(conditionParamType)) {
@@ -187,6 +214,35 @@ class DependentParametersOptimizedAlgorithm {
                     conditionCasts);
             rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
             return rix;
+        }
+        return null;
+    }
+
+    /**
+     * Builds an evaluator for {@code contains(inputArray, columnValue)}, where the array is passed to the decision
+     * table and a single column value is looked up in it.
+     *
+     * <p>Returns {@code null} when the expression is not of that shape, so that the default evaluator is used.
+     */
+    private static ContainsInInputArrayIndexedEvaluator makeContainsInInputArrayEvaluator(
+            IOpenClass inputArrayType,
+            IOpenClass conditionParamType,
+            IBindingContext bindingContext) {
+        if (!inputArrayType.isArray() || conditionParamType.isArray()) {
+            // only a single column value is looked up in an array of inputs
+            return null;
+        }
+        var valueClass = conditionParamType.getInstanceClass();
+        if (valueClass == null || Range.class.isAssignableFrom(valueClass)) {
+            // a column declared with an error has no type, and ranges are indexed by the range evaluators
+            return null;
+        }
+        var componentType = inputArrayType.getComponentClass();
+        ConditionCasts conditionCasts = ConditionHelper
+                .findConditionCasts(conditionParamType, componentType, bindingContext);
+        if (conditionCasts.isCastToConditionTypeExists() || conditionCasts
+                .isCastToInputTypeExists() && !componentType.isArray()) {
+            return new ContainsInInputArrayIndexedEvaluator(conditionCasts);
         }
         return null;
     }
@@ -449,27 +505,32 @@ class DependentParametersOptimizedAlgorithm {
         }
     }
 
-    private static OneParameterContainsInFactory makeOneParameterContainsFactory(
+    private static EvaluatorFactory makeOneParameterContainsFactory(
             Triple<String, RelationType, String> parsedExpression,
             ICondition condition,
             IMethodSignature signature) {
         final var p1 = parsedExpression.getLeft();
         final var p2 = parsedExpression.getRight();
 
+        var conditionParam = condition.getParams()[0];
         IParameterDeclaration signatureParam = getParameter(p1, signature);
         if (signatureParam == null) {
+            // contains(columnValues, input): the column keeps an array of values
             signatureParam = getParameter(p2, signature);
             if (signatureParam == null) {
                 return null;
             }
-            var conditionParam = condition.getParams()[0];
             if (!p1.equals(conditionParam.getName())) {
                 return null;
             }
             return new OneParameterContainsInFactory(signatureParam, getOrBuildParameterPath(p2, signatureParam));
         }
 
-        return null;
+        // contains(inputs, columnValue): the input keeps an array of values
+        if (!p2.equals(conditionParam.getName()) || getParameter(p2, signature) != null) {
+            return null;
+        }
+        return new OneParameterContainsInInputArrayFactory(signatureParam, getOrBuildParameterPath(p1, signatureParam));
     }
 
     private static OneParameterEqualsFactory makeOneParameterEqualsFactory(
@@ -858,6 +919,32 @@ class DependentParametersOptimizedAlgorithm {
     static class OneParameterContainsInFactory extends EvaluatorFactory {
 
         public OneParameterContainsInFactory(IParameterDeclaration signatureParam, String expression) {
+            super(signatureParam, expression);
+        }
+
+        @Override
+        public boolean hasMin() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean hasMax() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean needsIncrement(Bound bound) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Describes a {@code contains(inputArray, columnValue)} condition. The expression is the path to the array
+     * passed to the decision table.
+     */
+    static class OneParameterContainsInInputArrayFactory extends EvaluatorFactory {
+
+        public OneParameterContainsInInputArrayFactory(IParameterDeclaration signatureParam, String expression) {
             super(signatureParam, expression);
         }
 
