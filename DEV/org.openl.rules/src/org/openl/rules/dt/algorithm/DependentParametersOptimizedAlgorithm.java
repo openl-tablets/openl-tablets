@@ -35,10 +35,9 @@ import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.ITypeAdaptor;
+import org.openl.rules.helpers.RulesUtils;
 import org.openl.rules.range.Range;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.NaryNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
@@ -353,15 +352,17 @@ class DependentParametersOptimizedAlgorithm {
         return null;
     }
 
+    /**
+     * Checks that the call is the built-in {@code contains}, and not a function of the same name declared by the
+     * project. A project function may answer anything, so its calls are left to the default evaluator.
+     */
     private static boolean isContainsMethod(MethodBoundNode methodBoundNode) {
-        if (methodBoundNode.getSyntaxNode() instanceof NaryNode) {
-            var children = ((NaryNode) methodBoundNode.getSyntaxNode()).getNodes();
-            if (children.length == 3) {
-                var identifier = children[2];
-                return "funcname".equals(identifier.getType()) && "contains".equals(((IdentifierNode) identifier).getIdentifier());
-            }
+        var method = methodBoundNode.getMethodCaller().getMethod();
+        if (!"contains".equals(method.getName())) {
+            return false;
         }
-        return false;
+        var declaringClass = method.getDeclaringClass();
+        return declaringClass != null && RulesUtils.class == declaringClass.getInstanceClass();
     }
 
     private static Triple<String, RelationType, String> parseBinaryOpExpression(BinaryOpNode binaryOpNode,
