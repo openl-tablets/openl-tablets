@@ -1,5 +1,7 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
+import java.util.List;
+
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
@@ -23,13 +25,25 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ContainsInInputArrayIndexedEvaluator extends AEqualsIndexedEvaluator {
 
+    private final List<ConditionParameter> values;
+
     public ContainsInInputArrayIndexedEvaluator(ConditionCasts conditionCasts) {
+        this(conditionCasts, List.of());
+    }
+
+    /**
+     * @param values the column parameters the index is built from; an empty list means the first parameter of the
+     *               condition the index belongs to
+     */
+    public ContainsInInputArrayIndexedEvaluator(ConditionCasts conditionCasts, List<ConditionParameter> values) {
         super(conditionCasts);
+        this.values = List.copyOf(values);
     }
 
     @Override
     public IRuleIndex makeIndex(ICondition condition, IIntIterator it) {
-        if (it.size() < 1) {
+        if (it.size() < 1 || values.stream().anyMatch(value -> value.condition().hasFormulas())) {
+            // a column with formulas has no value to index until the table is evaluated
             return null;
         }
 
@@ -44,11 +58,22 @@ public class ContainsInInputArrayIndexedEvaluator extends AEqualsIndexedEvaluato
                 continue;
             }
 
-            var value = conditionCasts.castToInputType(condition.getParamValue(0, ruleN));
-            builder.putValueToRule(value, ruleN);
+            if (values.isEmpty()) {
+                putValue(builder, condition.getParamValue(0, ruleN), ruleN);
+            } else {
+                for (ConditionParameter value : values) {
+                    putValue(builder, value.getValue(ruleN), ruleN);
+                }
+            }
         }
 
         return builder.build();
+    }
+
+    private void putValue(ContainsInInputArrayIndexV2.Builder builder, Object value, int ruleN) {
+        if (value != null) {
+            builder.putValueToRule(conditionCasts.castToInputType(value), ruleN);
+        }
     }
 
     /**

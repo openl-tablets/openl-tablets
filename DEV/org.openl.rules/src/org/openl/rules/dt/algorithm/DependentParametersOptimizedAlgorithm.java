@@ -2,7 +2,9 @@ package org.openl.rules.dt.algorithm;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import lombok.AccessLevel;
@@ -12,8 +14,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.BinaryOpNode;
 import org.openl.binding.impl.BinaryOpNodeAnd;
+import org.openl.binding.impl.BinaryOpNodeOr;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BlockNode;
 import org.openl.binding.impl.FieldBoundNode;
@@ -22,6 +26,7 @@ import org.openl.binding.impl.LiteralBoundNode;
 import org.openl.binding.impl.MethodBoundNode;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.ConditionParameter;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluatorV2;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInInputArrayIndexedEvaluator;
@@ -66,11 +71,24 @@ class DependentParametersOptimizedAlgorithm {
     static IConditionEvaluator makeEvaluator(ICondition condition,
                                              IMethodSignature signature,
                                              IBindingContext bindingContext) {
+        return makeEvaluator(condition, signature, bindingContext, new ICondition[]{condition});
+    }
+
+    /**
+     * Builds an evaluator for the condition, looking the column parameters up in every column of the table.
+     */
+    static IConditionEvaluator makeEvaluator(ICondition condition,
+                                             IMethodSignature signature,
+                                             IBindingContext bindingContext,
+                                             ICondition[] conditions) {
         if (condition.hasFormulas() || condition.isRuleIdOrRuleNameUsed()) {
             return null;
         }
 
-        EvaluatorFactory evaluatorFactory = determineOptimizedEvaluationFactory(condition, signature, bindingContext);
+        EvaluatorFactory evaluatorFactory = determineOptimizedEvaluationFactory(condition,
+                signature,
+                bindingContext,
+                conditions);
 
         if (evaluatorFactory == null) {
             return null;
@@ -143,10 +161,14 @@ class DependentParametersOptimizedAlgorithm {
         var params = condition.getParams();
         var conditionParamType = params[0].getType();
 
-        if (evaluatorFactory instanceof OneParameterContainsInInputArrayFactory) {
-            var evaluator = makeContainsInInputArrayEvaluator(expressionType, conditionParamType, bindingContext);
+        if (evaluatorFactory instanceof OneParameterContainsInInputArrayFactory factory) {
+            var values = factory instanceof ContainsInInputArrayChainFactory chain ? chain.getValues()
+                    : List.<ConditionParameter>of();
+            var valueType = values.isEmpty() ? conditionParamType
+                    : values.get(0).condition().getParams()[values.get(0).index()].getType();
+            var evaluator = makeContainsInInputArrayEvaluator(expressionType, valueType, values, bindingContext);
             if (evaluator != null) {
-                evaluator.setOptimizedSourceCode(evaluatorFactory.getExpression());
+                evaluator.setOptimizedSourceCode(factory.getExpression());
             }
             return evaluator;
         }
@@ -226,6 +248,7 @@ class DependentParametersOptimizedAlgorithm {
     private static ContainsInInputArrayIndexedEvaluator makeContainsInInputArrayEvaluator(
             IOpenClass inputArrayType,
             IOpenClass conditionParamType,
+            List<ConditionParameter> values,
             IBindingContext bindingContext) {
         if (!inputArrayType.isArray() || conditionParamType.isArray()) {
             // only a single column value is looked up in an array of inputs
@@ -241,7 +264,7 @@ class DependentParametersOptimizedAlgorithm {
                 .findConditionCasts(conditionParamType, componentType, bindingContext);
         if (conditionCasts.isCastToConditionTypeExists() || conditionCasts
                 .isCastToInputTypeExists() && !componentType.isArray()) {
-            return new ContainsInInputArrayIndexedEvaluator(conditionCasts);
+            return new ContainsInInputArrayIndexedEvaluator(conditionCasts, values);
         }
         return null;
     }
@@ -424,6 +447,121 @@ class DependentParametersOptimizedAlgorithm {
         throw new IllegalStateException("Condition method is not an instance of CompositeMethod.");
     }
 
+    /**
+     * Reads a condition written as several {@code contains} calls joined by {@code or}, such as
+     * {@code contains(codes, code) or contains(codes, linkedCode)}.
+     *
+     * <p>Returns the parsed calls, or {@code null} when the expression is not such a chain.
+     */
+    private static List<Triple<String, RelationType, String>> containsChainParse(ICondition condition,
+                                                                                 IBindingContext bindingContext) {
+        var expression = indexExpressionNode(condition);
+        if (!(expression instanceof BinaryOpNodeOr)) {
+            return null;
+        }
+        var operands = new ArrayList<IBoundNode>();
+        flattenOr(expression, operands);
+        var result = new ArrayList<Triple<String, RelationType, String>>(operands.size());
+        for (IBoundNode operand : operands) {
+            if (!(operand instanceof MethodBoundNode methodBoundNode)) {
+                return null;
+            }
+            var parsed = parseMethodBoundExpression(methodBoundNode, bindingContext);
+            if (parsed == null || parsed.getMiddle() != RelationType.IN) {
+                return null;
+            }
+            result.add(parsed);
+        }
+        return result;
+    }
+
+    private static void flattenOr(IBoundNode node, List<IBoundNode> operands) {
+        if (node instanceof BinaryOpNodeOr or) {
+            flattenOr(or.getLeft(), operands);
+            flattenOr(or.getRight(), operands);
+        } else {
+            operands.add(node);
+        }
+    }
+
+    private static IBoundNode indexExpressionNode(ICondition condition) {
+        if (condition.getIndexMethod() == null) {
+            throw new IllegalStateException("Condition method is not an instance of CompositeMethod.");
+        }
+        var boundNode = condition.getIndexMethod().getMethodBodyBoundNode();
+        if (boundNode instanceof BlockNode blockNode) {
+            var children = blockNode.getChildren();
+            if (children != null && children.length == 1 && children[0] instanceof BlockNode node) {
+                children = node.getChildren();
+                if (children.length == 1) {
+                    return children[0];
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Describes a chain of {@code contains} calls over the same array of inputs.
+     *
+     * <p>Every call must look up a column value of the table, and all of them must be of the same type. The
+     * values may come from other columns, as {@code contains(codes, code) or contains(codes, linkedCode)} does
+     * when {@code linkedCode} is declared by another column.
+     */
+    private static EvaluatorFactory makeContainsInInputArrayChainFactory(
+            List<Triple<String, RelationType, String>> chain,
+            IMethodSignature signature,
+            ICondition[] conditions) {
+        var inputPath = chain.get(0).getLeft();
+        IParameterDeclaration signatureParam = getParameter(inputPath, signature);
+        if (signatureParam == null || findColumnParameter(inputPath, conditions) != null) {
+            // the array is searched in, so it must come from the inputs of the table and not from a column
+            return null;
+        }
+        var values = new ArrayList<ConditionParameter>(chain.size());
+        IOpenClass valueType = null;
+        for (Triple<String, RelationType, String> parsed : chain) {
+            if (!inputPath.equals(parsed.getLeft()) || getParameter(parsed.getRight(), signature) != null) {
+                return null;
+            }
+            var value = findColumnParameter(parsed.getRight(), conditions);
+            if (value == null) {
+                return null;
+            }
+            var type = value.condition().getParams()[value.index()].getType();
+            if (valueType != null && !valueType.equals(type)) {
+                return null;
+            }
+            valueType = type;
+            values.add(value);
+        }
+        return new ContainsInInputArrayChainFactory(signatureParam,
+                getOrBuildParameterPath(inputPath, signatureParam),
+                values);
+    }
+
+    /**
+     * Finds the column that declares the parameter.
+     *
+     * <p>The columns of the table are prepared one by one, so a parameter of a column that comes later may have
+     * no name yet. An expression may also have no name to look up, as a field of a method result has. Neither is
+     * recognized and the condition keeps the default evaluator.
+     */
+    private static ConditionParameter findColumnParameter(String name, ICondition[] conditions) {
+        if (name == null) {
+            return null;
+        }
+        for (ICondition condition : conditions) {
+            var params = condition.getParams();
+            for (var i = 0; i < params.length; i++) {
+                if (params[i] != null && name.equals(params[i].getName())) {
+                    return new ConditionParameter(condition, i);
+                }
+            }
+        }
+        return null;
+    }
+
     private static Pair<Triple<String, RelationType, String>, Triple<String, RelationType, String>> twoParameterExpressionParse(
             ICondition condition,
             IBindingContext bindingContext) {
@@ -460,7 +598,8 @@ class DependentParametersOptimizedAlgorithm {
 
     private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition,
                                                                         IMethodSignature signature,
-                                                                        IBindingContext bindingContext) {
+                                                                        IBindingContext bindingContext,
+                                                                        ICondition[] conditions) {
         var params = condition.getParams();
 
         var code = condition.getIndexSourceCodeModule().getCode();
@@ -470,6 +609,10 @@ class DependentParametersOptimizedAlgorithm {
 
         switch (params.length) {
             case 1:
+                var containsChain = containsChainParse(condition, bindingContext);
+                if (containsChain != null) {
+                    return makeContainsInInputArrayChainFactory(containsChain, signature, conditions);
+                }
                 var parsedExpression = oneParameterExpressionParse(condition,
                         bindingContext);
                 if (parsedExpression == null) {
@@ -479,7 +622,7 @@ class DependentParametersOptimizedAlgorithm {
                     case EQ:
                         return makeOneParameterEqualsFactory(parsedExpression, condition, signature);
                     case IN:
-                        return makeOneParameterContainsFactory(parsedExpression, condition, signature);
+                        return makeOneParameterContainsFactory(parsedExpression, condition, signature, conditions);
                     default:
                         return makeOneParameterRangeFactory(parsedExpression, condition, signature);
                 }
@@ -509,7 +652,8 @@ class DependentParametersOptimizedAlgorithm {
     private static EvaluatorFactory makeOneParameterContainsFactory(
             Triple<String, RelationType, String> parsedExpression,
             ICondition condition,
-            IMethodSignature signature) {
+            IMethodSignature signature,
+            ICondition[] conditions) {
         final var p1 = parsedExpression.getLeft();
         final var p2 = parsedExpression.getRight();
 
@@ -528,7 +672,8 @@ class DependentParametersOptimizedAlgorithm {
         }
 
         // contains(inputs, columnValue): the input keeps an array of values
-        if (!p2.equals(conditionParam.getName()) || getParameter(p2, signature) != null) {
+        if (!p2.equals(conditionParam.getName()) || getParameter(p2, signature) != null || findColumnParameter(p1,
+                conditions) != null) {
             return null;
         }
         return new OneParameterContainsInInputArrayFactory(signatureParam, getOrBuildParameterPath(p1, signatureParam));
@@ -936,6 +1081,23 @@ class DependentParametersOptimizedAlgorithm {
         @Override
         public boolean needsIncrement(Bound bound) {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Describes a chain of {@code contains(inputArray, columnValue)} calls joined by {@code or}. The expression is
+     * the path to the array passed to the decision table, and the values are the column parameters looked up in it.
+     */
+    static class ContainsInInputArrayChainFactory extends OneParameterContainsInInputArrayFactory {
+
+        @Getter
+        private final List<ConditionParameter> values;
+
+        public ContainsInInputArrayChainFactory(IParameterDeclaration signatureParam,
+                                                String expression,
+                                                List<ConditionParameter> values) {
+            super(signatureParam, expression);
+            this.values = List.copyOf(values);
         }
     }
 
