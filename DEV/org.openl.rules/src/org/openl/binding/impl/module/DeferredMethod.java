@@ -26,7 +26,6 @@ public class DeferredMethod extends AMethod {
     /**
      * @param name
      * @param typeClass
-     * @param parameterTypes
      * @param declaringClass
      */
     public DeferredMethod(String name,

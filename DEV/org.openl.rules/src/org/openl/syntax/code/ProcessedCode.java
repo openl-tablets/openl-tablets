@@ -66,8 +66,6 @@ public class ProcessedCode {
 
     /**
      * Sets bound code.
-     *
-     * @return {@link IBoundCode} instance
      */
     public void setBoundCode(IBoundCode boundCode) {
         this.boundCode = boundCode;
