@@ -26,12 +26,6 @@ package org.openl.ie.tools;
 public class ReusableImpl implements Reusable {
     protected ReusableFactory _factory;
 
-    /**
-     * Default constructor.
-     */
-    public ReusableImpl() {
-    }
-
     @Override
     public void free() {
         _factory.freeElement(this);

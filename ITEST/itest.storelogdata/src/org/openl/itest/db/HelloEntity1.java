@@ -103,9 +103,6 @@ public class HelloEntity1 {
     @Value(value = "intValueToString", converter = IntToStringConvertor.class)
     private String intValueToString;
 
-    public HelloEntity1() {
-    }
-
     public Long getId() {
         return id;
     }

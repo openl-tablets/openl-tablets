@@ -27,9 +27,6 @@ public class OpenL {
 
     private IOpenVM vm;
 
-    public OpenL() {
-    }
-
     /**
      * Gets instance of <code>OpenL</code> with given name.
      *

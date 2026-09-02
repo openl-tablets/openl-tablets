@@ -24,9 +24,6 @@ public abstract class ChainedGroovyScriptWriter implements GroovyWriter {
             private static final EmptyWriter INSTANCE = new EmptyWriter();
         }
 
-        private EmptyWriter() {
-        }
-
         @Override
         public void write(StringBuilder sb, boolean isAbstract, Set<String> imports) {
             // do nothing
