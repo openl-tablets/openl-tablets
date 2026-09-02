@@ -147,12 +147,11 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
 
 ## Method rules
 
-- Never pipe a proof grep through `head` and never read a source from the middle — both hide the refuting caller.
+- Never pipe a proof grep through `head`, nor read a source from the middle — both hide the refuting caller.
 - Confirm every survivor of a bulk scan with an individual `grep -rIF` before deleting it — the bulk scan finds
   candidates, the individual search is the proof. For a large candidate set, tokenize the whole corpus in ONE
   pass and set-difference: per-candidate regex never finishes, one pass over 13.4k text files takes a minute.
-- Anchor a per-line regex with `[ \t]*`, never `\s*`: a greedy `\s*` consumes the newline, so the match runs past
-  the line end and skips the next line's tag. Print the capture.
+- Anchor a per-line regex with `[ \t]*`, never `\s*`: a greedy `\s*` eats the newline, skipping the next tag.
 - A module that publishes nothing has no public API to protect: `maven.deploy.skip` plus `pom` packaging (as in
   `DEV/org.openl.rules.gen`) means no artifact is ever released, so its public members are internal code. The
   full set is `DEMO/`, `DEV/org.openl.rules.gen`, `DEV/org.openl.rules.test` and `ITEST/**`; all are swept.
@@ -253,8 +252,9 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
 ## CI flakes
 
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails two infrastructure ways, never the diff: `ORA-12516` with
-  the listener not yet accepting, or `Failed requests: expected <0> but was <N>` after Oracle and Jetty are up
-  and the suite has run two minutes (N varies: 5, then 2 twice on one SHA). One rerun.
+  the listener not yet accepting, or `Failed requests: expected <0> but was <N>`. Two proofs settle the second in
+  one log read, no rerun needed: `MysqlRdbmsTest` passes the SAME request suite in the same job, and N varies on
+  identical code (5, 2, 2, 4). It also fails on `main` with every other job of that run green.
 - `IT (services-data)` — `apache/kafka-native:latest` exiting 1 in its entrypoint before any test body (any of
   the 3 kafka suites) is upstream and intermittent: one suite can pass as the next fails. Never pin the tag.
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
