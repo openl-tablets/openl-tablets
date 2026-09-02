@@ -2,27 +2,23 @@
 
 ## Resume point
 
-PR #2063 waits only on the owner's merge; no human has ever reviewed it and CodeRabbit reports nothing. All 105
-change types are closed, numbering continues at 106. A swept area is only empty against the tools already run:
-type 103 found 51 dead imports a linter cannot see, and type 105 found 47 dead statements no configured tool
-reports. Prefer ledger compaction over inventing a vein.
+PR #2063 waits only on the owner's merge; no human has ever reviewed it and CodeRabbit reports nothing. All 108
+change types are closed, numbering continues at 109. A swept area is only empty against the tools already run:
+type 106 found 27 redundant constructors in files eight closed veins had already reported clean, because no
+earlier run had enabled that PMD rule. Prefer ledger compaction over inventing a vein.
 CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
 replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
-All 105 closed — 32 shipped a deletion, 73 found nothing; *Exhausted veins* records what each covered.
+All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* records what each covered.
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `3124142d`, 109 files, 192 deleted lines and 13 added.
-  Twelve commits, one per change type: the dead `@ts-ignore` and Java `deprecation` suppression (67, 72), the
-  `syntax: glob` line with the unread `.gitconfig` (68, 70), the surefire property nothing reads (71), the build
-  configuration naming absent files (77), the unused ESLint config import (78) and its `@eslint/js` dev
-  dependency (79), the unloadable `deployer.properties` (88), the JavaDoc tags documenting nothing (89), the CRA
-  `homepage` field (90), the plugin `requirements` block no mojo accepts (94), the 51 dead `React` imports (103)
-  and the 47 redundant explicit `super()` calls (105). Derive the counts with `git log --oneline` and
-  `git diff --shortstat` against the merge base before editing the body.
+- #2063, branch `dead-code/dead-suppressions`, head `aa9cc2fb`, 136 files, 282 deleted lines and 15
+  added. Fifteen commits, one per change type, each named in its own section of the PR body. Derive the counts
+  with `git log --oneline` and `git diff --shortstat` against the merge base before editing that body, and
+  re-read its reachability claims: it is the only record of what each commit kept and why.
 
 ## Merged PRs
 
@@ -41,8 +37,7 @@ All 105 closed — 32 shipped a deletion, 73 found nothing; *Exhausted veins* re
   public setter with it), ~190 accessors named only at their declaration, and four overrides that only call
   `super` — `DependencyOpenClass.getTypes` and `.findType`, `CastingCustomSpreadsheetResultField
   .getDeclaringClass`, `SidExistsValidator.isValid`.
-- The `test-jar` executions of `org.openl.rules.ruleservice` and `.deployer` include only a package neither
-  module has, so each publishes an empty test jar no pom consumes; un-publishing an artifact is a human's call.
+- The `ruleservice` and `.deployer` `test-jar` executions each publish an empty jar no pom consumes.
 - `MergeRequest`, `ResolveConflictsRequest`, `ResolveConflictsResponse` (`studio-ui` `MergeModal/types.ts`) —
   unused in code, but `Docs/api/projects-merge-api.md` documents all three.
 - ~70 exported types in `studio-ui` are used only inside their own file (dropping `export` is a refactor), and
@@ -52,24 +47,19 @@ All 105 closed — 32 shipped a deletion, 73 found nothing; *Exhausted veins* re
   modules reach it transitively from there; removing it needs a declaration added elsewhere.
 - `studio-ui` `eslint.config.js` registers the `react-hooks` plugin but enables no rule from it, so the
   registration is inert; enabling the rules and dropping the plugin are both changes of intent, not deletions.
-- The 153 `/* (non-Javadoc) @see ... */` markers beside overriding methods — redundant next to `@Override`, but
-  comment churn rather than dead code, so a 600-line diff needs a maintainer's word first.
+- The 153 `/* (non-Javadoc) @see */` markers beside `@Override` are comment churn; a 600-line diff needs a word.
 - Commented-out code left standing: two alternatives sharing a line with live code (`ColumnDescriptor
   .loadMultiRowArray`, `XlsSheetGridModel.setCellStyle`), the rejected `provided` scope in `DEV/org.openl.commons`
   its own comment explains, and ~30 runs in TEST sources, where a disabled body can be a known-issue marker.
 - The class-level `@return` of `TableVersionComparator` is real prose describing `compare`, which JavaDoc drops
   because a type returns nothing; moving it onto the method is a refactor, not a deletion.
-- Explicit pom values that only repeat what Maven would apply anyway: 47 `<dependency><version>` elements the
-  root already manages (44 in `jacoco-report`, one each in `itest.storelogdata`, `itest.tracing` and the root's
-  own lombok) and three default-valued elements (`scope` compile in the two spring-boot ITEST apps, `type` jar
-  in one `artifactItem`). Maven reads every one, so they are a DRY fix for a human, not a deletion.
+- Explicit pom values repeating what Maven would apply anyway — 47 `<dependency><version>` elements the root
+  already manages and three default-valued elements — are read by Maven, so they are a human's DRY fix.
 - Three class-level type parameters are unused inside their own declaration yet public in a published artifact:
   `ReturnOperation<ResultValueType>`, `IStorage<T>` and `ProjectService<T extends AProject>`. Dropping one
   breaks every caller that writes the type with an argument.
-- The one `<reporting>` block (`Util/openl-maven-plugin`) is broken rather than dead: it generates nothing, but
-  the fix is the migration in *Human follow-ups*, so the declaration stays. Its `requirements` block shipped.
-- The 70 unreferenced `id` attributes of the 46 `.xhtml` pages are markup, not dead code: a JSF id is a
-  naming-container prefix, an automation anchor, or what keeps a client id stable instead of `j_idt123`.
+- The `Util/openl-maven-plugin` `<reporting>` block is broken, not dead — the fix is in *Human follow-ups*.
+- The 70 unreferenced `.xhtml` `id` attributes are markup: a JSF id is a naming-container or automation anchor.
 
 ## False-positive shapes
 
@@ -83,11 +73,16 @@ All 105 closed — 32 shipped a deletion, 73 found nothing; *Exhausted veins* re
 - A framework calls an accessor without naming it, in four ways worth checking before believing a hit: a JPA
   `@Entity` accessor (Hibernate), a `@Bean` factory method (Spring), a setter for injection (`setEntityManager`),
   and an interface method whose implementation carries no `@Override` (`StompSessionHandler.handleFrame`).
-- An override whose body is only a `super` call is load-bearing in four ways, and all 22 in the repository are:
-  the annotations on it are the point (`@NotBlank`, `@JsonProperty`, `@Parameter`); a `hashCode` delegating to
-  `super` satisfies the equals/hashCode contract Sonar enforces; an override of a GENERIC super method keeps the
-  concrete parameter type in the declared signature, which the erased inherited method does not have
-  (`CharRange.contains(Character)`); and in `wrapper/base/**` it is what `WrapperValidation` demands.
+- An override whose body is only a `super` call is load-bearing in four ways, and all 22 here are: its
+  annotations are the point (`@NotBlank`, `@JsonProperty`); a `hashCode` delegating to `super` satisfies the
+  contract Sonar enforces; an override of a GENERIC super method keeps the concrete parameter type the erased
+  inherited method lacks (`CharRange.contains(Character)`); `wrapper/base/**` needs it for `WrapperValidation`.
+- A redundant no-op construct is load-bearing when the construct itself is the mechanism: `synchronized (this) {
+  return; }` acquires the monitor to wait out every other synchronized block, an empty `while (in.read() != -1);`
+  drains a stream, and a trailing `return;` in the last arm of a chain of `if (…) { setX(); return; }` blocks is
+  the symmetry the next arm added after it will rely on. PMD reports all three as unnecessary.
+- A modifier can be redundant to the compiler and deliberate to the author: `final` on a try-with-resources
+  resource is implicit, but in a file that writes `final` on every local it is style, and dropping it is churn.
 - A `provided`-scope "unused declared" dependency finding IS real when it sits in the module's own
   `<dependencies>` block. The scope heuristic only dismisses the root POM's inherited block.
 - An "unused declared" finding on an AGGREGATOR artifact is always false: `junit-jupiter` carries no class of its
@@ -175,6 +170,9 @@ All 105 closed — 32 shipped a deletion, 73 found nothing; *Exhausted veins* re
   name, then prove the value it feeds is never read — a loader is not a reader.
 - When this container's npm rewrites unrelated lock metadata, remove the lock's own regions by hand instead and
   prove coherence with `npm ci`, which fails when the lock and `package.json` disagree.
+- An empty no-argument constructor is the implicit default (JLS 8.8.9) only when it is the class's ONLY declared
+  constructor and its access equals the class's own — a Lombok-generated constructor counts as declared, and a
+  `protected` one in a `public` class does not match. Then nothing leaves the class file, which `javap` confirms.
 - For any PMD finding on a FIELD, grep the field name repo-wide before editing: the "never read" window is one
   method, but a field can be read by a callee, another thread, or an injected bean.
 - Delete lines by matching their exact text, never by line number from an earlier listing and never by a
@@ -263,11 +261,10 @@ All 105 closed — 32 shipped a deletion, 73 found nothing; *Exhausted veins* re
 
 ## Container facts
 
-- `~/.m2` can be EMPTY at session start; it is not warm across runs. The whole reactor still builds cold —
-  `LANG=C.UTF-8 LC_ALL=C.UTF-8 mvn clean install -Dquick -DnoPerf -T1C -B`, BUILD SUCCESS over all 85 modules,
-  none skipped — but it takes 32 minutes instead of 18. Start it in the harness's background mode as the FIRST
-  action of a run that will need Java verification, and do the text-search passes while it downloads. A plugin
-  only a release profile runs is absent afterwards; fetch its jar with `dependency-plugin:3.11.0:get`.
+- `~/.m2` is EMPTY at session start, so the cold reactor build — `LANG=C.UTF-8 LC_ALL=C.UTF-8 mvn clean install
+  -Dquick -DnoPerf -T1C -B`, all 85 modules, none skipped — takes 32 minutes instead of 18. Start it in the
+  harness's background mode as soon as the edits are in and run the text passes while it downloads; never pipe
+  it through `tail`, which buffers every line away. A release-only plugin needs `dependency-plugin:3.11.0:get`.
 - The build must run ONLINE: `-o` fails before the reactor starts, because `main` keeps bumping dependencies past
   what any cache holds. `build.shibboleth.net` answers 200, so the root `pom.xml` needs no surgery.
 - That locale is required: the container's own is POSIX, and `ZipArchiveValidatorTest.testArchives` then dies on
@@ -279,8 +276,7 @@ All 105 closed — 32 shipped a deletion, 73 found nothing; *Exhausted veins* re
   files in a minute, test sources included. Revive it only for a NEW rule; maven-pmd-plugin misses test sources.
 - `help:effective-pom -Pitest` writes all 172 effective poms into one 20 MB file in seconds — the cheapest proof.
 - `dependency:analyze-only` needs `-fae`; Error Prone contributes nothing — PMD is the only Java signal.
-- `javadoc -Xdoclint:all` is an oracle only WITH `-classpath` pointed at the built `target/classes` of the module
-  and its dependencies — it stops at the first unresolved import.
+- `javadoc -Xdoclint:all` is an oracle only WITH `-classpath` at the module's built `target/classes` plus its deps.
 - Frontend verification is the gate for `studio-ui`: `npm ci`, `npx tsc --noEmit`, `npx eslint <files>` and
   `npx vitest run` (183 files, 1699 tests, ~3.5 min); never judge it while Maven runs `-T1C`, while another pass
   rewrites the sources, or while the reactor builds — its `npm install` writes the same `node_modules`. Those
@@ -298,9 +294,8 @@ All 105 closed — 32 shipped a deletion, 73 found nothing; *Exhausted veins* re
 - The global git identity can be rewritten back to `Claude <noreply@anthropic.com>` mid-session. Re-set it and
   pass `GIT_AUTHOR_*` / `GIT_COMMITTER_*` inline on every commit; `--amend` alone keeps the wrong author,
   so it needs `--reset-author`.
-- `git push origin --delete <branch>` fails through the proxy with HTTP 403; normal pushes work. `gh` CLI and
-  `xxd` are absent — use the GitHub MCP tools, which swallow angle-bracketed text in a body: name an XML element
-  in prose with backticks, never as a tag, or the evidence it carried is silently gutted.
+- `git push --delete` fails through the proxy (403), normal pushes work; `gh` and `xxd` are absent. The GitHub
+  MCP tools swallow angle-bracketed text in a body: name an XML element in backticked prose, never as a tag.
 - `sonarcloud.io` is blocked by the sandbox proxy (403), and a failed SonarCloud check run carries only the
   rating — no annotations, no comments — so a quality-gate failure cannot be diagnosed from here.
 - `.toDelete/` is gitignored and safe for scratch files; Spotless runs from `validate` on, so check `git status`.
@@ -320,7 +315,10 @@ Members: all 474 package-private methods, 645 package-private fields, 572 enum c
 186 non-overriding public or protected members of the 246 package-private top-level and 318 non-public nested
 classes — every one has a caller. Whole types: all 977 non-public top-level, all 310 in `.impl.`/`.internal.`,
 all 193 test types with no `@Test`, and the 246 non-public production types against a production/test split.
-Public members of the non-published modules (133 files, 52 candidates) — all framework-driven.
+Public members of the non-published modules (133 files, 52 candidates) — all framework-driven. And PMD's six
+redundant-construct rules over all 4033 files: 29 no-argument constructors identical to the implicit default (27
+shipped), 4 unnecessary `return` statements (2 shipped) and 4 unnecessary modifiers (2 shipped); its 46
+`UselessParentheses` are reformatting and all 16 of its `EmptyControlStatement` findings are load-bearing.
 
 Maven, all of it closed. `dependency:analyze-only` over all 51 analyzable modules in every scope; all 18
 `<exclusion>` entries resolved in isolation (three shipped); all 147 non-import `dependencyManagement` and 25
@@ -393,8 +391,9 @@ tracked build leftover.
 
 ## Run log
 
-- Run 29: no deletion and none to make. #2063 reached fully green, Sonar included; types 97-99 closed empty.
 - Run 30: type 103 shipped the 51 dead `React` imports the linter cannot see; types 100-102 (ancestor-inherited
   dependency declarations, default-valued pom elements, class-level type parameters) closed with deferrals only.
 - Run 31: type 105 shipped the 47 redundant explicit `super()` calls; type 104 (overrides that only call `super`)
   closed with four deferrals, the other 18 load-bearing.
+- Run 32: types 106-108 shipped 27 redundant constructors, 2 no-op `return`s and 2 implied interface modifiers,
+  all found by PMD rules no earlier run had enabled.
