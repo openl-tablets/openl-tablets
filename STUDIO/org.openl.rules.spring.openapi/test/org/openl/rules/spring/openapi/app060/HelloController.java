@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HelloController {
 
-    @RequestMapping(value = "/sayHello.json")
+    @RequestMapping("/sayHello.json")
     public Map<Object, Object> getHttpInfo(HttpServletRequest request, @Parameter(hidden = true) @RequestHeader HttpHeaders headers) {
         return null;
     }

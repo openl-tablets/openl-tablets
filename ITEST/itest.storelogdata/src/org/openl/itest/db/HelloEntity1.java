@@ -64,25 +64,25 @@ public class HelloEntity1 {
     @Value(value = "result", converter = NoConvertorString.class)
     private String result;
 
-    @Value(value = "intValue1")
+    @Value("intValue1")
     private Integer intValue1;
 
-    @Value(value = "intValue2")
+    @Value("intValue2")
     private Integer intValue2;
 
-    @Value(value = "intValue3")
+    @Value("intValue3")
     private Integer intValue3;
 
-    @Value(value = "boolValue1")
+    @Value("boolValue1")
     private boolean boolValue1;
 
-    @Value(value = "boolValue2")
+    @Value("boolValue2")
     private boolean boolValue2;
 
-    @Value(value = "awareInstancesFound")
+    @Value("awareInstancesFound")
     private boolean awareInstancesFound;
 
-    @Value(value = "dbConnectionFound")
+    @Value("dbConnectionFound")
     private boolean dbConnectionFound;
 
     @Value(value = "stringValue1", converter = NoConvertorString.class)
@@ -94,10 +94,10 @@ public class HelloEntity1 {
     @Value(value = "stringValue3", converter = NoConvertorString.class)
     private String stringValue3;
 
-    @KafkaMessageHeader(value = KafkaHeaders.METHOD_NAME)
+    @KafkaMessageHeader(KafkaHeaders.METHOD_NAME)
     private String header1;
 
-    @KafkaMessageHeader(value = "testHeader")
+    @KafkaMessageHeader("testHeader")
     private String header2;
 
     @Value(value = "intValueToString", converter = IntToStringConvertor.class)
