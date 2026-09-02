@@ -1,4 +1,3 @@
-import React from 'react'
 import InfoFieldModal from '../../components/modal/InfoFieldModal'
 
 export const ProtectedBranchesModal = (
