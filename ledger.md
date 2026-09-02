@@ -15,14 +15,14 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `aa9cc2fb`, 136 files, 282 deleted and 15 added lines, 15
-  commits, one per change type with its own PR-body section. Derive the counts with `git diff --shortstat`
-  against the MERGE BASE before editing that body: it is the only record of what each commit kept and why.
+- #2063, branch `dead-code/dead-suppressions`, head `9d8b6577` (rebased onto `main`), 136 files, 282 deleted and
+  15 added lines, 15 commits, one per change type with its own PR-body section. Derive the counts with `git diff
+  --shortstat` against the MERGE BASE before editing that body: it alone records what each commit kept and why.
 
 ## Merged PRs
 
-- #2054/#2056, #2058, #2060, #2062 merged, no review comment on any. The owner merges with or without a green
-  gate, accepts one commit per change type; merged branches auto-delete.
+- #2054/#2056, #2058, #2060, #2062 merged with no review comment. The owner merges with or without a green
+  gate, one commit per change type; branches auto-delete.
 
 ## Module coverage
 
@@ -83,6 +83,9 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
 - An API-safety check that compares a removed member's access against its class must match the class
   DECLARATION: a regex for `class X` hits the JavaDoc prose "The class X implements…" first and calls a public
   class package-private, which reads as an API break that is not there.
+- Before standing down on a red check, compare the MERGE BASE's own run, not only the latest `main`: `IT
+  (studio-acl)` was red at base `b139ce21` with every other job green — exactly the pattern the branch showed —
+  and `main` had recovered by its tip. Rebasing onto that tip and pushing is the fix, not another re-run.
 - A modifier can be redundant to the compiler and deliberate to the author: `final` on a try-with-resources
   resource is implicit, but in a file that writes `final` on every local it is style, and dropping it is churn.
 - A `provided`-scope "unused declared" dependency finding IS real when it sits in the module's own
@@ -158,18 +161,17 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
 - OpenL models a Java type from `getDeclaredMethods()` alone (`JavaOpenClass.initMethodMap`), keyed on erased
   parameter types, so deleting a declaration a subclass merely inherits still changes the rule-visible signature
   set. A member removal in a rule-reachable type needs that checked, not just the compile.
-- Deleting a Java class is provable without compiling its module: a type can be named only by its simple or
-  fully qualified name, so a repo-wide search for both plus the reflective string registrations is complete —
-  that is how the webstudio servlet shipped before that module could build here. The same holds for a local or
+- Deleting a Java class is provable without compiling its module: a repo-wide search for its simple and its
+  fully qualified name plus the reflective string registrations is complete. The same holds for a local or
   private member, whose scope is one file; CI's `Build artifacts` job is then the compile gate.
-- A statement the language specification emits anyway needs no search at all — the JLS is the proof, and the
-  build plus `javap` confirm the call survives: that is how the 47 bare `super();` calls shipped (JLS 8.8.7).
+- A member the language specification emits anyway needs no search — the JLS is the proof and `javap` confirms
+  the member survives: 47 bare `super();` (8.8.7), 27 empty constructors (8.8.9), implied `interface` modifiers
+  (9.3/9.4). For a constructor, check BOTH that its class declares no other and that their access matches.
 - Search an accessor by its property name as well as its method name: Velocity `$w.propertyType` and JSF EL
   `#{bean.propertyType}` call `getPropertyType()` without ever spelling it.
-- A resource named by no file in the repository can still be loaded by a DEPENDENCY, by filename convention:
+- A resource named by no file in the repository can still be loaded by a DEPENDENCY by filename convention:
   CXF's `AbstractHTTPServlet` reads `/WEB-INF/cxfServletStaticResourcesMap.txt`, then `/<same name>`. Decompress
-  every class of both built wars' `WEB-INF/lib` (295 and 189 jars, a minute each) and search the literal base
-  name, then prove the value it feeds is never read — a loader is not a reader.
+  every class of both built wars' `WEB-INF/lib` and search the base name — a loader is not a reader.
 - When this container's npm rewrites unrelated lock metadata, remove the lock's own regions by hand instead and
   prove coherence with `npm ci`, which fails when the lock and `package.json` disagree.
 - An empty no-argument constructor is the implicit default (JLS 8.8.9) only when it is the class's ONLY declared
@@ -250,17 +252,15 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
 
 ## CI flakes
 
-- `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails two ways, both infrastructure and never the diff: `ORA-12516
-  no protocol handler for TCP ready`, the listener not yet accepting connections, or `Failed requests: expected
-  <0> but was <5>` raised after Oracle and Jetty are up and the suite has run for two minutes. One rerun.
-- `IT (services-data)` — any suite that starts `apache/kafka-native:latest` (`RunKafkaSmokeITest`,
-  `RunStoreLogDataITest`, `RunTracingITest`) exiting 1 inside its entrypoint before any test body is upstream,
-  and intermittent: one suite can pass while the next fails in the same job. Never pin the tag. One rerun.
+- `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails two infrastructure ways, never the diff: `ORA-12516` with
+  the listener not yet accepting, or `Failed requests: expected <0> but was <N>` after Oracle and Jetty are up
+  and the suite has run two minutes (N varies: 5, then 2 twice on one SHA). One rerun.
+- `IT (services-data)` — `apache/kafka-native:latest` exiting 1 in its entrypoint before any test body (any of
+  the 3 kafka suites) is upstream and intermittent: one suite can pass as the next fails. Never pin the tag.
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
   overlapping `coverage-*` artifacts the job merges. Transient, and it suppresses the gate entirely because
   nothing is uploaded. One rerun per SHA.
-- A RE-RUN job can die in 8 s in project scanning (`Unresolveable build extension archetype-packaging`, the 2
-  archetype poms then unreadable): a runner-local transient a sibling job resolves, and it burns the re-run.
+- A RE-RUN can die in 8 s resolving the `archetype-packaging` extension: a runner-local transient that burns it.
 - `rerun_failed_jobs` is refused while a job still runs — 403, or a bare 500 that is not failure. Read `run_attempt`.
 
 ## Container facts
@@ -397,4 +397,4 @@ tracked build leftover.
 - Run 30: type 103 shipped the 51 dead `React` imports the linter cannot see; types 100-102 closed, deferrals only.
 - Run 31: type 105 shipped the 47 redundant `super()` calls; type 104 closed with four deferrals, 18 load-bearing.
 - Run 32: types 106-108 shipped 27 constructors, 2 no-op `return`s, 2 implied modifiers, via new PMD rules.
-- Run 33: re-verified all three of run 32's commits and found no defect; shipped nothing; both flakes hit at once.
+- Run 33: re-verified run 32's three commits (no defect); shipped nothing; rebased the PR onto a recovered base.
