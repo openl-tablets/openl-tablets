@@ -236,7 +236,7 @@ public final class OpenLService {
         private String deployPath;
         private String serviceClassName;
         private Class<?> serviceClass;
-        private boolean provideRuntimeContext = false;
+        private boolean provideRuntimeContext;
         private Collection<Module> modules;
         private Set<String> publishers;
         private DeploymentDescription deployment;

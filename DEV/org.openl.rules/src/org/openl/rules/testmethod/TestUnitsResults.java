@@ -24,7 +24,7 @@ public class TestUnitsResults implements INamedThing {
 
     @Getter
     @Setter
-    private boolean testedRulesHaveErrors = false;
+    private boolean testedRulesHaveErrors;
 
     @Override
     public String getName() {

@@ -48,10 +48,10 @@ public class WorkbookListener implements HSSFListener {
     private final Map<String, Object[][]> cellsMap = new HashMap<>();
 
     @Getter
-    private boolean use1904Windowing = false;
+    private boolean use1904Windowing;
 
     private StyleTrackingListener formatListener;
-    private boolean sheetsSorted = false;
+    private boolean sheetsSorted;
     private int sheetIndex = -1;
     private SSTRecord sstRecord;
     private boolean outputNextStringRecord;

@@ -24,7 +24,7 @@ class MatchedDefinition {
     final Map<String, String> methodParametersToRename;
     @Getter
     final DTColumnsDefinition dtColumnsDefinition;
-    boolean parametersRenamingIsUsed = false;
+    boolean parametersRenamingIsUsed;
     @Getter
     final boolean mayHaveCompilationErrors;
 

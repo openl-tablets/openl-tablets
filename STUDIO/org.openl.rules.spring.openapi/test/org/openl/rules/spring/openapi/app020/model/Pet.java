@@ -18,7 +18,7 @@ public class Pet {
     @Getter
     @JsonProperty("tags")
     @Setter
-    private List<Tag> tags = null;
+    private List<Tag> tags;
 
     @Getter
     @JsonProperty("category")

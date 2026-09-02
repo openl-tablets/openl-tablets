@@ -26,7 +26,7 @@ public final class DimensionPropertiesMethodKey {
 
     @Getter
     private final IOpenMethod method;
-    private int hashCode = 0;
+    private int hashCode;
 
     @Override
     public boolean equals(Object obj) {

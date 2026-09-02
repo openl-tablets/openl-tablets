@@ -10,18 +10,18 @@ import org.openl.rules.tableeditor.util.Constants;
 
 public class TableEditorTag extends UIComponentBase {
 
-    private ValueExpression mode = null;
-    private ValueExpression editable = null;
-    private MethodExpression beforeEditAction = null;
-    private MethodExpression beforeSaveAction = null;
-    private MethodExpression afterSaveAction = null;
-    private ValueExpression onBeforeEdit = null;
-    private ValueExpression onBeforeSave = null;
-    private ValueExpression onAfterSave = null;
-    private ValueExpression onError = null;
-    private ValueExpression onRequestStart = null;
-    private ValueExpression onRequestEnd = null;
-    private List<ICell> modifiedCells = null;
+    private ValueExpression mode;
+    private ValueExpression editable;
+    private MethodExpression beforeEditAction;
+    private MethodExpression beforeSaveAction;
+    private MethodExpression afterSaveAction;
+    private ValueExpression onBeforeEdit;
+    private ValueExpression onBeforeSave;
+    private ValueExpression onAfterSave;
+    private ValueExpression onError;
+    private ValueExpression onRequestStart;
+    private ValueExpression onRequestEnd;
+    private List<ICell> modifiedCells;
 
     @Override
     public String getFamily() {

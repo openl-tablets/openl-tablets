@@ -1404,7 +1404,7 @@ class GitRepositoryTest {
 
     private static class ChangesCounter implements Listener {
         @Getter(AccessLevel.PACKAGE)
-        private int changes = 0;
+        private int changes;
 
         @Override
         public void onChange() {

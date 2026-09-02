@@ -9,7 +9,7 @@ public interface IIntSelector {
         private final IIntSelector selector;
         private final IIntIterator it;
         private int next;
-        private boolean hasNext = false;
+        private boolean hasNext;
 
         IntSelectIterator(IIntIterator it, IIntSelector selector) {
             this.it = it;

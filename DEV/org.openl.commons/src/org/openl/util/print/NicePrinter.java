@@ -21,9 +21,9 @@ public class NicePrinter {
 
     private static final int DEF_IDENT_STEP = 2;
     private final StringBuilder buffer;
-    private int ident = 0;
+    private int ident;
     private final HashMap<Object, Integer> printedObjects = new HashMap<>();
-    private int printedID = 0;
+    private int printedID;
 
     public static String getTypeName(Object obj) {
         return obj.getClass().getName();

@@ -40,10 +40,10 @@ public class EqualsIndex extends ARuleIndex {
     }
 
     public static class Builder {
-        private Map<Object, DecisionTableRuleNodeBuilder> map = null;
-        private Map<Object, DecisionTableRuleNode> nodeMap = null;
+        private Map<Object, DecisionTableRuleNodeBuilder> map;
+        private Map<Object, DecisionTableRuleNode> nodeMap;
         private final DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
-        private boolean comparatorBasedMap = false;
+        private boolean comparatorBasedMap;
         @Setter
         private ConditionCasts conditionCasts;
 

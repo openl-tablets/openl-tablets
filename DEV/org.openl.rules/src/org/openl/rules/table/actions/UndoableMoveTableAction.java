@@ -17,8 +17,8 @@ import org.openl.rules.table.IGridTable;
 @RequiredArgsConstructor
 public class UndoableMoveTableAction extends UndoableEditTableAction {
 
-    private IGridRegion prevRegion = null;
-    private IGridRegion newRegion = null;
+    private IGridRegion prevRegion;
+    private IGridRegion newRegion;
     private final MetaInfoWriter metaInfoWriter;
 
     /**

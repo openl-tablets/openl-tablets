@@ -111,7 +111,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private String tableUri;
     private final ProjectModel model;
     private final ProjectResolver projectResolver;
-    private Map<String, List<ProjectDescriptor>> projects = null;
+    private Map<String, List<ProjectDescriptor>> projects;
 
     private RulesTreeView defaultTreeView;
     private RulesTreeView treeView;
@@ -131,7 +131,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private boolean forcedCompile = true;
     private boolean needCompile = true;
-    private boolean manualCompile = false;
+    private boolean manualCompile;
     private final Map<String, Object> externalProperties;
 
     private final RulesUserSession rulesUserSession;

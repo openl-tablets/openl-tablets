@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class IntArrayIterator extends AIntIterator {
 
-    private int current = 0;
+    private int current;
     private final int[] ary;
 
     @Override

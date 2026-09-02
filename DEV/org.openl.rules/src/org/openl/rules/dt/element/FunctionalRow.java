@@ -78,9 +78,9 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     private final DTScale.RowScale scale;
 
-    private int noParamsIndex = 0;
+    private int noParamsIndex;
 
-    private Boolean hasFormulas = null;
+    private Boolean hasFormulas;
 
     FunctionalRow(String name, int row, ILogicalTable decisionTable, DTScale.RowScale scale) {
 

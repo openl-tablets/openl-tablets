@@ -146,9 +146,9 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         private final DecisionTableRuleNodeBuilder nextNodeBuilder = new DecisionTableRuleNodeBuilder();
         private final DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
 
-        private Map<Object, DecisionTableRuleNodeBuilder> map = null;
-        private Map<Object, int[]> result = null;
-        private boolean comparatorBasedMap = false;
+        private Map<Object, DecisionTableRuleNodeBuilder> map;
+        private Map<Object, int[]> result;
+        private boolean comparatorBasedMap;
 
         @Setter
         private ConditionCasts conditionCasts;

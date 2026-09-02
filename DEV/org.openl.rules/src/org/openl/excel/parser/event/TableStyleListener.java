@@ -65,7 +65,7 @@ public class TableStyleListener implements HSSFListener {
 
     private final List<EventSheetDescriptor> sheets = new ArrayList<>();
     private int sheetIndex = -1;
-    private boolean sheetsSorted = false;
+    private boolean sheetsSorted;
     private final int[][] cellIndexes;
     private PaletteRecord palette;
     private DirectoryNode directory;

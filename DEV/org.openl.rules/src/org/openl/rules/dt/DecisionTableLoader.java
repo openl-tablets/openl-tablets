@@ -58,10 +58,10 @@ public class DecisionTableLoader {
     private static class TableStructure {
         private final List<IBaseCondition> conditions = new ArrayList<>();
         private final List<IBaseAction> actions = new ArrayList<>();
-        private boolean hasReturnAction = false;
-        private boolean hasCollectReturnAction = false;
-        private boolean hasCollectReturnKeyAction = false;
-        private String firstUsedReturnActionHeader = null;
+        private boolean hasReturnAction;
+        private boolean hasCollectReturnAction;
+        private boolean hasCollectReturnKeyAction;
+        private String firstUsedReturnActionHeader;
         private RuleRow ruleRow;
         private DTInfo info;
         private int columnsNumber;
