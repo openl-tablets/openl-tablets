@@ -51,10 +51,15 @@ public class ContainsInInputArrayIndexedEvaluator extends AEqualsIndexedEvaluato
         return builder.build();
     }
 
+    /**
+     * Answers with the condition expression itself.
+     *
+     * <p>The evaluator is chosen only for a condition without formulas, so it is always indexed and the selector
+     * is a safety net rather than a path taken during the evaluation.
+     */
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
-        var inputArray = condition.getEvaluator().invoke(target, dtparams, env);
-        return new ContainsInInputArraySelector(condition, inputArray, conditionCasts);
+        return new DefaultConditionSelector(condition, target, dtparams, env);
     }
 
     @Override
