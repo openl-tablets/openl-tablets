@@ -17,6 +17,7 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 - **itest.spring-boot** — Spring Boot integration
 - **itest.deployment-filter** — Deployment filtering
 - **itest.BigServiceDeploy** — Large service deployment
+- **itest.ruleServices-memory** — Rule Services compilation under a fixed heap limit
 - **itest.ruleServices-large-response** — Large response handling
 - **itest.local-zip-repository** — ZIP repository tests
 - **itest.unpackClasspathJar** / **itest.unpackClasspathZip** — Classpath unpacking
