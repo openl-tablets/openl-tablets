@@ -4,8 +4,8 @@
 
 PR #2063 waits only on the owner's merge; no human has ever reviewed it and CodeRabbit reports nothing. All 108
 change types are closed, numbering continues at 109. A swept area is only empty against the tools already run:
-type 106 found 27 redundant constructors in files eight closed veins had already reported clean, because no
-earlier run had enabled that PMD rule. Prefer ledger compaction over inventing a vein.
+type 106 found 27 constructors in files eight closed veins reported clean, because no earlier run had enabled
+that PMD rule. Prefer ledger compaction over inventing a vein.
 CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
 replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
@@ -81,6 +81,9 @@ All 108 closed — 35 shipped a deletion, 73 found nothing; *Exhausted veins* re
   return; }` acquires the monitor to wait out every other synchronized block, an empty `while (in.read() != -1);`
   drains a stream, and a trailing `return;` in the last arm of a chain of `if (…) { setX(); return; }` blocks is
   the symmetry the next arm added after it will rely on. PMD reports all three as unnecessary.
+- An API-safety check that compares a removed member's access against its class must match the class
+  DECLARATION: a regex for `class X` hits the JavaDoc prose "The class X implements…" first and calls a public
+  class package-private, which reads as an API break that is not there.
 - A modifier can be redundant to the compiler and deliberate to the author: `final` on a try-with-resources
   resource is implicit, but in a file that writes `final` on every local it is style, and dropping it is churn.
 - A `provided`-scope "unused declared" dependency finding IS real when it sits in the module's own
@@ -391,9 +394,7 @@ tracked build leftover.
 
 ## Run log
 
-- Run 30: type 103 shipped the 51 dead `React` imports the linter cannot see; types 100-102 (ancestor-inherited
-  dependency declarations, default-valued pom elements, class-level type parameters) closed with deferrals only.
-- Run 31: type 105 shipped the 47 redundant explicit `super()` calls; type 104 (overrides that only call `super`)
-  closed with four deferrals, the other 18 load-bearing.
+- Run 30: type 103 shipped the 51 dead `React` imports the linter cannot see; types 100-102 closed, deferrals only.
+- Run 31: type 105 shipped the 47 redundant `super()` calls; type 104 closed with four deferrals, 18 load-bearing.
 - Run 32: types 106-108 shipped 27 redundant constructors, 2 no-op `return`s and 2 implied interface modifiers,
   all found by PMD rules no earlier run had enabled.
