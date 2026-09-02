@@ -19,8 +19,8 @@ covered. Numbering continues at 78.
 - #2063, branch `dead-code/dead-suppressions`, head `4a1ae4a8`. Four commits, one per change type: the dead
   `@ts-ignore` and Java `deprecation` suppression (67, 72), the `syntax: glob` line with the unread `.gitconfig`
   (68, 70), the surefire property nothing reads (71), the build configuration naming absent files (77).
-  CodeRabbit and Sonar pass, no human review comment. `IT (services-data)` is red on the Kafka image, not this
-  PR: comment posted, rerun spent — leave it alone.
+  Every check passes on that head, CodeRabbit included — the first fully green head this PR has had. No human
+  review comment.
 
 ## Merged PRs
 
@@ -222,9 +222,9 @@ covered. Numbering continues at 78.
 
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails with `ORA-12516 ... no protocol handler for TCP ready`,
   the Oracle TestContainer listener not yet accepting connections. Infrastructure, never the diff. One rerun.
-- `IT (services-data)` — `RunKafkaSmokeITest.setUp` or `RunStoreLogDataITest.setUp` cannot start
-  `apache/kafka-native:latest`: the native image segfaults in `Pwd.getpwuid` inside its own entrypoint, so the
-  container exits 1 before any test body. Now DETERMINISTIC: it survives a rerun, so spend none. Never pin.
+- `IT (services-data)` — CLEARED: `apache/kafka-native:latest` was republished and the job passes again. The
+  tell, if it returns: `RunKafkaSmokeITest.setUp` or `RunStoreLogDataITest.setUp` exits 1 inside the image's own
+  entrypoint, segfaulting in `Pwd.getpwuid` before any test body. It is upstream, not the diff. Never pin.
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
   overlapping `coverage-*` artifacts the job merges. Transient, and it suppresses the gate entirely because
   nothing is uploaded. One rerun per SHA.
@@ -374,7 +374,6 @@ covered. Numbering continues at 78.
 ## Human follow-ups
 
 - Allowlist `sonarcloud.io`, or paste the rule key and file/line when the gate fails — undiagnosable from here.
-- `apache/kafka-native:latest` is broken upstream; `IT (services-data)` stays red until `latest` is fixed or pinned.
 - Delete the abandoned remote branch `dead-code/studio-resources` — auto-delete does not reach it, since PR
   #2055 closed unmerged. `git push --delete` gets HTTP 403 here and the MCP server has no delete-branch tool.
 - Decide on the *Deferred findings* entries that are public in a published artifact, the two empty test jars,
@@ -393,4 +392,5 @@ covered. Numbering continues at 78.
   the test-only-type vein empty; ledger compacted to make room.
 - Run 22: types 70-72 each shipped one finding into #2063 — the root `.gitconfig`, a surefire system property and
   a dead Java `deprecation` suppression; the branch was rebuilt so the two suppressions share one commit.
-- Run 23: types 73-76 closed empty; type 77 shipped the build configuration naming files that do not exist.
+- Run 23: types 73-76 closed empty; type 77 shipped the build configuration naming files that do not exist, and
+  #2063 went fully green — the Kafka image healed upstream.
