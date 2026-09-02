@@ -33,7 +33,6 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     private String sourceCode;
 
     public OpenLRuntimeException() {
-        super();
     }
 
     public OpenLRuntimeException(String message, Throwable cause) {

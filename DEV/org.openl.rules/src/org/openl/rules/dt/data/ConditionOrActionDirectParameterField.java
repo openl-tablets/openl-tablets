@@ -25,7 +25,6 @@ public class ConditionOrActionDirectParameterField implements IOpenField {
                                           IDecisionRow decisionRow,
                                           int paramNum,
                                           DecisionTableDataType decisionTableDataType) {
-        super();
         this.numberOfTableParameters = decisionTable.getSignature().getNumberOfParameters();
         this.decisionTableDataType = Objects.requireNonNull(decisionTableDataType, "declaringClass cannot be null");
         this.decisionRow = Objects.requireNonNull(decisionRow, "decisionRow cannot be null");

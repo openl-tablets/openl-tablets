@@ -13,11 +13,9 @@ public class Type2 {
     private Type1[] types;
 
     public Type2() {
-        super();
     }
 
     public Type2(String name, Type1[] types) {
-        super();
         this.name = name;
         this.types = types;
     }

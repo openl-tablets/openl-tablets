@@ -10,7 +10,6 @@ public class ProcessingException extends RuleServiceException {
     private static final long serialVersionUID = 4793264886531859843L;
 
     public ProcessingException() {
-        super();
     }
 
     public ProcessingException(String message, Throwable cause) {

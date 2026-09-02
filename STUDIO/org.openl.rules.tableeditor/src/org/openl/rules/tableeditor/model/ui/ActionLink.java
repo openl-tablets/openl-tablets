@@ -9,7 +9,6 @@ public class ActionLink {
     }
 
     public ActionLink(String name, String action) {
-        super();
         this.name = name;
         this.action = action;
     }

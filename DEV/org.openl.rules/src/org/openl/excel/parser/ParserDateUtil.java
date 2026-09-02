@@ -12,7 +12,6 @@ public final class ParserDateUtil {
         final String formatString;
 
         public CacheKey(int formatIndex, String formatString) {
-            super();
             this.formatIndex = formatIndex;
             this.formatString = formatString;
         }

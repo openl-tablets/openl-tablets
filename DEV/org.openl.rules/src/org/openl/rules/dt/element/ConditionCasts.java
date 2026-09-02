@@ -11,7 +11,6 @@ public final class ConditionCasts {
     private final IOpenCast castToConditionType;
 
     ConditionCasts(IOpenCast castToInputType, IOpenCast castToConditionType) {
-        super();
         this.castToInputType = castToInputType;
         this.castToConditionType = castToConditionType;
     }

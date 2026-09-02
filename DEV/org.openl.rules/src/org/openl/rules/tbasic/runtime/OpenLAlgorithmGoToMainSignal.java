@@ -17,7 +17,6 @@ public class OpenLAlgorithmGoToMainSignal extends ControlSignal {
      * Create an instance of <code>OpenLAlgorithmGoToMainSignal</code> initialized with label to jump.
      */
     public OpenLAlgorithmGoToMainSignal(String label) {
-        super();
         this.label = label;
     }
 
