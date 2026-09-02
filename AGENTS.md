@@ -122,6 +122,11 @@ EPBDS-NNNNN <subject>
 
 ## Jira Workflow
 
+- **Verify the sprint before starting work.** The ticket must belong to the active sprint. If it does not, ask the
+  user whether to add it to the active sprint before proceeding.
+- **Claim unresolved tickets before starting work.** When the ticket resolution is Unresolved, transition it to
+  In Progress and assign it to the current Jira user.
+- **Send completed work to Code Review.** Never resolve or close a ticket without explicit user permission.
 - **Search Jira before creating a ticket.** When a bug or an improvement is implemented, look for existing issues
   first, trying different wordings — do not duplicate tickets.
 - **Keep the ticket description up to date.** When the scope or behavior changes during development, update the
