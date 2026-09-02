@@ -252,6 +252,8 @@ covered. Numbering continues at 78.
   Prone contributes nothing — PMD is the only Java signal.
 - Frontend verification works and is the gate for `studio-ui`: `npm ci`, `npx tsc --noEmit`,
   `npx eslint <files>`, and `npx vitest run` (183 files, ~3 minutes). Never judge it while Maven runs `-T1C`.
+- `npx eslint ./src` already exits 1 on `main`: 15 `object-curly-spacing` errors and 2 warnings in six files no
+  sweep touches, and no CI job runs lint. Scope the lint gate to your own files; never "fix" the rest.
 - `compile.js.sh` reproduces the tableeditor JS bundles byte for byte; `compile.css.sh` drops the trailing
   newline of `tableeditor.min.css`, so restore it. The `yuicompressor` jar is committed. A comment-only edit to
   a bundled source changes `tableeditor.all.js` (concatenation) but never `*.min.*` — the minifier strips
