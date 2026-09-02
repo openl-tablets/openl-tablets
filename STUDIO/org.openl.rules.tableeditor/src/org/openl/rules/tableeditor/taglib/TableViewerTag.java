@@ -7,13 +7,13 @@ import org.openl.rules.tableeditor.util.Constants;
 
 public class TableViewerTag extends UIComponentBase {
 
-    private ValueExpression table = null;
-    private ValueExpression filters = null;
-    private ValueExpression modifiedCells = null;
-    private ValueExpression view = null;
-    private ValueExpression showFormulas = null;
-    private ValueExpression collapseProps = null;
-    private ValueExpression excludeScripts = null;
+    private ValueExpression table;
+    private ValueExpression filters;
+    private ValueExpression modifiedCells;
+    private ValueExpression view;
+    private ValueExpression showFormulas;
+    private ValueExpression collapseProps;
+    private ValueExpression excludeScripts;
 
     @Override
     public String getFamily() {

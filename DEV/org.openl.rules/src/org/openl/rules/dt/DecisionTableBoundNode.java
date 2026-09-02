@@ -21,7 +21,7 @@ import org.openl.types.IOpenMethodHeader;
 public class DecisionTableBoundNode extends AMethodBasedNode {
 
     private IBindingContext bindingContext;
-    private boolean initialized = false;
+    private boolean initialized;
 
     public DecisionTableBoundNode(TableSyntaxNode tableSyntaxNode,
                                   OpenL openl,

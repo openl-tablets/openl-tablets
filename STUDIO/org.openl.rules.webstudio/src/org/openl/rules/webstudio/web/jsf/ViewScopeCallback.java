@@ -11,7 +11,7 @@ class ViewScopeCallback {
 
     private final Runnable callback;
 
-    private boolean called = false;
+    private boolean called;
 
     void run() {
         if (!called) {

@@ -13,7 +13,7 @@ public class DecisionExprFieldDataType extends ComponentOpenClass {
     private final DecisionTableDataType decisionTableDataType;
 
     @Getter
-    private boolean exprParameterFieldIsUsed = false;
+    private boolean exprParameterFieldIsUsed;
 
     DecisionExprFieldDataType(DecisionTableDataType decisionTableDataType, OpenL openl) {
         super(DecisionExprFieldDataType.class.getSimpleName(), openl);

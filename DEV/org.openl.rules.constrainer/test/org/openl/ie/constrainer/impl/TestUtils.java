@@ -120,7 +120,7 @@ public class TestUtils {
     }
 
     public static class TestObserver extends Observer {
-        private int counter = 0;
+        private int counter;
 
         @Override
         public Object master() {

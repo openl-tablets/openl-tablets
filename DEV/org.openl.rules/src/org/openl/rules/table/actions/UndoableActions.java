@@ -12,8 +12,8 @@ public class UndoableActions {
 
     private final ArrayList<IUndoableAction> undoableActions = new ArrayList<>();
 
-    private int currentUndoIndex = 0;
-    private int undoSize = 0;
+    private int currentUndoIndex;
+    private int undoSize;
 
     public void addNewAction(IUndoableAction iu) {
         undoableActions.ensureCapacity(currentUndoIndex + 1);

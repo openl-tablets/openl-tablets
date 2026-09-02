@@ -165,7 +165,7 @@ public class ProjectModel {
 
     private final WebStudio studio;
 
-    private TreeNode projectRoot = null;
+    private TreeNode projectRoot;
 
     @Getter
     private String historyStoragePath;

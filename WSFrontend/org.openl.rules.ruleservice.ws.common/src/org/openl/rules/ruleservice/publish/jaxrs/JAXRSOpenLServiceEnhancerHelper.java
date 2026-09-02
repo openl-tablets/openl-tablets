@@ -119,10 +119,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private final Class<?> originalClass;
         private final ClassLoader classLoader;
-        private Set<String> usedPaths = null;
+        private Set<String> usedPaths;
         private final Set<String> nicknames = new HashSet<>();
         private final boolean provideRuntimeContext;
-        private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix = null;
+        private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix;
         private final Object targetService;
         private final OpenAPI openApi;
         private OpenAPIRefResolver openAPIRefResolver;

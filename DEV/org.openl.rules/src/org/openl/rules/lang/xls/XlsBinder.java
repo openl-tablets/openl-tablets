@@ -814,10 +814,10 @@ public class XlsBinder implements IOpenBinder {
         final IMemberBoundNode[] childrens;
         final int index;
         final OpenMethodHeader openMethodHeader;
-        boolean preBinding = false;
+        boolean preBinding;
         final SyntaxNodeExceptionHolder syntaxNodeExceptionHolder;
         @Getter
-        boolean completed = false;
+        boolean completed;
         @Getter
         final CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
 
