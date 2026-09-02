@@ -238,8 +238,9 @@ All 96 closed — 30 shipped a deletion, 66 found nothing; *Exhausted veins* rec
 - `IT (studio-acl)` — `OracleRdbmsTest.upgrade` fails two ways, both infrastructure and never the diff: `ORA-12516
   no protocol handler for TCP ready`, the listener not yet accepting connections, or `Failed requests: expected
   <0> but was <5>` raised after Oracle and Jetty are up and the suite has run for two minutes. One rerun.
-- `IT (services-data)` — `RunKafkaSmokeITest.setUp` or `RunStoreLogDataITest.setUp` exiting 1 inside the
-  `apache/kafka-native:latest` entrypoint, before any test body, is upstream. Never pin the tag. One rerun.
+- `IT (services-data)` — any suite that starts `apache/kafka-native:latest` (`RunKafkaSmokeITest`,
+  `RunStoreLogDataITest`, `RunTracingITest`) exiting 1 inside its entrypoint before any test body is upstream,
+  and intermittent: one suite can pass while the next fails in the same job. Never pin the tag. One rerun.
 - `Sonar analysis` — `jacoco:report-aggregate` fails with "Unknown block type c7", a malformed `.exec` from the
   overlapping `coverage-*` artifacts the job merges. Transient, and it suppresses the gate entirely because
   nothing is uploaded. One rerun per SHA.
