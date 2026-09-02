@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Divider, Typography } from 'antd'
 import { Input, TextArea } from '../../components'

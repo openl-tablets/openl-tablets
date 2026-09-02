@@ -1,4 +1,3 @@
-import React from 'react'
 import { Checkbox, Input, InputPassword } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { Form } from 'antd'

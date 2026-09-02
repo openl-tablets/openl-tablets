@@ -1,4 +1,3 @@
-import React from 'react'
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import traceService from 'services/traceService'
 import { NotFoundError } from 'services'
