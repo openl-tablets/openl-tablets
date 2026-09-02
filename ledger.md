@@ -38,9 +38,7 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
 - Public members in a published artifact, dead but held back by safety rail 2: `TableViewerTag`, `TableEditorTag`
   (their `faces-config.xml` component types are the live path), five `XlsProjectionType` `CELL_*` constants,
   `DecisionTableBuilder.methodName`, `SimpleGroup.description`, `MergeResult.status` (each with its public
-  setter), ~190 accessors named only at their declaration, and four `super`-only overrides —
-  `DependencyOpenClass.getTypes`/`.findType`, `CastingCustomSpreadsheetResultField.getDeclaringClass`,
-  `SidExistsValidator.isValid`.
+  setter), ~190 accessors named only at their declaration, and the four `super`-only overrides listed above.
 - `studio-ui`: `MergeModal/types.ts`'s three merge types are unused in code but documented in
   `Docs/api/projects-merge-api.md`; ~70 exports are used only in their own file (un-exporting is a refactor);
   `npm run clean` is named by nothing, but an npm script is a human entry point.
@@ -156,6 +154,12 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
 - Deleting a Java class is provable without compiling its module: a repo-wide search for its simple and its
   fully qualified name plus the reflective string registrations is complete. The same holds for a local or
   private member, whose scope is one file; CI's `Build artifacts` job is then the compile gate.
+- A field initializer holding the JVM default is a no-op (JLS 4.12.5), but a LOCAL gets no default, so the same
+  edit there is decided by definite assignment instead. Separate them before deleting: a declaration with no
+  access modifier is not proof of a local — all 8 such lines in type 109 were fields of a nested class.
+- Sonar's reliability rating on new code follows the WORST severity — Critical is D, Major only C — so one
+  pre-existing Critical re-attributed because its file entered the diff flips the gate on a deletion-only PR.
+  Query the same rule and line on `main` before believing it is new; `WorkbookListener.java:273` was.
 - A member the language specification emits anyway needs no search — the JLS is the proof and `javap` confirms
   the member survives: 47 bare `super();` (8.8.7), 27 empty constructors (8.8.9), implied `interface` modifiers
   (9.3/9.4). For a constructor, check BOTH that its class declares no other and that their access matches.
@@ -216,17 +220,15 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
 - Files whose only loader is the servlet container, named by no file here: webstudio `logging.properties` (the
   per-webapp JUL configuration in `WEB-INF/classes`), `beans.xml` (CDI is live — webstudio declares
   `weld-servlet-core`) and webstudio `META-INF/context.xml` (Tomcat).
-- Convention files nothing names: `banner.txt` (filtered by the pom), `.claude/**`, `.github/workflows/*`,
-  `.github/dependabot.yml` (both ecosystems live), `archetype-metadata.xml`, `CITATION.cff`, `Gemfile`,
-  `compose.override.example.yaml`, `.idea/**`, the three `favicon.ico` files, and the empty `flyway.location`
-  markers and `file.jar` / `file.zip` zero-byte fixtures.
+- Convention files nothing names: `banner.txt`, `.claude/**`, `.github/workflows/*`, `.github/dependabot.yml`
+  (both ecosystems live), `archetype-metadata.xml`, `CITATION.cff`, `Gemfile`, `compose.override.example.yaml`,
+  `.idea/**`, three `favicon.ico`, the `flyway.location` markers and the zero-byte `file.jar`/`file.zip`.
 - Runtime-only artifacts that `dependency:analyze` always calls unused: `jaxb-runtime`, `awssdk:sts`,
   `log4j-slf4j2-impl`, `hibernate-hikaricp`, the CXF `cxf-rt-*` feature and provider jars, and the Jackson
   artifacts the Azure repository pins.
-- The `sources` and `gpg-sign` profiles are activated by `release.yml`; `owasp` and `no-sonar` are documented in
-  `Docs/architecture/technology-stack.md`. All nine root profiles are live. Both root `<repositories>` entries
-  serve OpenSAML, which Maven Central does not host, and `lombok.config` declares only the two copied
-  annotations `AGENTS.md` documents.
+- All nine root profiles are live (`sources`/`gpg-sign` from `release.yml`, `owasp`/`no-sonar` documented in
+  `Docs/architecture/technology-stack.md`). Both root `<repositories>` serve OpenSAML, absent from Central, and
+  `lombok.config` declares only the two copied annotations `AGENTS.md` documents.
 - `redirectPage` is read by `SessionTimeoutFilter.getInitParameter`, `xForwardedPrefixStrategy` by
   `de.qaware.xff.filter.ForwardedHeaderFilter`; the other six `param-name`s are framework constants.
 - `Docs/` renders through the remote theme `mmistakes/minimal-mistakes`: a file under `Docs/_layouts` or
@@ -280,12 +282,10 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
   misses test sources; PMD reports a field of a nested or anonymous class, which reads like a local variable.
 - `help:effective-pom -Pitest` writes all 172 effective poms into one 20 MB file in seconds — the cheapest proof.
 - `dependency:analyze-only` needs `-fae`; Error Prone contributes nothing — PMD is the only Java signal.
-- Frontend verification is the gate for `studio-ui`: `npm ci`, `npx tsc --noEmit`, `npx eslint <files>` and
-  `npx vitest run` (183 files, 1699 tests, ~3.5 min); never judge it while Maven runs `-T1C`, while another pass
-  rewrites the sources, or while the reactor builds — its `npm install` writes the same `node_modules`. Those
-  four commands plus `npm run build` are the WHOLE gate for a TypeScript-only diff: they are what
-  frontend-maven-plugin runs, and no Java module can reference a TypeScript import. `npx eslint ./src` exits 1
-  on `main` (15 `object-curly-spacing` errors, 2 warnings, six untouched files, no CI lint job) — never fix those.
+- Frontend verification is the gate for `studio-ui`: `npm ci`, `npx tsc --noEmit`, `npx eslint <files>`,
+  `npx vitest run` (183 files, 1699 tests, ~3.5 min) and `npm run build` — the WHOLE gate for a TypeScript-only
+  diff, since that is what frontend-maven-plugin runs. Never judge it while Maven holds the same `node_modules`.
+  `npx eslint ./src` exits 1 on `main` (15 `object-curly-spacing` errors, 2 warnings) — never fix those.
 - `compile.js.sh` reproduces the tableeditor JS bundles byte for byte; `compile.css.sh` drops the final newline of
   `tableeditor.min.css`, so restore it.
 - `rg` is the tokenizer: `xargs -a <list> rg -oH --no-line-number -w -F -f names.txt` scans the corpus in a
@@ -300,8 +300,9 @@ All 109 closed — 36 shipped a deletion, 73 found nothing; *Exhausted veins* re
   so it needs `--reset-author`.
 - `gh` and `xxd` are absent and `git push --delete` gets 403, but `$GITHUB_TOKEN` is set: `curl` the REST API to
   read a PR body to a file and `PATCH` it back. An MCP body argument also swallows angle-bracketed text.
-- `sonarcloud.io` is blocked by the sandbox proxy (403), and a failed SonarCloud check run carries only the
-  rating — no annotations, no comments — so a quality-gate failure cannot be diagnosed from here.
+- `sonarcloud.io`'s WEB UI is blocked (403) but its API answers 200, so a gate failure IS diagnosable here:
+  `api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=<n>&types=BUG` names every issue,
+  and the same query without `pullRequest` gives `main`'s 398 open BUGs, which is how one is proved pre-existing.
 - Write the ledger through `git worktree add --detach <dir> origin/dead-code/ledger`, never an orphan-branch dance.
 
 ## Exhausted veins
@@ -377,7 +378,6 @@ tracked build leftover.
 
 ## Human follow-ups
 
-- Allowlist `sonarcloud.io`, or paste the rule key and file/line when the gate fails — undiagnosable from here.
 - Delete the abandoned remote branch `dead-code/studio-resources` (PR #2055 closed unmerged, so auto-delete
   missed it); `git push --delete` gets 403 here.
 - Decide on the *Deferred findings* entries that are public in a published artifact, the two empty test jars,
