@@ -19,7 +19,7 @@ public class HelloController {
                     @ExampleObject(name = "The Integer example", value = "4221")})),
             @ApiResponse(responseCode = "404", description = "Not Found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")})
-    @GetMapping(value = "/hello")
+    @GetMapping("/hello")
     ResponseEntity<Void> sayHello() {
         return null;
     }

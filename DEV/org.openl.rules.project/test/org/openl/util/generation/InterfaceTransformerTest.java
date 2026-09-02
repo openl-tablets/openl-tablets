@@ -147,7 +147,7 @@ class InterfaceTransformerTest {
         @XmlTransient
         String const2 = "test";
 
-        @TestAnnotation(value = "test")
+        @TestAnnotation("test")
         String testMethod1();
 
         @Deprecated

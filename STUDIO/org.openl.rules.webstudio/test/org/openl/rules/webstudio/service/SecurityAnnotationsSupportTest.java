@@ -31,7 +31,7 @@ class SecurityAnnotationsSupportTest {
     SecuredService securedService;
 
     @Test
-    @WithMockUser(value = "oleg")
+    @WithMockUser("oleg")
     void hasRoleAnnotationsDenyTest() {
         assertThrows(AccessDeniedException.class, () -> {
             assertNotNull(securedService);
@@ -47,7 +47,7 @@ class SecurityAnnotationsSupportTest {
     }
 
     @Test
-    @WithMockUser(value = "oleg")
+    @WithMockUser("oleg")
     @Transactional
     void hasPermissionAnnotationsTest() {
         assertNotNull(securedService);

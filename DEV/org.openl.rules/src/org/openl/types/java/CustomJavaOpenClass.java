@@ -14,8 +14,8 @@ import org.openl.binding.impl.module.VariableInContextFinder;
  *
  * @author NSamatov
  */
-@Target(value = ElementType.TYPE)
-@Retention(value = RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface CustomJavaOpenClass {
     /**
      * Custom java open class must have a constructor with signature 'public MyCustomJavaOpenClass(Class<?> c)'

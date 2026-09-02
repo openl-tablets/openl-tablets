@@ -22,7 +22,7 @@ public interface Simple4ServiceAnnotationTemplate {
     @PrepareStoreLogData(value = BeforeBeforeInterceptor.class, bindToServiceMethodAdvice = Simple4ServiceMethodBeforeAdvice.class, before = true)
     @PrepareStoreLogData(value = AfterBeforeInterceptor.class, bindToServiceMethodAdvice = Simple4ServiceMethodBeforeAdvice.class)
     @PrepareStoreLogData(value = BeforeMethod.class, before = true)
-    @PrepareStoreLogData(value = AfterMethod.class)
+    @PrepareStoreLogData(AfterMethod.class)
     @PrepareStoreLogData(value = BeforeAfterInterceptors.class, bindToServiceMethodAdvice = Simple4ServiceMethodAfterAdvice.class, before = true)
     @PrepareStoreLogData(value = AfterAfterInterceptors.class, bindToServiceMethodAdvice = Simple4ServiceMethodAfterAdvice.class)
     String Hello2(IRulesRuntimeContext runtimeContext, Integer hour);

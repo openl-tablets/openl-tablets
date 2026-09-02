@@ -173,7 +173,7 @@ public class DesignTimeRepositoryController {
     @JsonView({UserInfoModel.View.Short.class})
     @Deprecated(forRemoval = false)
     public PageResponse<ProjectRevision> getProjectRevision(@DesignRepository("repo-name") Repository repository,
-                                                            @Parameter(description = "repo.param.branch-name.desc") @PathVariable(value = "branch-name") Optional<String> branch,
+                                                            @Parameter(description = "repo.param.branch-name.desc") @PathVariable("branch-name") Optional<String> branch,
                                                             @Parameter(description = "repo.param.project-name.desc") @PathVariable("project-name") String projectName,
                                                             @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,
                                                             @Parameter(description = "repo.param.techRevs.desc") @RequestParam(name = "techRevs", required = false, defaultValue = "false") boolean techRevs,

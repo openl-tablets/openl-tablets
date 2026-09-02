@@ -11,12 +11,12 @@ public final class KafkaDeploy {
 
 
     @Getter
-    @JsonProperty(value = "service")
+    @JsonProperty("service")
     @Setter
     private KafkaServiceConfig serviceConfig;
 
     @Getter
-    @JsonProperty(value = "methods")
+    @JsonProperty("methods")
     @Setter
     private List<KafkaMethodConfig> methodConfigs = new ArrayList<>();
 

@@ -97,7 +97,7 @@ public class ProjectFilesController extends AbstractFilesController {
         handleCreate(fileRootFactory.of(project), path, files, createFolders, conflictPolicy);
     }
 
-    @PostMapping(value = "/{*path}")
+    @PostMapping("/{*path}")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "projects.files.create.summary", description = "projects.files.create.desc")
     public void createResourceRaw(
@@ -189,7 +189,7 @@ public class ProjectFilesController extends AbstractFilesController {
         handleUpdate(fileRootFactory.of(project), path, file);
     }
 
-    @PutMapping(value = "/{*path}")
+    @PutMapping("/{*path}")
     @Operation(summary = "projects.files.update.summary", description = "projects.files.update.desc")
     public void updateResourceRaw(
             @ProjectId @PathVariable("projectId") RulesProject project,

@@ -18,11 +18,11 @@ public interface Service1 {
     Double ProfitDynamicScore(IRulesRuntimeContext runtimeContext, Double profitDynamic, Double profit);
 
     @GET
-    @Path(value = "/BalanceDynamicIndexCalculation")
+    @Path("/BalanceDynamicIndexCalculation")
     Double BalanceDynamicIndexCalculation(IRulesRuntimeContext context,
                                           @RulesType("FinancialData") Object financialData,
                                           @RulesType("FinancialData") Object financialData1);
 
-    @ServiceExtraMethod(value = ServiceExtraMethodHandler1.class)
+    @ServiceExtraMethod(ServiceExtraMethodHandler1.class)
     Double extraMethod(Double score);
 }

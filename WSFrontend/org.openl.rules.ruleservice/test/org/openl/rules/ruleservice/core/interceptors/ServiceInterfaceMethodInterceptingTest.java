@@ -178,7 +178,7 @@ class ServiceInterfaceMethodInterceptingTest {
 
 
     public interface OverloadInterface {
-        @ServiceCallAfterInterceptor(value = ResultConverter1.class)
+        @ServiceCallAfterInterceptor(ResultConverter1.class)
         Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
 
         @ServiceCallAfterInterceptor(ResultConverter.class)
@@ -206,7 +206,7 @@ class ServiceInterfaceMethodInterceptingTest {
     }
 
     public static abstract class AOverload {
-        @ServiceCallAfterInterceptor(value = ResultConverter1.class)
+        @ServiceCallAfterInterceptor(ResultConverter1.class)
         public abstract Double driverRiskScoreOverloadTest(String driverRisk);
 
         @ServiceCallAfterInterceptor(ResultConverter.class)
@@ -221,7 +221,7 @@ class ServiceInterfaceMethodInterceptingTest {
     }
 
     public static class Overload {
-        @ServiceCallAfterInterceptor(value = ResultConverter1.class)
+        @ServiceCallAfterInterceptor(ResultConverter1.class)
         public Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk) {
             return null;
         }

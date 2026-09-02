@@ -146,7 +146,7 @@ public class AclProjectsController {
             @Parameter(name = "principal", description = "acls.param.principal.desc", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
     @ProjectManagementPermission
-    @DeleteMapping(value = "/{project-id}")
+    @DeleteMapping("/{project-id}")
     public void deleteAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
                                             @NotNull @SidExistsConstraint Sid sid) {
         var aclService = aclServiceProvider.getDesignRepoAclService();
