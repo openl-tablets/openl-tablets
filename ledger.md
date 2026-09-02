@@ -2,29 +2,29 @@
 
 ## Resume point
 
-PR #2063 (types 67-72, 77-79, 88-90, 94) is open; head `defc0ddd` carries the type 94 commit and every job of
-its workflow passes, `IT (services-data)` on the second attempt — so this SHA has spent its one re-run, and only
-the Sonar gate was still running when run 28 ended. No human review comment on any head. All
-96 change types are closed and every vein is exhausted: Java members, whole types, resources, descriptors, build
-configuration, every dependency scope, JavaDoc, the project manifest and now plugin configuration. Expect a run
-to be PR maintenance plus a zero-finding pass, and prefer ledger compaction over inventing a vein. Numbering
-continues at 97.
+PR #2063 (types 67-72, 77-79, 88-90, 94) is open, head `defc0ddd`, and now FULLY green — all 14 checks pass, the
+Sonar quality gate included, `mergeable_state` clean. It waits only on the owner's merge; nothing on it is
+actionable. No human review comment on any head, and CodeRabbit reports none either. All 99 change types are
+closed and every vein is exhausted: Java members, whole types, resources, descriptors, build configuration,
+every dependency scope, JavaDoc, the project manifest and plugin configuration. Expect a run to be PR
+maintenance plus a zero-finding pass, and prefer ledger compaction over inventing a vein. Numbering continues
+at 100.
 CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
 replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
-All 96 closed — 30 shipped a deletion, 66 found nothing; *Exhausted veins* records what each covered.
+All 99 closed — 30 shipped a deletion, 69 found nothing; *Exhausted veins* records what each covered.
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `defc0ddd`, 18 files and 92 deleted lines, 0 added. Ten
-  commits, one per change type: the dead `@ts-ignore` and Java `deprecation` suppression (67, 72), the
-  `syntax: glob` line with the unread `.gitconfig` (68, 70), the surefire property nothing reads (71), the build
-  configuration naming absent files (77), the unused ESLint config import (78), its `@eslint/js` dev dependency
-  (79), the unloadable `deployer.properties` (88), the JavaDoc tags documenting nothing (89), the CRA `homepage`
-  field (90) and the plugin `requirements` block no mojo accepts (94). Derive the counts with `git log --oneline`
-  and `git diff --shortstat` before editing the body.
+- #2063, branch `dead-code/dead-suppressions`, head `defc0ddd`, 18 files and 92 deleted lines, 0 added, every
+  check green. Ten commits, one per change type: the dead `@ts-ignore` and Java `deprecation` suppression
+  (67, 72), the `syntax: glob` line with the unread `.gitconfig` (68, 70), the surefire property nothing reads
+  (71), the build configuration naming absent files (77), the unused ESLint config import (78) and its
+  `@eslint/js` dev dependency (79), the unloadable `deployer.properties` (88), the JavaDoc tags documenting
+  nothing (89), the CRA `homepage` field (90) and the plugin `requirements` block no mojo accepts (94). Derive
+  the counts with `git log --oneline` and `git diff --shortstat` before editing the body.
 
 ## Merged PRs
 
@@ -62,12 +62,13 @@ All 96 closed — 30 shipped a deletion, 66 found nothing; *Exhausted veins* rec
 - 47 `<dependency><version>` elements repeat the version the root already manages — 44 in `jacoco-report`, one
   each in `itest.storelogdata`, `itest.tracing` and the root's own lombok. Maven reads them and they pin, so
   they are a DRY fix for a human, not a deletion this routine may make.
-- The one `<reporting>` block in the repository (`Util/openl-maven-plugin`) declares maven-plugin-plugin to
-  "generate MOJOs documents", but 3.15.2 ships only `descriptor`, `helpmojo`, `addPluginArtifactMetadata` and
-  `help` — no report mojo at all. Its dead `requirements` configuration shipped; the declaration itself stays,
-  so `site/site.xml` still links to `plugin-info.html` and seven `*-mojo.html` pages nothing generates. Broken
-  rather than dead: the report lives in maven-plugin-report-plugin, which maven-plugin-plugin's own pom declares
-  in its `<reporting>` section, so migrating is a human's call, not a deletion.
+- The one `<reporting>` block (`Util/openl-maven-plugin`) declares maven-plugin-plugin, which ships no report
+  mojo, so it generates nothing. Broken rather than dead — migrating it is the *Human follow-ups* entry, and the
+  declaration stays either way. Only its `requirements` configuration was dead, and that shipped.
+- Every `id` attribute in the 46 `.xhtml` pages: 70 of the 323 are named by nothing else in the repository, and
+  none is deletable. A JSF id is a naming-container prefix whose removal renames every descendant's client id
+  (`h:form`, `f:subview`), or the anchor out-of-repo UI automation clicks, or what keeps a generated client id
+  stable instead of `j_idt123`. An unreferenced id here is markup, not dead code.
 
 ## False-positive shapes
 
@@ -332,11 +333,17 @@ configurations; `compose.yaml` and the `Dockerfile` in full.
 
 Web and frontend, all of it closed. CSS exhaustively: every class and id selector in all eleven own stylesheets
 (86 tokens), the 22 inline `<style>` blocks (166) and `DEMO/webapps/ROOT/main.css`, plus the 10 duplicate
-selector pairs and every repeated property in a rule block. JSF: both Facelets taglibs, every `ui:define`
-against every `ui:insert`, all 62 `ui:param`, all 45 `<c:set var>`, all 43 `f:facet` names, all 8 `f:param`, the
-one `<ui:remove>`, and no navigation rule anywhere. JS: function and prototype-method deadness in `common.js`,
-`bomjs.js` and every own tableeditor script (119 names), the two own jQuery plugins, and all 26 inputs of the
-four bundle scripts. `studio-ui`: all 776 exports, whole-file deadness over its 562 sources, every
+selector pairs and every repeated property in a rule block. That is every stylesheet the repository owns —
+`studio-ui` ships none at all, its styling coming from antd and inline styles. JSF: both Facelets taglibs, every
+`ui:define` against every `ui:insert`, all 62 `ui:param`, all 45 `<c:set var>`, all 43 `f:facet` names, all 8
+`f:param`, the one `<ui:remove>`, no navigation rule anywhere, and every `id` attribute of the 46 pages (323,
+70 unreferenced and none deletable — see *Deferred findings*). Also both directions of the attributes on OpenL's
+own two tags: the 21 passed by the 6 `rules:tableEditor` sites against `renderkit.TableEditor`, which reads the
+attribute map since `UITableEditor` is a bare `UIOutput`, and all 46 `Constants` members that name them — every
+one read, only `collapseProps` supported without a caller. JS: function and prototype-method deadness in
+`common.js`, `bomjs.js` and every own tableeditor script (119 names), the two own jQuery plugins, all 26 inputs
+of the four bundle scripts, and every module-scope variable in those scripts — 13, all in `TableEditor.js`, all
+read by its toolbar code. `studio-ui`: all 776 exports, whole-file deadness over its 562 sources, every
 `tsconfig.json` option, all 8 `@ts-ignore` (one dead), every `eslint-disable` (none exist), the nine npm scripts,
 all 44 npm declarations, every top-level `package.json` field (the CRA `homepage` shipped), and the imports of
 the three files no linter covers (one dead). Also all 442 `xmlns:` prefixes, all 18 `data-*` attributes, every
@@ -365,10 +372,10 @@ and `navigation.yml` url, the whole of `DEV/org.openl.rules.gen` (four dead memb
 
 ## Run log
 
-- Run 26: type 89 shipped nine dead JavaDoc tags into #2063 — the diff is provably comment-only. The `beans.xml`
-  pair, `context.xml`, the DEMO property keys and every unknown `@SuppressWarnings` key proved live.
 - Run 27: type 90 shipped the CRA `homepage` field, proved by a byte-identical `dist`; types 91-93 (`f:facet`
   names, pom plugin declarations, method type parameters) closed empty, the last two on false positives only.
 - Run 28: type 94 shipped the plugin `requirements` block no mojo accepts, proved by each plugin's own
   descriptor; types 95-96 (`.html` whole files, the file types a type census missed) closed empty. Ledger
   compacted from its 400-line ceiling.
+- Run 29: no deletion and none to make. #2063 reached fully green, Sonar included, so PR maintenance was a
+  no-op; types 97-99 (module-scope JS variables, own Facelets tag attributes, `.xhtml` ids) closed empty.
