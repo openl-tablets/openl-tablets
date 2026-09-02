@@ -154,7 +154,7 @@ public class LibrariesRegistry {
     public INameSpacedMethodFactory asMethodFactory2() {
         return (namespace, name, params, casts) -> {
             var isOperator = ISyntaxConstants.OPERATORS_NAMESPACE.equals(namespace);
-            return LibrariesRegistry.this.getMethodCaller(name, params, casts, isOperator);
+            return this.getMethodCaller(name, params, casts, isOperator);
         };
     }
 
