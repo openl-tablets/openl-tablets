@@ -28,24 +28,33 @@ public abstract class ARuleIndexV2 implements IRuleIndex {
 
     @Override
     public DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult) {
-        if (Boolean.TRUE.equals(staticDecision)) {
-            if (!(prevResult instanceof IDecisionTableRuleNodeV2)) {
-                return new EqualsIndexDecisionTableRuleNode(collectRules(), nextNode.getNextIndex());
-            } else {
-                var prevRes = ((IDecisionTableRuleNodeV2) prevResult).getRuleSet();
-                if (prevRes.isEmpty()) {
-                    return new EqualsIndexDecisionTableRuleNode(EMPTY_ARRAY, nextNode.getNextIndex());
-                } else {
-                    var rules = new BitSet();
-                    for (int ruleN : collectRules()) {
-                        rules.set(ruleN);
-                    }
-                    rules.and(prevRes);
-                    return new RangeIndexDecisionTableRuleNode(rules, nextNode.getNextIndex());
-                }
-            }
+        if (staticDecision != null) {
+            // true means that every rule of the index matches, false leaves only the rules with an empty cell
+            return decidedNode(Boolean.TRUE.equals(staticDecision) ? collectRules() : emptyRules,
+                    prevResult,
+                    nextNode.getNextIndex());
         }
         return findNode(value, prevResult);
+    }
+
+    /**
+     * Builds the answer for a condition the index did not have to look up, keeping the rules the previous
+     * condition has left.
+     */
+    static DecisionTableRuleNode decidedNode(int[] rules, DecisionTableRuleNode prevResult, IRuleIndex nextIndex) {
+        if (!(prevResult instanceof IDecisionTableRuleNodeV2 prevResultV2)) {
+            return new EqualsIndexDecisionTableRuleNode(rules, nextIndex);
+        }
+        var prevRules = prevResultV2.getRuleSet();
+        if (prevRules.isEmpty()) {
+            return new EqualsIndexDecisionTableRuleNode(EMPTY_ARRAY, nextIndex);
+        }
+        var result = new BitSet();
+        for (int ruleN : rules) {
+            result.set(ruleN);
+        }
+        result.and(prevRules);
+        return new RangeIndexDecisionTableRuleNode(result, nextIndex);
     }
 
     protected abstract DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult);

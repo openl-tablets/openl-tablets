@@ -129,7 +129,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
      * @param b second array
      * @return a new array which contains common elements
      */
-    private static int[] intersectionSortedArrays(int[] a, int[] b) {
+    static int[] intersectionSortedArrays(int[] a, int[] b) {
         int[] result = new int[Math.min(a.length, b.length)];
         int i = 0, j = 0, k = 0;
         while (i < a.length && j < b.length) {

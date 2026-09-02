@@ -9,8 +9,10 @@ import lombok.Setter;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.BinaryOpNode;
+import org.openl.binding.impl.BinaryOpNodeAnd;
 import org.openl.binding.impl.BinaryOpNodeOr;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.FieldBoundNode;
@@ -38,6 +40,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IDynamicObject;
@@ -77,6 +80,7 @@ public class Condition extends FunctionalRow implements ICondition {
     @Getter
     private CompositeMethod staticMethod;
     private CompositeMethod indexMethod;
+    private boolean staticConjunction;
 
     public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
         super(name, row, table, scale);
@@ -352,30 +356,69 @@ public class Condition extends FunctionalRow implements ICondition {
             return false;
         }
         var children = originalExprBoundNode.getChildren();
-        if (children != null && children.length == 1 &&
-                children[0] != null && children[0].getChildren() != null &&
-                children[0].getChildren().length == 1 &&
-                children[0].getChildren()[0] instanceof BinaryOpNodeOr binaryOpNodeOr) {
+        if (children == null || children.length != 1 || children[0] == null || children[0]
+                .getChildren() == null || children[0].getChildren().length != 1) {
+            return false;
+        }
+        var expression = children[0].getChildren()[0];
 
-            var staticMethod = compileStaticExpression(binaryOpNodeOr, signature, openl);
-            if (staticMethod != null && !isDependentOnInputParams(staticMethod)) {
-                var indexMethod = compileIndexExpression(binaryOpNodeOr, signature, openl, bindingContext);
-                if (indexMethod != null && isDependentOnInputParams(indexMethod)) {
-                    this.staticMethod = staticMethod;
-                    this.indexMethod = indexMethod;
-                    return true;
-                }
+        IBoundNode left;
+        IBoundNode right;
+        boolean conjunction;
+        if (expression instanceof BinaryOpNodeOr or) {
+            left = or.getLeft();
+            right = or.getRight();
+            conjunction = false;
+        } else if (expression instanceof BinaryOpNodeAnd and) {
+            left = and.getLeft();
+            right = and.getRight();
+            conjunction = true;
+        } else {
+            return false;
+        }
+
+        var staticMethod = compileStaticExpression(expression.getSyntaxNode(), left, signature, openl);
+        if (staticMethod != null && !isDependentOnInputParams(staticMethod)) {
+            var indexMethod = compileIndexExpression(expression.getSyntaxNode(),
+                    right,
+                    signature,
+                    openl,
+                    bindingContext);
+            if (indexMethod != null && isDependentOnInputParams(indexMethod)) {
+                this.staticMethod = staticMethod;
+                this.indexMethod = indexMethod;
+                this.staticConjunction = conjunction;
+                return true;
             }
         }
         return false;
     }
 
-    private CompositeMethod compileIndexExpression(BinaryOpNodeOr binaryOpNodeOr, IMethodSignature signature, OpenL openl, IBindingContext bindingContext) {
-        var rightBoundNode = binaryOpNodeOr.getRight();
+    /**
+     * Tells what the static part of the condition has decided for the rules with a filled cell.
+     *
+     * <p>{@code TRUE} means that every rule of the index matches, {@code FALSE} that none of them does, and
+     * {@code null} that the index has to be asked for the value.
+     */
+    @Override
+    public Boolean evaluateStaticDecision(Object[] params, IRuntimeEnv env) {
+        var result = (Boolean) staticMethod.invoke(null, params, env);
+        if (staticConjunction) {
+            // the condition holds only when both parts do, so anything but true leaves no rule to match
+            return Boolean.TRUE.equals(result) ? null : Boolean.FALSE;
+        }
+        return Boolean.TRUE.equals(result) ? Boolean.TRUE : null;
+    }
+
+    private CompositeMethod compileIndexExpression(ISyntaxNode operator,
+                                                  IBoundNode rightBoundNode,
+                                                  IMethodSignature signature,
+                                                  OpenL openl,
+                                                  IBindingContext bindingContext) {
         IOpenSourceCodeModule indexSourceCodeModule;
         if (rightBoundNode instanceof BinaryOpNode) {
-            var module = binaryOpNodeOr.getSyntaxNode().getModule();
-            var location = binaryOpNodeOr.getSyntaxNode().getSourceLocation();
+            var module = operator.getModule();
+            var location = operator.getSourceLocation();
             var sourceCode = module.getCode();
             indexSourceCodeModule = new SubTextSourceCodeModule(module,
                     location.getEnd().getAbsolutePosition(new TextInfo(sourceCode)) + 1);
@@ -402,20 +445,22 @@ public class Condition extends FunctionalRow implements ICondition {
         return errors.isEmpty() ? indexMethod : null;
     }
 
-    private CompositeMethod compileStaticExpression(BinaryOpNodeOr binaryOpNodeOr, IMethodSignature signature, OpenL openl) {
-        var rightBoundNode = binaryOpNodeOr.getLeft();
+    private CompositeMethod compileStaticExpression(ISyntaxNode operator,
+                                                   IBoundNode leftBoundNode,
+                                                   IMethodSignature signature,
+                                                   OpenL openl) {
         IOpenSourceCodeModule staticSourceCodeModule;
-        if (rightBoundNode instanceof BinaryOpNode) {
-            var module = binaryOpNodeOr.getSyntaxNode().getModule();
-            var location = binaryOpNodeOr.getSyntaxNode().getSourceLocation();
+        if (leftBoundNode instanceof BinaryOpNode) {
+            var module = operator.getModule();
+            var location = operator.getSourceLocation();
             var sourceCode = module.getCode();
             staticSourceCodeModule = new SubTextSourceCodeModule(module,
                     0,
                     location.getStart().getAbsolutePosition(new TextInfo(sourceCode)));
-        } else if (rightBoundNode instanceof MethodBoundNode
-                || rightBoundNode instanceof LiteralBoundNode
-                || rightBoundNode instanceof FieldBoundNode) {
-            staticSourceCodeModule = rightBoundNode.getSyntaxNode().getSourceCodeModule();
+        } else if (leftBoundNode instanceof MethodBoundNode
+                || leftBoundNode instanceof LiteralBoundNode
+                || leftBoundNode instanceof FieldBoundNode) {
+            staticSourceCodeModule = leftBoundNode.getSyntaxNode().getSourceCodeModule();
         } else {
             return null;
         }
@@ -444,6 +489,7 @@ public class Condition extends FunctionalRow implements ICondition {
     public void resetOptimizedExpression() {
         this.staticMethod = null;
         this.indexMethod = null;
+        this.staticConjunction = false;
     }
 
     @Override

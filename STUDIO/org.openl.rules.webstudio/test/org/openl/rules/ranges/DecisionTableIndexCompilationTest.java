@@ -83,6 +83,12 @@ class DecisionTableIndexCompilationTest {
         assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
         assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
 
+        dt = findDt("ContainsInInputArrayIndex_WithStaticAnd", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+        assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+        assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
+
         dt = findDt("ContainsInInputArrayIndex_AfterEqualsIndex", openClass);
         assertEquals(2, dt.getConditionRows().length);
         assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluatorV2.class);

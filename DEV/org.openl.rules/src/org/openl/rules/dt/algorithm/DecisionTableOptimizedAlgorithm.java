@@ -509,7 +509,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 var condition = evaluators[conditionNumber].getCondition();
                 Boolean staticResult = null;
                 if (condition.isOptimizedExpression()) {
-                    staticResult = (Boolean) condition.getStaticMethod().invoke(null, params, env);
+                    staticResult = condition.evaluateStaticDecision(params, env);
                 }
                 index = env.getTracer().wrap(this, index, condition);
                 var testValue = evaluateTestValue(condition, target, params, env);
