@@ -2,8 +2,9 @@
 
 ## Resume point
 
-PR #2063 (types 67-72, 77-79, 88-90, 94) is open; head `defc0ddd` carries the type 94 commit and its checks are
-the run to watch — the previous head was green on all 14, Sonar gate included, with no human review comment. All
+PR #2063 (types 67-72, 77-79, 88-90, 94) is open; head `defc0ddd` carries the type 94 commit and every job of
+its workflow passes, `IT (services-data)` on the second attempt — so this SHA has spent its one re-run, and only
+the Sonar gate was still running when run 28 ended. No human review comment on any head. All
 96 change types are closed and every vein is exhausted: Java members, whole types, resources, descriptors, build
 configuration, every dependency scope, JavaDoc, the project manifest and now plugin configuration. Expect a run
 to be PR maintenance plus a zero-finding pass, and prefer ledger compaction over inventing a vein. Numbering
