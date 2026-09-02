@@ -97,6 +97,22 @@ class DecisionTableIndexCompilationTest {
         assertConditionsNumber(dt);
         assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
 
+        dt = findDt("ContainsInInputArrayIndex_WithPath", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+
+        dt = findDt("ContainsInInputArrayIndex_PrimitiveArray", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+
+        dt = findDt("ContainsInInputArrayIndex_WithDate", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+
+        dt = findDt("ContainsInInputArrayIndex_WithAlias", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+
         dt = findDt("ContainsInArrayIndex_OppositeOrder", openClass);
         assertConditionsNumber(dt);
         assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], AContainsInArrayIndexedEvaluator.class);
