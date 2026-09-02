@@ -18,6 +18,7 @@ public abstract class ARuleIndexV2 implements IRuleIndex {
     protected final DecisionTableRuleNode nextNode;
     protected final int[] emptyRules;
     protected final int rulesTotalSize;
+    private volatile int[] allRules;
 
     protected ARuleIndexV2(DecisionTableRuleNode nextNode, int[] emptyRules) {
         this.nextNode = nextNode;
@@ -48,6 +49,24 @@ public abstract class ARuleIndexV2 implements IRuleIndex {
     }
 
     protected abstract DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult);
+
+    /**
+     * Returns every rule of the index, in the order of the table.
+     *
+     * <p>A condition that starts with a static check asks for them on every call, so the answer is kept after the
+     * first one. The index does not change after it is built, and the returned array must not be modified.
+     */
+    @Override
+    public final int[] collectRules() {
+        var rules = allRules;
+        if (rules == null) {
+            rules = computeRules();
+            allRules = rules;
+        }
+        return rules;
+    }
+
+    protected abstract int[] computeRules();
 
     @Override
     public Iterable<? extends DecisionTableRuleNode> nodes() {
