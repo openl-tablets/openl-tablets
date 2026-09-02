@@ -1,7 +1,7 @@
 package org.openl.rules.dt.index;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,19 +70,27 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         return intersectionSortedArrays(rules, prevRes);
     }
 
+    /**
+     * Returns every rule of the index in the order of the table.
+     *
+     * <p>A rule is returned once even when it is registered under several values, as an array column does.
+     */
     @Override
     public int[] collectRules() {
-        int[] result = new int[rulesTotalSize];
-        var k = 0;
+        var rules = new BitSet();
         for (int[] arr : index.values()) {
             for (int ruleN : arr) {
-                result[k++] = ruleN;
+                rules.set(ruleN);
             }
         }
         for (int ruleN : emptyRules) {
+            rules.set(ruleN);
+        }
+        int[] result = new int[rules.cardinality()];
+        var k = 0;
+        for (var ruleN = rules.nextSetBit(0); ruleN >= 0; ruleN = rules.nextSetBit(ruleN + 1)) {
             result[k++] = ruleN;
         }
-        Arrays.sort(result);
         return result;
     }
 
