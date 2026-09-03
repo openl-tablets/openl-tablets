@@ -164,7 +164,7 @@ public class ProjectFilesController extends AbstractFilesController {
         return download != null && (path == null || path.isEmpty() || "/".equals(path));
     }
 
-    static String getProjectArchiveName(RulesProject project) throws ProjectException {
+    static String getProjectArchiveName(RulesProject project) {
         project.refresh();
         return getProjectArchiveName(project.getBusinessName(), project.getFileData());
     }

@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.kafka.ser;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -70,7 +69,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
         return null;
     }
 
-    private String getStringFromHeaders(Headers headers, String key) throws UnsupportedEncodingException {
+    private String getStringFromHeaders(Headers headers, String key) {
         var header = headers.lastHeader(key);
         if (header != null) {
             return new String(header.value(), StandardCharsets.UTF_8);
