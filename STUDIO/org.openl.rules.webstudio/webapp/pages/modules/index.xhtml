@@ -430,7 +430,7 @@
                     },
                     // TODO Merge with 'show' method
                     showPopupMenu: function(event, popupId, elem, params) {
-                        var elem = $(elem);
+                        elem = $(elem);
                         var elemPos = elem.position();
 
                         var left = elemPos.left + ((params && params.offsetLeft) || 0);
@@ -849,7 +849,7 @@
             };
 
             var loadContent = function(page, reload) {
-                var page = page || getCurrentPage();
+                page = page || getCurrentPage();
 
                 if (!page) {
                     crossroads.parse("/", ["false"]);
