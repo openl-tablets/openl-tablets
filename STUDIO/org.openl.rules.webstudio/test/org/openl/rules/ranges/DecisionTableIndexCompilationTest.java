@@ -1,6 +1,7 @@
 package org.openl.rules.ranges;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,6 +15,7 @@ import org.openl.rules.dt.algorithm.evaluator.AContainsInArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInInputArrayIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluatorV2;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -88,6 +90,18 @@ class DecisionTableIndexCompilationTest {
         assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
         assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
         assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
+
+        dt = findDt("ContainsInInputArrayIndex_WithTernary", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+        assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+        assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
+
+        // the test of the ternary reads the column, so its answer differs from rule to rule and cannot be static
+        dt = findDt("Ternary_TestOverColumn", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], DefaultConditionEvaluator.class);
+        assertFalse(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
 
         dt = findDt("ContainsInInputArrayIndex_ChainOverColumns", openClass);
         assertEquals(2, dt.getConditionRows().length);

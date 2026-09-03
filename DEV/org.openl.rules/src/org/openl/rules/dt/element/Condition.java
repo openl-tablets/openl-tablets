@@ -16,6 +16,7 @@ import org.openl.binding.impl.BinaryOpNodeAnd;
 import org.openl.binding.impl.BinaryOpNodeOr;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.FieldBoundNode;
+import org.openl.binding.impl.IfNode;
 import org.openl.binding.impl.LiteralBoundNode;
 import org.openl.binding.impl.MethodBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -80,6 +81,7 @@ public class Condition extends FunctionalRow implements ICondition {
     @Getter
     private CompositeMethod staticMethod;
     private CompositeMethod indexMethod;
+    private CompositeMethod elseMethod;
     private boolean staticConjunction;
 
     public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
@@ -381,6 +383,8 @@ public class Condition extends FunctionalRow implements ICondition {
             right = and.getRight();
             operator = and.getSyntaxNode();
             conjunction = true;
+        } else if (expression instanceof IfNode ifNode) {
+            return optimizeTernaryExpression(ifNode, signature, openl, bindingContext);
         } else {
             return false;
         }
@@ -403,6 +407,61 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     /**
+     * Splits a condition written as {@code test ? indexed : otherwise}, where the test and the last part read the
+     * inputs of the table alone.
+     *
+     * <p>The test then decides whether the index is asked at all. When it does not hold, the answer of the last
+     * part is the answer of the condition for every rule.
+     *
+     * <p>Returns {@code false} when the condition is written of anything else, and the condition is left as it is.
+     */
+    private boolean optimizeTernaryExpression(IfNode ifNode,
+                                              IMethodSignature signature,
+                                              OpenL openl,
+                                              IBindingContext bindingContext) {
+        if (ifNode.getElseNode() == null) {
+            return false;
+        }
+        var module = ifNode.getSyntaxNode().getModule();
+        var questionMark = ifNode.getSyntaxNode().getSourceLocation();
+        var elseLocation = ifNode.getElseNode().getSyntaxNode().getSourceLocation();
+        if (module == null || questionMark == null || elseLocation == null) {
+            return false;
+        }
+        var sourceCode = module.getCode();
+        var info = new TextInfo(sourceCode);
+        var questionMarkStart = questionMark.getStart().getAbsolutePosition(info);
+        var questionMarkEnd = questionMark.getEnd().getAbsolutePosition(info);
+        var colon = sourceCode.lastIndexOf(':', elseLocation.getStart().getAbsolutePosition(info));
+        if (colon <= questionMarkEnd) {
+            return false;
+        }
+
+        var testMethod = compileStaticSource(new SubTextSourceCodeModule(module, 0, questionMarkStart),
+                signature,
+                openl);
+        if (testMethod == null || isDependentOnInputParams(testMethod)) {
+            return false;
+        }
+        var otherwiseMethod = compileStaticSource(new SubTextSourceCodeModule(module, colon + 1), signature, openl);
+        if (otherwiseMethod == null || isDependentOnInputParams(otherwiseMethod)) {
+            return false;
+        }
+        var compiledIndexMethod = compileIndexSource(new SubTextSourceCodeModule(module, questionMarkEnd + 1, colon),
+                signature,
+                openl,
+                bindingContext);
+        if (compiledIndexMethod == null || !isDependentOnInputParams(compiledIndexMethod)) {
+            return false;
+        }
+        this.staticMethod = testMethod;
+        this.elseMethod = otherwiseMethod;
+        this.indexMethod = compiledIndexMethod;
+        this.staticConjunction = false;
+        return true;
+    }
+
+    /**
      * Tells what the static part of the condition has decided for the rules with a filled cell.
      *
      * <p>{@code TRUE} means that every rule of the index matches, {@code FALSE} that none of them does, and
@@ -411,6 +470,13 @@ public class Condition extends FunctionalRow implements ICondition {
     @Override
     public Boolean evaluateStaticDecision(Object[] params, IRuntimeEnv env) {
         var result = (Boolean) staticMethod.invoke(null, params, env);
+        if (elseMethod != null) {
+            // the test chooses between the lookup and an answer that does not look at the rules at all
+            if (Boolean.TRUE.equals(result)) {
+                return null;
+            }
+            return Boolean.TRUE.equals(elseMethod.invoke(null, params, env)) ? Boolean.TRUE : Boolean.FALSE;
+        }
         if (staticConjunction) {
             // the condition holds only when both parts do, so anything but true leaves no rule to match
             return Boolean.TRUE.equals(result) ? null : Boolean.FALSE;
@@ -435,17 +501,19 @@ public class Condition extends FunctionalRow implements ICondition {
         } else {
             return null;
         }
+        return compileIndexSource(indexSourceCodeModule, signature, openl, bindingContext);
+    }
 
+    private CompositeMethod compileIndexSource(IOpenSourceCodeModule source,
+                                               IMethodSignature signature,
+                                               OpenL openl,
+                                               IBindingContext bindingContext) {
         CompositeMethod indexMethod;
         List<SyntaxNodeException> errors;
         try {
             bindingContext.pushErrors();
             bindingContext.pushMessages();
-            indexMethod = super.compileExpressionSource(indexSourceCodeModule,
-                    NullOpenClass.the,
-                    signature,
-                    openl,
-                    bindingContext);
+            indexMethod = super.compileExpressionSource(source, NullOpenClass.the, signature, openl, bindingContext);
         } finally {
             errors = bindingContext.popErrors();
             bindingContext.popMessages();
@@ -472,14 +540,16 @@ public class Condition extends FunctionalRow implements ICondition {
         } else {
             return null;
         }
+        return compileStaticSource(staticSourceCodeModule, signature, openl);
+    }
 
+    private CompositeMethod compileStaticSource(IOpenSourceCodeModule source,
+                                                IMethodSignature signature,
+                                                OpenL openl) {
         var returnType = JavaOpenClass.getOpenClass(Boolean.class);
         var staticExprCtx = new BindingContext(openl.getBinder(), returnType, openl);
         var methodHeader = new OpenMethodHeader("run", returnType, signature, null);
-        var compiledMethod = OpenLManager.makeMethod(openl,
-                staticSourceCodeModule,
-                methodHeader,
-                staticExprCtx);
+        var compiledMethod = OpenLManager.makeMethod(openl, source, methodHeader, staticExprCtx);
         return staticExprCtx.getErrors().length == 0 ? compiledMethod : null;
     }
 
@@ -497,6 +567,7 @@ public class Condition extends FunctionalRow implements ICondition {
     public void resetOptimizedExpression() {
         this.staticMethod = null;
         this.indexMethod = null;
+        this.elseMethod = null;
         this.staticConjunction = false;
     }
 
