@@ -2,11 +2,12 @@
 
 ## Resume point
 
-PR #2063 waits only on the owner's merge: mergeable, no review comment ever, CodeRabbit paused, every CI job
-green, only the SonarCloud gate red. That gate is deterministic — its D is a pre-existing Critical and it stays
-red at C without it — so never revert a clean removal for it; all five BUGs it attributes are answered. Every
-detector is spent, leaving only PR maintenance, compaction and the delta check. CONCURRENCY: runs share this
-ledger and this PR — add what is missing, treat a CI event for a superseded `head_sha` as stale, never arm a chain.
+PR #2063 waits only on the owner's merge: mergeable, no review comment, CodeRabbit paused, every CI job green,
+only the deterministic SonarCloud gate red — its D is a pre-existing Critical and it stays red at C without it,
+so never revert a clean removal for it; its five BUGs are answered and a sixth comment saying so is noise.
+Every detector is spent, so a run is PR maintenance, compaction, the profile-delta check and a sweep of what
+main gained since `09613f05`, callers of this PR's own edits included. CONCURRENCY: runs share this ledger and
+this PR — add what is missing, treat a CI event for a superseded `head_sha` as stale, never arm a chain.
 
 ## Change-type queue
 
@@ -280,23 +281,21 @@ a spent detector is waste, and a rule that rewrites, hoists or adds a check is o
   read a PR body to a file and `PATCH` it back. An MCP body argument also swallows angle-bracketed text.
 - `sonarcloud.io`'s WEB UI is blocked (403) but its API answers 200, so a gate failure IS diagnosable here:
   `api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=<n>&types=BUG` names every issue,
-  and the same query without `pullRequest` gives `main`'s open BUGs, which is how one is proved pre-existing
-  — check `api/project_analyses/search` too, since that list is only as fresh as main's last analysis.
-  `&facets=rules&ps=1` on that same endpoint ranks every rule by hit count without returning an issue — the one
-  cross-check that no deletion rule was missed, every rule above 80 hits here being a rewrite or style — and
-  `api/qualitygates/project_status` gives the gate's conditions. An unknown `rules=` key is silently IGNORED and
-  returns the unfiltered total (8134 and growing), so fetch it too and read a match as "no such rule".
-- PROFILE-DELTA CHECK, the one recurring detector left, four calls and two minutes: `api/qualityprofiles/search
-  ?organization=openl-tablets&project=org.openl.rules:openl-tablets` gives each profile's key and `rulesUpdatedAt`;
-  `api/qualityprofiles/changelog?organization=openl-tablets&qualityProfile=Sonar%20way&language=java` lists every
-  ACTIVATION with its date, which `api/rules/search?...&available_since=` misses because it filters on the rule's
-  creation, not its activation; then count each new rule with `rules=<key>`. Every such call needs `organization`,
-  `api/rules/show` included. Compare the RULE's own changelog date, never the profile's `rulesUpdatedAt`, against
-  `api/project_analyses/search`: a rule activated after main's last analysis reports 0 because it has never run,
-  not because the repository is clean, while a profile touched later can still hold only rules that did run.
-  Only the profiles Sonar actually analyzes matter, and `api/measures/component?metricKeys=
-  ncloc_language_distribution` names them: css, java, js, ts, web, xml, yaml. yaml is 2 credential detectors,
-  never a deletion; the 133 `.groovy` files are all test-resources and unanalyzed.
+  the same query without `pullRequest` gives main's open BUGs, which proves one pre-existing, and
+  `api/qualitygates/project_status` gives the gate's conditions — check `api/project_analyses/search` too, that
+  list being only as fresh as main's last analysis. `&facets=rules&ps=1` ranks every rule by hit count without
+  returning an issue, the one cross-check that no deletion rule was missed, every rule above 80 hits being a
+  rewrite or style. An unknown `rules=` key is silently IGNORED and returns the unfiltered total, so fetch it too.
+- PROFILE-DELTA CHECK, the one recurring detector left, two minutes: `api/qualityprofiles/search?organization=
+  openl-tablets&project=org.openl.rules:openl-tablets` gives each profile's `rulesUpdatedAt`, and only the seven
+  languages Sonar analyzes matter — css, java, js, ts, web, xml, yaml, per `api/measures/component?metricKeys=
+  ncloc_language_distribution`; yaml is 2 credential detectors and the 133 `.groovy` files are unanalyzed. A
+  profile newer than the last covered batch goes to `api/qualityprofiles/changelog?organization=…&qualityProfile=
+  Sonar%20way&language=<l>`, which dates every ACTIVATION where `available_since` fails, filtering rule CREATION;
+  classify each by its fix and count only a deletion rule with `rules=<key>`. A `javabugs:*` rule is always a
+  check. Every call needs `organization`. Compare the RULE's changelog date against `api/project_analyses/search`:
+  one activated after main's last analysis reports 0 for never having run, while a later-touched profile can
+  still hold only rules that ran.
 - Write the ledger through `git worktree add --detach <dir> origin/dead-code/ledger`, never an orphan-branch dance.
 
 ## Exhausted veins
@@ -395,6 +394,6 @@ files, and every tracked build leftover.
 
 ## Run log
 
-- Run 41: no deletion; #2063 green but for the answered gate, body accurate, every vein confirmed spent.
 - Run 42: no deletion; answered the gate's 5th BUG as pre-existing, re-proved the two `this` removals safe.
 - Run 43: no deletion; #2063 re-verified, no new profile batch, yaml closed as the last unchecked language.
+- Run 44: no deletion; every #2063 job green at last, main's 3-commit delta and the profile check both clean.
