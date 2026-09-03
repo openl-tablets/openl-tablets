@@ -4,21 +4,19 @@
 
 PR #2063 waits only on the owner's merge: no human has ever reviewed it, CodeRabbit reports nothing, every CI job
 is green, and only the SonarCloud gate is red on the pre-existing Critical already answered on the PR.
-The new detector is SonarCloud's OWN analysis of `main`, read through its API and needing no build; its
-deletion-rule family is now half spent, and `java:S1130` is the one vein left with volume — see the queue.
+Every detector is now spent: PMD, SonarCloud's own analysis of `main`, Maven, resources and the frontend. There is
+no queued vein left, so a run whose PR is green and answered has only compaction and a new Sonar rule to check.
 CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
 replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
-All 120 closed — 44 shipped a deletion, 76 found nothing; *Exhausted veins* records what each covered.
-121 `throws` clauses no code path throws (`java:S1130`, 122 sites) — QUEUED, and decidable for only 6 of them:
-the 5 private and 1 package-private in published modules. 97 are `throws Exception` on test methods, whose
-removal is mass churn, not a deletion; the 7 public and 2 protected are held by safety rail 2.
+All 122 closed — 45 shipped a deletion, 77 found nothing; *Exhausted veins* records what each covered.
+The queue is empty. Open a new row only for a rule NEW to the Sonar profile; re-running a spent detector is waste.
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `f814f29b`, 286 files, 614 deleted and 338 added lines, 24
+- #2063, branch `dead-code/dead-suppressions`, head `f840d7f4`, 290 files, 626 deleted and 344 added lines, 25
   commits, one per change type with its own PR-body section. Derive the counts against the MERGE BASE; that body
   alone records what each commit kept and why.
 
@@ -46,6 +44,9 @@ removal is mass churn, not a deletion; the 7 public and 2 protected are held by 
   assignment into a bare `new Listeners(...)`, the shape `javascript:S1848` already flags in `tableDetails
   .xhtml`. A deletion that trades a dead store for a new Sonar Bug is a rewrite, so both stay.
 - `TableVersionComparator`'s class-level `@return` is real prose about `compare`; moving it is a refactor.
+- `MappedRepository.refreshMappingWithLock`'s dead `throws IOException` stays: its only caller is the public
+  `initialize()`, whose own `throws IOException` has no other source, so the deletion moves the smell onto a
+  member rail 2 holds. The other 14 live `java:S1130` sites are public or protected in a published module.
 - 47 `<dependency><version>` elements the root already manages, and three default-valued elements, are read by
   Maven and take precedence, so removing one changes behavior later: a human's DRY fix, not a deletion.
 - Three class-level type parameters are unused inside their own declaration yet public in a published artifact:
@@ -66,8 +67,6 @@ removal is mass churn, not a deletion; the 7 public and 2 protected are held by 
   and an interface method whose implementation carries no `@Override` (`StompSessionHandler.handleFrame`).
 - Deleting `var self = this` in browser JS fails SILENTLY when something still reads `self`: it is a global
   (`window.self === window`), so no ReferenceError — read every nested closure, not just the function body.
-- `Outer.this.x` -> `this.x` is safe in a LAMBDA, which does not rebind `this`, but changes behavior in an
-  ANONYMOUS CLASS, where `synchronized (Outer.this)` silently takes another monitor — and it compiles either way.
 - An override whose body is only a `super` call is load-bearing in four ways, and all 22 here are: its annotations
   are the point; a `hashCode` delegating to `super` satisfies the contract Sonar enforces; an override of a GENERIC
   super method keeps the concrete parameter type erasure drops; `wrapper/base/**` needs `WrapperValidation`.
@@ -78,12 +77,6 @@ removal is mass churn, not a deletion; the 7 public and 2 protected are held by 
   leaves a comment-only block, which Sonar accepts and which the `java:S135` one-jump-per-loop rule prefers.
 - Sonar sees no method reference in its unused-private-method rule: `java:S1144` calls `XlsBinder
   .addBindingContextError` dead while `holder::addBindingContextError` is its caller one screen above.
-- An empty class can be a marker used only as a `.class` token, which no member scan sees: `java:S2094` reports
-  `SubtypeMixin`, whose one use is `originalClass = SubtypeMixin.class` in the Jackson factory bean.
-- A local named `ignored` holding a `Future` IS the Error Prone suppression: drop `var ignored =` from
-  `executor.submit(…)` and `FutureReturnValueIgnored` fires. All four `java:S1481`/`S1854` hits are that shape.
-- `java:S1119` flags EVERY label, used or not, and its message asks for a refactor: both labels here carry
-  `break propsLoop;` out of a `switch` nested in the loop, the only construct that can leave that loop.
 - An API-safety check comparing a member's access against its class must match the class DECLARATION: a regex for
   `class X` hits the JavaDoc prose "The class X implements…" first and invents an API break that is not there.
 - Before standing down on a red check, compare the MERGE BASE's own run, not only the latest `main`: a job red at
@@ -91,9 +84,6 @@ removal is mass churn, not a deletion; the 7 public and 2 protected are held by 
 - A managed dependency or plugin that NO module declares is normally still live: a deliberate transitive version
   pin whose neighbouring comment or release note names the CVE, or a plugin the default lifecycle, the packaging,
   a workflow goal or a `site/` configuration reaches. Only an entry no build can produce or reach is dead.
-- A pom `<include>`/`<exclude>` naming a path absent from git is usually build-generated (`jetty-home/`, `logs/`,
-  `release.properties`) — but a WILDCARD pattern naming a source file (`**/SomeTest.java`) is not generated by
-  anything, and three such surefire excludes were dead. Decide by what could create the path, not by its absence.
 - A path in a descriptor is relative or servlet-mapped, so it looks absent: `html/inputVersion.xhtml` resolves
   under `WEB-INF/taglib/`, `/faces/pages/x.xhtml` under `pages/`, and `/cxf/cxf.xml` inside a dependency jar.
 - An "overwritten" assignment is load-bearing whenever anything between the two writes can observe it: an early
@@ -173,6 +163,9 @@ removal is mass churn, not a deletion; the 7 public and 2 protected are held by 
   `#{bean.propertyType}` call `getPropertyType()` without ever spelling it.
 - When this container's npm rewrites unrelated lock metadata, remove the lock's own regions by hand instead and
   prove coherence with `npm ci`, which fails when the lock and `package.json` disagree.
+- Before deleting a dead `throws`, read the callers: an unreachable `catch` at a call site becomes a compile
+  error, and a caller whose own clause had no other source inherits the finding — deletable only if that caller
+  is not itself held by a safety rail.
 - For any PMD finding on a FIELD, grep the field name repo-wide before editing: the "never read" window is one
   method, but a field can be read by a callee, another thread, or an injected bean.
 - Delete lines by matching their exact text, never by line number from an earlier listing and never by a
@@ -321,10 +314,13 @@ style (`UselessParentheses`, `UnnecessaryFullyQualifiedName`), load-bearing cons
 (`AddEmptyString`, `UnnecessaryLocalBeforeReturn`, `EmptyCatchBlock`, `UselessPureMethodCall`).
 
 SonarCloud's own analysis of `main`, faceted over all 7504 issues and then queried rule by rule, is a second Java
-signal PMD does not subsume. Its whole deletion family is checked except `java:S1130`: `S1128`/`S1116`/`S3985`/
+signal PMD does not subsume. Its whole deletion family is now checked: `S1128`/`S1116`/`S3985`/
 `S1596`/`S2168`/`css:S4658` report nothing at all, `S1144`, `S1068`, `S1481`, `S1854`, `S2094` and `S1119` report
 only false positives or the members safety rail 2 already holds, `S3626` yielded the two `continue`s shipped, and
-`S1197`, `S1226`, `S1155`, `S3457`, `S4144`, `S1871`, `S2696` are refactors. Its `javascript:*` dead-store and
+`S1197`, `S1226`, `S1155`, `S3457`, `S4144`, `S1871`, `S2696` are refactors. `S1130`'s 133 dead `throws` clauses
+gave 5 (97 sit on test methods, 16 on published public or protected members, 2 cascade — see *Deferred*), and
+`S1172`'s 229 unused parameters give NOTHING: none is private, 52 are test code, 159 are public or protected in a
+published module, and the 7 package-private ones need an edit at every call site, which is a refactor. Its `javascript:*` dead-store and
 unused-local hits are all in vendored or generated files but for `popup.js`, shipped, and the two deferred
 `.xhtml` pages. Only a rule NEW to the Sonar profile is worth another pass.
 
@@ -398,3 +394,4 @@ tracked build leftover.
 ## Run log
 
 - Runs 35-37: types 110-118 plus the SonarCloud family shipped ~180 lines; the PMD deletion family is spent.
+- Run 38: `java:S1130` shipped 5 dead `throws` clauses; `java:S1172` assessed and closed; every detector is spent.
