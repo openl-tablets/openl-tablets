@@ -512,7 +512,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                     staticResult = condition.evaluateStaticDecision(params, env);
                 }
                 index = env.getTracer().wrap(this, index, condition);
-                var testValue = evaluateTestValue(condition, target, params, env);
+                // a static answer stands for every rule of the index, so there is nothing to look up
+                var testValue = staticResult == null ? evaluateTestValue(condition, target, params, env) : null;
 
                 node = index.findNode(testValue, staticResult, node);
                 env.getTracer().put(this, "index", condition, node, true);
