@@ -197,7 +197,6 @@ final class PomlessConverter {
                 threshold = parseThreshold(child.getValue(), blockers);
             } else if (PackageMojo.DEPLOYMENT_PACKAGE_PARAM.equals(name)) {
                 // Deprecated no-op — deployment artefacts are auto-discovered now. Safe to drop; doesn't block.
-                continue;
             } else {
                 // Per-project config with no portable anchor-wide value.
                 blockers.add("openl-maven-plugin <configuration> has non-portable <" + name + ">");
