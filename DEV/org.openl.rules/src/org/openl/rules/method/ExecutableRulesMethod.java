@@ -6,7 +6,10 @@ import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
@@ -28,6 +31,8 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     private IOpenCast[] aliasDatatypeCasts;
 
     private String moduleName;
+    private String singleExpression;
+    private boolean singleExpressionRead;
 
     @Override
     public String getModuleName() {
@@ -86,7 +91,52 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         this.boundNode = node;
     }
 
+    /**
+     * Returns the expression the table is written of, or {@code null} when it is written of anything else.
+     *
+     * <p>A table that carries dimension properties is written of no expression of its own: which of its versions
+     * answers a call is decided at run time.
+     *
+     * <p>The text is read once and kept, so that it can be asked for after the table itself is let go.
+     */
+    public String getSingleExpression() {
+        if (!singleExpressionRead && getBoundNode() != null) {
+            singleExpression = TablePropertyDefinitionUtils.isDimensionalPropertyPresented(this) ? null
+                    : readSingleExpression();
+            singleExpressionRead = true;
+        }
+        return singleExpression;
+    }
+
+    /**
+     * Reads the expression the table is written of. A table of several lines is written of no single expression.
+     */
+    protected String readSingleExpression() {
+        return null;
+    }
+
+    /**
+     * Returns the expression the cell is written of, without the word that opens it.
+     *
+     * <p>Returns {@code null} when the cell holds anything else than a single expression.
+     */
+    protected static String readExpressionText(ILogicalTable cell, String opening) {
+        var code = new GridCellSourceCodeModule(cell.getSource(), null).getCode().strip();
+        if (!code.startsWith(opening) || code.length() > opening.length() && Character
+                .isJavaIdentifierPart(code.charAt(opening.length()))) {
+            return null;
+        }
+        code = code.substring(opening.length()).strip();
+        if (code.endsWith(";")) {
+            code = code.substring(0, code.length() - 1).strip();
+        }
+        // what is left has to be one expression, so a second statement is not a single expression
+        return code.isEmpty() || code.indexOf(';') >= 0 ? null : code;
+    }
+
     public void clearForExecutionMode() {
+        // the text is read while the table is still there
+        getSingleExpression();
         setBoundNode(null);
         var methodProperties = getMethodProperties();
         if (methodProperties != null) {

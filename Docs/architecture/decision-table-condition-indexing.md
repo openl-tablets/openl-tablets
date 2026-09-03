@@ -94,6 +94,29 @@ shapes. In the ternary the last part is a second static check, so it has to read
 check that reads the condition column answers differently from rule to rule, so such a condition keeps the default
 evaluator.
 
+## Conditions written as a call
+
+A condition may hide the shapes above behind a call of another table:
+
+```
+matchesDimension(codes, code, fallback)
+```
+
+When the called table is written of a single expression — a method table of one line, or a spreadsheet of one step
+— that expression is read in the place of the call, with the arguments written where the parameters stand. The
+shapes above are then looked for inside it, so the example is indexed when `matchesDimension` is written as
+`isNotEmpty(value) ? isEmpty(values) or contains(values, value) : fallback`.
+
+The expression of the called table may name its parameters and call the built-in functions, and nothing else. A
+name of its own module — a constant, a field, another table — is read again in the scope of the decision table,
+where it may mean something else, so such a call is left as it is. For the same reason a table that carries
+dimension properties is never read this way: which of its versions answers a call is decided at run time. An
+argument named twice is written twice and therefore evaluated twice, which costs a little for the expression that
+gives the value to look up.
+
+The call itself is never replaced at run time: the rules the index does not answer are still evaluated by calling
+the table, so the answer of the condition is the same either way.
+
 ## Falling back
 
 Indexing is skipped, and the condition is evaluated row by row, when:
@@ -102,6 +125,8 @@ Indexing is skipped, and the condition is evaluated row by row, when:
 - the condition cells contain formulas;
 - the condition uses `$Rule` or `$RuleId`;
 - the condition uses the parameters of another column in any shape but the chain of lookups above;
+- the called table is written of several lines, carries dimension properties, or its expression names anything but
+  its own parameters and the built-in functions;
 - the column and the input types cannot be converted to each other.
 
 The fallback is always available, so an unrecognized expression costs performance, never correctness.
