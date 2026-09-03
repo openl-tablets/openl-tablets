@@ -4,23 +4,19 @@
 
 PR #2063 waits only on the owner's merge: no human has ever reviewed it, CodeRabbit reports nothing, every CI job
 is green, and only the SonarCloud gate is red on the pre-existing Critical already answered on the PR.
-Types 114-118 are found and unshipped — start there, they need no new detector. A swept area is only empty
-against the tools already run: one more PMD rule keeps finding work in files nine closed veins called clean, so
-prefer a NEW PMD rule over inventing a vein by hand.
+The queue is EMPTY and the PMD deletion-rule family is spent, so the next run cannot lean on one more rule: the
+next vein has to come from a different kind of signal. A swept area is still only empty against the tools run.
 CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
 replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
-All 113 closed — 38 shipped a deletion, 75 found nothing; *Exhausted veins* records what each covered.
-Found and unshipped, one commit each, cheapest proof first: 114 `UnnecessaryCast`, 5 redundant casts; 115
-`AddEmptyString`, 7 `"" +` concatenations; 116 `UnnecessaryVarargsArrayCreation`, 5 explicit arrays wrapping
-varargs; 117 `UnnecessaryBoxing`, 10 redundant `valueOf`/`xxxValue` calls; 118 `UnnecessaryBooleanAssertion`, 2
-`assertTrue(true)`. All five are PMD rules, so the finding list is one 27 s standalone run.
+All 118 closed — 42 shipped a deletion, 76 found nothing; *Exhausted veins* records what each covered.
+Nothing is queued.
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `7c31b5e2`, 276 files, 599 deleted and 332 added lines, 18
+- #2063, branch `dead-code/dead-suppressions`, head `762adfda`, 281 files, 607 deleted and 337 added lines, 22
   commits, one per change type with its own PR-body section. Derive the counts against the MERGE BASE; that body
   alone records what each commit kept and why.
 
@@ -128,6 +124,13 @@ varargs; 117 `UnnecessaryBoxing`, 10 redundant `valueOf`/`xxxValue` calls; 118 `
 - A field initializer assigning the JVM default is redundant EXCEPT where the field can be written before it runs:
   a superclass constructor making a virtual call, or a static block placed above a static field. Only
   `ComponentOpenClass`/`ADynamicClass` call out of a constructor here (`addField`, `addMethod`, `fieldMap`).
+- A redundant-construct detector reads the construct, not the type context that makes it load-bearing: a cast IS
+  the declared type under `var` (`var x = (double) 10` boxes to Double, without the cast to Integer), explicit
+  boxing pins one of the 16 `Operators` overloads per operator, `((Double) o).doubleValue()` differs from
+  `(Double) o` on null, and `invoke(m, new Object[]{null})` passes one null ARGUMENT where `invoke(m, null)`
+  passes a null ARRAY. Check the declaration and the overload set before believing any of them.
+- A redundant construct whose fix needs a REPLACEMENT is a rewrite, not a deletion, and out of scope: `"" + x`
+  needs `String.valueOf(x)`, inlining a local into its `return` is a refactor, an empty catch needs a comment.
 - A plugin parameter can exist on ONE goal only, so a plugin-level `<configuration>` element is live as soon as
   any bound goal accepts it: maven-jar-plugin defines `skip` on `test-jar` and not on `jar`, which makes the root
   pom's `<skip>${maven.deploy.skip}</skip>` read by the two `test-jar` executions.
@@ -314,17 +317,14 @@ Members: all 474 package-private methods, 645 package-private fields, 572 enum c
 186 non-overriding public or protected members of the 246 package-private top-level and 318 non-public nested
 classes — every one has a caller. Whole types: all 977 non-public top-level, all 310 in `.impl.`/`.internal.`,
 all 193 test types with no `@Test`, and the 246 non-public production types against a production/test split.
-Public members of the non-published modules (133 files, 52 candidates) — all framework-driven. And PMD's twelve
-redundant-construct rules over all 4031-4033 files: 147 field initializers assigning the JVM default (all shipped
-over 83 files), 29 no-argument constructors identical to the implicit default (27 shipped), 4 unnecessary
-`return` statements (2 shipped) and 4 unnecessary modifiers (2 shipped); no `class X extends Object` and no
-unnecessary import exists at all; the 46 `UselessParentheses` and 304 `UnnecessaryFullyQualifiedName` are style,
-all 16 `EmptyControlStatement` are load-bearing, and the 168 `value =` elements plus 2 `Type.this` qualifiers are
-shipped. Fifteen more pure-deletion rules ran in one pass: `UnnecessarySemicolon`, `UnusedLabel`, `EmptyFinalizer`,
-`UnnecessaryConversionTemporary`, `UselessStringValueOf` and `StringToString` report nothing, and
-`UselessOverridingMethod` only 3 of the 22 already deferred; `DanglingJavadoc` is a non-vein, 104 of its 120 being
-the constrainer's Exigen copyright banner and the rest `/** */` on an in-method comment whose prose is real. The
-remaining five are queued as 114-118.
+Public members of the non-published modules (133 files, 52 candidates) — all framework-driven. EVERY PMD java rule whose fix is a
+deletion has now run over all ~4033 files, so that family is SPENT — enumerate the categories again only to check
+a NEW rule, never for a new vein. Shipped from it: 147 default field initializers, 168 `value =` elements, 27
+implicit-default constructors, 3 constant-true assertions, 3 varargs arrays, 2 unnecessary returns, 2 unnecessary
+modifiers, 2 `Type.this`, 1 identity cast, 1 boxing call. Eleven of the rules report nothing at all; the rest
+report only style (`UselessParentheses`, `UnnecessaryFullyQualifiedName`), load-bearing constructs
+(`EmptyControlStatement`, `UselessOverridingMethod`, `DanglingJavadoc` — 104 of 120 an Exigen copyright banner)
+or rewrites (`AddEmptyString`, `UnnecessaryLocalBeforeReturn`, `EmptyCatchBlock`, `UselessPureMethodCall`).
 
 Maven, all of it closed. `dependency:analyze-only` over all 51 analyzable modules in every scope; all 18
 `<exclusion>` entries resolved in isolation (three shipped); all 147 non-import `dependencyManagement` and 25
@@ -395,6 +395,6 @@ tracked build leftover.
 
 ## Run log
 
-- Run 33: re-verified run 32's three commits (no defect); shipped nothing; rebased the PR onto a recovered base.
 - Run 34: type 109 shipped 147 redundant field initializers; types 110-112 found by three new PMD rules.
 - Run 35: types 110-111 shipped 168 `value =` elements and 2 `Type.this`; 15 more PMD rules run, 114-118 queued.
+- Run 36: types 114-118 shipped 8 lines over 4 commits; the PMD deletion-rule family is now spent.
