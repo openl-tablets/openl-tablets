@@ -1,8 +1,12 @@
 package org.openl.rules.dt.element;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +38,9 @@ import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
+import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -48,6 +54,7 @@ import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.Invokable;
 import org.openl.types.NullOpenClass;
@@ -61,6 +68,10 @@ import org.openl.util.text.TextInfo;
 import org.openl.vm.IRuntimeEnv;
 
 public class Condition extends FunctionalRow implements ICondition {
+
+    private static final String FUNCTION_NAME_NODE = "funcname";
+    // the words that are not names of anything: the literals and the operators written as words
+    private static final Set<String> KEYWORDS = Set.of("true", "false", "null", "and", "or", "not");
 
     @Setter
     private Invokable evaluator;
@@ -353,57 +364,316 @@ public class Condition extends FunctionalRow implements ICondition {
     public boolean optimizeExpression(IMethodSignature signature,
                                       OpenL openl,
                                       IBindingContext bindingContext) {
-        var originalExprBoundNode = getMethod().getMethodBodyBoundNode();
-        if (originalExprBoundNode == null) {
+        var expression = expressionOf(getMethod());
+        if (expression == null) {
             return false;
         }
-        var children = originalExprBoundNode.getChildren();
+        if (expression instanceof MethodBoundNode call) {
+            var inlined = inlineCall(call, signature, openl, bindingContext);
+            if (inlined != null && isDependentOnInputParams(inlined)) {
+                var inlinedExpression = expressionOf(inlined);
+                if (inlinedExpression == null || !splitExpression(inlinedExpression,
+                        signature,
+                        openl,
+                        bindingContext)) {
+                    // the expression of the called table holds no static check and is indexed as it is
+                    this.indexMethod = inlined;
+                }
+                return true;
+            }
+        }
+        return splitExpression(expression, signature, openl, bindingContext);
+    }
+
+    /**
+     * Returns the single expression the method is written of, or {@code null} when it is written of anything else.
+     */
+    private static IBoundNode expressionOf(CompositeMethod method) {
+        var body = method.getMethodBodyBoundNode();
+        if (body == null) {
+            return null;
+        }
+        var children = body.getChildren();
         if (children == null || children.length != 1 || children[0] == null || children[0]
                 .getChildren() == null || children[0].getChildren().length != 1) {
-            return false;
+            return null;
         }
-        var expression = children[0].getChildren()[0];
+        return children[0].getChildren()[0];
+    }
 
+    /**
+     * Splits the expression into the check that reads the inputs of the table alone and the part that is indexed.
+     */
+    private boolean splitExpression(IBoundNode expression,
+                                    IMethodSignature signature,
+                                    OpenL openl,
+                                    IBindingContext bindingContext) {
         IBoundNode left;
         IBoundNode right;
         ISyntaxNode operator;
         boolean conjunction;
-        if (expression instanceof BinaryOpNodeOr or) {
-            // "a or b or c" reads as "(a or b) or c", and only the leftmost part can be the static one
-            var first = or;
-            while (first.getLeft() instanceof BinaryOpNodeOr nested) {
-                first = nested;
+        switch (expression) {
+            case BinaryOpNodeOr or -> {
+                // "a or b or c" reads as "(a or b) or c", and only the leftmost part can be the static one
+                var first = or;
+                while (first.getLeft() instanceof BinaryOpNodeOr nested) {
+                    first = nested;
+                }
+                left = first.getLeft();
+                right = first == or ? or.getRight() : expression;
+                operator = first.getSyntaxNode();
+                conjunction = false;
             }
-            left = first.getLeft();
-            right = first == or ? or.getRight() : expression;
-            operator = first.getSyntaxNode();
-            conjunction = false;
-        } else if (expression instanceof BinaryOpNodeAnd and) {
-            left = and.getLeft();
-            right = and.getRight();
-            operator = and.getSyntaxNode();
-            conjunction = true;
-        } else if (expression instanceof IfNode ifNode) {
-            return optimizeTernaryExpression(ifNode, signature, openl, bindingContext);
-        } else {
-            return false;
+            case BinaryOpNodeAnd and -> {
+                left = and.getLeft();
+                right = and.getRight();
+                operator = and.getSyntaxNode();
+                conjunction = true;
+            }
+            case IfNode ifNode -> {
+                return optimizeTernaryExpression(ifNode, signature, openl, bindingContext);
+            }
+            default -> {
+                return false;
+            }
         }
 
-        var staticMethod = compileStaticExpression(operator, left, signature, openl);
-        if (staticMethod != null && !isDependentOnInputParams(staticMethod)) {
-            var indexMethod = compileIndexExpression(operator,
+        var compiledStaticMethod = compileStaticExpression(operator, left, signature, openl);
+        if (compiledStaticMethod != null && !isDependentOnInputParams(compiledStaticMethod)) {
+            var compiledIndexMethod = compileIndexExpression(operator,
                     right,
                     signature,
                     openl,
                     bindingContext);
-            if (indexMethod != null && isDependentOnInputParams(indexMethod)) {
-                this.staticMethod = staticMethod;
-                this.indexMethod = indexMethod;
+            if (compiledIndexMethod != null && isDependentOnInputParams(compiledIndexMethod)) {
+                this.staticMethod = compiledStaticMethod;
+                this.indexMethod = compiledIndexMethod;
                 this.staticConjunction = conjunction;
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Reads a call of a table written of a single expression as that expression, so that the shapes the index
+     * understands can be looked for inside it.
+     *
+     * <p>The arguments of the call take the place of the parameters of the called table. Returns the expression the
+     * call stands for, or {@code null} when the call cannot be read this way.
+     */
+    private CompositeMethod inlineCall(MethodBoundNode call,
+                                       IMethodSignature signature,
+                                       OpenL openl,
+                                       IBindingContext bindingContext) {
+        var method = call.getMethodCaller().getMethod();
+        var body = singleExpressionBody(method);
+        if (body == null) {
+            return null;
+        }
+        var arguments = argumentTexts(call);
+        if (arguments == null) {
+            return null;
+        }
+        var inlinedText = substituteParameters(body, method.getSignature(), arguments);
+        if (inlinedText == null) {
+            return null;
+        }
+        // the errors of the inlined text are reported at the cell the condition is written in
+        var source = new StringSourceCodeModule(inlinedText, getSourceCodeModule(getMethod()).getUri());
+        var inlinedMethod = compileIndexSource(source, signature, openl, bindingContext);
+        return inlinedMethod == null || callsAnotherTable(inlinedMethod.getMethodBodyBoundNode()) ? null
+                : inlinedMethod;
+    }
+
+    /**
+     * Tells whether the expression calls a table of the project.
+     *
+     * <p>Such a call is answered by the table the decision table sees, which is not always the one the called table
+     * saw, so the expression is not the same expression any more.
+     */
+    private static boolean callsAnotherTable(IBoundNode node) {
+        if (node instanceof MethodBoundNode call && call.getMethodCaller()
+                .getMethod() instanceof ExecutableRulesMethod) {
+            return true;
+        }
+        var children = node.getChildren();
+        if (children == null) {
+            return false;
+        }
+        for (IBoundNode child : children) {
+            if (child != null && callsAnotherTable(child)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the text of the expression the called table is written of, or {@code null} when the table is written
+     * of anything else than a single expression.
+     */
+    private static String singleExpressionBody(IOpenMethod method) {
+        var unwrapped = method;
+        while (unwrapped instanceof IOpenMethodWrapper wrapper) {
+            unwrapped = wrapper.getDelegate();
+        }
+        return unwrapped instanceof ExecutableRulesMethod executable ? executable.getSingleExpression() : null;
+    }
+
+    /**
+     * Returns the text of every argument of the call, in the order the call writes them.
+     */
+    private static List<String> argumentTexts(MethodBoundNode call) {
+        var syntaxNode = call.getSyntaxNode();
+        var module = syntaxNode.getModule();
+        var children = call.getChildren();
+        if (module == null || children == null) {
+            return null;
+        }
+        var sourceCode = module.getCode();
+        var info = new TextInfo(sourceCode);
+        var texts = new ArrayList<String>();
+        for (var i = 0; i < syntaxNode.getNumberOfChildren(); i++) {
+            var child = syntaxNode.getChild(i);
+            var location = FUNCTION_NAME_NODE.equals(child.getType()) ? null : child.getSourceLocation();
+            if (location != null) {
+                texts.add(sourceCode.substring(location.getStart().getAbsolutePosition(info),
+                        location.getEnd().getAbsolutePosition(info) + 1));
+            }
+        }
+        return texts.size() == children.length ? texts : null;
+    }
+
+    /**
+     * Writes the arguments of the call in the place of the parameters of the called table.
+     *
+     * <p>Returns {@code null} when the expression reads a name of its own: read again in the scope of the decision
+     * table, such a name may mean something else there. Only the parameters of the table and the functions it calls
+     * are allowed.
+     */
+    private static String substituteParameters(String body, IMethodSignature parameters, List<String> arguments) {
+        if (parameters.getNumberOfParameters() != arguments.size()) {
+            return null;
+        }
+        var byName = new HashMap<String, String>();
+        for (var i = 0; i < arguments.size(); i++) {
+            var name = parameters.getParameterName(i);
+            if (name == null || name.isBlank()) {
+                return null;
+            }
+            var argument = arguments.get(i);
+            byName.put(name, isSimplePath(argument) ? argument : "(" + argument + ")");
+        }
+        return writeExpression(body, byName);
+    }
+
+    /**
+     * Writes the expression with the arguments in the place of the parameters, keeping the text values as they are.
+     *
+     * <p>Returns {@code null} for an expression that reads a name of its own.
+     */
+    private static String writeExpression(String body, Map<String, String> arguments) {
+        var result = new StringBuilder();
+        var position = 0;
+        while (position < body.length()) {
+            var character = body.charAt(position);
+            if (character == '"' || character == '\'') {
+                var end = endOfTextValue(body, position);
+                result.append(body, position, end);
+                position = end;
+            } else if (!Character.isJavaIdentifierStart(character)) {
+                result.append(character);
+                position++;
+            } else {
+                var end = endOfName(body, position);
+                var name = body.substring(position, end);
+                if (!writeName(body, position, end, name, arguments, result)) {
+                    return null;
+                }
+                position = end;
+            }
+        }
+        return result.toString();
+    }
+
+    /**
+     * Tells whether the text is a name, or names joined by dots, and therefore needs no parentheses around it.
+     */
+    private static boolean isSimplePath(String text) {
+        var nameExpected = true;
+        for (var i = 0; i < text.length(); i++) {
+            var character = text.charAt(i);
+            var allowed = nameExpected ? Character.isJavaIdentifierStart(character)
+                    : Character.isJavaIdentifierPart(character) || character == '.';
+            if (!allowed) {
+                return false;
+            }
+            nameExpected = character == '.';
+        }
+        return !text.isEmpty() && !nameExpected;
+    }
+
+    /**
+     * Writes one name of the expression, or the argument that takes its place.
+     *
+     * <p>Returns {@code false} for a name that stands for something the called table alone knows.
+     */
+    private static boolean writeName(String body,
+                                     int start,
+                                     int end,
+                                     String name,
+                                     Map<String, String> arguments,
+                                     StringBuilder result) {
+        var argument = arguments.get(name);
+        if (argument != null && !isFieldName(body, start)) {
+            result.append(argument);
+            return true;
+        }
+        if (argument == null && !isFieldName(body, start) && !isFunctionName(body, end) && !KEYWORDS.contains(name)) {
+            return false;
+        }
+        result.append(name);
+        return true;
+    }
+
+    private static int endOfName(String body, int start) {
+        var end = start;
+        while (end < body.length() && Character.isJavaIdentifierPart(body.charAt(end))) {
+            end++;
+        }
+        return end;
+    }
+
+    private static int endOfTextValue(String body, int start) {
+        var quote = body.charAt(start);
+        var position = start + 1;
+        while (position < body.length()) {
+            var character = body.charAt(position++);
+            if (character == '\\') {
+                position++;
+            } else if (character == quote) {
+                break;
+            }
+        }
+        // a text value the last character opens ends with the text itself
+        return Math.min(position, body.length());
+    }
+
+    private static boolean isFieldName(String body, int start) {
+        var position = start - 1;
+        while (position >= 0 && Character.isWhitespace(body.charAt(position))) {
+            position--;
+        }
+        return position >= 0 && body.charAt(position) == '.';
+    }
+
+    private static boolean isFunctionName(String body, int end) {
+        var position = end;
+        while (position < body.length() && Character.isWhitespace(body.charAt(position))) {
+            position++;
+        }
+        return position < body.length() && body.charAt(position) == '(';
     }
 
     /**
@@ -555,12 +825,12 @@ public class Condition extends FunctionalRow implements ICondition {
 
     @Override
     public IOpenSourceCodeModule getIndexSourceCodeModule() {
-        return getSourceCodeModule(isOptimizedExpression() ? indexMethod : getMethod());
+        return getSourceCodeModule(getIndexMethod());
     }
 
     @Override
     public CompositeMethod getIndexMethod() {
-        return isOptimizedExpression() ? indexMethod : getMethod();
+        return indexMethod != null ? indexMethod : getMethod();
     }
 
     @Override

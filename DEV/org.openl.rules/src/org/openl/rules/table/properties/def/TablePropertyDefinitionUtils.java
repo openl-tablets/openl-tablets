@@ -16,9 +16,11 @@ import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
+import org.openl.types.IOpenMethod;
 import org.openl.util.StringUtils;
 
 /**
@@ -124,6 +126,24 @@ public final class TablePropertyDefinitionUtils {
             dimensionalTableProperties = Collections.unmodifiableList(dimensionalProperties);
         }
         return dimensionalTableProperties;
+    }
+
+    /**
+     * Tells whether the table of the method carries a property that makes it one of several versions.
+     *
+     * <p>Which version answers a call of such a method is decided at run time.
+     */
+    public static boolean isDimensionalPropertyPresented(IOpenMethod method) {
+        var properties = PropertiesHelper.getTableProperties(method);
+        if (properties == null) {
+            return false;
+        }
+        for (TablePropertyDefinition dimensionProperty : getDimensionalTableProperties()) {
+            if (StringUtils.isNotEmpty(properties.getPropertyValueAsString(dimensionProperty.getName()))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Map<String, Object> getGlobalPropertiesToBeSetByDefault() {

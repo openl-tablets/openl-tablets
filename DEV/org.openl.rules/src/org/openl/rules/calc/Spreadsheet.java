@@ -106,6 +106,14 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return syntaxNode == null ? null : syntaxNode.getUri();
     }
 
+    @Override
+    protected String readSingleExpression() {
+        var body = getSyntaxNode().getTableBody();
+        // the first line of the body names the columns, and the only other one holds the single step
+        return body == null || body.getHeight() != 2 || body.getWidth() != 2 ? null
+                : readExpressionText(body.getRow(1).getColumn(1), "=");
+    }
+
     public SpreadsheetOpenClass getSpreadsheetType() {
         return spreadsheetType;
     }

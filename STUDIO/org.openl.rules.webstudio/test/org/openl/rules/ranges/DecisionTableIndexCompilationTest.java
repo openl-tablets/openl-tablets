@@ -108,6 +108,37 @@ class DecisionTableIndexCompilationTest {
         assertConditionEvaluatorClass(dt.getConditionRows()[0], DefaultConditionEvaluator.class);
         assertFalse(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
 
+        // the expression of the called table is read in the place of the call and indexed
+        dt = findDt("ContainsInArrayIndex_ViaMethodTable", openClass);
+        assertConditionsNumber(dt);
+        assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], AContainsInArrayIndexedEvaluator.class);
+
+        dt = findDt("ContainsInArrayIndex_ViaSpreadsheet", openClass);
+        assertConditionsNumber(dt);
+        assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], AContainsInArrayIndexedEvaluator.class);
+        assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+        assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
+
+        // a table of two lines is written of no single expression
+        dt = findDt("Inline_TwoLineMethod", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], DefaultConditionEvaluator.class);
+
+        // the expression reads a name of its own module, which may mean something else in the decision table
+        dt = findDt("Inline_ModuleName", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], DefaultConditionEvaluator.class);
+
+        // which version of the called table answers is decided at run time
+        dt = findDt("Inline_VersionedTable", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], DefaultConditionEvaluator.class);
+
+        // the expression of the called table calls a table itself
+        dt = findDt("Inline_CallOfAnotherTable", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], DefaultConditionEvaluator.class);
+
         dt = findDt("ContainsInInputArrayIndex_ChainOverColumns", openClass);
         assertEquals(2, dt.getConditionRows().length);
         assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
