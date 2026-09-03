@@ -50,11 +50,16 @@ A condition is indexed when its expression is one of the shapes below, where `in
 | `input` | two boundaries | Range |
 | `input == column` | a single value | Equals |
 | `contains(column, input)` | an array | Contains in a column array |
+| `isEmpty(column) or contains(column, input)` | an array | Contains in a column array |
 | `contains(input, column)` | a single value | Contains in an input array |
 | `input >= column`, `input < column`, … | a single value or two boundaries | Range |
 
 `contains(input, column)` is indexed only when the input is an array of single values: an array column or a range
 column keeps the default evaluator, because those are served by the other index kinds.
+
+`isEmpty(column) or contains(column, input)` is the lookup alone: the check holds for an empty cell, which matches
+anything in any case, and the array of a filled cell always holds a value. The check has to name the very column
+the lookup searches, and `isEmpty` has to be the built-in function rather than one the project declares.
 
 Several lookups over the same array may be joined by `or`:
 

@@ -42,6 +42,7 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.ITypeAdaptor;
 import org.openl.rules.helpers.RulesUtils;
 import org.openl.rules.range.Range;
+import org.openl.rules.util.Arrays;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -448,6 +449,50 @@ class DependentParametersOptimizedAlgorithm {
     }
 
     /**
+     * Reads a condition written as {@code isEmpty(column) or contains(column, input)}.
+     *
+     * <p>The check holds for a rule whose cell is empty, and such a rule matches anything anyway, so the whole
+     * condition is the lookup alone. An array of a filled cell always holds a value, so the check cannot hold
+     * for it.
+     *
+     * <p>Returns the parsed lookup, or {@code null} when the expression has another shape.
+     */
+    private static Triple<String, RelationType, String> emptyOrContainsParse(ICondition condition,
+                                                                             IBindingContext bindingContext) {
+        var expression = indexExpressionNode(condition);
+        if (!(expression instanceof BinaryOpNodeOr or) || !(or
+                .getLeft() instanceof MethodBoundNode isEmptyCall) || !(or
+                .getRight() instanceof MethodBoundNode containsCall)) {
+            return null;
+        }
+        var arguments = isEmptyCall.getChildren();
+        if (!isEmptyMethod(isEmptyCall) || arguments == null || arguments.length != 1 || !(arguments[0] instanceof FieldBoundNode field)) {
+            return null;
+        }
+        var parsed = parseMethodBoundExpression(containsCall, bindingContext);
+        if (parsed == null || parsed.getMiddle() != RelationType.IN) {
+            return null;
+        }
+        var columnName = buildFieldName(field, bindingContext);
+        // the emptiness must be asked about the very array the lookup searches, and it must be the column
+        return columnName != null && columnName.equals(parsed.getLeft()) && columnName
+                .equals(condition.getParams()[0].getName()) ? parsed : null;
+    }
+
+    /**
+     * Checks that the call is the built-in {@code isEmpty}, and not a function of the same name declared by the
+     * project.
+     */
+    private static boolean isEmptyMethod(MethodBoundNode methodBoundNode) {
+        var method = methodBoundNode.getMethodCaller().getMethod();
+        if (!"isEmpty".equals(method.getName())) {
+            return false;
+        }
+        var declaringClass = method.getDeclaringClass();
+        return declaringClass != null && Arrays.class == declaringClass.getInstanceClass();
+    }
+
+    /**
      * Reads a condition written as several {@code contains} calls joined by {@code or}, such as
      * {@code contains(codes, code) or contains(codes, linkedCode)}.
      *
@@ -609,6 +654,10 @@ class DependentParametersOptimizedAlgorithm {
 
         switch (params.length) {
             case 1:
+                var emptyOrContains = emptyOrContainsParse(condition, bindingContext);
+                if (emptyOrContains != null) {
+                    return makeOneParameterContainsFactory(emptyOrContains, condition, signature, conditions);
+                }
                 var containsChain = containsChainParse(condition, bindingContext);
                 if (containsChain != null) {
                     return makeContainsInInputArrayChainFactory(containsChain, signature, conditions);
