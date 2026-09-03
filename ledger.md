@@ -2,13 +2,12 @@
 
 ## Resume point
 
-PR #2063 waits only on the owner's merge: 26 commits, mergeable, no human or review comment ever, CodeRabbit
-paused, every CI job green, and only the SonarCloud gate red on the pre-existing Critical already answered on the
-PR. That gate cannot go green here — the rating follows the worst severity in every TOUCHED file, so it stays red
-at C without the Critical, and fixing a pre-existing bug is no deletion. Never revert a clean removal for it.
-Every detector is spent, the profile delta included through the 2026-09-02 activations; a run has only PR
-maintenance, compaction and the profile-delta check. CONCURRENCY: runs 90 minutes apart share this ledger and the
-same PR — add what is missing, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
+PR #2063 waits only on the owner's merge: mergeable, no review comment ever, CodeRabbit paused, every CI job green,
+only the SonarCloud gate red. That gate is deterministic — its D is a pre-existing Critical and it stays red at C
+without it — so never revert a clean removal for it; all five BUGs it attributes are answered on the PR, the fifth on
+2026-09-03. Every detector is spent through the 2026-09-02 profile batch, leaving only PR maintenance, compaction and
+the delta check. CONCURRENCY: runs 90 min apart share this ledger and this PR — add what is missing, treat a CI event
+for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
@@ -156,8 +155,9 @@ a spent detector is waste, and a rule that rewrites, hoists or adds a check is o
   fully qualified name plus the reflective string registrations is complete. The same holds for a local or
   private member, whose scope is one file; CI's `Build artifacts` job is then the compile gate.
 - Sonar's reliability rating on new code follows the WORST severity — Critical is D, Major only C — so a
-  pre-existing Critical re-attributed because its file entered the diff reds the gate. Query the same line on
-  `main` before believing it is new.
+  pre-existing Critical re-attributed because its file entered the diff reds the gate. A PR analysis reports
+  `javabugs` issues on UNCHANGED lines of a changed file, and names different lines than main's own list over the
+  same bytes, so "no issue at that line on main" proves nothing: diff the file against main and read the shape.
 - Search an accessor by its property name as well as its method name: Velocity `$w.propertyType` and JSF EL
   `#{bean.propertyType}` call `getPropertyType()` without ever spelling it.
 - When this container's npm rewrites unrelated lock metadata, remove the lock's own regions by hand instead and
@@ -381,7 +381,7 @@ files, and every tracked build leftover.
 
 ## Human follow-ups
 
-- Delete the abandoned branch `dead-code/studio-resources` (PR #2055 closed unmerged); `push --delete` 403s here.
+- Delete the abandoned branch `dead-code/studio-resources` (PR #2055 closed unmerged); push and REST delete 403.
 - Decide the *Deferred findings* that are public in a published artifact, plus the two empty test jars, the
   commented-out test code and the 153 `(non-Javadoc) @see` markers — each dead, each needing a human's word.
 - `Util/openl-maven-plugin/site/site.xml` links 8 pages its `<reporting>` entry no longer generates: the report
@@ -394,7 +394,7 @@ files, and every tracked build leftover.
 
 ## Run log
 
-- Run 39: `javascript:S2814` shipped 2 redundant `var`s; `java:S1133`, `typescript:S8980`, `S6xxx`-`S9xxx` closed.
 - Run 40: no deletion; #2063 verified, counts re-derived; the profile-delta check was built, closing the last vein.
-- Run 41: no deletion; #2063 green but for the answered gate, body accurate, no comment to answer; the delta check
-  and a top-rule facet cross-check both confirm every vein spent.
+- Run 41: no deletion; #2063 green but for the answered gate, body accurate, every vein confirmed spent.
+- Run 42: no deletion; answered the gate's new 5th BUG as pre-existing, re-proved the two `this` removals safe
+  (both in lambdas), delta check clean through 2026-09-02.
