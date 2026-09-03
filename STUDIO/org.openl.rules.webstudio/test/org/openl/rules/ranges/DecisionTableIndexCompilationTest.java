@@ -102,6 +102,13 @@ class DecisionTableIndexCompilationTest {
         assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
         assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
 
+        // the lookup of the ternary may be written as its last part as well
+        dt = findDt("ContainsInInputArrayIndex_WithTernaryElse", openClass);
+        assertConditionsNumber(dt);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInInputArrayIndexedEvaluator.class);
+        assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+        assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
+
         // the test of the ternary reads the column, so its answer differs from rule to rule and cannot be static
         dt = findDt("Ternary_TestOverColumn", openClass);
         assertConditionsNumber(dt);

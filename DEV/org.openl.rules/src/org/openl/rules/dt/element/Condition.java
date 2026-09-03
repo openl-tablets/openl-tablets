@@ -92,8 +92,9 @@ public class Condition extends FunctionalRow implements ICondition {
     @Getter
     private CompositeMethod staticMethod;
     private CompositeMethod indexMethod;
-    private CompositeMethod elseMethod;
+    private CompositeMethod staticAnswerMethod;
     private boolean staticConjunction;
+    private boolean lookedUpWhenTestHolds;
 
     public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
         super(name, row, table, scale);
@@ -677,11 +678,11 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     /**
-     * Splits a condition written as {@code test ? indexed : otherwise}, where the test and the last part read the
-     * inputs of the table alone.
+     * Splits a condition written as {@code test ? indexed : otherwise} or as {@code test ? otherwise : indexed},
+     * where the test and the part that is not looked up read the inputs of the table alone.
      *
-     * <p>The test then decides whether the index is asked at all. When it does not hold, the answer of the last
-     * part is the answer of the condition for every rule.
+     * <p>The test then decides whether the index is asked at all. When it points at the other part, the answer of
+     * that part is the answer of the condition for every rule.
      *
      * <p>Returns {@code false} when the condition is written of anything else, and the condition is left as it is.
      */
@@ -713,21 +714,37 @@ public class Condition extends FunctionalRow implements ICondition {
         if (testMethod == null || isDependentOnInputParams(testMethod)) {
             return false;
         }
-        var otherwiseMethod = compileStaticSource(new SubTextSourceCodeModule(module, colon + 1), signature, openl);
-        if (otherwiseMethod == null || isDependentOnInputParams(otherwiseMethod)) {
+        var thenSource = new SubTextSourceCodeModule(module, questionMarkEnd + 1, colon);
+        var elseSource = new SubTextSourceCodeModule(module, colon + 1);
+        return splitTernaryParts(testMethod, thenSource, elseSource, true, signature, openl, bindingContext)
+                || splitTernaryParts(testMethod, elseSource, thenSource, false, signature, openl, bindingContext);
+    }
+
+    /**
+     * Compiles the part of the ternary that is looked up in the index and the part that answers without it.
+     *
+     * <p>Returns {@code false} when the parts are written the other way round.
+     */
+    private boolean splitTernaryParts(CompositeMethod testMethod,
+                                      IOpenSourceCodeModule lookedUp,
+                                      IOpenSourceCodeModule answered,
+                                      boolean lookedUpWhenTestHolds,
+                                      IMethodSignature signature,
+                                      OpenL openl,
+                                      IBindingContext bindingContext) {
+        var answerMethod = compileStaticSource(answered, signature, openl);
+        if (answerMethod == null || isDependentOnInputParams(answerMethod)) {
             return false;
         }
-        var compiledIndexMethod = compileIndexSource(new SubTextSourceCodeModule(module, questionMarkEnd + 1, colon),
-                signature,
-                openl,
-                bindingContext);
+        var compiledIndexMethod = compileIndexSource(lookedUp, signature, openl, bindingContext);
         if (compiledIndexMethod == null || !isDependentOnInputParams(compiledIndexMethod)) {
             return false;
         }
         this.staticMethod = testMethod;
-        this.elseMethod = otherwiseMethod;
+        this.staticAnswerMethod = answerMethod;
         this.indexMethod = compiledIndexMethod;
         this.staticConjunction = false;
+        this.lookedUpWhenTestHolds = lookedUpWhenTestHolds;
         return true;
     }
 
@@ -740,12 +757,12 @@ public class Condition extends FunctionalRow implements ICondition {
     @Override
     public Boolean evaluateStaticDecision(Object[] params, IRuntimeEnv env) {
         var result = (Boolean) staticMethod.invoke(null, params, env);
-        if (elseMethod != null) {
+        if (staticAnswerMethod != null) {
             // the test chooses between the lookup and an answer that does not look at the rules at all
-            if (Boolean.TRUE.equals(result)) {
+            if (Boolean.TRUE.equals(result) == lookedUpWhenTestHolds) {
                 return null;
             }
-            return Boolean.TRUE.equals(elseMethod.invoke(null, params, env)) ? Boolean.TRUE : Boolean.FALSE;
+            return Boolean.TRUE.equals(staticAnswerMethod.invoke(null, params, env)) ? Boolean.TRUE : Boolean.FALSE;
         }
         if (staticConjunction) {
             // the condition holds only when both parts do, so anything but true leaves no rule to match
@@ -837,8 +854,9 @@ public class Condition extends FunctionalRow implements ICondition {
     public void resetOptimizedExpression() {
         this.staticMethod = null;
         this.indexMethod = null;
-        this.elseMethod = null;
+        this.staticAnswerMethod = null;
         this.staticConjunction = false;
+        this.lookedUpWhenTestHolds = false;
     }
 
     @Override
