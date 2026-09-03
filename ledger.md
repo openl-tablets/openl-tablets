@@ -4,10 +4,10 @@
 
 PR #2063 waits only on the owner's merge: mergeable, no review comment, CodeRabbit paused, every CI job green,
 only the deterministic SonarCloud gate red — its D is a pre-existing Critical and it stays red at C without it,
-so never revert a clean removal for it; its five BUGs are answered and a sixth comment saying so is noise.
-Every detector is spent, so a run is PR maintenance, compaction, the profile-delta check and a sweep of what
-main gained since `09613f05`, callers of this PR's own edits included. CONCURRENCY: runs share this ledger and
-this PR — add what is missing, treat a CI event for a superseded `head_sha` as stale, never arm a chain.
+so never revert a clean removal for it; its five BUGs are answered and a sixth saying so is noise. Its trial
+merge onto `09613f05` is clean and coherent — redo it only when main moves past that. Every detector is spent,
+so a run is PR maintenance, compaction, the profile-delta check (covered through 2026-09-02) and main's delta.
+CONCURRENCY: runs share this ledger and this PR; a CI event for a superseded `head_sha` is stale, never chain.
 
 ## Change-type queue
 
@@ -162,6 +162,8 @@ a spent detector is waste, and a rule that rewrites, hoists or adds a check is o
   `#{bean.propertyType}` call `getPropertyType()` without ever spelling it.
 - When this container's npm rewrites unrelated lock metadata, remove the lock's own regions by hand instead and
   prove coherence with `npm ci`, which fails when the lock and `package.json` disagree.
+- Never rebase a green PR merely to be current: trial-merge it onto `origin/main` in a detached worktree and
+  prove the result instead. A rebase burns a CI cycle, and the merge is where a clean-merging lock is caught.
 - Before deleting a dead `throws`, read the callers: an unreachable `catch` at a call site becomes a compile
   error, and a caller whose own clause had no other source inherits the finding — deletable only if that caller
   is not itself held by a safety rail.
@@ -261,8 +263,6 @@ a spent detector is waste, and a rule that rewrites, hoists or adds a check is o
   then `java -cp 'lib/*' net.sourceforge.pmd.cli.PmdCli check --no-cache --file-list <ABSOLUTE paths> -f csv`.
   Relative paths in the list resolve against PMD's own cwd and silently match nothing. maven-pmd-plugin
   misses test sources; PMD reports a field of a nested or anonymous class, which reads like a local variable.
-- `help:effective-pom -Pitest` writes all 172 effective poms into one 20 MB file in seconds — the cheapest proof.
-- `dependency:analyze-only` needs `-fae`; Error Prone contributes nothing — PMD is the only Java signal.
 - Frontend verification is the gate for `studio-ui`: `npm ci`, `npx tsc --noEmit`, `npx eslint <files>`,
   `npx vitest run` (183 files, 1699 tests, ~3.5 min) and `npm run build` — the WHOLE gate for a TypeScript-only
   diff, since that is what frontend-maven-plugin runs. Never judge it while Maven holds the same `node_modules`.
@@ -394,6 +394,6 @@ files, and every tracked build leftover.
 
 ## Run log
 
-- Run 42: no deletion; answered the gate's 5th BUG as pre-existing, re-proved the two `this` removals safe.
 - Run 43: no deletion; #2063 re-verified, no new profile batch, yaml closed as the last unchecked language.
 - Run 44: no deletion; every #2063 job green at last, main's 3-commit delta and the profile check both clean.
+- Run 45: no deletion; main unmoved, profile check clean, #2063's merge onto it proven by the frontend gate.
