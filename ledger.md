@@ -3,11 +3,12 @@
 ## Resume point
 
 PR #2063 waits only on the owner's merge: mergeable, no review comment, CodeRabbit paused, every CI job green,
-only the deterministic SonarCloud gate red — its D is a pre-existing Critical and it stays red at C without it,
-so never revert a clean removal for it; its five BUGs are answered and a sixth saying so is noise. Its trial
-merge onto `09613f05` is clean and coherent — redo it only when main moves past that. Every detector is spent,
-so a run is PR maintenance, compaction, the profile-delta check (covered through 2026-09-02) and main's delta.
-CONCURRENCY: runs share this ledger and this PR; a CI event for a superseded `head_sha` is stale, never chain.
+only the deterministic SonarCloud gate red — its sole failing condition is `new_reliability_rating` 4, driven by
+the pre-existing Critical `javabugs:S6466`, and it stays red at C without it, so never revert a clean removal for
+it; its five BUGs are answered and a sixth saying so is noise. Its trial merge onto `09613f05`, still main's tip,
+is clean — redo it only when main moves past that. Every detector is spent, so a run is PR maintenance,
+compaction, the profile-delta check (covered through the 2026-09-02 batch) and main's delta. CONCURRENCY: runs
+share this ledger and this PR; a CI event for a superseded `head_sha` is stale, never chain.
 
 ## Change-type queue
 
@@ -17,9 +18,9 @@ a spent detector is waste, and a rule that rewrites, hoists or adds a check is o
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `a0e0041f`, 291 files, 628 deleted and 346 added lines, 26
-  commits, one per change type with its own PR-body section, which alone records what each kept and why. Derive
-  the counts against the MERGE BASE. Its 69 KB body stores fine, but it overflows an MCP read — curl it.
+- #2063, branch `dead-code/dead-suppressions`, head `a0e0041f`, merge base `c0213fe6`, 291 files, 628 deleted and
+  346 added lines, 26 commits, one per change type with its own PR-body section, which alone records what each
+  kept and why; the body matches that diff. Derive every count against the MERGE BASE, never against main.
 
 ## Merged PRs
 
@@ -300,84 +301,71 @@ a spent detector is waste, and a rule that rewrites, hoists or adds a check is o
 
 ## Exhausted veins
 
-Java, all of it closed. PMD's five dead-code rules over all 4031 files (50 violations, one real); every
-`@SuppressWarnings` key (151, only the 14 `deprecation` ones decidable, one dead); every JavaDoc `@param`,
-`@return`, `@throws` and `{@inheritDoc}` (nine dead tags shipped, one `@return` deferred); commented-out code in
-all 4033 files as `//` runs and `/* */` blocks (58 production files shipped); every method type parameter (only
-generic-overload fixtures unused); all 79 `serialVersionUID`; every class-level type parameter of the 105
-generic declarations (three unused, all public API); `package-info.java` in a source-less package. Statements:
-every bare `super();` (47, all shipped) and every override whose body is only a `super` call (22, none deletable);
-the one lone `;` is an enum's required separator, and every `};` is an initializer or an anonymous class.
-Members: every package-private method and field, every enum constant by occurrence, and every non-overriding
-public or protected member of a package-private top-level or non-public nested class — all have callers. Whole
-types: every non-public top-level type, every one in `.impl.`/`.internal.`, every test type with no `@Test`, and
-the non-public production types against a production/test split. Public members of the non-published modules (133
-files, 52 candidates) — all framework-driven. EVERY PMD java rule whose fix is a deletion has run over all ~4033
-files, so that family is SPENT — enumerate the categories again only to check a NEW rule, never for a new vein.
-Eleven of its rules report nothing; the rest report only style, rewrites, or the load-bearing
-constructs *False-positive shapes* describes — `DanglingJavadoc`'s 104 of 120 hits are an Exigen copyright banner.
+Java, all of it closed. PMD's five dead-code rules over every file; every `@SuppressWarnings` key; every JavaDoc
+`@param`, `@return`, `@throws` and `{@inheritDoc}`; commented-out code as `//` runs and `/* */` blocks; every
+method type parameter; every `serialVersionUID`; every class-level type parameter; `package-info.java` in a
+source-less package. Statements: every bare `super();` and every override whose body is only a `super` call; the
+lone `;` is an enum's required separator, and every `};` is an initializer or an anonymous class. Members: every
+package-private method and field, every enum constant by occurrence, and every non-overriding public or protected
+member of a package-private top-level or non-public nested class. Whole types: every non-public top-level type,
+every one in `.impl.`/`.internal.`, every test type with no `@Test`, and the non-public production types against
+a production/test split. Public members of the non-published modules — all framework-driven. EVERY PMD java rule
+whose fix is a deletion has run over every file, so that family is SPENT — enumerate the categories again only to
+check a NEW rule, never for a new vein; the rest report only style, rewrites, or the load-bearing constructs
+*False-positive shapes* describes.
 
-SonarCloud's own analysis of `main`, faceted over all 7504 issues and then queried rule by rule, is a second Java
-signal PMD does not subsume. Its whole deletion family is now checked: `S1128`/`S1116`/`S3985`/
-`S1596`/`S2168`/`css:S4658` report nothing at all, `S1144`, `S1068`, `S1481`, `S1854`, `S2094` and `S1119` report
-only false positives or the members safety rail 2 already holds, `S3626` yielded the two `continue`s shipped, and
-`S1197`, `S1226`, `S1155`, `S3457`, `S4144`, `S1871`, `S2696` are refactors. `S1130`'s 133 dead `throws` clauses
-gave 5 and `S1172`'s 229 unused parameters NOTHING — every survivor of both is a test method, a member safety
-rail 2 holds, or an edit at every call site. Its `javascript:*` dead-store and unused-local hits are vendored or
-generated but for `popup.js`, shipped, and the two deferred `.xhtml` pages; `javascript:S2814`'s 45
-redeclarations gave the 2 shipped, and `java:S1133` and `typescript:S8980` nothing (see *Deferred*).
-Its whole `S6xxx`-`S9xxx` generation was named rule by rule and is style or rewrite throughout — date API,
-comment slashes, `assertThrows`, regex hoisting, Mockito `eq`, `@Deprecated` arguments, `Stream.toList`,
-`Number.isNaN`, `String.raw`, `replaceAll`, `self`. The profile-delta check covers every rule ACTIVATED since
-2026-08-01 in all seven analyzed languages, through the 2026-09-02 batch (37 java, 11 js, 9 ts, 15 xml all Mule,
-none for web, css or yaml). Exactly one has a deletion for a fix, `java:S9341` redundant Spring annotations,
-whose 0 is PROVEN — activated 2026-08-21, before main's last analysis; the rest add a check, a cast or a rewrite.
+SonarCloud's own analysis of `main`, faceted over every issue and then queried rule by rule, is a second Java
+signal PMD does not subsume, and its whole deletion family is now checked: `S1128`/`S1116`/`S3985`/`S1596`/
+`S2168`/`css:S4658` report nothing at all; `S1144`, `S1068`, `S1481`, `S1854`, `S2094`, `S1119`, `S1130` and
+`S1172` report only false positives, test methods, members safety rail 2 holds, or an edit at every call site;
+and `S1197`, `S1226`, `S1155`, `S3457`, `S4144`, `S1871`, `S2696` are refactors. Its `javascript:*` dead-store,
+unused-local and `S2814` hits are vendored, generated, already shipped, or the two deferred `.xhtml` pages;
+`java:S1133` and `typescript:S8980` gave nothing (see *Deferred*). Its whole `S6xxx`-`S9xxx` generation was named
+rule by rule and is style or rewrite throughout. The profile-delta check covers every rule ACTIVATED since
+2026-08-01 in all seven analyzed languages, through the 2026-09-02 batch. Exactly one has a deletion for a fix,
+`java:S9341` redundant Spring annotations, whose 0 is PROVEN — activated before main's last analysis; the rest
+add a check, a cast or a rewrite.
 
-Maven, all of it closed. `dependency:analyze-only` over all 51 analyzable modules in every scope; every
-`<exclusion>` resolved in isolation (three shipped); every non-import `dependencyManagement` and
-`pluginManagement` entry (five shipped) and every import BOM; every `<build><plugins>` declaration; every
-`<include>`/`<exclude>` pattern, literal and wildcard (four shipped); every `<properties>` and profile id; every
-empty element and path-valued `sonar.*` property; every system property and `argLine` flag handed to surefire
-(one shipped); both root `<repositories>` and no `<pluginRepository>`; every pom directory reachable from the
-reactor; both archetype modules and all four assembly descriptors; all 36 `openl-maven-plugin` mojo `@Parameter`
-fields. And every top-level child of every `<configuration>` block, checked against each plugin's own
-`plugin.xml`, execution-level ones also against the goals their execution declares — one dead `requirements`
-block shipped, everything else accepted.
-Also every dependency declaration against its whole parent chain's own `<dependencies>` (two overlaps, both real
-scope overrides) and every element whose value is simply the Maven default (three, all deferred).
+Maven, all of it closed. `dependency:analyze-only` over every analyzable module in every scope; every
+`<exclusion>` resolved in isolation; every non-import `dependencyManagement` and `pluginManagement` entry and
+every import BOM; every `<build><plugins>` declaration; every `<include>`/`<exclude>` pattern, literal and
+wildcard; every `<properties>` and profile id; every empty element and path-valued `sonar.*` property; every
+system property and `argLine` flag handed to surefire; both root `<repositories>` and no `<pluginRepository>`;
+every pom directory reachable from the reactor; both archetype modules and all four assembly descriptors; every
+`openl-maven-plugin` mojo `@Parameter` field; every top-level child of every `<configuration>` block, checked
+against each plugin's own `plugin.xml` and execution-level ones also against the goals their execution declares;
+every dependency declaration against its whole parent chain's own `<dependencies>` (both overlaps real scope
+overrides); and every element whose value is simply the Maven default (all deferred).
 
 Resources and descriptors, all of it closed. Unreferenced whole files, by a type census that left no extension
 out: every image, `.xhtml`, non-`studio-ui` `.js`/`.css`, `.html`, and every other tracked type down to the
 extensionless dotfiles — the stragglers (`.ps1`, `.apt`, `.map`, `.webmanifest`, `.svg`, `.jj`) all live or
-vendored. Every non-test `.properties` file again against its actual loader, not a name search (three findings,
-the last `deployer.properties`). Keys: `openapi.properties`, webstudio `messages.properties`,
-`ValidationMessages.properties`, every `studio-ui` locale key, every `openl-default.properties` key and the DEMO
-overrides, and each flyway placeholder. Duplicate declarations inside one file: every `.properties`, every
-`.json`, and the repeatable children of every pom. Descriptors: class references in all 67 convention-loaded
-ones and paths in the seven webapp descriptors; every entry of the webstudio `web.xml`, the only one (the
-`/action/prop_values` servlet shipped); all 8 servlet `param-name`s; the three log4j2 configurations;
+vendored. Every non-test `.properties` file again against its actual loader, not a name search. Keys:
+`openapi.properties`, webstudio `messages.properties`, `ValidationMessages.properties`, every `studio-ui` locale
+key, every `openl-default.properties` key and the DEMO overrides, and each flyway placeholder. Duplicate
+declarations inside one file: every `.properties`, every `.json`, and the repeatable children of every pom.
+Descriptors: class references in every convention-loaded one and paths in the seven webapp descriptors; every
+entry of the webstudio `web.xml`, the only one; every servlet `param-name`; the three log4j2 configurations;
 `compose.yaml` and the `Dockerfile` in full. There is no `.dockerignore` and no `.mvn/`.
 
 Web and frontend, all of it closed. CSS exhaustively: every class and id selector in all eleven own stylesheets,
-the 22 inline `<style>` blocks and `DEMO/webapps/ROOT/main.css`, plus every duplicate selector pair and repeated
+the inline `<style>` blocks and `DEMO/webapps/ROOT/main.css`, plus every duplicate selector pair and repeated
 property; those stylesheets hold no at-rule and no custom property at all, and they are every stylesheet the
 repository owns — `studio-ui` ships none, its styling coming from antd and inline styles. JSF: both Facelets
 taglibs, every `ui:define` against every `ui:insert`, every `ui:param`, `<c:set var>`, `f:facet` name and
-`f:param`, the one `<ui:remove>`, no navigation rule anywhere, and every `id` attribute of the 46 pages (70
-unreferenced, none deletable — see *Deferred findings*). Also both directions of the attributes on OpenL's own
-two tags: the 21 passed by the 6 `rules:tableEditor` sites against `renderkit.TableEditor`, which reads the
-attribute map since `UITableEditor` is a bare `UIOutput`, and all 46 `Constants` members that name them — every
-one read, only `collapseProps` supported without a caller. JS: function and prototype-method deadness in
-`common.js`, `bomjs.js` and every own tableeditor script, the two own jQuery plugins, all 26 inputs of the four
-bundle scripts, and every module-scope variable in them — all in `TableEditor.js`, all read by its toolbar code.
-`studio-ui`: all 776 exports, whole-file deadness over its 562 sources, every `tsconfig.json` option, all 8
-`@ts-ignore` (one dead), every `eslint-disable` (none exist), the npm scripts and declarations, every top-level
-`package.json` field (the CRA `homepage` shipped), the imports of the three files no linter covers (one dead),
-and `tsc --noUnusedLocals --noUnusedParameters` project-wide (the 51 dead `React` imports shipped). Also every
-`xmlns:` prefix and `data-*` attribute, every `.editorconfig` section, `.gitattributes` pattern and `.gitignore`
-line (one dead), every Jekyll layout, include and `navigation.yml` url, the whole of `DEV/org.openl.rules.gen`
-(four dead members shipped), all 5 own `.sh`/`.cmd` scripts, identical-content duplicates across production
-files, and every tracked build leftover.
+`f:param`, the one `<ui:remove>`, no navigation rule anywhere, and every `id` attribute of the 46 pages (none
+deletable — see *Deferred findings*). Also both directions of the attributes on OpenL's own two tags: those
+passed by the `rules:tableEditor` sites against `renderkit.TableEditor`, which reads the attribute map since
+`UITableEditor` is a bare `UIOutput`, and every `Constants` member that names them — only `collapseProps` is
+supported without a caller. JS: function and prototype-method deadness in `common.js`, `bomjs.js` and every own
+tableeditor script, the two own jQuery plugins, every input of the four bundle scripts, and every module-scope
+variable in them. `studio-ui`: every export, whole-file deadness over its sources, every `tsconfig.json` option,
+every `@ts-ignore`, every `eslint-disable` (none exist), the npm scripts and declarations, every top-level
+`package.json` field, the imports of the three files no linter covers, and `tsc --noUnusedLocals
+--noUnusedParameters` project-wide. Also every `xmlns:` prefix and `data-*` attribute, every `.editorconfig`
+section, `.gitattributes` pattern and `.gitignore` line, every Jekyll layout, include and `navigation.yml` url,
+the whole of `DEV/org.openl.rules.gen`, all 5 own `.sh`/`.cmd` scripts, identical-content duplicates across
+production files, and every tracked build leftover.
 
 ## Human follow-ups
 
@@ -394,6 +382,6 @@ files, and every tracked build leftover.
 
 ## Run log
 
-- Run 43: no deletion; #2063 re-verified, no new profile batch, yaml closed as the last unchecked language.
 - Run 44: no deletion; every #2063 job green at last, main's 3-commit delta and the profile check both clean.
 - Run 45: no deletion; main unmoved, profile check clean, #2063's merge onto it proven by the frontend gate.
+- Run 46: no deletion; #2063 and main unchanged, profile check clean, ledger compacted 399 to 387 lines.
