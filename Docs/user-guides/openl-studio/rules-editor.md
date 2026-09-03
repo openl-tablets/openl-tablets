@@ -174,7 +174,7 @@ To compare module versions, proceed as follows:
 
     *Displaying the Changes window*
 
-    When a project is modified, upon clicking the **Save** icon ![](images/save-icon-alt.png), a temporary version of the module is created, and it appears in the list of local changes. When project update is complete, clicking **Save** removes all temporary versions from Local Changes, and a new version is added to the list of revisions.
+    When a project is modified, upon clicking the **Save** icon ![](images/edit-save-icon.png), a temporary version of the module is created, and it appears in the list of local changes. When project update is complete, clicking **Save** removes all temporary versions from Local Changes, and a new version is added to the list of revisions.
 
     ![Clicking Save to complete project update and save changes as a revision version](images/save-project-update-revision.jpeg)
 
