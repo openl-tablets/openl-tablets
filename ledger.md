@@ -2,23 +2,24 @@
 
 ## Resume point
 
-PR #2063 waits only on the owner's merge: no human has ever reviewed it, CodeRabbit reports nothing, every CI job
-is green, and only the SonarCloud gate is red on the pre-existing Critical already answered on the PR.
-Every detector is now spent: PMD, SonarCloud's own analysis of `main`, Maven, resources and the frontend. There is
-no queued vein left, so a run whose PR is green and answered has only compaction and a new Sonar rule to check.
+PR #2063 waits only on the owner's merge: no human has ever reviewed it, CodeRabbit has paused, every CI job is
+green, and only the SonarCloud gate is red on the pre-existing Critical already answered on the PR. That gate
+cannot go green here — the rating follows the worst severity in every TOUCHED file, so it stays red at C without
+the Critical, and fixing a pre-existing bug is no deletion. Never revert a clean removal for it. Every detector
+is spent, the Sonar profile included; a run has only compaction, PR maintenance and a rule NEW to that profile.
 CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
 replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
-All 122 closed — 45 shipped a deletion, 77 found nothing; *Exhausted veins* records what each covered.
+All 124 closed — 46 shipped a deletion, 78 found nothing; *Exhausted veins* records what each covered.
 The queue is empty. Open a new row only for a rule NEW to the Sonar profile; re-running a spent detector is waste.
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `f840d7f4`, 290 files, 626 deleted and 344 added lines, 25
+- #2063, branch `dead-code/dead-suppressions`, head `a0e0041f`, 291 files, 628 deleted and 346 added lines, 26
   commits, one per change type with its own PR-body section. Derive the counts against the MERGE BASE; that body
-  alone records what each commit kept and why.
+  alone records what each commit kept and why. Its body is 69 KB and still stores — PATCH it with curl, not MCP.
 
 ## Merged PRs
 
@@ -34,47 +35,47 @@ The queue is empty. Open a new row only for a rule NEW to the Sonar profile; re-
   (their `faces-config.xml` component types are the live path), five `XlsProjectionType` `CELL_*` constants,
   `DecisionTableBuilder.methodName`, `SimpleGroup.description`, `MergeResult.status` (each with its public
   setter), ~190 accessors named only at their declaration, and the four `super`-only overrides listed above.
-- `studio-ui`: `MergeModal/types.ts`'s three merge types are unused in code but documented in
-  `Docs/api/projects-merge-api.md`; ~70 exports are used only in their own file (un-exporting is a refactor);
-  `npm run clean` is named by nothing, but an npm script is a human entry point.
-- `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, which never touches it, yet two
-  modules reach it transitively from there; removing it needs a declaration added elsewhere.
+- All 104 `java:S1133` deprecated members: 98 public, protected or interface in a published artifact, one an
+  openl-maven-plugin `@Parameter` a pom can set, five non-public with live callers. Deprecation proves nothing.
+- The 61 `typescript:S8980` redundant `act()` wrappers: unwrapping re-indents the block, so each is a rewrite.
+- `studio-ui`: `MergeModal/types.ts`'s three merge types are documented in `Docs/api/projects-merge-api.md`; ~70
+  exports are used only in their own file (un-exporting is a refactor); `npm run clean` is a human entry point.
+- `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, which never touches it, yet two modules
+  reach it transitively from there — removing it needs a declaration added elsewhere.
 - `studio-ui` `eslint.config.js` registers `react-hooks` but enables no rule of it; both fixes change intent.
-- The `listeners` dead store in `copyModule.xhtml` and `editOpenAPI.xhtml`: dropping the variable turns the
-  assignment into a bare `new Listeners(...)`, the shape `javascript:S1848` already flags in `tableDetails
-  .xhtml`. A deletion that trades a dead store for a new Sonar Bug is a rewrite, so both stay.
+- The `listeners` dead store in `copyModule.xhtml` and `editOpenAPI.xhtml`: dropping the variable leaves a bare
+  `new Listeners(...)`, the shape `javascript:S1848` flags — trading a dead store for a Bug is a rewrite.
 - `TableVersionComparator`'s class-level `@return` is real prose about `compare`; moving it is a refactor.
-- `MappedRepository.refreshMappingWithLock`'s dead `throws IOException` stays: its only caller is the public
-  `initialize()`, whose own `throws IOException` has no other source, so the deletion moves the smell onto a
-  member rail 2 holds. The other 14 live `java:S1130` sites are public or protected in a published module.
-- 47 `<dependency><version>` elements the root already manages, and three default-valued elements, are read by
-  Maven and take precedence, so removing one changes behavior later: a human's DRY fix, not a deletion.
-- Three class-level type parameters are unused inside their own declaration yet public in a published artifact:
-  `ReturnOperation<ResultValueType>`, `IStorage<T>` and `ProjectService<T extends AProject>`. Dropping one
-  breaks every caller that writes the type with an argument.
+- `MappedRepository.refreshMappingWithLock`'s dead `throws IOException` stays: deleting it moves the finding onto
+  its only caller, the public `initialize()`, which rail 2 holds. The other 14 `java:S1130` sites are published.
+- 47 `<dependency><version>` elements the root already manages, plus three default-valued ones, are read by Maven
+  and take precedence — a human's DRY fix, not a deletion.
+- Three class-level type parameters are unused in their own declaration yet public: `ReturnOperation`,
+  `IStorage` and `ProjectService`. Dropping one breaks every caller that writes the type with an argument.
 
 ## False-positive shapes
 
 - An enum constant reached through `values()` is never named anywhere, so a name scan reports it dead. It is
   usually load-bearing: `Separator.DASH` is the primary range separator, `Brackets.CURLY` a bracket pair.
-- A token scan that counts the FILES containing a name hides every in-file caller, which for a private or
-  package-private member is the only possible caller. Count occurrences and compare against the declaration count.
+- A token scan counting the FILES containing a name hides every in-file caller, the only possible caller of a
+  private member. Count occurrences, compare against the declaration count.
 - A text-file token scan cannot see an `.xls*` rule workbook, and that is exactly where OpenL names a Java bean's
   property or a rule helper method. Accessor candidates in `DEV/org.openl.rules.test` and the ITEST rule projects
   are therefore unprovable, not dead.
-- A framework calls an accessor without naming it, in four ways worth checking before believing a hit: a JPA
-  `@Entity` accessor (Hibernate), a `@Bean` factory method (Spring), a setter for injection (`setEntityManager`),
-  and an interface method whose implementation carries no `@Override` (`StompSessionHandler.handleFrame`).
+- A framework calls an accessor without naming it, four ways worth checking first: a JPA `@Entity` accessor, a
+  `@Bean` factory method, an injection setter, and an interface method whose impl carries no `@Override`.
 - Deleting `var self = this` in browser JS fails SILENTLY when something still reads `self`: it is a global
   (`window.self === window`), so no ReferenceError — read every nested closure, not just the function body.
-- An override whose body is only a `super` call is load-bearing in four ways, and all 22 here are: its annotations
-  are the point; a `hashCode` delegating to `super` satisfies the contract Sonar enforces; an override of a GENERIC
-  super method keeps the concrete parameter type erasure drops; `wrapper/base/**` needs `WrapperValidation`.
+- An override whose body is only a `super` call is load-bearing four ways, and all 22 here are: its annotations are
+  the point; `hashCode` delegating to `super` satisfies Sonar's contract; an override of a GENERIC super method
+  keeps the concrete type erasure drops; `wrapper/base/**` needs `WrapperValidation`.
 - A redundant no-op construct is load-bearing when the construct itself is the mechanism: `synchronized (this) {
   return; }` waits out every other synchronized block, an empty `while (in.read() != -1);` drains a stream, and a
   trailing `return;` closing a chain of `if (…) { setX(); return; }` or of arms that throw is symmetry. PMD and
   Sonar `java:S3626` flag all of them; only a `continue` ending an `if`/`else if` arm is really deletable, and it
   leaves a comment-only block, which Sonar accepts and which the `java:S135` one-jump-per-loop rule prefers.
+- A generated bundle inherits every finding of the vendored file concatenated into it: all 15 in
+  `tableeditor.all.js` fall in the `datepicker.js` span. Map its ranges from `compile.js.sh` before believing one.
 - Sonar sees no method reference in its unused-private-method rule: `java:S1144` calls `XlsBinder
   .addBindingContextError` dead while `holder::addBindingContextError` is its caller one screen above.
 - An API-safety check comparing a member's access against its class must match the class DECLARATION: a regex for
@@ -89,12 +90,12 @@ The queue is empty. Open a new row only for a rule NEW to the Sonar profile; re-
 - An "overwritten" assignment is load-bearing whenever anything between the two writes can observe it: an early
   return leaves the initializer as what the getter returns, `Condition.await` hands the field to another thread,
   a callee reads a field restored in `finally`, and a getter publishes it to other beans. Read the control flow.
-- A "never used" local is load-bearing when the declaration itself is the point: a try-with-resources resource
-  whose construction and close are what the test asserts, or a loop variable used only to count iterations.
+- A "never used" local is load-bearing when the declaration is the point: a try-with-resources whose construction
+  and close are what the test asserts, or a loop variable used only to count iterations.
 - Test sources dominate any unreferenced-member scan and are almost never dead: the runner discovers the required
   package-private classes, a `@Test`-less type is a fixture or a named bean, a private member an assertion's
   subject. Never tidy any of it.
-- A package-private `@Component` is injected by its interface, so its own simple name appears in no other file.
+- A package-private `@Component` is injected by its interface, so its simple name appears in no other file.
 - A token comparison fails both ways unless exact: a regex admitting `(` swallows the paren of markdown
   `![alt](name.png)`, a substring matches `add.png` inside `toolbar_add.png` and a typo'd `512x512.pngs`, so a
   BROKEN reference makes a file look alive. Require a boundary; reject a line by token.
@@ -125,8 +126,8 @@ The queue is empty. Open a new row only for a rule NEW to the Sonar profile; re-
 - A manifest field is read by a tool DEEP in the dependency tree, not by the one the project names: Babel, which
   `@vitejs/plugin-react` drives, reads the `browserslist` field because it never sets `browserslistConfigFile`.
 - A field initializer assigning the JVM default is redundant EXCEPT where the field can be written before it runs:
-  a superclass constructor making a virtual call, or a static block placed above a static field. Only
-  `ComponentOpenClass`/`ADynamicClass` call out of a constructor here (`addField`, `addMethod`, `fieldMap`).
+  a superclass constructor's virtual call, or a static block above a static field. Only `ComponentOpenClass` and
+  `ADynamicClass` call out of a constructor here.
 - A redundant-construct detector reads the construct, not the type context that makes it load-bearing: a cast IS
   the declared type under `var` (`var x = (double) 10` boxes to Double, without the cast to Integer), explicit
   boxing pins one of the 16 `Operators` overloads per operator, `((Double) o).doubleValue()` differs from
@@ -147,18 +148,18 @@ The queue is empty. Open a new row only for a rule NEW to the Sonar profile; re-
   candidates, the individual search is the proof. For a large candidate set, tokenize the whole corpus in ONE
   pass and set-difference: per-candidate regex never finishes, one pass over 13.4k text files takes a minute.
 - Anchor a per-line regex with `[ \t]*`, never `\s*`: a greedy `\s*` eats the newline, skipping the next tag.
-- A module that publishes nothing has no public API to protect: `maven.deploy.skip` plus `pom` packaging (as in
-  `DEV/org.openl.rules.gen`) means no artifact is ever released, so its public members are internal code. The
-  full set is `DEMO/`, `DEV/org.openl.rules.gen`, `DEV/org.openl.rules.test` and `ITEST/**`; all are swept.
+- A module that publishes nothing has no public API to protect: `maven.deploy.skip` plus `pom` packaging means no
+  artifact is released, so its public members are internal. `DEMO/`, `DEV/org.openl.rules.gen`,
+  `DEV/org.openl.rules.test` and `ITEST/**` — all swept.
 - OpenL models a Java type from `getDeclaredMethods()` alone (`JavaOpenClass.initMethodMap`), keyed on erased
   parameter types, so deleting a declaration a subclass merely inherits still changes the rule-visible signature
   set. A member removal in a rule-reachable type needs that checked, not just the compile.
 - Deleting a Java class is provable without compiling its module: a repo-wide search for its simple and its
   fully qualified name plus the reflective string registrations is complete. The same holds for a local or
   private member, whose scope is one file; CI's `Build artifacts` job is then the compile gate.
-- Sonar's reliability rating on new code follows the WORST severity — Critical is D, Major only C — so one
-  pre-existing Critical re-attributed because its file entered the diff flips the gate on a deletion-only PR.
-  Query the same rule and line on `main` before believing it is new; `WorkbookListener.java:273` was.
+- Sonar's reliability rating on new code follows the WORST severity — Critical is D, Major only C — so a
+  pre-existing Critical re-attributed because its file entered the diff reds the gate. Query the same line on
+  `main` before believing it is new.
 - Search an accessor by its property name as well as its method name: Velocity `$w.propertyType` and JSF EL
   `#{bean.propertyType}` call `getPropertyType()` without ever spelling it.
 - When this container's npm rewrites unrelated lock metadata, remove the lock's own regions by hand instead and
@@ -172,8 +173,8 @@ The queue is empty. Open a new row only for a rule NEW to the Sonar profile; re-
   repeated fragment: a bare `},` deletes every closing brace in the file.
 - Deleting a local variable takes its now-unused import with it, in the same commit — check the type's every
   remaining occurrence, bare and parameterized, or Spotless removes it later as unexplained churn.
-- Dead CSS and an unreachable `/action/*` servlet have maintainer precedent; only a removal a user could
-  observe needs a release-notes entry, which an internal endpoint with no button never is.
+- Dead CSS and an unreachable `/action/*` servlet have maintainer precedent; only a user-observable removal
+  needs a release-notes entry, which an internal endpoint with no button never is.
 - Maven silently ignores a `<configuration>` element no mojo declares, so the oracle is `META-INF/maven/plugin
   .xml` inside the plugin jar in `~/.m2`: every `<parameter><name>` and `<alias>` per goal, and the goals it has.
 
@@ -320,9 +321,13 @@ only false positives or the members safety rail 2 already holds, `S3626` yielded
 `S1197`, `S1226`, `S1155`, `S3457`, `S4144`, `S1871`, `S2696` are refactors. `S1130`'s 133 dead `throws` clauses
 gave 5 (97 sit on test methods, 16 on published public or protected members, 2 cascade — see *Deferred*), and
 `S1172`'s 229 unused parameters give NOTHING: none is private, 52 are test code, 159 are public or protected in a
-published module, and the 7 package-private ones need an edit at every call site, which is a refactor. Its `javascript:*` dead-store and
-unused-local hits are all in vendored or generated files but for `popup.js`, shipped, and the two deferred
-`.xhtml` pages. Only a rule NEW to the Sonar profile is worth another pass.
+published module, and the 7 package-private ones need an edit at every call site, which is a refactor. Its
+`javascript:*` dead-store and unused-local hits are all vendored or generated but for `popup.js`, shipped, and
+the two deferred `.xhtml` pages. `java:S1133`'s 104 deprecated members and `typescript:S8980`'s 61 redundant
+`act()` calls give nothing (see *Deferred*); `javascript:S2814`'s 45 redeclarations gave the 2 shipped.
+Its whole `S6xxx`-`S9xxx` generation was named rule by rule and is style or rewrite throughout — date API,
+comment slashes, `assertThrows`, regex hoisting, Mockito `eq`, `@Deprecated` arguments, `Stream.toList`,
+`Number.isNaN`, `String.raw`, `replaceAll`, `self`. Only a rule ADDED to the profile is still a vein.
 
 Maven, all of it closed. `dependency:analyze-only` over all 51 analyzable modules in every scope; all 18
 `<exclusion>` entries resolved in isolation (three shipped); all 147 non-import `dependencyManagement` and 25
@@ -376,22 +381,20 @@ tracked build leftover.
 
 ## Human follow-ups
 
-- Delete the abandoned remote branch `dead-code/studio-resources` (PR #2055 closed unmerged, so auto-delete
-  missed it); `git push --delete` gets 403 here.
-- Decide on the *Deferred findings* entries that are public in a published artifact, the two empty test jars,
-  the commented-out test code, and the 153 `(non-Javadoc) @see` markers — each is dead, each needs a human's word.
-- Restore what `Util/openl-maven-plugin/site/site.xml` links to: the report goal lives in
-  maven-plugin-report-plugin now, so that `<reporting>` entry generates none of the 8 pages the menu names.
-- Correct `@SuppressWarnings("deprecated")` on `RulesUtilsTest.testParseFormattedDouble`: the key is `deprecation`.
-- Collapse the duplicated deployment examples: `Docs/examples/production/` and `Docs/production-deployment/`
-  hold the same 32 files twice, so every future edit has to be made twice.
-- Fix the `studio-ui` web manifest: its 512x512 icon entry names `android-chrome-512x512.pngs`, one character off
-  the file that exists, so that icon never loads. A typo fix, not a deletion.
-- Stale documentation, text fixes rather than deletions: `rules-projects.md` names a nonexistent
-  `TablePropertyValidatorsWrapper.init()`; `common-tasks.md` and the `studio-ui` README name npm scripts the
-  project no longer has; the archetype descriptor name is a WSO2 leftover.
+- Delete the abandoned branch `dead-code/studio-resources` (PR #2055 closed unmerged); `push --delete` 403s here.
+- Decide the *Deferred findings* that are public in a published artifact, plus the two empty test jars, the
+  commented-out test code and the 153 `(non-Javadoc) @see` markers — each dead, each needing a human's word.
+- `Util/openl-maven-plugin/site/site.xml` links 8 pages its `<reporting>` entry no longer generates: the report
+  goal moved to maven-plugin-report-plugin.
+- Typos to fix, not deletions: `@SuppressWarnings("deprecated")` on `RulesUtilsTest.testParseFormattedDouble`
+  (the key is `deprecation`), and the web manifest's `android-chrome-512x512.pngs`, so that icon never loads.
+- `Docs/examples/production/` and `Docs/production-deployment/` hold the same 32 files twice. Stale prose:
+  `rules-projects.md` names a nonexistent `TablePropertyValidatorsWrapper.init()`; `common-tasks.md` and the
+  `studio-ui` README name npm scripts that are gone; the archetype descriptor name is a WSO2 leftover.
 
 ## Run log
 
 - Runs 35-37: types 110-118 plus the SonarCloud family shipped ~180 lines; the PMD deletion family is spent.
 - Run 38: `java:S1130` shipped 5 dead `throws` clauses; `java:S1172` assessed and closed; every detector is spent.
+- Run 39: `javascript:S2814` shipped 2 redundant `var`s; `java:S1133`, `typescript:S8980` and the rest of the
+  `S6xxx`-`S9xxx` generation closed — the Sonar profile is spent.
