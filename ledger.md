@@ -382,6 +382,7 @@ production files, and every tracked build leftover.
 
 ## Run log
 
-- Run 44: no deletion; every #2063 job green at last, main's 3-commit delta and the profile check both clean.
 - Run 45: no deletion; main unmoved, profile check clean, #2063's merge onto it proven by the frontend gate.
 - Run 46: no deletion; #2063 and main unchanged, profile check clean, ledger compacted 399 to 387 lines.
+- Run 47: no deletion; #2063 and main unchanged, profile check clean, the body's 28 headings realigned to the
+  26 commit subjects, so section and commit now map one to one by title.
