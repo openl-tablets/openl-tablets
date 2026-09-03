@@ -69,6 +69,11 @@ class DecisionTableIndexCompilationTest {
         assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
         assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
 
+        // the check holds only for an empty cell, so the lookup alone answers the condition
+        dt = findDt("ContainsInArrayIndex_EmptyOrContains", openClass);
+        assertConditionsNumber(dt);
+        assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], AContainsInArrayIndexedEvaluator.class);
+
         dt = findDt("EqualsIndex_WithStatic", openClass);
         assertConditionsNumber(dt);
         assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluatorV2.class);
