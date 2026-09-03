@@ -71,7 +71,7 @@ class ServiceInterfaceMethodInterceptingTest {
     public static class AroundInterceptor implements ServiceMethodAroundAdvice<Integer> {
         @Override
         public Integer around(Method interfaceMethod, Method beanMethod, Object proxy, Object... args) {
-            return Integer.valueOf(-1);
+            return -1;
         }
 
     }
