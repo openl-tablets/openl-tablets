@@ -64,6 +64,8 @@ removal is mass churn, not a deletion; the 7 public and 2 protected are held by 
 - A framework calls an accessor without naming it, in four ways worth checking before believing a hit: a JPA
   `@Entity` accessor (Hibernate), a `@Bean` factory method (Spring), a setter for injection (`setEntityManager`),
   and an interface method whose implementation carries no `@Override` (`StompSessionHandler.handleFrame`).
+- Deleting `var self = this` in browser JS fails SILENTLY when something still reads `self`: it is a global
+  (`window.self === window`), so no ReferenceError — read every nested closure, not just the function body.
 - `Outer.this.x` -> `this.x` is safe in a LAMBDA, which does not rebind `this`, but changes behavior in an
   ANONYMOUS CLASS, where `synchronized (Outer.this)` silently takes another monitor — and it compiles either way.
 - An override whose body is only a `super` call is load-bearing in four ways, and all 22 here are: its annotations
@@ -395,6 +397,4 @@ tracked build leftover.
 
 ## Run log
 
-- Run 35: types 110-111 shipped 168 `value =` elements and 2 `Type.this`; 15 more PMD rules run, 114-118 queued.
-- Run 36: types 114-118 shipped 8 lines over 4 commits; the PMD deletion-rule family is now spent.
-- Run 37: SonarCloud's API opened as a build-free detector; its deletion family shipped 4 lines over 2 commits.
+- Runs 35-37: types 110-118 plus the SonarCloud family shipped ~180 lines; the PMD deletion family is spent.
