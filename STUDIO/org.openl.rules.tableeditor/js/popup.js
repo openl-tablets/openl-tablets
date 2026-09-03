@@ -17,8 +17,6 @@ var Popup = Class.create({
     },
 
     show: function() {
-        var self = this;
-
         if (!this.popup) {
             this.popup = this.createPopup();
 
