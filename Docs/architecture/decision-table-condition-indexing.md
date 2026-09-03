@@ -79,6 +79,7 @@ A condition may guard the indexed part with a check on the table inputs only:
 isEmpty(codes) or contains(codes, code)
 isNotEmpty(codes) and contains(codes, code)
 isNotEmpty(code) ? contains(codes, code) : fallback
+isEmpty(code) ? fallback : contains(codes, code)
 ```
 
 Such an expression is split in two. The check is compiled as a static method that runs once per table call, and the
@@ -86,11 +87,13 @@ lookup is compiled as the indexed expression. The static answer then decides wha
 
 - **or** — a static `true` returns every rule of the index without a lookup, anything else runs the lookup;
 - **and** — a static `true` runs the lookup, anything else leaves only the rules with an empty condition cell;
-- **? :** — a static `true` runs the lookup, anything else answers the whole condition with the last part: every
-  rule of the index when that part is `true`, and only the rules with an empty condition cell otherwise.
+- **? :** — the test points at one of the two parts. When it points at the lookup, the lookup runs; when it points
+  at the other part, that part answers the whole condition: every rule of the index when it is `true`, and only
+  the rules with an empty condition cell otherwise. Either part may hold the lookup.
 
 The split is applied only when the check uses the table inputs alone and the looked up part is one of the indexed
-shapes. In the ternary the last part is a second static check, so it has to read the table inputs alone as well. A
+shapes. In the ternary the part that is not looked up is a second static check, so it has to read the table inputs
+alone as well. A
 check that reads the condition column answers differently from rule to rule, so such a condition keeps the default
 evaluator.
 
