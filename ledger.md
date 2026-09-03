@@ -2,13 +2,13 @@
 
 ## Resume point
 
-PR #2063 waits only on the owner's merge: no human has ever reviewed it, CodeRabbit has paused, every CI job is
-green, and only the SonarCloud gate is red on the pre-existing Critical already answered on the PR. That gate
-cannot go green here — the rating follows the worst severity in every TOUCHED file, so it stays red at C without
-the Critical, and fixing a pre-existing bug is no deletion. Never revert a clean removal for it. Every detector
-is spent, the Sonar profile delta included; a run has only compaction, PR maintenance and the profile-delta check.
-CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
-replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
+PR #2063 waits only on the owner's merge: 26 commits, mergeable, no human or review comment ever, CodeRabbit
+paused, every CI job green, and only the SonarCloud gate red on the pre-existing Critical already answered on the
+PR. That gate cannot go green here — the rating follows the worst severity in every TOUCHED file, so it stays red
+at C without the Critical, and fixing a pre-existing bug is no deletion. Never revert a clean removal for it.
+Every detector is spent, the profile delta included through the 2026-09-02 activations; a run has only PR
+maintenance, compaction and the profile-delta check. CONCURRENCY: runs 90 minutes apart share this ledger and the
+same PR — add what is missing, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
@@ -283,9 +283,10 @@ a spent detector is waste, and a rule that rewrites, hoists or adds a check is o
   `api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=<n>&types=BUG` names every issue,
   and the same query without `pullRequest` gives `main`'s open BUGs, which is how one is proved pre-existing
   — check `api/project_analyses/search` too, since that list is only as fresh as main's last analysis.
-  `&facets=rules&ps=1` on that same endpoint ranks every rule by hit count without returning an issue, and
-  `api/qualitygates/project_status` gives the gate's own conditions; an unknown `rules=` key is silently IGNORED
-  and returns the unfiltered total, so treat a suspiciously round 7504 as "no such rule", never as a finding.
+  `&facets=rules&ps=1` on that same endpoint ranks every rule by hit count without returning an issue — the one
+  cross-check that no deletion rule was missed, every rule above 80 hits here being a rewrite or style — and
+  `api/qualitygates/project_status` gives the gate's conditions. An unknown `rules=` key is silently IGNORED and
+  returns the unfiltered total (8134 and growing), so fetch it too and read a match as "no such rule".
 - PROFILE-DELTA CHECK, the one recurring detector left, four calls and two minutes: `api/qualityprofiles/search
   ?organization=openl-tablets&project=org.openl.rules:openl-tablets` gives each profile's key and `rulesUpdatedAt`;
   `api/qualityprofiles/changelog?organization=openl-tablets&qualityProfile=Sonar%20way&language=java` lists every
@@ -326,11 +327,11 @@ generated but for `popup.js`, shipped, and the two deferred `.xhtml` pages; `jav
 redeclarations gave the 2 shipped, and `java:S1133` and `typescript:S8980` nothing (see *Deferred*).
 Its whole `S6xxx`-`S9xxx` generation was named rule by rule and is style or rewrite throughout — date API,
 comment slashes, `assertThrows`, regex hoisting, Mockito `eq`, `@Deprecated` arguments, `Stream.toList`,
-`Number.isNaN`, `String.raw`, `replaceAll`, `self`. The profile-delta check then covered every rule ACTIVATED
-since 2026-08-01 in the java, js, ts, xml, web and css profiles: 24 java, 11 js, 9 ts, 15 xml (all Mule, a
-language this repository does not have), none for web or css. Exactly one has a deletion for a fix,
-`java:S9341` redundant Spring annotations, and it reports 0. The rest add a check, a cast or a rewrite, and
-the two newest (`javabugs:S6417`, `S6322`) are bug detectors. Re-run only the check, never the whole profile.
+`Number.isNaN`, `String.raw`, `replaceAll`, `self`. The profile-delta check covers every rule ACTIVATED since
+2026-08-01 in the java, js, ts, xml, web and css profiles, now through the 2026-09-02 batch: 37 java, 11 js, 9 ts,
+15 xml (all Mule, a language this repository does not have), none for web or css. Exactly one has a deletion for a
+fix, `java:S9341` redundant Spring annotations, and it reports 0; the rest add a check, a cast or a rewrite, and
+`javabugs:S6417`/`S6322` plus the `java:S93xx` batch report 0. Re-run only the check, never the whole profile.
 
 Maven, all of it closed. `dependency:analyze-only` over all 51 analyzable modules in every scope; every
 `<exclusion>` resolved in isolation (three shipped); every non-import `dependencyManagement` and
@@ -393,8 +394,7 @@ files, and every tracked build leftover.
 
 ## Run log
 
-- Run 38: `java:S1130` shipped 5 dead `throws` clauses; `java:S1172` assessed and closed; every detector is spent.
-- Run 39: `javascript:S2814` shipped 2 redundant `var`s; `java:S1133`, `typescript:S8980` and the rest of the
-  `S6xxx`-`S9xxx` generation closed — the Sonar profile is spent.
-- Run 40: no deletion. #2063 verified green but for the answered gate and its body's counts re-derived; the
-  profile-delta check was built and run, closing the last vein; main moved only in ITEST and two version bumps.
+- Run 39: `javascript:S2814` shipped 2 redundant `var`s; `java:S1133`, `typescript:S8980`, `S6xxx`-`S9xxx` closed.
+- Run 40: no deletion; #2063 verified, counts re-derived; the profile-delta check was built, closing the last vein.
+- Run 41: no deletion; #2063 green but for the answered gate, body accurate, no comment to answer; the delta check
+  and a top-rule facet cross-check both confirm every vein spent.
