@@ -2,12 +2,11 @@
 
 ## Resume point
 
-PR #2063 waits only on the owner's merge: mergeable, no review comment ever, CodeRabbit paused, every CI job green,
-only the SonarCloud gate red. That gate is deterministic — its D is a pre-existing Critical and it stays red at C
-without it — so never revert a clean removal for it; all five BUGs it attributes are answered on the PR, the fifth on
-2026-09-03. Every detector is spent through the 2026-09-02 profile batch, leaving only PR maintenance, compaction and
-the delta check. CONCURRENCY: runs 90 min apart share this ledger and this PR — add what is missing, treat a CI event
-for a superseded `head_sha` as stale, never arm a check-in chain.
+PR #2063 waits only on the owner's merge: mergeable, no review comment ever, CodeRabbit paused, every CI job
+green, only the SonarCloud gate red. That gate is deterministic — its D is a pre-existing Critical and it stays
+red at C without it — so never revert a clean removal for it; all five BUGs it attributes are answered. Every
+detector is spent, leaving only PR maintenance, compaction and the delta check. CONCURRENCY: runs share this
+ledger and this PR — add what is missing, treat a CI event for a superseded `head_sha` as stale, never arm a chain.
 
 ## Change-type queue
 
@@ -18,8 +17,8 @@ a spent detector is waste, and a rule that rewrites, hoists or adds a check is o
 ## Open PR
 
 - #2063, branch `dead-code/dead-suppressions`, head `a0e0041f`, 291 files, 628 deleted and 346 added lines, 26
-  commits, one per change type with its own PR-body section. Derive the counts against the MERGE BASE; that body
-  alone records what each commit kept and why. Its body is 69 KB and still stores — PATCH it with curl, not MCP.
+  commits, one per change type with its own PR-body section, which alone records what each kept and why. Derive
+  the counts against the MERGE BASE. Its 69 KB body stores fine, but it overflows an MCP read — curl it.
 
 ## Merged PRs
 
@@ -292,8 +291,12 @@ a spent detector is waste, and a rule that rewrites, hoists or adds a check is o
   `api/qualityprofiles/changelog?organization=openl-tablets&qualityProfile=Sonar%20way&language=java` lists every
   ACTIVATION with its date, which `api/rules/search?...&available_since=` misses because it filters on the rule's
   creation, not its activation; then count each new rule with `rules=<key>`. Every such call needs `organization`,
-  `api/rules/show` included. Compare the activation date against `api/project_analyses/search`: a rule activated
-  after main's last analysis reports 0 because it has never run, not because the repository is clean.
+  `api/rules/show` included. Compare the RULE's own changelog date, never the profile's `rulesUpdatedAt`, against
+  `api/project_analyses/search`: a rule activated after main's last analysis reports 0 because it has never run,
+  not because the repository is clean, while a profile touched later can still hold only rules that did run.
+  Only the profiles Sonar actually analyzes matter, and `api/measures/component?metricKeys=
+  ncloc_language_distribution` names them: css, java, js, ts, web, xml, yaml. yaml is 2 credential detectors,
+  never a deletion; the 133 `.groovy` files are all test-resources and unanalyzed.
 - Write the ledger through `git worktree add --detach <dir> origin/dead-code/ledger`, never an orphan-branch dance.
 
 ## Exhausted veins
@@ -312,9 +315,8 @@ types: every non-public top-level type, every one in `.impl.`/`.internal.`, ever
 the non-public production types against a production/test split. Public members of the non-published modules (133
 files, 52 candidates) — all framework-driven. EVERY PMD java rule whose fix is a deletion has run over all ~4033
 files, so that family is SPENT — enumerate the categories again only to check a NEW rule, never for a new vein.
-Eleven of its rules report nothing; the rest report only
-style, rewrites, or the load-bearing constructs *False-positive shapes* describes — `DanglingJavadoc` is the one
-worth remembering, 104 of its 120 hits being an Exigen copyright banner.
+Eleven of its rules report nothing; the rest report only style, rewrites, or the load-bearing
+constructs *False-positive shapes* describes — `DanglingJavadoc`'s 104 of 120 hits are an Exigen copyright banner.
 
 SonarCloud's own analysis of `main`, faceted over all 7504 issues and then queried rule by rule, is a second Java
 signal PMD does not subsume. Its whole deletion family is now checked: `S1128`/`S1116`/`S3985`/
@@ -328,10 +330,9 @@ redeclarations gave the 2 shipped, and `java:S1133` and `typescript:S8980` nothi
 Its whole `S6xxx`-`S9xxx` generation was named rule by rule and is style or rewrite throughout — date API,
 comment slashes, `assertThrows`, regex hoisting, Mockito `eq`, `@Deprecated` arguments, `Stream.toList`,
 `Number.isNaN`, `String.raw`, `replaceAll`, `self`. The profile-delta check covers every rule ACTIVATED since
-2026-08-01 in the java, js, ts, xml, web and css profiles, now through the 2026-09-02 batch: 37 java, 11 js, 9 ts,
-15 xml (all Mule, a language this repository does not have), none for web or css. Exactly one has a deletion for a
-fix, `java:S9341` redundant Spring annotations, and it reports 0; the rest add a check, a cast or a rewrite, and
-`javabugs:S6417`/`S6322` plus the `java:S93xx` batch report 0. Re-run only the check, never the whole profile.
+2026-08-01 in all seven analyzed languages, through the 2026-09-02 batch (37 java, 11 js, 9 ts, 15 xml all Mule,
+none for web, css or yaml). Exactly one has a deletion for a fix, `java:S9341` redundant Spring annotations,
+whose 0 is PROVEN — activated 2026-08-21, before main's last analysis; the rest add a check, a cast or a rewrite.
 
 Maven, all of it closed. `dependency:analyze-only` over all 51 analyzable modules in every scope; every
 `<exclusion>` resolved in isolation (three shipped); every non-import `dependencyManagement` and
@@ -394,7 +395,6 @@ files, and every tracked build leftover.
 
 ## Run log
 
-- Run 40: no deletion; #2063 verified, counts re-derived; the profile-delta check was built, closing the last vein.
 - Run 41: no deletion; #2063 green but for the answered gate, body accurate, every vein confirmed spent.
-- Run 42: no deletion; answered the gate's new 5th BUG as pre-existing, re-proved the two `this` removals safe
-  (both in lambdas), delta check clean through 2026-09-02.
+- Run 42: no deletion; answered the gate's 5th BUG as pre-existing, re-proved the two `this` removals safe.
+- Run 43: no deletion; #2063 re-verified, no new profile batch, yaml closed as the last unchecked language.
