@@ -30,7 +30,7 @@ OpenL Studio allows editing comma separated arrays of values. A multi selection 
 
 #### Editing Default Table Properties
 
-This section describes table properties available in OpenL Studio. For more information on table properties, see [OpenL Tablets Reference Guide > Table Properties](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/table-properties).
+This section describes table properties available in OpenL Studio. For more information on table properties, see [OpenL Tablets Reference Guide > Table Properties](../reference-guide/02-working-with-openl-tables/04-table-properties/01-category-and-module-level-properties.md).
 
 If default property values are defined for a table, they appear only in the right hand **Properties** section, but not in the table. In the following example, there are **Active = true** and **Fail On Miss = false** default properties.
 
@@ -58,7 +58,7 @@ Default properties can be overridden at the table level; in other words, they ca
 
 #### Editing Inherited Table Properties
 
-Module or category level properties are those inherited from a **Properties** table as described in [OpenL Tablets Reference Guide > Properties Table](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-table). In the **Properties** section of the given table, inherited properties appear in a different color and are accompanied with a link to the **Properties** table where they are defined. The values of the inherited properties are not stored in the table, they are displayed in the **Properties** section, since they are inherited and applied to this table. Inherited properties can be overridden at a Table level, i.e. they can be changed.
+Module or category level properties are those inherited from a **Properties** table as described in [OpenL Tablets Reference Guide > Properties Table](../reference-guide/02-working-with-openl-tables/03-table-types/11-less-common-table-types/03-properties-table.md). In the **Properties** section of the given table, inherited properties appear in a different color and are accompanied with a link to the **Properties** table where they are defined. The values of the inherited properties are not stored in the table, they are displayed in the **Properties** section, since they are inherited and applied to this table. Inherited properties can be overridden at a Table level, i.e. they can be changed.
 
 ![An example of inherited category-level properties](images/inherited-category-level-properties.png)
 

@@ -17,7 +17,7 @@ This guide is intended for the following users:
 
 ### Related Information
 
-OpenL Studio is a tool of the OpenL Tablets product. For information on OpenL Tablets Rules, see [OpenL Tablets Reference Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/).
+OpenL Studio is a tool of the OpenL Tablets product. For information on OpenL Tablets Rules, see [OpenL Tablets Reference Guide](../reference-guide/index.md).
 
 ### Typographic Conventions
 
