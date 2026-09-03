@@ -1,7 +1,6 @@
 package org.openl.rules.table.xls;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
@@ -148,7 +147,6 @@ class MergedRegionsTest {
                 }
             }
         }
-        assertTrue(true);
     }
 
     private boolean isEqualCells(ICell first, ICell second, XlsSheetGridModel grid) {
