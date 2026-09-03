@@ -339,7 +339,7 @@ public class ColumnDescriptor {
 
     private Object getSingleValue(ILogicalTable logicalTable,
                                   OpenlToolAdaptor toolAdapter,
-                                  IOpenClass paramType) throws SyntaxNodeException {
+                                  IOpenClass paramType) {
         String fieldName = field == null ? RuleRowHelper.CONSTRUCTOR : field.getName();
         return RuleRowHelper.loadSingleParam(paramType, fieldName, null, logicalTable, toolAdapter);
     }
