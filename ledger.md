@@ -4,19 +4,21 @@
 
 PR #2063 waits only on the owner's merge: no human has ever reviewed it, CodeRabbit reports nothing, every CI job
 is green, and only the SonarCloud gate is red on the pre-existing Critical already answered on the PR.
-The queue is EMPTY and the PMD deletion-rule family is spent, so the next run cannot lean on one more rule: the
-next vein has to come from a different kind of signal. A swept area is still only empty against the tools run.
+The new detector is SonarCloud's OWN analysis of `main`, read through its API and needing no build; its
+deletion-rule family is now half spent, and `java:S1130` is the one vein left with volume — see the queue.
 CONCURRENCY: sessions two hours apart share this ledger and the same PR — add what is missing instead of
 replacing another run's text, treat a CI event for a superseded `head_sha` as stale, never arm a check-in chain.
 
 ## Change-type queue
 
-All 118 closed — 42 shipped a deletion, 76 found nothing; *Exhausted veins* records what each covered.
-Nothing is queued.
+All 120 closed — 44 shipped a deletion, 76 found nothing; *Exhausted veins* records what each covered.
+121 `throws` clauses no code path throws (`java:S1130`, 122 sites) — QUEUED, and decidable for only 6 of them:
+the 5 private and 1 package-private in published modules. 97 are `throws Exception` on test methods, whose
+removal is mass churn, not a deletion; the 7 public and 2 protected are held by safety rail 2.
 
 ## Open PR
 
-- #2063, branch `dead-code/dead-suppressions`, head `762adfda`, 281 files, 607 deleted and 337 added lines, 22
+- #2063, branch `dead-code/dead-suppressions`, head `f814f29b`, 286 files, 614 deleted and 338 added lines, 24
   commits, one per change type with its own PR-body section. Derive the counts against the MERGE BASE; that body
   alone records what each commit kept and why.
 
@@ -37,13 +39,12 @@ Nothing is queued.
 - `studio-ui`: `MergeModal/types.ts`'s three merge types are unused in code but documented in
   `Docs/api/projects-merge-api.md`; ~70 exports are used only in their own file (un-exporting is a refactor);
   `npm run clean` is named by nothing, but an npm script is a human entry point.
-- The tableeditor `css/tooltip.css` `tooltip_skin-*` and `tooltip_top_*` classes are the widget's theming API.
 - `kafka-clients` is declared only by `org.openl.rules.ruleservice.kafka`, which never touches it, yet two
   modules reach it transitively from there; removing it needs a declaration added elsewhere.
 - `studio-ui` `eslint.config.js` registers `react-hooks` but enables no rule of it; both fixes change intent.
-- Commented-out code left standing: two alternatives sharing a line with live code (`ColumnDescriptor
-  .loadMultiRowArray`, `XlsSheetGridModel.setCellStyle`), the `provided` scope its own comment explains in
-  `DEV/org.openl.commons`, and ~30 runs in TEST sources, where a disabled body can be a known-issue marker.
+- The `listeners` dead store in `copyModule.xhtml` and `editOpenAPI.xhtml`: dropping the variable turns the
+  assignment into a bare `new Listeners(...)`, the shape `javascript:S1848` already flags in `tableDetails
+  .xhtml`. A deletion that trades a dead store for a new Sonar Bug is a rewrite, so both stay.
 - `TableVersionComparator`'s class-level `@return` is real prose about `compare`; moving it is a refactor.
 - 47 `<dependency><version>` elements the root already manages, and three default-valued elements, are read by
   Maven and take precedence, so removing one changes behavior later: a human's DRY fix, not a deletion.
@@ -70,7 +71,17 @@ Nothing is queued.
   super method keeps the concrete parameter type erasure drops; `wrapper/base/**` needs `WrapperValidation`.
 - A redundant no-op construct is load-bearing when the construct itself is the mechanism: `synchronized (this) {
   return; }` waits out every other synchronized block, an empty `while (in.read() != -1);` drains a stream, and a
-  trailing `return;` in the last arm of a chain of `if (…) { setX(); return; }` is symmetry. PMD flags all three.
+  trailing `return;` closing a chain of `if (…) { setX(); return; }` or of arms that throw is symmetry. PMD and
+  Sonar `java:S3626` flag all of them; only a `continue` ending an `if`/`else if` arm is really deletable, and it
+  leaves a comment-only block, which Sonar accepts and which the `java:S135` one-jump-per-loop rule prefers.
+- Sonar sees no method reference in its unused-private-method rule: `java:S1144` calls `XlsBinder
+  .addBindingContextError` dead while `holder::addBindingContextError` is its caller one screen above.
+- An empty class can be a marker used only as a `.class` token, which no member scan sees: `java:S2094` reports
+  `SubtypeMixin`, whose one use is `originalClass = SubtypeMixin.class` in the Jackson factory bean.
+- A local named `ignored` holding a `Future` IS the Error Prone suppression: drop `var ignored =` from
+  `executor.submit(…)` and `FutureReturnValueIgnored` fires. All four `java:S1481`/`S1854` hits are that shape.
+- `java:S1119` flags EVERY label, used or not, and its message asks for a refactor: both labels here carry
+  `break propsLoop;` out of a `switch` nested in the loop, the only construct that can leave that loop.
 - An API-safety check comparing a member's access against its class must match the class DECLARATION: a regex for
   `class X` hits the JavaDoc prose "The class X implements…" first and invents an API break that is not there.
 - Before standing down on a red check, compare the MERGE BASE's own run, not only the latest `main`: a job red at
@@ -147,30 +158,19 @@ Nothing is queued.
 - A module that publishes nothing has no public API to protect: `maven.deploy.skip` plus `pom` packaging (as in
   `DEV/org.openl.rules.gen`) means no artifact is ever released, so its public members are internal code. The
   full set is `DEMO/`, `DEV/org.openl.rules.gen`, `DEV/org.openl.rules.test` and `ITEST/**`; all are swept.
-- Safety rail 2 admits `.impl.` / `.internal.` code even in a published artifact, which is the one way a public
-  member becomes deletable. That subset is swept and empty.
 - OpenL models a Java type from `getDeclaredMethods()` alone (`JavaOpenClass.initMethodMap`), keyed on erased
   parameter types, so deleting a declaration a subclass merely inherits still changes the rule-visible signature
   set. A member removal in a rule-reachable type needs that checked, not just the compile.
 - Deleting a Java class is provable without compiling its module: a repo-wide search for its simple and its
   fully qualified name plus the reflective string registrations is complete. The same holds for a local or
   private member, whose scope is one file; CI's `Build artifacts` job is then the compile gate.
-- A field initializer holding the JVM default is a no-op (JLS 4.12.5), but a LOCAL gets no default, so the same
-  edit there is decided by definite assignment instead. Separate them before deleting: a declaration with no
-  access modifier is not proof of a local — all 8 such lines in type 109 were fields of a nested class.
 - Sonar's reliability rating on new code follows the WORST severity — Critical is D, Major only C — so one
   pre-existing Critical re-attributed because its file entered the diff flips the gate on a deletion-only PR.
   Query the same rule and line on `main` before believing it is new; `WorkbookListener.java:273` was.
-- A member the language specification emits anyway needs no search — the JLS is the proof and `javap` confirms
-  the member survives: 47 bare `super();` (8.8.7), 27 empty constructors (8.8.9), implied `interface` modifiers
-  (9.3/9.4). For a constructor, check BOTH that its class declares no other and that their access matches.
 - Search an accessor by its property name as well as its method name: Velocity `$w.propertyType` and JSF EL
   `#{bean.propertyType}` call `getPropertyType()` without ever spelling it.
 - When this container's npm rewrites unrelated lock metadata, remove the lock's own regions by hand instead and
   prove coherence with `npm ci`, which fails when the lock and `package.json` disagree.
-- An empty no-argument constructor is the implicit default (JLS 8.8.9) only when it is the class's ONLY declared
-  constructor and its access equals the class's own — a Lombok-generated constructor counts as declared, and a
-  `protected` one in a `public` class does not match. Then nothing leaves the class file, which `javap` confirms.
 - For any PMD finding on a FIELD, grep the field name repo-wide before editing: the "never read" window is one
   method, but a field can be read by a callee, another thread, or an injected bean.
 - Delete lines by matching their exact text, never by line number from an earlier listing and never by a
@@ -179,14 +179,8 @@ Nothing is queued.
   remaining occurrence, bare and parameterized, or Spotless removes it later as unexplained churn.
 - Dead CSS and an unreachable `/action/*` servlet have maintainer precedent; only a removal a user could
   observe needs a release-notes entry, which an internal endpoint with no button never is.
-- A comment-only removal is proved by the diff, not a build: strip every comment from both versions of each
-  touched file and compare, treating a maximal comment run as the unit and dropping the blank line it orphaned.
-- Bound the risk set of a spec-proved field change by the class header: a class with no `extends` inherits
-  `Object`, whose constructor cannot touch it, so only the subclasses need reading. A writer reached during
-  construction would also NPE on the fields the constructor has not set yet — that is itself the proof.
-- Maven silently ignores a `<configuration>` element no mojo declares, so the plugin's own descriptor is the
-  oracle: read `META-INF/maven/plugin.xml` out of the plugin jar in `~/.m2` and collect every `<parameter><name>`
-  and `<alias>` per goal. That listing also proves which goals a plugin still HAS.
+- Maven silently ignores a `<configuration>` element no mojo declares, so the oracle is `META-INF/maven/plugin
+  .xml` inside the plugin jar in `~/.m2`: every `<parameter><name>` and `<alias>` per goal, and the goals it has.
 
 ## Keep-list
 
@@ -203,7 +197,6 @@ Nothing is queued.
 - `rf-*` (RichFaces, JS inside a jar) and antd-generated class names can never be proven dead: the 17 `rf-*`
   classes and `ant-select-input` in `common.css` and in three pages' `<style>` blocks stay. RichFaces is alive.
 - `openapi.properties` keys are annotation values resolved by `OpenApiPropertyResolverImpl`; all 625 are live.
-- Public API in `DEV/**` and every published artifact is off limits even when unused in-repo.
 - `ValidationMessages.properties` keys are looked up by a short form: the code drops the `openl.error.` prefix
   and, for exceptions, the three-digit status segment. All live; see the localized-exceptions skill.
 - tableeditor `onFailure` is a Prototype callback (`'on' + state`); ITEST `001-Get-Static-CSS` ignores the body.
@@ -224,8 +217,7 @@ Nothing is queued.
 - Runtime-only artifacts that `dependency:analyze` always calls unused: `jaxb-runtime`, `awssdk:sts`,
   `log4j-slf4j2-impl`, `hibernate-hikaricp`, the CXF `cxf-rt-*` feature and provider jars, and the Jackson
   artifacts the Azure repository pins.
-- All nine root profiles are live (`sources`/`gpg-sign` from `release.yml`, `owasp`/`no-sonar` documented in
-  `Docs/architecture/technology-stack.md`). Both root `<repositories>` serve OpenSAML, absent from Central, and
+- All nine root profiles are live, both root `<repositories>` serve OpenSAML (absent from Central), and
   `lombok.config` declares only the two copied annotations `AGENTS.md` documents.
 - `redirectPage` is read by `SessionTimeoutFilter.getInitParameter`, `xForwardedPrefixStrategy` by
   `de.qaware.xff.filter.ForwardedHeaderFilter`; the other six `param-name`s are framework constants.
@@ -242,8 +234,7 @@ Nothing is queued.
   the `build` script, the three `@types/*` by the tsconfig `types` list, `@vitest/coverage-v8` by the reporter.
 - Every remaining `package.json` field is live: `browserslist` reaches Babel, `engines` is npm's own check, and
   `name`, `version`, `private` and `type` govern resolution and publishing. Only `homepage` was CRA's.
-- `Util/openl-maven-plugin/site/` is the one `site/` tree the root `siteDirectory` points at; its four `.apt`
-  pages are all linked from `site.xml`, and `DEMO/start.ps1` is launched by `start.cmd`.
+- The tableeditor `css/tooltip.css` `tooltip_skin-*` and `tooltip_top_*` classes are the widget's theming API.
 
 ## CI flakes
 
@@ -299,8 +290,11 @@ Nothing is queued.
   read a PR body to a file and `PATCH` it back. An MCP body argument also swallows angle-bracketed text.
 - `sonarcloud.io`'s WEB UI is blocked (403) but its API answers 200, so a gate failure IS diagnosable here:
   `api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=<n>&types=BUG` names every issue,
-  and the same query without `pullRequest` gives `main`'s 398 open BUGs, which is how one is proved pre-existing
+  and the same query without `pullRequest` gives `main`'s open BUGs, which is how one is proved pre-existing
   — check `api/project_analyses/search` too, since that list is only as fresh as main's last analysis.
+  `&facets=rules&ps=1` on that same endpoint ranks every rule by hit count without returning an issue, and
+  `api/qualitygates/project_status` gives the gate's own conditions; an unknown `rules=` key is silently IGNORED
+  and returns the unfiltered total, so treat a suspiciously round 7504 as "no such rule", never as a finding.
 - Write the ledger through `git worktree add --detach <dir> origin/dead-code/ledger`, never an orphan-branch dance.
 
 ## Exhausted veins
@@ -317,14 +311,20 @@ Members: all 474 package-private methods, 645 package-private fields, 572 enum c
 186 non-overriding public or protected members of the 246 package-private top-level and 318 non-public nested
 classes — every one has a caller. Whole types: all 977 non-public top-level, all 310 in `.impl.`/`.internal.`,
 all 193 test types with no `@Test`, and the 246 non-public production types against a production/test split.
-Public members of the non-published modules (133 files, 52 candidates) — all framework-driven. EVERY PMD java rule whose fix is a
-deletion has now run over all ~4033 files, so that family is SPENT — enumerate the categories again only to check
-a NEW rule, never for a new vein. Shipped from it: 147 default field initializers, 168 `value =` elements, 27
-implicit-default constructors, 3 constant-true assertions, 3 varargs arrays, 2 unnecessary returns, 2 unnecessary
-modifiers, 2 `Type.this`, 1 identity cast, 1 boxing call. Eleven of the rules report nothing at all; the rest
-report only style (`UselessParentheses`, `UnnecessaryFullyQualifiedName`), load-bearing constructs
-(`EmptyControlStatement`, `UselessOverridingMethod`, `DanglingJavadoc` — 104 of 120 an Exigen copyright banner)
-or rewrites (`AddEmptyString`, `UnnecessaryLocalBeforeReturn`, `EmptyCatchBlock`, `UselessPureMethodCall`).
+Public members of the non-published modules (133 files, 52 candidates) — all framework-driven. EVERY PMD java
+rule whose fix is a deletion has run over all ~4033 files, so that family is SPENT — enumerate the categories
+again only to check a NEW rule, never for a new vein. Eleven of its rules report nothing; the rest report only
+style (`UselessParentheses`, `UnnecessaryFullyQualifiedName`), load-bearing constructs (`EmptyControlStatement`,
+`UselessOverridingMethod`, `DanglingJavadoc` — 104 of 120 an Exigen copyright banner) or rewrites
+(`AddEmptyString`, `UnnecessaryLocalBeforeReturn`, `EmptyCatchBlock`, `UselessPureMethodCall`).
+
+SonarCloud's own analysis of `main`, faceted over all 7504 issues and then queried rule by rule, is a second Java
+signal PMD does not subsume. Its whole deletion family is checked except `java:S1130`: `S1128`/`S1116`/`S3985`/
+`S1596`/`S2168`/`css:S4658` report nothing at all, `S1144`, `S1068`, `S1481`, `S1854`, `S2094` and `S1119` report
+only false positives or the members safety rail 2 already holds, `S3626` yielded the two `continue`s shipped, and
+`S1197`, `S1226`, `S1155`, `S3457`, `S4144`, `S1871`, `S2696` are refactors. Its `javascript:*` dead-store and
+unused-local hits are all in vendored or generated files but for `popup.js`, shipped, and the two deferred
+`.xhtml` pages. Only a rule NEW to the Sonar profile is worth another pass.
 
 Maven, all of it closed. `dependency:analyze-only` over all 51 analyzable modules in every scope; all 18
 `<exclusion>` entries resolved in isolation (three shipped); all 147 non-import `dependencyManagement` and 25
@@ -395,6 +395,6 @@ tracked build leftover.
 
 ## Run log
 
-- Run 34: type 109 shipped 147 redundant field initializers; types 110-112 found by three new PMD rules.
 - Run 35: types 110-111 shipped 168 `value =` elements and 2 `Type.this`; 15 more PMD rules run, 114-118 queued.
 - Run 36: types 114-118 shipped 8 lines over 4 commits; the PMD deletion-rule family is now spent.
+- Run 37: SonarCloud's API opened as a build-free detector; its deletion family shipped 4 lines over 2 commits.
