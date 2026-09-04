@@ -315,7 +315,8 @@ generation, named rule by rule, is style or rewrite throughout. Its `javascript:
 `S2814` hits are vendored, generated, already shipped, or the two deferred `.xhtml` pages; `java:S1133` and
 `typescript:S8980` gave nothing (see *Deferred*). The profile-delta check covers every rule ACTIVATED since
 2026-08-01 in all seven analyzed languages, through the 2026-09-02 batch. Exactly one has a deletion for a fix,
-`java:S9341` redundant Spring annotations, whose 0 is PROVEN — activated before main's last analysis.
+`java:S9341` redundant Spring annotations, whose 0 is PROVEN against a main analysis POSTDATING its activation.
+The rule facet, re-run over that analysis, adds nothing: `typescript:S9020` is a Testing-Library rewrite.
 
 Maven, all of it closed. `dependency:analyze-only` over every analyzable module in every scope; every
 `<exclusion>` resolved in isolation; every non-import `dependencyManagement` and `pluginManagement` entry and
@@ -373,9 +374,10 @@ identical-content duplicates across production files, and every tracked build le
 
 ## Run log
 
-- Run 55: no deletion; main and head both unchanged; all 7 profiles at or before the covered 09-02 batch; body's
-  28 headings and 26/291/346/628 re-derived intact; S6466 confirmed on main at the same line.
 - Run 56: no deletion; main, head and every derived count unchanged; profile check clean (groovy bumped but is
   unanalyzed); S6466 still open on main at the same line; ledger compacted 390 to 381 lines.
 - Run 57: no deletion; main, head, the 28 body headings and 26/291/346/628 all unchanged; trial merge clean;
   profile check clean (only groovy moved); gate still red on that one condition, S6466 open on main at line 273.
+- Run 58: no deletion; main, head, the 28 headings and 26/291/346/628 unchanged; trial merge clean; profile check
+  clean; main's 09-04 re-analysis turned the S9341 zero into a post-activation proof and the facet re-check added
+  nothing.
