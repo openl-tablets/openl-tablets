@@ -5,10 +5,10 @@
 PR #2063 waits only on the owner's merge: mergeable, never a human comment, CodeRabbit paused, all 13 CI jobs
 green, only the deterministic SonarCloud gate red on its one condition `new_reliability_rating` 4 — the
 pre-existing Critical `javabugs:S6466`, still red at C without it, so never revert a clean removal for it; its
-five BUGs are answered and a sixth is noise. It trial-merges clean onto main's tip `d38a7037`, whose only
-overlap `studio-ui/package-lock.json` passes `npm ci`; redo both when main moves past that tip. Every detector
-is spent, so a run is PR maintenance, compaction, the profile-delta check and main's delta. CONCURRENCY: runs
-share this ledger and this PR; a stale CI event names a superseded `head_sha`.
+five BUGs are answered. It trial-merges clean onto main's tip `4a45294c`; of its four overlaps the lock passes
+`npm ci` and the three Java files lose only initializers here, so main's rewrites cannot conflict. Redo both
+past that tip. Every detector is spent: a run is PR maintenance, compaction, the profile check and main's delta.
+CONCURRENCY: runs share this ledger and this PR; a stale CI event names a superseded `head_sha`.
 
 ## Change-type queue
 
@@ -329,9 +329,12 @@ every pom directory reachable from the reactor; both archetype modules and all f
 `openl-maven-plugin` mojo `@Parameter` field; every top-level child of every `<configuration>` block, checked
 against each plugin's own `plugin.xml` and execution-level ones also against the goals their execution declares;
 every dependency declaration against its whole parent chain's own `<dependencies>` (both overlaps real scope
-overrides); and every element whose value is simply the Maven default (all deferred). Main's delta over the merge
-base adds only dependency bumps plus the `itest.ruleServices-memory` module, whose two test-scoped dependencies
-are the standard ITEST harness pair — checked, nothing to sweep.
+overrides); and every element whose value is simply the Maven default (all deferred).
+
+Main's delta over the merge base is checked in full and holds nothing to sweep: dependency bumps, the
+`itest.ruleServices-memory` module (the standard ITEST harness pair), and the EPBDS-16529 decision-table indexing
+feature — ~1.6k added lines over 19 Java files where PMD's five rules report nothing, every new package-private
+and public member has a caller, and the new `openl-default.properties` lines are all comments.
 
 Resources and descriptors, all of it closed. Unreferenced whole files, by a type census that left no extension
 out: every image, `.xhtml`, non-`studio-ui` `.js`/`.css`, `.html`, and every other tracked type down to the
@@ -378,8 +381,7 @@ production files, and every tracked build leftover.
 
 ## Run log
 
-- Run 51: no deletion; every checked value unchanged; branch delete still 403.
-- Run 52: no deletion; same again, every value re-derived.
-- Run 53: no deletion; a fifth consecutive unchanged run — head `a0e0041f`, main `d38a7037`, 13 green jobs plus
-  the one gate condition, 5 BUGs, 26 distinct commit subjects, body 291/346/628 and its 28:26 heading map,
-  trial merge clean over the one overlapping lock, profile check clean.
+- Run 52: no deletion; every checked value re-derived unchanged; branch delete still 403.
+- Run 53: no deletion; a fifth consecutive unchanged run, every value re-derived.
+- Run 54: no deletion; main advanced to `4a45294c` and its new EPBDS-16529 feature swept clean; head `a0e0041f`
+  with 13 green jobs plus the one gate condition, 5 BUGs, 26 distinct subjects, 291/346/628, profile check clean.
