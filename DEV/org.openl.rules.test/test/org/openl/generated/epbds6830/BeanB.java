@@ -5,9 +5,6 @@ import java.util.Objects;
 public class BeanB extends BeanA {
     private String txt = "msg";
 
-    public BeanB() {
-    }
-
     public String getTxt() {
         return txt;
     }

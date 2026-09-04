@@ -39,7 +39,7 @@ class TestIntExpAddExp {
                 intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
         var sum = new IntExpAddExp(intvar1, intvar2);
         class TestObserver extends Observer {
-            private int counter = 0;
+            private int counter;
 
             @Override
             public Object master() {

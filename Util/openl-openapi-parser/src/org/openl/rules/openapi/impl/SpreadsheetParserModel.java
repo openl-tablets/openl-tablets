@@ -17,9 +17,6 @@ public class SpreadsheetParserModel {
     @Getter
     private boolean refIsDataType;
 
-    public SpreadsheetParserModel() {
-    }
-
     public void setStoreInModels(boolean hasSelfLink) {
         this.refIsDataType = hasSelfLink;
     }

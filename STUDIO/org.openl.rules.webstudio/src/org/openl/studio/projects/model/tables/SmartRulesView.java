@@ -67,9 +67,6 @@ public class SmartRulesView extends ExecutableView {
         private List<SmartRulesHeaderView> headers;
         private List<LinkedHashMap<String, Object>> rules;
 
-        public Builder() {
-        }
-
         public Builder collect(Boolean collect) {
             this.collect = collect;
             return this;

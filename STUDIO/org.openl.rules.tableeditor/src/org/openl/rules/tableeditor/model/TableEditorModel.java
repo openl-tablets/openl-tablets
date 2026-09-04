@@ -78,7 +78,7 @@ public class TableEditorModel {
     private boolean showFormulas;
     @Getter
     @Setter
-    private boolean collapseProps = false;
+    private boolean collapseProps;
     @Getter
     @Setter
     private String beforeEditAction;

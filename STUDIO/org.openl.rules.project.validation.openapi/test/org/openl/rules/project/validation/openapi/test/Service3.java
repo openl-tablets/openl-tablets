@@ -6,7 +6,7 @@ import jakarta.ws.rs.Path;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
 
-@Path(value = "prefix")
+@Path("prefix")
 public interface Service3 {
     @POST
     @Path("/BankRatingCalculation")

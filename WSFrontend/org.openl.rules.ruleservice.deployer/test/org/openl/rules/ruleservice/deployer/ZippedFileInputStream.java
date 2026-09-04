@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 class ZippedFileInputStream extends InputStream {
 
     private final ZipInputStream source;
-    private boolean isClosed = false;
+    private boolean isClosed;
 
     @Override
     public int read() throws IOException {

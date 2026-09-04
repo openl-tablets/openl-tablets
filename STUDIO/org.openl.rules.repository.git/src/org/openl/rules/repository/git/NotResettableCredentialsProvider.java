@@ -63,7 +63,6 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
         if (attemptTime == 0) {
             // The last login attempt was successful, or this is the first attempt.
             authTaken(actionType);
-            return;
         } else if (attemptTime == -1) {
             // The maximum number of authorization attempts has been exceeded.
             throw new InvalidCredentialsException(BLOCK_MESSAGE.formatted(repositoryName));
@@ -71,7 +70,6 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
             if (System.currentTimeMillis() > attemptTime) {
                 if (maxAuthorizationAttempts == null || failedAttempts.get() <= maxAuthorizationAttempts) {
                     authTaken(actionType);
-                    return;
                 } else {
                     // The maximum number of authorization attempts has been exceeded. No more attempts allowed.
                     nextAttempt.set(-1);

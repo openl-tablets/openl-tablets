@@ -1,4 +1,3 @@
-import js from '@eslint/js'
 import reactHooks from 'eslint-plugin-react-hooks'
 import perfectionist from 'eslint-plugin-perfectionist'
 import stylistic from '@stylistic/eslint-plugin'

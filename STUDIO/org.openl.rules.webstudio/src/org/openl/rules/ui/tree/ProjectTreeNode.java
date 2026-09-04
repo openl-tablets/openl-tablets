@@ -35,23 +35,14 @@ public class ProjectTreeNode {
      */
     private final String type;
 
-    /**
-     * {@inheritDoc}
-     */
     public void addChild(Object key, ProjectTreeNode child) {
         elements.put(key, child);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public ProjectTreeNode getChild(Object key) {
         return elements.get(key);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public Collection<ProjectTreeNode> getChildren() {
         return getElements().values();
     }
@@ -69,9 +60,6 @@ public class ProjectTreeNode {
         this.elements = elements;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getType() {
         return type;
     }

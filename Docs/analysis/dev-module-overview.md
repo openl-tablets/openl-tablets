@@ -1091,15 +1091,6 @@ Generated Proxy
 - Comma-separated array parsing - `RuleRowHelper:523`
 - URL space support - `URLSourceCodeModule:67`
 
-### Excluded Tests
-
-In `org.openl.rules.constrainer/pom.xml`:
-- `TestExecutionControl`
-- `TestExecutionControl2`
-- `TestIntExpElementAt`
-
-**Status**: Excluded from Surefire - likely broken or legacy
-
 ---
 
 ## Performance Considerations

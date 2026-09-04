@@ -8,7 +8,7 @@ public class StyleHandler extends DefaultHandler {
     @Getter
     private final MinimalStyleTable styleTable = new MinimalStyleTable();
 
-    private boolean startCellXfs = false;
+    private boolean startCellXfs;
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {

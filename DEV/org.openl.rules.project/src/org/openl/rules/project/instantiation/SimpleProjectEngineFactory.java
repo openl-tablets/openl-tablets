@@ -42,7 +42,7 @@ public class SimpleProjectEngineFactory<T> {
         protected String project;
         protected String workspace;
         protected ClassLoader classLoader;
-        protected Class<T> interfaceClass = null;
+        protected Class<T> interfaceClass;
         protected Map<String, Object> externalParameters = Map.of();
         protected boolean executionMode = true;
         protected String[] projectDependencies;
@@ -164,7 +164,7 @@ public class SimpleProjectEngineFactory<T> {
         this.executionMode = executionMode;
     }
 
-    private RulesInstantiationStrategy rulesInstantiationStrategy = null;
+    private RulesInstantiationStrategy rulesInstantiationStrategy;
 
     protected RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         if (rulesInstantiationStrategy == null) {
@@ -242,7 +242,7 @@ public class SimpleProjectEngineFactory<T> {
         return projectDescriptors;
     }
 
-    private IDependencyManager dependencyManager = null;
+    private IDependencyManager dependencyManager;
 
     public synchronized final IDependencyManager getDependencyManager() throws ProjectResolvingException {
         if (dependencyManager == null) {

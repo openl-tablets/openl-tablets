@@ -80,7 +80,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     @Getter
     @Setter
-    private int dim = 0;
+    private int dim;
 
     @Getter
     private final List<DeferredChange> deferredChanges = new ArrayList<>();

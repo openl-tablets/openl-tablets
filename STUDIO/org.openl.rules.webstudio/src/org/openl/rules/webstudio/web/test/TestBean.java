@@ -69,8 +69,8 @@ public class TestBean {
     @Getter
     private boolean waitForProjectCompilation;
 
-    private boolean ranTestsSorted = false;
-    private Integer numberOfFailedTests = null;
+    private boolean ranTestsSorted;
+    private Integer numberOfFailedTests;
 
     /**
      * URI of tested table

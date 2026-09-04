@@ -660,9 +660,9 @@ public class TableProperties implements ITableProperties {
         return null;
     }
 
-    private Map<String, Object> allProperties = null;
+    private Map<String, Object> allProperties;
 
-    private Map<String, Object> allDimensionalProperties = null;
+    private Map<String, Object> allDimensionalProperties;
 
     /**
      * {@inheritDoc}

@@ -8,17 +8,17 @@ import lombok.Setter;
 
 public class BaseKafkaConfig {
     @Getter
-    @JsonProperty(value = "consumer.configs")
+    @JsonProperty("consumer.configs")
     @Setter
     private Properties consumerConfigs = new Properties();
 
     @Getter
-    @JsonProperty(value = "producer.configs")
+    @JsonProperty("producer.configs")
     @Setter
     private Properties producerConfigs = new Properties();
 
     @Getter
-    @JsonProperty(value = "dlt.producer.configs")
+    @JsonProperty("dlt.producer.configs")
     @Setter
     private Properties dltProducerConfigs = new Properties();
 

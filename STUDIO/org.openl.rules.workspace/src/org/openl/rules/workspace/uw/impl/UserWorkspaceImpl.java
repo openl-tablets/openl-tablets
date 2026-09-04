@@ -61,7 +61,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     private volatile boolean projectsRefreshNeeded = true;
     private volatile boolean syncNeeded = true;
-    private volatile boolean cleanUpOnActivation = false;
+    private volatile boolean cleanUpOnActivation;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<>();
     @Getter

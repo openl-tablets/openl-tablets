@@ -118,7 +118,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             var requestParam = paramInfo.getParameterAnnotation(RequestParam.class);
             var requestPart = paramInfo.getParameterAnnotation(RequestPart.class);
             var nameRef = new Object() {
-                String name = null;
+                String name;
             };
             boolean required;
             if (requestParam != null) {

@@ -11,7 +11,7 @@ public class MatchAlgorithmFactory {
     }
 
     private static final Map<String, IMatchAlgorithmCompilerBuilder> builders = new LinkedHashMap<>();
-    private static IMatchAlgorithmCompilerBuilder defaultBuilder = null;
+    private static IMatchAlgorithmCompilerBuilder defaultBuilder;
 
     static {
         // add well-known algorithms

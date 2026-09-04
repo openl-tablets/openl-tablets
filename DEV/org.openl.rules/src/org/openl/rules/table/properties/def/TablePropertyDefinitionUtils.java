@@ -82,7 +82,7 @@ public final class TablePropertyDefinitionUtils {
         GLOBAL_PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableMap(defaultGlobalProperties);
     }
 
-    private static String[] dimensionalTablePropertiesNames = null;
+    private static String[] dimensionalTablePropertiesNames;
 
     /**
      * Gets the array of properties names that are dimensional.
@@ -103,7 +103,7 @@ public final class TablePropertyDefinitionUtils {
         return dimensionalTablePropertiesNames;
     }
 
-    private static List<TablePropertyDefinition> dimensionalTableProperties = null;
+    private static List<TablePropertyDefinition> dimensionalTableProperties;
 
     /**
      * Gets the array of properties names that are dimensional.

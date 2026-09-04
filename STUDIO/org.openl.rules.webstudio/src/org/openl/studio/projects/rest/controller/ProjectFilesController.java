@@ -97,7 +97,7 @@ public class ProjectFilesController extends AbstractFilesController {
         handleCreate(fileRootFactory.of(project), path, files, createFolders, conflictPolicy);
     }
 
-    @PostMapping(value = "/{*path}")
+    @PostMapping("/{*path}")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "projects.files.create.summary", description = "projects.files.create.desc")
     public void createResourceRaw(
@@ -164,7 +164,7 @@ public class ProjectFilesController extends AbstractFilesController {
         return download != null && (path == null || path.isEmpty() || "/".equals(path));
     }
 
-    static String getProjectArchiveName(RulesProject project) throws ProjectException {
+    static String getProjectArchiveName(RulesProject project) {
         project.refresh();
         return getProjectArchiveName(project.getBusinessName(), project.getFileData());
     }
@@ -189,7 +189,7 @@ public class ProjectFilesController extends AbstractFilesController {
         handleUpdate(fileRootFactory.of(project), path, file);
     }
 
-    @PutMapping(value = "/{*path}")
+    @PutMapping("/{*path}")
     @Operation(summary = "projects.files.update.summary", description = "projects.files.update.desc")
     public void updateResourceRaw(
             @ProjectId @PathVariable("projectId") RulesProject project,

@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * @author Yury Molchan
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.FIELD, ElementType.METHOD})
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface ContextProperty {
     String value() default "";
 }

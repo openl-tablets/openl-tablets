@@ -14,9 +14,6 @@ public final class PropertiesFileNameProcessorBuilder {
     private PropertiesFileNameProcessor processor;
     private URLClassLoader classLoader;
 
-    public PropertiesFileNameProcessorBuilder() {
-    }
-
     public PropertiesFileNameProcessor build(
             ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException,
             InvalidFileNamePatternException {

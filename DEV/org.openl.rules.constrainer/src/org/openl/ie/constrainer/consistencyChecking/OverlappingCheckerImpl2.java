@@ -24,7 +24,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
     private final boolean[] removed;
     private final boolean[] hadBeenRemoved;
-    private int nRemoved = 0;
+    private int nRemoved;
 
     private void remove(int i) {
         removed[i] = true;

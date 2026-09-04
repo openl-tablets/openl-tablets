@@ -141,7 +141,7 @@ public class GitRepository implements BranchRepository, Closeable {
     private Integer maxAuthenticationAttempts;
     private WildcardBranchNameFilter protectedBranchFilter = WildcardBranchNameFilter.NO_MATCH;
 
-    private boolean useLFS = false;
+    private boolean useLFS;
 
     private ChangesMonitor monitor;
     private volatile Git git;

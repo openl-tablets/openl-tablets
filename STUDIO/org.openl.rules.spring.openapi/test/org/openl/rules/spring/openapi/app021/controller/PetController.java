@@ -38,7 +38,7 @@ public class PetController {
      * @return Invalid input (status code 405)
      */
     @Operation(summary = "Add a new pet to the store", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Invalid input")})
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> addPet(
@@ -54,10 +54,10 @@ public class PetController {
      * @return Invalid ID supplied (status code 400) or Pet not found (status code 404)
      */
     @Operation(summary = "Deletes a pet", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Pet not found")})
-    @DeleteMapping(value = "/{petId}")
+    @DeleteMapping("/{petId}")
     public ResponseEntity<?> deletePet(@Parameter(description = "Pet id to delete") @PathVariable("petId") Long petId,
                                        @RequestHeader(value = "api_key", required = false) String apiKey) {
         return ResponseEntity.ok().build();
@@ -71,7 +71,7 @@ public class PetController {
      */
     @Operation(summary = "Finds Pets by status", description = "Multiple status values can be provided with comma separated strings", tags = {
             "pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid status value")})
     @GetMapping(value = "/findByStatus", produces = {MediaType.APPLICATION_JSON_VALUE,
@@ -80,7 +80,7 @@ public class PetController {
             @Parameter(description = "Status values that need to be considered for filter", array = @ArraySchema(schema = @Schema(type = "string", defaultValue = "available", allowableValues = {
                     "available",
                     "pending",
-                    "sold"}))) @RequestParam(value = "status") List<String> status) {
+                    "sold"}))) @RequestParam("status") List<String> status) {
         return ResponseEntity.ok().build();
     }
 
@@ -93,12 +93,12 @@ public class PetController {
      * @deprecated
      */
     @Operation(summary = "Finds Pets by tags", description = "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.", deprecated = true)
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid tag value")})
     @GetMapping(value = "/findByTags", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<List<Pet>> findPetsByTags(
-            @Parameter(description = "Tags to filter by") @RequestParam(value = "tags") List<String> tags) {
+            @Parameter(description = "Tags to filter by") @RequestParam("tags") List<String> tags) {
         return ResponseEntity.ok().build();
     }
 
@@ -110,7 +110,7 @@ public class PetController {
      * code 404)
      */
     @Operation(summary = "Find pet by ID", description = "Returns a single pet", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Pet not found")})
@@ -128,7 +128,7 @@ public class PetController {
      * code 405)
      */
     @Operation(summary = "Update an existing pet", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Pet not found"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Validation exception")})
@@ -147,7 +147,7 @@ public class PetController {
      * @return Invalid input (status code 405)
      */
     @Operation(summary = "Updates a pet in the store with form data", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Invalid input")})
     @PostMapping(value = "/{petId}", consumes = {"application/x-www-form-urlencoded"})
     public ResponseEntity<Void> updatePetWithForm(
@@ -165,7 +165,7 @@ public class PetController {
      * @return successful operation (status code 200)
      */
     @Operation(summary = "uploads an image", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation")})
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/octet-stream", schema = @Schema(format = "binary", type = "string")))
     @PostMapping(value = "/{petId}/uploadImage", produces = {"application/json"}, consumes = {

@@ -75,7 +75,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Getter(AccessLevel.PRIVATE)
     @Setter
-    private boolean ignoreCustomSpreadsheetResultCompilation = false;
+    private boolean ignoreCustomSpreadsheetResultCompilation;
 
     public RulesModuleBindingContext(IBindingContext delegate, XlsModuleOpenClass module) {
         super(delegate, module);

@@ -74,7 +74,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     @Getter
     @Setter
-    private boolean failOnUnknownProperties = false;
+    private boolean failOnUnknownProperties;
 
     @Getter
     @Setter
@@ -82,7 +82,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     @Getter
     @Setter
-    private boolean polymorphicTypeValidation = false;
+    private boolean polymorphicTypeValidation;
 
     @Getter
     @Setter

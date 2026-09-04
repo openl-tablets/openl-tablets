@@ -37,7 +37,6 @@ class BeanCloner<T> implements ICloner<T> {
             for (var prop : props) {
                 if (fields.containsKey(prop.getName())) {
                     // Ignore, let's use public field for cloning
-                    continue;
                 } else if (prop.getReadMethod() != null && prop.getWriteMethod() != null) {
                     this.fields.put(prop.getName(), new PropertyGetSetter(prop.getReadMethod(), prop.getWriteMethod()));
                 } else if ("class".equals(prop.getName())) {

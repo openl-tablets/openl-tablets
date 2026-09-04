@@ -13,7 +13,6 @@ public class RuleServiceInstantiationException extends RuleServiceException {
     private static final long serialVersionUID = 1L;
 
     public RuleServiceInstantiationException() {
-        super();
     }
 
     public RuleServiceInstantiationException(String message, Throwable cause) {

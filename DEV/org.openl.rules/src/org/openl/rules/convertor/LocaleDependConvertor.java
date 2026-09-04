@@ -10,7 +10,7 @@ class LocaleDependConvertor {
     private static final String LOCALE_COUNTRY = "US";
     private static final String LOCALE_LANG = "en";
 
-    private static Locale locale = null;
+    private static Locale locale;
 
     static Locale getLocale() {
         if (locale == null) {

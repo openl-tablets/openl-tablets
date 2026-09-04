@@ -165,7 +165,7 @@ public class ProjectModel {
 
     private final WebStudio studio;
 
-    private TreeNode projectRoot = null;
+    private TreeNode projectRoot;
 
     @Getter
     private String historyStoragePath;
@@ -1356,7 +1356,7 @@ public class ProjectModel {
             ResolvedDependency projectDependency = AbstractDependencyManager.buildResolvedDependency(projectDescriptor);
             this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
                 Throwable failure = null;
-                synchronized (ProjectModel.this) {
+                synchronized (this) {
                     try {
                         this.compiledOpenClass = this.validate(projectDescriptor);
                         XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()

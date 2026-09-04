@@ -16,7 +16,6 @@ public class RuleServiceRuntimeException extends RuntimeException {
      * Constructs a new RuleServiceException.
      */
     public RuleServiceRuntimeException() {
-        super();
     }
 
     /**

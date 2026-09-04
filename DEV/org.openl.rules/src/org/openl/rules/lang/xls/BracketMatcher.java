@@ -48,14 +48,12 @@ class BracketMatcher {
         ErrorType errorCode;
 
         BracketsStackObject(Brackets bracket, Object id, ErrorType errorCode) {
-            super();
             this.bracket = bracket;
             this.id = id;
             this.errorCode = errorCode;
         }
 
         BracketsStackObject(Brackets bracket, Object id) {
-            super();
             this.bracket = bracket;
             this.id = id;
         }

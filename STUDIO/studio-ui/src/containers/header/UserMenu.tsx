@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react'
+import { FC, useContext } from 'react'
 import { Avatar, Col, Drawer, Menu, Row, Typography } from 'antd'
 import { useStyles } from './UserMenu.styles'
 import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons'

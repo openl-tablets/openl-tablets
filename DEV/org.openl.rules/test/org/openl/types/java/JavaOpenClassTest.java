@@ -225,9 +225,6 @@ class JavaOpenClassTest {
         private int cc;
         private int gg;
 
-        public BeanA() {
-        }
-
         public int getB() {
             return this.B;
         }
@@ -266,9 +263,6 @@ class JavaOpenClassTest {
     }
 
     public static class BeanX extends BeanA implements BeanCInterface {
-        public BeanX() {
-        }
-
         @Override
         public int getGg() {
             return 0;

@@ -12,7 +12,6 @@ package org.openl.binding.impl;
 public class ControlSignal extends RuntimeException {
 
     public ControlSignal() {
-        super();
     }
 
     public ControlSignal(Throwable cause) {

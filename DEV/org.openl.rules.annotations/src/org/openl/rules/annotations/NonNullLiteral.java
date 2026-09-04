@@ -18,6 +18,6 @@ import java.lang.annotation.Target;
  * because first one is ignored.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.PARAMETER})
+@Target({ElementType.PARAMETER})
 public @interface NonNullLiteral {
 }

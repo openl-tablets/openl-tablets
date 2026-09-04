@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { restoreNativeGlobals } from './utils/prototypeJsCompat'
 
 import './i18n'

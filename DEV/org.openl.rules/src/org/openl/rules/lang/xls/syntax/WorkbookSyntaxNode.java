@@ -18,7 +18,7 @@ public class WorkbookSyntaxNode extends NaryNode {
         this.mergedTableParts = mergedTableParts;
     }
 
-    private TableSyntaxNode[] tableSyntaxNodes = null;
+    private TableSyntaxNode[] tableSyntaxNodes;
 
     public TableSyntaxNode[] getTableSyntaxNodes() {
         if (tableSyntaxNodes == null) {

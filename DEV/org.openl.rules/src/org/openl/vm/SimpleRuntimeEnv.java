@@ -22,7 +22,7 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     protected ArrayDeque<IRuntimeContext> contextStack;
     private IOpenClass topClass;
     private IRulesMethodWrapper methodWrapper;
-    private Queue<RecursiveAction> actionStack = null;
+    private Queue<RecursiveAction> actionStack;
     private Tracer tracer = Tracer.NONE;
 
     public SimpleRuntimeEnv() {

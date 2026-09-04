@@ -73,7 +73,7 @@ public class StoreLogData {
 
     @Getter
     @Setter
-    private boolean ignorable = false;
+    private boolean ignorable;
 
     private Map<Class<?>, Boolean> ignorableByEntity;
 

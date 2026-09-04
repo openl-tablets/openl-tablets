@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { router } from './routes'
 import { App as AntApp } from 'antd'
 import { useAppStore, useNotificationStore, useUserStore } from 'store'

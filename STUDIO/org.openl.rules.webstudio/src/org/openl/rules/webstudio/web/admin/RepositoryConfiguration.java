@@ -46,7 +46,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     private String repoType;
 
     @JsonIgnore
-    private String oldName = null;
+    private String oldName;
 
     @Getter
     @JsonIgnore
