@@ -533,8 +533,11 @@ encrypted value in `ENC(...)`:
 
 ```properties
 secret.key = MyMasterPassword
-db.password = ENC(eNcoDedPa$$w0RD)
+db.password = ENC(AP7hs0n88JJMcFlV/7VQTg==)
 ```
+
+The value inside `ENC(...)` is Base64, so it cannot be invented — the example above is the password `MyDbPassword`
+encrypted with the `secret.key` shown next to it. Produce your own value as described at the end of this section.
 
 Keep `secret.key` out of `application.properties` in a shared environment — pass it as a Java system property or an
 environment variable instead. Quote the value if it contains spaces or shell metacharacters, so that
@@ -584,7 +587,10 @@ the old location and requires moving it manually.
 ### What Moves to the Shared Directory
 
 - **Administration settings** — every instance reads the same `<application-name>.properties`, so a change applied in
-  one instance's **Administration** area takes effect everywhere.
+  one instance's **Administration** area takes effect everywhere. The passwords in that file are stored as `ENC(...)`,
+  so every instance needs the same `secret.key`: an instance configured with a different key reads such a password as
+  an empty value. Changing the key therefore means changing it on all instances together and re-entering the affected
+  passwords afterwards, which saves them encrypted with the new key.
 - **User workspace and project history** — users see the same open projects and history on whichever instance serves
   them.
 - **Locks** — an instance sees projects locked by users on other instances.
