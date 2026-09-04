@@ -2,11 +2,11 @@
 
 ## Resume point
 
-PR #2063 waits only on the owner's merge: mergeable, trial-merges clean onto main's tip, 13 CI jobs green, never a
-human comment, CodeRabbit paused. Only the deterministic SonarCloud gate is red, on its one condition
-`new_reliability_rating` 4 — the pre-existing Critical `javabugs:S6466`, open on main at the SAME file and line
-(`WorkbookListener.java` 273); `rules=javabugs:S6466` without `pullRequest` re-proves it, its five BUGs are
-answered, and no clean removal is ever reverted for it. Redo that proof and the trial merge whenever main
+PR #2063 waits only on the owner's merge: mergeable, trial-merges clean onto main's tip, 12 CI jobs green with
+`dependabot` skipped, never a human comment, CodeRabbit paused. Only the deterministic SonarCloud gate is red, on
+its one condition `new_reliability_rating` 4 — the pre-existing Critical `javabugs:S6466`, open on main at the SAME
+file and line (`WorkbookListener.java` 273); `rules=javabugs:S6466` without `pullRequest` re-proves it, its five
+BUGs are answered, and no clean removal is ever reverted for it. Redo that proof and the trial merge whenever main
 advances; every detector is spent, so a run is PR maintenance, compaction, the profile-delta check, main's delta.
 CONCURRENCY: runs share this ledger and this PR; a stale CI event names a superseded `head_sha`.
 
@@ -373,9 +373,9 @@ identical-content duplicates across production files, and every tracked build le
 
 ## Run log
 
-- Run 54: no deletion; main advanced to `4a45294c` and its new EPBDS-16529 feature swept clean; head `a0e0041f`
-  with 13 green jobs plus the one gate condition, 5 BUGs, 26 distinct subjects, 291/346/628, profile check clean.
 - Run 55: no deletion; main and head both unchanged; all 7 profiles at or before the covered 09-02 batch; body's
   28 headings and 26/291/346/628 re-derived intact; S6466 confirmed on main at the same line.
 - Run 56: no deletion; main, head and every derived count unchanged; profile check clean (groovy bumped but is
   unanalyzed); S6466 still open on main at the same line; ledger compacted 390 to 381 lines.
+- Run 57: no deletion; main, head, the 28 body headings and 26/291/346/628 all unchanged; trial merge clean;
+  profile check clean (only groovy moved); gate still red on that one condition, S6466 open on main at line 273.
