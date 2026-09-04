@@ -130,7 +130,7 @@
         <cxf.version>4.1.8</cxf.version>
 
         <!-- OpenAPI -->
-        <swagger.core.version>2.2.54</swagger.core.version>
+        <swagger.core.version>2.2.55</swagger.core.version>
         <swagger.parser.version>2.1.47</swagger.parser.version>
 
         <!-- Logging -->
