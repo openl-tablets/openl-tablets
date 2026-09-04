@@ -2,13 +2,14 @@
 
 ## Resume point
 
-PR #2063 waits only on the owner's merge: mergeable, no review comment, CodeRabbit paused, every CI job green,
-only the deterministic SonarCloud gate red — its sole failing condition is `new_reliability_rating` 4, driven by
-the pre-existing Critical `javabugs:S6466`, and it stays red at C without it, so never revert a clean removal for
-it; its five BUGs are answered and a sixth saying so is noise. Its trial merge onto `09613f05`, still main's tip,
-is clean — redo it only when main moves past that. Every detector is spent, so a run is PR maintenance,
-compaction, the profile-delta check (covered through the 2026-09-02 batch) and main's delta. CONCURRENCY: runs
-share this ledger and this PR; a CI event for a superseded `head_sha` is stale, never chain.
+PR #2063 waits only on the owner's merge: mergeable, never a human comment, CodeRabbit paused, every CI job
+green, only the deterministic SonarCloud gate red on its one condition `new_reliability_rating` 4 — the
+pre-existing Critical `javabugs:S6466`, still red at C without it, so never revert a clean removal for it; its
+five BUGs are answered and a sixth is noise. Its trial merge onto main's tip `d38a7037` is clean and the merged
+`studio-ui/package-lock.json`, the only file both sides touch, passes `npm ci`; redo both when main moves past
+that tip. Every detector is spent, so a run is PR maintenance, compaction, the profile-delta check (covered
+through the 2026-09-02 batch) and main's delta. CONCURRENCY: runs share this ledger and this PR; a stale CI
+event names a superseded `head_sha`.
 
 ## Change-type queue
 
@@ -76,8 +77,6 @@ check is out of scope however new it is.
   trailing `return;` closing a chain of `if (…) { setX(); return; }` or of arms that throw is symmetry. PMD and
   Sonar `java:S3626` flag all of them; only a `continue` ending an `if`/`else if` arm is really deletable, and it
   leaves a comment-only block, which Sonar accepts and which the `java:S135` one-jump-per-loop rule prefers.
-- A generated bundle inherits every finding of the vendored file concatenated into it: all 15 in
-  `tableeditor.all.js` fall in the `datepicker.js` span. Map its ranges from `compile.js.sh` before believing one.
 - Sonar sees no method reference in its unused-private-method rule: `java:S1144` calls `XlsBinder
   .addBindingContextError` dead while `holder::addBindingContextError` is its caller one screen above.
 - Before standing down on a red check, compare the MERGE BASE's own run, not only the latest `main`: a job red at
@@ -85,8 +84,6 @@ check is out of scope however new it is.
 - A managed dependency or plugin that NO module declares is normally still live: a deliberate transitive version
   pin whose neighbouring comment or release note names the CVE, or a plugin the default lifecycle, the packaging,
   a workflow goal or a `site/` configuration reaches. Only an entry no build can produce or reach is dead.
-- A path in a descriptor is relative or servlet-mapped, so it looks absent: `html/inputVersion.xhtml` resolves
-  under `WEB-INF/taglib/`, `/faces/pages/x.xhtml` under `pages/`, and `/cxf/cxf.xml` inside a dependency jar.
 - An "overwritten" assignment is load-bearing whenever anything between the two writes can observe it: an early
   return leaves the initializer as what the getter returns, `Condition.await` hands the field to another thread,
   a callee reads a field restored in `finally`, and a getter publishes it to other beans. Read the control flow.
@@ -106,9 +103,8 @@ check is out of scope however new it is.
   shifts `options` onto the first argument. ESLint's `args: 'after-used'` default encodes the same rule.
 - A dependency whose only consumer is itself dead counts as used, so a dependency sweep that runs before the code
   sweep misses it: `@eslint/js` survived the npm pass because the dead import in `eslint.config.js` named it.
-- A scan keyed on a file list misses whatever owns no file: an extensionless dotfile escaped an extension filter
-  yet held the only caller of `nav_auto.html`, and a NESTED class has no file, so `FileUtils
-  .ContentTooLargeException` read as an unknown type.
+- A scan keyed on a file list misses whatever owns no file: an extensionless dotfile escapes an extension filter,
+  and a NESTED class has no file, so `FileUtils.ContentTooLargeException` reads as an unknown type.
 - An identifier is routinely composed at runtime, so its literal appears nowhere: an i18next plural suffix, a
   template literal, prefix composition, a `$ref` tail, JSF `compared_#{bean.order}`, JS `"status-" + status`, the
   tableeditor `t_te_table` id. Build a regex per template, and read the branch (`browser.${id}_confirm`).
@@ -117,17 +113,14 @@ check is out of scope however new it is.
 - A commented-out line is often documentation, not a leftover: pseudo-code, the Java equivalent of emitted
   bytecode, an alternative formula, a retained reason or author, an `else`-branch marker, a sample of the string
   built below, a `/* package */` type marker. A scanner must also consume `"""` text blocks as literals.
-- javac stops reporting after 100 warnings per compilation and Maven never raises that limit, so a build log read
-  as proof is silently truncated: pass `-Xmaxwarns 100000`, and confirm the category is live in the same run.
+- javac stops after 100 warnings per compilation and Maven never raises it, so a build log read as proof is
+  silently truncated: pass `-Xmaxwarns 100000`.
 - A "test sources" path filter must anchor the directory exactly: `(^|/)test/` also matches the PRODUCTION
   packages `src/.../web/test/` and `src/.../testmethod/`, turning live code into a phantom finding.
 - A Java type parameter can be used only as the RETURN type, which sits before the parameter list: a scan that
   starts its usage window at the opening paren calls every `<R> R invoke(...)` dead. Start it at the modifiers.
 - A manifest field is read by a tool DEEP in the dependency tree, not by the one the project names: Babel, which
   `@vitejs/plugin-react` drives, reads the `browserslist` field because it never sets `browserslistConfigFile`.
-- A field initializer assigning the JVM default is redundant EXCEPT where the field can be written before it runs:
-  a superclass constructor's virtual call, or a static block above a static field. Only `ComponentOpenClass` and
-  `ADynamicClass` call out of a constructor here.
 - A redundant-construct detector reads the construct, not the type context that makes it load-bearing: a cast IS
   the declared type under `var` (`var x = (double) 10` boxes to Double, without the cast to Integer), explicit
   boxing pins one of the 16 `Operators` overloads per operator, `((Double) o).doubleValue()` differs from
@@ -135,9 +128,6 @@ check is out of scope however new it is.
   passes a null ARRAY. Check the declaration and the overload set before believing any of them.
 - A redundant construct whose fix needs a REPLACEMENT is a rewrite, not a deletion, and out of scope: `"" + x`
   needs `String.valueOf(x)`, inlining a local into its `return` is a refactor, an empty catch needs a comment.
-- A plugin parameter can exist on ONE goal only, so a plugin-level `<configuration>` element is live as soon as
-  any bound goal accepts it: maven-jar-plugin defines `skip` on `test-jar` and not on `jar`, which makes the root
-  pom's `<skip>${maven.deploy.skip}</skip>` read by the two `test-jar` executions.
 
 ## Method rules
 
@@ -178,6 +168,8 @@ check is out of scope however new it is.
   needs a release-notes entry, which an internal endpoint with no button never is.
 - Maven silently ignores a `<configuration>` element no mojo declares, so the oracle is `META-INF/maven/plugin
   .xml` inside the plugin jar in `~/.m2`: every `<parameter><name>` and `<alias>` per goal, and the goals it has.
+  PER GOAL is the point — a parameter can exist on one goal only, and maven-jar-plugin declaring `skip` on
+  `test-jar` alone is what makes the root pom's plugin-level `<skip>` live.
 
 ## Keep-list
 
@@ -384,8 +376,9 @@ production files, and every tracked build leftover.
 
 ## Run log
 
-- Run 46: no deletion; #2063 and main unchanged, profile check clean, ledger compacted 399 to 387 lines.
 - Run 47: no deletion; #2063 and main unchanged, profile check clean, the body's 28 headings realigned to the
   26 commit subjects, so section and commit now map one to one by title.
 - Run 48: no deletion; #2063, main and the gate's one failing condition all unchanged, profile check clean, body
-  counts re-derived and matching, heading-to-commit mapping verified 1:1 and recorded so it is not re-checked.
+  counts re-derived and matching, heading-to-commit mapping verified 1:1.
+- Run 49: no deletion; main moved to `d38a7037` — three dependency bumps, a heap guard and a new ITEST module,
+  no dead-code surface — so the trial merge was redone and the merged studio-ui lock proved coherent.
