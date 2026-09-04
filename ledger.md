@@ -2,14 +2,14 @@
 
 ## Resume point
 
-PR #2063 waits only on the owner's merge: mergeable, never a human comment, CodeRabbit paused, every CI job
+PR #2063 waits only on the owner's merge: mergeable, never a human comment, CodeRabbit paused, all 13 CI jobs
 green, only the deterministic SonarCloud gate red on its one condition `new_reliability_rating` 4 — the
 pre-existing Critical `javabugs:S6466`, still red at C without it, so never revert a clean removal for it; its
-five BUGs are answered and a sixth is noise. Its trial merge onto main's tip `d38a7037` is clean and the merged
-`studio-ui/package-lock.json`, the only file both sides touch, passes `npm ci`; redo both when main moves past
-that tip. Every detector is spent, so a run is PR maintenance, compaction, the profile-delta check (covered
-through the 2026-09-02 batch, the java and xml profiles' `rulesUpdatedAt`) and main's delta. CONCURRENCY: runs
-share this ledger and this PR; a stale CI event names a superseded `head_sha`.
+five BUGs are answered and a sixth is noise. It trial-merges clean onto main's tip `d38a7037`, whose only
+overlap `studio-ui/package-lock.json` passes `npm ci`; redo both when main moves past that tip. Every detector
+is spent, so a run is PR maintenance, compaction, the profile-delta check (covered through the 2026-09-02 batch,
+the java and xml profiles' `rulesUpdatedAt`) and main's delta. CONCURRENCY: runs share this ledger and this PR;
+a stale CI event names a superseded `head_sha`.
 
 ## Change-type queue
 
@@ -153,8 +153,9 @@ returns whose fix is a DELETION — a spent detector re-run is waste, and a rewr
   `#{bean.propertyType}` call `getPropertyType()` without ever spelling it.
 - When this container's npm rewrites unrelated lock metadata, remove the lock's own regions by hand instead and
   prove coherence with `npm ci`, which fails when the lock and `package.json` disagree.
-- Never rebase a green PR merely to be current: trial-merge it onto `origin/main` in a detached worktree and
-  prove the result instead. A rebase burns a CI cycle, and the merge is where a clean-merging lock is caught.
+- Never rebase a green PR merely to be current: `git merge-tree --write-tree origin/main <head>` proves the
+  merge read-only, no worktree and no checkout, printing every CONFLICT and exiting non-zero when there is one.
+  A rebase burns a CI cycle, and the merge is where a clean-merging lock is caught.
 - Before deleting a dead `throws`, read the callers: an unreachable `catch` at a call site becomes a compile
   error, and a caller whose own clause had no other source inherits the finding — deletable only if that caller
   is not itself held by a safety rail.
@@ -376,9 +377,9 @@ production files, and every tracked build leftover.
 
 ## Run log
 
-- Run 49: no deletion; main moved to `d38a7037` — three dependency bumps, a heap guard and a new ITEST module,
-  no dead-code surface — so the trial merge was redone and the merged studio-ui lock proved coherent.
 - Run 50: no deletion; #2063 head, main tip, all 13 CI jobs, the gate's one condition and its five BUGs all
   unchanged, body counts re-derived and matching, trial merge re-proven clean, profile check clean.
-- Run 51: no deletion; every checked value unchanged again — head `a0e0041f`, main `d38a7037`, 13 green jobs plus
-  the one gate condition, 5 BUGs, body counts and its 1:1 heading map, profile check clean; branch delete 403.
+- Run 51: no deletion; every checked value unchanged again; branch delete still 403.
+- Run 52: no deletion; a fourth consecutive run with nothing changed — head `a0e0041f`, main `d38a7037`, 13 green
+  jobs plus the one gate condition, 5 BUGs, 26 distinct commit subjects, body 291/346/628 and its 28:26 heading
+  map, trial merge clean over the one overlapping lock, profile check clean.
