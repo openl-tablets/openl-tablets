@@ -12,15 +12,17 @@ share this ledger and this PR; a CI event for a superseded `head_sha` is stale, 
 
 ## Change-type queue
 
-All 124 closed — 46 shipped a deletion, 78 found nothing; *Exhausted veins* records what each covered.
-The queue is empty. Open a row only for a rule the profile-delta check returns whose fix is a DELETION; re-running
-a spent detector is waste, and a rule that rewrites, hoists or adds a check is out of scope however new it is.
+Empty; *Exhausted veins* records what every closed row covered. Open a row only for a rule the profile-delta check
+returns whose fix is a DELETION — re-running a spent detector is waste, and a rule that rewrites, hoists or adds a
+check is out of scope however new it is.
 
 ## Open PR
 
 - #2063, branch `dead-code/dead-suppressions`, head `a0e0041f`, merge base `c0213fe6`, 291 files, 628 deleted and
   346 added lines, 26 commits, one per change type with its own PR-body section, which alone records what each
   kept and why; the body matches that diff. Derive every count against the MERGE BASE, never against main.
+- The body carries 28 `##` headings, not 26: the 26 commit subjects verbatim plus the two findings-only sections
+  "Two change types found nothing to delete" and "What SonarCloud's other deletion rules turned up". Not a drift.
 
 ## Merged PRs
 
@@ -382,7 +384,8 @@ production files, and every tracked build leftover.
 
 ## Run log
 
-- Run 45: no deletion; main unmoved, profile check clean, #2063's merge onto it proven by the frontend gate.
 - Run 46: no deletion; #2063 and main unchanged, profile check clean, ledger compacted 399 to 387 lines.
 - Run 47: no deletion; #2063 and main unchanged, profile check clean, the body's 28 headings realigned to the
   26 commit subjects, so section and commit now map one to one by title.
+- Run 48: no deletion; #2063, main and the gate's one failing condition all unchanged, profile check clean, body
+  counts re-derived and matching, heading-to-commit mapping verified 1:1 and recorded so it is not re-checked.
