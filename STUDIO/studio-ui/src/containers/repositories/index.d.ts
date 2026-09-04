@@ -10,6 +10,7 @@ export interface DefaultSettings {
     defaultCommentRestoredFrom?: string
     defaultCommentSave?: string
     invalidCommentMessage: string
+    includeExcelFilesInProjectDiscovery?: boolean
     mainBranchOnly?: boolean
     useCustomComments?: boolean
 }

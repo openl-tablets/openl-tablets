@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
@@ -40,6 +42,9 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     private static final String DEFAULT_COMMENT_COPIED_FROM_SUFFIX = ".comment-template.user-message.default.copied-from";
     private static final String DEFAULT_COMMENT_RESTORED_FROM_SUFFIX = ".comment-template.user-message.default.restored-from";
     public static final String BASE_PATH_SUFFIX = ".base.path";
+    static final String PROJECT_DISCOVERY_SUFFIX = ".project-discovery";
+    private static final String PROJECT_DISCOVERY_INCLUDE_EXCEL_FILES_SUFFIX =
+            PROJECT_DISCOVERY_SUFFIX + ".include-excel-files";
     private static final String DEPLOY_FROM_MAIN_BRANCH_SUFFIX = ".deploy-from-branch";
 
     public static final String MAIN_BRANCH = "MAIN_BRANCH";
@@ -51,6 +56,7 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     private final String DEFAULT_COMMENT_COPIED_FROM;
     private final String DEFAULT_COMMENT_RESTORED_FROM;
     private final String BASE_PATH;
+    private final String PROJECT_DISCOVERY_INCLUDE_EXCEL_FILES;
     private final String DEPLOY_FROM_MAIN_BRANCH;
 
     @Parameter(description = "Customize comments")
@@ -96,6 +102,13 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     @JsonView(Views.Base.class)
     private String basePath;
 
+    @Getter
+    @Setter
+    @Parameter(description = "Whether folders without rules.xml can be discovered as projects from Excel files in their root.")
+    @SettingPropertyName(suffix = PROJECT_DISCOVERY_INCLUDE_EXCEL_FILES_SUFFIX)
+    @JsonView(Views.Design.class)
+    private boolean includeExcelFilesInProjectDiscovery;
+
     @Parameter(description = "Deployment Branch")
     @SettingPropertyName(suffix = DEPLOY_FROM_MAIN_BRANCH_SUFFIX)
     @JsonView(Views.Production.class)
@@ -118,6 +131,7 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         DEFAULT_COMMENT_COPIED_FROM = configPrefix + DEFAULT_COMMENT_COPIED_FROM_SUFFIX;
         DEFAULT_COMMENT_RESTORED_FROM = configPrefix + DEFAULT_COMMENT_RESTORED_FROM_SUFFIX;
         BASE_PATH = configPrefix + BASE_PATH_SUFFIX;
+        PROJECT_DISCOVERY_INCLUDE_EXCEL_FILES = configPrefix + PROJECT_DISCOVERY_INCLUDE_EXCEL_FILES_SUFFIX;
         DEPLOY_FROM_MAIN_BRANCH = configPrefix + DEPLOY_FROM_MAIN_BRANCH_SUFFIX;
 
         load(propertyResolver);
@@ -212,10 +226,14 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
             var defaultBasePathName = RepositoryConfiguration.REPOSITORY_DEFAULT_PREFIX + repositoryMode.name().toLowerCase() + BASE_PATH_SUFFIX;
             basePath = properties.getProperty(defaultBasePathName);
         }
+
+        var includeExcelFiles = properties.getProperty(PROJECT_DISCOVERY_INCLUDE_EXCEL_FILES);
+        includeExcelFilesInProjectDiscovery = includeExcelFiles == null || Boolean.parseBoolean(includeExcelFiles);
     }
 
     protected void store(PropertiesHolder propertiesHolder) {
         propertiesHolder.setProperty(BASE_PATH, basePath);
+        propertiesHolder.setProperty(PROJECT_DISCOVERY_INCLUDE_EXCEL_FILES, includeExcelFilesInProjectDiscovery);
         propertiesHolder.setProperty(USE_CUSTOM_COMMENTS, useCustomComments);
         propertiesHolder.setProperty(COMMENT_VALIDATION_PATTERN, commentValidationPattern);
         propertiesHolder.setProperty(INVALID_COMMENT_MESSAGE, invalidCommentMessage);
@@ -237,6 +255,7 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
                 DEFAULT_COMMENT_COPIED_FROM,
                 DEFAULT_COMMENT_RESTORED_FROM,
                 BASE_PATH,
+                PROJECT_DISCOVERY_INCLUDE_EXCEL_FILES,
                 DEPLOY_FROM_MAIN_BRANCH);
         load(properties);
     }

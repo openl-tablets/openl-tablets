@@ -49,6 +49,8 @@ import org.openl.util.StringUtils;
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private static final String DESIGN_REPOSITORIES = "design-repository-configs";
+    private static final String PROJECT_DISCOVERY_INCLUDE_EXCEL_FILES_SUFFIX =
+            ".project-discovery.include-excel-files";
 
     @Getter
     private volatile List<Repository> repositories;
@@ -137,7 +139,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             if (repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
-                repo = MappedRepository.create(repo, baseFolder);
+                var includeExcelFiles = propertyResolver
+                        .getProperty(repoPrefix + PROJECT_DISCOVERY_INCLUDE_EXCEL_FILES_SUFFIX);
+                var includeExcelFilesInProjectDiscovery = includeExcelFiles == null
+                        || Boolean.parseBoolean(includeExcelFiles);
+                repo = MappedRepository.create(repo, baseFolder, includeExcelFilesInProjectDiscovery);
             }
 
             return repo;

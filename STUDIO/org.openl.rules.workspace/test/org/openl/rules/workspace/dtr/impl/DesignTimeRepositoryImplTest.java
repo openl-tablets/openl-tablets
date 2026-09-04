@@ -16,8 +16,11 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.project.abstraction.AProject;
@@ -42,6 +46,32 @@ import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.FolderMapper;
 
 class DesignTimeRepositoryImplTest {
+
+    @Test
+    void appliesExcelFileProjectDiscoverySettingPerRepository(@TempDir Path root) throws Exception {
+        var project = root.resolve("upload/rates.xlsx");
+        Files.createDirectories(project.getParent());
+        Files.writeString(project, "test");
+
+        var values = new HashMap<>(Map.of(
+                "repository.design.factory", "repo-file",
+                "repository.design.name", "Design",
+                "repository.design.uri", root.toString()));
+        var properties = mock(PropertyResolver.class);
+        when(properties.getProperty(anyString())).thenAnswer(invocation -> values.get(invocation.getArgument(0)));
+        var designRepository = new DesignTimeRepositoryImpl(properties);
+
+        try (var repository = designRepository.createRepo("design", "DESIGN/")) {
+            assertEquals(1, repository.listFolders("DESIGN/").size(),
+                    "An absent setting must preserve Excel-only project discovery");
+        }
+
+        values.put("repository.design.project-discovery.include-excel-files", "false");
+        try (var repository = designRepository.createRepo("design", "DESIGN/")) {
+            assertTrue(repository.listFolders("DESIGN/").isEmpty(),
+                    "Disabling the setting must hide Excel-only folders from this repository");
+        }
+    }
 
     @Test
     void resolvesListedProjectVersionOnlyOnDemand() {

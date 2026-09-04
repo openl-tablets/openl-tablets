@@ -110,6 +110,8 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         properties.setProperty(nameWithPrefix + ".base.path.$ref", defaultSettingsPrefix + ".base.path");
         if (repoMode.equals(RepositoryMode.DESIGN)) {
             properties.setProperty(nameWithPrefix + ".new-branch.$ref", defaultSettingsPrefix + ".new-branch");
+            properties.setProperty(nameWithPrefix + RepositorySettings.PROJECT_DISCOVERY_SUFFIX + ".$ref",
+                    defaultSettingsPrefix + RepositorySettings.PROJECT_DISCOVERY_SUFFIX);
         }
 
         var defValue = properties.getProperty(defaultSettingsPrefix + ".name");

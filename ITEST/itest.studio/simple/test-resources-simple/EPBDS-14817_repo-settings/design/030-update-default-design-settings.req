@@ -6,6 +6,7 @@ Content-Type: application/merge-patch+json
   "name": "Design",
   "settings": {
     "useCustomComments": true,
+    "includeExcelFilesInProjectDiscovery": false,
     "commentValidationPattern": "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}",
     "invalidCommentMessage": "'Invalid comment: Comment must be started with ticket number like EPBDS-0000'",
     "branch": "development",

@@ -25538,6 +25538,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "includeExcelFilesInProjectDiscovery": {
+            "type": "boolean",
+            "description": "***"
+          },
           "mainBranchOnly": {
             "type": "boolean",
             "description": "***"
