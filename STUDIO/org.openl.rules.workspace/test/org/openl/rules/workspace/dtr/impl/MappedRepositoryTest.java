@@ -190,6 +190,29 @@ class MappedRepositoryTest {
     }
 
     @Test
+    void discoversExcelOnlyProjectsByDefault() throws IOException {
+        writeExcelFile("upload/rates.xlsx");
+
+        var mapped = listMappedFolders("DESIGN/");
+
+        assertEquals(1, mapped.size(), "The Excel-only folder must be discovered by default: " + mapped);
+        assertTrue(mapped.getFirst().startsWith("DESIGN/upload:"),
+                "The folder name must be used as the project name, but was: " + mapped);
+    }
+
+    @Test
+    void skipsExcelOnlyProjectsWhenTheirDiscoveryIsDisabled() throws IOException {
+        writeExcelFile("upload/rates.xlsx");
+        writeProject("upload/real-project", "<project><name>Rates</name></project>");
+
+        var mapped = listMappedFolders("DESIGN/", false);
+
+        assertEquals(1, mapped.size(), "Only the project with rules.xml must be discovered: " + mapped);
+        assertTrue(mapped.getFirst().startsWith("DESIGN/Rates:"),
+                "The descriptor project nested under the skipped folder must still be found, but was: " + mapped);
+    }
+
+    @Test
     void identicalBranchTreesReuseMapping() throws Exception {
         var main = branchRepository("main", "rules/project", "Project", "descriptor-1", "tree-1");
         var feature = branchRepository("feature", "rules/project", "Project", "descriptor-1", "tree-1");
@@ -297,11 +320,16 @@ class MappedRepositoryTest {
     }
 
     private List<String> listMappedFolders(String baseFolder) throws IOException {
+        return listMappedFolders(baseFolder, true);
+    }
+
+    private List<String> listMappedFolders(String baseFolder,
+                                           boolean includeExcelFilesInProjectDiscovery) throws IOException {
         var delegate = new FileSystemRepository();
         delegate.setRoot(root);
         delegate.initialize();
 
-        Repository mapped = MappedRepository.create(delegate, baseFolder);
+        Repository mapped = MappedRepository.create(delegate, baseFolder, includeExcelFilesInProjectDiscovery);
         try {
             return mapped.listFolders(baseFolder).stream().map(FileData::getName).toList();
         } finally {
@@ -315,6 +343,12 @@ class MappedRepositoryTest {
         var projectFolder = root.resolve(folder);
         Files.createDirectories(projectFolder);
         Files.writeString(projectFolder.resolve("rules.xml"), rulesXml);
+    }
+
+    private void writeExcelFile(String file) throws IOException {
+        var path = root.resolve(file);
+        Files.createDirectories(path.getParent());
+        Files.writeString(path, "test");
     }
 
 }

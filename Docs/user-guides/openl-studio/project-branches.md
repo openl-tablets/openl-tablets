@@ -37,7 +37,9 @@ are reported below the **Branch** field before the request is sent.
 
 This section describes how to view existing branches, switch between them in the editor and repository,
 inspect project membership, and delete branches. OpenL Studio discovers projects from the current Git tree
-of every readable branch. A project that exists only outside the default branch therefore appears in the
+of every readable branch. A folder with `rules.xml` is always a project. A folder without the descriptor is also
+treated as a project when it has an Excel file in its root and **Discover Excel-Only Projects** is enabled for that
+design repository. A project that exists only outside the default branch therefore appears in the
 project list, represented by a protected branch when one contains it and by the branch with the newest commit
 otherwise. Its **Branch** field shows the current branch and loads the branches that contain the project when
 the branch menu is opened. Proceed as follows:

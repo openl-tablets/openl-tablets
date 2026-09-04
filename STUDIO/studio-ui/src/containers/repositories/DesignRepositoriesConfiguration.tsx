@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { isFormValuesEqual } from './formComparison'
 import { RepositoryDataType, RepositoryType } from './constants'
 import { WIDTH_OF_FORM_LABEL } from '../../constants'
-import { Input, Select } from '../../components'
+import { Checkbox, Input, Select } from '../../components'
 import { DesignRepositoryCommentsConfiguration } from './DesignRepositoryCommentsConfiguration'
 import { RepositoryConfigurationComponent } from './RepositoryConfigurationComponent'
 import { useRepositoryConfiguration } from './hooks'
@@ -474,7 +474,15 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                                 <Divider titlePlacement="start">{t('repository:common')}</Divider>
                                 <RepositoryConfigurationComponent configuration={configurationData} onChangeType={onChangeType} repositoryDataType={repositoryDataType} repositoryType={repositoryType} />
                                 {repositoryDataType === RepositoryDataType.DESIGN && (
-                                    <DesignRepositoryCommentsConfiguration />
+                                    <>
+                                        <Divider titlePlacement="start">{t('repository:project_discovery')}</Divider>
+                                        <Checkbox
+                                            label={t('repository:discover_excel_only_projects')}
+                                            name={['settings', 'includeExcelFilesInProjectDiscovery']}
+                                            tooltip={t('repository:discover_excel_only_projects_info')}
+                                        />
+                                        <DesignRepositoryCommentsConfiguration />
+                                    </>
                                 )}
                                 {repositoryDataType === RepositoryDataType.DEPLOYMENT && (
                                     <Select label={t('repository:deployment_branch')} name={['settings', 'mainBranchOnly']} options={deploymentBranchOptions} />

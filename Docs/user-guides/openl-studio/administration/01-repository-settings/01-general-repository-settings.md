@@ -41,14 +41,24 @@ To add a repository, proceed as follows:
 
     Connection to a local deployment repository is configured by default.
 
-7.  For **Deployment Repositories**, select the **Deployment branch** option:
+7.  For **Design Repositories**, use **Project Discovery** > **Discover Excel-Only Projects** to control whether a
+    folder without `rules.xml` is recognized as a project when an Excel file is present in the folder root. The option
+    is enabled by default. Clear it for a repository that also stores non-OpenL folders containing Excel files; only
+    folders with `rules.xml` are then discovered as projects.
+
+    The corresponding configuration property is
+    `repository.<repository-id>.project-discovery.include-excel-files`.
+
+    ![Project Discovery settings for a design repository](../../images/design-repository-project-discovery.png "Project Discovery settings for a design repository")
+
+8.  For **Deployment Repositories**, select the **Deployment branch** option:
 
     | Option               | Description                                                       |
     |----------------------|-------------------------------------------------------------------|
     | **Any branch**       | Projects can be deployed to any branch.                           |
     | **Main branch only** | Projects can only be deployed to the repository's default branch. |
 
-8.  When finished, click **Apply Changes** to save the settings.
+9.  When finished, click **Apply Changes** to save the settings.
 
 To delete a repository, click the **×** button on the repository's tab and confirm the deletion.
 

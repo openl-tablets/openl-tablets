@@ -185,6 +185,9 @@ The mapping scan must follow these rules:
 
 - Git entries with mode `160000` are submodules, not folders, and must not be traversed.
 - A folder returned from a branch tree is present in that branch and must not be compared with another branch.
+- A folder with `rules.xml` is always a project. A folder without it is a project when an Excel file is present in the
+  folder root and `repository.<id>.project-discovery.include-excel-files` is enabled. The setting is repository-scoped,
+  defaults to `true`, and must be retained by every branch-scoped mapped view.
 - Discovery must not call lazy audit accessors such as author, date, comment or version.
 - Descriptor and Excel discovery must use Git tree and blob revisions for reuse and invalidation.
 

@@ -72,13 +72,23 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     @Setter(AccessLevel.PRIVATE)
     private String baseFolder;
 
+    @Setter(AccessLevel.PRIVATE)
+    private boolean includeExcelFilesInProjectDiscovery = true;
+
     public static Repository create(Repository delegate,
                                     String baseFolder) throws IOException {
+        return create(delegate, baseFolder, true);
+    }
+
+    static Repository create(Repository delegate,
+                             String baseFolder,
+                             boolean includeExcelFilesInProjectDiscovery) throws IOException {
         MappedRepository mappedRepository = null;
         try {
             mappedRepository = new MappedRepository();
             mappedRepository.setDelegate(delegate);
             mappedRepository.setBaseFolder(baseFolder);
+            mappedRepository.setIncludeExcelFilesInProjectDiscovery(includeExcelFilesInProjectDiscovery);
             mappedRepository.initialize();
         } catch (Exception e) {
             // If exception is thrown, we must close repository in this method and rethrow exception.
@@ -377,6 +387,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         var mappedRepository = new MappedRepository();
         mappedRepository.setDelegate(delegateForBranch);
         mappedRepository.setBaseFolder(baseFolder);
+        mappedRepository.setIncludeExcelFilesInProjectDiscovery(includeExcelFilesInProjectDiscovery);
         // Share the caches so a lazy refresh can reuse a mapping already built for the same tree.
         mappedRepository.indexesByTreeRevision = indexesByTreeRevision;
         mappedRepository.projectNamesByDescriptorRevision = projectNamesByDescriptorRevision;
@@ -675,7 +686,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     /**
      * Detect existing projects and Deploy Configurations based on rules.xml and
-     * {@link ArtefactProperties#DESCRIPTORS_FILE}.
+     * {@link ArtefactProperties#DESCRIPTORS_FILE}. When Excel file discovery is enabled, a folder without a descriptor
+     * is also a project if it contains an Excel file in its root.
      *
      * <p>Every project keeps the name its descriptor declares. Several folders may declare the same name; they stay
      * separate projects, told apart by the folder they live in.
@@ -692,7 +704,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             var folderPath = folderData.getName();
 
             var projectInfo = tryResolveProjectFromDescriptor(folderPath, delegate);
-            if (projectInfo == null) {
+            if (projectInfo == null && includeExcelFilesInProjectDiscovery) {
                 projectInfo = tryResolveProjectFromExcelFiles(folderPath, delegate);
             }
 
