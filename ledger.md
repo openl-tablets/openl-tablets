@@ -4,10 +4,12 @@
 
 PR #2063 waits only on the owner's merge: mergeable, never a human comment, CodeRabbit paused, all 13 CI jobs
 green, only the deterministic SonarCloud gate red on its one condition `new_reliability_rating` 4 — the
-pre-existing Critical `javabugs:S6466`, still red at C without it, so never revert a clean removal for it; its
-five BUGs are answered. It trial-merges clean onto main's tip `4a45294c`; of its four overlaps the lock passes
-`npm ci` and the three Java files lose only initializers here, so main's rewrites cannot conflict. Redo both
-past that tip. Every detector is spent: a run is PR maintenance, compaction, the profile check and main's delta.
+pre-existing Critical `javabugs:S6466`, open on main at the SAME file and line (`WorkbookListener.java` 273), so
+`rules=javabugs:S6466` without `pullRequest` re-proves it; never revert a clean removal for it, and its five BUGs
+are answered. It trial-merges clean onto main's tip `4a45294c`, which main's own analysis now covers; of its four
+overlaps the lock passes `npm ci` and the three Java files lose only initializers here, so main's rewrites cannot
+conflict. Redo both past that tip. Every detector is spent: a run is PR maintenance, compaction, the profile
+check and main's delta.
 CONCURRENCY: runs share this ledger and this PR; a stale CI event names a superseded `head_sha`.
 
 ## Change-type queue
@@ -381,7 +383,8 @@ production files, and every tracked build leftover.
 
 ## Run log
 
-- Run 52: no deletion; every checked value re-derived unchanged; branch delete still 403.
 - Run 53: no deletion; a fifth consecutive unchanged run, every value re-derived.
 - Run 54: no deletion; main advanced to `4a45294c` and its new EPBDS-16529 feature swept clean; head `a0e0041f`
   with 13 green jobs plus the one gate condition, 5 BUGs, 26 distinct subjects, 291/346/628, profile check clean.
+- Run 55: no deletion; main and head both unchanged; all 7 profiles at or before the covered 09-02 batch; body's
+  28 headings and 26/291/346/628 re-derived intact; S6466 confirmed on main at the same line.
