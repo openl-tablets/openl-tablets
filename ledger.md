@@ -374,10 +374,10 @@ identical-content duplicates across production files, and every tracked build le
 
 ## Run log
 
-- Run 56: no deletion; main, head and every derived count unchanged; profile check clean (groovy bumped but is
-  unanalyzed); S6466 still open on main at the same line; ledger compacted 390 to 381 lines.
 - Run 57: no deletion; main, head, the 28 body headings and 26/291/346/628 all unchanged; trial merge clean;
   profile check clean (only groovy moved); gate still red on that one condition, S6466 open on main at line 273.
 - Run 58: no deletion; main, head, the 28 headings and 26/291/346/628 unchanged; trial merge clean; profile check
   clean; main's 09-04 re-analysis turned the S9341 zero into a post-activation proof and the facet re-check added
   nothing.
+- Run 59: no deletion; main still `4a45294c`, head, the 28 headings and 26/291/346/628 unchanged; trial merge
+  clean; no profile moved past the covered batch; facet re-check over main's 12:04 analysis added nothing.
