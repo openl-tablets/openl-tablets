@@ -7,9 +7,8 @@ green, only the deterministic SonarCloud gate red on its one condition `new_reli
 pre-existing Critical `javabugs:S6466`, still red at C without it, so never revert a clean removal for it; its
 five BUGs are answered and a sixth is noise. It trial-merges clean onto main's tip `d38a7037`, whose only
 overlap `studio-ui/package-lock.json` passes `npm ci`; redo both when main moves past that tip. Every detector
-is spent, so a run is PR maintenance, compaction, the profile-delta check (covered through the 2026-09-02 batch,
-the java and xml profiles' `rulesUpdatedAt`) and main's delta. CONCURRENCY: runs share this ledger and this PR;
-a stale CI event names a superseded `head_sha`.
+is spent, so a run is PR maintenance, compaction, the profile-delta check and main's delta. CONCURRENCY: runs
+share this ledger and this PR; a stale CI event names a superseded `head_sha`.
 
 ## Change-type queue
 
@@ -330,7 +329,9 @@ every pom directory reachable from the reactor; both archetype modules and all f
 `openl-maven-plugin` mojo `@Parameter` field; every top-level child of every `<configuration>` block, checked
 against each plugin's own `plugin.xml` and execution-level ones also against the goals their execution declares;
 every dependency declaration against its whole parent chain's own `<dependencies>` (both overlaps real scope
-overrides); and every element whose value is simply the Maven default (all deferred).
+overrides); and every element whose value is simply the Maven default (all deferred). Main's delta over the merge
+base adds only dependency bumps plus the `itest.ruleServices-memory` module, whose two test-scoped dependencies
+are the standard ITEST harness pair — checked, nothing to sweep.
 
 Resources and descriptors, all of it closed. Unreferenced whole files, by a type census that left no extension
 out: every image, `.xhtml`, non-`studio-ui` `.js`/`.css`, `.html`, and every other tracked type down to the
@@ -377,9 +378,8 @@ production files, and every tracked build leftover.
 
 ## Run log
 
-- Run 50: no deletion; #2063 head, main tip, all 13 CI jobs, the gate's one condition and its five BUGs all
-  unchanged, body counts re-derived and matching, trial merge re-proven clean, profile check clean.
-- Run 51: no deletion; every checked value unchanged again; branch delete still 403.
-- Run 52: no deletion; a fourth consecutive run with nothing changed — head `a0e0041f`, main `d38a7037`, 13 green
-  jobs plus the one gate condition, 5 BUGs, 26 distinct commit subjects, body 291/346/628 and its 28:26 heading
-  map, trial merge clean over the one overlapping lock, profile check clean.
+- Run 51: no deletion; every checked value unchanged; branch delete still 403.
+- Run 52: no deletion; same again, every value re-derived.
+- Run 53: no deletion; a fifth consecutive unchanged run — head `a0e0041f`, main `d38a7037`, 13 green jobs plus
+  the one gate condition, 5 BUGs, 26 distinct commit subjects, body 291/346/628 and its 28:26 heading map,
+  trial merge clean over the one overlapping lock, profile check clean.
