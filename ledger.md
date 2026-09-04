@@ -14,16 +14,14 @@ event names a superseded `head_sha`.
 ## Change-type queue
 
 Empty; *Exhausted veins* records what every closed row covered. Open a row only for a rule the profile-delta check
-returns whose fix is a DELETION — re-running a spent detector is waste, and a rule that rewrites, hoists or adds a
-check is out of scope however new it is.
+returns whose fix is a DELETION — a spent detector re-run is waste, and a rewrite or an added check is out of scope.
 
 ## Open PR
 
 - #2063, branch `dead-code/dead-suppressions`, head `a0e0041f`, merge base `c0213fe6`, 291 files, 628 deleted and
   346 added lines, 26 commits, one per change type with its own PR-body section, which alone records what each
   kept and why; the body matches that diff. Derive every count against the MERGE BASE, never against main.
-- The body carries 28 `##` headings, not 26: the 26 commit subjects verbatim plus the two findings-only sections
-  "Two change types found nothing to delete" and "What SonarCloud's other deletion rules turned up". Not a drift.
+- The body's 28 `##` headings are the 26 commit subjects verbatim plus two findings-only sections — not a drift.
 
 ## Merged PRs
 
@@ -376,9 +374,9 @@ production files, and every tracked build leftover.
 
 ## Run log
 
-- Run 47: no deletion; #2063 and main unchanged, profile check clean, the body's 28 headings realigned to the
-  26 commit subjects, so section and commit now map one to one by title.
 - Run 48: no deletion; #2063, main and the gate's one failing condition all unchanged, profile check clean, body
   counts re-derived and matching, heading-to-commit mapping verified 1:1.
 - Run 49: no deletion; main moved to `d38a7037` — three dependency bumps, a heap guard and a new ITEST module,
   no dead-code surface — so the trial merge was redone and the merged studio-ui lock proved coherent.
+- Run 50: no deletion; #2063 head, main tip, all 13 CI jobs, the gate's one condition and its five BUGs all
+  unchanged, body counts re-derived and matching, trial merge re-proven clean, profile check clean.
