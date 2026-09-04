@@ -1,0 +1,17 @@
+POST /rest/projects/{PROJECT_NAME}/tables/{TABLE_ID}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "update",
+  "target": {
+    "type": "column",
+    "position": 0,
+    "cells": [
+      {"value": "Test first attributesTest"},
+      {"value": "attributes"},
+      {"value": "Attributes"},
+      {"value": ["column-a", "column-b"]}
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+POST /rest/projects/${PROJECT_NAME}/tables/{TABLE_ID}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "insert",
+  "target": {
+    "type": "columns",
+    "position": 5,
+    "cells": [
+      [
+        {"value": "Inserted columns", "colspan": 2},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null}
+      ],
+      [
+        {"covered": true},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": null},
+        {"value": "insert-tail"}
+      ]
+    ]
+  }
+}
+

@@ -144,6 +144,22 @@ Other unmatched projects are handled as follows:
   match their design counterparts again as if nothing happened.
 - A genuinely local project (`repository-id=local`) is served as is.
 
+## Local Project Identity and Actions
+
+A local-only project has two names with different purposes when the `<name>` in `rules.xml` differs from its folder:
+
+- Its project id encodes `local:{workspace-folder}`. The folder identifies the project in the workspace and keeps
+  REST links stable and resolvable.
+- Project dependencies use the logical name declared in `rules.xml`. OpenL Studio matches a dependency by that name,
+  displays it, and attaches the folder-based id of the project it resolved. The Overview and legacy JSF Editor links
+  therefore open the target instead of treating the folder name as a logical name.
+- Legacy Editor hash routes identify a project by that logical name. Every project and module breadcrumb route
+  therefore uses the name declared in `rules.xml`, while REST links keep using the folder-based project id.
+
+The local project is its own working copy, so its files can be edited and the project can be deleted. It has no
+Design repository revision to commit, so the project capabilities do not offer **Save**. Publishing it uses
+**Create Project > Workspace**, which imports the project into a Design repository.
+
 ## Local Edit History
 
 - The module edit history lives outside the project folder: `{userId}/.history/{project}/<module root>`

@@ -1183,6 +1183,17 @@ TreeSet<String> files = new TreeSet<>((f1, f2) -> {
 - Supports large Excel files
 - Single atomic request for all resolutions
 
+Multipart parts up to 8 KiB stay in memory. Larger parts use temporary files, so the short `filePath` and `strategy`
+fields do not create files of their own while workbooks larger than the threshold remain disk-backed. The servlet does
+not impose a file-size or total-request-size cap. The bundled Jetty launchers accept at most 10,000 form keys, which
+bounds each multipart request to about 80 MiB of in-memory part content, plus metadata, while allowing inputs well above
+Jetty's historical 1,000-key default. This is not a process-wide bound: concurrent requests each have their own limit,
+and multipart parsing can happen before an endpoint is selected. The form-key limit does not bound network or temporary
+disk usage, and `maxFormContentSize` applies only to URL-encoded forms. Production deployments also enforce a finite
+total request-body limit at the application container or reverse proxy, sized above the largest supported upload. A
+custom distribution can set finite servlet multipart `maxFileSize` and `maxRequestSize` values instead. The part-count
+limit remains finite and is sized for expected concurrency and at least three parts per expected conflict.
+
 **Example Request**:
 ```bash
 POST /conflicts/resolve

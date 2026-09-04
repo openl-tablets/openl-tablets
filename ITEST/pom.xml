@@ -23,6 +23,7 @@
         <module>itest.healthchecks</module>
         <module>itest.WebService</module>
         <module>itest.BigServiceDeploy</module>
+        <module>itest.ruleServices-memory</module>
         <module>itest.deployment-filter</module>
         <module>itest.unpackClasspathJar</module>
         <module>itest.unpackClasspathZip</module>
@@ -68,12 +69,6 @@
                 <artifactId>org.openl.rules.ruleservice.ws.all</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.webstudio</artifactId>
-                <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

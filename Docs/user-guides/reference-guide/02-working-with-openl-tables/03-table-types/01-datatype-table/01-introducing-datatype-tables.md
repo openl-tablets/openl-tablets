@@ -49,23 +49,23 @@ A Datatype table has the following structure:
 
 Consider the case when a hierarchical logical data structure must be created. The following example of a Datatype table defines a custom data type called **Person**. The table represents a structure of the **Person** data object and combines **Person's** data elements, such as name, social security number, date of birth, gender, and address.
 
-![](../../../ref-guide-images/datatypeTablePerson.png)
+![Datatype table Person](../../../ref-guide-images/datatypeTablePerson.png)
 
 *Datatype table Person*
 
-![](../../../ref-guide-images/DatatypeTablePersonWithOptionalColumns.png)
+![Datatype table Person with column headers](../../../ref-guide-images/DatatypeTablePersonWithOptionalColumns.png)
 
 *Datatype table Person with column headers*
 
 Note that data attribute, or element, address of **Person** has, by-turn, custom data type **Address** and consists of zip code, city, and street attributes.
 
-![](../../../ref-guide-images/datatypeTableAddress.png)
+![Datatype table Address](../../../ref-guide-images/datatypeTableAddress.png)
 
 *Datatype table Address*
 
 The following example extends the **Person** data type with default values for specific fields.
 
-![](../../../ref-guide-images/datatypeTableDefaultValues.png)
+![Datatype table with default values](../../../ref-guide-images/datatypeTableDefaultValues.png)
 
 *Datatype table with default values*
 
@@ -77,23 +77,23 @@ One attribute type can be used for many attribute names if their data elements a
 
 Consider an example of a Datatype table defining a custom data type called Corporation. The following table represents a structure of the Corporation data object and combines Corporation data elements, such as ID, full name, industry, ownership, and number of employees. If necessary, default values can be defined in the Datatype table for the fields of complex type when combination of fields exists with default values.
 
-![](../../../ref-guide-images/datatypeTableContainingValue_default_.png)
+![Datatype table containing value _DEFAULT_](../../../ref-guide-images/datatypeTableContainingValue_default_.png)
 
 *Datatype table containing value \_DEFAULT\_*
 
 FinancialData refers to the FinancialData data type for default values.
 
-![](../../../ref-guide-images/datatypeTableDefinedDefaultValues.png)
+![Datatype table with defined default values](../../../ref-guide-images/datatypeTableDefinedDefaultValues.png)
 
 *Datatype table with defined default values*
 
 During execution, the system takes default values from FinancialData data type.
 
-![](../../../ref-guide-images/datatypeTableDefaultValues_1.png)
+![Datatype table with default values](../../../ref-guide-images/datatypeTableDefaultValues_1.png)
 
 *Datatype table with default values*
 
-**Note:** For array types \_DEFAULT_creates an empty array.
+**Note:** For array types \_DEFAULT\_ creates an empty array.
 
 **Note:** A default value can be defined for String fields of the Datatype table by assigning the "" empty string.
 
@@ -101,21 +101,21 @@ For more information on using runtime context properties in Datatype tables, see
 
 Datatype table output results can be customized the same way as spreadsheets as described in [Spreadsheet Result Output Customization](../03-spreadsheet-table/06-spreadsheet-result-output-customization.md#spreadsheet-result-output-customization).
 
-If a spreadsheet returns a data type rather than SpreadsheetResult and the attributes of this data type must be filtered, that is, included or excluded from the final output structure, attributes of this data type must be marked with ~ or *. An example is available in [Introducing Datatype Tables](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#introducing-datatype-tables).
+If a spreadsheet returns a data type rather than SpreadsheetResult and the attributes of this data type must be filtered, that is, included or excluded from the final output structure, attributes of this data type must be marked with ~ or *. An example is available in [Introducing Datatype Tables](#introducing-datatype-tables).
 
-![](../../../ref-guide-images/filteringDataTypeAttributesOutputStructure.png)
+![Filtering data type attributes for the output structure](../../../ref-guide-images/filteringDataTypeAttributesOutputStructure.png)
 
 *Filtering data type attributes for the output structure*
 
 If a datatype is used as an input or output in a rule exposed as an API endpoint, its optional fields — if provided — are shown in the API specification.
 
-![](../../../ref-guide-images/DatatypeVehicleWithAdditionalColumns.png)
+![Datatype Vehicle table with optional columns](../../../ref-guide-images/DatatypeVehicleWithAdditionalColumns.png)
 
 *Datatype Vehicle table with optional columns*
 
-![](../../../ref-guide-images/DatatatypeVehicleSchemaExample.png)
+![Datatype Vehicle table used in the API schema example](../../../ref-guide-images/DatatatypeVehicleSchemaExample.png)
 
-![](../../../ref-guide-images/DatatypeVehicleSchema.png)
+![Example of how values from a Datatype table are displayed in the API schema.](../../../ref-guide-images/DatatypeVehicleSchema.png)
 
 *Example of how values from a Datatype table are displayed in the API schema.*
 

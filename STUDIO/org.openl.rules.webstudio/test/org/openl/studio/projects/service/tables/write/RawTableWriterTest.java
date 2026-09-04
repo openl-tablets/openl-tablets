@@ -149,6 +149,88 @@ class RawTableWriterTest {
     }
 
     @Test
+    void insertsRowsAtEndWithRowspanAcrossBlock() {
+        apply(insertRows(4, List.of(
+                List.of(
+                        new RawCellInput("String", null, 2, null),
+                        new RawCellInput("group1", null, null, null),
+                        new RawCellInput("x1", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("group2", null, null, null),
+                        new RawCellInput("x2", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals(Integer.valueOf(2), source.get(4).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(5).getFirst().covered());
+        assertEquals("group2", value(source, 5, 1));
+    }
+
+    @Test
+    void insertsColumnsAtEndWithColspanAcrossBlock() {
+        apply(insertColumns(3, List.of(
+                List.of(
+                        new RawCellInput("group", 2, null, null),
+                        new RawCellInput("a", null, null, null),
+                        new RawCellInput("b", null, null, null),
+                        new RawCellInput("c", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("d", null, null, null),
+                        new RawCellInput("e", null, null, null),
+                        new RawCellInput("f", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals(Integer.valueOf(2), source.getFirst().get(3).colspan());
+        assertEquals(Boolean.TRUE, source.getFirst().get(4).covered());
+        assertEquals("f", value(source, 3, 4));
+    }
+
+    @Test
+    void insertsRowsInsideTableWithoutLosingExistingRowsOrGrowingRowspan() {
+        apply(insertRows(2, List.of(
+                List.of(
+                        new RawCellInput("String", null, 2, null),
+                        new RawCellInput("group1", null, null, null),
+                        new RawCellInput("x1", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("group2", null, null, null),
+                        new RawCellInput("x2", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals(Integer.valueOf(2), source.get(2).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(3).getFirst().covered());
+        assertEquals("text", value(source, 4, 1));
+        assertEquals("hour", value(source, 5, 1));
+    }
+
+    @Test
+    void insertsColumnsInsideTableWithoutLosingExistingColumnsOrGrowingColspan() {
+        apply(insertColumns(1, List.of(
+                List.of(
+                        new RawCellInput("group", 2, null, null),
+                        new RawCellInput("a", null, null, null),
+                        new RawCellInput("b", null, null, null),
+                        new RawCellInput("c", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("d", null, null, null),
+                        new RawCellInput("e", null, null, null),
+                        new RawCellInput("f", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals(Integer.valueOf(2), source.getFirst().get(1).colspan());
+        assertEquals(Boolean.TRUE, source.getFirst().get(2).covered());
+        assertEquals("code", value(source, 1, 3));
+        assertEquals("alpha", value(source, 1, 4));
+    }
+
+    @Test
     void rejectsRowBlockNotMatchingWidth() {
         // each row of the block must be as wide as the table
         assertBadRequest(insertRows(1, List.of(row("a", "b"), row("c", "d"))));
@@ -172,6 +254,139 @@ class RawTableWriterTest {
         assertEquals(5, width(source));
         assertEquals("a", value(source, 0, 3));
         assertEquals("e", value(source, 0, 4));
+    }
+
+    @Test
+    void appendsRowsWithRowspanAcrossBlock() {
+        apply(appendRows(List.of(
+                List.of(
+                        new RawCellInput("String", null, 2, null),
+                        new RawCellInput("group1", null, null, null),
+                        new RawCellInput("x1", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("group2", null, null, null),
+                        new RawCellInput("x2", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals(Integer.valueOf(2), source.get(4).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(5).getFirst().covered());
+        assertEquals("group2", value(source, 5, 1));
+    }
+
+    @Test
+    void appendsColumnsWithColspanAcrossBlock() {
+        apply(appendColumns(List.of(
+                List.of(
+                        new RawCellInput("group", 2, null, null),
+                        new RawCellInput("a", null, null, null),
+                        new RawCellInput("b", null, null, null),
+                        new RawCellInput("c", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("d", null, null, null),
+                        new RawCellInput("e", null, null, null),
+                        new RawCellInput("f", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals(Integer.valueOf(2), source.getFirst().get(3).colspan());
+        assertEquals(Boolean.TRUE, source.getFirst().get(4).covered());
+        assertEquals("f", value(source, 3, 4));
+    }
+
+    @Test
+    void appendsRowFullyCoveredByEarlierBatchSpans() {
+        var coveredRow = List.of(
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true));
+        apply(appendRows(List.of(
+                List.of(
+                        new RawCellInput("full block", 3, 2, null),
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput(null, null, null, true)),
+                coveredRow)));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals(Integer.valueOf(2), source.get(4).getFirst().rowspan());
+        assertEquals(Integer.valueOf(3), source.get(4).getFirst().colspan());
+        assertTrue(source.get(5).stream().allMatch(cell -> Boolean.TRUE.equals(cell.covered())));
+    }
+
+    @Test
+    void appendsColumnFullyCoveredByEarlierBatchSpans() {
+        var coveredColumn = List.of(
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true));
+        apply(appendColumns(List.of(
+                List.of(
+                        new RawCellInput("full block", 2, 4, null),
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput(null, null, null, true)),
+                coveredColumn)));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals(Integer.valueOf(2), source.getFirst().get(3).colspan());
+        assertEquals(Integer.valueOf(4), source.getFirst().get(3).rowspan());
+        assertTrue(source.stream().allMatch(row -> Boolean.TRUE.equals(row.get(4).covered())));
+    }
+
+    @Test
+    void rejectsOverlappingSpansDeclaredAcrossBatchRows() {
+        assertBadRequest(appendRows(List.of(
+                List.of(
+                        new RawCellInput("String", null, null, null),
+                        new RawCellInput("vertical", null, 2, null),
+                        new RawCellInput("x", null, null, null)),
+                List.of(
+                        new RawCellInput("horizontal", 2, null, null),
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("y", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size(), "a rejected batch must not be saved");
+    }
+
+    @Test
+    void rejectsBatchSpansOutsideProjectedDimensionsWithoutSavingChanges() {
+        assertBadRequest(appendRows(List.of(
+                List.of(
+                        new RawCellInput("String", null, null, null),
+                        new RawCellInput("group1", null, 3, null),
+                        new RawCellInput("x1", null, null, null)),
+                row("String", "group2", "x2"))));
+        assertBadRequest(appendColumns(List.of(
+                List.of(
+                        new RawCellInput("group", 3, null, null),
+                        new RawCellInput("a", null, null, null),
+                        new RawCellInput("b", null, null, null),
+                        new RawCellInput("c", null, null, null)),
+                row("d", "e", "f", "g"))));
+        assertBadRequest(insertRows(4, List.of(
+                List.of(
+                        new RawCellInput("String", null, 3, null),
+                        new RawCellInput("group1", null, null, null),
+                        new RawCellInput("x1", null, null, null)),
+                row("String", "group2", "x2"))));
+        assertBadRequest(insertColumns(3, List.of(
+                List.of(
+                        new RawCellInput("group", 3, null, null),
+                        new RawCellInput("a", null, null, null),
+                        new RawCellInput("b", null, null, null),
+                        new RawCellInput("c", null, null, null)),
+                row("d", "e", "f", "g"))));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size());
+        assertEquals(3, width(source));
+        assertEquals("gamma", value(source, 3, 2));
     }
 
     @Test

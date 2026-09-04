@@ -419,6 +419,9 @@ GET /projects/MyProject/merge/conflicts/files?file=rules/BusinessRules.xlsx&side
   - CUSTOM strategy without file upload
   - Empty resolutions array
   - Invalid file path
+- `413 Payload Too Large`: OpenL Studio receives the multipart request and detects that it exceeds an application or
+  embedded Jetty limit. A proxy or container can return a deployment-specific response when it rejects the request
+  before Spring receives it
 - `500 Internal Server Error`: Resolution operation failed
 
 **Side Effects**:
@@ -844,6 +847,45 @@ resolutions=[{"filePath": "rules.xml", "strategy": "CUSTOM"}]
 ```
 
 **Resolution**: Upload the custom file in the request
+
+---
+
+#### 5. Multipart Upload Rejected
+
+**Scenario**: OpenL Studio receives the conflict resolution body and detects that it exceeds an application or embedded
+Jetty upload limit, or contains more multipart parts than embedded Jetty accepts.
+
+**OpenL Studio response**: `413 Payload Too Large`
+
+```json
+{
+  "code": "openl.error.413.default.message",
+  "message": "Maximum upload size exceeded"
+}
+```
+
+A proxy or container that rejects the request before Spring receives it can return a deployment-specific response
+body.
+
+**Resolution**: Upload less content or fewer parts in one request, or ask the server administrator to adjust the limit
+enforced by OpenL Studio, the application container, or an upstream proxy.
+
+---
+
+#### 6. Malformed Multipart Request
+
+**Scenario**: The multipart body is truncated or does not follow its declared boundary.
+
+**Response**: `400 Bad Request`
+
+```json
+{
+  "code": "openl.error.400.default.message",
+  "message": "Failed to parse multipart servlet request"
+}
+```
+
+**Resolution**: Send a complete multipart body whose boundaries match the `Content-Type` header.
 
 ---
 

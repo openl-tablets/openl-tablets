@@ -50,10 +50,8 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         @Override
         public void undo() {
             var intvar = (IntVarImpl) undoable();
-            // System.out.println("++ Undo: " + intvar);
             intvar.history().restore(_history_index);
             super.undo();
-            // System.out.println("-- Undo: " + intvar);
         }
 
         @Override
@@ -61,8 +59,6 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
             super.undoable(u);
             var intvar = (IntVarImpl) u;
             _history_index = intvar.history().currentIndex();
-            // System.out.println("++ SAVE: " + intvar + "index:" +
-            // _history_index);
 
         }
 

@@ -173,14 +173,8 @@ public final class IntDomainHistory implements Serializable {
 
     void propagate() throws Failure {
 
-        // System.out.println("+++ Propagate: " + _var + this + " pubMask:" +
-        // _var.publisherMask());
-
         if ((_var.publisherMask() & _mask) != 0) {
-            // System.out.println("--- Propagate: " + _var + _history + ":" +
-            // _currentIndex );
             IntEventDomain ev = IntEventDomain.getEvent(this);
-            // _mask = 0;
             save();
             _var.notifyObservers(ev);
         } else {

@@ -1,0 +1,43 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "81734adde09a46c922dea8c9491ff502",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "MetaRows",
+  "pos": "B2:D7",
+  "source": [
+    [
+      {"cell": "B2", "value": "Datatype MetaRows"},
+      {"cell": "C2"},
+      {"cell": "D2"}
+    ],
+    [
+      {"cell": "B3", "value": "String"},
+      {"cell": "C3", "value": "code"},
+      {"cell": "D3", "value": "alpha"}
+    ],
+    [
+      {"cell": "B4", "value": "String"},
+      {"cell": "C4", "value": "text"},
+      {"cell": "D4", "value": "beta"}
+    ],
+    [
+      {"cell": "B5", "value": "int"},
+      {"cell": "C5", "value": "hour"},
+      {"cell": "D5", "value": 1}
+    ],
+    [
+      {"cell": "B6", "value": "String", "rowspan": 2},
+      {"cell": "C6", "value": "group1"},
+      {"cell": "D6", "value": "x1"}
+    ],
+    [
+      {"covered": true},
+      {"cell": "C7", "value": "group2"},
+      {"cell": "D7", "value": "x2"}
+    ]
+  ]
+}
+

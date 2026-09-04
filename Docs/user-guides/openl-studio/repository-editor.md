@@ -381,6 +381,10 @@ To close a project, in the project tree, select the project and, in the right pa
 
 A modified project is saved and copied from the user's workspace to Design repository as a new revision.
 
+**Save** is available only for a project linked to a Design repository. A project with the **Local** status has no
+Design repository revision to update; import it as described in
+[Importing a Project from Workspace](#importing-a-project-from-workspace) instead.
+
 To save a project, proceed as follows:
 
 1.  In the project tree, select the project, and, in the right pane, click **Save**.
@@ -606,14 +610,12 @@ Proceed as follows:
 3.  In the window that appears, enter the following information about the rules:
     -   Provide runtime context.
     -   Use the Rule Service runtime context.
-    -   Define variations.
-    -   Create services specifying the versions of web services to support, which is either the RESTful service, or RMI, or both of them.
+    -   Create services specifying the versions of web services to support.
     -   Enter the service name.
 
         The service name is displayed for a deployed project only in the embedded mode.
 
     -   Define the service class.
-    -   Define an RMI service class.
     -   Define the service version.
 
         For more information on service version definition, see [Defining Rule Service Version](#defining-rule-service-version).

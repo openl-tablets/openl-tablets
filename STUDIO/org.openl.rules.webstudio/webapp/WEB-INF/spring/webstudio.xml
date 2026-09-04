@@ -24,7 +24,6 @@
                     org.openl.studio
                     org.openl.rules.webstudio
                     org.openl.rules.rest
-                    org.openl.rules.socket
                     "/>
     <import resource="repository-beans.xml"/>
     <import resource="db-services.xml"/>

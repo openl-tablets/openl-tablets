@@ -306,7 +306,7 @@ Start-Process "http://localhost:8080/"
 $javaArgs = @(
     "-Dopenl.home=$OPENL_HOME",
     "-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1",
-    "-Dorg.eclipse.jetty.server.Request.maxFormKeys=-1",
+    "-Dorg.eclipse.jetty.server.Request.maxFormKeys=10000",
     "-Djetty.httpConfig.requestHeaderSize=32768",
     "-Djetty.httpConfig.responseHeaderSize=32768",
     $_JAVA_MEMORY.Split(' '),

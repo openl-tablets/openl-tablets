@@ -1,0 +1,8 @@
+POST /rest/users?fields=name HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=OpenLMalformed
+
+--OpenLMalformed
+Content-Disposition: form-data; name="one"
+1
+--OpenLMalformed--

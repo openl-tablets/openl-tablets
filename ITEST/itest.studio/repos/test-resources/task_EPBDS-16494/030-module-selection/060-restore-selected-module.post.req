@@ -1,0 +1,5 @@
+POST /rest/projects/ZGVzaWduOkVQQkRTLTE2NDk0LUhpc3Rvcnk=/local-history/restore?module=Qwerty HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{"version":"Revision Version"}

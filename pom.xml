@@ -122,14 +122,15 @@
 
         <!-- Open Telemetry -->
         <!-- !!! also in the Dockerfile !!! -->
-        <opentelemetry.version>2.31.0</opentelemetry.version>
+        <opentelemetry.version>2.31.1</opentelemetry.version>
 
         <!-- REST -->
         <jackson.version>2.22.2</jackson.version>
+        <json-path.version>3.0.0</json-path.version>
         <cxf.version>4.1.8</cxf.version>
 
         <!-- OpenAPI -->
-        <swagger.core.version>2.2.54</swagger.core.version>
+        <swagger.core.version>2.2.55</swagger.core.version>
         <swagger.parser.version>2.1.47</swagger.parser.version>
 
         <!-- Logging -->
@@ -187,7 +188,7 @@
 
         <!-- Mail -->
         <angus-mail.version>2.0.5</angus-mail.version>
-        <greenmail.version>2.1.12</greenmail.version>
+        <greenmail.version>2.1.13</greenmail.version>
 
         <!-- XML -->
         <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
@@ -213,7 +214,7 @@
 
         <!-- Static analysis -->
         <errorprone.version>2.50.0</errorprone.version>
-        <nullaway.version>0.14.0</nullaway.version>
+        <nullaway.version>0.14.1</nullaway.version>
         <jspecify.version>1.0.1</jspecify.version>
         <lombok.version>1.18.46</lombok.version>
 
@@ -577,6 +578,11 @@
                 <version>${json-smart.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path</artifactId>
+                <version>${json-path.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
@@ -834,18 +840,6 @@
                     <exclusion>
                         <groupId>com.fasterxml.jackson.datatype</groupId>
                         <artifactId>jackson-datatype-jsr310</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.module</groupId>
-                        <artifactId>jackson-module-jaxb-annotations</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.dataformat</groupId>
-                        <artifactId>jackson-dataformat-xml</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.fasterxml.woodstox</groupId>
-                        <artifactId>woodstox-core</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1134,11 +1128,6 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.webstudio</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.workspace</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1202,17 +1191,6 @@
                 <version>${project.version}</version>
                 <type>war</type>
                 <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.annotation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-                <version>${project.version}</version>
-                <classifier>classes</classifier>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
@@ -1381,11 +1359,6 @@
                     <version>3.1.4</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <version>2.7.1</version>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>3.5.0</version>
@@ -1397,13 +1370,8 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-scm-plugin</artifactId>
-                    <version>2.2.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.15.0</version>
+                    <version>3.16.0</version>
                     <configuration>
                         <release>21</release>
                         <fork>true</fork>
@@ -1451,7 +1419,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.6</version>
+                    <version>3.6.0</version>
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
@@ -1582,7 +1550,7 @@
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>3.10.0</version>
+                <version>3.10.1</version>
                 <inherited>false</inherited>
                 <configuration>
                     <upToDateChecking>

@@ -58,9 +58,9 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
-    void canSave_modifiedLocalOnly_returnsTrue() {
+    void canSave_modifiedLocalOnly_returnsFalse() {
         var project = projectWith().modified(true).localOnly(true).build();
-        assertTrue(validator.canSave(project));
+        assertFalse(validator.canSave(project));
     }
 
     @Test
@@ -70,9 +70,9 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
-    void canSave_modifiedNotLocked_returnsTrue() {
+    void canSave_modifiedButNotOpenedForEditing_returnsFalse() {
         var project = projectWith().modified(true).build();
-        assertTrue(validator.canSave(project));
+        assertFalse(validator.canSave(project));
     }
 
     @Test

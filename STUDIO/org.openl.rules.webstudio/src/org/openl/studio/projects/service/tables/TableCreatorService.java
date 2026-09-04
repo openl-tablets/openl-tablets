@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.table.xls.formatters.FormatConstants;
+import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
@@ -394,6 +396,8 @@ public class TableCreatorService {
             case null -> cell.setBlank();
             case Boolean booleanValue -> cell.setCellValue(booleanValue);
             case Number numberValue -> cell.setCellValue(numberValue.doubleValue());
+            case Collection<?> values -> cell.setCellValue(XlsCellArrayWriter.serialize(values.toArray()));
+            case Object[] values -> cell.setCellValue(XlsCellArrayWriter.serialize(values));
             case Date dateValue -> {
                 cell.setCellValue(dateValue);
                 cell.setCellStyle(dateStyle);

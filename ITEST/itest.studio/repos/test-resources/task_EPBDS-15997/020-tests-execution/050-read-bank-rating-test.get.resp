@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "f52f7f78ffcc6d72245795b8754a7839",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "BankRatingTest",
+  "messages": [
+    {
+      "id": "*",
+      "summary": "Tested rules have errors",
+      "severity": "WARN"
+    }
+  ],
+  "pos": "C6:E10",
+  "source": "*"
+}

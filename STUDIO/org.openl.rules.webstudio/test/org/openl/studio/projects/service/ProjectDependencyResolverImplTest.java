@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,6 +36,7 @@ class ProjectDependencyResolverImplTest {
         when(project.getDesignProjectName()).thenReturn(name);
         when(project.getRepository()).thenReturn(repository);
         when(project.getBranch()).thenReturn(branch);
+        when(project.isLocalOnly()).thenReturn("local".equals(repositoryId));
         return project;
     }
 
@@ -80,6 +82,13 @@ class ProjectDependencyResolverImplTest {
         return descriptor;
     }
 
+    private static ProjectDescriptorArtefactResolver mockDescriptorResolver() {
+        var resolver = mock(ProjectDescriptorArtefactResolver.class);
+        when(resolver.getLogicalName(any(RulesProject.class)))
+                .thenAnswer(invocation -> invocation.<RulesProject>getArgument(0).getBusinessName());
+        return resolver;
+    }
+
     @Test
     void leavesADependencyOfAnotherBranchOfTheSameRepositoryUnresolved() throws Exception {
         // The branches of one repository are versions of the same content, so the copy on another branch is
@@ -89,7 +98,7 @@ class ProjectDependencyResolverImplTest {
         RulesProject source = project("ACC Master Offer", "feature/ddd");
         ProjectDependencyDescriptor descriptor = dependency("Offer API");
 
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
         when(descriptorResolver.getDependencies(source)).thenReturn(List.of(descriptor));
         when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
 
@@ -111,12 +120,29 @@ class ProjectDependencyResolverImplTest {
         RulesProject source = project("ACC Master Offer", "feature/ddd");
         ProjectDependencyDescriptor descriptor = dependency("Offer API");
 
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
         when(descriptorResolver.getDependencies(source)).thenReturn(List.of(descriptor));
         when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
 
         UserWorkspace workspace = workspace(source, target);
         alsoInBranch(workspace, target, "feature/ddd");
+
+        assertEquals(List.of(target), resolver(descriptorResolver, workspace).getProjectDependencies(source));
+    }
+
+    @Test
+    void resolvesDependencyByStableNameWhenTheDisplayedBranchHasAnUnsavedRename() throws Exception {
+        RulesProject target = project("Offer API", "feature/rename");
+        RulesProject source = project("ACC Master Offer", "master");
+        ProjectDependencyDescriptor descriptor = dependency("Offer API");
+
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getLogicalName(target)).thenReturn("Renamed Offer API");
+        when(descriptorResolver.getDependencies(source)).thenReturn(List.of(descriptor));
+        when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
+
+        UserWorkspace workspace = workspace(source, target);
+        alsoInBranch(workspace, target, "master");
 
         assertEquals(List.of(target), resolver(descriptorResolver, workspace).getProjectDependencies(source));
     }
@@ -128,7 +154,7 @@ class ProjectDependencyResolverImplTest {
         RulesProject source = project("ACC Master Offer", "feature/ddd");
         ProjectDependencyDescriptor descriptor = dependency("Offer API");
 
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
         when(descriptorResolver.getDependencies(source)).thenReturn(List.of(descriptor));
         when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
 
@@ -144,7 +170,7 @@ class ProjectDependencyResolverImplTest {
         RulesProject source = project("ACC Master Offer", "master");
         ProjectDependencyDescriptor descriptor = dependency("Offer API");
 
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
         when(descriptorResolver.getDependencies(source)).thenReturn(List.of(descriptor));
         when(descriptorResolver.getDependencies(foreign)).thenReturn(List.of());
         when(descriptorResolver.getDependencies(own)).thenReturn(List.of());
@@ -164,7 +190,7 @@ class ProjectDependencyResolverImplTest {
         ProjectDependencyDescriptor declaresB = dependency("B");
         ProjectDependencyDescriptor declaresC = dependency("C");
 
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
         when(descriptorResolver.getDependencies(a)).thenReturn(List.of(declaresB));
         when(descriptorResolver.getDependencies(b)).thenReturn(List.of(declaresC));
         when(descriptorResolver.getDependencies(c)).thenReturn(List.of());
@@ -188,7 +214,7 @@ class ProjectDependencyResolverImplTest {
         ProjectDependencyDescriptor declaresB = dependency("B");
         ProjectDependencyDescriptor declaresC = dependency("C");
 
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
         when(descriptorResolver.getDependencies(a)).thenReturn(List.of(declaresB, declaresC));
         when(descriptorResolver.getDependencies(b)).thenReturn(List.of(declaresC));
         when(descriptorResolver.getDependencies(c)).thenReturn(List.of());
@@ -212,7 +238,7 @@ class ProjectDependencyResolverImplTest {
         ProjectDependencyDescriptor declaresChild = dependency("Offer API");
         ProjectDependencyDescriptor declaresGrandchild = dependency("Rates");
 
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
         when(descriptorResolver.getDependencies(source)).thenReturn(List.of(declaresChild));
         when(descriptorResolver.getDependencies(child)).thenReturn(List.of(declaresGrandchild));
         when(descriptorResolver.getDependencies(grandchild)).thenReturn(List.of());
@@ -238,7 +264,7 @@ class ProjectDependencyResolverImplTest {
         RulesProject otherRepository = project("Shared Offer", "trunk", "shared");
         ProjectDependencyDescriptor declared = dependency("Offer API");
 
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
         when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
         for (RulesProject dependent : List.of(sameBranch, otherBranch, otherRepository)) {
             when(descriptorResolver.getDependencies(dependent)).thenReturn(List.of(declared));
@@ -255,7 +281,7 @@ class ProjectDependencyResolverImplTest {
         // rules.xml may name a project nobody has: it is reported as declared, with no project of its own.
         RulesProject source = project("ACC Master Offer", "master");
         ProjectDependencyDescriptor declared = dependency("Ghost");
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
         when(descriptorResolver.getDependencies(source)).thenReturn(List.of(declared));
 
         UserWorkspace workspace = workspace(source);
@@ -270,7 +296,7 @@ class ProjectDependencyResolverImplTest {
     }
 
     @Test
-    void usedByMatchesAClosedProjectByBusinessName() throws Exception {
+    void usedByMatchesAClosedProjectByStableBusinessName() throws Exception {
         // A closed project in a mapped repo has getName() carrying the internal path suffix, while the
         // dependency descriptor and business name stay clean. usedBy must still resolve regardless of state.
         RulesProject target = project("Offer API", "master");
@@ -279,7 +305,23 @@ class ProjectDependencyResolverImplTest {
         RulesProject source = project("ACC Master Offer", "master");
 
         ProjectDependencyDescriptor descriptor = dependency("Offer API");
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getDependencies(source)).thenReturn(List.of(descriptor));
+        when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
+
+        UserWorkspace workspace = workspace(source, target);
+
+        assertEquals(List.of(source), resolver(descriptorResolver, workspace).getDependsOnProject(target));
+    }
+
+    @Test
+    void usedByKeepsTheStableNameWhenTheDisplayedBranchHasAnUnsavedRename() throws Exception {
+        RulesProject target = project("Offer API", "feature/rename");
+        RulesProject source = project("ACC Master Offer", "feature/rename");
+        ProjectDependencyDescriptor descriptor = dependency("Offer API");
+
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getLogicalName(target)).thenReturn("Renamed Offer API");
         when(descriptorResolver.getDependencies(source)).thenReturn(List.of(descriptor));
         when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
 
@@ -296,7 +338,7 @@ class ProjectDependencyResolverImplTest {
         ProjectDependencyDescriptor descriptorA = dependency("Offer API");
         ProjectDependencyDescriptor descriptorB = dependency("Pricing API");
 
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
         when(descriptorResolver.getDependencies(source)).thenReturn(List.of(descriptorA, descriptorB));
         when(descriptorResolver.getDependencies(targetA)).thenReturn(List.of());
         when(descriptorResolver.getDependencies(targetB)).thenReturn(List.of());
@@ -316,7 +358,24 @@ class ProjectDependencyResolverImplTest {
         RulesProject source = project("Personal Motor Rating", "master");
         ProjectDependencyDescriptor descriptor = dependency("PnC Premium Redistribution");
 
-        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getDependencies(source)).thenReturn(List.of(descriptor));
+        when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
+
+        UserWorkspace workspace = workspace(source, target);
+
+        assertEquals(List.of(target), resolver(descriptorResolver, workspace).getProjectDependencies(source));
+    }
+
+    @Test
+    void resolvesLocalDependencyByTheNameDeclaredInRulesXml() throws Exception {
+        RulesProject target = project("target-folder", null, "local");
+        RulesProject source = project("source-folder", null, "local");
+        ProjectDependencyDescriptor descriptor = dependency("Logical Target");
+
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getLogicalName(source)).thenReturn("Logical Source");
+        when(descriptorResolver.getLogicalName(target)).thenReturn("Logical Target");
         when(descriptorResolver.getDependencies(source)).thenReturn(List.of(descriptor));
         when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
 

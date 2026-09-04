@@ -22,7 +22,6 @@ import org.openl.ie.tools.ReusableImpl;
  */
 
 public class UndoImpl extends ReusableImpl implements Undo {
-    // private boolean _undone_flag;
     protected Undoable _undoable;
 
     /**

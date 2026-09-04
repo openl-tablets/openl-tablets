@@ -1,8 +1,10 @@
 package org.openl.studio.projects.model.tables;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a single cell in raw table format with explicit span information.
@@ -39,7 +41,7 @@ import lombok.Builder;
  * @param cell    Read-only cell address in A1 notation (e.g. {@code B3}); null for covered cells. The value
  *                matches the {@code cell} address reported by compilation messages, so clients can correlate a
  *                message with the exact cell in the matrix.
- * @param value   Cell value (null if covered by another cell's span)
+ * @param value   Cell value as a scalar or one-dimensional scalar array. Null if covered by another cell's span.
  * @param colspan Number of columns this cell spans (>= 2 means merging, null if single column or covered)
  * @param rowspan Number of rows this cell spans (>= 2 means merging, null if single row or covered)
  * @param covered Whether this cell is covered by another cell's span (true for masked cells, null otherwise)
@@ -53,9 +55,12 @@ public record RawTableCell(
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         String cell,
 
-        @Schema(description = "Value of the cell (null if covered by another cell's span)")
+        @Parameter(description = """
+                Value of the cell: a string, a number, a boolean or a one-dimensional array of these values. \
+                Null if covered by another cell's span.""")
+        @Schema(oneOf = {NullableCellValueSchema.class, Number.class, Boolean.class, CellValueArraySchema.class})
         @CellValueConstraint
-        Object value,
+        @Nullable Object value,
 
         @Schema(description = "Number of columns this cell spans (>=2 means merging, null if single column or covered)")
         Integer colspan,

@@ -318,13 +318,11 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     public IntExp sum() {
         return switch (size()) {
             case 0 ->
-                // return new IntExpConst(constrainer(),0);
                 (IntExp) _constrainer.expressionFactory()
                         .getExpression(IntExpConst.class, new Object[]{_constrainer, 0});
             case 1 -> _data[0];
             case 2 -> _data[0].add(_data[1]);
             default ->
-                // return new IntExpAddArray(_constrainer, this);
                 (IntExp) _constrainer.expressionFactory()
                         .getExpression(
                                 // IntExpAddArray.class,

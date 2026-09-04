@@ -77,16 +77,7 @@ public class ConstrainerObjectImpl implements ConstrainerObject {
      * Sets name and manages symbolic context for this object.
      */
     protected void symbolicName(String name) {
-        // String oldName = _name;
         _name = name;
-        // try
-        // {
-        // constrainer().symbolicContext().renameVar(oldName,name,this);
-        // }
-        // catch(Exception e)
-        // {
-        // constrainer().out().println(e.getMessage());
-        // }
     }
 
     /**

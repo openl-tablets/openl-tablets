@@ -9,18 +9,18 @@
     <name>My Rules Project</name>
     <comment>Optional description</comment>
 
-    <!-- If <modules> are not defined then `rules/**/.xlsx` is used by default -->
+    <!-- If <modules> are not defined then `rules/**/*.xlsx` and `tests/**/*.xlsx` are used by default -->
     <modules>
         <!-- Ant-style Wildcard: match all xlsx in rules/ - it is preferred way -->
         <module>
             <name>AllRules</name>
-            <rules-root path="rules/**/.xlsx"/>
+            <rules-root path="rules/**/*.xlsx"/>
         </module>
         <module>
             <!-- The real module name is filename of the matched file if absent-->
             <name>AllTests</name>
             <!-- Ant-style files inclusion -->
-            <rules-root path="tests/**/.xlsx"/>
+            <rules-root path="tests/**/*.xlsx"/>
             <!-- Studio only for very rare cases to solve Out of memory errors in huge projects. -->
             <webstudioConfiguration>
                 <compileThisModuleOnly>false</compileThisModuleOnly>
@@ -45,7 +45,7 @@
 
     <!-- JAR and groovy dependencies on the classpath -->
     <!-- Classpath entries are resolved at runtime and can include JAR files, compiled classes, or Groovy scripts. -->
-    <!-- If not defined `groovy/` path is used by default -->
+    <!-- If not defined `groovy/` and `lib/*.jar` are used by default -->
     <classpath>
         <!-- Ant-style wildcard for all JARs in lib/. -->
         <!-- It is not recommended to include binary JARs files inside the project as sources. -->

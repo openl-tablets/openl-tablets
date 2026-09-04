@@ -56,7 +56,10 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private SpreadsheetResultBeanByteCodeGenerator(String beanNameWithPackage, List<FieldDescription> beanFields) {
-        fixDuplicates(beanFields, (field, name) -> field.fieldName = name, field -> field.fieldName);
+        fixDuplicates(beanFields, (field, name) -> {
+            field.suffix = name.substring(field.fieldName.length());
+            field.fieldName = name;
+        }, field -> field.fieldName);
         fixDuplicates(beanFields, (field, name) -> field.xmlName = name, field -> field.xmlName);
         this.fields = beanFields;
         this.beanType = Type.getType(ByteCodeUtils.toTypeDescriptor(beanNameWithPackage));
@@ -187,6 +190,9 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         }
         if (fieldDescription.row != null) {
             av.visit("row", fieldDescription.row);
+        }
+        if (!fieldDescription.suffix.isEmpty()) {
+            av.visit("suffix", fieldDescription.suffix);
         }
         av.visitEnd();
 
@@ -340,6 +346,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         final String description;
         String fieldName;
         String xmlName;
+        private String suffix = "";
 
         FieldDescription(String canonicalClassName, String row, String column, String description) {
             this.className = canonicalClassName;

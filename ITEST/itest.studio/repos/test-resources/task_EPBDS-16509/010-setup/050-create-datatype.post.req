@@ -1,0 +1,19 @@
+POST /rest/projects/{PROJECT_NAME}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Datatype",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Datatype",
+    "name": "Rating",
+    "source": [
+      [{"value": "Datatype Rating"}, {"value": null}],
+      [{"value": "String[]"}, {"value": "attributes"}],
+      [{"value": "Date[]"}, {"value": "effectiveDates"}],
+      [{"value": "CountriesEnum[]"}, {"value": "countries"}]
+    ]
+  }
+}

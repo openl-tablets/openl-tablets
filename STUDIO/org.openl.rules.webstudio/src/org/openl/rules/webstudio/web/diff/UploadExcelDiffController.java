@@ -9,25 +9,31 @@ import java.util.List;
 import jakarta.annotation.PreDestroy;
 import jakarta.faces.context.FacesContext;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.richfaces.component.UITree;
 import org.richfaces.event.FileUploadEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.ui.Message;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.studio.projects.converter.ProjectIdentityConverter;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.util.FileTool;
+import org.openl.util.StringUtils;
 
 @Service
 @SessionScope
 @Slf4j
+@RequiredArgsConstructor
 public class UploadExcelDiffController extends ExcelDiffController {
 
     private final List<ProjectFile> uploadedFiles = new ArrayList<>();
+    private final ProjectIdentityConverter projectIdentityConverter;
+    private final ProjectHistoryService projectHistoryService;
 
     public int getUploadsSize() {
         return uploadedFiles.size();
@@ -97,17 +103,17 @@ public class UploadExcelDiffController extends ExcelDiffController {
         return null;
     }
 
-    public String compareVersions(String version1, String version2) {
+    public String compareVersions(String projectId,
+                                  @Nullable String moduleName,
+                                  String version1,
+                                  String version2) {
         try {
-            ProjectModel model = WebStudioUtils.getProjectModel();
-
-            String historyStoragePath = model.getHistoryStoragePath();
-            File file1ToCompare = ProjectHistoryService.get(historyStoragePath, version1);
-            File file2ToCompare = ProjectHistoryService.get(historyStoragePath, version2);
-
-            UploadExcelDiffController diffController = (UploadExcelDiffController) WebStudioUtils
-                    .getBackingBean("uploadExcelDiffController");
-            diffController.compare(Arrays.asList(file1ToCompare, file2ToCompare));
+            reset();
+            var project = projectIdentityConverter.convert(projectId);
+            var versions = projectHistoryService.getHistoryVersions(project,
+                    StringUtils.trimToNull(moduleName),
+                    List.of(version1, version2));
+            compare(versions);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new Message("Error when comparing projects");

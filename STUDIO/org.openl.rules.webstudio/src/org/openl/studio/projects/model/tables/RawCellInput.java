@@ -2,6 +2,7 @@ package org.openl.studio.projects.model.tables;
 
 import jakarta.validation.constraints.Min;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.jspecify.annotations.Nullable;
 
@@ -13,15 +14,17 @@ import org.jspecify.annotations.Nullable;
  * {@code colspan}/{@code rowspan}, and the cells it masks are marked {@code covered} so positions still map one-to-one
  * to columns (or rows).
  *
- * @param value   cell value; {@code null} is an empty cell
+ * @param value   cell value as a scalar or one-dimensional scalar array; {@code null} is an empty cell
  * @param colspan number of columns this cell spans ({@code >= 2} to merge; null or 1 for a single column)
  * @param rowspan number of rows this cell spans ({@code >= 2} to merge; null or 1 for a single row)
  * @param covered marks a cell covered by another cell's span; its value is ignored
  * @author Vladyslav Pikus
  */
 public record RawCellInput(
-        @Schema(description = "Cell value: a string, a number or a boolean. A null value is an empty cell.",
-                oneOf = {String.class, Number.class, Boolean.class})
+        @Parameter(description = """
+                Cell value: a string, a number, a boolean or a one-dimensional array of these values. \
+                A null value is an empty cell.""")
+        @Schema(oneOf = {NullableCellValueSchema.class, Number.class, Boolean.class, CellValueArraySchema.class})
         @CellValueConstraint
         @Nullable Object value,
 

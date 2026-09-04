@@ -4,15 +4,14 @@ The **Dev** properties group impacts the OpenL Tablets features and enables syst
 
 For example, the **Scope** property defines whether properties are applicable to a particular category of rules or for the module. If **Scope** is defined as **Module**, the properties are applied for all tables in the current module. If **Scope** is defined as **Category**, use the **Category** property to specify the exact category to which the property is applicable.
 
-![](../../ref-guide-images/propertiesDefinedPolice-scoringCategory.png)
+![The properties are defined for the ‘Police-Scoring’ category](../../ref-guide-images/propertiesDefinedPolice-scoringCategory.png)
 
 *The properties are defined for the ‘Police-Scoring’ category*
 
 The following topics are included in this section:
 
--   [Dev Properties List](../../04-table-properties/07-dev-properties.md#dev-properties-list)
--   [Variation Related Properties](../../04-table-properties/07-dev-properties.md#variation-related-properties)
--   [Using the Precision Property in Testing](../../04-table-properties/07-dev-properties.md#using-the-precision-property-in-testing)
+-   [Dev Properties List](07-dev-properties.md#dev-properties-list)
+-   [Using the Precision Property in Testing](07-dev-properties.md#using-the-precision-property-in-testing)
 
 ##### Dev Properties List
 
@@ -26,8 +25,6 @@ The **Dev** group properties are listed in the following table:
 | Fail On Miss            | failOnMiss                     | Boolean | Decision Table         | Module, Category, Table                | Rule behavior in case no rules were matched: <br/>- If the property is set to TRUE, an error occurs <br/>along with the corresponding explanation. <br/><br/>- If the property is set to FALSE, <br/>the table output is set to NULL.                                                                                             |
 | Scope                   | scope                          | String  | Properties             | Module, Category                       | Scope for the Properties table.                                                                                                                                                                                                                                                                      |
 | Datatype Package        | datatypePackage                | String  | DataType               | Table                                  | Name of the Java package for generating <br/>the data type.                                                                                                                                                                                                                                               |
-| Recalculate             | recalculate                    | Enum    |                        | Module, Category, Table                | Way of a table recalculation for a variation. <br/>Possible values are **Always**, **Never**, and **Analyze**.                                                                                                                                                                                            |
-| Cacheable               | cacheable                      | Boolean |                        | Module, Category, Table                | Identifier of whether to use cache while <br/>recalculating the table, depending on rule input.                                                                                                                                                                                                       |
 | Precision               | precision                      | Integer | Test Table             | Module, Category, Table                | Precision of comparing the returned results <br/>with the expected ones while launching test tables.                                                                                                                                                                                                      |
 | Auto Type Discovery     | autoType                       | Boolean | Properties <br/>Spreadsheet | Module, Category, Table                | Auto detection of data type for a value <br/>of the **Spreadsheet** cell with formula. <br/>The default value is `true`. <br/>If the value is `true`, the type can be left undefined.                                                                                                                               |
 | Concurrent Execution    | parallel                       | Boolean |                        | Module, Category, Table                | Controls whether to parallel the execution of a rule <br/>when the rule is called for an array instead of a <br/>single value as input parameter. <br/>Default is `false`.                                                                                                                                          |
@@ -135,57 +132,6 @@ The following example illustrates how the property  **emptyResultProcessing** wo
 </html>
 
 
-##### Variation Related Properties
-
-This section describes *variations* and the properties required to work with them, namely *Recalculate* and *Cacheable*.
-
-A **variation** means additional calculation of the same rule with a modification in its arguments. Variations are very useful when calculating a rule several times with similar arguments. The idea of this approach is to calculate once the rules for a particular set of arguments and then recalculate only the rules or steps that depend on the fields specifically modified by variation in those arguments. For example, a user wants to compare the premium with an original set of parameters defined to the results where one or more attributes are varied to see how it impacts the premium and what is the best option for this user.
-
-The following **Dev** properties are used to manage rules recalculation for variations:
-
-| Property        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Cacheable**   | Switches on or off using cache while recalculating the table. It can be evaluated to `true` or `false`. <br/>If it is set to `true`, all calculation results of the rule are cached and can be used in other variations; otherwise, calculation results are not cached. <br/>It is recommended to set Cacheable to `true` if recalculating a rule with the same input parameters is suggested.<br/>In this case, OpenL does not recalculate the rule, instead, it retrieves the results from the cache.                                                                                                                                                                                                                                                                                  |
-| **Recalculate** | Explicitly defines the recalculation type of the table for a variation. It can take the following values: <br/>- **Always** <br/>If the Recalculate property is set to **Always** for a rule, the rule is entirely recalculated for a variation. <br/>This value is useful for rule tables which are supposed to be recalculated. <br/><br/>- **Never** <br/>If the Recalculate property is set to **Never** for a rule, the system does not recalculate the rule for a variation. <br/>It can be set for rules which new results users are not interested in and which are not required for a variation. <br/><br/>- **Analyze** <br/>It must be used for the top level rule tables to ensure recalculation of the included rules with the **Always** value.<br/>The included table rules with the **Never** value are ignored. |
-
-By default, the properties are set as follows:
-
-`recalculate = always; cacheable = false.`
-
-To provide an illustrative example of how to use variation related properties, consider the Spreadsheet rule **DwellPremiumCalculation**, as displayed in the following figure, which calculates a home insurance premium quote. The quote includes calculations of **Protection** and **Key** factors which values are dependent on **Coverage A** limit as defined in the **ProtectionFactor** and **KeyFactor** simple rules. The insurer requests to vary Coverage A limit of the quote to verify how limit variations impact the **Key** factor.
-
-DwellPremiumCalculation is a top level rule and during recalculation of the rule, only some results are of interest. That is why recalculation type, or the **recalculate** property, must be defined as **Analyze** for this rule.
-
-As the interest of the insurer is to get a new value of the **Key** factor for a new **Coverage A** limit value, recalculation type of the **KeyFactor** rule must be determined as **Always**.
-
-On the contrary, the **Protection** factor is not interesting for the insurer, so the **ProtectionFactor** rule is not required to be recalculated. To optimize the recalculation process, recalculation type of the rule must be set up as **Never**. Moreover, other rules tables, such as the **BaseRate** rule, which are not required to be recalculated, must have the recalculation property set to **Never**.
-
-![](../../ref-guide-images/spreadsheetTableWhichContainsRecalculateProperty.png)
-
-*Spreadsheet table which contains Recalculate Property*
-
-![](../../ref-guide-images/decisionTableDefinedRecalculateProperty.jpeg)
-
-*Decision table with defined Recalculate Property*
-
-![](../../ref-guide-images/usageVariationRecalculateProperties.jpeg)
-
-*Usage of Variation Recalculate Properties*
-
-Consider that the **Coverage A** limit of the quote is 90 and **Protection Class** is 9. A modified value of **Coverage A** limit for a variation is going to be 110. The following spreadsheet results after the first calculation and the second recalculation are obtained:
-
-![](../../ref-guide-images/resultsDwellpremiumcalculationRecalculationAnalyze.png)
-
-*Results of DwellPremiumCalculation with recalculation = Analyze*
-
-Note that the **Key** factor is recalculated, but the **Protection** factor remains the same and the initial value of **Protection Factor** parameter is used.
-
-If the recalculation type of DwellPremiumCalculation is defined as **Always**, OpenL Tablets ignores and does not analyze recalculation types of nested rules and recalculates all cells as displayed in the following figure.
-
-![](../../ref-guide-images/resultsDwellpremiumcalculationRecalculationAlways.png)
-
-*Results of DwellPremiumCalculation with recalculation = Always*
-
 ##### Using the Precision Property in Testing
 
 This section describes how to use the precision property. The property must be used for testing purpose and is only applicable to the test tables.
@@ -200,17 +146,17 @@ It means that if the expected value is close enough to the returned value, the e
 
 Consider the following examples. A simple rule FinRatioWeight has two tests, FinRatioWeightTest1 and FinRatioWeightTest2:
 
-![](../../ref-guide-images/exampleSimpleRule.jpeg)
+![An example of Simple Rule](../../ref-guide-images/exampleSimpleRule.jpeg)
 
 *An example of Simple Rule*
 
 The first test table has the **Precision** property defined with value 5:
 
-![](../../ref-guide-images/exampleTestTablePrecisionDevProperty.png)
+![An Example of Test table with Precision Dev property](../../ref-guide-images/exampleTestTablePrecisionDevProperty.png)
 
 *An Example of Test table with Precision Dev property*
 
-![](../../ref-guide-images/exampleTestPrecisionDefined.png)
+![An example of Test with precision defined](../../ref-guide-images/exampleTestPrecisionDefined.png)
 
 *An example of Test with precision defined*
 
@@ -226,11 +172,11 @@ OpenL Tablets allows specifying precision for a particular column which contains
 
 An example of the table using shortcut definition is as follows.
 
-![](../../ref-guide-images/exampleUsingShortcutDefinitionPrecisionProperty.png)
+![Example of using shortcut definition of Precision Property](../../ref-guide-images/exampleUsingShortcutDefinitionPrecisionProperty.png)
 
 *Example of using shortcut definition of Precision Property*
 
-![](../../ref-guide-images/exampleTestPrecisionColumnDefined.png)
+![An example of Test with precision for the column defined](../../ref-guide-images/exampleTestPrecisionColumnDefined.png)
 
 *An example of Test with precision for the column defined*
 

@@ -16,7 +16,6 @@ import java.io.Serializable;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
-//import java.util.Set;
 
 /**
  * An interface for the domain of the constrained integer variable. Domain is a set of the possible values of the
@@ -119,7 +118,5 @@ public interface Domain extends Serializable {
      * Sets the variable associated with this domain.
      */
     void variable(IntVar var);
-
-    // public Set set();
 
 } // ~Domain

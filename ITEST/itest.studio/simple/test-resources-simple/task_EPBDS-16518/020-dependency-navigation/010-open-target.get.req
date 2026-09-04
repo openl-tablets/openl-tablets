@@ -1,0 +1,2 @@
+GET /rest/projects/bG9jYWw6ZXBiZHMtMTY1MTgtdGFyZ2V0?fields=id,name,status,repository,capabilities HTTP/1.1
+

@@ -32,15 +32,15 @@ For example, in the `max(value1, value2)` expression, **max** is the rule or fun
 
 If an action is performed in a rule, use the corresponding function in the rules table. For example, to calculate the best result for a gamer in the following example, use the **max** function and enter *max(score1, score2, score3)* in the **C1** column. This expression instructs OpenL Tablets to select the maximum value in the set. The **contains** function can be used to determine the gamer level.
 
-Subsequent sections provide description for mostly often used OpenL Tablets functions. For a full list of functions, see [Math Functions](../../05-appendices/04-math-functions.md), [Array Functions](../../05-appendices/02-array-functions.md), [Date Functions](../../05-appendices/03-date-functions.md), [String Functions](../../05-appendices/05-string-functions.md), and [Special Functions](../../05-appendices/06-special-functions.md).
+Subsequent sections provide description for most commonly used OpenL Tablets functions. For a full list of functions, see [Math Functions](../05-appendices/04-math-functions.md), [Array Functions](../05-appendices/02-array-functions.md), [Date Functions](../05-appendices/03-date-functions.md), [String Functions](../05-appendices/05-string-functions.md), and [Special Functions](../05-appendices/06-special-functions.md).
 
 ### Understanding Math Functions
 
-Math functions serve for performing math operations on numeric data. These functions support all numeric data types described in [Working with Data Types](working-with-data-types.md#working-with-data-types).
+Math functions serve for performing math operations on numeric data. These functions support all numeric data types described in [Working with Data Types](02-working-with-data-types.md#working-with-data-types).
 
 The following example illustrates how to use functions in OpenL Tablets. The rule in the diagram defines a gamer level depending on the best result in three attempts.
 
-![](../ref-guide-images/exampleUsingMaxFunction.png)
+![An example of using the 'max' function](../ref-guide-images/exampleUsingMaxFunction.png)
 
 *An example of using the 'max' function*
 
@@ -126,11 +126,11 @@ The following topics are included in this section:
 
 This syntax is used to round to a whole number. The following example demonstrates function usage:
 
-![](../ref-guide-images/roundingInteger.png)
+![Rounding to integer](../ref-guide-images/roundingInteger.png)
 
 *Rounding to integer*
 
-![](../ref-guide-images/testTableRoundingInteger.png)
+![Test table for rounding to integer](../ref-guide-images/testTableRoundingInteger.png)
 
 *Test table for rounding to integer*
 
@@ -138,11 +138,11 @@ This syntax is used to round to a whole number. The following example demonstrat
 
 This function is used to round to a fractional number. The second parameter defines a number of digits after decimal point.
 
-![](../ref-guide-images/roundingFractionalNumber.png)
+![Rounding to a fractional number](../ref-guide-images/roundingFractionalNumber.png)
 
 *Rounding to a fractional number*
 
-![](../ref-guide-images/testTableRoundingFractionalNumber.png)
+![Test table for rounding to a fractional number](../ref-guide-images/testTableRoundingFractionalNumber.png)
 
 *Test table for rounding to a fractional number*
 
@@ -169,7 +169,7 @@ round(32.285,DOWN)=32
 
 **Note:** In the code, both CEILING and RoundingMode.CEILING formats are acceptable.
 
-![](../ref-guide-images/usageRoundnumberstringFormatDownRoundingMode.png)
+![Usage of the round(number,String) format with the DOWN rounding mode](../ref-guide-images/usageRoundnumberstringFormatDownRoundingMode.png)
 
 *Usage of the round(number,String) format with the DOWN rounding mode*
 
@@ -194,13 +194,13 @@ The following table contains a list of the constants and their descriptions:
 | 6        | HALF_EVEN   | Rounding mode to round towards the nearest neighbor unless both neighbors are equidistant, in which case, <br/>round towards the even neighbor. |
 | 7        | UNNECESSARY | Rounding mode to assert that the requested operation has an exact result, hence no rounding is necessary.                                  |
 
-For more information on the constants representing rounding modes, see [https://docs.oracle.com/en/java/javase/11/docs/api/constant-values.html\#java.math.BigDecimal.ROUND_HALF_DOWN](https://docs.oracle.com/en/java/javase/11/docs/api/constant-values.html#java.math.BigDecimal.ROUND_HALF_DOWN).
+For more information on the constants representing rounding modes, see [https://docs.oracle.com/en/java/javase/21/docs/api/constant-values.html\#java.math.BigDecimal.ROUND_HALF_DOWN](https://docs.oracle.com/en/java/javase/21/docs/api/constant-values.html#java.math.BigDecimal.ROUND_HALF_DOWN).
 
-For more information on the constants with examples, see <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/math/class-use/RoundingMode.html>, *Enum Constant Details* section.
+For more information on the constants with examples, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/RoundingMode.html>, *Enum Constant Details* section.
 
 The following example demonstrates how the rounding works with the DOWN constant.
 
-![](../ref-guide-images/usageRoundnumberintintstringFormatDownRoundingMode.png)
+![Usage of the round(number,int,int/String) format with the DOWN rounding mode](../ref-guide-images/usageRoundnumberintintstringFormatDownRoundingMode.png)
 
 *Usage of the round(number,int,int/String) format with the DOWN rounding mode*
 
@@ -219,7 +219,7 @@ An example is as follows:
 round(32.285, 2, DOWN)=32.28
 ```
 
-![](../ref-guide-images/usageRoundnumberintintstringFormatDownRoundingMode_1.jpeg)
+![Usage of the round(number,int,String) format with the DOWN rounding mode](../ref-guide-images/usageRoundnumberintintstringFormatDownRoundingMode_1.jpeg)
 
 *Usage of the round(number,int,int/String) format with the DOWN rounding mode*
 
@@ -252,13 +252,13 @@ The following date function returns a String data type:
 
 The following figure displays values returned by date functions for a particular input date specified in the **MyDate** field.
 
-![](../ref-guide-images/dateFunctionsOpenlTablets.png)
+![Date functions in OpenL Tablets](../ref-guide-images/dateFunctionsOpenlTablets.png)
 
 *Date functions in OpenL Tablets*
 
 The following decision table provides a very simple example of how the `dayOfWeek` function can be used when the returned value, **Risk Factor**, depends on the day of the week.
 
-![](../ref-guide-images/riskFactorDependingDayWeek.png)
+![A risk factor depending on a day of the week](../ref-guide-images/riskFactorDependingDayWeek.png)
 
 *A risk factor depending on a day of the week*
 
@@ -279,7 +279,7 @@ The **ERROR** function is used to handle exceptional cases in a rule when an app
 
 In the following example, if the value for a coverage limit of an insurance policy exceeds 1000\$, a rule notifies a user about wrong limit value and stops further processing.
 
-![](../ref-guide-images/usageErrorFunction.png)
+![Usage of the ERROR function](../ref-guide-images/usageErrorFunction.png)
 
 *Usage of the ERROR function*
 
@@ -303,7 +303,7 @@ Formula `(expression) ? (value1) : (value2) `returns value1 if condition express
 
 An example of a ternary operator is as follows:
 
-![](../ref-guide-images/ternaryOperatorExample.png)
+![Ternary operator example](../ref-guide-images/ternaryOperatorExample.png)
 
 *Ternary operator example*
 
@@ -331,7 +331,7 @@ or
 
 In the following example, the **Age** step calculates the age and stores the result in the **vehicleAge** field of the input object **vehicle**, the **Scoring** step calculates several scoring parameters, stores them in the **scoring** object, and returns the object with updated fields as a result of the step:
 
-![](../ref-guide-images/examplePerformingOperationsViaFormula.png)
+![Example of performing operations via formula](../ref-guide-images/examplePerformingOperationsViaFormula.png)
 
 *Example of performing operations via formula*
 
@@ -381,17 +381,17 @@ This section describes how null elements (an element with an empty value) are pr
 
 For adding and subtracting, `null` is interpreted as `0.`
 
-For multiplying and dividing, it is interpreted as `null`. That is, if `a=3` and `b=null`, `a*b=null`. If `null` must be interpreted as `1`, that is, `a*b=3`, `import org.openl.rules.binding.MulDivNullToOneOperators.*` must be added to the Environment table.
+For multiplying and dividing, it is interpreted as `null`. That is, if `a=3` and `b=null`, `a*b=null`.
 
 The following diagrams demonstrate this rule.
 
-![](../ref-guide-images/rulesNullElementsUsageCalculations.png)
+![Rules for null elements usage in calculations](../ref-guide-images/rulesNullElementsUsageCalculations.png)
 
 *Rules for null elements usage in calculations*
 
 The next test table provides examples of calculations with null values.
 
-![](../ref-guide-images/testTableNullElementsUsageCalculations.png)
+![Test table for null elements usage in calculations](../ref-guide-images/testTableNullElementsUsageCalculations.png)
 
 *Test table for null elements usage in calculations*
 

@@ -25,17 +25,13 @@ final class BitArray implements Serializable {
     }
 
     boolean at(int index) {
-        // return (_bits[index/BITS_PER_WORD] & (1 << index % BITS_PER_WORD)) !=
-        // 0 ;
         return (_bits[index / BITS_PER_WORD] & 1 << index) != 0;
     }
 
     void set(int index, boolean val) {
         if (val) {
-            // _bits[index/BITS_PER_WORD] |= (1 << index % BITS_PER_WORD);
             _bits[index / BITS_PER_WORD] |= 1 << index;
         } else {
-            // _bits[index/BITS_PER_WORD] &= ~(1 << index % BITS_PER_WORD);
             _bits[index / BITS_PER_WORD] &= ~(1 << index);
         }
     }
@@ -74,7 +70,6 @@ public final class DomainBits2 extends DomainImpl {
         super(var, min, max);
         _size = _max - _min + 1;
         _bits = new BitArray(_size);
-        // check("constructor");
     }
 
     public int[] bits() {
@@ -90,12 +85,6 @@ public final class DomainBits2 extends DomainImpl {
 
         return _bits.at(value - _initial_min);
     }
-
-    /*
-     * catch(Exception ex) { System.out.println("Error: length: " + _bits.length + " _initialMin: " + _initial_min + "
-     * _initialMax: " + _initial_max + " _min: " + _min + " _max: " + _max + " value: " + value ); System.exit(1);
-     * return false; }
-     */
 
     public void forceBits(int[] bits) {
         _bits._bits = bits;
@@ -161,15 +150,9 @@ public final class DomainBits2 extends DomainImpl {
     @Override
     public boolean removeValue(int value) throws Failure {
 
-        // System.out.println("Before Remove: " + value + " this=" + this);
         if (!contains(value)) {
             return false;
         }
-
-        /*
-         * if (size() <= 1) { constrainer().fail("remove"); }
-         *
-         */
 
         if (value == _min) {
             return setMin(value + 1);
@@ -178,13 +161,11 @@ public final class DomainBits2 extends DomainImpl {
             return setMax(value - 1);
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         _bits.set(value - _initial_min, false);
         --_size;
 
-        // System.out.println("After Remove: " + value + " this=" + this);
         return true;
     }
 
@@ -198,10 +179,7 @@ public final class DomainBits2 extends DomainImpl {
             constrainer().fail("Max < Min");
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
-
-        // _max = M;
 
         while (_max > M) {
             if (_bits.at(_max-- - _initial_min)) {
@@ -215,15 +193,9 @@ public final class DomainBits2 extends DomainImpl {
             }
         }
 
-        // check("setMax(" + M + ")");
         return true;
 
     }
-
-    /*
-     * public String toString() { return "[" + _initial_min + ":" + _min + ";" + _max + ":" + _initial_max + "]" +
-     * " bits: " + printBits() + " size: " + size(); }
-     */
 
     @Override
     public boolean setMin(int m) throws Failure {
@@ -235,10 +207,7 @@ public final class DomainBits2 extends DomainImpl {
             constrainer().fail("Min > Max");
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
-
-        // _min = m;
 
         while (_min < m) {
             if (_bits.at(_min++ - _initial_min)) {
@@ -252,7 +221,6 @@ public final class DomainBits2 extends DomainImpl {
             }
         }
 
-        // check("setMin(" + m + ")");
         return true;
 
     }
@@ -260,7 +228,6 @@ public final class DomainBits2 extends DomainImpl {
     @Override
     public boolean setValue(int value) throws Failure {
         if (_min == value && _max == value) {
-            // constrainer().fail("Redundant value "+_variable);
             return false;
         }
 
@@ -268,13 +235,11 @@ public final class DomainBits2 extends DomainImpl {
             constrainer().fail("attempt to set invalid value");
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         _min = value;
         _max = value;
         _size = 1;
-        // check("setValue(" + value + ")");
         return true;
     }
 

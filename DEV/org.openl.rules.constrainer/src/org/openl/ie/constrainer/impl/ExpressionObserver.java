@@ -71,7 +71,6 @@ public abstract class ExpressionObserver extends Observer {
      */
     static final private int[] trival_event_map = {MIN, MIN, MAX, MAX, VALUE, VALUE, REMOVE, REMOVE};
 
-    // protected Expression _expression;
     private final EventMap _event_map;
 
     /**
@@ -94,15 +93,6 @@ public abstract class ExpressionObserver extends Observer {
         _event_map = new EventMapImpl(masks);
     }
 
-    // /**
-    // * Returns an event map for this observer.
-    // */
-    // public EventMap eventMap()
-    // {
-    // return _event_map;
-    // }
-    //
-
     /**
      * Subscribes for the events from "exp" with a given "publishMask".
      * <p>
@@ -124,9 +114,6 @@ public abstract class ExpressionObserver extends Observer {
     @Override
     public void subscriberMask(int mask, Subject subj) {
         if (_subscriber_mask != mask) {
-            // Debug.on();Debug.print("" + this + " mask: "+ mask + " exp:" +
-            // expression);Debug.off();
-
             _subscriber_mask = mask;
         }
 
@@ -169,7 +156,6 @@ public abstract class ExpressionObserver extends Observer {
 
     @Override
     public void update(Subject exp, EventOfInterest event) throws Failure {
-        // Debug.on();Debug.print("" + this + " : "+event);Debug.off();
         if (event.isValueEvent()) {
             transformValueEvent(event);
         } else if (event.isMinEvent()) {

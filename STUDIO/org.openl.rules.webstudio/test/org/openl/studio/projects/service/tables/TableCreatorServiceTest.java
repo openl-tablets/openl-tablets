@@ -133,7 +133,8 @@ class TableCreatorServiceTest {
         var source = List.of(
                 List.of(cell("Rules Boolean Greeting()", 2), RawTableCell.COVERED_CELL),
                 List.of(cell(true), cell(42)),
-                List.of(cell(new Date(0)), RawTableCell.builder().build()));
+                List.of(cell(new Date(0)), RawTableCell.builder().build()),
+                List.of(cell(List.of("C:\\", "ACME, Inc")), cell("Result")));
 
         createModuleWithTable(simpleDescriptor(), request("custom/Greeting.xlsx", rawTable(source)));
 
@@ -146,6 +147,7 @@ class TableCreatorServiceTest {
             // Excel stores a date as a number, and OpenL reads it back as a date only while it is formatted as one.
             assertEquals(0, sheet.getRow(3).getCell(1).getDateCellValue().getTime());
             assertTrue(DateUtil.isCellDateFormatted(sheet.getRow(3).getCell(1)));
+            assertEquals("C:\\ ,ACME\\, Inc", sheet.getRow(4).getCell(1).getStringCellValue());
         }
     }
 

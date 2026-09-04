@@ -28,7 +28,7 @@ The OpenAPI specification provides multiple places where properties for the endp
 
 The OpenAPI specification allows describing multiple operations for one path, such as GET, PATCH, or DELETE. An example is as follows.
 
-![Example of the path with multiple operations](../images/openapi-gen-path-multiple-operations.png)
+![](../images/openapi-gen-path-multiple-operations.png)
 
 *Example of the path with multiple operations*
 
@@ -54,13 +54,13 @@ If the request body is used only once per all OpenAPI schema and it has more tha
 
 An example of the OpenAPI schema with decomposed request body is as follows.
 
-![Request body schema to be decomposed](../images/openapi-gen-request-body-schema.png)
+![](../images/openapi-gen-request-body-schema.png)
 
 *Request body schema to be decomposed*
 
 An example of request body decomposition result is as follows.
 
-![Generated spreadsheet with a decomposed schema in parameters](../images/openapi-gen-decomposed-schema-result.png)
+![](../images/openapi-gen-decomposed-schema-result.png)
 
 *Generated spreadsheet with a decomposed schema in parameters*
 
@@ -77,13 +77,13 @@ The following keywords are responsible for the inheritance and polymorphism in t
 
 An example of a schema with included nesting is as follows:
 
-![Example of nesting in the OpenAPI schema](../images/openapi-gen-nesting-schema-example.png)
+![](../images/openapi-gen-nesting-schema-example.png)
 
 *Example of nesting in the OpenAPI schema*
 
 An example of result is as follows.
 
-![Example of generated datatypes](../images/openapi-gen-generated-datatypes.png)
+![](../images/openapi-gen-generated-datatypes.png)
 
 *Example of generated datatypes*
 
@@ -111,7 +111,7 @@ An OpenL Tablets project can be generated from any OpenAPI file. It is also poss
 
     If any path in the OpenAPI document has an input parameter with a link to DefaultRulesRuntimeContext as \#/components/schemas/DefaultRulesRuntimeContext, the generated project will contain the corresponding setting and RuntimeContext will be enabled.
 
-    ![The enabled option for providing runtime context](../images/openapi-gen-runtime-context-option.png)
+    ![](../images/openapi-gen-runtime-context-option.png)
 
     *The enabled option for providing runtime context*
 
@@ -119,21 +119,11 @@ An OpenL Tablets project can be generated from any OpenAPI file. It is also poss
 
     An example of a schema with partially provided runtime context is as follows.
 
-    ![Example of partially provided runtime context](../images/openapi-gen-partial-runtime-context.png)
+    ![](../images/openapi-gen-partial-runtime-context.png)
 
     *Example of partially provided runtime context*
 
     Based on this schema, the examplePathWithRC path with the **POST** operation is included in the exposed methods, but pathWithoutRC/{a} path is not included.
-
--   project with allowed variations
-
-    If the OpenAPI schema contains all schemas named Variation, NoVariation, VariationsPack, ArgumentReplacementVariation, ComplexVariation, DeepCloningVariation, JXPathVariation, and VariationResult, it is considered that the OpenAPI file is generated from the project with variations support enabled.
-
-    ![The enabled option for providing variations](../images/openapi-gen-variations-option.png)
-
-    *The enabled option for providing variations*
-
-    All paths which contain variations will be ignored and a generated project will also have enabled variations.
 
 #### Data Table
 
@@ -152,19 +142,19 @@ In addition, if there is a schema in the OpenAPI document that has a reference t
 
 An example of the schema with the spreadsheet result that is not returned by any path is as follows.
 
-![An example of a schema with two spreadsheet results](../images/openapi-gen-spreadsheet-results-schema.png)
+![](../images/openapi-gen-spreadsheet-results-schema.png)
 
 *An example of a schema with two spreadsheet results*
 
 The result of generation is as follows.
 
-![Lost spreadsheet generation result](../images/openapi-gen-lost-spreadsheet-result.png)
+![](../images/openapi-gen-lost-spreadsheet-result.png)
 
 *Lost spreadsheet generation result*
 
 The LostSpreadsheet is generated because it has a reference to the mySpr spreadsheet result, which is converted as a spreadsheet result call. Nevertheless, this LostSpreadsheet is not included in the Included Methods section not to break full validation of the project.
 
-![Module settings](../images/openapi-gen-module-settings.png)
+![](../images/openapi-gen-module-settings.png)
 
 *Module settings*
 
@@ -222,11 +212,11 @@ Original paths are stored in the generated service interface and OpenL Rule Serv
 
 The annotation template class will be applied by OpenL Tablets Rule Services due to automatically generated property in the rules-deploy.xml available at **Repository \> Project \> Rules Deploy Configuration.**
 
-![Example of project properties with annotation template class](../images/openapi-gen-annotation-template-class-props.png)
+![](../images/openapi-gen-annotation-template-class-props.png)
 
 *Example of project properties with annotation template class*
 
-![Example of the generated Groovy file location](../images/openapi-gen-groovy-file-location.png)
+![](../images/openapi-gen-groovy-file-location.png)
 
 *Example of the generated Groovy file location*
 
@@ -234,7 +224,7 @@ By default, the script is saved to `classes/org/openl/generated/services/Service
 
 An example of the OpenAPI JSON file with the annotation template class generated script is as follows.
 
-![Path which requires script generation](../images/openapi-gen-path-requiring-script.png)
+![](../images/openapi-gen-path-requiring-script.png)
 
 *Path which requires script generation*
 
@@ -242,7 +232,7 @@ In this example, the file contains the path name “/api/save” and the path it
 
 An example of the generated spreadsheet table is as follows.
 
-![Example of the formatted path name](../images/openapi-gen-formatted-path-name.png)
+![](../images/openapi-gen-formatted-path-name.png)
 
 *Example of the formatted path name*
 
@@ -250,7 +240,7 @@ The api/save path is transformed to the apisave spreadsheet table name.
 
 An example of the generated script is as follows.
 
-![Example of the generated Groovy script](../images/openapi-gen-groovy-script-example.png)
+![](../images/openapi-gen-groovy-script-example.png)
 
 *Example of the generated Groovy script*
 

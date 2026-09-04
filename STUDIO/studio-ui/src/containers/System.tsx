@@ -35,7 +35,7 @@ export const System: React.FC = () => {
 
     const deleteAllHistory = async () => {
         // Delete all history from the server
-        await apiCall('/history', { method: 'DELETE' })
+        await apiCall('/admin/local-history', { method: 'DELETE' })
             .then(() => {
                 notification.success({
                     title: t('system:delete_all_history_success'),

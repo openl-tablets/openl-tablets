@@ -98,6 +98,8 @@ public class HttpClient implements AutoCloseable {
      * Environment variables can be defined in {@code itest.env} files placed in any test folder.
      * Environment is loaded hierarchically using a stack: parent folder values are overridden by child folder values.
      * Each env file is read only once and cached. Programmatic {@link #localEnv} values take the highest priority.
+     * Values selected from a response by a same-basename {@code .env} file are available to later requests in the
+     * same first-level test folder. They override {@code itest.env} values but not {@link #localEnv} values.
      * <p>
      * Note. This method uses System.out and System.err for logging instead of Slf4j to provide consistent output
      * in cases when binding of the logger is failed.
@@ -110,6 +112,7 @@ public class HttpClient implements AutoCloseable {
         Path rootPath = Path.of(path);
         var envLoader = new EnvironmentFileLoader(rootPath);
         var currentFolderEnv = new HashMap<String, String>();
+        var responseEnv = new HashMap<String, String>();
 
         try (Stream<Path> walk = Files.walk(rootPath)) {
             long errors = walk.map(Path::toString).filter(p -> p.endsWith(".req")).map(p -> p.substring(0, p.length() - 4)).sorted().map(p -> {
@@ -120,6 +123,7 @@ public class HttpClient implements AutoCloseable {
                     if (!cookieFolder.equals(cookieFolderHolder[0])) {
                         cookieFolderHolder[0] = cookieFolder;
                         cookie.remove();
+                        responseEnv.clear();
                         System.out.println(ANSI_BLUE_BOLD + "=============== RESET COOKIE ===============" + ANSI_RESET);
                     }
 
@@ -134,9 +138,9 @@ public class HttpClient implements AutoCloseable {
 
                     System.out.print(ANSI_BLACK_BOLD + p + ANSI_RESET + " - ");
 
-                    // Merge: file env < programmatic env (programmatic has priority)
-                    Map<String, String> effectiveEnv = mergeEnvironments(currentFolderEnv, localEnv);
-                    send(p + ".req", p + ".resp", effectiveEnv);
+                    // Merge: file env < response env < programmatic env
+                    Map<String, String> effectiveEnv = mergeEnvironments(currentFolderEnv, responseEnv, localEnv);
+                    send(p + ".req", p + ".resp", effectiveEnv, responseEnv);
 
                     long end = System.currentTimeMillis();
                     System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end - start) + "ms)");
@@ -155,11 +159,13 @@ public class HttpClient implements AutoCloseable {
     }
 
     /**
-     * Merges file-based environment with programmatic environment.
-     * Programmatic values take precedence.
+     * Merges file-based, response-derived and programmatic environments in ascending priority.
      */
-    private Map<String, String> mergeEnvironments(Map<String, String> fileEnv, Map<String, String> programmaticEnv) {
+    private Map<String, String> mergeEnvironments(Map<String, String> fileEnv,
+                                                  Map<String, String> responseEnv,
+                                                  Map<String, String> programmaticEnv) {
         Map<String, String> merged = new LinkedHashMap<>(fileEnv);
+        merged.putAll(responseEnv);
         merged.putAll(programmaticEnv);
         return merged;
     }
@@ -221,10 +227,13 @@ public class HttpClient implements AutoCloseable {
      * </pre>
      */
     private void send(String requestFile, String responseFile) {
-        send(requestFile, responseFile, localEnv);
+        send(requestFile, responseFile, localEnv, localEnv);
     }
 
-    private void send(String requestFile, String responseFile, Map<String, String> effectiveEnv) {
+    private void send(String requestFile,
+                      String responseFile,
+                      Map<String, String> effectiveEnv,
+                      Map<String, String> responseEnv) {
         try {
             HttpData request = HttpData.readFile(requestFile);
             if (request == null) {
@@ -269,6 +278,7 @@ public class HttpClient implements AutoCloseable {
                 response.log(requestFile);
                 throw error;
             }
+            response.saveFieldsToEnvironment(requestFile.substring(0, requestFile.length() - 4) + ".env", responseEnv);
 
         } catch (IOException e) {
             throw new IllegalStateException(e);

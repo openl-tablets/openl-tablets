@@ -1,0 +1,53 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "9d00a1ca2fe23eafab486ff11137a75e",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "ErrorAfterOneProperty",
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Identifier 'BlaBla' is not found.",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "9d00a1ca2fe23eafab486ff11137a75e",
+        "name": "ErrorAfterOneProperty",
+        "module": "Main",
+        "cell": "C5"
+      },
+      "stacktrace": true
+    }
+  ],
+  "pos": "B2:D6",
+  "source": [
+    [
+      {"cell": "B2", "value": "Spreadsheet String ErrorAfterOneProperty(Integer a)", "colspan": 3},
+      {"covered": true},
+      {"covered": true}
+    ],
+    [
+      {"cell": "B3", "value": "properties"},
+      {"cell": "C3", "value": "lob"},
+      {"cell": "D3", "value": ["TEST"]}
+    ],
+    [
+      {"cell": "B4", "value": "Steps"},
+      {"cell": "C4", "value": "Value"},
+      {"cell": "D4"}
+    ],
+    [
+      {"cell": "B5", "value": "Step1"},
+      {"cell": "C5", "value": "=BlaBla+100"},
+      {"cell": "D5"}
+    ],
+    [
+      {"cell": "B6", "value": "Step2"},
+      {"cell": "C6", "value": "Test"},
+      {"cell": "D6"}
+    ]
+  ]
+}
+

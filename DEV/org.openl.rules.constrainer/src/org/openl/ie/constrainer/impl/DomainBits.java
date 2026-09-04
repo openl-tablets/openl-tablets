@@ -32,16 +32,8 @@ import org.openl.ie.constrainer.IntVar;
  * @see Domain
  */
 public final class DomainBits extends DomainImpl {
-    // private IntVar _variable;
     private boolean[] _bits;
     private int _size;
-
-    // private int _initial_min;
-    // private int _initial_max;
-    // private int _min; // the first i with _bits[i]=true
-    // private int _max; // the last i with _bits[i]=true
-
-    // public static final int MAX_VALUE = 1000000;//Integer.MAX_VALUE-1;
 
     public DomainBits(IntVar var, int min, int max) // throws Failure
     {
@@ -49,7 +41,6 @@ public final class DomainBits extends DomainImpl {
         _bits = new boolean[max - min + 1];
         Arrays.fill(_bits, true);
         _size = _max - _min + 1;
-        // check("constructor");
     }
 
     public boolean[] bits() {
@@ -74,12 +65,6 @@ public final class DomainBits extends DomainImpl {
     public void forceInsert(int val) {
         _bits[val - _initial_min] = true;
     }
-
-    /*
-     * catch(Exception ex) { System.out.println("Error: length: " + _bits.length + " _initialMin: " + _initial_min + "
-     * _initialMax: " + _initial_max + " _min: " + _min + " _max: " + _max + " value: " + value ); System.exit(1);
-     * return false; }
-     */
 
     @Override
     public void forceSize(int val) {
@@ -177,15 +162,9 @@ public final class DomainBits extends DomainImpl {
     @Override
     public boolean removeValue(int value) throws Failure {
 
-        // System.out.println("Before Remove: " + value + " this=" + this);
         if (!contains(value)) {
             return false;
         }
-
-        // if (size() <= 1)
-        // {
-        // constrainer().fail("remove");
-        // }
 
         if (value == _min) {
             return setMin(value + 1);
@@ -194,13 +173,11 @@ public final class DomainBits extends DomainImpl {
             return setMax(value - 1);
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         _bits[value - _initial_min] = false;
         --_size;
 
-        // System.out.println("After Remove: " + value + " this=" + this);
         return true;
     }
 
@@ -214,10 +191,7 @@ public final class DomainBits extends DomainImpl {
             constrainer().fail("Max < Min ");
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
-
-        // _max = M;
 
         while (_max > M) {
             if (_bits[_max-- - _initial_min]) {
@@ -231,15 +205,9 @@ public final class DomainBits extends DomainImpl {
             }
         }
 
-        // check("setMax(" + M + ")");
         return true;
 
     }
-
-    /*
-     * public String toString() { return "[" + _initial_min + ":" + _min + ";" + _max + ":" + _initial_max + "]" +
-     * " bits: " + printBits() + " size: " + size(); }
-     */
 
     @Override
     public boolean setMin(int m) throws Failure {
@@ -251,10 +219,7 @@ public final class DomainBits extends DomainImpl {
             constrainer().fail("Min > Max ");
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
-
-        // _min = m;
 
         while (_min < m) {
             if (_bits[_min++ - _initial_min]) {
@@ -268,7 +233,6 @@ public final class DomainBits extends DomainImpl {
             }
         }
 
-        // check("setMin(" + m + ")");
         return true;
 
     }
@@ -276,7 +240,6 @@ public final class DomainBits extends DomainImpl {
     @Override
     public boolean setValue(int value) throws Failure {
         if (_min == value && _max == value) {
-            // constrainer().fail("Redundant value "+_variable);
             return false;
         }
 
@@ -284,13 +247,11 @@ public final class DomainBits extends DomainImpl {
             constrainer().fail("attempt to set invalid value");
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         _min = value;
         _max = value;
         _size = 1;
-        // check("setValue(" + value + ")");
         return true;
     }
 

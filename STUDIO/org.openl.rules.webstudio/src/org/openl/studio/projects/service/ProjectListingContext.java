@@ -13,7 +13,7 @@ import org.springframework.web.context.annotation.RequestScope;
  * Per-request memoization for the project listing.
  *
  * <p>Listing a page maps every project independently, yet a few inputs are constant for the whole
- * request: the workspace business-name index used to resolve project dependencies, and whether the
+ * request: the workspace dependency-name index used to resolve project dependencies, and whether the
  * user can deploy to any production repository. Recomputing them per project turns an O(N) listing
  * into O(N&#178;). This request-scoped holder computes each value once and reuses it.
  */

@@ -341,15 +341,11 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         }
 
         if (max < _max) {
-            // addUndo();
-            // if(!undone())
             constrainer().addUndo(UndoIntBoolVarValue.getUndo(this));
 
             _max = max;
 
             notifyObservers(IntEventBoolFalse.the);
-            // notifyObservers(IntEventBool.getEvent(this, false));
-            // addToPropagationQueue();
         }
     }
 
@@ -360,15 +356,11 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         }
 
         if (min > _min) {
-            // addUndo();
-            // if(!undone())
             constrainer().addUndo(UndoIntBoolVarValue.getUndo(this));
 
             _min = min;
 
             notifyObservers(IntEventBoolTrue.the);
-            // notifyObservers(IntEventBool.getEvent(this, true));
-            // addToPropagationQueue();
         }
     }
 

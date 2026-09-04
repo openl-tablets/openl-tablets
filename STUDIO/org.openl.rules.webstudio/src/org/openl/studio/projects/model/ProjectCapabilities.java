@@ -25,7 +25,8 @@ public record ProjectCapabilities(
         @JsonUnwrapped Capabilities project,
         @Parameter(description = "Whether the project can be opened for editing") Boolean canOpen,
         @Parameter(description = "Whether the opened project can be closed") Boolean canClose,
-        @Parameter(description = "Whether local modifications can be saved (committed)") Boolean canSave,
+        @Parameter(description = "Whether local modifications can be committed to the Design repository")
+        Boolean canSave,
         @Parameter(description = "Whether the project lock can be forcibly released") Boolean canUnlock,
         @Parameter(description = "Whether the project can be deployed") Boolean canDeploy,
         @Parameter(description = "Whether project revisions can be compared") Boolean canCompare,

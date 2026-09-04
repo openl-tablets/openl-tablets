@@ -60,7 +60,6 @@ i18next.addResourceBundle('en', 'merge', {
         use_theirs: 'Use theirs',
         use_base: 'Use base',
         upload_custom: 'Upload merged file',
-        delete_yours: 'Delete it',
         resolved: 'Resolved',
     },
 

@@ -37,7 +37,6 @@ abstract public class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
 
     @Override
     public IntBoolExp and(IntBoolExp exp) {
-        // return new IntBoolExpAnd(this, exp);
         return getIntBoolExp(IntBoolExpAnd.class, this, exp);
     }
 
@@ -63,7 +62,6 @@ abstract public class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
 
     @Override
     public IntBoolExp or(IntBoolExp exp) {
-        // return new IntBoolExpOr(this, exp);
         return getIntBoolExp(IntBoolExpOr.class, this, exp);
     }
 

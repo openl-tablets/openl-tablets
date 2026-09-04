@@ -1,0 +1,3 @@
+GET /rest/projects/EPBDS-16492-ErrorLocation/tables/9d00a1ca2fe23eafab486ff11137a75e?raw=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

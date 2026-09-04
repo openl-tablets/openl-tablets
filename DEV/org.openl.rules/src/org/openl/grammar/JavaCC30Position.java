@@ -46,7 +46,6 @@ public class JavaCC30Position implements IPosition {
         }
 
         var line = jcc30line - 1;
-        // int linePos = info.getPosition(line);
         var colPos = Math.min(info.getLine(line).length(), jcc30col - 1);
 
         return colPos + 1;

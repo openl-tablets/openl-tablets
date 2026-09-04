@@ -30,6 +30,6 @@ Simple data tables define a list of values of data types that have a simple stru
 
 An example of a data table containing an array of numbers is as follows.
 
-![](../../../ref-guide-images/simpleDataTable.png)
+![Simple data table](../../../ref-guide-images/simpleDataTable.png)
 
 *Simple data table*

@@ -506,14 +506,25 @@ repository:
 
 ```properties
 # Jetty settings
-jetty.server.Request.maxFormContentSize=-1
-jetty.server.Request.maxFormKeys=-1
+org.eclipse.jetty.server.Request.maxFormContentSize=-1
+org.eclipse.jetty.server.Request.maxFormKeys=10000
 jetty.httpConfig.requestHeaderSize=32768
 jetty.httpConfig.responseHeaderSize=32768
 jetty.httpConfig.outputBufferSize=32768
 jetty.httpConfig.sendServerVersion=false
 jetty.httpConfig.sendDateHeader=false
 ```
+
+The form-key limit applies to each request independently. With OpenL Studio's 8 KiB multipart threshold, 10,000
+small parts can retain about 80 MiB of content plus metadata for every concurrent multipart request. Choose a lower
+limit when the deployment expects fewer parts or has limited heap, while allowing enough parts for the largest
+supported operation.
+
+`maxFormContentSize` limits URL-encoded forms; it does not limit multipart uploads. OpenL Studio leaves the servlet
+multipart file and request sizes unlimited to support large workbooks. Production deployments must also enforce a
+finite total request-body limit at the application container or reverse proxy, sized above the largest supported
+upload. A custom distribution can instead set finite servlet multipart `maxFileSize` and `maxRequestSize` values. This
+byte limit bounds network and temporary-disk usage, while `maxFormKeys` bounds the number of in-memory parts.
 
 ### GZIP Compression
 

@@ -52,7 +52,6 @@ public class GoalAnd extends GoalImpl {
      */
     @Override
     public Goal execute() throws Failure {
-        // Debug.print("Execute "+this);
         constrainer().pushOnExecutionStack(_g2);
         constrainer().pushOnExecutionStack(_g1);
         return null;

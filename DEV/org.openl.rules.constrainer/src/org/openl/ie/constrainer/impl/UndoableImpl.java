@@ -34,7 +34,6 @@ public abstract class UndoableImpl extends ConstrainerObjectImpl implements Undo
     public void addUndo() {
         var undo_object = createUndo();
         undo_object.undoable(this);
-        // Debug.on();Debug.print("add " + undo_object);Debug.off();
         constrainer().addUndo(undo_object);
     }
 

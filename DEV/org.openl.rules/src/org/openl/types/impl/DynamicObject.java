@@ -92,7 +92,6 @@ public class DynamicObject implements IDynamicObject {
         public void printObject(Object obj, int newID, NicePrinter printer) {
             if (obj instanceof IDynamicObject dobj) {
                 printReference(dobj, newID, printer);
-                // printer.getBuffer().append(shortTypeName(dobj.getType().getName()));
                 printMap(dobj.getFieldValues(), null, printer);
                 return;
             }

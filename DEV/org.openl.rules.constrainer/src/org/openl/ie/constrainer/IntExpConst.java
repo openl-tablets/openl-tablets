@@ -27,7 +27,6 @@ public class IntExpConst extends IntExpImpl {
      */
     @Override
     final public IntExp add(int value) {
-        // return new IntExpConst(constrainer(),_const + value);
         return getIntExp(IntExpConst.class, _const + value);
     }
 

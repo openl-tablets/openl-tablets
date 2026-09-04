@@ -1,10 +1,16 @@
 package org.openl.rules.table.xls.formatters;
 
+import java.util.Date;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.util.formatters.DateFormatter;
 
 /**
+ * Parses dates written with an Excel cell format or with the ISO representation used by the raw tables API.
+ *
  * @author snshor
  */
 public class XlsDateFormatter extends DateFormatter {
@@ -37,6 +43,19 @@ public class XlsDateFormatter extends DateFormatter {
 
     public XlsDateFormatter(String xlsFormat) {
         super(convertToJavaFormat(xlsFormat));
+    }
+
+    @Override
+    public @Nullable Object parse(String value) {
+        var parsed = super.parse(value);
+        if (parsed != null) {
+            return parsed;
+        }
+        try {
+            return String2DataConvertorFactory.parse(Date.class, value, null);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
     }
 
 }

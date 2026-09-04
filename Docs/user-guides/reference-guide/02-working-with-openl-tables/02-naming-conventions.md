@@ -7,6 +7,6 @@ The following conventions apply to the rule, field, and function names:
 
 A **Java digit** is a collection of numbers from 0 to 9.
 
-![](../ref-guide-images/examplesCorrectIncorrectRuleTableNames.jpeg)
+![Examples of correct and incorrect rule table names](../ref-guide-images/examplesCorrectIncorrectRuleTableNames.jpeg)
 
 *Examples of correct and incorrect rule table names*

@@ -4,15 +4,6 @@ Learn how to integrate OpenL Tablets with various technologies and frameworks. T
 
 ## Available Integration Guides
 
-### Workflow and BPM
-
-#### [Activiti Integration](activiti.md)
-Integration with Activiti workflow engine for business process management. Learn how to:
-- Configure OpenL Tablets as a service in Activiti
-- Call OpenL Tablets rules from BPMN processes
-- Pass data between Activiti and OpenL Tablets
-- Handle decision services in workflows
-
 ### Web Services and APIs
 
 #### [Spring Framework](spring.md)

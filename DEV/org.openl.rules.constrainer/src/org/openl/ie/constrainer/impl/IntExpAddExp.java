@@ -17,7 +17,6 @@ import org.openl.ie.constrainer.Subject;
 public final class IntExpAddExp extends IntExpImpl {
     class ExpAddExpObserver extends Observer {
         ExpAddExpObserver() {
-            // super(event_map);
         }
 
         @Override
@@ -37,13 +36,8 @@ public final class IntExpAddExp extends IntExpImpl {
 
         @Override
         public void update(Subject exp, EventOfInterest event) throws Failure {
-            // IntEvent e = (IntEvent) event;
-
-            // int type = e.type();
-            // if ((type & MIN) != 0)
             _sum.setMin(calc_min());
 
-            // if ((type & MAX) != 0)
             _sum.setMax(calc_max());
 
         }
@@ -53,11 +47,6 @@ public final class IntExpAddExp extends IntExpImpl {
     private final IntExp _exp1;
 
     private final IntExp _exp2;
-
-    // static final private int[] event_map = { MIN, MIN,
-    // MAX, MAX,
-    // MIN | MAX | VALUE, VALUE
-    // };
 
     private final Observer _observer;
 
@@ -73,7 +62,6 @@ public final class IntExpAddExp extends IntExpImpl {
         _exp1 = exp1;
         _exp2 = exp2;
 
-        // int trace = IntVarImplTrace.TRACE_ALL;
         _sum = constrainer().addIntVarTraceInternal(calc_min(), calc_max(), _name, IntVar.DOMAIN_PLAIN);
 
         _observer = new ExpAddExpObserver();
@@ -118,8 +106,6 @@ public final class IntExpAddExp extends IntExpImpl {
 
     @Override
     public void onMaskChange() {
-        // _observer.publish(publisherMask(), _exp1);
-        // _observer.publish(publisherMask(), _exp2);
     }
 
     @Override

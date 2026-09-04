@@ -62,8 +62,6 @@ public final class ConstraintExpEqualsValue extends ConstraintImpl {
 
             @Override
             public void update(Subject exp, EventOfInterest interest) throws Failure {
-                // Debug.on();Debug.print("ObserverEqualValue:
-                // "+interest);Debug.off();
                 var event = (IntEvent) interest;
                 if ((event.isValueEvent() && event.min() != _value) || (event.isMaxEvent() && event.max() < _value) || (event
                         .isMinEvent() && event.min() > _value)) {

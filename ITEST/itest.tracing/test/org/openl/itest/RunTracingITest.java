@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -101,7 +100,6 @@ class RunTracingITest {
 
     private void checkOpenLMethodsSpans(String log, String expectedOpenLMethodSpanName, String expectedRootSpanName, String expectedScope, String expectedParentScope) {
         ObjectMapper objectMapper = new ObjectMapper();
-        List<ObjectNode> spanJsons;
         var allSpans = log.lines()
                 .filter(line -> line.contains("OtlpJsonLoggingSpanExporter"))
                 .map(s -> s.substring(s.indexOf('{')))

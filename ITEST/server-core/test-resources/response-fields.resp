@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "revisionNo": "abc123"
+    }
+  ],
+  "count": 2,
+  "ready": true
+}

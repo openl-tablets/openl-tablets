@@ -61,9 +61,6 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
      * Sets the domain of this expression based on isSubjectTrue()/isSubjectFalse().
      */
     protected void setDomainMinMax() throws Failure {
-        // if(_subjectMin.value() > _subjectMax.value())
-        // abort("_subjectMin.value() > _subjectMax.value() in " + this);
-
         if (_subjectMin.value() == _subjectMax.value()) {
             return;
         }
@@ -75,9 +72,6 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
             _subjectMin.setValue(1);
         }
 
-        // if(_subjectMin.value() > _subjectMax.value())
-        // abort("_subjectMin.value() > _subjectMax.value() in " + this);
-
         // Subject is bound -> update constraint domain.
         if (_subjectMin.value() == _subjectMax.value()) {
             super.setValue(_subjectMin.value());
@@ -85,12 +79,8 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
         // Subject is not bound -> propagate constraint domain.
         else {
             if (isTrue()) {
-                // System.out.println("setDomainMinMax(): setSubjectTrue():
-                // "+this);
                 setSubjectTrue();
             } else if (isFalse()) {
-                // System.out.println("setDomainMinMax(): setSubjectFalse():
-                // "+this);
                 setSubjectFalse();
             }
         }
@@ -118,44 +108,26 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
 
     @Override
     public void setMax(int max) throws Failure {
-        // System.out.println("+++IntBoolExpForSubject.setMax(" +max + ") in " +
-        // this);
-
         if (max >= max()) {
             return;
         }
 
         super.setMax(max);
 
-        // if(max < 0)
-        // constrainer().fail("Constraint.setMax() < 0");
-
         // max==0 -> setFalse
         setSubjectFalse();
-
-        // System.out.println("---IntBoolExpForSubject.setMax(" +max + ") in " +
-        // this);
     }
 
     @Override
     public void setMin(int min) throws Failure {
-        // System.out.println("+++IntBoolExpForSubject.setMin(" +min + ") in " +
-        // this);
-
         if (min <= min()) {
             return;
         }
 
         super.setMin(min);
 
-        // if(min > 1)
-        // constrainer().fail("Constraint.setMin() > 1");
-
         // min==1 -> setTrue
         setSubjectTrue();
-
-        // System.out.println("---IntBoolExpForSubject.setMin(" +min + ") in " +
-        // this);
     }
 
     /**

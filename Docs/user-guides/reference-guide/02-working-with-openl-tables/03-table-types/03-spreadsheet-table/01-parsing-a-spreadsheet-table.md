@@ -26,7 +26,7 @@ The following table describes the spreadsheet table header syntax:
 
 The first column and row of a spreadsheet table, after the header, make the table column and row names. Values in other cells are the table values. An example is as follows.
 
-![](../../../ref-guide-images/spreadsheetTableOrganization.png)
+![Spreadsheet table organization](../../../ref-guide-images/spreadsheetTableOrganization.png)
 
 *Spreadsheet table organization*
 
@@ -50,7 +50,7 @@ The following table describes how a cell value can be referenced in a spreadshee
 
 For more information on how to specify a range of cells, see [Using Ranges in Spreadsheet Table](03-using-ranges-in-spreadsheet-table.md#using-ranges-in-spreadsheet-table). Below is an example of a spreadsheet table with different calculations for an auto insurance policy. Table cells contain simple values, formulas, references to the value of another cell, and other information.
 
-![](../../../ref-guide-images/spreadsheetTableCalculationsContent.png)
+![Spreadsheet table with calculations as content](../../../ref-guide-images/spreadsheetTableCalculationsContent.png)
 
 *Spreadsheet table with calculations as content*
 
@@ -64,7 +64,7 @@ The data type for each cell can be determined by OpenL Tablets automatically or 
 
 Descriptions for spreadsheet columns can be provided by adding a dedicated **description column** with a header in the format `//<ColumnName>`. The name following `//` must exactly match the header of the column being described. Description columns allow spaces in their headers.
 
-![](../../../ref-guide-images/SpreadsheetDesriptionColumn.png)
+![Value column description](../../../ref-guide-images/SpreadsheetDesriptionColumn.png)
 
 *Value column description*
 
@@ -89,13 +89,13 @@ OpenL Tablets processes spreadsheet tables in two different ways depending on th
 
 In the first case, users get the value of SpreadsheetResult type that is an analog of result matrix. All calculated cells of the spreadsheet table are accessible through this result. The following example displays a spreadsheet table of this type.
 
-![](../../../ref-guide-images/parsingSpreadsheetTable.png)
-![](../../../ref-guide-images/spreadsheetTableReturnsSpreadsheetresultDatatype.png)
+![Parsing a spreadsheet table](../../../ref-guide-images/parsingSpreadsheetTable.png)
+![Spreadsheet table returns the SpreadsheetResult datatype](../../../ref-guide-images/spreadsheetTableReturnsSpreadsheetresultDatatype.png)
 
 *Spreadsheet table returns the SpreadsheetResult datatype*
 
 In the second case, the returned result type is a data type as in all other rule tables, so there is no need for **SpreadsheetResult** in the rule table header. The value of the last row, or the latest one if there are several columns, is returned. OpenL Tablets calculates line by line as follows:
 
-![](../../../ref-guide-images/spreadsheetTableReturningSingleValue.png)
+![Spreadsheet table returning a single value](../../../ref-guide-images/spreadsheetTableReturningSingleValue.png)
 
 *Spreadsheet table returning a single value*

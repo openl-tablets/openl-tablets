@@ -1,0 +1,23 @@
+POST /rest/projects/{PROJECT_NAME}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Data",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Data",
+    "name": "ratings",
+    "source": [
+      [{"value": "Data Rating ratings", "colspan": 3}, {"covered": true}, {"covered": true}],
+      [{"value": "attributes"}, {"value": "effectiveDates"}, {"value": "countries"}],
+      [{"value": "Ratings"}, {"value": "Effective dates"}, {"value": "Countries"}],
+      [
+        {"value": ["C:\\", "ACME, Inc"]},
+        {"value": "2050-01-02T03:04:05.678,2051-02-03T04:05:06.789"},
+        {"value": "US,,UA"}
+      ]
+    ]
+  }
+}

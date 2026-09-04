@@ -1,0 +1,31 @@
+POST /rest/projects/${PROJECT_NAME}/tables/{TABLE_ID}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "append",
+  "target": {
+    "type": "rows",
+    "cells": [
+      [
+        {"value": 48, "colspan": 7, "rowspan": 2},
+        {"covered": true},
+        {"covered": true},
+        {"covered": true},
+        {"covered": true},
+        {"covered": true},
+        {"covered": true}
+      ],
+      [
+        {"covered": true},
+        {"covered": true},
+        {"covered": true},
+        {"covered": true},
+        {"covered": true},
+        {"covered": true},
+        {"covered": true}
+      ]
+    ]
+  }
+}
+

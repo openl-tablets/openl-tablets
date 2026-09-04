@@ -73,8 +73,6 @@ public final class FastVector implements Cloneable, Serializable {
         try {
             var v = (FastVector) super.clone();
             v.m_data = m_data.clone();
-            // v.m_data = new Object[m_data.length];
-            // System.arraycopy(m_data, 0, v.m_data, 0, m_data.length);
             return v;
         } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable

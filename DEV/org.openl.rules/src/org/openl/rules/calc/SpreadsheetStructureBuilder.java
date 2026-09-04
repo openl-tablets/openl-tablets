@@ -53,6 +53,8 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
+import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -1160,10 +1162,23 @@ public class SpreadsheetStructureBuilder {
         return UnmodifiableBidiMap.unmodifiableBidiMap(columnDescriptions);
     }
 
+    /**
+     * Keeps a spreadsheet diagnostic linked to the exact workbook cell range, including after table properties and
+     * across table parts.
+     */
     private static class CellSourceCodeModule extends StringSourceCodeModule {
 
-        public CellSourceCodeModule(ICell cell, ILogicalTable table) {
-            super(cell.getStringValue(), table.getSource().getUri(cell.getColumn(), cell.getRow() - 1));
+        private CellSourceCodeModule(ICell cell, ILogicalTable table) {
+            super(cell.getStringValue(), getSourceUri(cell, table));
+        }
+
+        private static String getSourceUri(ICell cell, ILogicalTable table) {
+            var grid = table.getSource().getGrid();
+            var region = grid instanceof CompositeGrid ? cell.getRegion() : cell.getAbsoluteRegion();
+            if (region == null) {
+                region = new GridRegion(cell.getRow(), cell.getColumn(), cell.getRow(), cell.getColumn());
+            }
+            return grid.getRangeUri(region.getLeft(), region.getTop(), region.getRight(), region.getBottom());
         }
     }
 

@@ -69,6 +69,7 @@ import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.rest.compile.OpenLTableLogic;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
@@ -701,7 +702,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var project = dependency.project();
         var builder = project == null
                 ? ProjectDependencyViewModel.builder().name(dependency.name()).missing(true)
-                : mapProjectDependency(project);
+                : mapProjectDependency(project).name(dependency.name());
         return builder.transitive(dependency.transitive());
     }
 
@@ -870,7 +871,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isModified()) {
             return;
         }
-        if (!projectStateValidator.canSave(project) || project.isLocalOnly()) {
+        if (!projectStateValidator.canSave(project)) {
             throw new ConflictException("project.save.conflict.message");
         }
         requireGranted(project, BasePermission.WRITE);
@@ -2130,9 +2131,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
         public Map<Severity, List<OpenLMessage>> getMessages() {
             var tableUri = table.getUri();
-            return Stream.of(Severity.values())
+            var messages = Stream.of(Severity.values())
                     .flatMap(severity -> module.getMessagesByTsn(tableUri, severity).stream())
-                    .collect(Collectors.groupingBy(OpenLMessage::getSeverity));
+                    .toList();
+            if (OpenLTableLogic.testedRulesHaveErrors(table, module, false)) {
+                messages = new ArrayList<>(messages);
+                messages.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
+            }
+            return messages.stream().collect(Collectors.groupingBy(OpenLMessage::getSeverity));
         }
 
     }

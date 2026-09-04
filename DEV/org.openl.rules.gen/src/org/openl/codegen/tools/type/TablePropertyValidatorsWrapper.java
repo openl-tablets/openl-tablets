@@ -21,7 +21,6 @@ public class TablePropertyValidatorsWrapper {
     @Getter
     private final List<Class<? extends IOpenLValidator>> validatorClasses = new ArrayList<>();
     private final String name;
-    private String constraintsStr;
     private final Constraints constraints;
 
     TablePropertyValidatorsWrapper(TablePropertyDefinition tablePropertyDefinition) {
@@ -29,8 +28,6 @@ public class TablePropertyValidatorsWrapper {
         constraints = tablePropertyDefinition.getConstraints();
 
         if (constraints != null) {
-            constraintsStr = constraints.getConstraintsStr();
-
             List<Constraint> constraints = this.constraints.getAll();
             for (Constraint constraint : constraints) {
                 if (constraint instanceof UniqueActiveTableConstraint) {
@@ -46,10 +43,6 @@ public class TablePropertyValidatorsWrapper {
 
     public String getPropertyName() {
         return name;
-    }
-
-    public String getPropertyConstraints() {
-        return constraintsStr;
     }
 
     public String getPropertyConstraints(Class<?> validatorClass) {

@@ -42,7 +42,6 @@ public final class FastVectorInt implements Cloneable, Serializable {
 
     public void clear() {
         m_size = 0;
-        // m_data = new Object[m_data.length];
     }
 
     @Override
@@ -50,8 +49,6 @@ public final class FastVectorInt implements Cloneable, Serializable {
         try {
             var v = (FastVectorInt) super.clone();
             v.m_data = m_data.clone();
-            // v.m_data = new int[m_data.length];
-            // System.arraycopy(m_data, 0, v.m_data, 0, m_data.length);
             return v;
         } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable

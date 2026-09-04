@@ -202,12 +202,9 @@ public final class Constrainer implements Serializable {
         _backtrack_objects = new FastVector();
         _trace_goals = false;
 
-        // _failure = new Failure();
         _trace_failure_stack = false;
 
         _print_information = false;
-
-        // _undo_subject_factory = new UndoSubjectFactory();
 
         _expressionFactory = new ExpressionFactoryImpl(this);
 
@@ -222,7 +219,6 @@ public final class Constrainer implements Serializable {
     IntBoolVar addIntBoolVar(IntBoolVar var) {
         _intvars.add(var);
         addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        // addObjectToSymbolicContext(var.name(),var);
         return var;
     }
 
@@ -295,7 +291,6 @@ public final class Constrainer implements Serializable {
     IntVar addIntVar(IntVar var) {
         _intvars.addElement(var);
         addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        // addObjectToSymbolicContext(var.name(),var);
         return var;
     }
 
@@ -305,7 +300,6 @@ public final class Constrainer implements Serializable {
     IntVar addIntVarInternal(IntVar var) {
         _intvars.addElement(var);
         addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        // addInternalObjectToSymbolicContext(var);
         return var;
     }
 
@@ -344,7 +338,6 @@ public final class Constrainer implements Serializable {
      */
     public void addUndo(Undo undo_object) {
         _number_of_undos++;
-        // Debug.on();Debug.print("add " + undo_object);Debug.off();
         _reversibility_stack.pushUndo(undo_object);
     }
 
@@ -421,7 +414,6 @@ public final class Constrainer implements Serializable {
         while (!_propagation_queue.isEmpty()) {
             var var = (Subject) _propagation_queue.remove();
             var.inProcess(false);
-            // var.clearPropagationEvents();
         }
     }
 
@@ -572,9 +564,6 @@ public final class Constrainer implements Serializable {
             }
         }
 
-        /*
-         * if (showInternalNames()) _failure.message(s); else _failure.message("");
-         */
         throw new Failure(s);// _failure; //
     }
 

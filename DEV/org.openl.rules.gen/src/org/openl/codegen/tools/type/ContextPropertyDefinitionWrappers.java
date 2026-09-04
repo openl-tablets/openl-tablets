@@ -1,8 +1,6 @@
 package org.openl.codegen.tools.type;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.context.properties.ContextPropertyDefinition;
@@ -22,10 +20,6 @@ public class ContextPropertyDefinitionWrappers {
             var wrapper = new ContextPropertyDefinitionWrapper(definition);
             wrappers.put(definition.getName(), wrapper);
         }
-    }
-
-    public List<ContextPropertyDefinitionWrapper> asList() {
-        return new ArrayList<>(wrappers.values());
     }
 
     public ContextPropertyDefinitionWrapper findWrapper(String contextPropertyName) {

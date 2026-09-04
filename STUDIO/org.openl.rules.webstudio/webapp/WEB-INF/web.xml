@@ -153,16 +153,6 @@
         <url-pattern>/faces/*</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>TablePropertyValues</servlet-name>
-        <servlet-class>org.openl.rules.webstudio.web.servlet.TablePropertyValues</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>TablePropertyValues</servlet-name>
-        <url-pattern>/action/prop_values</url-pattern>
-    </servlet-mapping>
-
     <error-page>
         <exception-type>jakarta.faces.application.ViewExpiredException</exception-type>
         <location>/faces/pages/sessionExpired.xhtml</location>

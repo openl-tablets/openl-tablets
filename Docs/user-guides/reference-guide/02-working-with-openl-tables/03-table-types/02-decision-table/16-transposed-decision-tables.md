@@ -2,7 +2,7 @@
 
 Sometimes decision tables look more convenient in the transposed format where columns become rows and rows become columns. For example, an initial and transposed version of decision table resembles the following:
 
-![](../../../ref-guide-images/transposedDecisionTable.png)
+![Transposed decision table](../../../ref-guide-images/transposedDecisionTable.png)
 
 *Transposed decision table*
 

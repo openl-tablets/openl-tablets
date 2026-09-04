@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "EPBDS-16258-BranchRefresh",
+  "branch": "EPBDS-16258-selected",
+  "status": "CLOSED"
+}
+

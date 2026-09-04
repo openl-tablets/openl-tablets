@@ -29,7 +29,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
     class ExpAddVectorObserver extends Observer {
 
         ExpAddVectorObserver() {
-            // super(event_map);
         }
 
         @Override
@@ -50,8 +49,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
         @Override
         public void update(Subject exp, EventOfInterest event) throws Failure {
             var e = (IntEvent) event;
-
-            // System.out.println("Event:" + e);
 
             _domainE.setMin(_domainE.min() + e.mindiff());
             _domainE.setMax(_domainE.max() + e.maxdiff());
@@ -148,8 +145,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
         var maxE = _domainE.max();
 
         if (minC == minE && maxC == maxE) {
-            // System.out.println("*** enforceDomainC():
-            // ["+minE+".."+maxE+"]->["+minC+".."+maxC+"]");
             return;
         }
 
@@ -199,12 +194,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
     @Override
     public void onMaskChange() {
-        // int mask = publisherMask();
-        // IntExp[] data =_vars.data();
-        // for(int i=0; i < data.length; i++)
-        // {
-        // _observer.publish(mask,data[i]);
-        // }
     }
 
     @Override
@@ -243,8 +232,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
         _domainC.setMax(max);
 
-        // System.out.println("++++ Set max: " + max + " in " + this);
-
         var min_sum = _domainE.min();
 
         var vars = _vars.data();
@@ -255,7 +242,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
                 vari.setMax(maxi);
             }
         }
-        // System.out.println("---- set max:" + max + " in " + this);
     }
 
     @Override
@@ -267,8 +253,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
         _domainC.setMin(min);
 
-        // System.out.println("++++ Set min: " + min + " in " + this);
-
         var max_sum = _domainE.max();
 
         var vars = _vars.data();
@@ -279,7 +263,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
                 vari.setMin(mini);
             }
         }
-        // System.out.println("---- set min:" + min + " in " + this);
     }
 
     @Override
@@ -289,8 +272,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
         }
 
         _domainC.setValue(value);
-
-        // System.out.println("++++ Set value: " + value + " in " + this);
 
         var sum_min = _domainE.min();
         var sum_max = _domainE.max();
@@ -311,8 +292,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
                 vari.setMax(new_max);
             }
         }
-
-        // System.out.println("---- set value: " + value + " in " + this);
     }
 
     @Override

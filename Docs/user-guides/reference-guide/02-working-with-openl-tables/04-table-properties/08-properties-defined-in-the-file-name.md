@@ -14,7 +14,7 @@ The file name pattern can include the following:
 
 -   wildcards, or characters that may be substituted for any of a defined subset of all possible characters
 
-For more information on wildcards that can be used in a pattern as regular expressions, see <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/SimpleDateFormat.html>.
+For more information on wildcards that can be used in a pattern as regular expressions, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/regex/Pattern.html>.
 
 If a table property value is supposed to be a date, the **Date** format must be specified right after the property name and colon as follows:
 
@@ -24,21 +24,21 @@ If a table property value is supposed to be a date, the **Date** format must be 
 
 **Example:** .\*-%state%-%effectiveDate %-%startRequestDate %
 
-In this example, the project name or any other text comes instead of .\*. Any part of this pattern can be replaced, removed, or its order can be changed. For more information on properties that can be included, see [Business Dimension Properties](../../04-table-properties/05-rule-versioning.md#business-dimension-properties).
+In this example, the project name or any other text comes instead of .\*. Any part of this pattern can be replaced, removed, or its order can be changed. For more information on properties that can be included, see [Business Dimension Properties](05-rule-versioning.md#business-dimension-properties).
 
-For more information on date formats description and examples, see <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/SimpleDateFormat.html>.
+For more information on date formats description and examples, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/SimpleDateFormat.html>.
 
 The default date format is yyyyMMdd.
 
-File name pattern definition can use wildcards. For example, the .\*`-%`startRequestDate`:MMddyyyy% `pattern is defined. Then for the `AUTO-01012013.xls` file name, the module property **Start Request Date = 01 Jan 2013** is retrieved and the first part of the file name with the text is ignored as `.*` stands for any symbols.
+File name pattern definition can use wildcards. For example, the `.*-%startRequestDate:MMddyyyy%` pattern is defined. Then for the `AUTO-01012013.xls` file name, the module property **Start Request Date = 01 Jan 2013** is retrieved and the first part of the file name with the text is ignored as `.*` stands for any symbols.
 
 In the following example, the **Bank Rating** project is configured in the way so that a user can specify the **US State** and **Start Request Date** properties values using the module file name:
 
-![](../../ref-guide-images/fileNamePatternConfiguredViaOpenl.jpeg)
+![File name pattern configured via OpenL Studio](../../ref-guide-images/fileNamePatternConfiguredViaOpenl.png)
 
 *File name pattern configured via OpenL Studio*
 
-![](../../ref-guide-images/fileNamePatternRulesProjectDescriptor.png)
+![File name pattern in a rules project descriptor directly](../../ref-guide-images/fileNamePatternRulesProjectDescriptor.png)
 
 *File name pattern in a rules project descriptor directly*
 
@@ -50,7 +50,7 @@ If a file name does not match the pattern, module properties are not defined.
 
 To view detailed information about the properties added to the file name pattern, click information icon next to the **Properties pattern for a file name** field.
 
-![](../../ref-guide-images/propertiesFileNamePatternDescription.png)
+![Properties file name pattern description](../../ref-guide-images/propertiesFileNamePatternDescription.png)
 
 *Properties file name pattern description*
 
@@ -66,6 +66,6 @@ A template for this example is as follows: `.*-%lob%-.*-%effectiveDate:ddMMyyyy%
 
 **Note for experienced users:** This section describes default implementation of properties definition in the file name. To use a custom implementation, specify the required file name processor class in a rules project descriptor. When the **Custom file name processor** check box is selected, the **File name processor class** field is displayed.
 
-![](../../ref-guide-images/customFileNameProcessorClass.png)
+![Custom file name processor class](../../ref-guide-images/customFileNameProcessorClass.png)
 
 *Custom file name processor class*

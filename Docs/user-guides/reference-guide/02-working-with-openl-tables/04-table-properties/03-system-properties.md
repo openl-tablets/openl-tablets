@@ -7,4 +7,4 @@ System properties can only be set and updated by OpenL Tablets, not by users. Op
 -   Modified By
 -   Modified On
 
-For more information on system properties, see [OpenL Studio Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide).
+For more information on system properties, see [OpenL Studio Guide](../../../openl-studio/index.md).

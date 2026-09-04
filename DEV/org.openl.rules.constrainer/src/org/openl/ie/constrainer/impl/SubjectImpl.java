@@ -203,7 +203,6 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
     @Override
     public void attachObserver(Observer observer) {
-        // Debug.on(); Debug.print(this + " Attach: " + observer); Debug.off();
         _observers.addElement(observer);
         publisherMask(_publisher_mask | observer.subscriberMask());
         constrainer().addUndo(UndoAttachObserver.getUndo(this, observer));
@@ -217,22 +216,17 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
     @Override
     public void detachObserver(Observer observer) {
 
-        // Debug.on(); Debug.print(this + " Detach: " + observer); Debug.off();
         _observers.removeElement(observer);
         constrainer().addUndo(UndoDetachObserver.getUndo(this, observer));
     }
 
     @Override
     public void forcedAttachObserver(Observer observer) {
-        // Debug.on(); Debug.print(this + " AttachForced: " + observer);
-        // Debug.off();
         _observers.addElement(observer);
     }
 
     @Override
     public void forcedDetachObserver(Observer observer) {
-        // Debug.on(); Debug.print(this + " DetachForced: " + observer);
-        // Debug.off();
         _observers.removeElement(observer);
     }
 
@@ -248,16 +242,12 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
     @Override
     final public void notifyObservers(EventOfInterest interest) throws Failure {
-        // Debug.on(); Debug.print("* "+interest); Debug.off();
-        // FastVector observers = (FastVector)_observers.clone();
         var observers = _observers;
         _constrainer.incrementNumberOfNotifications();
         var size = observers.size();
         for (var i = 0; i < size; ++i) {
             var observer = (Observer) observers.elementAt(i);
             if (observer.interestedIn(interest)) {
-                // Debug.on(); Debug.print("Observer "+i+":
-                // "+observer);Debug.off();
                 observer.update(this, interest);
             }
         }
@@ -284,8 +274,6 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
     public void publisherMask(int mask) {
 
         if (mask != _publisher_mask) {
-            // System.out.println("Pub Mask: " + mask + " for: " + this + "
-            // old:" + _publisher_mask);
             _publisher_mask = mask;
             onMaskChange();
             addUndo();
@@ -331,12 +319,6 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
                 return null;
             }
 
-            /*
-             * public boolean interestedIn(EventOfInterest event) { switch(_event_type) { case EventOfInterest.MAX:
-             * return event.isMaxEvent(); case EventOfInterest.MIN: return event.isMinEvent(); case
-             * EventOfInterest.VALUE: return event.isValueEvent(); case EventOfInterest.REMOVE: return
-             * event.isRemoveEvent(); } return true; }
-             */
             @Override
             public int subscriberMask() {
                 return _event_type;

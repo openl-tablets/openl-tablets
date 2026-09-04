@@ -1,0 +1,19 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "9d00a1ca2fe23eafab486ff11137a75e",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "ErrorAfterOneProperty",
+  "properties": {
+    "lob": [
+      "TEST"
+    ]
+  },
+  "returnType": "String",
+  "signature": "ErrorAfterOneProperty(Integer a)",
+  "file": "EPBDS-16492-ErrorLocation/Main.xlsx",
+  "pos": "B2:D6"
+}
+

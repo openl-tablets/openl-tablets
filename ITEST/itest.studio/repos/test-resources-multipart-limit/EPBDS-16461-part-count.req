@@ -1,0 +1,21 @@
+POST /rest/users?fields=name HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=OpenLPartLimit
+
+--OpenLPartLimit
+Content-Disposition: form-data; name="one"
+
+1
+--OpenLPartLimit
+Content-Disposition: form-data; name="two"
+
+2
+--OpenLPartLimit
+Content-Disposition: form-data; name="three"
+
+3
+--OpenLPartLimit
+Content-Disposition: form-data; name="four"
+
+4
+--OpenLPartLimit--

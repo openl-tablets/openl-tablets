@@ -90,10 +90,6 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     @Override
     public String getType(Object nodeObject) {
-        /*
-         * TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject; return IProjectTypes.PT_FOLDER + "." +
-         * tableSyntaxNode.getType();
-         */
         return IProjectTypes.PT_FOLDER;
     }
 

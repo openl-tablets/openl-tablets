@@ -22,8 +22,6 @@ public class GoalSetMax extends GoalImpl {
     private final IntExp _exp;
     private int _max;
 
-    // private UndoableInt _maxI;
-
     /**
      * Invokes <code>GoalSetMax(exp,exp.max())</code>
      *
@@ -33,7 +31,6 @@ public class GoalSetMax extends GoalImpl {
         super(exp.constrainer(), "max");
         _exp = exp;
         _max = exp.max();
-        // _maxI = _constrainer.addUndoableInt(max,"max");
     }
 
     /**
@@ -43,9 +40,7 @@ public class GoalSetMax extends GoalImpl {
      */
     @Override
     public Goal execute() throws Failure {
-        // Debug.print("\nExecute "+this);
         _exp.setMax(_max);
-        // _exp.setMax(_maxI.value());
         return null;
     }
 
@@ -54,12 +49,10 @@ public class GoalSetMax extends GoalImpl {
      */
     public void max(int M) {
         _max = M;
-        // _maxI.setValue(M);
     }
 
     @Override
     public String toString() {
         return _exp + "<=" + _max;
-        // return _exp+"<="+_maxI.value();
     }
 }

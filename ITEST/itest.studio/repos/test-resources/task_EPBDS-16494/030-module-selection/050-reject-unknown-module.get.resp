@@ -1,0 +1,7 @@
+HTTP/1.1 404
+Content-Type: application/json
+
+{
+  "code": "openl.error.404.project.module.identifier.message",
+  "message": "The module is not found in the project."
+}

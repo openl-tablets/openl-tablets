@@ -40,13 +40,11 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
 
     @Override
     public IntExp add(int value) {
-        // return new IntExpAddValue(this,value);
         return getIntExp(IntExpAddValue.class, this, value);
     }
 
     @Override
     public IntExp add(IntExp exp) {
-        // return new IntExpAddExp(this,exp);
         return getIntExp(IntExpAddExp.class, this, exp);
     }
 
@@ -68,7 +66,6 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
 
     @Override
     public IntBoolExp eq(int value) {
-        // return new IntBoolExpEqValue(this, value);
         return getIntBoolExp(IntBoolExpEqValue.class, this, value);
     }
 
@@ -85,13 +82,11 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
 
     @Override
     public IntBoolExp gt(int value) {
-        // return gt(new IntExpConst(_constrainer, value));
         return gt(getIntExp(IntExpConst.class, value));
     }
 
     @Override
     public IntBoolExp gt(IntExp exp) {
-        // return new IntBoolExpLessExp(exp, this);
         return getIntBoolExp(IntBoolExpLessExp.class, exp, this);
     }
 
@@ -119,13 +114,11 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
 
     @Override
     public IntBoolExp lt(int value) {
-        // return lt(new IntExpConst(_constrainer, value));
         return lt(getIntExp(IntExpConst.class, value));
     }
 
     @Override
     public IntBoolExp lt(IntExp exp) {
-        // return new IntBoolExpLessExp(this,exp);
         return getIntBoolExp(IntBoolExpLessExp.class, this, exp);
     }
 

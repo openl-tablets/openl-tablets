@@ -1,0 +1,28 @@
+POST /rest/projects/${PROJECT_NAME}/tables/{TABLE_ID}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "insert",
+  "target": {
+    "type": "rows",
+    "position": 9,
+    "cells": [
+      [
+        {"value": 23, "rowspan": 2},
+        {"value": 27},
+        {"value": "Inserted"},
+        {"value": "row1-extra-a"},
+        {"value": "row1-extra-b"}
+      ],
+      [
+        {"covered": true},
+        {"value": 28},
+        {"value": "Inserted2"},
+        {"value": "row2-extra-a"},
+        {"value": "row2-extra-b"}
+      ]
+    ]
+  }
+}
+
