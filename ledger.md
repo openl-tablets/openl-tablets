@@ -8,8 +8,8 @@ pre-existing Critical `javabugs:S6466`, still red at C without it, so never reve
 five BUGs are answered and a sixth is noise. Its trial merge onto main's tip `d38a7037` is clean and the merged
 `studio-ui/package-lock.json`, the only file both sides touch, passes `npm ci`; redo both when main moves past
 that tip. Every detector is spent, so a run is PR maintenance, compaction, the profile-delta check (covered
-through the 2026-09-02 batch) and main's delta. CONCURRENCY: runs share this ledger and this PR; a stale CI
-event names a superseded `head_sha`.
+through the 2026-09-02 batch, the java and xml profiles' `rulesUpdatedAt`) and main's delta. CONCURRENCY: runs
+share this ledger and this PR; a stale CI event names a superseded `head_sha`.
 
 ## Change-type queue
 
@@ -270,8 +270,10 @@ returns whose fix is a DELETION — a spent detector re-run is waste, and a rewr
 - The global git identity can be rewritten back to `Claude <noreply@anthropic.com>` mid-session. Re-set it and
   pass `GIT_AUTHOR_*` / `GIT_COMMITTER_*` inline on every commit; `--amend` alone keeps the wrong author,
   so it needs `--reset-author`.
-- `gh` and `xxd` are absent and `git push --delete` gets 403, but `$GITHUB_TOKEN` is set: `curl` the REST API to
-  read a PR body to a file and `PATCH` it back. An MCP body argument also swallows angle-bracketed text.
+- `gh` and `xxd` are absent, but `$GITHUB_TOKEN` is set: `curl` the REST API to read a PR body to a file and
+  `PATCH` it back. An MCP body argument also swallows angle-bracketed text. The agent proxy allows that PATCH
+  yet refuses a REF write — `DELETE /git/refs/heads/<b>` and `git push --delete` both 403 — so no run can
+  delete a branch, whatever the token's own scopes. Read the 403 body: it names the proxy, not a permission.
 - `sonarcloud.io`'s WEB UI is blocked (403) but its API answers 200, so a gate failure IS diagnosable here:
   `api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=<n>&types=BUG` names every issue,
   the same query without `pullRequest` gives main's open BUGs, which proves one pre-existing, and
@@ -361,7 +363,7 @@ production files, and every tracked build leftover.
 
 ## Human follow-ups
 
-- Delete the abandoned branch `dead-code/studio-resources` (PR #2055 closed unmerged); push and REST delete 403.
+- Delete the abandoned branch `dead-code/studio-resources` (PR #2055 closed unmerged) — see *Container facts*.
 - Decide the *Deferred findings* that are public in a published artifact, plus the two empty test jars, the
   commented-out test code and the 153 `(non-Javadoc) @see` markers — each dead, each needing a human's word.
 - `Util/openl-maven-plugin/site/site.xml` links 8 pages its `<reporting>` entry no longer generates: the report
@@ -374,9 +376,9 @@ production files, and every tracked build leftover.
 
 ## Run log
 
-- Run 48: no deletion; #2063, main and the gate's one failing condition all unchanged, profile check clean, body
-  counts re-derived and matching, heading-to-commit mapping verified 1:1.
 - Run 49: no deletion; main moved to `d38a7037` — three dependency bumps, a heap guard and a new ITEST module,
   no dead-code surface — so the trial merge was redone and the merged studio-ui lock proved coherent.
 - Run 50: no deletion; #2063 head, main tip, all 13 CI jobs, the gate's one condition and its five BUGs all
   unchanged, body counts re-derived and matching, trial merge re-proven clean, profile check clean.
+- Run 51: no deletion; every checked value unchanged again — head `a0e0041f`, main `d38a7037`, 13 green jobs plus
+  the one gate condition, 5 BUGs, body counts and its 1:1 heading map, profile check clean; branch delete 403.
