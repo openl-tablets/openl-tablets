@@ -23,6 +23,7 @@ The following topics are included in this chapter:
 -   [Configuration Examples](#configuration-examples)
 -   [Encrypting Passwords](#encrypting-passwords)
 -   [Cluster Mode Configuration](#cluster-mode-configuration)
+-   [Related Documentation](#related-documentation)
 
 ---
 
@@ -47,19 +48,28 @@ Sources are listed from the highest priority to the lowest. A value found in a h
 
 Settings saved in the **Administration** area are not written back to `application.properties`. They are stored
 separately, in `${openl.home.shared}/<application-name>.properties` — for example, `webstudio.properties` — so an
-`application.properties` file keeps only the values an administrator wrote by hand. Deleting that file is equivalent to
-**Restore Defaults and Restart**.
+`application.properties` file keeps only the values an administrator wrote by hand.
+
+The two files are reset independently:
+
+- **Restore Defaults and Restart** clears the values saved in the **Administration** area from
+  `${openl.home.shared}/<application-name>.properties` and restarts the instance. It never modifies
+  `application.properties`.
+- Deleting `application.properties` discards only the values written there by hand. The instance then falls back to the
+  settings saved in the **Administration** area and to the built-in defaults.
 
 ### Environment Variables
 
 An environment variable is recognized either as the exact property name or in upper case with dots and dashes replaced
-by underscores:
+by underscores. A shell rejects a variable name that contains a dot, so export the upper-case form:
 
 ```bash
-export openl.home=/srv/openl
-export OPENL_HOME=/srv/openl        # equivalent
+export OPENL_HOME=/srv/openl        # sets openl.home
 export USER_MODE=multi              # sets user.mode
 ```
+
+The exact property name still works where the environment can carry such a name, for example when it is passed by
+`env` or set by a container runtime.
 
 ### File Locations
 
