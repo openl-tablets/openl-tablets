@@ -51,7 +51,7 @@ If a particular module is not available, the project in which it is defined must
 
 By default, a project is opened in the multi-module mode. This is a common production mode. In the multi-module mode, all modules of the current project with all their dependencies are displayed, that is, modules of projects defined as the project dependencies.
 
-For more information on project and module dependencies, see [OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
+For more information on project and module dependencies, see [OpenL Tablets Reference Guide > Project, Module, and Rule Dependencies](../reference-guide/04-working-with-projects/02-project-module-and-rule-dependencies.md).
 
 The first opened module page is displayed right after the module is loaded, while loading of the whole project continues in the background. The loading progress bar is displayed in the **Problems** section. Errors and warnings are displayed dynamically while more modules are compiled.
 
@@ -282,7 +282,7 @@ If the **All Modules** option is cleared or the single module mode is selected, 
 
 **Note:** Dependency projects must be available in Rules Editor to make dependency work.
 
-For more information on project and module dependencies, see the [OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
+For more information on project and module dependencies, see the [OpenL Tablets Reference Guide > Project, Module, and Rule Dependencies](../reference-guide/04-working-with-projects/02-project-module-and-rule-dependencies.md).
 
 ### Viewing Tables
 
@@ -742,7 +742,7 @@ To create a table:
 
 The table is created in the selected module and opens in the Rules Editor. Its availability to other modules depends
 on project and module dependencies. For more information, see
-[OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
+[OpenL Tablets Reference Guide > Project, Module, and Rule Dependencies](../reference-guide/04-working-with-projects/02-project-module-and-rule-dependencies.md).
 
 For an executable table, **Create Test** opens the same window with a Test table skeleton generated from the selected
 table signature. The generated columns contain every input parameter and the expected result. The tested table can

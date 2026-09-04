@@ -33,7 +33,7 @@ To add a repository, proceed as follows:
 
 6.  For **Database JDBC** and **Database JNDI** types, to set up a secure connection, select the **Secure connection** check box and fill in the **Login** and **Password** fields.
 
-    For more information on repository security, see [OpenL Tablets Installation Guide > Configuring Private Key for Repository Security](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#configuring-private-key-for-repository-security).
+    For more information on repository security, see [OpenL Tablets Installation Guide > Encrypting Passwords](../../../installation-guide/configuration.md#encrypting-passwords).
 
     ![Configuring deployment repository settings](../../images/configure-deployment-repository.png)
 
