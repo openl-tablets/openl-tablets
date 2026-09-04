@@ -61,6 +61,12 @@ column keeps the default evaluator, because those are served by the other index 
 anything in any case, and the array of a filled cell always holds a value. The check has to name the very column
 the lookup searches, and `isEmpty` has to be the built-in function rather than one the project declares.
 
+A column of an alias type is asked about values of that type: the value the table is called with is converted to
+the type of the column before the lookup, and the conversion tells a value outside the domain from a value of it.
+Such a value belongs to no rule, and the engine reports it. The same condition evaluated rule by rule compares
+without converting and answers that no rule matched, so a table that keeps its condition out of the index stays
+silent about it.
+
 Several lookups over the same array may be joined by `or`:
 
 ```
